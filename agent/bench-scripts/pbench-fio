@@ -396,7 +396,7 @@ function fio_process_options() {
 			if [ -n "$1" ]; then
 				sysinfo="$1"
 				shift;
-	        	fi
+			fi
 			;;
 			--)
 			shift;
@@ -440,7 +440,6 @@ function record_iteration {
 	echo $iteration | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
 }
 
-
 # Ensure the right version of the benchmark is installed
 function fio_install() {
 	if [ "$postprocess_only" = "n" ]; then
@@ -460,7 +459,6 @@ function fio_install() {
 		wait
 	fi
 }
-
 
 # Make sure this devices exists
 function fio_device_check() {
@@ -521,6 +519,18 @@ function fio_create_jobfile() {
 	fi
 	echo "Created the following job file (${fio_job_file}):"
 	cat ${fio_job_file}
+}
+
+function does_wildcard_exist() {
+	local fn_pat=$1
+	local found=1
+	for fn in ${fn_pat}; do
+		if [[ -e ${fn} ]]; then
+			found=0
+			break
+		fi
+	done
+	return ${found}
 }
 
 function fio_run_job() {
@@ -586,9 +596,9 @@ function fio_run_job() {
 			if [ ! -z $numjobs ]; then
 				let max_jobs=$numjobs
 			else
-			       for t in `echo $targets | sed -e s/,/" "/g` ; do
-				       let max_jobs=$max_jobs+1
-			       done
+				for t in `echo $targets | sed -e s/,/" "/g` ; do
+					let max_jobs=$max_jobs+1
+				done
 			fi
 		done
 		client_opts="$client_opts --max-jobs=$max_jobs"
@@ -603,8 +613,8 @@ function fio_run_job() {
 	popd >/dev/null
 	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 
-	histogram_cmd="fio-histo-log-pctiles.py --time-quantum $histogram_interval_sec --percentiles 0 50 90 95 99 100 -- "
 	if [ ! -z "$clients" ]; then
+		histogram_cmd="fio-histo-log-pctiles.py --time-quantum $histogram_interval_sec --percentiles 0 50 90 95 99 100 -- "
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			mkdir -p $benchmark_results_dir/clients/$client
 			/bin/mv $benchmark_results_dir/*.log.$client $benchmark_results_dir/clients/$client/ 2> /dev/null
@@ -619,17 +629,27 @@ function fio_run_job() {
 			#my $log_interval = `cat $dir/fio.job | grep "^log_hist_msec"`;
 			#if [ ! $log_interval =~ /^\s*$/ ]; then
 			if grep -q "^log_hist_msec" $fio_job_file; then
-	        		mkdir -p $benchmark_results_dir/clients/$client/hist
-				# compute per-client latency percentiles
-				$histogram_cmd $benchmark_results_dir/clients/$client/fio_clat_hist.*.log* >$benchmark_results_dir/clients/$client/hist/hist.csv
-				$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/clients/$client/hist
+				does_wildcard_exist $benchmark_results_dir/clients/$client/'fio_clat_hist.*.log*'
+				if [[ $? -eq 0 ]]; then
+					mkdir -p $benchmark_results_dir/clients/$client/hist
+					# compute per-client latency percentiles
+					$histogram_cmd $benchmark_results_dir/clients/$client/fio_clat_hist.*.log* >$benchmark_results_dir/clients/$client/hist/hist.csv
+					$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/clients/$client/hist
+				else
+					warn_log "log_hist_msec specified in job file but failed to find any log files (.../clients/$client/fio_clat_hist.*.log*) to process for histograms"
+				fi
 			fi
 		done
 		# compute cluster-wide latency percentiles
 		if grep -q "^log_hist_msec" $fio_job_file; then
-			mkdir $benchmark_results_dir/hist
-			$histogram_cmd $benchmark_results_dir/clients/*/fio_clat_hist.*.log* >$benchmark_results_dir/hist/hist.csv
-			$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/hist
+			does_wildcard_exist $benchmark_results_dir/clients/'*/fio_clat_hist.*.log*'
+			if [[ $? -eq 0 ]]; then
+				mkdir $benchmark_results_dir/hist
+				$histogram_cmd $benchmark_results_dir/clients/*/fio_clat_hist.*.log* >$benchmark_results_dir/hist/hist.csv
+				$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/hist
+			else
+				warn_log "log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms"
+			fi
 		fi
 	else
 		/bin/mv $benchmark_results_dir/*.log $benchmark_results_dir/clients/localhost/ 2> /dev/null
@@ -637,7 +657,6 @@ function fio_run_job() {
 	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	echo "fio job complete"
 }
-
 
 # Run the benchmark and start/stop perf analysis tools
 function fio_run_benchmark() {

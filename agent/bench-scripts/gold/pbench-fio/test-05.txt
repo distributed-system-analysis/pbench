@@ -25,9 +25,9 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
-ERROR: hit end of file without seeing header
-ERROR: hit end of file without seeing header
-ERROR: hit end of file without seeing header
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/foo/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/bar/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 fio job complete
 Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job):
 [global]
@@ -54,9 +54,9 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
-ERROR: hit end of file without seeing header
-ERROR: hit end of file without seeing header
-ERROR: hit end of file without seeing header
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/foo/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/bar/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 fio job complete
 Created the following job file (/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job):
 [global]
@@ -83,9 +83,9 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
-ERROR: hit end of file without seeing header
-ERROR: hit end of file without seeing header
-ERROR: hit end of file without seeing header
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/foo/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/bar/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 fio job complete
 --- Finished test-05 pbench-fio (status=0)
 +++ pbench tree state
@@ -96,51 +96,33 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/hist/hist.csv
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/hist/hist.csv
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio-result.txt
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/hist
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/hist/hist.csv
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/hist/hist.csv
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/hist/hist.csv
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio-result.txt
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/hist
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/hist/hist.csv
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/hist/hist.csv
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/hist/hist.csv
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio-result.txt
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/hist
-/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/hist/hist.csv
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/generate-benchmark-summary.cmd
 /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/metadata.log
@@ -161,18 +143,27 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job  --client=foo --client=bar --max-jobs=2]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/foo/fio_clat_hist.*.log*) to process for histograms
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/bar/fio_clat_hist.*.log*) to process for histograms
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job  --client=foo --client=bar --max-jobs=2]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/foo/fio_clat_hist.*.log*) to process for histograms
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/bar/fio_clat_hist.*.log*) to process for histograms
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] creating directories on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job  --client=foo --client=bar --max-jobs=2]
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/foo/fio_clat_hist.*.log*) to process for histograms
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/bar/fio_clat_hist.*.log*) to process for histograms
+/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 /var/tmp/pbench-test-bench/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] post-processing fio result
 --- pbench.log file contents
 +++ test-execution.log file contents
@@ -186,15 +177,6 @@ fio job complete
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=foo --client=bar --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/fio.job
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=foo --client=bar --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/fio.job
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=foo --client=bar --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/fio.job
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/*/fio_clat_hist.*.log*
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/bar/fio_clat_hist.*.log*
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/1-throughput-4KiB/sample1/clients/foo/fio_clat_hist.*.log*
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/*/fio_clat_hist.*.log*
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/bar/fio_clat_hist.*.log*
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/2-throughput-64KiB/sample1/clients/foo/fio_clat_hist.*.log*
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/*/fio_clat_hist.*.log*
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/bar/fio_clat_hist.*.log*
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00/3-throughput-1024KiB/sample1/clients/foo/fio_clat_hist.*.log*
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00 --sysinfo=default beg
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench/fio_test-05_1900.01.01T00.00.00 --sysinfo=default end
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
