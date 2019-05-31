@@ -537,18 +537,17 @@ function fio_run_job() {
 	local iteration="$1"
 	local benchmark_results_dir="$2"
 	local fio_job_file="$3"
-	local clients="$4"
-	local bench_cmd="$benchmark_bin"
 	local bench_opts="--output-format=json $fio_job_file"
+	local clients="$4"
 
-	if [ ! -e $fio_job_file ]; then
-		error_log "Fio job file could not be found: $fio_job_file"
-		return
+	mkdir -p $benchmark_results_dir/clients
+	if [[ ! -d $benchmark_results_dir/clients ]]; then
+		error_log "Failed to create results directory hierarchy: $benchmark_results_dir/clients"
+		exit 1
 	fi
+
 	echo "running fio job: $fio_job_file"
 
-	mkdir -p $benchmark_results_dir
-	mkdir -p $benchmark_results_dir/clients
 	if [ ! -z "$clients" ]; then
 		debug_log "creating directories on the clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
@@ -567,23 +566,13 @@ function fio_run_job() {
 		wait
 		debug_log "starting new fio process on the clients"
 		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_opts $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$bench_cmd' --server 2>&1 >client-result.txt'"
+			ssh $ssh_opts $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$benchmark_bin' --server 2>&1 >client-result.txt'"
 		done
 		wait
 	else
 		mkdir -p $benchmark_results_dir/clients/localhost
 	fi
 
-	# certain test preparation steps such as cache dropping
-	# can be a bit hard on the system, give it a few
-	# seconds before actually starting test
-	# by putting this before pbench-start-tools,
-
-	if [ -n "$pre_iteration_script" ] ; then
-		printf "running pre-iteration-script command: $pre_iteration_script\n"
-		eval "$pre_iteration_script"
-	fi
-	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 	local client_opts=""
 
 	if [ ! -z "$client_file" ] ;then
@@ -604,14 +593,25 @@ function fio_run_job() {
 		client_opts="$client_opts --max-jobs=$max_jobs"
 	fi
 
+	# Certain test preparation steps such as cache dropping can be a bit
+	# hard on the system, give it a few seconds before actually starting
+	# test by putting this before pbench-start-tools.
+	if [ -n "$pre_iteration_script" ] ; then
+		printf "running pre-iteration-script command: $pre_iteration_script\n"
+		eval "$pre_iteration_script"
+	fi
+	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+
 	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
-	echo "$bench_cmd $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
+	echo "$benchmark_bin $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
 	chmod +x $benchmark_results_dir/fio.cmd
-	debug_log "$benchmark: Going to run [$bench_cmd $bench_opts $client_opts]"
+	debug_log "$benchmark: Going to run [$benchmark_bin $bench_opts $client_opts]"
 	pushd $benchmark_results_dir >/dev/null
 	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
 	popd >/dev/null
+
 	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 
 	if [ ! -z "$clients" ]; then
 		histogram_cmd="fio-histo-log-pctiles.py --time-quantum $histogram_interval_sec --percentiles 0 50 90 95 99 100 -- "
@@ -654,7 +654,7 @@ function fio_run_job() {
 	else
 		/bin/mv $benchmark_results_dir/*.log $benchmark_results_dir/clients/localhost/ 2> /dev/null
 	fi
-	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+
 	echo "fio job complete"
 }
 
