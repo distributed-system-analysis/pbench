@@ -32176,4 +32176,6 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench beg
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench end
 --- test-execution.log file contents
++++ trafficgen_test-22_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
+--- trafficgen_test-22_1900.01.01T00.00.00/metadata.log file contents

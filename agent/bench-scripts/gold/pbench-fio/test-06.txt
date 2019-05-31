@@ -978,6 +978,7 @@ fio-postprocess: could not find any result files to process, exiting
 /var/tmp/pbench-test-bench/test-execution.log:tar xf ../../../samples/test-06.tar.xz
 /var/tmp/pbench-test-bench/test-execution.log:tar xf ../../../samples/test-06.tar.xz
 --- test-execution.log file contents
++++ fio_test-06_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
 
 [iterations/1-throughput-4KiB]
@@ -998,3 +999,4 @@ test_type = throughput
 block_size_kib = 1024
 iteration_name = 3-throughput-1024KiB
 
+--- fio_test-06_1900.01.01T00.00.00/metadata.log file contents

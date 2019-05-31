@@ -306,6 +306,7 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no s3 systemctl stop firewalld
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no s3 systemctl stop firewalld
 --- test-execution.log file contents
++++ uperf_test-01_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
 
 [iterations/1-tcp_rr-64B-1i]
@@ -324,3 +325,4 @@ message_size_bytes = 64
 instances = 1
 iteration_name = 2-tcp_stream-64B-1i
 
+--- uperf_test-01_1900.01.01T00.00.00/metadata.log file contents
