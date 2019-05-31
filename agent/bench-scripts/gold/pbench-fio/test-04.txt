@@ -8295,6 +8295,7 @@ warning: timestamp already exists with this RW type, skipping this sample (file 
 /var/tmp/pbench-test-bench/test-execution.log:tar xf ../../../samples/test-04.tar.xz
 /var/tmp/pbench-test-bench/test-execution.log:tar xf ../../../samples/test-04.tar.xz
 --- test-execution.log file contents
++++ fio_test-04_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
 
 [iterations/1-rw-4KiB]
@@ -8333,3 +8334,4 @@ test_type = randrw
 block_size_kib = 1024
 iteration_name = 6-randrw-1024KiB
 
+--- fio_test-04_1900.01.01T00.00.00/metadata.log file contents

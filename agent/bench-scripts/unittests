@@ -119,7 +119,9 @@ function _dump_logs {
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
     if [ ! -z "$1" ] ;then
+        echo "+++ $1/metadata.log file contents" >> $_testout
         cat $_testdir/$1/metadata.log >> $_testout 2>&1
+        echo "--- $1/metadata.log file contents" >> $_testout
     fi
 }
 
