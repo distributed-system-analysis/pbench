@@ -3,6 +3,8 @@
 --- Finished test-20 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench
+/var/tmp/pbench-test-bench/pbench/fio_test-20_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench/fio_test-20_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench/pbench.log
 /var/tmp/pbench-test-bench/pbench/samples
 /var/tmp/pbench-test-bench/pbench/tmp
@@ -20,3 +22,6 @@
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
 --- test-execution.log file contents
++++ fio_test-20_1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+--- fio_test-20_1900.01.01T00.00.00/metadata.log file contents

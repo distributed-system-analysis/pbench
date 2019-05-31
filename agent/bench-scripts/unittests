@@ -236,6 +236,7 @@ declare -A rundirs=(
     [test-04]="fio_test-04_$date"
     [test-05]="fio_test-05_$date"
     [test-06]="fio_test-06_$date"
+    [test-20]="fio_test-20_$date"
     [test-22]="trafficgen_test-22_$date"
 )
 declare -A pre=(
