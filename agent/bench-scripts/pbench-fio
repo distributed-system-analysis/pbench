@@ -539,7 +539,8 @@ function fio_run_job() {
 	local benchmark_results_dir="$2"
 	local fio_job_file="$3"
 	local bench_opts="--output-format=json $fio_job_file"
-	local clients="$4"
+	local tgts="$4"
+	local clients="$5"
 
 	mkdir -p $benchmark_results_dir/clients
 	if [[ ! -d $benchmark_results_dir/clients ]]; then
@@ -596,7 +597,7 @@ function fio_run_job() {
 			# for each (host, job-number) pair
 			let max_jobs=$numjobs
 		else
-			for t in `echo $targets | sed -e s/,/" "/g` ; do
+			for t in `echo $tgts | sed -e s/,/" "/g` ; do
 				let max_jobs=$max_jobs+1
 			done
 		fi
@@ -748,7 +749,7 @@ function fio_run_benchmark() {
 								fio_job_file="$benchmark_results_dir/fio.job"
 								#             ARG   1            2           3             4          5         6       7          8           9            10           11                         12     13              14
 								fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$histogram_interval_msec" "$dev" "$fio_job_file" "$numjobs"
-								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$clients"
+								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$dev" "$clients"
 							else
 								# if we are only postprocessing, then we might have to untar an existing result
 								pushd $iteration_dir >/dev/null
