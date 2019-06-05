@@ -234,9 +234,6 @@ The following options are available:
 	--install
 		install only (default is False)
 
-	--remote-only
-		run this on the remotes only
-
 	--histogram-interval-sec=<int>
 		set the histogram logging interval in seconds (default 10)
 
@@ -325,9 +322,6 @@ The following options are available:
 
 	--install
 		install only (default is False)
-
-	--remote-only
-		run this on the remotes only
 
 	--histogram-interval-sec=<int>
 		set the histogram logging interval in seconds (default 10)
@@ -419,9 +413,6 @@ The following options are available:
 
 	--install
 		install only (default is False)
-
-	--remote-only
-		run this on the remotes only
 
 	--histogram-interval-sec=<int>
 		set the histogram logging interval in seconds (default 10)
