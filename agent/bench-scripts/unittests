@@ -240,7 +240,7 @@ declare -A rundirs=(
     [test-06]="fio_test-06_$date"
     [test-07]="fio_test-07_$date"
     [test-08]="fio_test-08_$date"
-    [test-13]="fio_test-08_$date"
+    [test-13]="fio_test-13_$date"
     [test-20]="fio_test-20_$date"
     [test-22]="trafficgen_test-22_$date"
 )
