@@ -3,6 +3,8 @@ ERROR: foo must be executable
 --- Finished test-19 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-19_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-19_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
 /var/tmp/pbench-test-bench/pbench-agent/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
@@ -13,3 +15,6 @@ grep: /var/tmp/pbench-test-bench/pbench-agent/pbench.log: No such file or direct
 --- pbench.log file contents
 +++ test-execution.log file contents
 --- test-execution.log file contents
++++ fio_test-19_1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+--- fio_test-19_1900.01.01T00.00.00/metadata.log file contents

@@ -91,13 +91,14 @@ function _run {
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
     #echo PWD: $(pwd) _TDIR: $_tdir >> $_testout
+    CONFIG=$_testopt/config/pbench-agent.cfg \
     pbench_install_dir=$_testopt \
     pbench_bspp_dir=$_testopt/bench-scripts/postprocess \
     pbench_lib_dir=$_testopt/lib \
     pbench_run=$_testdir \
     pbench_log=$_testdir/pbench.log \
     benchmark_bin=$_testopt/unittest-scripts/bm \
-            $tscrpt $@ >> $_testout 2>&1
+            $tscrpt --config=${tname} $@ >> $_testout 2>&1
     sts=$?
     echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
     return $sts
@@ -110,6 +111,15 @@ function _save_tree {
     echo "--- pbench tree state" >> $_testout
 }
 
+function _dump_file {
+    if [[ ! -f "${_testdir}/${1}/${2}" ]] ;then
+        return
+    fi
+    echo "+++ ${1}/${2} file contents" >> $_testout
+    cat $_testdir/${1}/${2} >> $_testout 2>&1
+    echo "--- ${1}/${2} file contents" >> $_testout
+}
+
 function _dump_logs {
     # Dump the state of any generated script logs
     echo "+++ pbench.log file contents" >> $_testout
@@ -119,11 +129,9 @@ function _dump_logs {
     grep -sHvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log | sort >> $_testout 2>&1
     echo "--- test-execution.log file contents" >> $_testout
     rm -f $_testroot/test-execution.log
-    if [ ! -z "$1" ] ;then
-        echo "+++ $1/metadata.log file contents" >> $_testout
-        cat $_testdir/$1/metadata.log >> $_testout 2>&1
-        echo "--- $1/metadata.log file contents" >> $_testout
-    fi
+    _dump_file ${1} metadata.log
+    _dump_file ${1} user-benchmark-summary.json
+    _dump_file ${1} user-benchmark.cmd
 }
 
 function _verify_output {
@@ -172,14 +180,28 @@ function _verify_output {
 }
 
 function _setup_state {
+    mkdir -p $_testopt/config
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: failed to create test pbench config directory, \"$_testopt/config\"" >&2
+        exit 1
+    fi
+    cp $_tdir/samples/pbench-agent.cfg $_testopt/config/
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: failed to create pbench-agent config file, \"$_testopt/config/pbench-agent.cfg\"" >&2
+        exit 1
+    fi
     mkdir -p $_testdir
     if [[ $? -ne 0 ]]; then
         echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
         exit 1
     fi
     cp -a $_tdir/sample-tools/tools-default $_testdir/
-    if [ ! -z "$1" ] ;then
+    if [[ ! -z "$1" ]] ;then
         mkdir -p $_testdir/$1
+	if [[ $? -gt 0 ]]; then
+	    echo "ERROR: failed to create pbench result directory, \"$_testdir/$1\"" >&2
+	    exit 1
+	fi
         echo [pbench] > $_testdir/$1/metadata.log
     fi
     mkdir ${_testtmp}
@@ -202,30 +224,30 @@ function _reset_state {
     fi
 }
 
-let errs=0
+date="1900.01.01T00.00.00"
 
 declare -A cmds=(
     [test-CL]="test-benchmark-clis"
-    [test-00]="pbench-uperf --config=test-00 --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2"
-    [test-01]="pbench-uperf --config=test-01 --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2 --servers=s1,s2,s3 --clients=c1,c2,c3 --server-node=0,-1,2 --client-node=1,-1,3"
+    [test-00]="pbench-uperf --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2"
+    [test-01]="pbench-uperf --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2 --servers=s1,s2,s3 --clients=c1,c2,c3 --server-node=0,-1,2 --client-node=1,-1,3"
     [test-02]="pbench-dbench --threads=24,48 --client-nodes=0,1 --clients=127.0.0.1,127.0.0.1 --max-stddev=10"
     [test-03]="pbench-moongen --test-type=throughput --samples=3 --search-runtime=10 --validation-runtime=10 --max-drop-pct=0,1 --frame-sizes=64,1024"
-    [test-04]="pbench-fio --config=test-04 --test-types=rw,randrw"
-    [test-05]="pbench-fio --config=test-05 --test-type=throughput --samples=1 --clients=foo,bar"
-    [test-06]="pbench-fio --config=test-06 --test-type=throughput --samples=1 --client-file=${_testtmp}/test-06_clients.file"
-    [test-07]="pbench-fio --config=test-07 -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio.job --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read -s 64m"
-    [test-08]="pbench-fio --config=test-08 -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --targets=/mnt/cephfs -b 4 -t read -s 64m"
+    [test-04]="pbench-fio --test-types=rw,randrw"
+    [test-05]="pbench-fio --test-type=throughput --samples=1 --clients=foo,bar"
+    [test-06]="pbench-fio --test-type=throughput --samples=1 --client-file=${_testtmp}/test-06_clients.file"
+    [test-07]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio.job --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read -s 64m"
+    [test-08]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --targets=/mnt/cephfs -b 4 -t read -s 64m"
     [test-09]="pbench-user-benchmark -- user-benchmark-script no-file"
     [test-10]="pbench-user-benchmark -- user-benchmark-script no-duration"
     [test-11]="pbench-user-benchmark -- user-benchmark-script with-duration"
     [test-12]="pbench-user-benchmark -- user-benchmark-script bad-format"
-    [test-13]="pbench-fio --config=test-13 -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio.job --job-mode=serial --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read -s 64m"
-    [test-19]="pbench-fio --config=test-19 --pre-iteration-script=foo"
-    [test-20]="pbench-fio --config=test-20 --targets=/dev/foo,/dev/bar --test-type=throughput --samples=1 --client-file=${_testtmp}/test-20_clients.file"
-    [test-22]="pbench-trafficgen --config=test-22 --traffic-generator=trex-txrx-profile --max-loss-pct=0.0 --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --postprocess-only=y --run-dir=$_testdir"
-    [test-23]="pbench-user-benchmark --config=test-23 --use-tool-triggers -- tool-trigger-example"
-    [test-24]="pbench-user-benchmark --config=test-24                     -- user-benchmark-script no-file"
-    [test-25]="pbench-user-benchmark --config=test-25 --no-stderr-capture -- user-benchmark-script no-file"
+    [test-13]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio.job --job-mode=serial --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read -s 64m"
+    [test-19]="pbench-fio --pre-iteration-script=foo"
+    [test-20]="pbench-fio --targets=/dev/foo,/dev/bar --test-type=throughput --samples=1 --client-file=${_testtmp}/test-20_clients.file"
+    [test-22]="pbench-trafficgen --traffic-generator=trex-txrx-profile --max-loss-pct=0.0 --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --postprocess-only=y --run-dir=$_testdir"
+    [test-23]="pbench-user-benchmark --use-tool-triggers -- tool-trigger-example"
+    [test-24]="pbench-user-benchmark                     -- user-benchmark-script no-file"
+    [test-25]="pbench-user-benchmark --no-stderr-capture -- user-benchmark-script no-file"
 )
 
 declare -A expected_status=(
@@ -233,43 +255,18 @@ declare -A expected_status=(
     [test-20]=1
 )
 
-date="1900.01.01T00.00.00"
-declare -A rundirs=(
-    [test-00]="uperf_test-00_$date"
-    [test-01]="uperf_test-01_$date"
-    [test-04]="fio_test-04_$date"
-    [test-05]="fio_test-05_$date"
-    [test-06]="fio_test-06_$date"
-    [test-07]="fio_test-07_$date"
-    [test-08]="fio_test-08_$date"
-    [test-13]="fio_test-13_$date"
-    [test-20]="fio_test-20_$date"
-    [test-22]="trafficgen_test-22_$date"
-)
 declare -A pre=(
-    [test-04]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
-    [test-05]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
-    [test-06]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg; echo foo bar baz | tr ' ' '\n' > ${_testtmp}/test-06_clients.file"
-    [test-07]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
-    [test-08]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
-    [test-13]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
-    [test-19]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg"
-    [test-20]="mkdir -p $_testopt/config; cp $_tdir/samples/pbench-agent.cfg $_testopt/config; export CONFIG=$_testopt/config/pbench-agent.cfg; echo abc def ghi | tr ' ' '\n' > ${_testtmp}/test-20_clients.file"
+    [test-06]="echo foo bar baz | tr ' ' '\n' > ${_testtmp}/test-06_clients.file"
+    [test-20]="echo abc def ghi | tr ' ' '\n' > ${_testtmp}/test-20_clients.file"
     [test-22]="tar xf $_tdir/samples/test-22.tar.xz -C $_testdir/"
     [test-23]="cp $_tdir/sample-tools/tool-triggers $_testdir/"
 )
 
 declare -A post=(
-    [test-06]="diff -c ${_testtmp}/test-06_clients.file ${_testdir}/*/fio-client.file >> $_testout 2>&1; rm -f ${_testtmp}/test-06_clients.file"
-    [test-09]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
-    [test-10]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
-    [test-11]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
-    [test-12]="cat $_testdir/pbench-user-benchmark__1900.01.01T00.00.00/user-benchmark-summary.json >> $_testout"
-    [test-20]="diff -c ${_testtmp}/test-20_clients.file ${_testdir}/*/fio-client.file >> $_testout 2>&1; rm -f ${_testtmp}/test-20_clients.file"
+    [test-06]="diff -c ${_testtmp}/test-06_clients.file ${_testdir}/fio_test-06_${date}/fio-client.file >> $_testout 2>&1; rm -f ${_testtmp}/test-06_clients.file"
+    [test-20]="diff -c ${_testtmp}/test-20_clients.file ${_testdir}/fio_test-20_${date}/fio-client.file >> $_testout 2>&1; rm -f ${_testtmp}/test-20_clients.file"
     [test-22]="cat $_testdir/result.json >> $_testout"
-    [test-23]="cat $_testdir/pbench-user-benchmark_test-23_1900.01.01T00.00.00/user-benchmark.cmd >> $_testout; rm $_testdir/tool-triggers"
-    [test-24]="cat $_testdir/pbench-user-benchmark_test-24_1900.01.01T00.00.00/user-benchmark.cmd >> $_testout"
-    [test-25]="cat $_testdir/pbench-user-benchmark_test-25_1900.01.01T00.00.00/user-benchmark.cmd >> $_testout"
+    [test-23]="rm $_testdir/tool-triggers"
 )
 
 tests="$*"
@@ -279,13 +276,23 @@ if [ -z "$tests" ] ;then
     tests=$(echo ${!cmds[*]} | tr ' ' '\n' | sort)
 fi
 
+let errs=0
+
 for tst in $tests; do
     cmd=${cmds[$tst]}
     benchmark=${cmd%% *}
+    bm_postfix=${benchmark#*-}
     tpre=${pre[$tst]}
     tpost=${post[$tst]}
     status=${expected_status[$tst]}
-    _setup_state ${rundirs[$tst]}
+    if [[ ${benchmark} == "pbench-user-benchmark" ]]; then
+        _rundir="${benchmark}_${tst}_${date}"
+    elif [[ ${benchmark%%-*} == "pbench" ]]; then
+        _rundir="${bm_postfix}_${tst}_${date}"
+    else
+        _rundir=""
+    fi
+    _setup_state ${_rundir}
     if [ ! -z "$tpre" ] ;then
         eval "$tpre"
     fi
@@ -295,7 +302,7 @@ for tst in $tests; do
         eval "$tpost"
     fi
     _save_tree
-    _dump_logs ${rundirs[$tst]}
+    _dump_logs ${_rundir}
     _verify_output $res $tst $benchmark $status
     res=$?
     let errs=$errs+$res
