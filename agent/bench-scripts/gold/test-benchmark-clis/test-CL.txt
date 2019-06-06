@@ -14,7 +14,7 @@ Bench Script: pbench-cyclictest --help
 
 Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 ------------
-	pbench-cyclictest: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-cyclictest: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -79,7 +79,7 @@ Bench Script: pbench-dbench --help
 
 Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 ------------
-	pbench-dbench: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-dbench: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -210,7 +210,7 @@ The following options are available:
 		you must use --run-dir option with this
 
 	--run-dir=<path>
-		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench
+		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench-agent
 
 	--numjobs=<int>
 		number of jobs to run, if not given then fio default of numjobs=1 will be used
@@ -242,7 +242,7 @@ The following options are available:
 
 Bench Script: pbench-fio --tool-group=bad --sysinfo=bad
 ------------
-	pbench-fio: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-fio: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 The following options are available:
 
@@ -299,7 +299,7 @@ The following options are available:
 		you must use --run-dir option with this
 
 	--run-dir=<path>
-		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench
+		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench-agent
 
 	--numjobs=<int>
 		number of jobs to run, if not given then fio default of numjobs=1 will be used
@@ -390,7 +390,7 @@ The following options are available:
 		you must use --run-dir option with this
 
 	--run-dir=<path>
-		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench
+		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench-agent
 
 	--numjobs=<int>
 		number of jobs to run, if not given then fio default of numjobs=1 will be used
@@ -439,7 +439,7 @@ Bench Script: pbench-iozone --help
 
 Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 ------------
-	pbench-iozone: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-iozone: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -489,7 +489,7 @@ Bench Script: pbench-linpack --help
 
 Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 ------------
-	pbench-linpack: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-linpack: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -539,7 +539,7 @@ Bench Script: pbench-migrate --help
 
 Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 ------------
-	pbench-migrate: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-migrate: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -643,7 +643,7 @@ Bench Script: pbench-moongen --tool-group=bad --sysinfo=bad
 ------------
 [warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
 [warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
-	pbench-moongen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-moongen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -780,7 +780,7 @@ Bench Script: pbench-netperf --help
 
 Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 ------------
-	pbench-netperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-netperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -880,7 +880,7 @@ Bench Script: pbench-specjbb2005 --help
 
 Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
 ------------
-	pbench-specjbb2005: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-specjbb2005: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -1163,7 +1163,7 @@ options common in most pbench benchmark scripts
 
 Bench Script: pbench-trafficgen --tool-group=bad --sysinfo=bad
 ------------
-	pbench-trafficgen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-trafficgen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -1690,7 +1690,7 @@ Bench Script: pbench-uperf --help
 
 Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 ------------
-	pbench-uperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-uperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 	The following options are available:
 
@@ -1805,7 +1805,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 
 Bench Script: pbench-user-benchmark --tool-group=bad --sysinfo=bad
 ------------
-	pbench-user-benchmark: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench/tools-bad
+	pbench-user-benchmark: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
 
 Usage: pbench-user-benchmark [options] -- <script to run>
 
@@ -1840,20 +1840,20 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		       --no-stderr-capture     do not capture stderr of the script to the result.txt file
 --- Finished test-CL test-benchmark-clis (status=0)
 +++ pbench tree state
-/var/tmp/pbench-test-bench/pbench
-/var/tmp/pbench-test-bench/pbench/pbench.log
-/var/tmp/pbench-test-bench/pbench/tmp
-/var/tmp/pbench-test-bench/pbench/tools-default
-/var/tmp/pbench-test-bench/pbench/tools-default/mpstat
-/var/tmp/pbench-test-bench/pbench/tools-default/sar
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
-/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
-/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
-/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
-/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
-/var/tmp/pbench-test-bench/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log:[warn][1900-01-01T00:00:00.000000] This script (pbench-moongen) is deprecated and will be removed in a future version of pbench (v0.61).
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log:[warn][1900-01-01T00:00:00.000000] Please switch ASAP to pbench-trafficgen, which provides MoonGen and TRex based traffic generators.
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options

@@ -17,7 +17,9 @@ fi
 export _testtmp=$_testroot/tmp
 export _testout=$_testroot/output.txt
 export _testlog=$_testroot/test-execution.log
-_testdir=$_testroot/pbench
+# This directory location is equivalent to the $pbench_run (or
+# /var/lib/pbench-agent).
+_testdir=$_testroot/pbench-agent
 
 # Copy bench-scripts execution environment to _testroot
 _testopt=$_testroot/opt/pbench-agent
