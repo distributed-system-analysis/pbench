@@ -454,7 +454,7 @@ for rate in `echo $rates | sed -e s/,/" "/g`; do
 								if [ "$postprocess_only" != "y" ]; then
 									mkdir -p $benchmark_results_dir
 									echo "test sample $sample of $nr_samples"
-									log "test sample $sample of $nr_samples "
+									log "test sample $sample of $nr_samples"
 									benchmark_client_cmd_file="$iteration_dir/$benchmark_name-client.cmd"
 									result_file=$benchmark_results_dir/moongen-result.txt
 									# save benchmark command in file for debugging or running manually

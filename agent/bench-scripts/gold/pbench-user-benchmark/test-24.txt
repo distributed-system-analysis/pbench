@@ -1,7 +1,6 @@
 +++ Running test-24 pbench-user-benchmark
 Running user-benchmark-script no-file
 --- Finished test-24 pbench-user-benchmark (status=0)
-user-benchmark-script no-file 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-24_1900.01.01T00.00.00/1/sample1/result.txt
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-24_1900.01.01T00.00.00
@@ -33,3 +32,20 @@ user-benchmark-script no-file 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-24_1900.01.01T00.00.00/1/sample1
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-24_1900.01.01T00.00.00/1/sample1
 --- test-execution.log file contents
++++ pbench-user-benchmark_test-24_1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+
+[iterations/1]
+iteration_name = 1
+user_script = user-benchmark-script
+
+--- pbench-user-benchmark_test-24_1900.01.01T00.00.00/metadata.log file contents
++++ pbench-user-benchmark_test-24_1900.01.01T00.00.00/user-benchmark-summary.json file contents
+{
+    "duration":0,
+    "duration_units":"sec"
+}
+--- pbench-user-benchmark_test-24_1900.01.01T00.00.00/user-benchmark-summary.json file contents
++++ pbench-user-benchmark_test-24_1900.01.01T00.00.00/user-benchmark.cmd file contents
+user-benchmark-script no-file 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-24_1900.01.01T00.00.00/1/sample1/result.txt
+--- pbench-user-benchmark_test-24_1900.01.01T00.00.00/user-benchmark.cmd file contents

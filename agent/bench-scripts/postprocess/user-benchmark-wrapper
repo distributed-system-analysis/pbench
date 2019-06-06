@@ -29,4 +29,5 @@ with open('%s/user-benchmark-summary.json' % benchmark_run_dir, 'a+') as data_fi
     # Prepare to re-write the file with an updated JSON document.
     with open('%s/user-benchmark-summary-tmp.json' % benchmark_run_dir, 'w') as tmp_data_file:
         json.dump(data, tmp_data_file, sort_keys=True, indent=4, separators=(',', ':'))
+        tmp_data_file.write('\n')
     shutil.move('%s/user-benchmark-summary-tmp.json' % benchmark_run_dir, '%s/user-benchmark-summary.json' % benchmark_run_dir)
