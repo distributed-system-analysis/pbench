@@ -17,6 +17,7 @@ export default {
     result: [],
     results: [],
     iterationParams: {},
+    iterationPorts: [],
     iterations: [],
     controllers: [],
     tocResult: [],
@@ -160,12 +161,14 @@ export default {
     *fetchIterations({ payload }, { call, put }) {
       const response = yield call(queryIterations, payload);
       const parsedIterationData = parseIterationData(response);
+      const { iterations, iterationParams, iterationPorts } = parsedIterationData;
 
       yield put({
         type: 'getIterations',
         payload: {
-          iterations: parsedIterationData.iterations,
-          iterationParams: parsedIterationData.iterationParams,
+          iterations,
+          iterationParams,
+          iterationPorts,
         },
       });
       yield put({
