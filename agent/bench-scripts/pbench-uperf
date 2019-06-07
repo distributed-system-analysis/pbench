@@ -294,8 +294,7 @@ while true; do
 		-r|--runtime)
 		shift
 		if [ -n "$1" ]; then
-			# runtime is padded by 6 seconds to allow 3 seconds ramp up and ramp down
-			runtime=`echo "$1 + 6" | bc`
+			runtime="$1"
 			shift
 		fi
 		;;
@@ -425,6 +424,9 @@ if [ "$postprocess_only" != "y" ]; then
 	fi
 fi
 
+# runtime is padded by 6 seconds to allow 3 seconds ramp up and ramp down
+runtime_padded=$((${runtime}+6))
+
 ###
 # At this point all parameter checking has been done.
 ###
@@ -538,7 +540,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									benchmark_server_cmd_file="$iteration_dir/$uperf_identifier--server_start.sh"
 									result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
 									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
-									gen_xml $server $protocol ${runtime}s $message_size $instance $test_type >$xml_file
+									gen_xml $server $protocol ${runtime_padded}s $message_size $instance $test_type >$xml_file
 
 									# construct the server command
 									benchmark_server_cmd="${benchmark_bin} -v -s -P $server_port > ${server_log} 2>&1"
@@ -634,7 +636,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									fi
 									((server_nr++))
 								done
-								sleep $runtime
+								sleep $runtime_padded
 
 								# stop tools and clean up
 								pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
