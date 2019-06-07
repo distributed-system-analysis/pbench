@@ -3,6 +3,7 @@ import _ from 'lodash';
 export const parseIterationData = results => {
   const iterations = [];
   const iterationParams = {};
+  const iterationPorts = [];
   const selectedIterationKeys = [];
 
   results.forEach(result => {
@@ -89,6 +90,9 @@ export const parseIterationData = results => {
             const iterationNetworkColumnIndex = _.findIndex(iterationTypeColumn, {
               title: iterationNetwork,
             });
+            if (!iterationPorts.includes(columnHost)) {
+              iterationPorts.push(columnHost);
+            }
             if (_.has(iterationTypeColumn[iterationNetworkColumnIndex], 'children')) {
               if (
                 !_.some(iterationTypeColumn[iterationNetworkColumnIndex].children, {
@@ -177,10 +181,11 @@ export const parseIterationData = results => {
     iterations,
     selectedIterationKeys,
     iterationParams,
+    iterationPorts,
   };
 };
 
-export const filterIterations = (results, selectedConfig) => {
+const cloneResultsData = results => {
   const resultsCopy = [];
 
   results.forEach((result, index) => {
@@ -188,16 +193,62 @@ export const filterIterations = (results, selectedConfig) => {
     resultsCopy[index].columns = _.cloneDeep(result.columns);
     resultsCopy[index].iterations = _.cloneDeep(result.iterations);
     resultsCopy[index].resultName = result.resultName;
+    resultsCopy[index].controllerName = result.controllerName;
   });
 
+  return resultsCopy;
+};
+
+const removeColumnKey = (column, columns, ports, index) => {
+  if (column && column.title && column.title.includes('port')) {
+    ports.forEach(port => {
+      if (column.title !== port) {
+        columns.splice(index, 1);
+      }
+    });
+  }
+  if (column && column.children && column.children.length > 0) {
+    column.children.forEach((childColumn, childIndex) => {
+      removeColumnKey(childColumn, column.children, ports, childIndex);
+    });
+  }
+};
+
+const filterColumns = (columns, ports) => {
+  const filteredColumn = [];
+  columns.forEach((column, index) => {
+    removeColumnKey(column, columns, ports, index);
+    filteredColumn.push(column);
+  });
+  return filteredColumn;
+};
+
+export const filterIterations = (results, selectedParams, selectedPorts) => {
+  const resultsCopy = cloneResultsData(results);
+
   resultsCopy.forEach((result, index) => {
+    const filteredColumns = filterColumns(result.columns, selectedPorts);
+
     const filteredIterations = [];
     result.iterations.forEach(iteration => {
-      if (_.isMatch(iteration, selectedConfig)) {
+      if (_.isMatch(iteration, selectedParams)) {
         filteredIterations.push(iteration);
       }
     });
+    resultsCopy[index].columns = filteredColumns;
     resultsCopy[index].iterations = filteredIterations;
+  });
+
+  return resultsCopy;
+};
+
+export const filterIterationColumns = (results, selectedPorts) => {
+  const resultsCopy = cloneResultsData(results);
+
+  resultsCopy.forEach((result, index) => {
+    selectedPorts.forEach(port => {
+      resultsCopy[index].columns = filterColumns(result.columns, port);
+    });
   });
 
   return resultsCopy;

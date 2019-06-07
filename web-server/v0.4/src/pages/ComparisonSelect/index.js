@@ -12,6 +12,7 @@ import Table from '@/components/Table';
 @connect(({ global, dashboard, loading }) => ({
   iterations: dashboard.iterations,
   iterationParams: dashboard.iterationParams,
+  iterationPorts: dashboard.iterationPorts,
   results: dashboard.results,
   controllers: dashboard.controllers,
   datastoreConfig: global.datastoreConfig,
@@ -90,10 +91,10 @@ class ComparisonSelect extends React.Component {
     this.setState({ selectedRowKeys });
   };
 
-  onFilterTable = selectedFilters => {
+  onFilterTable = (selectedParams, selectedPorts) => {
     const { iterations } = this.props;
 
-    const filteredIterations = filterIterations(iterations, selectedFilters);
+    const filteredIterations = filterIterations(iterations, selectedParams, selectedPorts);
     this.setState({ resultIterations: filteredIterations });
   };
 
@@ -113,7 +114,7 @@ class ComparisonSelect extends React.Component {
 
   render() {
     const { resultIterations, selectedRowKeys } = this.state;
-    const { iterationParams, selectedControllers, loading } = this.props;
+    const { iterationParams, iterationPorts, selectedControllers, loading } = this.props;
     return (
       <PageHeaderLayout
         title={selectedControllers.join(', ')}
@@ -127,7 +128,11 @@ class ComparisonSelect extends React.Component {
               name="Compare Iterations"
               onClick={this.onCompareIterations}
             />
-            <TableFilterSelection onFilter={this.onFilterTable} filters={iterationParams} />
+            <TableFilterSelection
+              onFilterTable={this.onFilterTable}
+              filters={iterationParams}
+              ports={iterationPorts}
+            />
             {resultIterations.map((iteration, index) => {
               const rowSelection = {
                 selectedRowKeys: selectedRowKeys[index],
