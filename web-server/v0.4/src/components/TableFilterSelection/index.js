@@ -22,6 +22,18 @@ export default class TableFilterSelection extends Component {
     };
   }
 
+  componentDidUpdate = prevProps => {
+    const { ports } = this.props;
+
+    if (ports !== prevProps.ports) {
+      Promise.resolve(
+        this.onPortChange([ports[ports.findIndex(port => port.includes('all'))]])
+      ).then(() => {
+        this.onFilterTable();
+      });
+    }
+  };
+
   onFilterTable = () => {
     const { selectedFilters, selectedPorts } = this.state;
     const { onFilterTable } = this.props;
@@ -101,7 +113,7 @@ export default class TableFilterSelection extends Component {
           </Row>
           <Row style={{ display: 'flex', flexWrap: 'wrap' }}>
             <div>
-              <p style={{ marginBottom: 4, fontSize: 12, fontWeight: 600 }}>port</p>
+              <p style={{ marginBottom: 4, fontSize: 12, fontWeight: 600 }}>hostname & port</p>
               <Select
                 key="port"
                 mode="multiple"

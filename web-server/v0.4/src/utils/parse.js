@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import _ from 'lodash';
 
 export const parseIterationData = results => {
@@ -77,9 +78,18 @@ export const parseIterationData = results => {
           }
 
           iterationData.forEach(hostMetadata => {
-            const columnHost = `client_hostname:${hostMetadata.client_hostname}-server_hostname:${
-              hostMetadata.server_hostname
-            }-server_port:${hostMetadata.server_port}`;
+            let columnHost = [];
+            if (hostMetadata.client_hostname) {
+              columnHost.push(`client_hostname:${hostMetadata.client_hostname}`);
+            }
+            if (hostMetadata.server_hostname) {
+              columnHost.push(`server_hostname:${hostMetadata.server_hostname}`);
+            }
+            if (hostMetadata.server_port) {
+              columnHost.push(`server_port:${hostMetadata.server_port}`);
+            }
+            columnHost = columnHost.join('-');
+
             const columnPrefix = `${iterationType}-${iterationNetwork}-${columnHost}`;
             const columnMean = `${columnPrefix}-mean`;
             const columnStdDev = `${columnPrefix}-stddevpct`;
@@ -176,6 +186,7 @@ export const parseIterationData = results => {
     parsedResponse.columns = columns;
     iterations.push(parsedResponse);
   });
+  iterationPorts.sort();
 
   return {
     iterations,
@@ -199,26 +210,44 @@ const cloneResultsData = results => {
   return resultsCopy;
 };
 
-const removeColumnKey = (column, columns, ports, index) => {
-  if (column && column.title && column.title.includes('port')) {
+const removeColumnKey = (column, ports) => {
+  if (
+    column &&
+    column.title &&
+    (column.title.includes('port') || column.title.includes('hostname'))
+  ) {
+    let portFound = false;
     ports.forEach(port => {
-      if (column.title !== port) {
-        columns.splice(index, 1);
+      if (column.title === port) {
+        portFound = true;
       }
     });
+    if (!portFound) {
+      delete column.title;
+      delete column.dataIndex;
+      delete column.children;
+      return column;
+    }
+    return column;
   }
   if (column && column.children && column.children.length > 0) {
-    column.children.forEach((childColumn, childIndex) => {
-      removeColumnKey(childColumn, column.children, ports, childIndex);
+    const filteredChildren = [];
+    column.children.forEach(columnChild => {
+      const filteredChild = removeColumnKey(columnChild, ports);
+      if (!_.isEmpty(filteredChild)) {
+        filteredChildren.push(filteredChild);
+      }
     });
+    column.children = filteredChildren;
+    return column;
   }
+  return column;
 };
 
 const filterColumns = (columns, ports) => {
   const filteredColumn = [];
-  columns.forEach((column, index) => {
-    removeColumnKey(column, columns, ports, index);
-    filteredColumn.push(column);
+  columns.forEach(column => {
+    filteredColumn.push(removeColumnKey(column, ports));
   });
   return filteredColumn;
 };
