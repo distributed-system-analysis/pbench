@@ -110,6 +110,9 @@ oc_data_collect() {
 oc_data_once() { 
     oc get nodes -o wide --show-labels >> "${tool_output_dir}"/nodes.txt 
     oc get ev --all-namespaces -o wide >> "${tool_output_dir}"/ev.txt 
+    oc adm top pod --all-namespaces >> "${tool_output_dir}"/top-pods.txt
+    oc adm top nodes >> "${tool_output_dir}"/top-nodes.txt
+    oc describe nodes >> "${tool_output_dir}"/describe-nodes.txt
 } 
 
 case "$mode" in 
