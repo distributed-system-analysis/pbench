@@ -11,6 +11,11 @@ const menuData = [
     icon: 'search',
     path: '/search',
   },
+  {
+    name: 'Explore',
+    icon: 'global',
+    path: '/explore',
+  },
 ];
 
 function formatter(data, parentPath = '/', parentAuthority) {

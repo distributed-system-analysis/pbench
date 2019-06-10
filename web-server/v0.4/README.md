@@ -76,6 +76,7 @@ export default {
   '/dev/datastoreConfig': {
       "elasticsearch": "http://elasticsearch.example.com",
       "results": "http://results.example.com",
+      "graphql": "http://graphql.example.com",
       "prefix": "example.prefix",
       "run_index": "example.index"
   },
