@@ -35,6 +35,11 @@ module.exports = [
         component: './Search',
       },
       {
+        path: '/explore',
+        name: 'explore',
+        component: './Explore',
+      },
+      {
         path: '/exception/403',
         name: 'exception-403',
         component: './Exception/403',
