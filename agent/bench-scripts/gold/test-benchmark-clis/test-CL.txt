@@ -164,7 +164,7 @@ The following options are available:
 		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
 
 	--sync=[0/1]
-		1 = O_SYNC enabled, 0 = O_SYNC disabled (defalt)
+		1 = O_SYNC enabled, 0 = O_SYNC disabled (default)
 
 	--rate-iops=int
 		do not exceeed this IOP rate (per job, per client)
@@ -185,7 +185,7 @@ The following options are available:
 		one or more directories or block devices (default is /tmp/fio)
 		(persistent names for devices highly recommended)
 
-	-j str --job-mode=str    str=[serial|concurrent]  (default is concurrent)
+	-j str --job-mode=str    str=[serial|concurrent]  (default is 'concurrent')
 		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
 		of fio job parameters are run against each target one at a time, while with 'concurrent'
 		mode all target devices are used at the same time.
@@ -253,7 +253,7 @@ The following options are available:
 		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
 
 	--sync=[0/1]
-		1 = O_SYNC enabled, 0 = O_SYNC disabled (defalt)
+		1 = O_SYNC enabled, 0 = O_SYNC disabled (default)
 
 	--rate-iops=int
 		do not exceeed this IOP rate (per job, per client)
@@ -274,7 +274,7 @@ The following options are available:
 		one or more directories or block devices (default is /tmp/fio)
 		(persistent names for devices highly recommended)
 
-	-j str --job-mode=str    str=[serial|concurrent]  (default is concurrent)
+	-j str --job-mode=str    str=[serial|concurrent]  (default is 'concurrent')
 		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
 		of fio job parameters are run against each target one at a time, while with 'concurrent'
 		mode all target devices are used at the same time.
@@ -344,7 +344,7 @@ The following options are available:
 		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
 
 	--sync=[0/1]
-		1 = O_SYNC enabled, 0 = O_SYNC disabled (defalt)
+		1 = O_SYNC enabled, 0 = O_SYNC disabled (default)
 
 	--rate-iops=int
 		do not exceeed this IOP rate (per job, per client)
@@ -365,7 +365,7 @@ The following options are available:
 		one or more directories or block devices (default is /tmp/fio)
 		(persistent names for devices highly recommended)
 
-	-j str --job-mode=str    str=[serial|concurrent]  (default is concurrent)
+	-j str --job-mode=str    str=[serial|concurrent]  (default is 'concurrent')
 		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
 		of fio job parameters are run against each target one at a time, while with 'concurrent'
 		mode all target devices are used at the same time.

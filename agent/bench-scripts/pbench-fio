@@ -38,6 +38,7 @@ job_file="${script_path}/templates/fio.job"
 orig_cmd="$*"
 
 # Defaults
+run_dir=""
 keep_failed_tool_data="y"
 tar_nonref_data="y"
 postprocess_only="n"
@@ -45,10 +46,10 @@ nr_samples=5
 maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 supported_test_types="read,write,rw,randread,randwrite,randrw"
+test_types="read,randread"		# default is -non- destructive
 install_only="n"
 config=""
 rate_iops=""
-test_types="read,randread"		# default is -non- destructive
 block_sizes="4,64,1024"
 targets="/tmp/fio"
 numjobs=""
@@ -57,7 +58,8 @@ ramptime=""
 iodepth=""
 ioengine=""
 pre_iteration_script=""
-job_mode="concurrent" # serial or concurrent targets
+job_mode_def="concurrent"
+job_mode=${job_mode_def} # serial or concurrent targets
 file_size=""
 direct="" # don't cache IO's by default
 sync="" # don't sync IO's by default
@@ -83,7 +85,7 @@ function usage {
 	printf "\t\t1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled\n"
 	printf "\n"
 	printf -- "\t--sync=[0/1]\n"
-	printf "\t\t1 = O_SYNC enabled, 0 = O_SYNC disabled (defalt)\n"
+	printf "\t\t1 = O_SYNC enabled, 0 = O_SYNC disabled (default)\n"
 	printf "\n"
 	printf -- "\t--rate-iops=int\n"
 	printf "\t\tdo not exceeed this IOP rate (per job, per client)\n"
@@ -104,7 +106,7 @@ function usage {
 	printf "\t\tone or more directories or block devices (default is $targets)\n"
 	printf "\t\t(persistent names for devices highly recommended)\n"
 	printf "\n"
-	printf -- "\t-j str --job-mode=str    str=[serial|concurrent]  (default is $job_mode)\n"
+	printf -- "\t-j str --job-mode=str    str=[serial|concurrent]  (default is '${job_mode_def}')\n"
 	printf "\t\tdirects how --targets parameter(s) is/are used; with 'serial' mode all combinations\n"
 	printf "\t\tof fio job parameters are run against each target one at a time, while with 'concurrent'\n"
 	printf "\t\tmode all target devices are used at the same time.\n"
@@ -288,25 +290,28 @@ function fio_process_options() {
 			if [ ! -z "$clients" ] ;then
 				printf -- "${script_name} $*\n"
 				printf -- "\n"
-				printf -- "\t-c|--clients and --client-file are mutually exclusive\n\n"
+				printf -- "\t--client-file and -c|--clients are mutually exclusive\n\n"
 				usage
 				exit 1
 			fi
-			if [ -n "$1" ]; then
-				if [ -e $1 ]; then
-					client_file=$1
-					if [[ "$client_file" != /* ]] ;then
-						# make it absolute
-						client_file=$PWD/$client_file
-					fi
-					while read line; do
-						clients="$clients,$line"
-					done <$1
-					# Remove the leading comma since $clients starts off empty
-					clients=`echo $clients | sed -e 's/^,//'`
-				fi
-				shift;
+			client_file=$1
+			shift;
+			if [ ! -e "${client_file}" ]; then
+				printf -- "${script_name} $*\n"
+				printf -- "\n"
+				printf -- "\tSpecified client file, ${client_file}, does not exist\n\n"
+				usage
+				exit 1
 			fi
+			if [[ "$client_file" != /* ]] ;then
+				# make it absolute
+				client_file=$PWD/$client_file
+			fi
+			while read line; do
+				clients="$clients,$line"
+			done < ${client_file}
+			# Remove the leading comma since $clients starts off empty
+			clients=`echo $clients | sed -e 's/^,//'`
 			;;
 			-d|--targets)
 			shift;
@@ -428,6 +433,29 @@ function fio_process_options() {
 		esac
 	done
 	verify_common_bench_script_options $tool_group $sysinfo
+
+	if [[ ${job_mode} != "serial" && ${job_mode} != "concurrent" ]]; then
+		error_log "Unsupported --job-mode=${job_mode} encountered"
+		usage
+		exit 1
+	fi
+
+	local tt=""
+	space_sep_vtt=$(echo $supported_test_types | sed -e s/,/" "/g)
+	for tt in $(echo "$test_types" | sed -e s/,/" "/g); do
+		local found=0
+		for vtt in ${space_sep_vtt}; do
+			if [[ "${tt}" == "${vtt}" ]]; then
+				found=1
+				break;
+			fi
+	        done
+		if [[ ${found} -ne 1 ]]; then
+			error_log "Unsupported --test-types=${test_types} encountered"
+			usage
+			exit 1
+		fi
+	done
 
 	if [ "$postprocess_only" = "n" ]; then
 		benchmark_fullname="${benchmark}_${config}_${date_suffix}"
