@@ -26,12 +26,18 @@ export default class TableFilterSelection extends Component {
     const { ports } = this.props;
 
     if (ports !== prevProps.ports) {
-      Promise.resolve(
-        this.onPortChange([ports[ports.findIndex(port => port.includes('all'))]])
-      ).then(() => {
-        this.onFilterTable();
-      });
+      this.filterDefaultPort();
     }
+  };
+
+  filterDefaultPort = () => {
+    const { ports } = this.props;
+
+    Promise.resolve(this.onPortChange([ports[ports.findIndex(port => port.includes('all'))]])).then(
+      () => {
+        this.onFilterTable();
+      }
+    );
   };
 
   onFilterTable = () => {
@@ -61,16 +67,13 @@ export default class TableFilterSelection extends Component {
   };
 
   onClearFilters = () => {
-    const { onFilterTable } = this.props;
-
     this.setState(
       {
         selectedFilters: [],
         selectedPorts: [],
       },
       () => {
-        const { selectedFilters } = this.state;
-        onFilterTable(selectedFilters);
+        this.filterDefaultPort();
       }
     );
   };
