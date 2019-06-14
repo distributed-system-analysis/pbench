@@ -1,0 +1,37 @@
+---
+# Install config file for pbench agent.
+
+- name: create temp dir to store the config locally
+  delegate_to: localhost
+  tempfile:
+    state: directory
+    prefix: "{{ inventory_hostname }}-"
+  register: tempdir_1
+
+- name: relax perms
+  delegate_to: localhost
+  file:
+    path: "{{ tempdir_1.path }}"
+    mode: 0755
+
+- name: install the config file(s) locally
+  delegate_to: localhost
+  get_url:
+    url: "{{ pbench_config_url }}/{{ item }}"
+    dest: "{{ tempdir_1.path }}/{{ item }}"
+  with_items: "{{ pbench_config_files }}"
+
+- name: copy the config file(s) to the remote
+  copy:
+    src:  "{{ tempdir_1.path }}/{{ item }}"
+    dest: "{{ pbench_config_dest }}"
+    mode: 0644
+    owner: root
+    group: root
+  with_items: "{{ pbench_config_files }}"
+
+- name: delete local temp dir
+  delegate_to: localhost
+  file:
+    state: absent
+    path: "{{ tempdir_1.path }}"
