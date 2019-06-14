@@ -1,0 +1,16 @@
+---
+# Install pbench.repo
+- set_fact:
+    pbench_configuration_environment: "{{ cenv | default('production') }}"
+
+- name: Display some debugging info - to enable invoke with -v
+  debug:
+     msg: "{{ inventory_hostname }} {{ baseurl }} {{ pbench_configuration_environment }}"
+     verbosity: 1
+
+- name: ensure we have the pbench.repo file properly in place
+  template: src=etc/yum.repos.d/{{ item }}.j2 dest=/etc/yum.repos.d/{{ item }} owner=root group=root mode=0644
+  with_items:
+  - pbench.repo
+  - pbench-test.repo
+

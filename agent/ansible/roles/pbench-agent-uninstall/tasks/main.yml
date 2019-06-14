@@ -1,0 +1,10 @@
+---
+# Uninstall pbench-agent RPM and related RPMs.
+- name: uninstall pbench-agent RPM and related RPMs.
+  package:
+    name:
+      - pbench-agent
+      - pbench-sysstat
+      - pbench-agent-internal
+    state: absent
+

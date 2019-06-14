@@ -1,0 +1,9 @@
+---
+# Uninstall pbench repos
+- name: uninstall pbench repos
+  file:
+       path: /etc/yum.repos.d/{{ item }}
+       state: absent
+  with_items:
+       - pbench.repo
+       - pbench-test.repo

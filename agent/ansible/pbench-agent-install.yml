@@ -1,5 +1,5 @@
 ---
-- name: "Install agent config and key files"
+- name: install pbench-agent
   hosts: servers
   remote_user: root
   become: yes
@@ -7,7 +7,11 @@
 
   vars:
     pbench_configuration_environment: "{{ cenv | default('production') }}"
+    package_state: "latest"
 
   roles:
-    - pbench-agent-key-install
+    - pbench-repo-install
+    - pbench-agent-install
     - pbench-agent-config-install
+    - pbench-agent-key-install
+

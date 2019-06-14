@@ -1,0 +1,7 @@
+---
+- name: "Install or uninstall the agent RPM"
+  package:
+    name: pbench-agent
+    state: "{{ package_state }}"
+
+

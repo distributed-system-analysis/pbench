@@ -1,8 +1,9 @@
 ---
-- name: install the key file
+# Install ssh key file for pbench agent
+
+- name: install the config file
   get_url:
         url: "{{ keyurl }}"
         dest: "{{ keydest }}"
         mode: 0400
         owner: "{{ owner }}"
-        group: "{{ group }}"
