@@ -49,6 +49,7 @@ const tocColumns = [
 @connect(({ global, dashboard, loading }) => ({
   iterations: dashboard.iterations,
   iterationParams: dashboard.iterationParams,
+  iterationPorts: dashboard.iterationPorts,
   result: dashboard.result,
   tocResult: dashboard.tocResult,
   datastoreConfig: global.datastoreConfig,
@@ -104,10 +105,10 @@ class Summary extends React.Component {
     }
   }
 
-  onFilterTable = selectedFilters => {
+  onFilterTable = (selectedParams, selectedPorts) => {
     const { iterations } = this.props;
 
-    const filteredIterations = filterIterations(iterations, selectedFilters);
+    const filteredIterations = filterIterations(iterations, selectedParams, selectedPorts);
     this.setState({ resultIterations: filteredIterations[0] });
   };
 
@@ -121,6 +122,7 @@ class Summary extends React.Component {
       selectedResults,
       loadingSummary,
       iterationParams,
+      iterationPorts,
       selectedControllers,
       tocResult,
       result,
@@ -130,7 +132,11 @@ class Summary extends React.Component {
       iterations: (
         <Card title="Result Iterations" style={{ marginTop: 32 }}>
           <Spin spinning={loadingSummary} tip="Loading Iterations...">
-            <TableFilterSelection onFilter={this.onFilterTable} filters={iterationParams} />
+            <TableFilterSelection
+              onFilterTable={this.onFilterTable}
+              filters={iterationParams}
+              ports={iterationPorts}
+            />
             <Table
               style={{ marginTop: 16 }}
               columns={resultIterations ? resultIterations.columns : []}
