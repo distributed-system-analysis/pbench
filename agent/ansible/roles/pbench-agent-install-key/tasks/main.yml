@@ -1,8 +1,0 @@
----
-- name: install the key file
-  get_url:
-        url: "{{ keyurl }}"
-        dest: "{{ keydest }}"
-        mode: 0400
-        owner: "{{ owner }}"
-        group: "{{ group }}"

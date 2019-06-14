@@ -1,0 +1,10 @@
+---
+- import_role:
+    name: pbench-clean-yum-cache
+
+- name: "Install the agent RPM"
+  package:
+    name: pbench-agent
+    state: latest
+
+

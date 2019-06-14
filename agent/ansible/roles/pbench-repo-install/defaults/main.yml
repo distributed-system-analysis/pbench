@@ -1,0 +1,7 @@
+---
+repos:
+  - tag: pbench
+    baseurl: "{{ pbench_repo_url_prefix }}/pbench/{{ distrodir }}"
+    gpgkey: "{{ pbench_repo_url_prefix }}/pbench/pubkey.gpg"
+    gpgcheck: 1
+    enabled: 1
