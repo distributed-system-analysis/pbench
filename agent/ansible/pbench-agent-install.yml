@@ -1,11 +1,13 @@
 ---
-- name: install pbench-agent config and key files
+- name: install pbench-agent
   hosts: servers
   remote_user: root
   become: yes
   become_user: root
 
   roles:
+    - pbench-repo-install
+    - pbench-agent-install
     - pbench-agent-config-install
     - pbench-agent-key-install
 

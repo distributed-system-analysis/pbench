@@ -1,0 +1,2 @@
+---
+pbench_key_dest: "{{ pbench_agent_install_dir }}"
