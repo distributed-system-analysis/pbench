@@ -83,6 +83,7 @@ const legendColumns = [
   iterationParams: dashboard.iterationParams,
   selectedControllers: global.selectedControllers,
   selectedResults: global.selectedResults,
+  selectedIterations: global.selectedIterations,
   datastoreConfig: global.datastoreConfig,
 }))
 class RunComparison extends React.Component {
@@ -110,11 +111,9 @@ class RunComparison extends React.Component {
   }
 
   componentDidMount = () => {
-    const { iterationParams } = this.props;
-    const { location } = this.props;
-    const { iterations } = location.state;
+    const { iterationParams, selectedIterations } = this.props;
 
-    this.onGenerateIterationClusters(Object.keys(iterationParams), iterations);
+    this.onGenerateIterationClusters(Object.keys(iterationParams), selectedIterations);
   };
 
   onGenerateIterationClusters = (clusters, iterations) => {
@@ -145,18 +144,15 @@ class RunComparison extends React.Component {
   };
 
   onResetIterationClusters = () => {
-    const { iterationParams } = this.props;
-    const { location } = this.props;
-    const { iterations } = location.state;
+    const { iterationParams, selectedIterations } = this.props;
 
-    this.onGenerateIterationClusters(Object.keys(iterationParams), iterations);
+    this.onGenerateIterationClusters(Object.keys(iterationParams), selectedIterations);
   };
 
   onChangeIterationClusters = clusters => {
-    const { location } = this.props;
-    const { iterations } = location.state;
+    const { selectedIterations } = this.props;
 
-    this.onGenerateIterationClusters(clusters, iterations);
+    this.onGenerateIterationClusters(clusters, selectedIterations);
   };
 
   onTimeseriesClusterChange = (value, primaryMetric) => {
