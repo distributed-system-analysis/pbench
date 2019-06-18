@@ -99,17 +99,18 @@ class ComparisonSelect extends React.Component {
   };
 
   compareIterations = selectedIterations => {
-    const { results, dispatch } = this.props;
+    const { dispatch } = this.props;
 
-    dispatch(
-      routerRedux.push({
-        pathname: '/comparison',
-        state: {
-          iterations: selectedIterations,
-          results,
-        },
-      })
-    );
+    dispatch({
+      type: 'global/updateSelectedIterations',
+      payload: selectedIterations,
+    }).then(() => {
+      dispatch(
+        routerRedux.push({
+          pathname: '/comparison',
+        })
+      );
+    });
   };
 
   render() {

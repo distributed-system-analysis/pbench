@@ -12,6 +12,7 @@ export default {
     selectedControllers: [],
     selectedFields: [],
     selectedIterationKeys: [],
+    selectedIterations: [],
   },
 
   effects: {
@@ -71,6 +72,12 @@ export default {
         payload,
       });
     },
+    *updateSelectedIterations({ payload }, { put }) {
+      yield put({
+        type: 'modifySelectedIterations',
+        payload,
+      });
+    },
   },
 
   reducers: {
@@ -121,6 +128,12 @@ export default {
       return {
         ...state,
         selectedIterationKeys: payload,
+      };
+    },
+    modifySelectedIterations(state, { payload }) {
+      return {
+        ...state,
+        selectedIterations: payload,
       };
     },
   },
