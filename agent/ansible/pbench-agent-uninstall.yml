@@ -6,7 +6,8 @@
   become_user: root
 
   vars:
-    pbench_configuration_environment: "{{ cenv | default('production') }}"
+    include_vars:
+      name: vars.yml
     package_state: "absent"
 
   roles:

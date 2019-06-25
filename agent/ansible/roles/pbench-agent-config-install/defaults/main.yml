@@ -1,0 +1,2 @@
+---
+configdest: "{{ pbench_agent_install_dir }}/config"

@@ -6,10 +6,10 @@
   become_user: root
 
   vars:
-    pbench_configuration_environment: "{{ cenv | default('production') }}"
     package_state: "latest"
 
   roles:
+    - include-vars
     - pbench-repo-install
     - pbench-agent-install
     - pbench-agent-config-install

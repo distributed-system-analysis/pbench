@@ -5,9 +5,7 @@
   become: yes
   become_user: root
 
-  vars:
-    pbench_configuration_environment: "{{ cenv | default('production') }}"
-
   roles:
+    - include-vars
     - pbench-agent-key-install
     - pbench-agent-config-install

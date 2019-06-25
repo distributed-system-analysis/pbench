@@ -1,0 +1,4 @@
+---
+pbench_agent_install_dir: /opt/pbench-agent
+owner: pbench
+group: pbench

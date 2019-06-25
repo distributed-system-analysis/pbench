@@ -14,8 +14,4 @@ host3       ansible_python_interpreter=/usr/bin/python3
 # example. Users should *NOT* have to modify this section at all.
 [servers:vars]
 keyurl = http://pbench.example.com/keys/id_rsa
-keydest = /opt/pbench-agent/
 configurl = http://pbench.example.com/config/pbench-agent.cfg
-configdest = /opt/pbench-agent/config/
-owner = pbench
-group = pbench
