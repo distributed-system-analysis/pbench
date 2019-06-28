@@ -1,0 +1,381 @@
+{
+    "bpftrace": {
+        "ident": "bpftrace is a high-level tracing language for Linux enhanced Berkeley Packet Filter",
+        "metrics": [
+            "bpftrace"
+        ],
+        "probe": "bpftrace"
+    },
+    "cpuacct": {
+        "ident": "cpu accouting  Information",
+        "metrics": [
+            "cgroup.cpuacct.usage",
+            "cgroup.cpuacct.usage_percpu",
+            "cgroup.cpuacct.stat.user",
+            "cgroup.cpuacct.stat.system",
+            "cgroup.cpuacct.id.container"
+        ],
+        "probe": "cgroup.cpuacct.id.container"
+    },
+    "disk": {
+        "ident": "summary disk activity (IOPs and bytes for both reads and writes over all disks)",
+        "metrics": [
+            "disk.all.read",
+            "disk.all.write",
+            "disk.all.total",
+            "disk.all.read_bytes",
+            "disk.all.write_bytes",
+            "disk.all.total_bytes",
+            "disk.all.avactive"
+        ],
+        "probe": "disk"
+    },
+    "dm-cache": {
+        "ident": "dm-cache is a component of the Linux kernel's device mapper, which is a framework for mapping block devices onto higher-level virtual block devices.",
+        "metrics": [
+            "disk.dm.read",
+            "disk.dm.write",
+            "dmcache.size",
+            "dmcache.metadata.block_size",
+            "dmcache.metadata.used",
+            "dmcache.metadata.total",
+            "dmcache.cache.block_size",
+            "dmcache.cache.used",
+            "dmcache.cache.total",
+            "dmcache.read_hits",
+            "dmcache.read_misses",
+            "dmcache.write_hits",
+            "dmcache_read_misses",
+            "dmcache.write_hits",
+            "dmcache.write_misses",
+            "dmcache.demotions",
+            "dmcache.promotions",
+            "dmcache.dirty",
+            "dmcache.io_mode"
+        ],
+        "probe": "dmcache.cache.used values"
+    },
+    "docker": {
+        "ident": "Docker Information",
+        "metrics": [
+            "docker.pid",
+            "docker.name",
+            "docker.running",
+            "docker.paused",
+            "docker.restarting",
+            "docker.version",
+            "docker.os",
+            "docker.kernel",
+            "docker.go",
+            "docker.commit",
+            "docker.arch",
+            "docker.api_version",
+            "docker.cpu_stats.system_cpu_usage",
+            "docker.cpu_stats.cpu_usage.total_usage",
+            "docker.cpu_stats.cpu_usage.usage_in_kernelmode",
+            "docker.cpu_stats.cpu_usage.usage_in_usermode",
+            "docker.cpu_stats.throttling_data.periods",
+            "docker.cpu_stats.throttling_data.throttled_periods",
+            "docker.cpu_stats.throttling_data.throttled_time",
+            "docker.memory_stats.failcnt",
+            "docker.memory_stats.limit",
+            "docker.memory_stats.max_usage",
+            "docker.memory_stats.usage",
+            "docker.memory_stats.stats.active_anon",
+            "docker.memory_stats.stats.active_file",
+            "docker.memory_stats.stats.cache",
+            "docker.memory_stats.stats.dirty",
+            "docker.memory_stats.stats.hierarchical_memory_limit",
+            "docker.memory_stats.stats.hierarchical_memsw_limit",
+            "docker.memory_stats.stats.inactive_anon",
+            "docker.memory_stats.stats.inactive_file",
+            "docker.memory_stats.stats.mapped_file",
+            "docker.memory_stats.stats.pgfault",
+            "docker.memory_stats.stats.pgmajfault",
+            "docker.memory_stats.stats.pgpgin",
+            "docker.memory_stats.stats.pgpgout",
+            "docker.memory_stats.stats.recent_rotated_anon",
+            "docker.memory_stats.stats.recent_rotated_file",
+            "docker.memory_stats.stats.recent_scanned_anon",
+            "docker.memory_stats.stats.recent_scanned_file",
+            "docker.memory_stats.stats.rss",
+            "docker.memory_stats.stats.rss_huge",
+            "docker.memory_stats.stats.swap",
+            "docker.memory_stats.stats.total_active_anon",
+            "docker.memory_stats.stats.total_active_file",
+            "docker.memory_stats.stats.total_cache",
+            "docker.memory_stats.stats.total_dirty",
+            "docker.memory_stats.stats.total_inactive_anon",
+            "docker.memory_stats.stats.total_inactive_file",
+            "docker.memory_stats.stats.total_mapped_file",
+            "docker.memory_stats.stats.total_pgfault",
+            "docker.memory_stats.stats.total_pgmajfault",
+            "docker.memory_stats.stats.total_pgpgin",
+            "docker.memory_stats.stats.total_pgpgout",
+            "docker.memory_stats.stats.total_rss",
+            "docker.memory_stats.stats.total_rss_huge",
+            "docker.memory_stats.stats.total_swap",
+            "docker.memory_stats.stats.total_unevictable",
+            "docker.memory_stats.stats.total_writeback",
+            "docker.memory_stats.stats.unevictable",
+            "docker.memory_stats.stats.writeback",
+            "docker.control.timing"
+        ],
+        "probe": "docker.version"
+    },
+    "iostat": {
+        "ident": "used for monitoring system input/output device",
+        "metrics": [
+            "disk.dev.read_bytes",
+            "disk.dm.read_bytes",
+            "disk.dev.write_bytes",
+            "disk.dm.write_bytes",
+            "kernel.all.cpu.user",
+            "kernel.all.cpu.nice",
+            "kernel.all.cpu.sys",
+            "kernel.all.cpu.wait.total",
+            "kernel.all.cpu.steal",
+            "kernel.all.cpu.idle",
+            "disk.all.read",
+            "disk.all.read_merge",
+            "disk.all.blkread",
+            "disk.all.read_rawactive",
+            "disk.all.write",
+            "disk.all.write_merge",
+            "disk.all.blkwrite",
+            "disk.all.write_rawactive",
+            "disk.all.avactive",
+            "disk.dev.read",
+            "disk.dm.read",
+            "disk.dev.read_merge",
+            "disk.dm.read_merge",
+            "disk.dev.blkread",
+            "disk.dm.blkread",
+            "disk.dev.read_rawactive",
+            "disk.dm.read_rawactive",
+            "disk.dev.write",
+            "disk.dm.write",
+            "disk.dev.write_merge",
+            "disk.dm.write_merge",
+            "disk.dev.blkwrite",
+            "disk.dm.blkwrite",
+            "disk.dev.write_rawactive",
+            "disk.dm.write_rawactive",
+            "disk.all.read_merge",
+            "disk.all.write_merge",
+            "disk.all.read",
+            "disk.all.write",
+            "disk.all.read_bytes",
+            "disk.all.write_bytes",
+            "disk.dev.avactive",
+            "disk.dm.avactive",
+            "disk.all.read_rawactive",
+            "disk.all.write_rawactive"
+        ],
+        "probe": "kernel.percpu.cpu"
+    },
+    "kvmstat": {
+        "ident": "metrics used by the pcp-kvm(1) command        ",
+        "metrics": [
+            "kvm.efer_reload",
+            "kvm.exits",
+            "kvm.fpu_reload",
+            "kvm.halt_attempted_poll",
+            "kvm.halt_exits",
+            "kvm.halt_successful_poll",
+            "kvm.halt_wakeup",
+            "kvm.host_state_reload",
+            "kvm.hypercalls",
+            "kvm.insn_emulation",
+            "kvm.insn_emulation_fail",
+            "kvm.invlpg",
+            "kvm.io_exits",
+            "kvm.irq_exits",
+            "kvm.irq_injections",
+            "kvm.irq_window",
+            "kvm.largepages",
+            "kvm.mmio_exits",
+            "kvm.mmu_cache_miss",
+            "kvm.mmu_flooded",
+            "kvm.mmu_pde_zapped",
+            "kvm.mmu_pte_updated",
+            "kvm.mmu_pte_write",
+            "kvm.mmu_recycled",
+            "kvm.mmu_shadow_zapped",
+            "kvm.mmu_unsync",
+            "kvm.nmi_injections",
+            "kvm.nmi_window",
+            "kvm.pf_fixed",
+            "kvm.pf_guest",
+            "kvm.remote_tlb_flush",
+            "kvm.request_irq",
+            "kvm.signal_exits",
+            "kvm.tlb_flush"
+        ],
+        "probe": "kvm"
+    },
+    "mpstat": {
+        "ident": "processor related statistics",
+        "metrics": [
+            "kernel.all.cpu.user",
+            "kernel.percpu.cpu.user",
+            "kernel.all.cpu.nice",
+            "kernel.percpu.cpu.nice",
+            "kernel.all.cpu.sys",
+            "kernel.percpu.cpu.sys",
+            "kernel.all.cpu.wait.total",
+            "kernel.percpu.cpu.wait.total",
+            "kernel.all.intr",
+            "kernel.percpu.intr",
+            "kernel.all.cpu.irq.hard",
+            "kernel.percpu.cpu.irq.hard",
+            "kernel.all.cpu.irq.soft",
+            "kernel.percpu.cpu.irq.soft",
+            "kernel.all.cpu.steal",
+            "kernel.percpu.cpu.steal",
+            "kernel.all.cpu.guest",
+            "kernel.percpu.cpu.guest",
+            "kernel.all.cpu.guest_nice",
+            "kernel.percpu.cpu.guest_nice",
+            "kernel.all.cpu.idle",
+            "kernel.percpu.cpu.idle"
+        ],
+        "probe": "kernel.uname.sysname ~ Linux"
+    },
+    "numastat": {
+        "ident": "memory statistics",
+        "metrics": [
+            "mem.numa.alloc"
+        ],
+        "probe": "kernel.uname.sysname ~ Linux"
+    },
+    "openvswitch": {
+        "ident": "Openvswitch metrics information",
+        "metrics": [
+            "openvswitch.switch",
+            "openvswitch.port_info",
+            "openvswitch.flow"
+        ],
+        "probe": "openvswitch.switch.uuid"
+    },
+    "pidstat": {
+        "ident": "used for monitoring individual tasks currently being managed by the Linux kernel",
+        "metrics": [
+            "proc.nprocs",
+            "proc.psinfo.pid",
+            "proc.psinfo.cmd",
+            "proc.psinfo.utime",
+            "proc.psinfo.stime",
+            "proc.psinfo.guest_time",
+            "proc.psinfo.processor",
+            "proc.psinfo.rt_priority",
+            "proc.psinfo.policy",
+            "proc.psinfo.minflt",
+            "proc.psinfo.maj_flt",
+            "proc.psinfo.vsize",
+            "proc.psinfo.rss",
+            "proc.psinfo.wchan_s",
+            "proc.memory.vmstack",
+            "proc.id.uid",
+            "proc.id.uid_nm",
+            "proc.psinfo.psargs",
+            "kernel.all.cpu.user",
+            "kernel.all.cpu.vuser",
+            "kernel.all.cpu.sys",
+            "kernel.all.cpu.guest",
+            "kernel.all.cpu.nice",
+            "kernel.all.cpu.idle"
+        ],
+        "probe": "proc.psinfo.pid"
+    },
+    "proc-interrupts": {
+        "ident": "proc-interrupts stats",
+        "metrics": [
+            "kernel.all.interrupts",
+            "kernel.percpu.interrupts"
+        ],
+        "probe": "kernel.all.interrupts"
+    },
+    "proc-sched_debug": {
+        "ident": "process scheduler statistics",
+        "metrics": [
+            "proc.schedstat.pcount",
+            "proc.schedstat.run_delay",
+            "proc.schedstat.cpu_time"
+        ],
+        "probe": "proc.schedstat"
+    },
+    "proc-vmstat": {
+        "ident": "vmstat reports information about processes, memory, paging, block IO, traps, and cpu activity.",
+        "metrics": [
+            "mem.vmstat"
+        ],
+        "probe": "mem.vmstat"
+    },
+    "prometheus": {
+        "ident": "OpenMetrics instrumented applications summary information        ",
+        "metrics": [
+            "openmetrics"
+        ],
+        "probe": "openmetrics.control.calls"
+    },
+    "qemu-migrate": {
+        "ident": "metrics used by the pcp-libvirt(1) command",
+        "metrics": [
+            "libvirt"
+        ],
+        "probe": "libvirt.dominfo.name"
+    },
+    "rabbitmq": {
+        "ident": "RabbitMQ Queue Information",
+        "metrics": [
+            "rabbitmq.queue"
+        ],
+        "probe": "rabbitmq.queue.name"
+    },
+    "tcpdump": {
+        "ident": "tcp related metrics",
+        "metrics": [
+            "network.tcp"
+        ],
+        "probe": "network.tcp"
+    },
+    "turbostat": {
+        "ident": "processor frequency and idle statistics",
+        "metrics": [
+            "hinv.cpu.clock",
+            "hinv.cpu.vendor",
+            "hinv.cpu.model",
+            "hinv.cpu.stepping",
+            "hinv.cpu.cache",
+            "hinv.cpu.bogomips",
+            "hinv.cpu.model_name",
+            "hinv.cpu.flags",
+            "hinv.cpu.cache_alignment",
+            "hinv.cpu.online"
+        ],
+        "probe": "hinv.cpu.vendor"
+    },
+    "virsh-migrate": {
+        "ident": "metrics used by the pcp-libvirt(1) command",
+        "metrics": [
+            "libvirt.dominfo.memory.current",
+            "libvirt.dominfo.name",
+            "libvirt.dominfo.uuid",
+            "libvirt.dominfo.vcpu.current",
+            "libvirt.domstats.block.rd.reqs",
+            "libvirt.domstats.block.wr.reqs",
+            "libvirt.domstats.cpu.time",
+            "libvirt.domstats.net.rx.bytes",
+            "libvirt.domstats.net.tx.bytes"
+        ],
+        "probe": "libvirt.dominfo.name"
+    },
+    "vmstat": {
+        "ident": "vmstat reports information about processes, memory, paging, block IO, traps, and cpu activity.",
+        "metrics": [
+            "mem.vmstat"
+        ],
+        "probe": "mem.vmstat"
+    }
+}

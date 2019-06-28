@@ -346,7 +346,11 @@ def main(argv):
     #   - leave a PID file for the tool data sink process
     #   - FIXME: use podman to start a tool-data-sink container
     tds_param_key = "tds-{}".format(group)
+<<<<<<< HEAD
     tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group)
+=======
+    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir)
+>>>>>>> First pass implementation of the "Tool Meister"
     try:
         redis_server.set(tds_param_key, json.dumps(tds, sort_keys=True))
     except Exception:
@@ -384,8 +388,11 @@ def main(argv):
     failures = 0
     successes = 0
     tool_meister_cmd = "pbench-tool-meister"
+<<<<<<< HEAD
     # NOTE: it is assumed that the location of the pbench-tool-meister command
     # is the same on the local host as it is on any remote host.
+=======
+>>>>>>> First pass implementation of the "Tool Meister"
     tool_meister_cmd_path = _prog_dir / tool_meister_cmd
     ssh_cmd = "ssh"
     ssh_path = find_executable(ssh_cmd)

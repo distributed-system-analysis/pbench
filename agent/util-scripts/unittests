@@ -371,11 +371,14 @@ declare -A tools=(
     [test-55]="pbench-collect-sysinfo"
     [test-56]="test-client-tool-meister"
     [test-57]="test-client-tool-meister"
+<<<<<<< HEAD
     [test-58]="pbench-stop-tools"
     [test-59]="pbench-postprocess-tools"
     [test-60]="pbench-send-tools"
     [test-61]="pbench-init-tools"
     [test-62]="pbench-end-tools"
+=======
+>>>>>>> First pass implementation of the "Tool Meister"
 )
 
 declare -A options=(

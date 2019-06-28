@@ -10,7 +10,11 @@ action=${_suffix%%-*}
 # source the base script
 . "${pbench_bin}"/base
 
+<<<<<<< HEAD
 if [[ "${action}" != "end" && "${action}" != "init" && "${action}" != "kill" && "${action}" != "send" && "${action}" != "start" && "${action}" != "stop" ]]; then
+=======
+if [[ "${action}" != "kill" && "${action}" != "send" && "${action}" != "start" && "${action}" != "stop" ]]; then
+>>>>>>> First pass implementation of the "Tool Meister"
 	error_log "[${script_name}] action \"${action}\" is not supported"
 	exit 1
 fi
@@ -24,6 +28,7 @@ def_group="default"
 group="${def_group}"
 dir=""
 
+<<<<<<< HEAD
 function usage {
 	printf "The following are required:\n\n"
 	printf -- "\t-g str --group=str, str = a tool group used in a benchmark\n"
@@ -32,12 +37,22 @@ function usage {
 	printf -- "\t                        will store and process data\n"
 }
 
+=======
+>>>>>>> First pass implementation of the "Tool Meister"
 # Process options and arguments
 
 opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
 	printf "\n%s: you specified an invalid option\n\n" "${script_name}"
+<<<<<<< HEAD
 	usage >&2
+=======
+	printf "The following are required:\n\n"
+	printf -- "\t-g str --group=str, str = a tool group used in a benchmark\n"
+	printf -- "\t                          (the default group is '%s')\n\n" "${def_group}"
+	printf -- "\t-d str --dir=str, str = a directory where %s\n" "${script_name}"
+	printf -- "\t                        will store and process data\n"
+>>>>>>> First pass implementation of the "Tool Meister"
 	exit 1
 fi
 eval set -- "${opts}"
@@ -66,12 +81,18 @@ done
 
 if [[ -z "${group}" ]]; then
 	printf -- "ERROR: required tool group parameter missing.\n" >&2
+<<<<<<< HEAD
 	usage >&2
+=======
+>>>>>>> First pass implementation of the "Tool Meister"
 	exit 1
 fi
 if [[ -z "${dir}" ]]; then
 	printf -- "ERROR: required directory argument missing.\n" >&2
+<<<<<<< HEAD
 	usage >&2
+=======
+>>>>>>> First pass implementation of the "Tool Meister"
 	exit 1
 fi
 
@@ -89,6 +110,7 @@ if [[ "${action}" == "kill" ]]; then
 	exit 0
 fi
 
+<<<<<<< HEAD
 # The tool group's directory which stores tool output for all hosts.
 tool_output_dir="${dir}/tools-${group}"
 
@@ -107,4 +129,8 @@ fi
 
 # Tell the tool meister to take the requested action.
 pbench-tool-meister-client "${group}" "${tool_output_dir}" "${action}"
+=======
+# Tell the tool meister to take the requested action.
+pbench-tool-meister-client "${group}" "${dir}" "${action}"
+>>>>>>> First pass implementation of the "Tool Meister"
 exit ${?}
