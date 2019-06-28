@@ -24,12 +24,12 @@ my $script="pbench-tool-trigger";
 # turn on autoflushing
 $| = 1;
 
-my $iteration=$ARGV[0]; # which iteration number to start with (required)
-my $benchmark_run_dir=$ARGV[1];
-my $tool_group=$ARGV[2];
-my $sample_num=1;
+my $iteration = $ARGV[0]; # which iteration number to start with (required)
+my $benchmark_run_dir = $ARGV[1];
+my $tool_group = $ARGV[2];
+my $sample_num = 1;
 if (scalar @ARGV == 4) {
-	$sample_num=$ARGV[3];
+	$sample_num = $ARGV[3];
 }
 
 my $start_t = "";
@@ -40,10 +40,7 @@ my $pbrun = $ENV{'pbench_run'};
 if (! -d $pbrun) {
 	die "the pbench run directory, [$pbrun], does not exist";
 }
-print "$pbrun\n";
-
-my $t_file =  $pbrun . "/tool-triggers";
-print "$t_file\n";
+my $t_file =  $pbrun . "/tools-v1-" . $tool_group . "/__trigger__";
 
 open(TRIG, "<$t_file") || die "Could not open $t_file\n";
 while (<TRIG>) {
@@ -51,18 +48,17 @@ while (<TRIG>) {
 		next;
 	}
 	chomp;
-	($group, $start, $stop) = split(/:/);
-	if ($group ne $tool_group) {
-		next;
-	}
+	($start, $stop) = split(/:/);
 	if ($start eq "" || $stop eq "") {
 		die "Empty triggers found, start-trigger:\"\", stop-trigger:\"\"";
 	}
-	printf "[$script]found trigger: tool-group:$group start-trigger:\"$start\" stop-trigger:\"$stop\"\n";
 	$start_t = $start;
 	$stop_t = $stop;
 }
 close(TRIG);
+
+print "[$script] starting trigger processing of STDIN using tool group $tool_group triggers at $t_file\n";
+printf "[$script] start-trigger:\"$start_t\" stop-trigger:\"$stop_t\"\n";
 
 # Initial reference result directory for tools
 my $benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '-default/sample' . $sample_num;

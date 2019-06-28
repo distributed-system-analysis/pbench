@@ -1,1 +1,88 @@
-pbench-postprocess-tools
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
+_suffix=${script_name#pbench-}
+action=${_suffix%%-*}
+
+# source the base script
+. "${pbench_bin}"/base
+
+if [[ "${action}" != "kill" && "${action}" != "send" && "${action}" != "start" && "${action}" != "stop" ]]; then
+	error_log "[${script_name}] action \"${action}\" is not supported"
+	exit 1
+fi
+
+# This script will $action all tools that belong to a specific group.  This is
+# typically called by a benchmark script when some activity needs to
+# monitored.
+
+# Defaults
+def_group="default"
+group="${def_group}"
+dir=""
+
+# Process options and arguments
+
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+	printf "\n%s: you specified an invalid option\n\n" "${script_name}"
+	printf "The following are required:\n\n"
+	printf -- "\t-g str --group=str, str = a tool group used in a benchmark\n"
+	printf -- "\t                          (the default group is '%s')\n\n" "${def_group}"
+	printf -- "\t-d str --dir=str, str = a directory where %s\n" "${script_name}"
+	printf -- "\t                        will store and process data\n"
+	exit 1
+fi
+eval set -- "${opts}"
+while true; do
+	case "${1}" in
+	-g|--group)
+		shift
+		if [[ -n "${1}" ]]; then
+			group="${1}"
+			shift
+		fi
+		;;
+	-d|--dir)
+		shift
+		if [[ -n "${1}" ]]; then
+			dir="${1}"
+			shift
+		fi
+		;;
+	--)
+		shift
+		break
+		;;
+	esac
+done
+
+if [[ -z "${group}" ]]; then
+	printf -- "ERROR: required tool group parameter missing.\n" >&2
+	exit 1
+fi
+if [[ -z "${dir}" ]]; then
+	printf -- "ERROR: required directory argument missing.\n" >&2
+	exit 1
+fi
+
+# This tool group's directory which stores the list of tools and their
+# options, etc.
+tool_group_dir="$(verify_tool_group "${group}")"
+if [[ ${?} -ne 0 || -z "${tool_group_dir}" ]]; then
+	exit 1
+fi
+
+if [[ "${action}" == "kill" ]]; then
+	_msg="pbench-kill-tools is a no-op and has been deprecated: pbench-stop-tools ensures tools are properly cleaned up."
+	printf -- "%s\n" "${_msg}"
+	log "${_msg}"
+	exit 0
+fi
+
+# Tell the tool meister to take the requested action.
+pbench-tool-meister-client "${group}" "${dir}" "${action}"
+exit ${?}

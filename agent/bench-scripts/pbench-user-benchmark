@@ -184,22 +184,7 @@ fi
 benchmark_iterations="${benchmark_run_dir}/.iterations"
 > ${benchmark_iterations}
 
-# Place marker indicating at this point we are now running.
-mkdir ${benchmark_run_dir}/.running
-
-# For now, since we usually only ever run one iteration here, don't bother
-# collecting sysinfo data before and after, just do it after.
-# pbench-collect-sysinfo --group=${tool_group} --dir=${benchmark_run_dir} beg
-
-# Gather up metadata for the run - this is usually called from
-# pbench-collect-sysinfo (both at the beginning and end of the run) but since
-# we don't call pbench-collect-sysinfo here, we need to call metadata-log
-# explicitly.
-pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} beg
-# On abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} int" INT QUIT
-
-# Add data to metadata.log
+# Add data to the run's metadata.log file.
 mdlog=${benchmark_run_dir}/metadata.log
 function record_iteration {
 	local iteration="${1}"
@@ -247,7 +232,7 @@ function run_benchmark {
 	fi
 	printf -- "%s%s | tee %s/result.txt" "${iter_benchmark_bin}" "${capture_stderr}" "${_final_results_dir}" > ${benchmark_run_cmd}
 	if [[ ${use_tool_triggers} -ne 0 ]]; then
-		printf -- " | pbench-tool-trigger ${iteration} ${benchmark_run_dir} ${tool_group}" >> ${benchmark_run_cmd}
+		printf -- " | pbench-tool-trigger %s %s %s" "${iteration}" "${benchmark_run_dir}" "${tool_group}" >> ${benchmark_run_cmd}
 	fi
 	printf -- "\n" >> ${benchmark_run_cmd}
 	chmod +x ${benchmark_run_cmd}
@@ -278,6 +263,7 @@ function run_benchmark {
 
 	if [[ $use_tool_triggers -eq 0 ]]; then
 		pbench-stop-tools --group="${tool_group}" --dir="${benchmark_results_dir}"
+		pbench-send-tools --group="${tool_group}" --dir="${benchmark_results_dir}"
 		pbench-postprocess-tools --group="${tool_group}" --dir="${benchmark_results_dir}"
 		if [[ ! -z ${pbench_post} ]]; then
 			log "[${script_name}]: Running ${pbench_post} for iteration ${iteration_name}"
@@ -290,6 +276,21 @@ function run_benchmark {
 	fi
 	return ${benchmark_duration}
 }
+
+# Place marker indicating at this point we are now running.
+mkdir ${benchmark_run_dir}/.running
+
+# Gather up metadata for the run.
+pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} beg
+
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to start the tool meisters."
+	exit 1
+fi
+
+trap "interrupt" INT QUIT TERM
 
 iter_num=${iteration}
 lineno=0
@@ -340,8 +341,9 @@ for rdir in ${result_dirs}; do
 	iteration_name="$(basename "$(dirname "${rdir}")")"
 	iteration="${iteration_name%%-*}"
 	if [ ${use_tool_triggers} -ne 0 ]; then
-		# Tool triggers were in use, so we have to run the
+		# Tool triggers were in use, so we have to run the send and
 		# post-processing now.
+		pbench-send-tools --group="${tool_group}" --dir="${rdir}"
 		pbench-postprocess-tools --group="${tool_group}" --dir="${rdir}"
 		record_iteration "${iteration}" "${iteration_name}" "${benchmark_bin}"
 	fi
@@ -349,6 +351,12 @@ for rdir in ${result_dirs}; do
 done
 
 pbench-metadata-log --group="${tool_group}" --dir="${benchmark_run_dir}" end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to stop the tool meisters."
+fi
 
 ${script_path}/postprocess/user-benchmark-wrapper "${benchmark_run_dir}" "${total_duration}"
 

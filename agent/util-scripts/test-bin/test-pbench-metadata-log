@@ -1,14 +1,7 @@
 #! /bin/bash
 
-mkdir ${_testdir}/tools-default
-
+# "config" is a variable expected by pbench-metadata-log
 export config=foo30%-bar
-export benchmark=pbench-fake
+dir="${_testdir}/pbench-user-benchmark_${config}"
 
-dir=${_testdir}/pbench-user-benchmark_${config}
-
-pbench-metadata-log --dir=$dir beg
-
-echo "+++ metadata.log file contents"
-cat $dir/metadata.log
-echo "--- metadata.log file contents"
+pbench-metadata-log --dir=${dir} beg

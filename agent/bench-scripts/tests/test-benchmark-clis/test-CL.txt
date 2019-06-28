@@ -14,7 +14,7 @@ Bench Script: pbench-cyclictest --help
 
 Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 ------------
-	pbench-cyclictest: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-cyclictest: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 	The following options are available:
 
@@ -79,7 +79,7 @@ Bench Script: pbench-dbench --help
 
 Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 ------------
-	pbench-dbench: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-dbench: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 	The following options are available:
 
@@ -242,7 +242,7 @@ The following options are available:
 
 Bench Script: pbench-fio --tool-group=bad --sysinfo=bad
 ------------
-	pbench-fio: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-fio: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 The following options are available:
 
@@ -439,7 +439,7 @@ Bench Script: pbench-iozone --help
 
 Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 ------------
-	pbench-iozone: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-iozone: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 	The following options are available:
 
@@ -489,7 +489,7 @@ Bench Script: pbench-linpack --help
 
 Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 ------------
-	pbench-linpack: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-linpack: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 	The following options are available:
 
@@ -539,7 +539,7 @@ Bench Script: pbench-migrate --help
 
 Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 ------------
-	pbench-migrate: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-migrate: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 	The following options are available:
 
@@ -630,7 +630,7 @@ Bench Script: pbench-netperf --help
 
 Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 ------------
-	pbench-netperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-netperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 	The following options are available:
 
@@ -729,7 +729,7 @@ Bench Script: pbench-specjbb2005 --help
 
 Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
 ------------
-	pbench-specjbb2005: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-specjbb2005: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 	The following options are available:
 
@@ -1010,7 +1010,7 @@ options common in most pbench benchmark scripts
 
 Bench Script: pbench-trafficgen --tool-group=bad --sysinfo=bad
 ------------
-	pbench-trafficgen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-trafficgen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 	The following options are available:
 
@@ -1537,7 +1537,7 @@ Bench Script: pbench-uperf --help
 
 Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 ------------
-	pbench-uperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-uperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 	The following options are available:
 
@@ -1663,7 +1663,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 
 Bench Script: pbench-user-benchmark --tool-group=bad --sysinfo=bad
 ------------
-	pbench-user-benchmark: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+	pbench-user-benchmark: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
 
 Usage: pbench-user-benchmark [options] -- <script to run>
 
@@ -1722,10 +1722,11 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/pbench-agent/tmp
-/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
-/var/tmp/pbench-test-bench/pbench-agent/tools-default
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options

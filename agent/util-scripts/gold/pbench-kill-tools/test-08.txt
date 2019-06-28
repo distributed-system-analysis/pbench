@@ -1,0 +1,14 @@
++++ Running test-08 pbench-kill-tools --group=barfoo --dir=42-iter/sample42
+pbench-kill-tools is a no-op and has been deprecated: pbench-stop-tools ensures tools are properly cleaned up.
+--- Finished test-08 pbench-kill-tools (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-barfoo
+/var/tmp/pbench-test-utils/pbench/tools-v1-barfoo/mpstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-barfoo/mpstat:
+--- pbench tree state
++++ pbench.log file contents
+[info][1900-01-01T00:00:00.000000] pbench-kill-tools is a no-op and has been deprecated: pbench-stop-tools ensures tools are properly cleaned up.
+--- pbench.log file contents

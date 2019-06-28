@@ -1,1 +1,33 @@
-../../bench-scripts/test-bin/ssh
+#!/bin/bash
+
+echo "${0} ${*}" >> ${_testlog}
+
+while true ;do
+    case ${1} in
+        -i)
+            shift 2
+            ;;
+        -o)
+            shift 2
+            ;;
+        -n)
+            shift 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+remote=${1}
+shift
+
+if [[ "${1}" == "hostname" && "${2}" == "-s" ]]; then
+    echo "${remote}"
+    exit_code=0
+elif [[ "${1}" == "pbench-tool-meister" ]]; then
+    _dir=$(dirname ${0})
+    _tool_bin=${_dir}/mpstat ${1} localhost "${3}" "${4}"
+    exit_code=$?
+fi
+
+exit ${exit_code}

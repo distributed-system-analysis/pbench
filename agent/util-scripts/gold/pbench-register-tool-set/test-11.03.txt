@@ -1,0 +1,41 @@
++++ Running test-11.03 pbench-register-tool-set 
+"mpstat" tool is now registered for host "testhost.example.com" in group "default"
+"iostat" tool is now registered for host "testhost.example.com" in group "default"
+"pidstat" tool is now registered for host "testhost.example.com" in group "default"
+"sar" tool is now registered for host "testhost.example.com" in group "default"
+"perf" tool is now registered for host "testhost.example.com" in group "default"
+--- Finished test-11.03 pbench-register-tool-set (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/iostat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/perf
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/pidstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/sar
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/iostat:
+--interval=10
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat:
+--interval=10
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/perf:
+--record-opts='record -a --freq=100'
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/pidstat:
+--interval=30
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/sar:
+--interval=10
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
+[info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=30"
+[info][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "testhost.example.com" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
+[info][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "testhost.example.com" in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts='record -a --freq=100'"
+[info][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "testhost.example.com" in group "default"
+--- pbench.log file contents

@@ -9,34 +9,32 @@
 /var/tmp/pbench-test-utils/pbench/mock-run/ssh_config
 /var/tmp/pbench-test-utils/pbench/mock-run/ssh_config.d
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tools-default
-/var/tmp/pbench-test-utils/pbench/tools-default/iostat
-/var/tmp/pbench-test-utils/pbench/tools-default/mpstat
-/var/tmp/pbench-test-utils/pbench/tools-default/perf
-/var/tmp/pbench-test-utils/pbench/tools-default/pidstat
-/var/tmp/pbench-test-utils/pbench/tools-default/proc-interrupts
-/var/tmp/pbench-test-utils/pbench/tools-default/proc-vmstat
-/var/tmp/pbench-test-utils/pbench/tools-default/sar
-/var/tmp/pbench-test-utils/pbench/tools-default/turbostat
-=== /var/tmp/pbench-test-utils/pbench/tools-default/iostat:
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/iostat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/perf
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/pidstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/proc-interrupts
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/proc-vmstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/sar
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/turbostat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/iostat:
 --interval=3
-=== /var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat:
 --interval=3
-=== /var/tmp/pbench-test-utils/pbench/tools-default/perf:
---record-opts=-a -freq=100
---record-opts=--call-graph
---record-opts=--event=branch-misses
---record-opts=--event=cache-misses
---record-opts=--event=instructions
-=== /var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/perf:
+--record-opts="record -a --freq=100 -g --event=branch-misses --event=cache-misses --event=instructions"
+--report-opts="-I -g"
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/pidstat:
 --interval=3
-=== /var/tmp/pbench-test-utils/pbench/tools-default/proc-interrupts:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/proc-interrupts:
 --interval=3
-=== /var/tmp/pbench-test-utils/pbench/tools-default/proc-vmstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/proc-vmstat:
 --interval=3
-=== /var/tmp/pbench-test-utils/pbench/tools-default/sar:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/sar:
 --interval=3
-=== /var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/turbostat:
 --interval=3
 --- pbench tree state
 +++ mock-run/metadata.log file contents
@@ -54,14 +52,16 @@ start_run = 1900-01-01T00:00:00.000000
 end_run = 1900-01-01T00:00:00.000000
 
 [tools]
-hosts = testhost
+hosts = testhost.example.com
 group = default
+trigger = ""
 
-[tools/testhost]
+[tools/testhost.example.com]
 hostname-s = testhost
 iostat = --interval=3
 mpstat = --interval=3
-perf = --record-opts=-a -freq=100 --record-opts=--call-graph --record-opts=--event=branch-misses --record-opts=--event=cache-misses --record-opts=--event=instructions
+perf = --record-opts="record -a --freq=100 -g --event=branch-misses --event=cache-misses --event=instructions"
+	--report-opts="-I -g"
 pidstat = --interval=3
 proc-interrupts = --interval=3
 proc-vmstat = --interval=3
