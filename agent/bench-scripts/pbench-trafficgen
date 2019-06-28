@@ -63,7 +63,7 @@ encap_src_ips=""
 encap_dst_macs=""
 encap_src_macs=""
 frame_sizes="64" # size in bytes of the Ethernet frame inccluding CRC
-config=""
+export config=""
 maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=1 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 df_sniff_runtime=30
@@ -995,12 +995,20 @@ else
 fi
 echo "Total number of benchmark iterations: $total_iterations"
 
-benchmark=${benchmark_name}
-export benchmark config
+export benchmark=${benchmark_name}
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+        error_log "[${script_name}]: failed to start the tool meisters."
+        exit 1
+fi
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
+trap "interrupt" INT QUIT TERM
 
 if [ "${postprocess_only}" == "n" ]; then
 	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
@@ -1147,8 +1155,9 @@ function inner_most_loop() {
 					if [ $rc -ne 0 ]; then
 						break
 					fi
-					benchmark_results_dir="$iteration_dir/sample$sample"
-					tt_benchmark_results_dir="${tt_iteration_dir}/sample${sample}"
+					sample_name="sample${sample}"
+					benchmark_results_dir="${iteration_dir}/${sample_name}"
+					tt_benchmark_results_dir="${tt_iteration_dir}/${sample_name}"
 					if [ "$postprocess_only" != "y" ]; then
 						mkdir -p $benchmark_results_dir
 						echo "test sample $sample of $num_samples"
@@ -1168,6 +1177,7 @@ function inner_most_loop() {
 
 						if [[ -e "${tt_benchmark_results_dir}/tools-${tool_group}" ]]; then
 							# Post-process the collected tool data now
+							pbench-send-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
 							pbench-postprocess-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
 
 							# Move the tool data collected for the tool-group to its final resting place.
@@ -1183,7 +1193,7 @@ function inner_most_loop() {
 								exit 1
 							fi
 						else
-							msg="tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
+							msg="tool triggers did not fire for iteration/sample, '${iteration}/${sample_name}'"
 							echo "${msg}"; log "${msg}"
 						fi
 					else
@@ -1295,6 +1305,13 @@ if [ "${postprocess_only}" == "n" ]; then
 fi
 
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+        error_log "[${script_name}]: failed to stop the tool meisters."
+fi
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 
 rmdir $benchmark_run_dir/.running

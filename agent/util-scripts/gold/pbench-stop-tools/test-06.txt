@@ -1,27 +1,14 @@
-+++ Running test-06 pbench-stop-tools --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample
++++ Running test-06 pbench-stop-tools --group=default --dir=42-iter/sample42
 --- Finished test-06 pbench-stop-tools (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
-/var/tmp/pbench-test-utils/pbench/mock-run
-/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration
-/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample
-/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default
-/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/kvmstat
-/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/stop.log
-/var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tools-default
-/var/tmp/pbench-test-utils/pbench/tools-default/kvmstat
-=== /var/tmp/pbench-test-utils/pbench/tools-default/kvmstat:
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/kvmstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/kvmstat:
 --interval="30"
 --- pbench tree state
-+++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample
-[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/kvmstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default --interval="30"
-[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
---- pbench.log file contents
-+++ mock-run/mock-iteration/mock-sample/tools-default/stop.log file contents
-kvmstat: stopping
-kvmstat: tool is not running, nothing to kill (missing or empty pid file)
-kvmstat: no post-processing available following stop
---- mock-run/mock-iteration/mock-sample/tools-default/stop.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-tool-meister-client default 42-iter/sample42 stop
+--- test-execution.log file contents

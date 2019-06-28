@@ -126,10 +126,11 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/summary-result.txt
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
-/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
-/var/tmp/pbench-test-bench/pbench-agent/tools-default
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] checking for dbench on client 127.0.0.1
@@ -217,6 +218,16 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3
@@ -237,6 +248,8 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 pbench-dbench --install
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 127.0.0.1 pbench-dbench --install
 --- test-execution.log file contents

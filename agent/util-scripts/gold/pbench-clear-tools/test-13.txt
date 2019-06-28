@@ -1,0 +1,19 @@
++++ Running test-13 pbench-clear-tools --remote=fubar2
+All tools removed from host, "fubar2"
+--- Finished test-13 pbench-clear-tools (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/fubar
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/fubar/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/fubar/__label__:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat:
+--interval: 34
+--- pbench tree state
++++ pbench.log file contents
+[info][1900-01-01T00:00:00.000000] All tools removed from host, "fubar2"
+--- pbench.log file contents

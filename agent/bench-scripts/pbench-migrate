@@ -24,7 +24,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 benchmark_rpm=$script_name
-benchmark="migrate"
+export benchmark="migrate"
 ver=1.0
 
 # Every bench-script follows a similar sequence:
@@ -51,7 +51,7 @@ seconds_before_migrate=1
 seconds_before_postprocess=1
 use_libvirt="y"
 tool_group=default
-config=""
+export config=""
 sysinfo="default"
 
 function usage {
@@ -274,7 +274,7 @@ function do_migrate() {
 		ssh $ssh_opts $dest_host virsh define /tmp/$vm.xml
 	else
 		# start qemu in listen mode on dest host
-		echo creating VM on destination hosyt using qemu
+		echo creating VM on destination host using qemu
 		qemu_cmd=`ssh $src_host "ps -C qemu-system-x86 -o command | tail -1"`
 		echo Starting qemu on $dest_host | tee -a $benchmark_results_dir/result.txt
 		echo qemu command: $qemu_cmd | tee -a $benchmark_results_dir/result.txt
@@ -286,10 +286,11 @@ function do_migrate() {
 		fi
 	fi
 
-	# migrate
-	echo sleeping for $seconds_before_migrate seconds before starting migration | tee -a $benchmark_results_dir/result.txt
+	echo "Sleeping for $seconds_before_migrate seconds before starting migration..." | tee -a $benchmark_results_dir/result.txt
 	sleep $seconds_before_migrate
-	pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
+
+	# migrate
+	pbench-start-tools --group=${tool_group} --dir=${benchmark_results_dir}
 	if [ "$use_libvirt" == "y" ]; then
 		if [ ! -z "$dest_ipaddr" ]; then
 			tcp_opt="tcp://$dest_ipaddr"
@@ -320,7 +321,7 @@ function do_migrate() {
 			let count=$count+1
 		done
 	fi
-	pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
+	pbench-stop-tools --group=${tool_group} --dir=${benchmark_results_dir}
 }
 
 export benchmark_run_dir=""
@@ -347,11 +348,18 @@ if [ $loops -eq 0 ]; then
 	loops=1
 fi
 
-export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to start the tool meisters."
+	exit 1
+fi
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
+trap "interrupt" INT QUIT TERM
 
 count=1
 for i in `seq 1 $loops`; do
@@ -389,16 +397,31 @@ for i in `seq 1 $loops`; do
 done
 
 # after all the migrations are done, postprocess the data
-echo sleeping for $seconds_before_postprocess seconds before postprocessing tools
+echo "Sleeping for $seconds_before_postprocess seconds before post-processing tool data ..."
 sleep $seconds_before_postprocess
 
 for postprocess_dir in $postprocess_dirs; do
-	pbench-postprocess-tools --group=$tool_group --dir=$postprocess_dir &
-	ln -s sample1 $(dirname $postprocess_dir)/reference-result
+	sample_name=$(basename "${postprocess_dir}")
+	if [[ "${sample_name}" != "sample1" ]]; then
+		warn_log "Encountered a mis-named directory to post-process, ${postprocess_dir}"
+	fi
+	iteration_path=$(dirname "${postprocess_dir}")
+	ln -s sample1 ${iteration_path}/reference-result
+	# We request all remote Tool Meisters send the data for a given iteration
+	# sequentially, but we'll post-process the data in parallel.
+	pbench-send-tools --group=${tool_group} --dir=${postprocess_dir}
+	pbench-postprocess-tools --group=${tool_group} --dir=${postprocess_dir} &
 done
 wait
 
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to stop the tool meisters."
+fi
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running

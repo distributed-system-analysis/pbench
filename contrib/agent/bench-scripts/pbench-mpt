@@ -161,7 +161,7 @@ function mpt_run_by_duration() {
 function mpt_run_test() {
   # Explanation: we trap the exit/kill/termination of the script, so that if the
   # test is aborted, we terminate the daeamons
-  trap mpt_stop_test SIGINT SIGTERM
+  trap mpt_stop_test SIGINT SIGTERM SIGQUIT
 
   echo "Saving mpt test results to ${benchmark_run_dir}"
 

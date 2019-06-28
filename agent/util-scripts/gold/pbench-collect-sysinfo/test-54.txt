@@ -1,0 +1,11 @@
++++ Running test-54 pbench-collect-sysinfo bad
+[error][1900-01-01T00:00:00.000000] Invalid argument, collection names should be either "beg" or "end", not "bad"
+--- Finished test-54 pbench-collect-sysinfo (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state
++++ pbench.log file contents
+[error][1900-01-01T00:00:00.000000] Invalid argument, collection names should be either "beg" or "end", not "bad"
+--- pbench.log file contents

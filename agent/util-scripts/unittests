@@ -95,9 +95,9 @@ res=0
 function _run {
     local sts
 
-    tname=${1}
+    local tname=${1}
     shift
-    tscrpt=${1}
+    local tscrpt=${1}
     shift
 
     pushd ${_testdir} > /dev/null 2>&1
@@ -105,10 +105,11 @@ function _run {
         exit 1
     fi
 
-    echo "${tname} ${tscrpt} ${@}"
-    echo "+++ Running ${tname} ${tscrpt} ${@}" >> ${_testout}
+    local opts=${options[${tname}]}
+    echo "${tname} ${tscrpt} ${opts}"
+    echo "+++ Running ${tname} ${tscrpt} ${opts}" >> ${_testout}
 
-    ${tscrpt} ${@} >> ${_testout} 2>&1
+    eval ${tscrpt} ${opts} >> ${_testout} 2>&1
     sts=${?}
 
     popd > /dev/null 2>&1
@@ -161,6 +162,19 @@ function _dump_logs {
         cat ${_testdir}/${actionlog} >> ${_testout} 2>&1
         echo "--- ${actionlog} file contents" >> ${_testout}
     done
+    for tmfile in ${_testdir}/*/tm/*; do
+        if [[ -f ${tmfile} ]]; then
+            tmdir=$(basename $(dirname $(dirname "${tmfile}")))
+            tmfilename=$(basename ${tmfile})
+            echo "+++ ${tmdir}/tm/${tmfilename} file contents" >> ${_testout}
+            if [[ "${tmfilename}" == "redis.log" ]]; then
+                grep -E -o -- '# Configuration loaded|# Server initialized|\* Ready to accept connections|# User requested shutdown\.\.\.|\* Removing the pid file\.|# Redis is now ready to exit, bye bye\.\.\.' ${_testdir}/${tmdir}/tm/${tmfilename} >> ${_testout} 2>&1
+            else
+                cat ${_testdir}/${tmdir}/tm/${tmfilename} >> ${_testout} 2>&1
+            fi
+            echo "--- ${tmdir}/tm/${tmfilename} file contents" >> ${_testout}
+        fi
+    done
     if [[ -f ${_testlog} ]]; then
         echo "+++ test-execution.log file contents" >> ${_testout}
         cat ${_testlog} >> ${_testout} 2>&1
@@ -186,8 +200,12 @@ function _verify_output {
     # Fix up any pids or temporary file or directory numbers that have snuck
     # into the output.
     sed -i -e 's;tmp/\([a-z-]*\)\.[0-9][0-9]*;tmp/\1.NNNNN;g' \
+           -e 's;\(tm\.[a-z-]*\)\.[0-9][0-9]*\.[a-z0-9_][a-z0-9_]*;\1.NNNNN.nnnnnnnn;g' \
            -e 's;raw_size = [0-9][0-9]*;raw_size = #####;g' \
-           -e 's;tar up [0-9][0-9]* bytes;tar up ##### bytes;g' ${_testout}
+           -e 's;v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*;v#.##.##;g' \
+           -e 's;"pid": [0-9][0-9]*\([,}]\);"pid": NNNNN\1;g' \
+           -e 's;tar up [0-9][0-9]* bytes;tar up ##### bytes;g' \
+           ${_testout}
     if [[ ${?} -ne 0 ]]; then
         printf -- "INTERNAL ERROR: sed failed to replace unique patterns\n" >&2
         exit 1
@@ -292,37 +310,35 @@ declare -A tools=(
     [test-02]="pbench-metadata-log"
     [test-03]="pbench-metadata-log"
     [test-04]="pbench-metadata-log"
-    [test-05]="pbench-stop-tools"
+    [test-05]="pbench-start-tools"
     [test-06]="pbench-stop-tools"
-    [test-07]="pbench-stop-tools"
-    [test-08]="pbench-stop-tools"
-    [test-09]="pbench-stop-tools"
-    [test-10]="pbench-stop-tools"
-    [test-11]="pbench-register-tool-set"
-    [test-11.1]="pbench-register-tool-set"
-    [test-11.2]="pbench-register-tool-set"
-    [test-11.3]="pbench-register-tool-set"
-    [test-11.4]="pbench-register-tool-set"
-    [test-11.5]="pbench-register-tool-set"
-    [test-11.6]="pbench-register-tool-set"
-    [test-11.7]="pbench-register-tool-set"
-    [test-11.8]="pbench-register-tool-set"
-    [test-11.9]="pbench-register-tool-set"
+    [test-07]="pbench-postprocess-tools"
+    [test-08]="pbench-kill-tools"
+    [test-09]="pbench-kill-tools"
+    [test-10]="pbench-kill-tools"
+    [test-11.00]="pbench-register-tool-set"
+    [test-11.01]="pbench-register-tool-set"
+    [test-11.02]="pbench-register-tool-set"
+    [test-11.03]="pbench-register-tool-set"
+    [test-11.04]="pbench-register-tool-set"
+    [test-11.05]="pbench-register-tool-set"
+    [test-11.06]="pbench-register-tool-set"
+    [test-11.07]="pbench-register-tool-set"
+    [test-11.08]="pbench-register-tool-set"
+    [test-11.09]="pbench-register-tool-set"
     [test-11.10]="pbench-register-tool-set"
     [test-11.11]="pbench-register-tool-set"
     [test-11.12]="pbench-register-tool-set"
     [test-11.13]="pbench-register-tool-set"
     [test-11.14]="pbench-register-tool-set"
     [test-12]="pbench-clear-tools"
-    [test-13]="pbench-postprocess-tools"
+    [test-13]="pbench-clear-tools" # was 21
     [test-14]="pbench-agent-config-activate"
     [test-15]="pbench-register-tool-trigger"
     [test-16]="pbench-list-triggers"
     [test-17]="pbench-list-triggers"
     [test-18]="pbench-list-triggers"
     [test-19]="test-tool-trigger"
-    [test-20]="pbench-postprocess-tools"
-    [test-21]="pbench-clear-tools"
     [test-22]="pbench-metadata-log"
     [test-23]="pbench-collect-sysinfo"
     [test-24]="pbench-collect-sysinfo"
@@ -348,6 +364,13 @@ declare -A tools=(
     [test-48]="test-add-metalog-%-option"
     [test-49]="pbench-copy-results"
     [test-50]="test-pbench-metadata-log"
+    [test-51]="test-start-stop-tool-meister"
+    [test-52]="test-start-stop-tool-meister"
+    [test-53]="test-client-tool-meister"
+    [test-54]="pbench-collect-sysinfo"
+    [test-55]="pbench-collect-sysinfo"
+    [test-56]="test-client-tool-meister"
+    [test-57]="test-client-tool-meister"
 )
 
 declare -A options=(
@@ -356,27 +379,27 @@ declare -A options=(
     [test-02]="--dir=${_testdir}/mock-run beg"
     [test-03]="--dir=${_testdir}/mock-run beg"
     [test-04]="--dir=${_testdir}/mock-run beg"
-    [test-05]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
-    [test-06]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
-    [test-07]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
-    [test-08]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
-    [test-09]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
-    [test-10]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
+    [test-05]="--group=default --dir=42-iter/sample42"
+    [test-06]="--group=default --dir=42-iter/sample42"
+    [test-07]="--group=foobar --dir=${_testdir}/42-iter/sample42"
+    [test-08]="--group=barfoo --dir=42-iter/sample42"
+    [test-09]="--group=barfoo"
+    [test-10]="--dir=barfoo"
     # fubar is assumed to *NOT* exist
-    [test-11]="--remote=fubar"
-    [test-11.2]="--interval=10"
+    [test-11.00]="--remote=fubar"
+    [test-11.02]="--interval=10"
     # verify one remote
-    [test-11.4]="--remotes=one.example.com"
+    [test-11.04]="--remotes=one.example.com"
     # verify multiple remotes
-    [test-11.5]="--remotes=a.example.com,b.example.com,c.example.com"
+    [test-11.05]="--remotes=a.example.com,b.example.com,c.example.com"
     # verify no remotes with a label (local)
-    [test-11.6]="--labels=labelNO"
+    [test-11.06]="--labels=labelNO"
     # verify one remote (default) with two labels
-    [test-11.7]="--labels=labelG,labelB"
+    [test-11.07]="--labels=labelG,labelB"
     # verify two remotes with one label
-    [test-11.8]="--remotes=one.example.com,two.example.com --labels=labelOne"
+    [test-11.08]="--remotes=one.example.com,two.example.com --labels=labelOne"
     # verify three remotes with three labels
-    [test-11.9]="--remotes=one.example.com,two.example.com,three.example.com --labels=labelOne,labelTwo,labelThree"
+    [test-11.09]="--remotes=one.example.com,two.example.com,three.example.com --labels=labelOne,labelTwo,labelThree"
     # verify --toolset option other than "default"
     [test-11.10]="--toolset=other"
     # verify --toolset option that does not exist
@@ -384,13 +407,11 @@ declare -A options=(
     # verify --group option works along side --no-install
     [test-11.12]="--group=other --no-install"
     [test-11.13]="--help"
-    [test-13]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample --group=default"
+    [test-13]="--remote=fubar2"
     [test-14]="${_testdir}/tmp/pbench-agent.cfg"
     [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     [test-17]="--group=default"
     [test-18]="--group=foo"
-    [test-20]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample --group=default"
-    [test-21]="--remote=fubar2"
     [test-22]="--dir=${_testdir}/mock-run end"
     [test-23]="--help"
     [test-24]="--options"
@@ -416,18 +437,22 @@ declare -A options=(
     [test-46]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-47]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis --labels=labelOne,labelTwo"
     [test-49]="--prefix=foo/bar3% --user=ndk20%"
+    [test-52]="mygroup"
+    [test-54]="bad"
+    [test-55]="--dir=${_testdir}/mock-run end"
+    [test-56]="lite with-remotes"
+    [test-57]="lite with-remotes delayed-send"
 )
 
 declare -A expected_status=(
     [test-01]=1
-    [test-05]=1
-    [test-06]=1
-    [test-11]=4
-    [test-11.7]=1
-    [test-11.8]=1
+    [test-09]=1
+    [test-10]=1
+    [test-11.00]=4
+    [test-11.07]=1
+    [test-11.08]=1
     [test-11.11]=1
     [test-12]=1
-    [test-13]=2
     [test-29]=1
     [test-35]=1
     [test-36]=1
@@ -436,23 +461,32 @@ declare -A expected_status=(
     [test-44]=1
     [test-46]=1
     [test-47]=1
+    [test-54]=1
 )
 
 declare -A pre_hooks=(
-    [test-05]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/turbostat'
-    [test-06]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/kvmstat'
-    [test-07]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/vmstat'
-    [test-08]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/numastat'
+    [test-05]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
+    [test-06]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
+    [test-07]='mkdir -p ${_testdir}/42-iter/sample42/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/testhost.example.com/iostat/iostat-stdout.txt'
+    [test-08]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-14]='rm ${_testopt}/config/pbench-agent.cfg; sed -i "s;_REPLACE_ME_;${_testopt};g" ${_testdir}/tmp/pbench-agent.cfg'
-    [test-20]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/iostat; touch ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/iostat/iostat-stdout.txt'
+    [test-19]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> ${_testout}'
     [test-45]='mkdir ${_testdir}/tmp; printf -- "# good list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
     [test-46]='mkdir ${_testdir}/tmp; printf -- "# bad list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com,labelThree,junk\n" > ${_testdir}/tmp/remotes.lis'
     [test-47]='mkdir ${_testdir}/tmp; printf -- "# good list with no labels\none.example.com\ntwo.example.com\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
     [test-48]='mkdir ${_testdir}/tmp; printf -- "%s\n" "30%" > ${_testdir}/tmp/foo.txt'
+    [test-55]='pbench-register-tool --name=mpstat --remote=localhost > /dev/null; mkdir ${_testdir}/mock-run'
 )
 
 declare -A post_hooks=(
+    [test-05]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
+    [test-06]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
+    [test-07]='cat ${_testdir}/42-iter/sample42/testhost.example.com/postprocess.log'
+    [test-08]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
+    [test-19]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
+    [test-56]='sort ${_testdir}/mock-run/tm/pbench-tool-data-sink.log > ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted; mv ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted ${_testdir}/mock-run/tm/pbench-tool-data-sink.log; sort ${_testlog} > ${_testlog}.sorted; mv ${_testlog}.sorted ${_testlog}'
+    [test-57]='sort ${_testdir}/mock-run/tm/pbench-tool-data-sink.log > ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted; mv ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted ${_testdir}/mock-run/tm/pbench-tool-data-sink.log; sort ${_testlog} > ${_testlog}.sorted; mv ${_testlog}.sorted ${_testlog}'
 )
 
 tests="${*}"
@@ -464,18 +498,17 @@ fi
 
 for tst in ${tests}; do
     tool=${tools[${tst}]}
-    opts=${options[${tst}]}
     status=${expected_status[${tst}]}
     pre_hook=${pre_hooks[${tst}]}
     post_hook=${post_hooks[${tst}]}
 
     _setup_state ${tst} ${tool}
     eval "${pre_hook}"
-    USER=nobody _run ${tst} ${tool} ${opts}
+    USER=nobody _run ${tst} ${tool}
     res=${?}
+    eval "${post_hook}"
     _save_tree
     _dump_logs
-    eval "${post_hook}"
     _verify_output ${res} ${tst} ${tool} ${status}
     res=${?}
     let errs=${errs}+${res}

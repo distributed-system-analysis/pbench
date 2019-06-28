@@ -154,10 +154,10 @@ function _dump_logs {
     (
     if cd ${_testdir}/${1} > /dev/null 2>&1 ;then
         for f in $(find . -name user-benchmark.cmd 2> /dev/null | sort); do
-            _dump_file ${1} ${f}
+            _dump_file ${1} ${f:2}
         done
         for f in $(find . -name results.html 2> /dev/null | sort); do
-            _dump_file ${1} ${f}
+            _dump_file ${1} ${f:2}
         done
     fi
     )
@@ -227,7 +227,7 @@ function _setup_state {
         echo "ERROR: failed to create test pbench directory, \"${_testdir}\"" >&2
         exit 1
     fi
-    cp -a ${_tdir}/tests/Defaults/tools-default ${_tdir}/tests/Defaults/tool-triggers  ${_testdir}/
+    cp -a ${_tdir}/tests/Defaults/tools-v1-default ${_testdir}/
     mkdir ${_testtmp}
     if [[ ${?} -gt 0 ]]; then
         echo "ERROR: failed to create tmp directory, \"${_testtmp}\"" >&2

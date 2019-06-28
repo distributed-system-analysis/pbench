@@ -21,7 +21,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 benchmark_rpm=$script_name
-benchmark="iozone"
+export benchmark="iozone"
 if [[ -z "${benchmark_bin}" ]]; then
 	benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
 	if [[ -z "${benchmark_bin}" ]]; then
@@ -63,13 +63,14 @@ fi
 # Check "iozone -h" for full help
 
 supported_test_types="0,1,2,3,4,5,6,7,8,10,11,12"
-config=""
+export config=""
 targets="/tmp/iozone"
 file_sizes="1,2"
 record_sizes="1,2"
 
 number_of_runs=10
 iteration=1
+sample="sample1"
 tool_group=default
 sysinfo="default"
 
@@ -192,13 +193,20 @@ mkdir -p $benchmark_run_dir/.running
 # now that the benchmark_run_dir directory exists, we can initialize the iterations file
 > ${benchmark_iterations}
 
-export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
-benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to start the tool meisters."
+	exit 1
+fi
+
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+
+trap "interrupt" INT QUIT TERM
+
+benchmark_results_dir="$benchmark_run_dir/$iteration/${sample}"
 echo $iteration >> $benchmark_iterations
 mkdir -p $benchmark_results_dir
 
@@ -215,10 +223,19 @@ for file_size in $(echo $file_sizes | sed -e s/,/" "/g); do
 done
 
 pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
+pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
-ln -s sample1 $benchmark_run_dir/$iteration/reference-result
+
+ln -s ${sample} $benchmark_run_dir/$iteration/reference-result
 
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to stop the tool meisters."
+fi
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running
