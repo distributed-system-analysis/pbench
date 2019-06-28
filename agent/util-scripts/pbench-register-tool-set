@@ -153,10 +153,10 @@ for tool_name in ${the_tool_set}; do
 	if [[ -z "${interval}" ]]; then
 		interval=${default_interval}
 	fi
-	pbench-register-tool --name=${tool_name}${group_arg}${install_arg}${remotes_arg}${labels_arg} -- --interval="$interval"
+	pbench-register-tool --name=${tool_name}${group_arg}${install_arg}${remotes_arg}${labels_arg} -- --interval="${interval}"
 	rc=${?}
 	if [[ ${rc} != 0 ]]; then
-		nerrs=${nerrs}+1
+		(( nerrs++ ))
 	fi
 done
 # low overhead perf
@@ -164,8 +164,8 @@ if [[ ${reg_perf} -ne 0 ]]; then
 	pbench-register-tool --name=perf${group_arg}${install_arg}${remotes_arg}${labels_arg} -- --record-opts="'record -a --freq=100'"
 	rc=${?}
 	if [[ ${rc} != 0 ]] ;then
-		nerrs=${nerrs}+1
+		(( nerrs++ ))
 	fi
 fi
 
-exit $nerrs
+exit ${nerrs}

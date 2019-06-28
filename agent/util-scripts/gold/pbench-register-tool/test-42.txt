@@ -1,16 +1,18 @@
 +++ Running test-42 pbench-register-tool --name=vmstat --group=default --no-install -- --interval=42
-vmstat tool is now registered in group default
+"vmstat" tool is now registered for host "testhost.example.com" in group "default"
 --- Finished test-42 pbench-register-tool (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tools-default
-/var/tmp/pbench-test-utils/pbench/tools-default/vmstat
-=== /var/tmp/pbench-test-utils/pbench/tools-default/vmstat:
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/vmstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/vmstat.__noinstall__
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/vmstat:
 --interval=42
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42"
-[info][1900-01-01T00:00:00.000000] vmstat tool is now registered in group default
+[info][1900-01-01T00:00:00.000000] "vmstat" tool is now registered for host "testhost.example.com" in group "default"
 --- pbench.log file contents

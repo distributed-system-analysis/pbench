@@ -142,8 +142,9 @@ if (! $pp_only) {
     # - execute pre-benchmark scripts on clients and servers (todo)
 
     # start the tools:
-    system("pbench-start-tools --group=" . $tool_group . " --dir=" . $sample_dir);
     print "starting tools\n";
+    system("pbench-start-tools --group=" . $tool_group . " --dir=" . $sample_dir) == 0
+		or die "Failed to start tools: $?";
 
     # benchmark-execution:
     print "starting benchmark\n";
@@ -174,14 +175,17 @@ if (! $pp_only) {
 
     # stop the tools:
     print "stopping tools\n";
-    system("pbench-stop-tools --group=" . $tool_group . " --dir=" . $sample_dir);
+    system("pbench-stop-tools --group=" . $tool_group . " --dir=" . $sample_dir)
+		or die "Failed to stop tools: $?";
 
     # post-process the tools:
-    print "copying tool data\n";
-    system("pbench-postprocess-tools --group=" . $tool_group . " --dir=" . $sample_dir);
+    print "post-processing tools\n";
+    system("pbench-postprocess-tools --group=" . $tool_group . " --dir=" . $sample_dir)
+		or die "Failed to post-process tools: $?";
 
-    # post-benhcmark-execution:
+    # post-benchmark-execution:
     # - copy files back to controller
+    # FIXME: with tool meister, all data is moved locally by the tool-data-sink
     print "copying benchmark data\n";
     for my $type (keys %hosts) {
         if ($hosts{$type} and scalar @{ $hosts{$type} }) {

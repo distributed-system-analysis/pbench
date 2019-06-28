@@ -1,5 +1,6 @@
 +++ Running test-01 pbench-metadata-log --dir=/var/tmp/pbench-test-utils/pbench/mock-run beg
-[error][1900-01-01T00:00:00.000000] Tool group directory, /var/tmp/pbench-test-utils/pbench/tools-default, does not exist
+	pbench-metadata-log: invalid --group option ("default"), directory not found: /var/tmp/pbench-test-utils/pbench/tools-v1-default
+[error][1900-01-01T00:00:00.000000] pbench-metadata-log: invalid tool group specified, "default"
 --- Finished test-01 pbench-metadata-log (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -9,5 +10,5 @@
 /var/tmp/pbench-test-utils/pbench/tools.default
 --- pbench tree state
 +++ pbench.log file contents
-[error][1900-01-01T00:00:00.000000] Tool group directory, /var/tmp/pbench-test-utils/pbench/tools-default, does not exist
+[error][1900-01-01T00:00:00.000000] pbench-metadata-log: invalid tool group specified, "default"
 --- pbench.log file contents

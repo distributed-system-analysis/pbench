@@ -180,7 +180,7 @@ fi
 # Move into pbench run collection directory
 pushd ${pbench_run} >/dev/null
 
-for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v "^tmp/"`; do
+for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v "^${tools_group_prefix}" | grep -v "^tmp/"`; do
     # Before the loop we have created a temp directory, $tmp/$controller, to
     # contain the tarball and the md5 file (as ${tb}.tar.xz.md5.check); pass
     # that information on to pbench-make-result-tb.

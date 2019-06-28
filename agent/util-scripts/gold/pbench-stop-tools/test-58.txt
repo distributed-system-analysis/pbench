@@ -1,0 +1,16 @@
++++ Running test-58 pbench-stop-tools --group=default --dir=42-iter/sample42
+[error][1900-01-01T00:00:00.000000] [pbench-stop-tools] expected tool output directory, "42-iter/sample42/tools-default", does not exist
+--- Finished test-58 pbench-stop-tools (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/kvmstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/kvmstat:
+--interval="30"
+--- pbench tree state
++++ pbench.log file contents
+[error][1900-01-01T00:00:00.000000] [pbench-stop-tools] expected tool output directory, "42-iter/sample42/tools-default", does not exist
+--- pbench.log file contents

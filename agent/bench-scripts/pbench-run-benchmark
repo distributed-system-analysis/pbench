@@ -60,34 +60,34 @@ sub find_common_parameters {
     my %common_parameters;
     my $counter = 1;
     for my $iteration_params (@iterations) {
-	$iteration_params =~ s/^\s+(.+)\s+$/$1/;
+        $iteration_params =~ s/^\s+(.+)\s+$/$1/;
 
-	my @split_params = split(/\s+/, $iteration_params);
+        my @split_params = split(/\s+/, $iteration_params);
 
-	# count the number of occurences of each parameter key=value
-	# pair
-	for my $param_piece (@split_params) {
-	    if (! exists($common_parameters{$param_piece})) {
-		$common_parameters{$param_piece} = 1;
-	    } else {
-		$common_parameters{$param_piece}++;
-	    }
-	}
+        # count the number of occurences of each parameter key=value
+        # pair
+        for my $param_piece (@split_params) {
+            if (! exists($common_parameters{$param_piece})) {
+                $common_parameters{$param_piece} = 1;
+            } else {
+                $common_parameters{$param_piece}++;
+            }
+        }
 
-	$counter++;
+        $counter++;
     }
 
     # decrement by one since we are post decrementing in the loop
     $counter--;
 
     for my $key (keys %common_parameters) {
-	# if the number of iterations is the same as the count for the
-	# key=value pair then the key=value pair is common across all
-	# iterations -- so remove key=value pairs where the count is
-	# not the same
-	if ($common_parameters{$key} != $counter) {
-	    delete $common_parameters{$key};
-	}
+        # if the number of iterations is the same as the count for the
+        # key=value pair then the key=value pair is common across all
+        # iterations -- so remove key=value pairs where the count is
+        # not the same
+        if ($common_parameters{$key} != $counter) {
+            delete $common_parameters{$key};
+        }
     }
 
     return(%common_parameters);
@@ -102,7 +102,7 @@ if (exists $params{"postprocess-only"} and $params{"postprocess-only"} eq "y") {
         $base_bench_dir = $params{"postprocess-dir"};
         delete $params{"postprocess-dir"};
     } else {
-	# Assume already in the base benchmark directory
+        # Assume already in the base benchmark directory
         $base_bench_dir = `/bin/pwd`;
         chomp $base_bench_dir;
     }
@@ -141,7 +141,7 @@ for my $def (keys %defaults) {
 # Prepare all the dirs for the run
 if ($pp_only) {
     if (! -e $base_bench_dir) {
-	die "Expected the base benchmark directory, [$base_bench_dir], to already exist, since this is a post-process only mode";
+        die "Expected the base benchmark directory, [$base_bench_dir], to already exist, since this is a post-process only mode";
     }
 } else {
     $base_bench_dir = get_benchmark_results_dir($benchmark, $params{"user-tags"});
@@ -155,7 +155,7 @@ if ($pp_only) {
     my $cmdfile = $base_bench_dir . "/pbench-run-benchmark.cmd";
     printf "cmdfile: %s\n", $cmdfile;
     open(my $cmd_fh, ">" . $cmdfile) ||
-	die "Could not create $cmdfile";
+        die "Could not create $cmdfile";
     printf $cmd_fh "pbench-run-benchmark %s %s\n", $benchmark, join(" ", @ARGV);
 }
 my $es_dir = $base_bench_dir . "/es";
@@ -198,7 +198,20 @@ my @iteration_names;
 my %param_sets_common_params = find_common_parameters(@param_sets);
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
+
+sub signal_handler {
+    system("pbench-tool-meister-stop");
+    metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $params{'tool-group'}, @iteration_names);
+}
+
+$SIG{INT} = signal_handler;
+$SIG{QUIT} = signal_handler;
+$SIG{TERM} = signal_handler;
+
+# start tool meister
+system("pbench-tool-meister-start " . $params{"tool-group"});
 metadata_log_begin_run($base_bench_dir, $benchmark, $params{"tool-group"});
+
 # There can be multiple parts of a run if the user generated multiple parameter-sets
 # (used a "--" in their cmdline).  Each part of the run has it's own run document,
 # but all of the run documents share the same run ID.
@@ -248,46 +261,46 @@ while (scalar @param_sets > 0) {
     my @iterations_labels;
 
     for my $iteration_params (@iterations) {
-	$iteration_params =~ s/^\s+(.+)\s+$/$1/;
+        $iteration_params =~ s/^\s+(.+)\s+$/$1/;
 
-	my @split_params = split(/\s+/, $iteration_params);
+        my @split_params = split(/\s+/, $iteration_params);
 
-	# create a label for the iteration, which becomes part of the
-	# iteration name.  the label should be comprised of the
-	# parameters that are not common across all iterations
-	my $iteration_label = "";
-	for my $param_piece (@split_params) {
-	    # if the param_piece does not exist in either of the
-	    # common parameters hashes then it should become part of
-	    # the iteration's label
-	    if (! exists($iterations_common_params{$param_piece}) ||
-		! exists($param_sets_common_params{$param_piece})) {
-		$iteration_label .= $param_piece . " ";
-	    }
-	}
+        # create a label for the iteration, which becomes part of the
+        # iteration name.  the label should be comprised of the
+        # parameters that are not common across all iterations
+        my $iteration_label = "";
+        for my $param_piece (@split_params) {
+            # if the param_piece does not exist in either of the
+            # common parameters hashes then it should become part of
+            # the iteration's label
+            if (! exists($iterations_common_params{$param_piece}) ||
+                ! exists($param_sets_common_params{$param_piece})) {
+                $iteration_label .= $param_piece . " ";
+            }
+        }
 
-	# strip off the -- from each parameter, remove beginning and
-	# ending spaces, and convert spaces to underscores
-	$iteration_label =~ s/\s*--/ /g;
-	$iteration_label =~ s/\s+$//;
-	$iteration_label =~ s/^\s+//;
-	$iteration_label =~ s/\s/_/g;
-	$iteration_label =~ s/\//:/g;
+        # strip off the -- from each parameter, remove beginning and
+        # ending spaces, and convert spaces to underscores
+        $iteration_label =~ s/\s*--/ /g;
+        $iteration_label =~ s/\s+$//;
+        $iteration_label =~ s/^\s+//;
+        $iteration_label =~ s/\s/_/g;
+        $iteration_label =~ s/\//:/g;
 
-	# if the logic for determining a label for the iteration has
-	# yielded an empty string just use the benchmark name -- this
-	# is likely because there is a single iteration so all
-	# parameters are common
-	if (length($iteration_label) == 0) {
-	    $iteration_label = $benchmark;
-	}
+        # if the logic for determining a label for the iteration has
+        # yielded an empty string just use the benchmark name -- this
+        # is likely because there is a single iteration so all
+        # parameters are common
+        if (length($iteration_label) == 0) {
+            $iteration_label = $benchmark;
+        }
 
-	push(@iterations_labels, $iteration_label);
+        push(@iterations_labels, $iteration_label);
     }
 
     for (my $index=0; $index<@iterations; $index++) {
-	my $iteration_params = $iterations[$index];
-	my $iteration_label = $iterations_labels[$index];
+        my $iteration_params = $iterations[$index];
+        my $iteration_label = $iterations_labels[$index];
 
         chomp $iteration_params;
         if ($iteration_params =~ /^#/) {
@@ -312,7 +325,7 @@ while (scalar @param_sets > 0) {
             }
         }
         while (scalar @sample_dirs > 0) {
-	    if (exists $params{'pre-sample-cmd'}) {
+            if (exists $params{'pre-sample-cmd'}) {
                 my $pre_sample_cmd_output = `$params{'pre-sample-cmd'} 2>&1`;
                 my $exit_code = $? >> 8;
                 print "pre-sample-cmd output:\n$pre_sample_cmd_output";
@@ -337,21 +350,21 @@ while (scalar @param_sets > 0) {
                                 " " .  $last_sample . " " . $params{"postprocess-mode"} .
                                 " " . $pp_only;
             if ($pp_only) {
-		if ($params{'postprocess-mode'} eq 'html') {
-		    # the last sample must be run by itself after all
-		    # other samples are processed; other samples can
-		    # be run in parallel
-		    if ($last_sample eq "0") {
-			print BULK_FH "$benchmark_cmd &\n";
-		    } elsif ($last_sample eq "1") {
-			print BULK_FH "echo Waiting for $nr_pp_jobs post-processing jobs to finish\n";
-			print BULK_FH "wait\n";
-			print BULK_FH "echo Post-processing last sample\n";
-			print BULK_FH "$benchmark_cmd\n";
-		    }
-		} else {
-		    print BULK_FH "$benchmark_cmd &\n";
-		}
+                if ($params{'postprocess-mode'} eq 'html') {
+                    # the last sample must be run by itself after all
+                    # other samples are processed; other samples can
+                    # be run in parallel
+                    if ($last_sample eq "0") {
+                        print BULK_FH "$benchmark_cmd &\n";
+                    } elsif ($last_sample eq "1") {
+                        print BULK_FH "echo Waiting for $nr_pp_jobs post-processing jobs to finish\n";
+                        print BULK_FH "wait\n";
+                        print BULK_FH "echo Post-processing last sample\n";
+                        print BULK_FH "$benchmark_cmd\n";
+                    }
+                } else {
+                    print BULK_FH "$benchmark_cmd &\n";
+                }
                 $nr_pp_jobs++;
             } else {
                 open(CMD_FH, ">" . $iteration_sample_dir . "/benchmark-sample.cmd");
@@ -369,11 +382,11 @@ while (scalar @param_sets > 0) {
         $iteration_id++;
     }
     if ($pp_only) {
-	if ($params{'postprocess-mode'} eq 'cdm') {
-	    print BULK_FH "echo Waiting for $nr_pp_jobs post-processing jobs to finish\n";
-	    print BULK_FH "wait\n";
-	}
-	print BULK_FH "echo Sample processing complete!\n";
+        if ($params{'postprocess-mode'} eq 'cdm') {
+            print BULK_FH "echo Waiting for $nr_pp_jobs post-processing jobs to finish\n";
+            print BULK_FH "wait\n";
+        }
+        print BULK_FH "echo Sample processing complete!\n";
         close(BULK_FH);
         system(". ./bulk-sample.sh");
     }
@@ -383,6 +396,8 @@ while (scalar @param_sets > 0) {
     $run_part++;
 }
 metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $params{'tool-group'}, @iteration_names);
+# stop tool meister
+system("pbench-tool-meister-stop");
 close $fh;
 if ($params{'postprocess-mode'} eq 'html') {
     # Generate the result.html (to go away once CDM/Elastic UI is available)
@@ -416,7 +431,7 @@ if (-e $base_bench_dir . "/stockpile.json") {
                 }
             } else {
                 printf "Error: config doc's cdm.doctype does not start with \"config_\"\n";
-                    }
+            }
             $json_text = "";
         }
     }

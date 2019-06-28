@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# the args to curl are highly system dependent  so we fake them here
-args="$@"
-echo "$0 $args" >> $_testlog
-echo pbench@server.com:/foo/bar
-
-
+# The args to curl are highly system dependent, so we fake them here.
+args="${@}"
+echo "${0} ${args}" >> ${_testlog}
+echo "pbench@server.com:/foo/bar"

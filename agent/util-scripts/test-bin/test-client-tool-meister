@@ -1,0 +1,121 @@
+#!/bin/bash
+
+_script_path="$(dirname ${0})"
+pbench_bin="$(realpath -e ${_script_path}/..)"
+
+# source the base script
+. "${pbench_bin}"/base
+
+if [[ -z "${full_hostname}" ]]; then
+    printf -- "Missing 'full_hostname' environment variable" >&2
+    exit 1
+fi
+export full_hostname
+
+if [[ -z "${hostname}" ]]; then
+    printf -- "Missing 'hostname' environment variable" >&2
+    exit 1
+fi
+export hostname
+
+if [[ -z "${1}" ]]; then
+     group="default"
+else
+     group="${1}"
+fi
+
+function register {
+    if [[ -z "${2}" ]]; then
+        local remote_arg=""
+    else
+        local remote_arg=" --remote ${2}"
+    fi
+    pbench-register-tool --group "${group}" --name ${1}${remote_arg}
+    status=${?}
+    if [[ ${status} -ne 0 ]]; then
+        printf -- "ERROR - \"pbench-register-tool --group %s --name %s\" failed to execute successfully (exit code: %s)\n" "${group}" "${1}${remote_arg}" "${status}" >&2
+        exit 1
+    fi
+}
+
+# Always register a local tool
+register mpstat
+register iostat
+
+if [[ "${2}" == "with-remotes" ]]; then
+    register mpstat remote_a.example.com
+    register mpstat remote_b.example.com
+    register mpstat remote_c.example.com
+fi
+
+# We created the benchmark_run_dir directory as the tool meister expects it to
+# exist.
+mkdir ${benchmark_run_dir}
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "ERROR - \"mkdir %s\" failed to execute successfully (exit code: %s)\n" "${benchmark_run_dir}" "${status}" >&2
+    exit 1
+fi
+
+function _timeout {
+    timeout --kill-after=30 --signal TERM 60 $*
+}
+
+_timeout pbench-tool-meister-start ${group}
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "ERROR - \"pbench-tool-meister-start %s\" failed to execute successfully (exit code: %s)\n" "${group}" "${status}" >&2
+    exit 1
+fi
+
+sample="sample42"
+iterations="0-iter-zero 1-iter-one"
+
+for iteration in ${iterations}; do
+    benchmark_results_dir="${benchmark_run_dir}/${iteration}/${sample}"
+    mkdir -p ${benchmark_results_dir}
+    status=${?}
+    if [[ ${status} -ne 0 ]]; then
+        printf -- "ERROR - failed to create tool directory, '%s' (exit code: %s)\n" "${benchmark_results_dir}" "${status}" >&2
+        exit 1
+    fi
+    _timeout pbench-start-tools --group="${group}" --dir="${benchmark_results_dir}"
+    status=${?}
+    if [[ ${status} -ne 0 ]]; then
+        printf -- "ERROR - \"pbench-start-tools\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+        exit 1
+    fi
+    _timeout pbench-stop-tools --group="${group}" --dir="${benchmark_results_dir}"
+    status=${?}
+    if [[ ${status} -ne 0 ]]; then
+        printf -- "ERROR - \"pbench-stop-tools\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+        exit 1
+    fi
+    if [[ "${3}" != "delayed-send" ]]; then
+        _timeout pbench-send-tools --group="${group}" --dir="${benchmark_results_dir}"
+        status=${?}
+        if [[ ${status} -ne 0 ]]; then
+            printf -- "ERROR - \"pbench-send-tools\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+            exit 1
+        fi
+    fi
+done
+
+if [[ "${3}" == "delayed-send" ]]; then
+    for iteration in ${iterations}; do
+        benchmark_results_dir="${benchmark_run_dir}/${iteration}/${sample}"
+        _timeout pbench-send-tools --group="${group}" --dir="${benchmark_results_dir}"
+        status=${?}
+        if [[ ${status} -ne 0 ]]; then
+            printf -- "ERROR - \"pbench-send-tools\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+            exit 1
+        fi
+    done
+fi
+
+_timeout pbench-tool-meister-stop
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "ERROR - \"pbench-tool-meister-stop\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+    exit 1
+fi

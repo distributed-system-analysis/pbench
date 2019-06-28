@@ -1,18 +1,29 @@
 +++ Running test-45 pbench-register-tool --name=mpstat --no-install --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis
+"mpstat" tool is now registered for host "one.example.com" in group "default"
+"mpstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+"mpstat" tool is now registered for host "three.example.com" in group "default"
 --- Finished test-45 pbench-register-tool (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tmp/remotes.lis
-/var/tmp/pbench-test-utils/pbench/tools-default
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@one.example.com
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@three.example.com
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@two.example.com
-=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@one.example.com:
-=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@three.example.com:
-=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@two.example.com:
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/mpstat.__noinstall__
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/mpstat.__noinstall__
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/mpstat.__noinstall__
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/__label__:
 labelTwo
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/mpstat:
 === /var/tmp/pbench-test-utils/pbench/tmp/remotes.lis:
 # good list
 one.example.com
@@ -22,12 +33,7 @@ three.example.com
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] tool_opts: ""
-[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
-[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=mpstat --group=default --no-install --label=labelTwo -- "${tool_opts[@]}" 2>&1
-[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "one.example.com" in group "default"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "three.example.com" in group "default"
 --- pbench.log file contents
-+++ test-execution.log file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no one.example.com  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no two.example.com  pbench-register-tool --name=mpstat --group=default --no-install --label=labelTwo -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no three.example.com  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
---- test-execution.log file contents
