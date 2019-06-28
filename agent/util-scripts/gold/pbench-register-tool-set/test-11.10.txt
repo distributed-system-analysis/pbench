@@ -1,26 +1,23 @@
 +++ Running test-11.10 pbench-register-tool-set --toolset=other
-pidstat: pbench-sysstat-12.0.3 is installed
-pidstat tool is now registered in group default
-sar: pbench-sysstat-12.0.3 is installed
-sar tool is now registered in group default
+"pidstat" tool is now registered for host "testhost.example.com" in group "default"
+"sar" tool is now registered for host "testhost.example.com" in group "default"
 --- Finished test-11.10 pbench-register-tool-set (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tools-default
-/var/tmp/pbench-test-utils/pbench/tools-default/pidstat
-/var/tmp/pbench-test-utils/pbench/tools-default/sar
-=== /var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/pidstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/sar
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/pidstat:
 --interval=30
-=== /var/tmp/pbench-test-utils/pbench/tools-default/sar:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/sar:
 --interval=3
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=30"
-[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[info][1900-01-01T00:00:00.000000] pidstat tool is now registered in group default
+[info][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[info][1900-01-01T00:00:00.000000] sar tool is now registered in group default
+[info][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "testhost.example.com" in group "default"
 --- pbench.log file contents

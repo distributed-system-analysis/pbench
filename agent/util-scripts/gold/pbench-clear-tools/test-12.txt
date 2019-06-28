@@ -1,13 +1,16 @@
 +++ Running test-12 pbench-clear-tools 
-removing tools-default/mpstat
-running . /var/tmp/pbench-test-utils/opt/pbench-agent/profile; pbench-clear-tools --group default  on fubar
-Removing the remote remote@fubar
---- Finished test-12 pbench-clear-tools (status=1)
+All tools removed from host, "fubar"
+Removed "mpstat" from host, "testhost.example.com", in tools group, "default"
+All tools removed from host, "testhost.example.com"
+--- Finished test-12 pbench-clear-tools (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
 --- pbench tree state
-+++ test-execution.log file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no -o ConnectTimeout=1 -n fubar . /var/tmp/pbench-test-utils/opt/pbench-agent/profile; pbench-clear-tools --group default 
---- test-execution.log file contents
++++ pbench.log file contents
+[info][1900-01-01T00:00:00.000000] All tools removed from host, "fubar"
+[info][1900-01-01T00:00:00.000000] Removed "mpstat" from host, "testhost.example.com", in tools group, "default"
+[info][1900-01-01T00:00:00.000000] All tools removed from host, "testhost.example.com"
+--- pbench.log file contents

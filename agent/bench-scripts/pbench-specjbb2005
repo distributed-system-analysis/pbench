@@ -269,9 +269,17 @@ pbench-register-tool-trigger --group=$tool_group --start-trigger="Timing Measure
 
 # Collect system information before we begin, and record the beginning.
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to start the tool meisters."
+	exit 1
+fi
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
+trap "interrupt" INT QUIT TERM
 
 # edit the jbb properties file to match user's options
 > ${benchmark_run_dir}/SPECjbb.props.sed
@@ -322,7 +330,7 @@ specjbb_opts="-cp ${specjbb_cp} -Xms${heap_size} -Xmx${heap_size} ${java_opts} s
 for i in `seq $nr_jvms -1 1`; do
 	if [ $i -eq 1 ]; then
 		# the last JVM gets output so we can trigger the tools starting at iteration 1
-		java ${specjbb_opts} -id $i | tee ./jvm-$i-worker.txt | pbench-tool-trigger 1 "${benchmark_run_dir}" "${tool_group}"
+		java ${specjbb_opts} -id $i | tee ./jvm-$i-worker.txt | pbench-tool-trigger 1 "${benchmark_run_dir}" "${tool_group}" "${sample}"
 	else
 		java ${specjbb_opts} -id $i >     ./jvm-$i-worker.txt &
 	fi
@@ -354,25 +362,27 @@ function record_iteration {
 # rename the iterations with warehouse count and then postprocess the tools
 > ${benchmark_iterations}
 iteration=1
+sample="sample1"
 for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
-	if [ ! -d ${iteration}-default/sample1 ]; then
-		error_log "missing iteration directory ${benchmark_run_dir}/${iteration}-default/sample1"
+	if [ ! -d ${iteration}-default/${sample} ]; then
+		error_log "missing iteration directory ${benchmark_run_dir}/${iteration}-default/${sample}"
 		let iteration=$iteration+1
 		continue
 	fi
 	# for each of the test iterations (each test with a specific number of warehouses), copy the raw result data for that iteration in the iteration directory
-	grep "test${i}" ${specjbb_results}/SPECjbb.001.raw > ${iteration}-default/sample1/SPECjbb.raw
+	grep "test${i}" ${specjbb_results}/SPECjbb.001.raw > ${iteration}-default/${sample}/SPECjbb.raw
 	if [ $? -ne 0 ]; then
 		error_log "missing test${i} raw results in ${specjbb_results}/SPECjbb.raw"
 	fi
 	new_iteration_name="${iteration}-warehouses:${i}"
 	mv ${iteration}-default ${new_iteration_name}
 	if [ $? -ne 0 ]; then
-		error_log "unable to move ${iteration}-default directory hierarchy to ${new_iteration_name}, skipping post-processing"
+		error_log "unable to move ${iteration}-default directory hierarchy to ${new_iteration_name}, skipping tools post-processing"
 	else
 		record_iteration ${iteration} ${new_iteration_name} ${benchmark}
-		pbench-postprocess-tools --group=${tool_group} --dir=${benchmark_run_dir}/${new_iteration_name}/sample1
-		ln -s sample1 ${benchmark_run_dir}/${new_iteration_name}/reference-result
+		pbench-send-tools --group=${tool_group} --dir=${benchmark_run_dir}/${new_iteration_name}/${sample}
+		pbench-postprocess-tools --group=${tool_group} --dir=${benchmark_run_dir}/${new_iteration_name}/${sample}
+		ln -s ${sample} ${benchmark_run_dir}/${new_iteration_name}/reference-result
 	fi
 	let iteration=$iteration+1
 done
@@ -380,6 +390,13 @@ done
 popd > /dev/null 2>&1
 
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to stop the tool meisters."
+fi
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running
