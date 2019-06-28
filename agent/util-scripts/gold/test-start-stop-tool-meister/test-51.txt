@@ -1,0 +1,67 @@
++++ Running test-51 test-start-stop-tool-meister 
+"mpstat" tool is now registered for host "testhost.example.com" in group "default"
+starting redis server
+starting tool data sink
+starting locolhost tool meister
+waiting for subs
+channel payload, "'{"kind": "ds", "hostname": "localhost", "pid": NNNNN}'"
+channel payload, "'{"kind": "tm", "hostname": "testhost.example.com", "pid": NNNNN}'"
+--- Finished test-51 test-start-stop-tool-meister (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/mock-run
+/var/tmp/pbench-test-utils/pbench/mock-run/tm
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.err
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.log
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-meister.log
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat:
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] tool_opts: ""
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "default"
+--- pbench.log file contents
++++ mock-run/tm/pbench-tool-data-sink.err file contents
+Bottle v#.##.## server starting up (using DataSinkWSGIRefServer())...
+Listening on http://localhost:8080/
+Hit Ctrl-C to quit.
+
+--- mock-run/tm/pbench-tool-data-sink.err file contents
++++ mock-run/tm/pbench-tool-data-sink.log file contents
+INFO pbench-tool-data-sink main -- params_key (tds-default): b'{"channel": "tool-meister-chan", "benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run"}'
+INFO pbench-tool-data-sink watcher -- watcher started
+INFO pbench-tool-data-sink main -- Running...
+INFO pbench-tool-data-sink watcher -- Terminating bottle server ...
+INFO pbench-tool-data-sink main -- Remove pid file ... (pbench-tool-data-sink.pid)
+--- mock-run/tm/pbench-tool-data-sink.log file contents
++++ mock-run/tm/pbench-tool-data-sink.out file contents
+--- mock-run/tm/pbench-tool-data-sink.out file contents
++++ mock-run/tm/pbench-tool-meister.log file contents
+INFO pbench-tool-meister main -- params_key (tm-default-testhost.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "testhost.example.com", "group": "default", "hostname": "testhost.example.com", "tools": {"mpstat": ""}}'
+INFO pbench-tool-meister main -- terminating
+INFO pbench-tool-meister main -- Remove pid file ... (pbench-tool-meister.pid)
+--- mock-run/tm/pbench-tool-meister.log file contents
++++ mock-run/tm/redis.conf file contents
+bind localhost
+daemonize yes
+dir /var/tmp/pbench-test-utils/pbench/mock-run/tm
+dbfilename pbench-redis.rdb
+logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
+pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis_17001.pid
+port 17001
+--- mock-run/tm/redis.conf file contents
++++ mock-run/tm/redis.log file contents
+# Configuration loaded
+# Server initialized
+* Ready to accept connections
+# User requested shutdown...
+* Removing the pid file.
+# Redis is now ready to exit, bye bye...
+--- mock-run/tm/redis.log file contents

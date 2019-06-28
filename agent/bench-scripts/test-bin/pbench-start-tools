@@ -4,6 +4,9 @@ echo "${0} ${*}" >> ${_testlog}
 
 PROG="$(basename "${0}")"
 
+group="__bad_group__"
+dir="__bad_dir__"
+
 opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "mock-${PROG}" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
 	printf -- "mock-%s: unrecognized argument, \"%s\"\n" "${PROG}" "${*}" >> ${_testlog}

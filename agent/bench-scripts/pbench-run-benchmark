@@ -198,7 +198,20 @@ my @iteration_names;
 my %param_sets_common_params = find_common_parameters(@param_sets);
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
+
+# start tool meister
+system("pbench-tool-meister-start " . $params{"tool-group"});
 metadata_log_begin_run($base_bench_dir, $benchmark, $params{"tool-group"});
+
+sub signal_handler {
+    system("pbench-tool-meister-stop");
+    metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $params{'tool-group'}, @iteration_names);
+}
+
+$SIG{INT} = signal_handler;
+$SIG{QUIT} = signal_handler;
+$SIG{TERM} = signal_handler;
+
 # There can be multiple parts of a run if the user generated multiple parameter-sets
 # (used a "--" in their cmdline).  Each part of the run has it's own run document,
 # but all of the run documents share the same run ID.
@@ -383,6 +396,8 @@ while (scalar @param_sets > 0) {
     $run_part++;
 }
 metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $params{'tool-group'}, @iteration_names);
+# stop tool meister
+system("pbench-tool-meister-stop");
 close $fh;
 if ($params{'postprocess-mode'} eq 'html') {
     # Generate the result.html (to go away once CDM/Elastic UI is available)

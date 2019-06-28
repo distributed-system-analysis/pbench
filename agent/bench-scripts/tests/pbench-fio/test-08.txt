@@ -112,10 +112,11 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
-/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
-/var/tmp/pbench-test-bench/pbench-agent/tools-default
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] [check_install_rpm] fio-3.19 is installed
@@ -211,6 +212,8 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/sample3
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/sample4
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null

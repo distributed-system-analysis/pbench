@@ -35,7 +35,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 benchmark_rpm=$script_name
-benchmark="netperf"
+export benchmark="netperf"
 benchmark_bin=/usr/bin/$benchmark
 ver=2.7.0
 spacing=25
@@ -57,7 +57,7 @@ benchmark_iterations=""
 protocols="tcp,udp"
 test_types="stream,maerts,bidirec,rr"
 message_sizes="1,64,1024,16384" # in bytes
-config=""
+export config=""
 instances="1,8,64"
 samples=5
 maxstddevpct=5 # maximum allowable standard deviation in percent
@@ -424,16 +424,34 @@ printf "<pre>\n# these results generated with:\n# netperf %s\n\n" "$orig_cmd" >$
 printf "\n" >>$benchmark_summary_txt_file
 printf "\n" >>$benchmark_summary_html_file
 
-count=1
 # disable firewall on local system
 systemctl stop firewalld
-export benchmark config
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to start the tool meisters."
+	exit 1
+fi
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
+function interrupt() {
+	# On abnormal exit, stop the tool meister ...
+	pbench-tool-meister-stop
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to stop the tool meisters on interrupt."
+	fi
+	# ... and make sure that the metadata log exists and is complete.
+	pbench-metadata-log --group=$tool_group --dir=${benchmark_run_dir} int
+	return 0
+}
+trap "interrupt" INT QUIT TERM
 
 # start the server processes
+count=1
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
 		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
@@ -458,7 +476,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 						latencies=""
 						# each attempt at a test config requires multiple samples to get stddev
 						for sample in `seq 1 $samples`; do
-							benchmark_results_dir="$benchmark_run_dir/$iteration/sample$sample"
+							sample_name="sample${sample}"
+							benchmark_results_dir="$benchmark_run_dir/$iteration/$sample_name"
 							mkdir -p $benchmark_results_dir
 							if [ "$postprocess_only" != "y" ]; then
 								# prepare the netperf server(s)
@@ -615,8 +634,15 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	done
 done
 printf -- "</pre>\n" >>$benchmark_summary_html_file
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
+pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to stop the tool meisters."
+fi
+
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running

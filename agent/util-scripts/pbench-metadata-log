@@ -1,156 +1,203 @@
 #! /bin/bash
 # -*- mode: shell-script -*-
 
-# this script uses env variables set by the base script, so it
-# needs to be invoked *after* the base script is sourced and *after*
-# the benchmark_run_dir is set.
+# This script uses env variables set by the base script, so it needs to be
+# invoked *after* the base script is sourced and *after* the benchmark_run_dir
+# is set.
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
-# This script will collect metadata about a pbench run.  This is
-# typically called at the beginning and end of a benchmark script to
-# capture various bits of information that will be useful in indexing
-# the run.
+# This script will collect metadata about a pbench run.  This is typically
+# called at the beginning and end of a benchmark script to capture various
+# bits of information that will be useful in indexing the run.
 
 # Defaults
 dir=""
 group="default"
 
 function usage {
-    printf -- "Usage: $prog --dir=str [--group=str] beg|end|int\n\n"
-    printf -- "\t-d str --dir=str,   str = the target benchmark run directory where $script_name\n"
+    printf -- "Usage: %s --dir=str [--group=str] beg|end|int\n\n" "${script_name}"
+    printf -- "\t-d str --dir=str,   str = the target benchmark run directory where %s\n" "${script_name}"
     printf -- "\t                          will store and process the metadata.log file (required)\n\n"
     printf -- "\t-g str --group=str, str = the tool group to use\n\n"
 }
 
 # Process options and arguments
 
-opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-    printf "\n"
-    printf "$script_name: you specified an invalid option\n\n"
-    usage
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "${@}");
+if [[ ${?} -ne 0 ]]; then
+    printf -- "\n%s: you specified an invalid option\n\n" "${script_name}" >&2
+    usage >&2
     exit 1
 fi
-eval set -- "$opts";
+eval set -- "${opts}"
 while true; do
-    case "$1" in
+    case "${1}" in
 	-d|--dir)
-	    shift;
-	    if [ -n "$1" ]; then
-		    dir="$1"
-		shift;
+	    shift
+	    if [[ -n "${1}" ]]; then
+		dir="${1}"
+		shift
 	    fi
 	    ;;
 	-g|--group)
-	    shift;
-	    if [ -n "$1" ]; then
-		    group="$1"
-		    shift;
+	    shift
+	    if [[ -n "${1}" ]]; then
+		    group="${1}"
+		    shift
 	    fi
 	    ;;
 	--)
-	    shift;
-	    break;
+	    shift
+	    break
 	    ;;
     esac
 done
 
-if [[ -z "$dir" ]]; then
+if [[ -z "${dir}" ]]; then
     error_log "Missing --dir=<benchmark run directory>"
     exit 1
 fi
-mkdir -p $dir
-if [[ $? -ne 0 ]]; then
-    error_log "Unable to create specified benchmark run directory, $dir"
+mkdir -p ${dir}
+if [[ ${?} -ne 0 ]]; then
+    error_log "Unable to create specified benchmark run directory, \"${dir}\""
     exit 1
 fi
-if [[ ! -d $pbench_run/tools-$group ]]; then
-    error_log "Tool group directory, $pbench_run/tools-$group, does not exist"
+if [[ -z "${group}" ]]; then
+    error_log "Missing --group=<tool group name>"
     exit 1
+fi
+tool_group_dir="$(verify_tool_group "${group}")"
+if [[ ${?} -ne 0 || -z "${tool_group_dir}" ]]; then
+    error_log "${script_name}: invalid tool group specified, \"${group}\""
+    exit 1
+fi
+if [[ -z "${benchmark}" ]]; then
+    # Should be provided
+    error_log "Missing required \$benchmark environment variable"
+    exit 3
+fi
+# We don't require "${config}" to be exported, because the user may not
+# provide it.
+if [[ -z "${date}" ]]; then
+    # Should be provided by ${pbench_bin}/base
+    error_log "Missing required \$date environment variable"
+    exit 3
+fi
+if [[ -z "${full_hostname}" ]]; then
+    # Should be provided by ${pbench_bin}/base
+    error_log "Missing required \$full_hostname environment variable"
+    exit 3
+fi
+if [[ -z "${hostname}" ]]; then
+    # Should be provided by ${pbench_bin}/base
+    error_log "Missing required \$hostname environment variable"
+    exit 3
 fi
 
 function metadata_log_tools {
-    local log=$1
+    local log=${1}
 
-    # get the remotes from the local tools-$group directory
-    # then get the remote tools-$group dirs for each remote
-    local remotes="$(/bin/ls $pbench_run/tools-$group/ 2> /dev/null | grep @ | sed 's/.*@//
-s/:[^:]*$//' | tr '\n' ' ')"
+    local local_tools=0
+    local remotes=""
+    # Build a list of remote hosts from the tool group, while looking to see
+    # if we have any local tools registered.
+    for dirent in $(/bin/ls -1 ${tool_group_dir}); do
+	if [[ "${dirent}" == "__trigger__" ]]; then
+	    # Ignore trigger files
+            :
+	elif [[ ! -d ${tool_group_dir}/${dirent} ]]; then
+	    # Skip spurious files of ${tool_group_dir}
+	    warn_log "[$script_name] \"${this_tool_file}\" is a file in \"${tool_group_dir}\"; that should not happen. Please consider deleting it."
+	elif [[ "${dirent}" == "${full_hostname}" ]]; then
+            local_tools=1
+	elif [[ -z "${remotes}" ]]; then
+            remotes="${dirent}"
+        else
+	    remotes="${remotes} ${dirent}"
+	fi
+    done
 
-    # check if the local tools-$group directory includes any local tools
-    local_tools=0
-    if /bin/ls $pbench_run/tools-$group 2> /dev/null | grep -q -v "^remote@" ;then
-        local_tools=1
-    fi
+    trigger_val="$(cat ${tool_group_dir}/__trigger__ 2> /dev/null)"
 
-    # if yes ...
-    if [ $local_tools == 1 ] ;then
-        cat >> $log <<EOF
+    printf -- "\n" >> "${log}"
+    if [[ ${local_tools} == 1 ]]; then
+        # If we have tools register on this local host, we record those tools
+        # first under the local host's hostname.
+        cat >> ${log} <<EOF
 [tools]
-hosts: $hostname $remotes
-group: $group
+hosts = ${full_hostname} ${remotes}
+group = ${group}
+trigger = "${trigger_val}"
 
-[tools/$hostname]
-hostname-s = $hostname
+[tools/${full_hostname}]
+hostname-s = ${hostname}
 EOF
-        for tool in $(/bin/ls $pbench_run/tools-$group 2> /dev/null) ;do
-            # add the options with a space in front, effectively making them continuation
+        for toolent in $(/bin/ls -1 ${tool_group_dir}/${full_hostname} 2> /dev/null); do
+            if [[ "${toolent}" == *.__noinstall__ ]]; then
+                continue
+            fi
+            if [[ "${toolent}" == "__label__" ]]; then
+                toolent_name="label"
+            else
+                toolent_name=${toolent}
+            fi
+            # Add the options with a space in front, effectively making them continuation
             # lines as far the python config module is concerned.
-            echo $tool: $(cat $pbench_run/tools-$group/$tool | sed 's/^/ /')
-        done >> $log
-        echo "" >> $log
+            printf -- "%s = %s\n" "${toolent_name}" "$(cat ${tool_group_dir}/${full_hostname}/${toolent} | sed 's/^/ /')"
+        done >> ${log}
     else
-        # just remotes
-        if [ ! -z "$remotes" ] ;then
-            cat >> $log <<EOF
+        if [[ ! -z "${remotes}" ]]; then
+            # We only have remotes.
+            cat >> ${log} <<EOF
 [tools]
-hosts: $remotes
-group: $group
-
+hosts = ${remotes}
+group = ${group}
+trigger = "${trigger_val}"
 EOF
         fi
     fi
+    printf -- "\n" >> "${log}"
 
-    for remote in $remotes ;do
-        mkdir -p $tmpdir/$remote
-        if [[ $? -ne 0 ]]; then
-            error_log "Unable to create $tmpdir/$remote directory while gathering remote tool metadata"
-            continue
-        fi
-        scp -r ${scp_opts} ${remote}:${pbench_run}/tools-${group} ${tmpdir}/${remote} > /dev/null 2>&1
-        if [[ $? -ne 0 ]]; then
-            error_log "Unable to fetch remote tool group directory, ${remote}:${pbench_run}/tools-${group}"
-            continue
-        fi
-        cat >> $log <<EOF
-[tools/$remote]
+    for remote in ${remotes}; do
+        cat >> ${log} <<EOF
+[tools/${remote}]
 EOF
-        # the remotes may have different names than what the controller uses,
-        # so go ask them - the names of the remotes in the metadata log have to
-        # agree with the names of the remotes used when postprocessing the tool
-        # results, otherwise the indexing will fail, so we add a hostname-s option
-        # record the host's preferred name (what hostname -s returns on that
-        # host) and use that for indexing purposes.
-        rem=$(ssh $ssh_opts -n $remote hostname -s 2>/dev/null || echo $remote)
+        # The remotes may have different names than what the controller uses,
+        # so go ask them - the names of the remotes in the metadata log have
+        # to agree with the names of the remotes used when post-processing the
+        # tool results, otherwise the indexing will fail. So we add a
+        # hostname-s option record the host's preferred name (what hostname -s
+        # returns on that host) and use that for indexing purposes.
+        rem=$(ssh ${ssh_opts} -n ${remote} hostname -s 2>/dev/null || echo ${remote})
         # add explicit hostname-s - see issue #725.
-        echo "hostname-s = $rem" >> $log
-        for tool in $(/bin/ls $tmpdir/$remote/tools-$group) ;do
-            echo $tool: $(cat $tmpdir/$remote/tools-$group/$tool | sed 's/^/ /')
-        done >> $log
-        echo "" >> $log
+        printf -- "hostname-s = %s\n" "${rem}" >> "${log}"
+        for toolent in $(/bin/ls -1 ${tool_group_dir}/${remote} 2> /dev/null); do
+            if [[ "${toolent}" == *.__noinstall__ ]]; then
+                continue
+            fi
+            if [[ "${toolent}" == "__label__" ]]; then
+                toolent_name="label"
+            else
+                toolent_name=${toolent}
+            fi
+            # Add the options with a space in front, effectively making them continuation
+            # lines as far the python config module is concerned.
+            printf -- "%s = %s\n" "${toolent_name}" "$(cat ${tool_group_dir}/${remote}/${toolent} | sed 's/^/ /')"
+        done >> ${log}
+        printf -- "\n" >> "${log}"
     done
 }
 
 function metadata_log_start {
-    local dir=$1
-    local group=$2
-    local ts=$3
+    local dir=${1}
+    local group=${2}
+    local ts=${3}
 
     # Opportunistically capture the caller's SSH configuration in case they
     # have host specific configurations they might want to consider in the
@@ -161,93 +208,76 @@ function metadata_log_start {
     cp -L  /etc/ssh/ssh_config   ${dir}/ > /dev/null 2>&1
     cp -rL /etc/ssh/ssh_config.d ${dir}/ > /dev/null 2>&1
 
-    local log=$dir/metadata.log
-    TMPFILE=$tmpdir/metadata.log
+    local log=${dir}/metadata.log
+    TMPFILE=${tmpdir}/metadata.log
 
-    mkdir -p $tmpdir
+    mkdir -p ${tmpdir}
 
-    if [ -z "$ts" ] ;then
+    if [[ -z "${ts}" ]]; then
         ts=$(timestamp)
     fi
-    cat > $TMPFILE <<EOF
+
+    cat > ${TMPFILE} <<EOF
 [pbench]
-name: $(basename $dir)
-script: $benchmark
-config: $config
-date: $date
-rpm-version: $(yum list installed pbench-agent 2>/dev/null | tail -n 1 | awk '{print $2}')
+name = $(basename ${dir})
+script = ${benchmark}
+config = ${config}
+date = ${date}
+rpm-version = $(yum list installed pbench-agent 2>/dev/null | tail -n 1 | awk '{print $2}')
 
 EOF
-    cat >> $TMPFILE <<EOF
+    cat >> ${TMPFILE} <<EOF
 [run]
-controller: $full_hostname
-start_run: $ts
+controller = ${full_hostname}
+start_run = ${ts}
 EOF
-    metadata_log_tools $TMPFILE
-    sed 's/%/%%/g' $TMPFILE > $log
+    metadata_log_tools "${TMPFILE}"
+    sed 's/%/%%/g' "${TMPFILE}" > "${log}"
 }
 
 function metadata_log_end {
-    local dir=$1
-    local group=$2
-    local int=$3
-    local log=$dir/metadata.log
+    local dir=${1}
+    local group=${2}
+    local int=${3}
+    local log=${dir}/metadata.log
 
-    if [ ! -f $log ] ;then
+    if [[ ! -f ${log} ]]; then
         # Somehow, metadata_log_start was never called !?!?
         # Call it explicitly.
         # Manufacture a start_run timestamp and pass it
         # explicitly. The manufactured stamp is the date that
         # the base file calculates (now in UTC).
         local start_ts=$(timestamp)
-        metadata_log_start $dir $group $start_ts
+        metadata_log_start "${dir}" "${group}" "${start_ts}"
     fi
-    if ! grep -q end_run $log ;then
-        echo "$(timestamp)" | pbench-add-metalog-option $log run end_run
+    if ! grep -q end_run ${log}; then
+         printf -- "%s\n" "$(timestamp)" | pbench-add-metalog-option "${log}" run end_run
     fi
-    if [ -f $dir/.iterations ] ;then
-        cat $dir/.iterations |
-            pbench-add-metalog-option $log pbench iterations
+    if [[ -f ${dir}/.iterations ]]; then
+        cat ${dir}/.iterations |
+            pbench-add-metalog-option ${log} pbench iterations
     fi
-    if [ "$int" == "int" ] ;then
-        echo "true"  | pbench-add-metalog-option $log run run_interrupted
+    if [[ "${int}" == "int" ]]; then
+        printf -- "true\n" | pbench-add-metalog-option "${log}" run run_interrupted
     fi
 }
 
-tmpdir=$pbench_tmp/pmdlog.$$
+tmpdir=${pbench_tmp}/pmdlog.${$}
 
-trap "rm -rf $tmpdir" INT QUIT EXIT
+trap "rm -rf ${tmpdir}" INT QUIT EXIT
 
-if [[ -z "$benchmark" ]]; then
-    # Should be provided
-    error_log "Missing required \$benchmark environment variable"
-    exit 3
-fi
-# We don't require "$config" to be exported, because the user may not
-# provide it.
-if [[ -z "$date" ]]; then
-    # Should be provided by $pbench_bin/base
-    error_log "Missing required \$date environment variable"
-    exit 3
-fi
-if [[ -z "$full_hostname" ]]; then
-    # Should be provided by $pbench_bin/base
-    error_log "Missing required \$full_hostname environment variable"
-    exit 3
-fi
-
-case $1 in
+case ${1} in
     beg)
-        metadata_log_start $dir $group
+        metadata_log_start ${dir} ${group}
         ;;
     end)
-        metadata_log_end $dir $group
+        metadata_log_end ${dir} ${group}
         ;;
     int)
-        metadata_log_end $dir $group int
+        metadata_log_end ${dir} ${group} int
         ;;
     *)
-        usage
+        usage >&2
         exit 2
 esac
 

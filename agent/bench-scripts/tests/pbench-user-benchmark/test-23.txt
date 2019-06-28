@@ -1,8 +1,7 @@
 +++ Running test-23 pbench-user-benchmark
 Running tool-trigger-example for iteration 1-default
-/var/tmp/pbench-test-bench/pbench-agent
-/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
-[pbench-tool-trigger]found trigger: tool-group:default start-trigger:"START DEFAULT" stop-trigger:"STOP DEFAULT"
+[pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+[pbench-tool-trigger] start-trigger:"START DEFAULT" stop-trigger:"STOP DEFAULT"
 fud
 START DEFAULT
 [pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/1-default/sample1
@@ -47,10 +46,11 @@ sud
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/user-benchmark-summary.json
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
-/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
-/var/tmp/pbench-test-bench/pbench-agent/tools-default
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
 [info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running tool-trigger-example for iteration 1-default
@@ -69,6 +69,8 @@ sud
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/1-default/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/2-default/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/3-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop
 --- test-execution.log file contents
 +++ pbench-user-benchmark_test-23_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
@@ -95,6 +97,6 @@ user_script = tool-trigger-example
     "duration_units":"sec"
 }
 --- pbench-user-benchmark_test-23_1900.01.01T00.00.00/user-benchmark-summary.json file contents
-+++ pbench-user-benchmark_test-23_1900.01.01T00.00.00/./1-default/sample1/user-benchmark.cmd file contents
++++ pbench-user-benchmark_test-23_1900.01.01T00.00.00/1-default/sample1/user-benchmark.cmd file contents
 tool-trigger-example 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/result.txt | pbench-tool-trigger 1 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00 default
---- pbench-user-benchmark_test-23_1900.01.01T00.00.00/./1-default/sample1/user-benchmark.cmd file contents
+--- pbench-user-benchmark_test-23_1900.01.01T00.00.00/1-default/sample1/user-benchmark.cmd file contents

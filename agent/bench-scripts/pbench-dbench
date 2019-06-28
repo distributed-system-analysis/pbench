@@ -19,7 +19,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 . "$pbench_bin"/base
 
 benchmark_rpm=$script_name
-benchmark="dbench"
+export benchmark="dbench"
 if [[ -z "$benchmark_bin" ]]; then
 	benchmark_bin=/usr/local/bin/$benchmark
 fi
@@ -37,7 +37,7 @@ ver=4.00
 # Defaults
 
 export benchmark_run_dir=""
-config=""
+export config=""
 loadfile="/usr/local/share/doc/dbench/loadfiles/client.txt"
 warmup=15
 nr_samples=5
@@ -318,11 +318,29 @@ done
 let total_iterations=count
 count=1
 max_key_length=0
-export benchmark config
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to start the tool meisters."
+	exit 1
+fi
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
+function interrupt() {
+	# On abnormal exit, stop the tool meister ...
+	pbench-tool-meister-stop
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to stop the tool meisters on interrupt."
+	fi
+	# ... and make sure that the metadata log exists and is complete.
+	pbench-metadata-log --group=$tool_group --dir=${benchmark_run_dir} int
+	return 0
+}
+trap "interrupt" INT QUIT TERM
 
 for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 	if [ $count -ge $start_iteration_num ]; then
@@ -533,7 +551,15 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 done
 
 printf -- "</pre>\n" >>$benchmark_summary_html_file
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to stop the tool meisters."
+fi
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running

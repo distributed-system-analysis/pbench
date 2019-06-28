@@ -1,7 +1,11 @@
 +++ Running test-35 pbench-register-tool-trigger --group=default --start-trigger="START:DEFAULT" --stop-trigger="STOP DEFAULT"
-pbench-register-tool-trigger: the start trigger cannot have a colon in it: ""START:DEFAULT""
+pbench-register-tool-trigger: the start trigger cannot have a colon in it: "START:DEFAULT"
 --- Finished test-35 pbench-register-tool-trigger (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/pidstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/pidstat:
 --- pbench tree state

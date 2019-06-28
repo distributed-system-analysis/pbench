@@ -24,15 +24,15 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-benchmark="uperf"
+export benchmark="uperf"
 benchmark_rpm=${benchmark}
 if [[ -z "$benchmark_bin" ]]; then
-    benchmark_bin=/usr/local/bin/$benchmark
+	benchmark_bin=/usr/local/bin/$benchmark
 fi
 ver="$(pbench-config version uperf)"
 if [[ -z "${ver}" ]]; then
-        error_log "${script_name}: package version is missing in config file"
-        exit 1
+	error_log "${script_name}: package version is missing in config file"
+	exit 1
 fi
 
 # Every bench-script follows a similar sequence:
@@ -50,7 +50,7 @@ export benchmark_run_dir=""
 protocols="tcp,udp"
 test_types="stream,maerts,bidirec,rr"
 message_sizes="1,64,1024,16384" # in bytes
-config=""
+export config=""
 instances="1,8,64"
 nr_samples=5
 maxstddevpct=5 # maximum allowable standard deviation in percent
@@ -494,11 +494,28 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	done
 done
 
-export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to start the tool meisters."
+	exit 1
+fi
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
+function interrupt() {
+	# On abnormal exit, stop the tool meister ...
+	pbench-tool-meister-stop
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to stop the tool meisters on interrupt."
+	fi
+	# ... and make sure that the metadata log exists and is complete.
+	pbench-metadata-log --group=$tool_group --dir=${benchmark_run_dir} int
+	return 0
+}
+trap "interrupt" INT QUIT TERM
 
 # start the server processes
 count=1
@@ -536,7 +553,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 						fi
 						# each attempt at a test config requires multiple samples to get stddev
 						for sample in `seq 1 $nr_samples`; do
-							benchmark_results_dir="$iteration_dir/sample$sample"
+							sample_name="sample${sample}"
+							benchmark_results_dir="${iteration_dir}/${sample_name}"
 							if [ "$postprocess_only" != "y" ]; then
 								mkdir -p $benchmark_results_dir
 								server_nr=1
@@ -687,8 +705,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								fi
 								set +x
 								pushd $iteration_dir >/dev/null
-								if [ ! -e sample$sample -a -e sample$sample.tar.xz ]; then
-									tar Jxf sample$sample.tar.xz && /bin/rm -rf sample$sample.tar.xz
+								if [ ! -e ${sample_name} -a -e ${sample_name}.tar.xz ]; then
+									tar Jxf ${sample_name}.tar.xz && /bin/rm -rf ${sample_name}.tar.xz
 								fi
 								popd >/dev/null
 								if [[ ! -d $benchmark_results_dir ]]; then
@@ -728,7 +746,15 @@ done
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
 $benchmark_run_dir/generate-benchmark-summary.cmd
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to stop the tool meisters."
+fi
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running

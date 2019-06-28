@@ -1,0 +1,85 @@
+#!/bin/bash
+
+_script_path="$(dirname ${0})"
+pbench_bin="$(realpath -e ${_script_path}/..)"
+
+# source the base script
+. "${pbench_bin}"/base
+
+if [[ -z "${full_hostname}" ]]; then
+    printf -- "Missing 'full_hostname' environment variable" >&2
+    exit 1
+fi
+export full_hostname
+
+if [[ -z "${hostname}" ]]; then
+    printf -- "Missing 'hostname' environment variable" >&2
+    exit 1
+fi
+export hostname
+
+if [[ -z "${1}" ]]; then
+     group="default"
+else
+     group="${1}"
+fi
+
+pbench-register-tool --group "${group}" --name mpstat
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "\"pbench-register-tool --group ${group} --name mpstat\" failed to execute successfully (exit code: ${status})\n"
+    exit 1
+fi
+
+# We created the benchmark_run_dir directory as the tool meister expects it to
+# exist.
+mkdir ${benchmark_run_dir}
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "\"mkdir ${benchmark_run_dir}\" failed to execute successfully (exit code: ${status})\n"
+    exit 1
+fi
+
+pbench-tool-meister-start ${group}
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "\"pbench-tool-meister-start ${group}\" failed to execute successfully (exit code: ${status})\n"
+    exit 1
+fi
+
+
+sample="sample42"
+iteration="0-iter-zero"
+
+benchmark_results_dir="${benchmark_run_dir}/${iteration}/${sample}"
+tools_dir="${benchmark_results_dir}/tools-${group}"
+mkdir -p ${tools_dir}
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "ERROR - failed to create tool directory, '%s' (exit code: %s)\n" "${tools_dir}" "${status}"
+    exit 1
+fi
+pbench-start-tools --group="${group}" --dir="${tools_dir}"
+pbench-stop-tools --group="${group}" --dir="${tools_dir}"
+pbench-postprocess-tools --group="${group}" --dir="${tools_dir}"
+
+iteration="1-iter-one"
+
+benchmark_results_dir="${benchmark_run_dir}/${iteration}/${sample}"
+tools_dir="${benchmark_results_dir}/tools-${group}"
+mkdir -p ${tools_dir}
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "ERROR - failed to create tool directory, '%s' (exit code: %s)\n" "${tools_dir}" "${status}"
+    exit 1
+fi
+pbench-start-tools --group="${group}" --dir="${tools_dir}"
+pbench-stop-tools --group="${group}" --dir="${tools_dir}"
+pbench-postprocess-tools --group="${group}" --dir="${tools_dir}"
+
+pbench-tool-meister-stop
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "\"pbench-tool-meister-stop\" failed to execute successfully (exit code: ${status})\n"
+    exit 1
+fi

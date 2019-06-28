@@ -1,56 +1,74 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
-# This script can list all tools from all groups,
-# list tools from a specific group, or list which
-# groups contain a specific tool
+# This script will list all tool triggers from all tool groups, or list tool
+# triggers from a specific group.
 
 # Defaults
-name=""
 group=""
-with_options=0
 
 # Process options and arguments
-
-opts=$(getopt -q -o to:g: --longoptions "group:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following option is available: \n\n"
+opts=$(getopt -q -o g:h --longoptions "group:,help" -n "getopt.sh" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+	printf -- "\n%s: you specified an invalid option\n\n" "${script_name}"
+	printf -- "The following option is available: \n\n"
 	printf -- "\t-g str --group=str, list the triggers used by this group\n"
 	exit 1
 fi
-eval set -- "$opts";
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		-g|--group)
-		shift;
-		group="$1"
-		shift;
+	case "${1}" in
+	-g|--group)
+		shift
+		group="${1}"
+		shift
 		;;
-		--)
-		shift;
-		break;
+	-h|--help)
+		usage
+		exit 0
+		;;
+	--)
+		shift
+		break
 		;;
 	esac
 done
-if [ -d "$pbench_run" ]; then
-	pushd "$pbench_run" >/dev/null
-	# list tool triggers in one or all groups
-	if [ -z "$group" ]; then
-		groups=`/bin/cat tool-triggers 2>/dev/null | grep -v '^#' | sed -e s/:.*//`
-	else
-		groups="$group"
-	fi
 
-	for grp in $groups ;do
-		sed -n '/^'$grp'/p' tool-triggers
-	done
-	popd  >/dev/null
+if [[ ! -d "${pbench_run}" ]]; then
+	# Silently exit if we don't have a pbench run directory.
+	exit 0
 fi
+
+if [[ -z "${group}" ]]; then
+	# list tool triggers in all groups
+	groups="$(gen_tools_group_list)"
+	if [[ ${?} -ne 0 ]]; then
+		error_log "${script_name}: error fetching list of tool groups"
+		exit 1
+	fi
+	for grp in ${groups}; do
+		tg_dir="$(gen_tools_group_dir "${grp}")"
+		if [[ -e ${tg_dir}/__trigger__ ]]; then
+			printf -- "%s: %s\n" "${grp}" "$(cat ${tg_dir}/__trigger__)"
+		fi
+	done
+else
+	# list tool triggers in one group
+	tg_dir="$(verify_tool_group "${group}")"
+	if [[ ${?} -ne 0 || -z "${tg_dir}" ]]; then
+		printf -- "%s: bad tool group specified, \"%s\"\n" "${script_name}" "${group}" >&2
+		exit 1
+	fi
+	if [[ -e ${tg_dir}/__trigger__ ]]; then
+		cat ${tg_dir}/__trigger__
+	fi
+fi
+
+exit 0

@@ -1,16 +1,4 @@
 +++ Running test-50 test-pbench-metadata-log 
-+++ metadata.log file contents
-[pbench]
-name: pbench-user-benchmark_foo30%%-bar
-script: pbench-fake
-config: foo30%%-bar
-date: 1900-01-01T00:00:00
-rpm-version: 
-
-[run]
-controller: testhost.example.com
-start_run: 1900-01-01T00:00:00.000000
---- metadata.log file contents
 --- Finished test-50 test-pbench-metadata-log (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -20,19 +8,32 @@ start_run: 1900-01-01T00:00:00.000000
 /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_foo30%-bar/ssh_config
 /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_foo30%-bar/ssh_config.d
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat:
 --- pbench tree state
 +++ pbench-user-benchmark_foo30%-bar/metadata.log file contents
 [pbench]
-name: pbench-user-benchmark_foo30%%-bar
-script: pbench-fake
-config: foo30%%-bar
-date: 1900-01-01T00:00:00
-rpm-version: 
+name = pbench-user-benchmark_foo30%%-bar
+script = fake-bm
+config = foo30%%-bar
+date = 1900-01-01T00:00:00
+rpm-version = 
 
 [run]
-controller: testhost.example.com
-start_run: 1900-01-01T00:00:00.000000
+controller = testhost.example.com
+start_run = 1900-01-01T00:00:00.000000
+
+[tools]
+hosts = testhost.example.com 
+group = default
+trigger = ""
+
+[tools/testhost.example.com]
+hostname-s = testhost
+mpstat = 
+
 --- pbench-user-benchmark_foo30%-bar/metadata.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -L /.ssh/config /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_foo30%-bar/ssh.config

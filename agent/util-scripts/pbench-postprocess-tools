@@ -1,13 +1,14 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
-action=`echo ${script_name#pbench-} | awk -F- '{print $1}'`
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
+_suffix=${script_name#pbench-}
+action=${_suffix%%-*}
 
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
 if [[ "${action}" != "start" && "${action}" != "stop" && "${action}" != "postprocess" && "${action}" != "kill" ]]; then
 	error_log "[${script_name}] action \"${action}\" is not supported"
@@ -19,232 +20,69 @@ fi
 # monitored.
 
 # Defaults
-group=default
+def_group="default"
+group="${def_group}"
 dir=""
-
-debug_log "[$script_name]started: $@"
 
 # Process options and arguments
 
-opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+	printf "\n%s: you specified an invalid option\n\n" "${script_name}"
 	printf "The following are required:\n\n"
 	printf -- "\t-g str --group=str, str = a tool group used in a benchmark\n"
-	printf -- "\t                          (the default group is 'default')\n"
-	printf "\n"
-	printf -- "\t-d str --dir=str, str = a directory where the $script_name\n"
+	printf -- "\t                          (the default group is '%s')\n\n" "${def_group}"
+	printf -- "\t-d str --dir=str, str = a directory where %s\n" "${script_name}"
 	printf -- "\t                        will store and process data\n"
 	exit 1
 fi
-eval set -- "$opts";
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		-g|--group)
-		shift;
-		if [ -n "$1" ]; then
-			group="$1"
-			shift;
+	case "${1}" in
+	-g|--group)
+		shift
+		if [[ -n "${1}" ]]; then
+			group="${1}"
+			shift
 		fi
 		;;
-		-d|--dir)
-		shift;
-		if [ -n "$1" ]; then
-			dir="$1"
-			shift;
+	-d|--dir)
+		shift
+		if [[ -n "${1}" ]]; then
+			dir="${1}"
+			shift
 		fi
 		;;
-		--)
-		shift;
-		break;
+	--)
+		shift
+		break
 		;;
 	esac
 done
 
+if [[ -z "${group}" ]]; then
+	printf -- "ERROR: required tool group parameter missing.\n" >&2
+	exit 1
+fi
 if [[ -z "${dir}" ]]; then
-	error_log "[${script_name}] missing required --dir parameter"
+	printf -- "ERROR: required directory argument missing.\n" >&2
 	exit 1
 fi
 
-verify_tool_group "${group}"
-if [[ ${?} != 0 ]]; then
-	printf -- "\n"
-	usage
-	exit 1
-fi
-tool_group_dir="${pbench_run}/tools-${group}"
-
-# The tool group's directory which stores tool output
-tool_output_dir="${dir}/tools-${group}"
-mkdir -p ${tool_output_dir}
-if [[ ${?} -ne 0 ]]; then
-	error_log "[${script_name}] failed to create tool output directory, \"${tool_output_dir}\""
+# This tool group's directory which stores the list of tools and their
+# options, etc.
+tool_group_dir="$(verify_tool_group "${group}")"
+if [[ ${?} -ne 0 || -z "${tool_group_dir}" ]]; then
 	exit 1
 fi
 
-# Try to prevent a cascade of tools running.
-if [[ "$action" == "start" ]]; then
-	# Kill any tools running from a previous incantation before
-	# starting this one.
-	pbench-kill-tools --dir ${dir} --group ${group}
+if [[ "${action}" == "kill" ]]; then
+	_msg="pbench-kill-tools is a no-op and has been deprecated: pbench-stop-tools ensures tools are properly cleaned up."
+	printf -- "%s\n" "${_msg}"
+	log "${_msg}"
+	exit 0
 fi
 
-function move_tool_data {
-	local remote_host=$1
-	local remote_label=$2
-	local remote_shost=`echo $remote_host | awk -F. '{print $1}'`
-	pushd $tool_output_dir >/dev/null
-	tool_data_size=`ssh $ssh_opts -n $remote_host du -sm $tool_output_dir | awk '{print $1}'`
-	debug_log "[$script_name]started: copying tool data ($tool_data_size MB) from $remote_host"
-	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && tar cf - *" | tar mxf -
-	rc=$?
-	if [ $rc != 0 ] ;then
-		debug_log "[$script_name]copying tool data failed for remote $remote_host"
-		popd > /dev/null
-		return $rc
-	fi
-	# if the full hostname was used in pbench-register-tool --remote, make sure that is preserved in the directory name
-	if [ $remote_host != "$remote_shost" ]; then
-		if [ -e "$remote_label:$remote_shost" ]; then
-			mv $remote_label:$remote_shost $remote_label:$remote_host
-		fi
-		if [ -e "$remote_shost" ]; then
-			mv $remote_shost $remote_host
-		fi
-	fi
-	debug_log "[$script_name]completed: copying of tool data on $remote_host"
-	debug_log "[$script_name]started: deleting tool data on $remote_host"
-	ssh $ssh_opts -n $remote_host "cd $tool_output_dir && /bin/rm -rf *"
-	rc=$?
-	debug_log "[$script_name]completed: deleting tool data on $remote_host"
-	popd >/dev/null
-	return $rc
-}
-
-### phase 1: for each tool, call the tool script with --$action (start, stop, or postprocess)
-pids=""
-for this_tool_file in `/bin/ls $tool_group_dir`; do
-	if [[ "${this_tool_file}" == "label" || "${this_tool_file}" == "external-data-source" ]]; then
-		continue;
-	fi
-	if echo $this_tool_file | grep -q "^remote"; then
-		remote_hostname=`echo $this_tool_file | cut -d\@ -f2`
-		name=`echo $this_tool_file | cut -d\@ -f1`
-		# tool options are stored on the remote host's tool file, so no need to pass it here
-		debug_log "[$script_name]running this tool on $remote_hostname: ssh $ssh_opts -n $remote_hostname pbench-$action-tools --group=$group --dir=$dir"
-		ssh $ssh_opts -n $remote_hostname pbench-$action-tools --group=$group --dir=$dir &
-		pids="$pids $!"
-	elif [ -d $tool_group_dir/$this_tool_file ] ;then
-		# skip spurious subdirectory of $tool_group_dir
-		warn_log "[$script_name]$this_tool_file is a directory in $tool_group_dir; that should not happen. Please consider deleting it."
-	elif [ ! -e "$pbench_bin/tool-scripts/$this_tool_file" ] ;then
-		# skip spurious file - not a tool.
-		warn_log "[$script_name]$this_tool_file does not exist in $pbench_bin/tool-scripts; spurious file perhaps? Please consider deleting it."
-	else
-		# tool is local
-		# assemble the tool options in to an array
-		i=0
-		tool_opts=()
-		while read line; do
-			tool_opts[${i}]="${line}"
-			((i++))
-		done < "${tool_group_dir}/${this_tool_file}"
-		name="${this_tool_file}"
-		screen_name="pbench-tool-${group}-${name}"
-		debug_log "[${script_name}] ${pbench_bin}/tool-scripts/${name} --${action} --dir=${tool_output_dir} ${tool_opts[@]}"
-		if [ "$action" == "start" ]; then
-			# using screen to avoid tty issues and guarantee tool is backgrounded
-			screen_dir="${tool_output_dir}/.screen.d/${group}-${name}"
-			mkdir -p ${screen_dir}
-			rc=${?}
-			if [[ ${rc} -ne 0 ]]; then
-				error_log "[${script_name}] unable to create screen directory: \"${screen_dir}\""
-				exit ${rc}
-			fi
-			screen_cmd="${screen_dir}/command"
-			printf -- "#!/bin/bash\n\nscreen -dm -L -S \"${screen_name}\" ${pbench_bin}/tool-scripts/${name} --${action} --dir=${tool_output_dir} ${tool_opts[@]}\n" > ${screen_cmd}
-			chmod +x ${screen_cmd}
-			debug_log "[${script_name}] \"$(cat ${screen_cmd} | tr '\n' ' ')\""
-			(cd ${screen_dir}; ${screen_cmd})
-			rc=${?}
-			if [[ ${rc} -ne 0 ]]; then
-				error_log "[${script_name}] screen command failed: \"$(cat ${screen_cmd} | tr '\n' ' ')\""
-			fi
-		elif [ "$action" == "kill" ]; then
-			screens_to_kill=`screen -ls | grep "$screen_name" | awk '{print $1}'`
-			pids_to_kill=`echo $screens_to_kill | awk -F. '{print $1}'`
-			if [ ! -z "$pids_to_kill" ] ;then
-				echo -n "killing the following screen sessions for $name: "
-				echo "$screens_to_kill"
-				kill $pids_to_kill
-			fi
-		else
-			# $action == ( "stop" | "postprocess" )
-			$pbench_bin/tool-scripts/$name --$action --dir=${tool_output_dir} "${tool_opts[@]}" >> ${tool_output_dir}/${action}.log 2>&1 &
-			pids="$pids $!"
-		fi
-	fi
-done
-
-# At this point, all remote tool actions are taking place in parallel,
-# and all *local* tool actions are taking place in parallel.
-typeset -i nerrs=0
-for p in $pids ;do
-	wait $p
-	rc=$?
-	if [[ $rc -ne 0 ]] ;then
-		nerrs=$nerrs+1
-	fi
-done
-
-if [ "$action" == "postprocess" ]; then
-	# phase 2: now that the local results are ready, move them
-	# down to $tool_output_dir/[$label:]$hostname.
-	for this_tool_file in `/bin/ls $tool_group_dir`; do
-		if echo $this_tool_file | grep -q -v "@"; then
-			if [ -d $tool_group_dir/$this_tool_file ] ;then
-				# skip spurious subdirectory of $tool_group_dir
-				warn_log "[$script_name]$this_tool_file is a directory in $tool_group_dir; that should not happen. Please consider deleting it."
-				continue
-			fi
-			if [ "$this_tool_file" != "label" -a ! -e "$pbench_bin/tool-scripts/$this_tool_file" ] ;then
-				# skip spurious file - not a tool.
-				warn_log "[$script_name]$this_tool_file does not exist in $pbench_bin/tool-scripts; spurious file perhaps? Please consider deleting it."
-				continue
-			fi
-
-			pushd $tool_output_dir >/dev/null
-			if [ -f "$tool_group_dir/label" ]; then
-				label="`cat "$tool_group_dir/label"`"
-				mkdir -p "$label:$hostname"
-				mv .screen.d * "$label:$hostname" 2>/dev/null
-			else
-				mkdir -p $hostname
-				mv .screen.d * $hostname 2>/dev/null
-			fi
-			popd >/dev/null
-		fi
-	done
-
-	### phase 3: copy over data from remote hosts
-	# for the remote tools, copy over the postprocess data
-	pids=""
-	for this_tool_file in `/bin/ls $tool_group_dir | grep "^remote"`; do
-		remote_hostname=`echo "$this_tool_file" | awk -F@ '{print $2}'`
-		label=`cat $tool_group_dir/$this_tool_file`
-		# copy over the data from postprocessing
-		move_tool_data $remote_hostname $label &
-		pids="$pids $!"
-	done
-	for p in $pids ;do
-		wait $p
-		rc=$?
-		if [[ $rc -ne 0 ]] ;then
-			nerrs=$nerrs+1
-		fi
-	done
-fi
-
-debug_log "[$script_name]completed: $@"
-exit $nerrs
+# Tell the tool meister to take the requested action.
+pbench-tool-meister-client "${group}" "${dir}" "${action}"
+exit ${?}

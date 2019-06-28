@@ -13,6 +13,7 @@ use strict;
 use warnings;
 use lib $ENV{'pbench_lib_dir'};
 use File::Temp;
+use File::Basename;
 use Data::Dumper;
 use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_clients
                         get_params get_pbench_bench_config_dir load_benchmark_config
@@ -33,6 +34,7 @@ if (scalar @ARGV < 5) {
 }
 my $iter_doc_filename = shift(@ARGV);
 my $sample_dir = shift(@ARGV); # dir for *this* iteration-sample execution
+my $sample_name = basename($sample_dir);
 my $base_dir = shift(@ARGV); # dir for all of the pbench run
 my $tool_group = shift(@ARGV);
 my $last_sample = shift(@ARGV);
@@ -142,8 +144,8 @@ if (! $pp_only) {
     # - execute pre-benchmark scripts on clients and servers (todo)
 
     # start the tools:
-    system("pbench-start-tools --group=" . $tool_group . " --dir=" . $sample_dir);
     print "starting tools\n";
+    system("pbench-start-tools --group=" . $tool_group . " --dir=" . $sample_dir);
 
     # benchmark-execution:
     print "starting benchmark\n";
@@ -177,11 +179,12 @@ if (! $pp_only) {
     system("pbench-stop-tools --group=" . $tool_group . " --dir=" . $sample_dir);
 
     # post-process the tools:
-    print "copying tool data\n";
+    print "post-processing tools\n";
     system("pbench-postprocess-tools --group=" . $tool_group . " --dir=" . $sample_dir);
 
-    # post-benhcmark-execution:
+    # post-benchmark-execution:
     # - copy files back to controller
+    # FIXME: with tool meister, all data is moved locally by the tool-data-sink
     print "copying benchmark data\n";
     for my $type (keys %hosts) {
         if ($hosts{$type} and scalar @{ $hosts{$type} }) {

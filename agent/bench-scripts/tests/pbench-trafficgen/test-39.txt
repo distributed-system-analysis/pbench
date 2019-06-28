@@ -1,14 +1,13 @@
 +++ Running test-39 pbench-trafficgen
-tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: default
+tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: "default"
 found IOMMU option, continuing
 found dpdk-tools, continuing
 [warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-39_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os_" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
 Total number of benchmark iterations: 3
 Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
 test sample 1 of 1
-/var/tmp/pbench-test-bench/pbench-agent
-/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
-[pbench-tool-trigger]found trigger: tool-group:default start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
+[pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+[pbench-tool-trigger] start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
 Starting binary-search
 [pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/1-default/sample1
 Finished binary-search
@@ -17,9 +16,8 @@ exit code: 0
 Iteration 1-bidirectional-74B-1000flows-0.0pct_drop complete (1 of 3), with 1 pass and 0 failures
 Starting iteration[2-unidirectional-74B-1000flows-0.0pct_drop] (2 of 3)
 test sample 1 of 1
-/var/tmp/pbench-test-bench/pbench-agent
-/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
-[pbench-tool-trigger]found trigger: tool-group:default start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
+[pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+[pbench-tool-trigger] start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
 Starting binary-search
 [pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/2-default/sample1
 Finished binary-search
@@ -28,9 +26,8 @@ exit code: 0
 Iteration 2-unidirectional-74B-1000flows-0.0pct_drop complete (2 of 3), with 1 pass and 0 failures
 Starting iteration[3-revunidirectional-74B-1000flows-0.0pct_drop] (3 of 3)
 test sample 1 of 1
-/var/tmp/pbench-test-bench/pbench-agent
-/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
-[pbench-tool-trigger]found trigger: tool-group:default start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
+[pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+[pbench-tool-trigger] start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
 Starting binary-search
 [pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-default/sample1
 Finished binary-search
@@ -79,10 +76,11 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/pbench-trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
-/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
-/var/tmp/pbench-test-bench/pbench-agent/tools-default
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
-/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] [check_install_rpm] dpdk-tools is installed
@@ -129,4 +127,6 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/1-default/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/2-default/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop
 --- test-execution.log file contents

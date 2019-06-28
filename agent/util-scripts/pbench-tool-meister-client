@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+# -*- mode: python -*-
+
+"""pbench-tool-meister-client
+
+Responsible for publishing the requested tool meister operation.  The
+operation can be one of "start", "stop", or "send".
+"""
+
+import sys
+import os
+import json
+import logging
+import redis
+
+
+# FIXME: move to common area
+redis_host = "localhost"
+# Port number is "One Tool" in hex 0x17001
+redis_port = 17001
+
+# FIXME: this should be moved to a shared area
+channel = "tool-meister-chan"
+
+# List of valid operations
+operations = ("start", "stop", "send", "postprocess", "kill")
+
+
+def main(argv):
+    """Main program for the tool meister client.
+    """
+    PROG = os.path.basename(argv[0])
+    logger = logging.getLogger(PROG)
+
+    logger.setLevel(logging.INFO)
+    sh = logging.StreamHandler()
+    sh.setLevel(logging.INFO)
+    shf = logging.Formatter("%(message)s")
+    sh.setFormatter(shf)
+    logger.addHandler(sh)
+
+    try:
+        group = argv[1]
+    except IndexError:
+        raise Exception("Missing group argument")
+    try:
+        directory = argv[2]
+    except IndexError:
+        raise Exception("Missing directory argument")
+    try:
+        operation = argv[3]
+    except IndexError:
+        raise Exception("Missing operation argument")
+    else:
+        if operation not in operations:
+            raise Exception(
+                "Unrecognized operation, '{}', valid operations are:"
+                " {}".format(operation, operations)
+            )
+        elif operation == "postprocess":
+            # We map the legacy "postprocess" action to the new "send" action.
+            operation = "send"
+        elif operation == "kill":
+            # FIXME: we need to implement the gritty method of killing all the
+            # tool meisters, locally and remotely, and ensuring they are all
+            # properly shut down.
+            return 0
+
+    try:
+        redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+    except Exception as e:
+        logger.error(
+            "Unable to connect to redis server, %s:%s: %s", redis_host, redis_port, e
+        )
+        return 2
+
+    # The published message contains three pieces of information:
+    #   {
+    #     "state": "< 'start' | 'stop' | 'send' | 'postprocess' | 'kill' >",
+    #     "group": "< the tool group name for the tools to operate on >",
+    #     "directory": "< the local directory path to store collected data >"
+    #   }
+    # The caller of tool-meister-client must be sure the directory argument
+    # is accessible by the tool-data-sink.
+    msg = dict(state=operation, group=group, directory=directory)
+    try:
+        ret = redis_server.publish(channel, json.dumps(msg))
+    except Exception:
+        logger.exception("Failed to publish client message")
+    else:
+        # FIXME: We should be checking that the total number of subscribers
+        # that received the message match the number of expected tool meisters
+        # running, plus the tool data sink.
+        logger.debug("publish() = %r", ret)
+
+    return 0
+
+
+if __name__ == "__main__":
+    status = main(sys.argv)
+    sys.exit(status)

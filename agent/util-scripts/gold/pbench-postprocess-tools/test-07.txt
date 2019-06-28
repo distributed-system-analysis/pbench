@@ -1,0 +1,20 @@
++++ Running test-07 pbench-postprocess-tools --group=foobar --dir=42-iter/sample42
+--- Finished test-07 pbench-postprocess-tools (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/foo
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/iostat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/__label__:
+bar
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/foo:
+--interval=10
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/iostat:
+--interval=10
+--- pbench tree state
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-tool-meister-client foobar 42-iter/sample42 postprocess
+--- test-execution.log file contents

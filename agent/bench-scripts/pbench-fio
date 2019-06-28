@@ -10,7 +10,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-benchmark="fio"
+export benchmark="fio"
 benchmark_rpm=${benchmark}
 export benchmark_run_dir=""
 # allow unit tests to override
@@ -52,7 +52,7 @@ max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to 
 supported_test_types="read,write,rw,randread,randwrite,randrw"
 test_types="read,randread"		# default is -non- destructive
 install_only="n"
-config=""
+export config=""
 rate_iops=""
 block_sizes="4,64,1024"
 targets="/tmp/fio"
@@ -583,6 +583,7 @@ function does_wildcard_exist() {
 function fio_run_job() {
 	local iteration="$1"
 	local benchmark_results_dir="$2"
+	local sample_name="$(basename ${benchmark_results_dir})"
 	local fio_job_file="$3"
 	local bench_opts="--output-format=json $fio_job_file"
 	local tgts="$4"
@@ -659,6 +660,7 @@ function fio_run_job() {
 		printf "running pre-iteration-script command: $pre_iteration_script\n"
 		eval "$pre_iteration_script"
 	fi
+
 	pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
 	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
@@ -755,10 +757,10 @@ function fio_run_benchmark() {
 			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
 				job_num=1
 				iteration="${count}-${test_type}-${block_size}KiB"
-				if [ "$job_mode" = "serial" ]; then
-					dev_short_name="`basename $dev`"
+				if [[ "$job_mode" = "serial" ]]; then
+					dev_short_name="$(basename $dev)"
 					# easier to identify what job used what device when having 1 job per device
-					iteration="$iteration-${dev_short_name}"
+					iteration="${iteration}-${dev_short_name}"
 				fi
 				record_iteration ${count} ${test_type} ${block_size} ${dev} ${iteration}
 				iteration_dir=$benchmark_run_dir/$iteration
@@ -870,17 +872,42 @@ fi
 benchmark_iterations="${benchmark_run_dir}/.iterations"
 > ${benchmark_iterations}
 
-export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+        error_log "[${script_name}]: failed to start the tool meisters."
+        exit 1
+fi
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
+function interrupt() {
+        # On abnormal exit, stop the tool meister ...
+        pbench-tool-meister-stop
+        if [[ ${?} != 0 ]]; then
+                error_log "[${script_name}]: failed to stop the tool meisters on interrupt."
+        fi
+        # ... and make sure that the metadata log exists and is complete.
+        pbench-metadata-log --group=$tool_group --dir=${benchmark_run_dir} int
+        return 0
+}
+trap "interrupt" INT QUIT TERM
 
 fio_run_benchmark
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
 $benchmark_run_dir/generate-benchmark-summary.cmd
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir  --sysinfo=$sysinfo end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+        error_log "[${script_name}]: failed to stop the tool meisters."
+fi
+
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running

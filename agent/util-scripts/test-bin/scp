@@ -1,35 +1,4 @@
 #!/bin/bash
 
 echo "${0} ${*}" >> $_testlog
-
-# Fetch the second-to-last argument as the "source" of the copy.
-src="${@:$(( ${#} - 1 ))}"
-# Fetch the last argument as the "destination" of the copy.
-dst="${@:$#}"
-
-if [[ "${dst}" != ${_testdir}* ]]; then
-    # Only mock out copies to the local test environment not to
-    # remotes.
-    exit 0
-fi
-
-# Pretend that we copied a tools-<dir> from the remote.
-
-# Grab the target directory being copied from the source argument
-# and append it to the destination argument.
-tools_dir=$(basename ${src})
-tools="${dst}/${tools_dir}"
-
-mkdir -p ${tools}
-echo foo  > ${tools}/iostat
-echo bar > ${tools}/mpstat
-echo baz > ${tools}/perf
-echo hunoz > ${tools}/pidstat
-echo hukerz > ${tools}/proc-interrupts
-echo foobar > ${tools}/proc-vmstat
-echo foo > ${tools}/sar
-echo bar > ${tools}/turbostat
-for x in $(find ${tools} -type f | sort); do
-    echo -n ${x}: ; cat ${x}
-done >> ${_testlog}
 exit 0

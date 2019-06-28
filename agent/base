@@ -215,58 +215,84 @@ function check_install_rpm {
     return ${rc}
 }
 
-function verify_tool_group {
-    local group=$1
-    if [[ -z "$group" ]]; then
-	error_log "Bad argument to verify_tool_group"
-	exit 1
+# Constants
+tools_group_prefix="tools-v1-"
+
+function gen_tools_group_list() {
+    pushd "${pbench_run}" >/dev/null
+    if [[ ${?} -ne 0 ]]; then
+        return 1
     fi
-    # Ensure we have a tools group directory to work with
-    local tool_group_dir="$pbench_run/tools-$group"
-    if [[ ! -d "$tool_group_dir" ]]; then
-        printf -- "\t${script_name}: invalid --tool-group option (\"$group\"), directory not found: $tool_group_dir\n"
+    local groups=$(/bin/ls -d ${tools_group_prefix}* 2> /dev/null | sed -e s/^${tools_group_prefix}//g)
+    popd >/dev/null
+    printf "${groups}"
+    return 0
+}
+
+function gen_tools_group_dir {
+    local group="${1}"
+    if [[ -z "${group}" ]]; then
 	return 1
     fi
+    local tools_group_dir="${pbench_run}/${tools_group_prefix}${group}"
+    printf -- "${tools_group_dir}"
+    return 0
+}
+
+function verify_tool_group {
+    # Ensure we have a tools group directory to work with
+    local group="${1}"
+    local param_name=${2:-"--group"}
+    local tools_group_dir="$(gen_tools_group_dir ${group})"
+    if [[ -z "${tools_group_dir}" ]]; then
+	error_log "Empty argument passed to verify_tool_group()"
+	exit 1
+    fi
+    if [[ ! -d "${tools_group_dir}" ]]; then
+        printf -- "\t${script_name}: invalid ${param_name} option (\"${group}\"), directory not found: ${tools_group_dir}\n" >&2
+	return 1
+    fi
+    printf -- "${tools_group_dir}"
     return 0
 }
 
 function verify_collect_sysinfo {
-    local sysinfo=$1
-    pbench-collect-sysinfo --sysinfo=$sysinfo --check
-    local ret=$?
-    if [[ $ret -ne 0 ]]; then
-        printf -- "\t${script_name}: invalid --sysinfo option (\"$sysinfo\")\n"
+    local sysinfo="${1}"
+    pbench-collect-sysinfo --sysinfo=${sysinfo} --check
+    local ret=${?}
+    if [[ ${ret} -ne 0 ]]; then
+        printf -- "\t${script_name}: invalid --sysinfo option (\"${sysinfo}\")\n" >&2
     fi
-    return $ret
+    return ${ret}
 }
 
 function verify_common_bench_script_options {
-    verify_tool_group "${1}"
+    verify_tool_group "${1}" --tool-group > /dev/null
     local ret_tg=${?}
     verify_collect_sysinfo "${2}"
     local ret_cs=${?}
     if [[ ${ret_tg} -ne 0 || ${ret_cs} -ne 0 ]]; then
         printf -- "\n"
-        usage
+        usage >&2
         exit 1
     fi
 }
 
 # generate inventory file with controller and remotes
 function generate_inventory {
-	local component=$1
-	if [[ $component == "stockpile" ]]; then
-		echo "[stockpile]"
-		echo $HOSTNAME
-		echo "[all]"
-		echo $HOSTNAME
-		ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
-	else
-		echo "[controller]"
-		echo $HOSTNAME
-		echo "[remote]"
-		ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
-	fi
+    local component=$1
+    if [[ $component == "stockpile" ]]; then
+	echo "[stockpile]"
+	echo $HOSTNAME
+	echo "[all]"
+	echo $HOSTNAME
+	ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
+    else
+	echo "[controller]"
+	echo $HOSTNAME
+	echo "[remote]"
+	ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
+    fi
 }
 
 if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]] ;then

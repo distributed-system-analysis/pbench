@@ -1,0 +1,389 @@
+#!/usr/bin/env python3
+
+# Example curl command sequence
+#
+#   $ md5sum tool-data.tar.xz > tool-data.tar.xz.md5
+#   $ curl -X PUT -H "MD5SUM: $(awk '{print $1}' tool-data.tar.xz.md5)" \
+#     http://localhost:8080/tool-data/XXX...XXX/perf48.example.com \
+#     --data-binary @tool-data.tar.xz
+
+# Needs daemon, pidfile, and bottle
+#   sudo dnf install python3-bottle python3-daemon
+#   sudo pip3 install python-pidfile
+
+import sys
+import os
+import json
+import hashlib
+import tempfile
+import logging
+import daemon
+import pidfile
+import redis
+import errno
+from pathlib import Path
+from threading import Thread
+from bottle import Bottle, ServerAdapter, request, abort
+
+
+_BUFFER_SIZE = 65536
+
+
+class ToolDataSink(Bottle):
+    """ToolDataSink - sub-class of Bottle representing state for tracking data
+    sent from tool meisters via an HTTP PUT method.
+    """
+
+    def __init__(self, benchmark_run_dir, logger):
+        super(ToolDataSink, self).__init__()
+        self.benchmark_run_dir = benchmark_run_dir
+        self.logger = logger
+        self.state = None
+        self.tool_data_ctx = None
+        self.directory = None
+        self._data = None
+        self.route(
+            "/tool-data/<tool_data_ctx>/<hostname>",
+            method="PUT",
+            callback=self.put_document,
+        )
+
+    def _wait_for_all_data(self):
+        """wait_for_all_data - block the caller until all of the registered
+        tool meisters have sent their data.
+
+        Waiting is a no-op for all states except 'send'.  In the 'send' state,
+        we are expecting to hear from all registered tool meisters.
+        """
+        if self.state == "send":
+            # FIXME - How are we going to do this?
+            pass
+        return 0
+
+    def state_change(self, data):
+        """state_change - give a data dictionary, change the state for this
+        data sink instance.
+
+        The "watcher" thread has already validated the state field, we then
+        validate the directory field.
+        """
+        directory = Path(data["directory"])
+        if not directory.is_dir():
+            self.logger.error(
+                "state change to '{}' with non-existent directory, '{}'",
+                data["state"],
+                directory,
+            )
+
+        # We have a valid state change data set, wait for all the tool
+        # meisters before proceeding.
+        self._wait_for_all_data()
+
+        self._data = data
+        self.state = data["state"]
+        self.directory = directory
+        # The tool meisters will be hashing the directory argument this way
+        # when invoking the PUT methed.  They just consider the directory
+        # argument to be an opaque context. We, the tool data sink, write the
+        # data we receive to that directory.
+        self.tool_data_ctx = hashlib.md5(data["directory"].encode("utf-8")).hexdigest()
+
+    def put_document(self, tool_data_ctx, hostname):
+        if self.state != "send":
+            # FIXME: Don't we have a race condition if the tool meisters
+            # process their messages first?  Seems like we need to send to the
+            # Tool Data Sink first, and then send to all the tool meisters.
+            abort(400, f"Can't accept PUT requests in state '{self.state}'")
+
+        if self.tool_data_ctx != tool_data_ctx:
+            abort(400, f"Unexpected tool data context, '{tool_data_ctx}'")
+
+        try:
+            content_length = int(request["CONTENT_LENGTH"])
+        except ValueError:
+            abort(400, "Invalid content-length header, not an integer")
+        except Exception:
+            abort(400, "Missing required content-length header")
+        else:
+            if content_length > (2 ** 30):
+                abort(
+                    400,
+                    "Content object too large, keep it at 1 GB"
+                    f" ({content_length:d}) and  under",
+                )
+            remaining_bytes = content_length
+
+        try:
+            exp_md5 = request["HTTP_MD5SUM"]
+        except Exception:
+            self.logger.exception(request.keys())
+            abort(400, "Missing required md5sum header")
+
+        target_dir = self.benchmark_run_dir / self.directory
+        if not target_dir.is_dir():
+            self.logger.error("ERROR - directory, '%s', does not exist", target_dir)
+            abort(500, f"Invalid URL, path {target_dir} does not exist")
+        host_tool_data_tb_name = target_dir / f"{hostname}.tar.xz"
+        if host_tool_data_tb_name.exists():
+            abort(409, f"{host_tool_data_tb_name} already uploaded")
+        host_tool_data_tb_md5 = Path(f"{host_tool_data_tb_name}.md5")
+
+        with tempfile.NamedTemporaryFile(mode="wb", dir=target_dir) as ofp:
+            total_bytes = 0
+            iostr = request["wsgi.input"]
+            h = hashlib.md5()
+            while remaining_bytes > 0:
+                buf = iostr.read(
+                    _BUFFER_SIZE if remaining_bytes > _BUFFER_SIZE else remaining_bytes
+                )
+                bytes_read = len(buf)
+                total_bytes += bytes_read
+                remaining_bytes -= bytes_read
+                h.update(buf)
+                ofp.write(buf)
+            cur_md5 = h.hexdigest()
+            if cur_md5 != exp_md5:
+                abort(
+                    400,
+                    f"Content, {cur_md5}, does not match its MD5SUM header,"
+                    f" {exp_md5}",
+                )
+            if total_bytes <= 0:
+                abort(400, "No data received")
+
+            # First write the .md5
+            try:
+                with host_tool_data_tb_md5.open("w") as md5fp:
+                    md5fp.write(f"{exp_md5} {host_tool_data_tb_name.name}\n")
+            except Exception:
+                try:
+                    os.remove(host_tool_data_tb_md5)
+                except Exception:
+                    self.logger.warning(
+                        "Failed to remove .md5 %s when trying to clean" " up",
+                        host_tool_data_tb_md5,
+                    )
+                raise
+
+            # Then create the final filename link to the temporary file.
+            os.link(ofp.name, host_tool_data_tb_name)
+            self.logger.info(
+                "Successfully wrote %s (%s.md5)",
+                host_tool_data_tb_name,
+                host_tool_data_tb_name,
+            )
+
+
+class DataSinkWSGIRefServer(ServerAdapter):
+    """A singleton instance of a WSGI "simple server".
+
+    Taken from https://stackoverflow.com/questions/11282218/bottle-web-framework-how-to-stop.
+    """
+
+    server = None
+    quiet = False
+
+    def run(self, handler):
+        from wsgiref.simple_server import make_server, WSGIRequestHandler
+
+        if self.quiet:
+
+            class QuietHandler(WSGIRequestHandler):
+                def log_request(*args, **kw):
+                    pass
+
+            self.options["handler_class"] = QuietHandler
+        self.server = make_server(self.host, self.port, handler, **self.options)
+        self.server.serve_forever()
+
+    def stop(self):
+        # self.server.server_close() <--- alternative but causes bad fd exception
+        if self.server is not None:
+            self.server.shutdown()
+
+
+def watcher(redis_server, channel, server, tool_data_sink_app, logger):
+    """Simple function for the thread that is "watching" for the terminate
+    state.
+    """
+    logger.info("watcher started")
+    pubsub = redis_server.pubsub()
+    pubsub.subscribe(channel)
+    chan = pubsub.listen()
+    try:
+        # Pull off first message which is an acknowledgement we have
+        # successfully subscribed.
+        resp = next(chan)
+        assert resp["type"] == "subscribe", "bad type: {!r}".format(resp)
+        assert resp["pattern"] is None, "bad pattern: {!r}".format(resp)
+        assert resp["channel"].decode("utf-8") == channel, "bad channel: {!r}".format(
+            resp
+        )
+        assert resp["data"] == 1, "bad data: {!r}".format(resp)
+
+        # Tell the entity that started us who we are indicating we're ready.
+        started_msg = dict(kind="ds", hostname="localhost", pid=os.getpid())
+        redis_server.publish("{}-start".format(channel), json.dumps(started_msg))
+
+        for payload in chan:
+            try:
+                json_str = payload["data"].decode("utf-8")
+            except Exception:
+                logger.warning("data payload in message not UTF-8, '%r'", json_str)
+                continue
+            logger.debug('watcher: channel payload, "%r"', json_str)
+            try:
+                data = json.loads(json_str)
+            except json.JSONDecodeError:
+                logger.warning("data payload in message not JSON, '%s'", json_str)
+                continue
+            else:
+                try:
+                    l_state = data["state"]
+                except KeyError:
+                    logger.warning(
+                        "unrecognized data payload in message," " '%s'", json_str
+                    )
+                else:
+                    if l_state == "terminate":
+                        # FIXME: stop bottle server
+                        logger.info("Terminating bottle server ...")
+                        return
+                    else:
+                        tool_data_sink_app.state_change(data)
+    except redis.exceptions.ConnectionError:
+        logger.warning("watcher closing down after losing connection to redis server")
+    except Exception:
+        logger.exception("watcher exception")
+    finally:
+        pubsub.unsubscribe()
+        pubsub.close()
+        server.stop()
+
+
+def main(argv):
+    PROG = Path(argv[0]).name
+
+    logger = logging.getLogger(PROG)
+    fh = logging.FileHandler("{}.log".format(PROG))
+    if os.environ.get("_PBENCH_UNIT_TESTS"):
+        fmtstr = "%(levelname)s %(name)s %(funcName)s -- %(message)s"
+    else:
+        fmtstr = (
+            "%(asctime)s %(levelname)s %(process)s %(thread)s"
+            " %(name)s %(funcName)s %(lineno)d -- %(message)s"
+        )
+    fhf = logging.Formatter(fmtstr)
+    fh.setFormatter(fhf)
+    fh.setLevel(logging.INFO)
+    logger.addHandler(fh)
+    logger.setLevel(logging.INFO)
+
+    try:
+        redis_host = argv[1]
+        redis_port = argv[2]
+        param_key = argv[3]
+    except IndexError as e:
+        logger.error("Invalid arguments: %s", e)
+        return 1
+
+    try:
+        redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+    except Exception as e:
+        logger.error(
+            "Unable to connect to redis server, %s:%s: %s", redis_host, redis_port, e
+        )
+        return 2
+
+    try:
+        params_raw = redis_server.get(param_key)
+        if params_raw is None:
+            logger.error('Parameter key, "%s" does not exist.', param_key)
+            return 3
+        logger.info("params_key (%s): %r", param_key, params_raw)
+        params_str = params_raw.decode("utf-8")
+        # The expected parameters for this "data-sink" is what "channel" to
+        # subscribe to for the tool meister operational life-cycle.  The
+        # data-sink listens for the state transitions, start | stop | send |
+        # terminate, exiting when "terminate" is received, marking the state
+        # in which data is captured.
+        #
+        # E.g. params = '{ "channel": "run-chan",
+        #                  "benchmark_run_dir": "/loo/goo" }'
+        params = json.loads(params_str)
+        channel = params["channel"]
+        benchmark_run_dir = Path(params["benchmark_run_dir"]).resolve()
+    except Exception as ex:
+        logger.error("Unable to fetch and decode parameter key, %s: %s", param_key, ex)
+        return 4
+    else:
+        if not benchmark_run_dir.is_dir():
+            logger.error(
+                "Run directory argument, %s, must be a real" " directory.",
+                benchmark_run_dir,
+            )
+            return 5
+
+    pidfile_name = "{}.pid".format(PROG)
+    pfctx = pidfile.PIDFile(pidfile_name)
+    with open("{}.out".format(PROG), "w") as sofp, open(
+        "{}.err".format(PROG), "w"
+    ) as sefp:
+        with daemon.DaemonContext(
+            stdout=sofp,
+            stderr=sefp,
+            working_directory=os.getcwd(),
+            umask=0o022,
+            pidfile=pfctx,
+            files_preserve=[sofp.fileno(), sefp.fileno(), fh.stream.fileno()],
+        ):
+            try:
+                # We have to re-open the connection to the redis server now that we
+                # are "daemonized".
+                try:
+                    redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+                except Exception as e:
+                    logger.error(
+                        "Unable to connect to redis server, %s:%s: %s",
+                        redis_host,
+                        redis_port,
+                        e,
+                    )
+                    return 2
+
+                # We need the server handle before we start the watcher thread.
+                server = DataSinkWSGIRefServer(host="localhost", port=8080)
+                tds_app = ToolDataSink(benchmark_run_dir, logger)
+
+                watcher_thread = Thread(
+                    target=watcher,
+                    args=(redis_server, channel, server, tds_app, logger),
+                )
+                watcher_thread.start()
+
+                logger.info("Running...")
+                tds_app.run(server=server)
+
+                watcher_thread.join()
+            except OSError as exc:
+                if exc.errno == errno.EADDRINUSE:
+                    logger.error(
+                        "ERROR - tool data sink failed to start, localhost:8080 already in use"
+                    )
+                else:
+                    logger.exception("ERROR - failed to start the tool data sink")
+            except Exception:
+                logger.exception("ERROR - failed to start the tool data sink")
+            finally:
+                logger.info("Remove pid file ... (%s)", pidfile_name)
+                try:
+                    os.unlink(pidfile_name)
+                except Exception:
+                    logger.exception("Failed to remove pid file %s", pidfile_name)
+
+    return 0
+
+
+if __name__ == "__main__":
+    status = main(sys.argv)
+    sys.exit(status)

@@ -12,7 +12,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-benchmark="cyclictest"
+export benchmark="cyclictest"
 benchmark_rpm=rt-tests
 ver=0.87
 
@@ -30,7 +30,7 @@ baseconfig="`uname -r`"
 runtimes="1m"
 orig_cmd="$*"
 tool_group="default"
-config=""
+export config=""
 stress=0
 cpu=""
 sysinfo="default"
@@ -141,13 +141,28 @@ printf "\n" >>$benchmark_summary_txt_file
 printf "<pre>\n# these results generated with:\n# uperf %s\n\n" "$scrtip_name $orig_cmd" >$benchmark_summary_html_file
 printf "\n" >>$benchmark_summary_html_file
 
-export benchmark config
-
-count=1
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+
+# Start the tool meisters on each registered local/remote host
+pbench-tool-meister-start "${tool_group}"
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to start the tool meisters."
+	exit 1
+fi
+
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
+function interrupt() {
+	# On abnormal exit, stop the tool meister ...
+	pbench-tool-meister-stop
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to stop the tool meisters on interrupt."
+	fi
+	# ... and make sure that the metadata log exists and is complete.
+	pbench-metadata-log --group=$tool_group --dir=${benchmark_run_dir} int
+	return 0
+}
+trap "interrupt" INT QUIT TERM
 
 if [ $stress ]; then
 	if [ ! -z "$cpu" ]; then
@@ -158,14 +173,16 @@ if [ $stress ]; then
 		stress_pid=$!
 	fi
 fi
+sample="sample1"
+count=1
 for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	benchmark_cmd="cyclictest -m -n -q -p99 -h60 -D $runtime"
-	iteration="${count}-runtime_$runtime"
-	if [ ! -z "$cpu" ]; then
-		iteration="$iteration-cpu_$cpu"
+	iteration="${count}-runtime_${runtime}"
+	if [[ ! -z "${cpu}" ]]; then
+		iteration="${iteration}-cpu_${cpu}"
 	fi
 	echo $iteration >> $benchmark_iterations
-	benchmark_results_dir="$benchmark_run_dir/$iteration/sample1/"
+	benchmark_results_dir="${benchmark_run_dir}/${iteration}/${sample}"
 	result_file=$benchmark_results_dir/result.txt
 	benchmark_cmd_file=$benchmark_results_dir/cyclictest.cmd
 	mkdir -p $benchmark_results_dir
@@ -176,7 +193,7 @@ for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	$benchmark_cmd_file | tee $result_file
 	pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
 	pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
-	ln -s sample1 $benchmark_run_dir/$iteration/reference-result
+	ln -s ${sample} ${benchmark_run_dir}/${iteration}/reference-result
 	min=`grep "Min Latencies:" $result_file | awk '{print $4}'`
 	avg=`grep "Avg Latencies:" $result_file | awk '{print $4}'`
 	max=`grep "Max Latencies:" $result_file | awk '{print $4}'`
@@ -187,6 +204,13 @@ if [ $stress ]; then
 	kill $stress_pid
 fi
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+
+# Stop the tool meisters on each registered local/remote host
+pbench-tool-meister-stop
+if [[ ${?} != 0 ]]; then
+	error_log "[${script_name}]: failed to stop the tool meisters."
+fi
+
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 cat $benchmark_summary_txt_file
 
