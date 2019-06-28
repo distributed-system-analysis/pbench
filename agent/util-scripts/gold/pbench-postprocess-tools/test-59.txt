@@ -1,0 +1,22 @@
++++ Running test-59 pbench-postprocess-tools --group=foobar --dir=42-iter/sample42
+[error][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] expected tool output directory, "42-iter/sample42/tools-foobar", does not exist
+--- Finished test-59 pbench-postprocess-tools (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/foo
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/iostat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/__label__:
+bar
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/foo:
+--interval=10
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/iostat:
+--interval=10
+--- pbench tree state
++++ pbench.log file contents
+[error][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] expected tool output directory, "42-iter/sample42/tools-foobar", does not exist
+--- pbench.log file contents

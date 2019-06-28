@@ -13,8 +13,81 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 # specified. For a list of performance tools, use the --help option or look at
 # the ${pbench_bin}/tool-scripts directory.
 
+#+
+# "On Disk" format for a tool group:
+#
+# The "V1" tools on-disk repository is as follows:
+#   * The directory resides at "${pbench_run}/tools-v1-${group}"
+#     * note the prefix is now "tools-v1-" before the tools group name
+#   * The next level of the hierarchy are directories named for each remote
+#     host name tools are register for
+#     * If the user registers the local host, we always use the full hostname,
+#       ${full_hostname}
+#     * All other names are considered "remote" host names
+#   * Under each host name directory are tool and an optional "__label__" file
+#     * Each tool file is named after the tool for which each line of the file
+#       contains a tool option
+#       * If a file symlink exists named "<tool>.__noinstall__", then auto-
+#         installation of the tool has been turned off
+#     * "labels" for a host name are recorded in the "__label__" file
+#   * Triggers for a given tool group live in the "__trigger__" file in the
+#     top-level directory of the tool group
+#
+# Examples:
+#   * A single local host, ${full_hostname} == "localhost", with four tools
+#     and a trigger:
+#
+#     ${pbench_run}/
+#       tools-v1-default/
+#         __trigger__
+#         localhost/
+#           sar
+#           pidstat
+#           vmstat
+#           iostat
+#
+#   * Four remote hosts with two tools on all hosts, 1 additional tool on one
+#     host, with auto-installation of the tool turned off:
+#
+#     ${pbench_run}/
+#       tools-v1-my2tools/
+#         one.example.com/
+#           mpstat
+#           sar
+#         two.example.com/
+#           mpstat
+#           sar
+#         three.example.com/
+#           mpstat
+#           sar
+#         four.example.com/
+#           mpstat
+#           sar
+#           perf
+#           perf.__noinstall__@
+#
+#   * Three hosts, one local (${full_hostname} == "localhost"), with two tools
+#     on all hosts, 1 additional tool on the local host, labels on all hosts:
+#
+#     ${pbench_run}/
+#       tools-v1-my2tools/
+#         localhost/
+#           __label__
+#           mpstat
+#           iostat
+#           sar
+#         one.example.com/
+#           __label__
+#           mpstat
+#           iostat
+#         two.example.com/
+#           __label__
+#           mpstat
+#           iostat
+#-
+
 # Defaults
-remotes_arg="${full_hostname}"
+remotes_arg="localhost"
 group="default"
 options=""
 do_install=1
@@ -42,6 +115,7 @@ function usage() {
 	printf -- "\tseparated by a comma (\",\"); empty lines are ignored, and comments are\n"
 	printf -- "\tdenoted by a leading hash, or pound (\"#\"), character.\n"
 	printf -- "\nAvailable tools:\n"
+	local tool=""
 	for tool in $(find ${pbench_bin}/tool-scripts -maxdepth 1 ! -type d ! -name '*README*' ! -name base-tool ! -name unittests -printf "%P\n" 2> /dev/null | sort); do
 		printf -- "\t${tool}\n"
 	done
@@ -112,7 +186,6 @@ while true; do
 		;;
 	esac
 done
-
 
 if [[ -z ${name} ]]; then
 	error_log "Missing required parameter --name=<tool-name>"
@@ -236,7 +309,7 @@ local_ips=$(ip a | grep "inet " | awk '{print $2}' | awk -F/ '{print $1}')
 local_interfaces="${local_ips} ${hostname} ${full_hostname} localhost"
 
 # If for some reason the user specified a remote host, and that host is a
-# local interface, we must remove it to avoid ssh'ing to ourselves.
+# local interface, we work to make sure we only register one local host.
 idx=0
 local_hostname=""
 local_label=""
@@ -246,13 +319,13 @@ for (( i=0; ${i} < ${#remotes_A[@]}; i++ )); do
 	for local_interface in ${local_interfaces}; do
 		if [[ "${remote}" == "${local_interface}" ]]; then
 			if [[ -z "${local_hostname}" ]]; then
-				if [[ "${remotes_arg}" != "${full_hostname}" ]]; then
+				if [[ "${remotes_arg}" != "localhost" ]]; then
 					debug_log "The remote host you have provided, ${remote}, matches a local interface, so we will register this tool locally only"
 				fi
 				local_hostname="${full_hostname}"
 				local_label="${labels_A[${remote}]}"
 			else
-				if [[ "${remotes_arg}" != "${full_hostname}" ]]; then
+				if [[ "${remotes_arg}" != "localhost" ]]; then
 					debug_log "The remote host you have provided, ${remote}, matches a local interface, and has already been registered locally"
 				fi
 			fi
@@ -266,95 +339,102 @@ for (( i=0; ${i} < ${#remotes_A[@]}; i++ )); do
 	fi
 done
 
-rc=0
-if [[ -n "${local_hostname}" ]]; then
-	if [[ ${do_install} == 1 ]]; then
-		# A local tool registration
-		debug_log "checking to see if tool is installed..."
-		${pbench_bin}/tool-scripts/${name} --install "${tool_opts[@]}"
-		rc=${?}
-	else
-		rc=0
+# At this point we are ready to record the tool for the list of hosts. Ensure
+# the target tools group directory exists.
+tg_dir="$(gen_tools_group_dir ${group})"
+if [[ ${?} -ne 0 || -z "${tg_dir}" ]]; then
+	error_log "Bad or missing tools group, \"${tg_dir}\""
+	exit 1
+fi
+if [[ ! -d "${tg_dir}" ]]; then
+	mkdir "${tg_dir}"
+	if [[ ${?} -ne 0 ]]; then
+		error_log "Unable to create the necessary tools group directory, \"${tg_dir}\""
+		exit 1
 	fi
+fi
 
-	if [[ ${rc} == 0 ]]; then
-		# Remember the tool and its options since its installation was
-		# successful.
-		if [[ ! -d "${pbench_run}/tools-$group" ]]; then
-			mkdir "${pbench_run}/tools-${group}"
+function record_tool() {
+	local remote_arg=${1}
+	local label_arg=${2}
+
+	if [[ ! -d ${tg_dir}/${remote_arg} ]]; then
+		mkdir "${tg_dir}/${remote_arg}"
+		if [[ ${?} -ne 0 ]]; then
+			error_log "Unable to create the necessary tools group remote directory, \"${tg_dir}/${remote_arg}\""
+			return 1
+		fi
+	fi
+	local tg_r_dir="${tg_dir}/${remote_arg}"
+
+	# Record the tool and its options since its installation was
+	# successful.
+	local this_tool_file="${tg_r_dir}/${name}"
+	/bin/rm -f "${this_tool_file}"
+	touch "${this_tool_file}"
+	local i=0
+	# tool options are 1 per line
+	for (( i=0; ${i} < ${#tool_opts[@]}; i++ )); do
+		echo "${tool_opts[${i}]}" >> "${this_tool_file}"
+	done
+
+	if [[ ${do_install} == 0 ]]; then
+		if [[ ! -e ${this_tool_file}.__noinstall__ ]]; then
+			/bin/ln -s ${this_tool_file} ${this_tool_file}.__noinstall__
 			if [[ ${?} -ne 0 ]]; then
-				error_log "Unable to create the necessary tools group directory, ${pbench_run}/tools-${group}"
-				exit 1
+				error_log "Unable to create the necessary tools group tool \"no install\" symlink, ${this_tool_file}.__noinstall__"
+				return 1
 			fi
 		fi
-		this_tool_file="${pbench_run}/tools-${group}/${name}"
-		/bin/rm -f "${this_tool_file}"
-		touch "${this_tool_file}"
-		i=0
-		# tool options are 1 per line
-		for (( i=0; ${i} < ${#tool_opts[@]}; i++ )); do
-			echo "${tool_opts[${i}]}" >> "${this_tool_file}"
-		done
-		_msg="${name} tool is now registered in group ${group}"
-		log "${_msg}"
-		printf -- "%s\n" "${_msg}"
-		# If we have a label, update the label in the tool directory
-		if [[ "${local_label}" != "" ]]; then
-			this_label_file="${pbench_run}/tools-${group}/label"
-			/bin/rm -f "${this_label_file}"
-			echo "${local_label}" > "${this_label_file}"
-		fi
 	else
-		error_log "Failed to install tool ${name} (${pbench_bin}/tool-scripts/${name} --install \"${tool_opts[@]}\")"
+		if [[ -e ${this_tool_file}.__noinstall__ ]]; then
+			/bin/rm ${this_tool_file}.__noinstall__
+			if [[ ${?} -ne 0 ]]; then
+				error_log "Unable to remove the previous tools group tool \"no install\" symlink, ${this_tool_file}.__noinstall__"
+				return 1
+			fi
+		fi
 	fi
+
+	# If we have a label, update the label in the tool directory
+	if [[ "${label_arg}" != "" ]]; then
+		local this_label_file
+		this_label_file="${tg_r_dir}/__label__"
+		if [[ -e "${this_label_file}" ]]; then
+			/bin/rm "${this_label_file}"
+			if [[ ${?} -ne 0 ]]; then
+				error_log "Unable to remove the previous tools group host label file, ${this_label_file}"
+				return 1
+			fi
+		fi
+		echo "${label_arg}" > "${this_label_file}"
+		_label_msg=", with label \"${label_arg}\","
+	else
+		_label_msg=""
+	fi
+
+	local _msg="\"${name}\" tool is now registered for host \"${remote_arg}\"${_label_msg} in group \"${group}\""
+	log "${_msg}"
+	printf "${_msg}\n"
+	return 0
+}
+
+rc=0
+if [[ -n "${local_hostname}" ]]; then
+	record_tool "${local_hostname}" "${local_label}"
+	rc=${?}
 fi
 
 # Make sure we capture any local error codes to report failure later of the
 # overall script.
 exit_rc=${rc}
 
-if [[ ${do_install} == 1 ]]; then
-	install_opt=""
-else
-	install_opt=" --no-install"
-fi
 for (( i=0; ${i} < ${#remotes[@]}; i++ )); do
 	remote="${remotes[${i}]}"
-	# Register this tool on a remote host
 	label=${labels_A[${remote}]}
-	if [[ -z "${label}" ]]; then
-		label_opt=""
-	else
-		label_opt=" --label=${label}"
-	fi
-	# Can't really pass an array of tool options over ssh, so here we will
-	# actually construct the array within the ssh call, then reference that
-	# array.
-	debug_log "${tool_opt_array_cmd}"' pbench-register-tool --name='"${name}"' --group='"${group}"${install_opt}${label_opt}' -- "${tool_opts[@]}" 2>&1'
-	ssh ${ssh_opts} ${remote} "${tool_opt_array_cmd}"' pbench-register-tool --name='"${name}"' --group='"${group}"${install_opt}${label_opt}' -- "${tool_opts[@]}" 2>&1' | sed -e 's/\(.*\)/'[${remote}]'\1/g'
+	record_tool "${remote}" "${label}"
 	rc=${?}
 	let exit_rc=${exit_rc}+${rc}
-	if [[ ${rc} -ne 0 ]]; then
-		error_log "Failed to register tool ${name} on remote host ${remote}"
-		continue
-	fi
-	if [[ ! -d "${pbench_run}/tools-${group}" ]]; then
-		mkdir "${pbench_run}/tools-${group}"
-		if [[ ${?} -ne 0 ]]; then
-			error_log "Unable to create the necessary tools group directory, ${pbench_run}/tools-${group}"
-			exit 1
-		fi
-	fi
-	this_tool_file="${pbench_run}/tools-${group}/remote@${remote}"
-	/bin/rm -f "${this_tool_file}"
-	# The specific tool options are stored on the remote host, so there is
-	# no need to keep them here, however we do use this file to store the
-	# label for this remote host [if any].
-	if [[ -z "${label}" ]]; then
-		touch "${this_tool_file}"
-	else
-		echo "${label}" > "${this_tool_file}"
-	fi
 done
 
 exit ${exit_rc}

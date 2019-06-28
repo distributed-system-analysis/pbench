@@ -1,132 +1,176 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
 . "$pbench_bin"/base
 
-# This script will remove tools that have been registered.  If no
-# options are used, then all tools from all tool groups are removed.
-# Specifying a tool name and/or group will limit the scope of the
-# removal.
+# This script will remove tools that have been registered.  If no options are
+# used, then all tools from the "default" tool group are removed.  Specifying
+# a tool name and/or remote host will limit the scope of the removal.
 
 # Defaults
+def_group="default"
+group="${def_group}"
 name=""
-group="default"
+remotes_arg=""
+
+function usage() {
+	printf -- "usage:\n"
+	printf -- "${script_name} --name=<tool-name> [--group=<group-name>] [--remotes=<remote-host>[,<remote-host>]]\n"
+	printf -- "\nThe following options are available:\n"
+	printf -- "\t-g str --group=str, str = the group from which tools should be removed\n"
+	printf -- "\t\t(the default group is '%s')\n" "${def_group}"
+	printf -- "\t-n str --name=str, str = a specific tool to be removed.\n"
+	printf -- "\t\tIf no tool is specified, all tools in the group are removed\n"
+	printf -- "\t-r str --remote=str, str = a specific remote on which tools needs to be cleared.\n"
+	printf -- "\t\tIf no remote is specified, all the tools on all remotes are removed\n\n"
+}
 
 # Process options and arguments
 
-opts=$(getopt -q -o g:n: --longoptions "group:,name:,remote:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following are required:\n\n"
-	printf -- "\t-g str --group=str, str = the group from which tools should be removed\n"
-	printf -- "\t                          (the default group is 'default')\n"
-	printf -- "\t-n str --name=str, str = a specific tool to be removed.  If no tool is specified, all tools in the group are removed\n"
-	printf -- "\t-r str --remote=str, str = a specific remote on which tools needs to be cleared.  If no remote is specified, all the tools are removed\n"
-	printf "\n"
-
+opts=$(getopt -q -o hg:n:r: --longoptions "help,group:,name:,remote:,remotes:" -n "getopt.sh" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+	printf -- "\n${*}\n" >&2
+	printf -- "${script_name}: you specified an invalid option\n\n" >&2
+	usage >&2
 	exit 1
 fi
-eval set -- "$opts";
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		-n|--name)
-		shift;
-		if [ -n "$1" ]; then
-			name="$1"
-			shift;
+	case "${1}" in
+	-n|--name)
+		shift
+		if [[ -n "${1}" ]]; then
+			name="${1}"
+			shift
 		fi
 		;;
-		-g|--group)
-		shift;
-		if [ -n "$1" ]; then
-			group="$1"
-			shift;
+	-g|--group)
+		shift
+		if [[ -n "${1}" ]]; then
+			group="${1}"
+			shift
 		fi
 		;;
-		-r|--remote)
-		shift;
-		if [ -n "$1" ]; then
-			remote="$1"
-			shift;
+	-r|--remote|--remotes)
+		shift
+		if [[ -n "${1}" ]]; then
+			remotes_arg="${1}"
+			shift
 		fi
 		;;
-		--)
-		shift;
-		break;
+	-h|--help)
+		usage
+		exit 0
+		;;
+	--)
+		shift
+		break
 		;;
 	esac
 done
 
-pushd $pbench_run >/dev/null
-# this tool group's directory which stores options, etc.
-tool_group_dir="tools-$group"
-declare -a remotes
-if [ -d "$tool_group_dir" ]; then
-	for this_tool_file in `/bin/ls $tool_group_dir`; do
-		remotes[${#remotes[@]}]=$this_tool_file
-	done
+tools_group_dir=$(verify_tool_group "${group}")
+if [[ ${?} -ne 0 ]]; then
+	printf -- "\n" >&2
+	usage >&2
+	exit 1
 fi
-if [ ! -z "$remote" ]; then
-	for ((i=0; i<${#remotes[*]}; i++));do
-		if [[ ${remotes[i]} == remote@$remote ]]; then
-			unset remotes[@]
-			remotes[${#remotes[@]}]=remote@$remote
-		fi
-	done
-fi
-typeset -i nerrs=0
-ssh_opts="$ssh_opts -o ConnectTimeout=1"
-for ((i=0; i<${#remotes[*]}; i++));do
-	# if there is a remote tool, call clear tools on the remote host
-	this_tool_file=${remotes[i]}
-	if [ "$this_tool_file" == "label" ]; then
-		continue;
-	fi
-	if echo $this_tool_file | grep -q "^remote"; then
-		group_opt="--group $group"
-		if [ ! -z "$name" ]; then
-			name_opt="--name=$name"
-		fi
-		remote_hostname=`echo $this_tool_file | awk -F@ '{print $2}'`
-		echo running ". ${pbench_install_dir}/profile; pbench-clear-tools $group_opt $name_opt" on $remote_hostname
-		ssh $ssh_opts -n $remote_hostname ". ${pbench_install_dir}/profile; pbench-clear-tools $group_opt $name_opt" | sed -e 's/\(.*\)/['$remote_hostname']\1/g'
-		rc=$?
-		if [ $rc != 0 ] ;then
-			nerrs=$nerrs+1
-			# we can't get to the remote but if the intent is to clear all tools
-			# then we remove the local entry for the remote
-			if [ -z "$name" ] ;then
-				echo "Removing the remote $this_tool_file"
-				 /bin/rm -f "$tool_group_dir/$this_tool_file"
-			fi
+
+IFS=',' read -ra remotes <<< "${remotes_arg}"
+if [[ ${#remotes[@]} == 0 ]]; then
+	# We were not given any remotes on the command line, build the list
+	# from the tools group directory.
+	typeset -i idx=0
+	for remote in $(/bin/ls ${tools_group_dir}); do
+		if [[ "${remote}" == __trigger__ ]]; then
 			continue
 		fi
-		remaining_remote_tools=`ssh $ssh_opts -n $remote_hostname ". ${pbench_install_dir}/profile; pbench-list-tools $group_opt"`
-		if [ -z "$remaining_remote_tools" ]; then
-			echo "The remote host $remote_hostname no longer has tools registered for $group group, so the "remote@$remote" entry in the local $tool_group_dir directory will be removed"
-			echo "/bin/rm -f $tool_group_dir/$this_tool_file"
-			/bin/rm -f "$tool_group_dir/$this_tool_file"
+		if [[ ! -d "${tools_group_dir}/${remote}" ]]; then
+			warn_log "Unexpected file found in ${tools_group_dir}: ${remote}"
+			continue
 		fi
+		remotes[${idx}]=${remote}
+		(( idx++ ))
+	done
+fi
+
+function clear_tool() {
+	local tname=${1}
+	local remote=${2}
+	local tpath=${tools_group_dir}/${remote}/${tname}
+
+	/bin/rm ${tpath}
+	local rc=${?}
+	if [[ ${rc} == 0 && -e ${tpath}.__noinstall__ ]]; then
+		/bin/rm ${tpath}.__noinstall__
+		rc=${?}
+	fi
+	if [[ ${rc} != 0 ]]; then
+		error_log "Failed to clear tool ${tpath}.*"
+		return 1
 	else
-		# remove any existing local entry for this tool
-		# if a tool name was provided, only remove that tool.  If not, all tools should be removed
-		if [ -z "$name" -o "$name" == "$this_tool_file" ]; then
-			echo "removing $tool_group_dir/$this_tool_file"
-			/bin/rm -rf "$tool_group_dir/$this_tool_file"
+		msg="Removed \"${tname}\" from host, \"${remote}\", in tools group, \"${group}\""
+		echo "${msg}"
+		log "${msg}"
+	fi
+	return 0
+}
+
+typeset -i nerrs=0
+for remote in ${remotes[@]}; do
+	if [[ ! -d ${tools_group_dir}/${remote} ]]; then
+		# Ignore any specified remote that does not exist.
+		warn_log "The given remote host, \"${remote}\", is not a directory in ${tools_group_dir}."
+		continue
+	fi
+
+	declare -A names
+	if [[ -n ${name} ]]; then
+		# Use the given tool name from the command line
+		names[0]=${name}
+	else
+		# Discovery all the tools registered for this remote
+		typeset -i idx=0
+		for _name in $(/bin/ls ${tools_group_dir}/${remote}); do
+			if [[ "${_name}" =~ .+\.__noinstall__ || "${_name}" == "__label__" ]]; then
+				# Skip __label__ and *.__noinstall__ files,
+				# everything else is a tool name.
+				continue
+			fi
+			names[${idx}]=${_name}
+			(( idx++ ))
+		done
+	fi
+	for _name in ${names[@]}; do
+		clear_tool ${_name} ${remote}
+		if [[ ${?} -ne 0 ]]; then
+			(( nerrs++ ))
+		fi
+	done
+	tools_files=$(/bin/ls ${tools_group_dir}/${remote})
+	if [[ "${tools_files}" == "__label__" ]]; then
+		/bin/rm ${tools_group_dir}/${remote}/__label__
+		if [[ ${?} -ne 0 ]]; then
+			error_log "Failed to remove label for remote ${tools_group_dir}/${remote}"
+			(( nerrs++ ))
+		fi
+		tools_files=""
+	fi
+	if [[ -z "${tools_files}" ]]; then
+		msg="All tools removed from host, \"${remote}\""
+		echo "${msg}"
+		log "${msg}"
+		/bin/rmdir ${tools_group_dir}/${remote}
+		if [[ ${?} -ne 0 ]]; then
+			error_log "Failed to remove remote directory ${tools_group_dir}/${remote}"
+			(( nerrs++ ))
 		fi
 	fi
 done
-tool_files=`/bin/ls $tool_group_dir`
-# if the only file remaining is the label, remove it
-if [ "$tool_files" == "label" ]; then
-	echo "removing tool label: `cat $tool_group_dir/$tool_files`"
-	/bin/rm -f "$tool_group_dir/$tool_files"
-fi
-popd >/dev/null
-exit $nerrs
+
+exit ${nerrs}

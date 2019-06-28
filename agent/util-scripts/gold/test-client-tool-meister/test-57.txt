@@ -1,0 +1,290 @@
++++ Running test-57 test-client-tool-meister lite with-remotes delayed-send
+"mpstat" tool is now registered for host "testhost.example.com" in group "lite"
+"iostat" tool is now registered for host "testhost.example.com" in group "lite"
+"mpstat" tool is now registered for host "remote_a.example.com" in group "lite"
+"mpstat" tool is now registered for host "remote_b.example.com" in group "lite"
+"mpstat" tool is now registered for host "remote_c.example.com" in group "lite"
+--- Finished test-57 test-client-tool-meister (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/mock-run
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com/mpstat/mpstat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com/mpstat/mpstat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com/mpstat/mpstat-stop-postprocess.err
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com/mpstat/mpstat-stop-postprocess.out
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com/mpstat/mpstat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com/mpstat/online-cpus.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com/tm-mpstat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_a.example.com/tm-mpstat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com/mpstat/mpstat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com/mpstat/mpstat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com/mpstat/mpstat-stop-postprocess.err
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com/mpstat/mpstat-stop-postprocess.out
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com/mpstat/mpstat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com/mpstat/online-cpus.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com/tm-mpstat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_b.example.com/tm-mpstat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com/mpstat/mpstat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com/mpstat/mpstat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com/mpstat/mpstat-stop-postprocess.err
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com/mpstat/mpstat-stop-postprocess.out
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com/mpstat/mpstat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com/mpstat/online-cpus.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com/tm-mpstat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/remote_c.example.com/tm-mpstat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/iostat
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/iostat/iostat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/iostat/iostat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/iostat/iostat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/mpstat/mpstat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/mpstat/mpstat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/mpstat/mpstat-stop-postprocess.err
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/mpstat/mpstat-stop-postprocess.out
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/mpstat/mpstat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/mpstat/online-cpus.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/tm-iostat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/tm-iostat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/tm-mpstat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com/tm-mpstat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com/mpstat/mpstat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com/mpstat/mpstat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com/mpstat/mpstat-stop-postprocess.err
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com/mpstat/mpstat-stop-postprocess.out
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com/mpstat/mpstat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com/mpstat/online-cpus.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com/tm-mpstat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_a.example.com/tm-mpstat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com/mpstat/mpstat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com/mpstat/mpstat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com/mpstat/mpstat-stop-postprocess.err
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com/mpstat/mpstat-stop-postprocess.out
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com/mpstat/mpstat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com/mpstat/online-cpus.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com/tm-mpstat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_b.example.com/tm-mpstat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com/mpstat/mpstat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com/mpstat/mpstat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com/mpstat/mpstat-stop-postprocess.err
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com/mpstat/mpstat-stop-postprocess.out
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com/mpstat/mpstat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com/mpstat/online-cpus.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com/tm-mpstat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/remote_c.example.com/tm-mpstat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/iostat
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/iostat/iostat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/iostat/iostat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/iostat/iostat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/mpstat/mpstat-stderr.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/mpstat/mpstat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/mpstat/mpstat-stop-postprocess.err
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/mpstat/mpstat-stop-postprocess.out
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/mpstat/mpstat.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/mpstat/online-cpus.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/tm-iostat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/tm-iostat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/tm-mpstat-stop.err
+/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com/tm-mpstat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.err
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.log
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-remote_a.example.com.err
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-remote_a.example.com.log
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-remote_a.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-remote_b.example.com.err
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-remote_b.example.com.log
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-remote_b.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-remote_c.example.com.err
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-remote_c.example.com.log
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-remote_c.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.err
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.log
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote_a.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote_a.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote_b.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote_b.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote_c.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote_c.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/iostat
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/mpstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote_a.example.com/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote_b.example.com/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote_c.example.com/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/iostat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/testhost.example.com/mpstat:
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] tool_opts: ""
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: ""
+[info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: ""
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "remote_a.example.com" in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: ""
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "remote_b.example.com" in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: ""
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "remote_c.example.com" in group "lite"
+--- pbench.log file contents
++++ mock-run/tm/pbench-tool-data-sink.err file contents
+Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class '__main__.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
+Listening on http://0.0.0.0:8080/
+Hit Ctrl-C to quit.
+
+--- mock-run/tm/pbench-tool-data-sink.err file contents
++++ mock-run/tm/pbench-tool-data-sink.log file contents
+INFO pbench-tool-data-sink execute -- Terminate bottle server
+INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /tool-data/4a200d14fbab61d26581ad8e0129a73d/remote_a.example.com HTTP/1.1" 200 0
+INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /tool-data/4a200d14fbab61d26581ad8e0129a73d/remote_b.example.com HTTP/1.1" 200 0
+INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /tool-data/4a200d14fbab61d26581ad8e0129a73d/remote_c.example.com HTTP/1.1" 200 0
+INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /tool-data/9e243daecdc01b52d608090bb1c49d95/remote_a.example.com HTTP/1.1" 200 0
+INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /tool-data/9e243daecdc01b52d608090bb1c49d95/remote_b.example.com HTTP/1.1" 200 0
+INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /tool-data/9e243daecdc01b52d608090bb1c49d95/remote_c.example.com HTTP/1.1" 200 0
+INFO pbench-tool-data-sink main -- Remove pid file ... (pbench-tool-data-sink.pid)
+INFO pbench-tool-data-sink main -- params_key (tds-lite): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan"}'
+INFO pbench-tool-data-sink run -- Bottle web server exited
+INFO pbench-tool-data-sink run -- Running Bottle web server ...
+--- mock-run/tm/pbench-tool-data-sink.log file contents
++++ mock-run/tm/pbench-tool-data-sink.out file contents
+--- mock-run/tm/pbench-tool-data-sink.out file contents
++++ mock-run/tm/redis.conf file contents
+bind localhost
+daemonize yes
+dir /var/tmp/pbench-test-utils/pbench/mock-run/tm
+dbfilename pbench-redis.rdb
+logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
+loglevel notice
+pidfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis_17001.pid
+port 17001
+--- mock-run/tm/redis.conf file contents
++++ mock-run/tm/redis.log file contents
+# Configuration loaded
+# Server initialized
+* Ready to accept connections
+# User requested shutdown...
+* Removing the pid file.
+# Redis is now ready to exit, bye bye...
+--- mock-run/tm/redis.log file contents
++++ mock-run/tm/tm-lite-remote_a.example.com.err file contents
+--- mock-run/tm/tm-lite-remote_a.example.com.err file contents
++++ mock-run/tm/tm-lite-remote_a.example.com.log file contents
+INFO pbench-tool-meister main -- params_key (tm-lite-remote_a.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "localhost", "group": "lite", "hostname": "remote_a.example.com", "tools": {"mpstat": ""}}'
+INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com 
+INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com 
+INFO pbench-tool-meister wait -- waiting for stop mpstat
+INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com 
+INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com 
+INFO pbench-tool-meister wait -- waiting for stop mpstat
+INFO pbench-tool-meister send_tools -- remote_a.example.com: send_tools completed lite /var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com
+INFO pbench-tool-meister send_tools -- remote_a.example.com: send_tools completed lite /var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com
+INFO pbench-tool-meister main -- terminating
+INFO pbench-tool-meister main -- Remove pid file ... (tm-lite-remote_a.example.com.pid)
+--- mock-run/tm/tm-lite-remote_a.example.com.log file contents
++++ mock-run/tm/tm-lite-remote_a.example.com.out file contents
+--- mock-run/tm/tm-lite-remote_a.example.com.out file contents
++++ mock-run/tm/tm-lite-remote_b.example.com.err file contents
+--- mock-run/tm/tm-lite-remote_b.example.com.err file contents
++++ mock-run/tm/tm-lite-remote_b.example.com.log file contents
+INFO pbench-tool-meister main -- params_key (tm-lite-remote_b.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "localhost", "group": "lite", "hostname": "remote_b.example.com", "tools": {"mpstat": ""}}'
+INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com 
+INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com 
+INFO pbench-tool-meister wait -- waiting for stop mpstat
+INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com 
+INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com 
+INFO pbench-tool-meister wait -- waiting for stop mpstat
+INFO pbench-tool-meister send_tools -- remote_b.example.com: send_tools completed lite /var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com
+INFO pbench-tool-meister send_tools -- remote_b.example.com: send_tools completed lite /var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com
+INFO pbench-tool-meister main -- terminating
+INFO pbench-tool-meister main -- Remove pid file ... (tm-lite-remote_b.example.com.pid)
+--- mock-run/tm/tm-lite-remote_b.example.com.log file contents
++++ mock-run/tm/tm-lite-remote_b.example.com.out file contents
+--- mock-run/tm/tm-lite-remote_b.example.com.out file contents
++++ mock-run/tm/tm-lite-remote_c.example.com.err file contents
+--- mock-run/tm/tm-lite-remote_c.example.com.err file contents
++++ mock-run/tm/tm-lite-remote_c.example.com.log file contents
+INFO pbench-tool-meister main -- params_key (tm-lite-remote_c.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "localhost", "group": "lite", "hostname": "remote_c.example.com", "tools": {"mpstat": ""}}'
+INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com 
+INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com 
+INFO pbench-tool-meister wait -- waiting for stop mpstat
+INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com 
+INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com 
+INFO pbench-tool-meister wait -- waiting for stop mpstat
+INFO pbench-tool-meister send_tools -- remote_c.example.com: send_tools completed lite /var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com
+INFO pbench-tool-meister send_tools -- remote_c.example.com: send_tools completed lite /var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com
+INFO pbench-tool-meister main -- terminating
+INFO pbench-tool-meister main -- Remove pid file ... (tm-lite-remote_c.example.com.pid)
+--- mock-run/tm/tm-lite-remote_c.example.com.log file contents
++++ mock-run/tm/tm-lite-remote_c.example.com.out file contents
+--- mock-run/tm/tm-lite-remote_c.example.com.out file contents
++++ mock-run/tm/tm-lite-testhost.example.com.err file contents
+--- mock-run/tm/tm-lite-testhost.example.com.err file contents
++++ mock-run/tm/tm-lite-testhost.example.com.log file contents
+INFO pbench-tool-meister main -- params_key (tm-lite-testhost.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "testhost.example.com", "group": "lite", "hostname": "testhost.example.com", "tools": {"iostat": "", "mpstat": ""}}'
+INFO pbench-tool-meister start -- iostat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-iostat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com 
+INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com 
+INFO pbench-tool-meister stop -- iostat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com 
+INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com 
+INFO pbench-tool-meister wait -- waiting for stop iostat
+INFO pbench-tool-meister wait -- waiting for stop mpstat
+INFO pbench-tool-meister start -- iostat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-iostat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com 
+INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com 
+INFO pbench-tool-meister stop -- iostat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com 
+INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com 
+INFO pbench-tool-meister wait -- waiting for stop iostat
+INFO pbench-tool-meister wait -- waiting for stop mpstat
+INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com
+INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com
+INFO pbench-tool-meister main -- terminating
+INFO pbench-tool-meister main -- Remove pid file ... (tm-lite-testhost.example.com.pid)
+--- mock-run/tm/tm-lite-testhost.example.com.log file contents
++++ mock-run/tm/tm-lite-testhost.example.com.out file contents
+--- mock-run/tm/tm-lite-testhost.example.com.out file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL 10
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL 10
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL 10
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL 10
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL 10
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL 10
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x iostat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x iostat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh remote_a.example.com pbench-tool-meister testhost.example.com 17001 tm-lite-remote_a.example.com
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh remote_b.example.com pbench-tool-meister testhost.example.com 17001 tm-lite-remote_b.example.com
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh remote_c.example.com pbench-tool-meister testhost.example.com 17001 tm-lite-remote_c.example.com
+--- test-execution.log file contents

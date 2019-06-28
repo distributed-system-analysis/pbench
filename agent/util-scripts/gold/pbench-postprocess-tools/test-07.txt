@@ -1,0 +1,28 @@
++++ Running test-07 pbench-postprocess-tools --group=foobar --dir=/var/tmp/pbench-test-utils/pbench/42-iter/sample42
+--- Finished test-07 pbench-postprocess-tools (status=0)
+iostat: post-processing data
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/42-iter
+/var/tmp/pbench-test-utils/pbench/42-iter/sample42
+/var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-foobar
+/var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-foobar/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-foobar/testhost.example.com/iostat
+/var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-foobar/testhost.example.com/iostat/csv
+/var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-foobar/testhost.example.com/iostat/iostat-postprocess.err
+/var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-foobar/testhost.example.com/iostat/iostat-postprocess.out
+/var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-foobar/testhost.example.com/iostat/iostat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-foobar/testhost.example.com/postprocess.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/foo
+/var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/iostat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/__label__:
+bar
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/foo:
+--interval=10
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-foobar/testhost.example.com/iostat:
+--interval=10
+--- pbench tree state

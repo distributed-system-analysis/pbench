@@ -1,0 +1,86 @@
++++ Running test-11.09 pbench-register-tool-set --remotes=one.example.com,two.example.com,three.example.com --labels=labelOne,labelTwo,labelThree
+"mpstat" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
+"mpstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+"mpstat" tool is now registered for host "three.example.com", with label "labelThree", in group "default"
+"vmstat" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
+"vmstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+"vmstat" tool is now registered for host "three.example.com", with label "labelThree", in group "default"
+"iostat" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
+"iostat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+"iostat" tool is now registered for host "three.example.com", with label "labelThree", in group "default"
+"perf" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
+"perf" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+"perf" tool is now registered for host "three.example.com", with label "labelThree", in group "default"
+--- Finished test-11.09 pbench-register-tool-set (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/iostat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/perf
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/vmstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/iostat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/perf
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/vmstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/__label__
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/iostat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/perf
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/vmstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/__label__:
+labelOne
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/iostat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/mpstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/perf:
+--record-opts='record -a --freq=100'
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/vmstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/__label__:
+labelThree
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/iostat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/mpstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/perf:
+--record-opts='record -a --freq=100'
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/vmstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/__label__:
+labelTwo
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/iostat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/mpstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/perf:
+--record-opts='record -a --freq=100'
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/vmstat:
+--interval=3
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "three.example.com", with label "labelThree", in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "vmstat" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
+[info][1900-01-01T00:00:00.000000] "vmstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+[info][1900-01-01T00:00:00.000000] "vmstat" tool is now registered for host "three.example.com", with label "labelThree", in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
+[info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+[info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "three.example.com", with label "labelThree", in group "default"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts='record -a --freq=100'"
+[info][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "one.example.com", with label "labelOne", in group "default"
+[info][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
+[info][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "three.example.com", with label "labelThree", in group "default"
+--- pbench.log file contents
