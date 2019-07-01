@@ -186,6 +186,16 @@ function collect_stockpile_data {
 	fi
 }
 
+function collect_insights_data {
+	debug_log "[$script_name]collecting insights data"
+	script -c 'insights-client --offline --logging-file $dir/insights-client.log' /dev/null | sed -n 's/.*\sat\s//p' | tr -d "$'\r" | xargs -I '{}' mv {} $dir
+	if [[ $? != 0 ]]; then
+		error_log "[$script_name] insights-client run failed"
+		exit 1
+	fi
+}
+
+
 for item in ${sysinfo//,/ };do
 	debug_log "[$script_name]: collecting $item"
 	if [[ "$item" == "kernel_config" ]]; then
@@ -204,6 +214,8 @@ for item in ${sysinfo//,/ };do
 		collect_ara_data &> $pbench_log
 	elif [[ "$item" == "stockpile" ]]; then
 		collect_stockpile_data &
+	elif [[ "$item" == "insights" ]]; then
+                collect_insights_data &
 	else
 		error_log "[$script_name]bad sysinfo value, \"${item}\""
 	fi
