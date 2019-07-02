@@ -244,10 +244,14 @@ class PbenchConfig(object):
         return self.conf.get(*args, **kwargs)
 
     def timestamp(self):
+        """
+        "Return timestamp formatted as a string of the following form:
+                  <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
+        """
         if self._unittests:
             ts = "1900-01-01T00:00:00-UTC"
         else:
-            ts = datetime.utcnow().isoformat()
+            ts = tstos()
         return ts
 
 
