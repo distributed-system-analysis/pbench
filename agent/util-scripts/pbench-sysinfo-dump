@@ -192,6 +192,8 @@ function collect_insights_data {
 	if [[ $? != 0 ]]; then
 		error_log "[$script_name] insights-client run failed"
 		exit 1
+	else
+		debug_log "[$script_name]done collecting insights data"
 	fi
 }
 
