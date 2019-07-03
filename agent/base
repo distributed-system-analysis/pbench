@@ -8,6 +8,18 @@
 # will catch any ssh failure
 set -o pipefail
 
+if which python3 > /dev/null 2>&1 ;then
+    # All python programs/scripts have headers using "python3" by default.
+    :
+elif which scl_source > /dev/null 2>&1 ;then
+    # If we don't have python3, but we do have SCL, we only support
+    # Python 3.6.
+    source scl_source enable rh-python36
+else
+    printf -- "${script_name}: python3 required, either directly or through SCL\n" >&2
+    exit 1
+fi
+
 # very first thing to do is figure out which pbench we are
 if [[ -z "$pbench_run" ]]; then
     pbench_run=$(getconf.py pbench_run pbench-agent)

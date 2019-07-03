@@ -44,6 +44,18 @@ export PATH=${_tdir}/mock-bin:${PATH}
 # timestamps will show a constant offset.
 export TZ=UTC
 
+if which python3 > /dev/null 2>&1 ;then
+    # All python programs/scripts have headers using "python3" by default.
+    :
+elif which scl > /dev/null 2>&1 ;then
+    # If we don't have python3, but we do have SCL, we only support
+    # Python 3.6.
+    source scl_source enable rh-python36
+else
+    printf -- "python3 required, either directly or through SCL\n" >&2
+    exit 1
+fi
+
 declare -A options=(
     [prometheus-metrics]="example.host.com 3 tool_log 9042 cert false key"
 )
