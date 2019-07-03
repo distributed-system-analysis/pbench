@@ -1,18 +1,6 @@
 +++ Running test-12 pbench-user-benchmark
 Running user-benchmark-script bad-format
-ERROR:root:current position: 51
-Traceback (most recent call last):
-  File "/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/user-benchmark-wrapper", line XXX, in <module>
-    data = json.load(data_file)
-  File "/usr/lib/python2.7/json/__init__.py", line XXX, in load
-    **kw)
-  File "/usr/lib/python2.7/json/__init__.py", line XXX, in loads
-    return _default_decoder.decode(s)
-  File "/usr/lib/python2.7/json/decoder.py", line XXX, in decode
-    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
-  File "/usr/lib/python2.7/json/decoder.py", line XXX, in raw_decode
-    obj, end = self.scan_once(s, idx)
-ValueError: Expecting object: line 3 column 25 (char 50)
+WARNING:root:Unable to load JSON data from /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/user-benchmark-summary.json, "Expecting ',' delimiter: line 4 column 1 (char 51)", current position in file: 51; ignoring bad summary data...
 --- Finished test-12 pbench-user-benchmark (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent

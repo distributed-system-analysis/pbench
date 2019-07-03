@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import sys, os, json, math
 import subprocess, logging
@@ -14,9 +14,9 @@ selfsigned = sys.argv[6]
 key = sys.argv[7]
 
 if (cert == "None") or (key == "None"):
-    command = "prom2json http://%s:%d/metrics" % (host, port)
+    command = "prom2json http://{}:{:d}/metrics".format(host, port)
 else:
-    command = "prom2json%s --cert=%s --key=%s https://%s:%d/metrics" % (
+    command = "prom2json{} --cert={} --key={} https://{}:{:d}/metrics".format(
             " --accept-invalid-cert" if selfsigned == "true" else "", cert,
             key, host, port)
 
@@ -64,8 +64,8 @@ total_duration = 0
 drifted = 0
 
 while True:
-    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    prom2json_out, _ = proc.communicate()
+    with subprocess.Popen(command, shell=True, stdout=subprocess.PIPE) as proc:
+        prom2json_out, _ = proc.communicate()
 
     # Record how long prom2json took for use when we run beyond the
     # given interval.

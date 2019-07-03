@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import sys, json, warnings, logging, math
@@ -37,7 +37,7 @@ def convert_value(val):
             if math.isnan(val):
                 val = 0
     else:
-        if type(val) == type(sys.maxint + 1):
+        if val > sys.maxsize:
             val = float(val)
             if math.isnan(val):
                 val = 0

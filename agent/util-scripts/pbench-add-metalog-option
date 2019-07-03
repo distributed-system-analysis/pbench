@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # Usage: pbench-add-metalog-option <metadata log file> <section> <option>
 
@@ -10,14 +10,10 @@
 # where the iterations are in the <iterations.file>, one iteration per line.
 
 import sys
-try:
-    # python3
-    from configparser import SafeConfigParser, NoSectionError
-except:
-    from ConfigParser import SafeConfigParser, NoSectionError
+from configparser import ConfigParser, NoSectionError
 
 def main(lfile, section, option):
-    config = SafeConfigParser()
+    config = ConfigParser()
     config.read(lfile)
     # python3
     # config[section][option] = ', '.join(sys.stdin.read().split())
