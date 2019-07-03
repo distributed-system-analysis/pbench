@@ -1,0 +1,8 @@
+{"@timestamp": 1234567891, "metrics": [{"value": 42}], "name": "made-up", "type": "GAUGE"}
+{"@timestamp": 1234567891, "metrics": [{"value": 43}], "name": "made-up-also", "type": "COUNT"}
+{"@timestamp": 1234567894, "metrics": [{"value": 42}], "name": "made-up", "type": "GAUGE"}
+{"@timestamp": 1234567894, "metrics": [{"value": 43}], "name": "made-up-also", "type": "COUNT"}
+{"@timestamp": 1234567897, "metrics": [{"value": 42}], "name": "made-up", "type": "GAUGE"}
+{"@timestamp": 1234567897, "metrics": [{"value": 43}], "name": "made-up-also", "type": "COUNT"}
+{"@timestamp": 1234567900, "metrics": [{"value": 42}], "name": "made-up", "type": "GAUGE"}
+{"@timestamp": 1234567900, "metrics": [{"value": 43}], "name": "made-up-also", "type": "COUNT"}

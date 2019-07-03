@@ -191,7 +191,9 @@ case "$mode" in
 			debug_log "[$script_name] key is not defined for $host, assuming that the endpoint doesn't need authentication"
 			key="None"
 		fi
-		tool_cmd='GOPATH=$pbench_install_dir/.go PATH=$PATH:$GOPATH/bin $script_path/datalog/$tool-datalog $host $interval $tool_log $port $cert $selfsigned $key'
+		# We make sure PYTHONUNBUFFERED is set as an environment
+    		# variable so that data is written immediately to output files.
+		tool_cmd='PYTHONUNBUFFERED=True GOPATH=$pbench_install_dir/.go PATH=$PATH:$GOPATH/bin $script_path/datalog/$tool-datalog $host $interval $tool_log $port $cert $selfsigned $key'
 		metrics_data=$tool_output_dir/"$host"-"$port"-stdout.txt
 		debug_log "$script_name: running $tool_cmd"
 		eval $tool_cmd >"$metrics_data" 2>"$tool_stderr_file" & echo $! >>$tool_pid_file

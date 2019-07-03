@@ -35,7 +35,11 @@ bpid=$!
 
 > /var/tmp/agent.tool-scripts.pp.out
 $dir/tool-scripts/postprocess/unittests > /var/tmp/agent.tool-scripts.pp.out 2>&1 < /dev/null &
-tpid=$!
+tppid=$!
+
+> /var/tmp/agent.tool-scripts.dl.out
+$dir/tool-scripts/datalog/unittests > /var/tmp/agent.tool-scripts.dl.out 2>&1 < /dev/null &
+tdpid=$!
 
 > /var/tmp/agent.util-scripts.out
 $dir/util-scripts/unittests > /var/tmp/agent.util-scripts.out 2>&1 < /dev/null &
@@ -46,7 +50,12 @@ let sts=sts+$?
 
 printf -- "\n\n\n"
 
-tail_and_wait $tpid 'Agent tool-scripts/postprocess' /var/tmp/agent.tool-scripts.pp.out
+tail_and_wait $tppid 'Agent tool-scripts/postprocess' /var/tmp/agent.tool-scripts.pp.out
+let sts=sts+$?
+
+printf -- "\n\n\n"
+
+tail_and_wait $tdpid 'Agent tool-scripts/datalog' /var/tmp/agent.tool-scripts.dl.out
 let sts=sts+$?
 
 printf -- "\n\n\n"

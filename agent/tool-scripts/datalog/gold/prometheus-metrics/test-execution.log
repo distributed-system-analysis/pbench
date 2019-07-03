@@ -1,0 +1,4 @@
+prom2json --cert=cert --key=key https://example.host.com:9042/metrics
+prom2json --cert=cert --key=key https://example.host.com:9042/metrics
+prom2json --cert=cert --key=key https://example.host.com:9042/metrics
+prom2json --cert=cert --key=key https://example.host.com:9042/metrics

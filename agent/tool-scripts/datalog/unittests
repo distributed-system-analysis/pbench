@@ -1,0 +1,92 @@
+#!/bin/bash
+export LANG=C
+export LC_ALL=C
+
+_tdir=$(dirname $(readlink -f ${0}))
+cd ${_tdir}
+
+if [[ ! -z "${1}" ]]; then
+    if [[ ! -d ./gold/${1} ]]; then
+        printf -- "Ignoring ${1}, ./gold/${1} does not exist as a directory\n" >&2
+        testname=""
+    else
+        testname="${1}"
+    fi
+fi
+
+export _testroot=/var/tmp/pbench-test-tools-datalog
+mkdir -p ${_testroot}
+if [ ${?} -ne 0 ]; then
+    printf -- "ERROR - unable to create ${_testroot} directory\n" >&2
+    exit 1
+fi
+rm -rf ${_testroot}/*
+
+function remove_path {
+    # PATH ($2) => /bin:/opt/a dir/bin:/sbin
+    WORK=:${2}:
+    # WORK => :/bin:/opt/a dir/bin:/sbin:
+    REMOVE=${1}
+    WORK=${WORK/:${REMOVE}:/:}
+    # WORK => :/bin:/sbin:
+    WORK=${WORK%:}
+    WORK=${WORK#:}
+    #PATH=$WORK
+    # PATH => /bin:/sbin
+    printf -- "$WORK\n"
+}
+PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
+PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
+export PATH=${_tdir}/mock-bin:${PATH}
+
+# the timestamps in the data are (or should be) in UTC
+# make sure that we test in that environment, else the
+# timestamps will show a constant offset.
+export TZ=UTC
+
+declare -A options=(
+    [prometheus-metrics]="example.host.com 3 tool_log 9042 cert false key"
+)
+
+function testit {
+    printf -- "Testing ${2}-datalog under setup ${1} ...\n"
+
+    local _execdir=${_testroot}/${1}
+    mkdir ${_execdir}
+
+    # Run the data for three iterations (sleep cycles) by setting
+    # _PBENCH_UNIT_TEST=3. We also make sure PYTHONUNBUFFERED is set as an
+    # environment variable so that data is written immediately to output
+    # files.
+    _PBENCH_UNIT_TEST=3 _testlog=${_execdir}/test-execution.log PYTHONUNBUFFERED=True pbench_lib_dir=$(pwd)/../../lib ./${2}-datalog ${options[${2}]} > ${_execdir}/stdout 2> ${_execdir}/stderr < /dev/null
+    diff -cr gold/${1}/ ${_execdir}
+    sts=${?}
+    if [ ${sts} -eq 0 ]; then
+        rm -rf ${_execdir}
+    fi
+    return ${sts}
+}
+
+res=0
+
+for i in $(ls -1 gold/) ; do
+    if [[ ! -z "${testname}" ]]; then
+        if [[ "${testname}" != "${i}" ]]; then
+            continue
+        fi
+    fi
+    testit ${i} ${i%-[0-9]}
+    sts=${?}
+    if [[ ${sts} -eq 0 ]]; then
+        printf -- "PASS - ${i}\n"
+    else
+        printf -- "FAIL - ${i}\n"
+    fi
+    let res=${res}+${sts}
+done
+
+# Attempt to remove the test directory; if it fails we ignore the failure
+# as it indicates failed test output left for review.
+rmdir ${_testroot} > /dev/null 2>&1
+
+exit ${res}
