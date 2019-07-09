@@ -2,57 +2,69 @@
 from __future__ import print_function
 
 import sys
-from os.path import join
+from os.path import join, basename
 try:
     from configparser import SafeConfigParser
 except ImportError:
     from ConfigParser import SafeConfigParser
 
-html = \
-"""
-<html>
-<head>
-<title>Latency</title>
-<link rel="stylesheet" href="/static/css/v0.3/jschart.css"/>
-</head>
-<body>
-<script src="/static/js/v0.3/d3.min.js" charset="utf-8"></script>
-<script src="/static/js/v0.3/d3-queue.min.js" charset="utf-8"></script>
-<script src="/static/js/v0.3/jschart.js" charset="utf-8"></script>
-<script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
-<div id='jschart_latency'>
-  <script>
-    create_jschart(0, "%s", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
-        { plotfiles: [ "median.log", "p90.log", "p95.log",
-                       "p99.log", "min.log", "max.log" ],
-          sort_datasets: false, x_log_scale: false
-        });
-  </script>
-</div>
-<script>finish_page()</script>
-</body>
+_prog = basename(sys.argv[0])
+
+html = """<html>
+  <head>
+    <title>Latency</title>
+    <link rel="stylesheet" href="/static/css/v0.3/jschart.css"/>
+  </head>
+  <body>
+    <script src="/static/js/v0.3/d3.min.js" charset="utf-8"></script>
+    <script src="/static/js/v0.3/d3-queue.min.js" charset="utf-8"></script>
+    <script src="/static/js/v0.3/jschart.js" charset="utf-8"></script>
+    <script src="/static/js/v0.3/saveSvgAsPng.js" charset="utf-8"></script>
+    <div id='jschart_latency'>
+      <script>
+        create_jschart(0, "%s", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
+            { plotfiles: [ %s ],
+              sort_datasets: false, x_log_scale: false
+            });
+      </script>
+    </div>
+    <script>finish_page()</script>
+  </body>
 </html>
 """
 
-columns = ["samples", "min", "median", "p90", "p95", "p99", "max"]
-
 def main(ctx):
-
+  columns = ["samples"]
+  plot_files = ["samples.log"]
+  for pct in ctx.percentiles:
+    if pct == 0:
+      col = "min"
+    elif pct == 50.0:
+      col = "median"
+    elif pct == 100.0:
+      col = "max"
+    else:
+      col = "p%1.0f" % pct
+    columns.append(col)
+    plot_files.append("%s.log" % (col,))
+  columns_l = len(columns)
   with open(join(ctx.DIR, 'hist.csv'), 'r') as csv:
     line = csv.readline()
+    # FIXME: this check for the string "min, median" is a little fragile
     while line and not line.__contains__('min, median'):
-        line = csv.readline()
+      line = csv.readline()
     if not line:
-        print('ERROR: hit end of file without seeing header', file=sys.stderr)
-        sys.exit(1)
-    out_files = [open(join(ctx.DIR, "%s.log" % c), 'w') for c in columns]
-    for i in range(len(columns)):
-      out_files[i].write("#LABEL:%s\n" % columns[i])
+      print('[{}] ERROR: hit end of file without seeing header'.format(
+          _prog), file=sys.stderr)
+      return 1
+    out_files = [open(join(ctx.DIR, pf), 'w') for pf in plot_files]
+    for i in range(columns_l):
+      out_files[i].write("#LABEL:%s\n" % (columns[i],))
     for line in csv:
       vs = line.split(', ')
-      for i in range(len(columns)):
+      for i in range(columns_l):
         out_files[i].write("%d %s\n" % (int(vs[0]), vs[i+1].rstrip()))
-    for i in range(len(columns)):
+    for i in range(columns_l):
       out_files[i].close()
   chart_type = "xy"
   cp = SafeConfigParser(allow_no_value=True)
@@ -61,17 +73,27 @@ def main(ctx):
     try:
       epoch = cp.get(s, 'log_unix_epoch')
       chart_type = "timeseries"
-    except:
+    except Exception:
       pass
-  print ("Chart Type: %s" % chart_type)
-  with open(join(ctx.DIR, 'results.html'), 'w') as fp:
-    fp.write(html % (chart_type,))
+  result_file_name = join(ctx.DIR, 'results.html')
+  print("[%s] Chart Type: %s (%s)" % (_prog, chart_type, result_file_name))
+  with open(result_file_name, 'w') as fp:
+    list_of_plot_file_quoted_strings = [ "\"%s\"" % (pf,) for pf in plot_files ]
+    # Note we don't plot samples.log
+    concatenated_plot_file_quoted_strings = ", ".join(list_of_plot_file_quoted_strings[1:])
+    fp.write(html % (chart_type, concatenated_plot_file_quoted_strings))
+  return 0
 
 if __name__ == '__main__':
   import argparse
-  p = argparse.ArgumentParser()
+  p = argparse.ArgumentParser(_prog)
   arg = p.add_argument
   arg('-j', '--job-file', help='fio job file')
+  arg('-t', '--time-quantum', nargs=1, type=int, default='1',
+      help='time quantum given to fio-histo-log-pctiles.py')
+  arg('-p', '--percentiles', nargs='+', type=float,
+      default=[ 0., 50., 95., 99., 100. ],
+      help='percentiles given to fio-histo-log-pctiles.py')
   arg('DIR', help='results directory')
-  main(p.parse_args())
-
+  ret_status = main(p.parse_args())
+  sys.exit(ret_status)
