@@ -667,7 +667,8 @@ function fio_run_job() {
 	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 
 	if [ ! -z "$clients" ]; then
-		histogram_cmd="fio-histo-log-pctiles.py --time-quantum $histogram_interval_sec --percentiles 0 50 90 95 99 100 -- "
+		histogram_params="--time-quantum ${histogram_interval_sec} --percentiles 0 50 90 95 99 100"
+		histogram_cmd="fio-histo-log-pctiles.py ${histogram_params} -- "
 		for client in `echo $clients | sed -e s/,/" "/g`; do
 			mkdir -p $benchmark_results_dir/clients/$client
 			/bin/mv $benchmark_results_dir/*.log.$client $benchmark_results_dir/clients/$client/ 2> /dev/null
@@ -687,7 +688,7 @@ function fio_run_job() {
 					mkdir -p $benchmark_results_dir/clients/$client/hist
 					# compute per-client latency percentiles
 					$histogram_cmd $benchmark_results_dir/clients/$client/fio_clat_hist.*.log* >$benchmark_results_dir/clients/$client/hist/hist.csv
-					$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/clients/$client/hist
+					$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file ${histogram_params} -- $benchmark_results_dir/clients/$client/hist
 				else
 					warn_log "log_hist_msec specified in job file but failed to find any log files (.../clients/$client/fio_clat_hist.*.log*) to process for histograms"
 				fi
@@ -699,7 +700,7 @@ function fio_run_job() {
 			if [[ $? -eq 0 ]]; then
 				mkdir $benchmark_results_dir/hist
 				$histogram_cmd $benchmark_results_dir/clients/*/fio_clat_hist.*.log* >$benchmark_results_dir/hist/hist.csv
-				$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file $benchmark_results_dir/hist
+				$script_path/postprocess/$benchmark-postprocess-viz.py --job-file=$fio_job_file ${histogram_params} -- $benchmark_results_dir/hist
 			else
 				warn_log "log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms"
 			fi

@@ -91,6 +91,7 @@ function _run {
     echo "$tname $tscrpt $@"
     echo "+++ Running $tname $tscrpt" >> $_testout
     #echo PWD: $(pwd) _TDIR: $_tdir >> $_testout
+    _tst_benchmark=${tscrpt%% *} \
     CONFIG=$_testopt/config/pbench-agent.cfg \
     pbench_install_dir=$_testopt \
     pbench_bspp_dir=$_testopt/bench-scripts/postprocess \
@@ -107,7 +108,7 @@ function _run {
 function _save_tree {
     # Save state of the tree
     echo "+++ pbench tree state" >> $_testout
-    find $_testdir | sort >> $_testout
+    find $_testdir 2> /dev/null | sort >> $_testout
     echo "--- pbench tree state" >> $_testout
 }
 
@@ -122,16 +123,22 @@ function _dump_file {
 
 function _dump_logs {
     # Dump the state of any generated script logs
-    echo "+++ pbench.log file contents" >> $_testout
-    grep -HvF "\-\-should-n0t-ex1st--" $_testdir/pbench.log >> $_testout 2>&1
-    echo "--- pbench.log file contents" >> $_testout
-    echo "+++ test-execution.log file contents" >> $_testout
-    grep -sHvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log | sort >> $_testout 2>&1
-    echo "--- test-execution.log file contents" >> $_testout
-    rm -f $_testroot/test-execution.log
+    echo "+++ pbench.log file contents" >> ${_testout}
+    grep -HvF "\-\-should-n0t-ex1st--" ${_testdir}/pbench.log >> ${_testout} 2>&1
+    echo "--- pbench.log file contents" >> ${_testout}
+    echo "+++ test-execution.log file contents" >> ${_testout}
+    grep -sHvF "\-\-should-n0t-ex1st--" ${_testroot}/test-execution.log | sort >> ${_testout} 2>&1
+    echo "--- test-execution.log file contents" >> ${_testout}
+    rm -f ${_testroot}/test-execution.log
     _dump_file ${1} metadata.log
     _dump_file ${1} user-benchmark-summary.json
     _dump_file ${1} user-benchmark.cmd
+    (
+    cd ${_testdir}/${1}
+    for f in $(find . -name results.html 2> /dev/null | sort); do
+        _dump_file ${1} ${f}
+    done
+    )
 }
 
 function _verify_output {
@@ -260,6 +267,7 @@ declare -A cmds=(
     [test-29]="pbench-fio --client-file=${_testtmp}/test-29_clients.file"
     [test-30]="pbench-fio --targets=/tmp --job-file=${_testopt}/bench-scripts/templates/fio.job --block-sizes=4 --samples=1 --test-types=read --runtime=30 --file-size=256M --clients=nodeA,nodeB --numjobs=4"
     [test-31]="pbench-fio --targets=/tmp --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --block-sizes=4 --samples=1 --test-types=read --runtime=30 --file-size=256M --clients=nodeA,nodeB --numjobs=4"
+    [test-32]="pbench-fio --test-type=rw --samples=1 --block-sizes=42 --clients=hist.foo,hist.bar"
 )
 
 declare -A expected_status=(

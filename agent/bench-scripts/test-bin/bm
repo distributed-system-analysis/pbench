@@ -4,3 +4,18 @@
 # benchmarks, uperf, linpack, iozone, fio, etc.
 
 echo "$0 $*" >> $_testlog
+
+if [[ "${_tst_benchmark}" == "pbench-fio" ]]; then
+    if [[ "${1%%=*}" == "--client" ]]; then 
+        client_file=${1##*=}
+        for client in $(cat ${client_file}); do
+            if [[ "${client%%.*}" == "hist" ]]; then 
+                # When we are mocking out a benchmark command for pbench-fio,
+                # for each client which begins with "hist" create an empty
+                # fio latency histogram log file so that the invocation of
+                # our latency visualizations can be exercised.
+                touch ./fio_clat_hist.empty.log.${client}
+            fi
+        done
+    fi
+fi
