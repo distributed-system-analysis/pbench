@@ -174,13 +174,15 @@ fi
 
 benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 export benchmark_run_dir="$pbench_run/${benchmark_fullname}"
-benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+benchmark_iterations="${benchmark_run_dir}/.iterations"
 benchmark_summary_file="$benchmark_run_dir/$benchmark-summary.txt"
 
 mkdir -p $benchmark_run_dir/.running
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+# on abnormal exit, make sure that the metadata log exists and is complete.
+trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
 benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
 echo $iteration >> $benchmark_iterations

@@ -2,9 +2,9 @@
 --- Finished test-22 pbench-metadata-log (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/.iterations
 /var/tmp/pbench-test-utils/pbench/metadata.log
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tmp/pbench.iterations
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/iostat
 /var/tmp/pbench-test-utils/pbench/tools-default/mpstat
@@ -34,10 +34,6 @@
 --interval=3
 /var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tmp/pbench.iterations:
-iter1
-iter2
-iter3
 --- pbench tree state
 +++ metadata.log file contents
 /var/tmp/pbench-test-utils/pbench/metadata.log:[pbench]

@@ -94,6 +94,7 @@ fio job complete
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-06_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-06_1900.01.01T00.00.00/.iterations
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-06_1900.01.01T00.00.00/1-rw-4KiB
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-06_1900.01.01T00.00.00/1-rw-4KiB/fio.job
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-06_1900.01.01T00.00.00/1-rw-4KiB/process-iteration-samples.cmd
@@ -135,7 +136,6 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-06_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
-/var/tmp/pbench-test-bench/pbench-agent/tmp/fio_test-06_1900.01.01T00.00.00.iterations
 /var/tmp/pbench-test-bench/pbench-agent/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar

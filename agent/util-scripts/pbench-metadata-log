@@ -191,9 +191,8 @@ function metadata_log_end {
     if ! grep -q end_run $log ;then
         echo "$(timestamp)" | pbench-add-metalog-option $log run end_run
     fi
-    name=$(basename $dir)
-    if [ -f $pbench_tmp/$name.iterations ] ;then
-        cat $pbench_tmp/$name.iterations |
+    if [ -f $dir/.iterations ] ;then
+        cat $dir/.iterations |
             pbench-add-metalog-option $log pbench iterations
     fi
     if [ "$int" == "int" ] ;then

@@ -26,6 +26,7 @@ sud
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/.iterations
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/1
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/1/reference-result
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/1/sample1
@@ -45,7 +46,6 @@ sud
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-23_1900.01.01T00.00.00/user-benchmark.cmd
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
-/var/tmp/pbench-test-bench/pbench-agent/tmp/pbench-user-benchmark_test-23_1900.01.01T00.00.00.iterations
 /var/tmp/pbench-test-bench/pbench-agent/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
