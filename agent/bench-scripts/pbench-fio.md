@@ -92,12 +92,15 @@ The same is true for using fio for random I/O on block devices.
 ## shared filesystems
 
 A slightly different set of parameters is needed for pbench-fio to work with shared filesystems (where same set of files
-is shared by multiple clients/mountpoints).  For this to work, you must do 2 things:
+is shared by multiple clients/mountpoints).  For this to work, you must do 3 things:
 
 * specify --target=my-directory 
-* specify --jobfile=/opt/pbench-agent/bench-scripts/templates/fio-shared-fs.job  
+* specify --job-file=/opt/pbench-agent/bench-scripts/templates/fio-shared-fs.job  
+* specify --file-size=size-in-MB
 
-**my-directory** is the shared filesystem mountpoint or some subdirectory of it
+**my-directory** is the shared filesystem mountpoint or some subdirectory of it. The
+**size-in-MB** is required in order for fio to operate correctly with the **fio-shared-fs.job**
+file.
 
 The job file specification tells fio to target a directory instead of a file.  fio --client
 will then generate unique filenames for every pair of (host, job-number) combinations
