@@ -9594,6 +9594,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/INDEXED
@@ -9603,7 +9604,6 @@ drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SYNCED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-COPY-SOS
 lrwxrwxrwx        120 archive/fs-version-001/dhcp31-44/TO-COPY-SOS/uperf_uperftest_2018.02.02T20.58.00.tar.xz -> /var/tmp/pbench-test-server/test-7.10/pbench/archive/fs-version-001/dhcp31-44/uperf_uperftest_2018.02.02T20.58.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-DELETE

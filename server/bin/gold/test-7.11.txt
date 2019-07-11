@@ -5154,6 +5154,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/INDEXED
@@ -5163,7 +5164,6 @@ drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SYNCED
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-COPY-SOS
 lrwxrwxrwx        111 archive/fs-version-001/dhcp31-44/TO-COPY-SOS/fio_rw_2018.02.01T22.40.57.tar.xz -> /var/tmp/pbench-test-server/test-7.11/pbench/archive/fs-version-001/dhcp31-44/fio_rw_2018.02.01T22.40.57.tar.xz
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-DELETE

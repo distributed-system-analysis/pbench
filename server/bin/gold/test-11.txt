@@ -55,6 +55,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/ONE::controller
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/INDEXED
@@ -65,7 +66,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controller/SATELLITE-MD5-PASSE
 lrwxrwxrwx        113 archive/fs-version-001/ONE::controller/SATELLITE-MD5-PASSED/fio__2016-08-16_22:03:11.tar.xz -> /var/tmp/pbench-test-server/test-11/pbench/archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-INDEX

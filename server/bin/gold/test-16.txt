@@ -75,6 +75,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/controller00
 drwxrwxr-x          - archive/fs-version-001/controller00/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/controller00/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller00/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller00/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/controller00/INDEXED
@@ -83,7 +84,6 @@ drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller00/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller00/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-COPY-SOS
 lrwxrwxrwx        128 archive/fs-version-001/controller00/TO-COPY-SOS/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-DELETE
@@ -102,6 +102,7 @@ drwxrwxr-x          - archive/fs-version-001/controller00/WONT-INDEX
 -rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller01
 drwxrwxr-x          - archive/fs-version-001/controller01/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/controller01/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller01/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller01/COPIED-SOS
 -rw-rw-r--       3120 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
@@ -112,7 +113,6 @@ drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller01/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller01/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-COPY-SOS
 lrwxrwxrwx        129 archive/fs-version-001/controller01/TO-COPY-SOS/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-DELETE
@@ -133,6 +133,7 @@ drwxrwxr-x          - archive/fs-version-001/controller02
 drwxrwxr-x          - archive/fs-version-001/controller02/.prefix
 -rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1900-01-01T00:00:00.prefix
 drwxrwxr-x          - archive/fs-version-001/controller02/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/controller02/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller02/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller02/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/controller02/INDEXED
@@ -141,7 +142,6 @@ drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller02/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller02/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-COPY-SOS
 lrwxrwxrwx        128 archive/fs-version-001/controller02/TO-COPY-SOS/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-DELETE

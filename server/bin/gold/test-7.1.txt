@@ -108,6 +108,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/controller
 drwxrwxr-x          - archive/fs-version-001/controller/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/controller/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/controller/INDEXED
@@ -116,7 +117,6 @@ drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller/TO-COPY-SOS
 lrwxrwxrwx         93 archive/fs-version-001/controller/TO-COPY-SOS/test-7.1.tar.xz -> /var/tmp/pbench-test-server/test-7.1/pbench/archive/fs-version-001/controller/test-7.1.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE

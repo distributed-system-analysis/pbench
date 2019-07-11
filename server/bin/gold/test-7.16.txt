@@ -9825,6 +9825,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/rhel8-4
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/rhel8-4/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/INDEXED
@@ -9834,7 +9835,6 @@ drwxrwxr-x          - archive/fs-version-001/rhel8-4/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/SYNCED
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-COPY-SOS
 lrwxrwxrwx        138 archive/fs-version-001/rhel8-4/TO-COPY-SOS/uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43.tar.xz -> /var/tmp/pbench-test-server/test-7.16/pbench/archive/fs-version-001/rhel8-4/uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43.tar.xz
 drwxrwxr-x          - archive/fs-version-001/rhel8-4/TO-DELETE
