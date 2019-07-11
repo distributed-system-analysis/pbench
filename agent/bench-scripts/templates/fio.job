@@ -31,5 +31,3 @@ size = 4096M
 numjobs = 1
 
 #rate_iops=10
-#directory=/tmp/fio
-

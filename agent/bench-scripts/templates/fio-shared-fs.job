@@ -8,6 +8,7 @@
 
 [global]
 bs = $@
+runtime = 30
 ioengine = libaio
 iodepth = 32
 direct = 1
@@ -24,10 +25,11 @@ log_hist_msec = 10000
 # log_hist_coarseness = 4 # 76 bins
 
 [TheJob]
-runtime = $runtime
 directory = $target
 rw = $@
-size = $size
-# if you want to specify more than 1 process per fio client host/pod,
-# uncomment this next line and add --numjobs=K to your pbench-fio command
-#numjobs = $numjobs
+size = 4096M
+# If you want to specify more than 1 process per fio client host/pod,
+# add --numjobs=K to your pbench-fio command.
+numjobs = 1
+
+#rate_iops=10
