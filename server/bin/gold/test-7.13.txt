@@ -10632,6 +10632,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/INDEXED
@@ -10641,7 +10642,6 @@ drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/SYNCED
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-COPY-SOS
 lrwxrwxrwx        145 archive/fs-version-001/b03-h01-1029p/TO-COPY-SOS/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz -> /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-DELETE

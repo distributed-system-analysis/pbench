@@ -70,7 +70,7 @@ class BackupObject(object):
 def sanity_check(s3_obj, logger):
     # make sure the S3 bucket exists
     try:
-        s3_obj.connector.head_bucket(Bucket='{}'.format(s3_obj.bucket_name))
+        s3_obj.head_bucket(Bucket=s3_obj.bucket_name)
     except Exception:
         logger.exception(
             "Bucket: {} does not exist or you have no access\n".format(s3_obj.bucket_name))
@@ -224,7 +224,7 @@ def entry_list_creation_s3(s3_config_obj, logger):
     kwargs = {'Bucket': s3_config_obj.bucket_name}
     try:
         while True:
-            resp = s3_config_obj.connector.list_objects(**kwargs)
+            resp = s3_config_obj.list_objects(**kwargs)
             for obj in resp['Contents']:
                 md5_returned = obj['ETag'].strip("\"")
                 s3_content_list.append(Entry(obj['Key'], md5_returned))
@@ -273,8 +273,8 @@ def main():
         logger.error("The setting for BACKUP in the config file is {}, but that is not a directory", backup)
         return 1
 
-    # call the s3config class
-    s3_config_obj = S3Config(config)
+    # instantiate the s3config class
+    s3_config_obj = S3Config(config, logger)
     s3_config_obj = sanity_check(s3_config_obj, logger)
 
     logger.info('start-{}', config.TS)
@@ -317,7 +317,7 @@ def main():
                 sts += 1
             else:
                 if md5_result_archive > 0:
-                    # Create a report for failed MD5 results from ARCHIVE (Question 1)
+                    # Create a report for failed MD5 results from ARCHIVE (Question 1).
                     report_failed_md5(archive_obj, tmpdir, report, logger)
                     sts += 1
 
@@ -330,7 +330,7 @@ def main():
                 report.write("{}\n".format(msg))
             else:
                 if md5_result_backup > 0:
-                    # Create a report for failed MD5 results from BACKUP (Question 2)
+                    # Create a report for failed MD5 results from BACKUP (Question 2).
                     report_failed_md5(local_backup_obj, tmpdir, report, logger)
                     sts += 1
 

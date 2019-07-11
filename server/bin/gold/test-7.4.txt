@@ -128,6 +128,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/alphaville
 drwxrwxr-x          - archive/fs-version-001/alphaville/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/alphaville/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/alphaville/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/alphaville/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/alphaville/INDEXED
@@ -136,7 +137,6 @@ drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/alphaville/SYNCED
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-COPY-SOS
 lrwxrwxrwx         93 archive/fs-version-001/alphaville/TO-COPY-SOS/test-7.4.tar.xz -> /var/tmp/pbench-test-server/test-7.4/pbench/archive/fs-version-001/alphaville/test-7.4.tar.xz
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE

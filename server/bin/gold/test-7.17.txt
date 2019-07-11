@@ -3322,6 +3322,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/ansible-host
 drwxrwxr-x          - archive/fs-version-001/ansible-host/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/ansible-host/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/ansible-host/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ansible-host/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/ansible-host/INDEXED
@@ -3331,7 +3332,6 @@ drwxrwxr-x          - archive/fs-version-001/ansible-host/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ansible-host/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/ansible-host/SYNCED
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-COPY-SOS
 lrwxrwxrwx        144 archive/fs-version-001/ansible-host/TO-COPY-SOS/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz -> /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-DELETE

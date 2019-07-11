@@ -8233,6 +8233,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/master_40gb
 drwxrwxr-x          - archive/fs-version-001/master_40gb/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/master_40gb/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/master_40gb/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/master_40gb/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/master_40gb/INDEXED
@@ -8242,7 +8243,6 @@ drwxrwxr-x          - archive/fs-version-001/master_40gb/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/master_40gb/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/master_40gb/SYNCED
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-COPY-SOS
 lrwxrwxrwx        113 archive/fs-version-001/master_40gb/TO-COPY-SOS/uperf__2016-10-06_16:34:03.tar.xz -> /var/tmp/pbench-test-server/test-7.15/pbench/archive/fs-version-001/master_40gb/uperf__2016-10-06_16:34:03.tar.xz
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-DELETE

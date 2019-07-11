@@ -118,6 +118,7 @@ drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/bad-controller
 drwxrwxr-x          - archive/fs-version-001/bad-controller/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/bad-controller/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/bad-controller/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/bad-controller/INDEXED
@@ -126,7 +127,6 @@ drwxrwxr-x          - archive/fs-version-001/bad-controller/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/SYNCED
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-COPY-SOS
 lrwxrwxrwx        132 archive/fs-version-001/bad-controller/TO-COPY-SOS/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz -> /var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz
 lrwxrwxrwx         99 archive/fs-version-001/bad-controller/TO-COPY-SOS/test-7.18.tar.xz -> /var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/test-7.18.tar.xz

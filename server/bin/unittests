@@ -561,7 +561,8 @@ declare -A cmds=(
     [test-6.10]="_run pbench-backup-tarballs"
     # Upload successfull
     [test-6.11]="_run pbench-backup-tarballs"
-    # move to TO-BACKUP-LARGE since tar size is more than 5 GB
+    # Upload successful of tar which is more than 5 GB in size, using
+    # multi-upload API
     [test-6.12]="_run pbench-backup-tarballs"
     # Upload fail since md5 corrupt
     # TBD: right now, it is quite complicated to test this from the unit
