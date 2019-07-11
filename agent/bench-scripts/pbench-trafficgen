@@ -885,7 +885,7 @@ else
 	benchmark_fullname=$(basename $benchmark_run_dir)
 fi
 # we'll record the iterations in this file
-benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+benchmark_iterations="${benchmark_run_dir}/.iterations"
 > ${benchmark_iterations}
 mdlog=${benchmark_run_dir}/metadata.log
 
@@ -950,6 +950,8 @@ benchmark=${benchmark_name}
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+# on abnormal exit, make sure that the metadata log exists and is complete.
+trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
 if [ "${postprocess_only}" == "n" ]; then
 	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then

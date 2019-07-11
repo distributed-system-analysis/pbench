@@ -269,7 +269,7 @@ else
 	fi
 	benchmark_fullname="$(basename $benchmark_run_dir)"
 fi
-benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+benchmark_iterations="${benchmark_run_dir}/.iterations"
 
 if [ -z "$clients" ]; then
 	clients=127.0.0.1
@@ -318,6 +318,8 @@ max_key_length=0
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+# on abnormal exit, make sure that the metadata log exists and is complete.
+trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
 for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 	if [ $count -ge $start_iteration_num ]; then

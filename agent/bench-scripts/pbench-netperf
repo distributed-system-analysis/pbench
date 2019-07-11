@@ -354,7 +354,7 @@ else
 	fi
 	benchmark_fullname=$(basename $benchmark_run_dir)
 fi
-benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+benchmark_iterations="${benchmark_run_dir}/.iterations"
 
 # Verify the number of clients and servers match.
 if [ "$postprocess_only" != "y" ]; then
@@ -426,6 +426,9 @@ systemctl stop firewalld
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+# on abnormal exit, make sure that the metadata log exists and is complete.
+trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
 # start the server processes
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do

@@ -39,6 +39,7 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/.iterations
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/dbench-1-127.0.0.1.cmd
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/dbench-2-127.0.0.1.cmd
@@ -105,7 +106,6 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/summary-result.txt
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
-/var/tmp/pbench-test-bench/pbench-agent/tmp/dbench_test-02_1900.01.01T00.00.00.iterations
 /var/tmp/pbench-test-bench/pbench-agent/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar

@@ -127,7 +127,7 @@ benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 
 # we'll record the iterations in this file
-benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+benchmark_iterations="${benchmark_run_dir}/.iterations"
 > ${benchmark_iterations}
 mdlog=${benchmark_run_dir}/metadata.log
 

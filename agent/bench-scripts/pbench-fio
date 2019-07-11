@@ -862,12 +862,15 @@ if [ "$postprocess_only" = "n" ]; then
 	fi
 fi
 
-benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+benchmark_iterations="${benchmark_run_dir}/.iterations"
 > ${benchmark_iterations}
 
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+# on abnormal exit, make sure that the metadata log exists and is complete.
+trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
 fio_run_benchmark
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"

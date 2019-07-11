@@ -125,7 +125,7 @@ benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
 mkdir -p ${benchmark_run_dir}/.running
 
 iteration=1-$threads-threads
-benchmark_iterations="$pbench_tmp/${benchmark_fullname}.iterations"
+benchmark_iterations="${benchmark_run_dir}/.iterations"
 echo $iteration >> $benchmark_iterations
 benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
 result_file=$benchmark_results_dir/result.txt
@@ -134,6 +134,8 @@ export benchmark config
 
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+# on abnormal exit, make sure that the metadata log exists and is complete.
+trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
 ## Run the benchmark and start/stop perf analysis tools
 pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir

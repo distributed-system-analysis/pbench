@@ -31943,6 +31943,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 ]
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/.iterations
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
@@ -32140,7 +32141,6 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/result.json
 /var/tmp/pbench-test-bench/pbench-agent/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/tmp
-/var/tmp/pbench-test-bench/pbench-agent/tmp/pbench-agent.iterations
 /var/tmp/pbench-test-bench/pbench-agent/tool-triggers
 /var/tmp/pbench-test-bench/pbench-agent/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
