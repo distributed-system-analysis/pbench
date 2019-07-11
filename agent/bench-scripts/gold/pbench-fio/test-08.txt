@@ -3,6 +3,7 @@ verifying clients have fio installed
 Created the following job file (/var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/fio.job):
 [global]
 bs=4k
+runtime=30
 ioengine=libaio
 iodepth=32
 direct=1
@@ -18,10 +19,10 @@ write_hist_log=fio
 log_hist_msec=10000
 
 [TheJob]
-runtime=$runtime
 directory=/mnt/cephfs
 rw=read
-size=64m
+size=4096M
+numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/fio.job (sample1)
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
@@ -182,7 +183,7 @@ fio job complete
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/sample3 fio- default
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/sample4 fio- default
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/sample5 fio- default
-/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio --config=test-08 -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/templates/fio-shared-fs.job --targets=/mnt/cephfs -b 4 -t read -s 64m /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio --config=test-08 -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/templates/fio-shared-fs.job --targets=/mnt/cephfs -b 4 -t read /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB readwrite_IOPS 5 0 6 y y
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/fio-client.file --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/fio.job
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/fio-client.file --max-jobs=3 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-08_1900.01.01T00.00.00/1-read-4KiB/fio.job

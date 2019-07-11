@@ -95,7 +95,7 @@ A slightly different set of parameters is needed for pbench-fio to work with sha
 is shared by multiple clients/mountpoints).  For this to work, you must do 2 things:
 
 * specify --target=my-directory 
-* specify --jobfile=/opt/pbench-agent/bench-scripts/templates/fio-shared-fs.job  
+* specify --job-file=/opt/pbench-agent/bench-scripts/templates/fio-shared-fs.job  
 
 **my-directory** is the shared filesystem mountpoint or some subdirectory of it
 
@@ -103,7 +103,6 @@ The job file specification tells fio to target a directory instead of a file.  f
 will then generate unique filenames for every pair of (host, job-number) combinations
 so that no 2 fio jobs will access the same pathname.  See [fio
 documentation](https://fio.readthedocs.io/en/latest/fio_doc.html#client-server) for details.
-(at present the combination of numjobs > 1 with fio-shared-fs.job has not been tested)
 
 # data persistence
 

@@ -235,8 +235,8 @@ declare -A cmds=(
     [test-04]="pbench-fio --test-types=rw,randrw"
     [test-05]="pbench-fio --test-type=rw --samples=1 --clients=foo,bar"
     [test-06]="pbench-fio --test-type=rw --samples=1 --client-file=${_testtmp}/test-06_clients.file"
-    [test-07]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio.job --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read -s 64m"
-    [test-08]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --targets=/mnt/cephfs -b 4 -t read -s 64m"
+    [test-07]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio.job --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read"
+    [test-08]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --targets=/mnt/cephfs -b 4 -t read"
     [test-09]="pbench-user-benchmark -- user-benchmark-script no-file"
     [test-10]="pbench-user-benchmark -- user-benchmark-script no-duration"
     [test-11]="pbench-user-benchmark -- user-benchmark-script with-duration"
@@ -258,6 +258,8 @@ declare -A cmds=(
     [test-27]="pbench-fio --clients=foo,bar --client-file=${_testtmp}/test-27_clients.file"
     [test-28]="pbench-fio --pre-iteration-script=$(which fio-preint) --samples=1 --test-type=read --block-sizes=8"
     [test-29]="pbench-fio --client-file=${_testtmp}/test-29_clients.file"
+    [test-30]="pbench-fio --targets=/tmp --job-file=${_testopt}/bench-scripts/templates/fio.job --block-sizes=4 --samples=1 --test-types=read --runtime=30 --file-size=256M --clients=nodeA,nodeB --numjobs=4"
+    [test-31]="pbench-fio --targets=/tmp --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --block-sizes=4 --samples=1 --test-types=read --runtime=30 --file-size=256M --clients=nodeA,nodeB --numjobs=4"
 )
 
 declare -A expected_status=(
