@@ -115,18 +115,22 @@ function _save_tree {
 
 function _dump_logs {
     # Dump the state of any generated script logs
-    if [ -f $_testdir/metadata.log ] ;then
-        echo "+++ metadata.log file contents" >> $_testout
-        grep -HvF "\-\-should-n0t-ex1st--" $_testdir/metadata.log >> $_testout 2>&1
-        echo "--- metadata.log file contents" >> $_testout
+    if [[ -f ${_testdir}/metadata.log ]]; then
+        echo "+++ metadata.log file contents" >> ${_testout}
+        grep -HvF "\-\-should-n0t-ex1st--" ${_testdir}/metadata.log >> ${_testout} 2>&1
+        echo "--- metadata.log file contents" >> ${_testout}
     fi
-    echo "+++ pbench.log file contents" >> $_testout
-    grep -HvF "\-\-should-n0t-ex1st--" $_testdir/pbench.log >> $_testout 2>&1
-    echo "--- pbench.log file contents" >> $_testout
-    echo "+++ test-execution.log file contents" >> $_testout
-    grep -HvF "\-\-should-n0t-ex1st--" $_testroot/test-execution.log >> $_testout 2>&1
-    echo "--- test-execution.log file contents" >> $_testout
-    rm -f $_testroot/test-execution.log
+    if [[ -f ${_testdir}/pbench.log ]]; then
+        echo "+++ pbench.log file contents" >> ${_testout}
+        grep -HvF "\-\-should-n0t-ex1st--" ${_testdir}/pbench.log >> ${_testout} 2>&1
+        echo "--- pbench.log file contents" >> ${_testout}
+    fi
+    if [[ -f ${_testlog} ]]; then
+        echo "+++ test-execution.log file contents" >> ${_testout}
+        grep -HvF "\-\-should-n0t-ex1st--" ${_testlog} >> ${_testout} 2>&1
+        echo "--- test-execution.log file contents" >> ${_testout}
+        rm -f ${_testlog}
+    fi
 }
 
 function _verify_output {
