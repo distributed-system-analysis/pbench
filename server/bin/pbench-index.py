@@ -2402,12 +2402,18 @@ def if_ip_from_sosreport(ip_addr_f):
 
     return d
 
+def find_hostname(a_string):
+    ret_val = a_string.find('sos_commands/host/hostname')
+    if ret_val < 0:
+        ret_val = a_string.find('sos_commands/general/hostname')
+    return ret_val
+
 def hostnames_if_ip_from_sosreport(sos_file_name):
     """Return a dict with hostname info (both short and fqdn) and
     ip addresses of all the network interfaces we find at sosreport time."""
 
     sostb = tarfile.open(sos_file_name)
-    hostname_files = [x for x in sostb.getnames() if x.find('sos_commands/general/hostname') >= 0]
+    hostname_files = [x for x in sostb.getnames() if find_hostname(x) >= 0]
 
     # Fetch the hostname -f and hostname file contents
     hostname_f_file = [x for x in hostname_files if x.endswith('hostname_-f')]
