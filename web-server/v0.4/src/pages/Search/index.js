@@ -32,13 +32,13 @@ class SearchList extends Component {
   }
 
   componentDidMount() {
-    const { selectedIndices, indices, mapping } = this.props;
+    const { mapping } = this.props;
 
-    if (selectedIndices.length === 0 || indices.length === 0) {
-      this.queryDatastoreConfig();
-    } else if (Object.keys(mapping).length === 0) {
-      this.fetchIndexMapping();
-    }
+    this.queryDatastoreConfig().then(() => {
+      if (Object.keys(mapping).length === 0) {
+        this.fetchIndexMapping();
+      }
+    });
   }
 
   componentWillReceiveProps(nextProps, prevProps) {

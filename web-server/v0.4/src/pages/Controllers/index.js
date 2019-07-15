@@ -29,13 +29,13 @@ class Controllers extends Component {
   }
 
   componentDidMount() {
-    const { controllers, selectedIndices, indices } = this.props;
+    const { controllers } = this.props;
 
-    if (selectedIndices.length === 0 || indices.length === 0) {
-      this.queryDatastoreConfig();
-    } else if (controllers.length === 0) {
-      this.fetchControllers();
-    }
+    this.queryDatastoreConfig().then(() => {
+      if (controllers.length === 0) {
+        this.fetchControllers();
+      }
+    });
   }
 
   componentWillReceiveProps(nextProps) {
