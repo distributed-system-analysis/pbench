@@ -3,12 +3,18 @@
         "analyzer": {
             "comma_analyzer": {
                 "tokenizer": "comma_tokenizer"
+            },
+            "path_analyzer": {
+                "tokenizer": "path_tokenizer"
             }
         },
         "tokenizer": {
             "comma_tokenizer": {
                 "type": "pattern",
                 "pattern": ","
+            },
+            "path-tokenizer": {
+                "type": "path_hierarchy"
             }
         }
     },

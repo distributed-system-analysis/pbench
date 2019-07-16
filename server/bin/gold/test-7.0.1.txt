@@ -581,13 +581,13 @@ Template: pbench-unittests.v1.run
                     "type": "date"
                 },
                 "directory": {
-                    "index": "not_analyzed",
+                    "analyzer": "path_analyzer",
                     "type": "string"
                 },
                 "files": {
                     "properties": {
                         "linkpath": {
-                            "index": "not_analyzed",
+                            "analyzer": "path_analyzer",
                             "type": "string"
                         },
                         "mode": {
@@ -626,12 +626,18 @@ Template: pbench-unittests.v1.run
             "analyzer": {
                 "comma_analyzer": {
                     "tokenizer": "comma_tokenizer"
+                },
+                "path_analyzer": {
+                    "tokenizer": "path_tokenizer"
                 }
             },
             "tokenizer": {
                 "comma_tokenizer": {
                     "pattern": ",",
                     "type": "pattern"
+                },
+                "path-tokenizer": {
+                    "type": "path_hierarchy"
                 }
             }
         },
