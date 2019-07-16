@@ -14,14 +14,14 @@
             },
             "directory": {
                 "type": "string",
-                "index": "not_analyzed"
+                "analyzer": "path_analyzer"
             },
             "files": {
                 "type": "nested",
                 "properties": {
                     "linkpath" : {
                         "type": "string",
-                        "index": "not_analyzed"
+                        "analyzer": "path_analyzer"
                     },
                     "mode" : {
                         "type": "string",
