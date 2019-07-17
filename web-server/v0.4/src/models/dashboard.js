@@ -227,12 +227,6 @@ export default {
         tocResult: payload,
       };
     },
-    getSharedResult(state, { payload }) {
-      return {
-        ...state,
-        shared: payload,
-      };
-    },
     getIterations(state, { payload }) {
       return {
         ...state,
