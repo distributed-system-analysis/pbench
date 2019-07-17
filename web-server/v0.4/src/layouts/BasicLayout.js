@@ -17,7 +17,7 @@ import GlobalHeader from '@/components/GlobalHeader';
 import SiderMenu from '../components/SiderMenu';
 import Authorized from '../utils/Authorized';
 import getMenuData from '../common/menu';
-import logo from '../assets/rh_logo.png';
+import logo from '../assets/pbench_logo.png';
 
 const { Content, Header, Footer } = Layout;
 const { check } = Authorized;
