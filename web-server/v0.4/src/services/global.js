@@ -33,3 +33,24 @@ export async function queryMonthIndices(params) {
 
   return request.get(endpoint);
 }
+
+export async function querySaveSharedConfig(params) {
+  const { stringProp, description, datastoreConfig } = params;
+  return request.post(datastoreConfig.graphql, {
+    data: {
+      query: `
+            mutation($config: String!, $description: String!) {
+              createUrl(data: {config: $config, description: $description}) {
+                id
+                config
+                description
+              }
+            }       
+          `,
+      variables: {
+        config: stringProp,
+        description,
+      },
+    },
+  });
+}

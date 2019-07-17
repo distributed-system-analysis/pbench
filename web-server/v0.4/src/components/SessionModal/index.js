@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'dva';
 import { Modal, Form, Input, Button, message, Tooltip, Icon } from 'antd';
-import axios from 'axios';
+import styles from './index.less';
 
 const { TextArea } = Input;
 
-export default class SessionModal extends Component {
+@connect(({ global, loading }) => ({
+  datastoreConfig: global.datastoreConfig,
+  loadingConfig: loading.effects['global/saveSharedConfig'],
+}))
+class SessionModal extends Component {
   static propTypes = {
     configData: PropTypes.object.isRequired,
-    styles: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -20,6 +24,20 @@ export default class SessionModal extends Component {
       confirmLoading: false,
       generatedLink: '',
     };
+  }
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'global/fetchDatastoreConfig',
+    });
+  }
+
+  componentWillReceiveProps() {
+    const { loadingConfig } = this.props;
+    this.setState({
+      confirmLoading: loadingConfig,
+    });
   }
 
   showSuccess = () => {
@@ -51,44 +69,25 @@ export default class SessionModal extends Component {
   };
 
   onGenerate = () => {
-    const { configData } = this.props;
+    const { configData, dispatch, datastoreConfig } = this.props;
     const { description } = this.state;
     const stringProp = JSON.stringify(configData);
-    axios({
-      url: 'http://localhost:4466/',
-      method: 'post',
-      data: {
-        query: `
-            mutation($config: String!, $description: String!) {
-              createUrl(data: {config: $config, description: $description}) {
-                id
-                config
-                description
-              }
-            }       
-          `,
-        variables: {
-          config: stringProp,
-          description,
-        },
+    dispatch({
+      type: 'global/saveSharedConfig',
+      payload: {
+        stringProp,
+        description,
+        datastoreConfig,
       },
     }).then(result => {
-      this.setState({
-        confirmLoading: true,
-      });
-      if (document.getElementById('description')) {
-        setTimeout(() => {
-          this.setState({
-            visible: false,
-            confirmLoading: false,
-            description: document.getElementById('description').value,
-            generatedLink: `${window.location.origin}/dashboard/share/${
-              result.data.data.createUrl.id
-            }`,
-          });
-          this.showSuccess();
-        }, 2000);
-      }
+      setTimeout(() => {
+        this.setState({
+          visible: false,
+          confirmLoading: false,
+          generatedLink: `${window.location.origin}/dashboard/share/${result.data.createUrl.id}`,
+        });
+        this.showSuccess();
+      }, 2000);
     });
   };
 
@@ -99,8 +98,13 @@ export default class SessionModal extends Component {
     message.success(`Copied the link: ${generatedUrl.value}`);
   };
 
+  changeDescp = e => {
+    this.setState({
+      description: e.target.value,
+    });
+  };
+
   render() {
-    const { styles } = this.props;
     const { visible, confirmLoading, description } = this.state;
     return (
       <span>
@@ -126,7 +130,12 @@ export default class SessionModal extends Component {
         >
           <Form layout="vertical">
             <Form.Item label="Description">
-              <TextArea rows={2} id="description" placeholder={description} />
+              <TextArea
+                rows={2}
+                id="description"
+                placeholder={description}
+                onChange={this.changeDescp}
+              />
             </Form.Item>
           </Form>
         </Modal>
@@ -134,3 +143,5 @@ export default class SessionModal extends Component {
     );
   }
 }
+
+export default SessionModal;

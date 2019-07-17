@@ -160,7 +160,7 @@ export default {
     },
     *fetchSharedConfig({ payload }, { call }) {
       const response = yield call(querySharedConfig, payload);
-      const { config } = response.data.data.url;
+      const { config } = response.data.url;
       const parsedConfig = JSON.parse(config);
       window.localStorage.setItem('persist:root', parsedConfig);
       return parsedConfig;
@@ -225,12 +225,6 @@ export default {
       return {
         ...state,
         tocResult: payload,
-      };
-    },
-    getSharedResult(state, { payload }) {
-      return {
-        ...state,
-        shared: payload,
       };
     },
     getIterations(state, { payload }) {

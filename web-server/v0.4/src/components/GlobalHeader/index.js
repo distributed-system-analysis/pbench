@@ -47,7 +47,7 @@ class GlobalHeader extends PureComponent {
           />
         </div>
         <div className={styles.right}>
-          <SessionModal configData={this.props.store} styles={styles} />
+          <SessionModal configData={this.props.store} dispatch={dispatch} />
           <Tooltip
             title="Search"
             onClick={() => {

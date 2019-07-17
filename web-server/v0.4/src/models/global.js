@@ -1,3 +1,5 @@
+import { querySaveSharedConfig } from '../services/global';
+
 export default {
   namespace: 'global',
 
@@ -41,6 +43,10 @@ export default {
         type: 'modifySelectedIterations',
         payload,
       });
+    },
+    *saveSharedConfig({ payload }, { call }) {
+      const response = yield call(querySaveSharedConfig, payload);
+      return response;
     },
   },
 
