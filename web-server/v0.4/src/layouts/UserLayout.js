@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'dva/router';
 import DocumentTitle from 'react-document-title';
 import styles from './UserLayout.less';
-import logo from '../assets/rh_logo.png';
+import logo from '../assets/pbench_logo.png';
 
 class UserLayout extends React.PureComponent {
   getPageTitle() {
