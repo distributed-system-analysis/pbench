@@ -234,6 +234,6 @@ Processed $ntb result tar balls
 
 EOF
 cat $mail_content >> $index_content
-pbench-report-status --name $PROG --timestamp $TS --type status $index_content
+pbench-report-status --name $PROG --timestamp $(timestamp) --type status $index_content
 
 exit 0

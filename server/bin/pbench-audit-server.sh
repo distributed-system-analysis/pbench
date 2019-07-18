@@ -796,6 +796,6 @@ $subj
 EOF
 
 cat ${report} >> ${index_content}
-pbench-report-status --name $PROG --timestamp $TS --type status ${index_content}
+pbench-report-status --name $PROG --timestamp $(timestamp) --type status ${index_content}
 
 exit $ret

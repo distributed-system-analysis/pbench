@@ -356,9 +356,10 @@ def main():
             # Send the report out.
             es, idx_prefix = init_report_template(config, logger)
             report_status(es, logger, config.LOGSDIR,
-                          idx_prefix, _NAME_, config.TS, "status", report.name)
+                          idx_prefix, _NAME_, config.timestamp(), 
+                          "status", report.name)
 
-    logger.info('end-{}', config.timestamp())
+    logger.info('end-{}', config.TS)
 
     return sts
 

@@ -202,7 +202,7 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - archive.backup
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--        851 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+-rw-rw-r--        859 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-copy-sosreports
 -rw-rw-r--          0 logs/pbench-copy-sosreports/pbench-copy-sosreports.error
 -rw-rw-r--        192 logs/pbench-copy-sosreports/pbench-copy-sosreports.log
@@ -225,7 +225,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
 -rw-rw-r--       1502 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
--rw-rw-r--        652 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
+-rw-rw-r--        656 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -286,11 +286,11 @@ drwxrwxr-x          - tmp
 +++ pbench log file contents
 ++++ pbench-local/logs
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-run-1900-01-01T00:00:00-UTC
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, SE upload too large: 0, S3 upload failures: 0, Quarantined: 0
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1900-01-01T00:00:00-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
 +++++ pbench-copy-sosreports/pbench-copy-sosreports.error
 ----- pbench-copy-sosreports/pbench-copy-sosreports.error
@@ -365,7 +365,7 @@ len(actions) = 1
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- start-run-1900-01-01T00:00:00-UTC
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-run-1900-01-01T00:00:00-UTC
 ----- pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

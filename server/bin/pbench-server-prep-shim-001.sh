@@ -270,6 +270,6 @@ echo "$TS: Processed $ntotal entries, $ntbs tarballs successful,"\
 
 log_finish
 
-pbench-report-status --name $PROG --timestamp $TS --type status $status
+pbench-report-status --name $PROG --timestamp $(timestamp) --type status $status
 
 exit $nerrs
