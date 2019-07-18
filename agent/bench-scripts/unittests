@@ -23,9 +23,8 @@ _testdir=$_testroot/pbench-agent
 
 # Copy bench-scripts execution environment to _testroot
 _testopt=$_testroot/opt/pbench-agent
-export moongen_dir=$_testroot/MoonGen
 res=0
-mkdir -p $_testopt/bench-scripts/postprocess $_testopt/bench-scripts/templates $_testopt/util-scripts $_testopt/lib $_testopt/unittest-scripts $moongen_dir/build
+mkdir -p $_testopt/bench-scripts/postprocess $_testopt/bench-scripts/templates $_testopt/util-scripts $_testopt/lib $_testopt/unittest-scripts
 let res=res+$?
 cp $_tdir/../base $_testopt/
 let res=res+$?
@@ -49,9 +48,6 @@ let res=res+$?
 mv $_testopt/unittest-scripts/mock-postprocess/* $_testopt/bench-scripts/postprocess
 let res=res+$?
 rmdir $_testopt/unittest-scripts/mock-postprocess
-let res=res+$?
-# moongen needs Special Treatment
-mv $_testopt/unittest-scripts/mock-MoonGen $moongen_dir/build/MoonGen
 let res=res+$?
 
 if [[ $res -ne 0 ]]; then
@@ -231,7 +227,6 @@ declare -A cmds=(
     [test-00]="pbench-uperf --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2"
     [test-01]="pbench-uperf --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2 --servers=s1,s2,s3 --clients=c1,c2,c3 --server-node=0,-1,2 --client-node=1,-1,3"
     [test-02]="pbench-dbench --threads=24,48 --client-nodes=0,1 --clients=127.0.0.1,127.0.0.1 --max-stddev=10"
-    [test-03]="pbench-moongen --test-type=throughput --samples=3 --search-runtime=10 --validation-runtime=10 --max-drop-pct=0,1 --frame-sizes=64,1024"
     [test-04]="pbench-fio --test-types=rw,randrw"
     [test-05]="pbench-fio --test-type=rw --samples=1 --clients=foo,bar"
     [test-06]="pbench-fio --test-type=rw --samples=1 --client-file=${_testtmp}/test-06_clients.file"
@@ -331,7 +326,7 @@ done
 
 # Final clean up, if there are no failures, we'll be able to remove the
 # hierarchy entirely.
-rm -rf $_testroot/opt $moongen_dir
+rm -rf $_testroot/opt
 rmdir $_testroot > /dev/null 2>&1
 
 if [[ $errs -gt 0 ]]; then
