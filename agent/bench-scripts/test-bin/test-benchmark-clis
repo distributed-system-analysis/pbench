@@ -8,7 +8,7 @@ function doit {
 }
 
 let failures=0
-bench_scripts="cyclictest dbench fio iozone linpack migrate moongen netperf specjbb2005 trafficgen uperf user-benchmark"
+bench_scripts="cyclictest dbench fio iozone linpack migrate netperf specjbb2005 trafficgen uperf user-benchmark"
 for bs in ${bench_scripts}; do
     doit ${bs} --help ""
     if [[ $? -ne 0 ]]; then
