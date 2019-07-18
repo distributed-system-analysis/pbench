@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-05-30 Thu 14:36 -->
+<!-- 2019-07-17 Wed 21:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench web server</title>
@@ -285,9 +285,9 @@ for details.
 Once the repo is installed, the RPM itself can be installed with:
 </p>
 <pre class="example">
-dnf install pbench-web-server
-# or ...
-yum install pbench-web-server
+<code>dnf install pbench-web-server</code>
+<code># or ...</code>
+<code>yum install pbench-web-server</code>
 </pre>
 <p>
 The RPM defines a <code>post-trans</code> action that uses the <code>Node.js</code> package
@@ -316,7 +316,7 @@ plant a symlink in the document root that points to the installed <code>static</
 directory:
 </p>
 <pre class="example">
-ln -sf /opt/pbench-web-server/html/static /var/www/html
+<code>ln -sf /opt/pbench-web-server/html/static /var/www/html</code>
 </pre>
 
 <p>
@@ -324,7 +324,7 @@ In addition, you will need to bring the <code>pbench-agent</code> data directory
 into the purview of the server. Again, a symlink is the simplest solution:
 </p>
 <pre class="example">
-ln -sf /var/lib/pbench-agent /var/www/html
+<code>ln -sf /var/lib/pbench-agent /var/www/html</code>
 </pre>
 </div>
 </div>
@@ -336,7 +336,7 @@ ln -sf /var/lib/pbench-agent /var/www/html
 Now browse to
 </p>
 <pre class="example">
-http://localhost/pbench-agent
+<code>http://localhost/pbench-agent</code>
 </pre>
 <p>
 You should be able view graphs on you local system the same way that you can
@@ -357,7 +357,7 @@ able to get the npm package.
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2019-05-30 Thu 14:36</p>
+<p class="date">Page updated: 2019-07-17 Wed 21:46</p>
 </div>
 </body>
 </html>

@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-05-30 Thu 14:36 -->
+<!-- 2019-07-17 Wed 21:46 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench server installation</title>
@@ -355,7 +355,7 @@ You will then have to customize the installation by hand (see <a href="#orgab5ba
 The repo is the standard <a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">COPR pbench repo</a>, installed with
 </p>
 <pre class="example">
-dnf copr enable ndokos/pbench
+<code>dnf copr enable ndokos/pbench</code>
 </pre>
 <p>
 or manually if dnf is not available - see the <a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">COPR pbench page</a> for instructions.
@@ -365,9 +365,9 @@ or manually if dnf is not available - see the <a href="https://copr.fedorainfrac
 The server is installed normally:
 </p>
 <pre class="example">
-dnf install pbench-server
-# or
-# yum install pbench-server
+<code>dnf install pbench-server</code>
+<code># or</code>
+<code># yum install pbench-server</code>
 </pre>
 <p>
 That creates a <code>pbench</code> user with home directory <code>/home/pbench</code> if not
@@ -411,8 +411,8 @@ Example config files are installed under
 files:
 </p>
 <pre class="example">
-cp pbench-server.cfg.example pbench-server.cfg
-cp pbench-index.cfg.example pbench-index.cfg
+<code>cp pbench-server.cfg.example pbench-server.cfg</code>
+<code>cp pbench-index.cfg.example pbench-index.cfg</code>
 </pre>
 <p>
 and modify them appropriately (<code>pbench-index.cfg</code> is optional - see
@@ -462,9 +462,9 @@ Let us assume you now have a saved <code>pbench-server.cfg</code> file in some
 safe place. The rest of the setup goes as follows:
 </p>
 <pre class="example">
-PATH=/opt/pbench-server/bin:$PATH
-pbench-server-config-activate /path/to/saved/pbench-server.cfg
-pbench-server-activate /opt/pbench-server/lib/config/pbench-server.cfg
+<code>PATH=/opt/pbench-server/bin:$PATH</code>
+<code>pbench-server-config-activate /path/to/saved/pbench-server.cfg</code>
+<code>pbench-server-activate /opt/pbench-server/lib/config/pbench-server.cfg</code>
 </pre>
 <p>
 The first script copies the config file(s) to the standard place
@@ -494,10 +494,10 @@ The final step is to manually activate the crontab (as user <code>pbench</code>,
 <b>not</b> as root):
 </p>
 <pre class="example">
-su - pbench
-crontab /opt/pbench-server/lib/crontab/crontab
-# or ...
-crontab -u pbench /opt/pbench-server/lib/crontab/crontab
+<code>su - pbench</code>
+<code>crontab /opt/pbench-server/lib/crontab/crontab</code>
+<code># or ...</code>
+<code>crontab -u pbench /opt/pbench-server/lib/crontab/crontab</code>
 </pre>
 </div>
 </div>
@@ -531,7 +531,7 @@ described in <a href="#orgb6bdb74">Server installation (generic)</a>.
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2019-05-30 Thu 14:36</p>
+<p class="date">Page updated: 2019-07-17 Wed 21:46</p>
 </div>
 </body>
 </html>

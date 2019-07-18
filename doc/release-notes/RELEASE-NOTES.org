@@ -1,4 +1,4 @@
-# Created 2019-05-30 Thu 14:35
+# Created 2019-07-17 Wed 21:43
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,118 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+* Version 0.62
+
+This is an *agent-only* release. It contains a few fixes for problems
+that were found when we were trying to release v0.61. Because of those
+problems, we decided to *NOT* release v0.61 at all.
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.62-1ge426e8d6
+of the pbench-agent RPM installed.
+
+
+** agent
+
+The main changes to the agent involve the =pbench-fio= benchscript.
+It has been cleaned up substantially and should now work properly
+for shared fs setups.
+
+In addition, the automatic creation of ~/var/lib/pbench-agent~ which
+was broken in v0.60, has been restored.
+
+The ~pbench-moongen~ script has been deprecated since v0.60 and was
+scheduled to be removed completely in v0.61. Because of the problems
+with v0.61, we failed to remove it from the tree.  It will be gone in
+v0.63. If you are still using it, you have until then to migrate to
+~pbench-trafficgen~ (see the ~--traffic-generator~ option of
+~pbench-trafficgen~, the ~moongen-txrx~ value in particular).
+
+The problem described in issues #1161 and #1214 (failure to produce a
+sosreport and bogus error message) were fixed in v0.60 but we had a
+ripple effect problem with the indexer. That has been temporarily
+patched (PR#1259): a more thorough fix will be in v0.63 (issue #1263).
+
+There are now RHEL8 =pbench-agent= RPMs available in the COPR repo, as
+well as RPMs that it depends on: =pbench-fio=, =pbench-uperf=,
+=pbench-sysstat=, =configtools=. RPMs for other benchmarks are going
+to be provided in the future (if you need one, let us know and we'll
+prioritize).  In addition, there are =aarch64= RPMs for both RHEL7 and
+RHEL8 now.  One caveat: there is no =librbd1-devel= package for RHEL8,
+so the =pbench-fio= RPM does not include RBD capabilities currently.
+
+** server                                                          :external:
+This is an agent-only release. There are no new server RPMs produced.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.62
+:END:
+
+This is an agent-only release. There are no new web-server RPMs produced.
+
+** Changelog
+This is the list of visible commits since v0.60:
+
+- e426e8d6 (HEAD -> master, tag: v0.62, dsa/master) v0.62: version bump
+- 7d284f5b Verify handling of sosreports with host directory
+- 5241393c Make shared-fs fio job file work similar to non-shared
+- ff94ef9f Update the version of the pbench-fio package required to 3.12.
+- f581e328 Query dashboard datastoreConfig on page entrypoints
+- 63be7664 (tag: v0.61, foo) v0.61: version bump
+- f60d73bc Modify PbenchConfig.timestamp() to return string in proper format
+- 020a8451 (origin/master, origin/HEAD) Rewrite backup tarballs to support S3
+- 1bfb91c1 Add additional fio argument check & unit tests
+- 07778112 Reduce redundant test setup operations
+- fbb91c19 Rename bench-scripts test dir to pbench-agent
+- c7d40b73 Remove redundancy in pbench-fio operations
+- 3dc8ea03 Add pbench-fio unit tests for examples in docs
+- 9546a9a6 Use $dev instead of $targets for $job_mode
+- 4b0e617c Add support for distributed shared filesystems w fio
+- 8aae0f78 Add polling mechanism to wait for fio-server
+- 0961a08d Move start/stop tools closer to fio command
+- a9db3b0e Only run histograms if fio lat log files exist
+- 9b28fdf5 Rework method of testing pbench-fio in unit tests
+- b06bc919 Add use of proper config for test-20
+- cc522c72 Clearly mark pbench metadata.log output in unit tests
+- 15675691 Mock out pbench-collect-sysinfo in bench-scripts UT
+- f89a05b5 Small fixes for bench-scripts test-19 and -20
+- 1ddfcd7a Add additional pbench-fio help text for --job-mode
+- 28a6b879 Perform fio device check before we mark as running
+- 1ce24780 Fix help text for fio --file-size & --block-sizes
+- 6486b0ab Refactoring of fio_create_jobfile
+- 1bd3c045 Fix iteration port filtering and clearing for Summary and Comparison Select pages
+- bb2b49bb Resolve linting errors
+- e6df2612 Fix uperf runtime padding
+- 1fccc482 PbenchBase.pm: update comment
+- 099c6910 add remote output monitor to pbench-run-benchmark-sample
+- 31b0def3 PbenchAnsible.pm: preserve file mode in copy_files_to_host
+- a0268f75 (gurbir/master) Reference selectedIterations via global redux store namespace to support session sharing routing to run comparison pages
+- 51a90519 Integrate Explore page for discovering and launching shared dashboard sessions.
+- 9a78a3d8 Filter iteration hostname & ports by `all` keyword on component mount
+- eb7772bf Matrix visualization for increase/decrease in percentage for comparison cluster
+- ed18ce89 pbench-move-results: Quote variables in conditional expressions
+- 247a6da2 Add iteration port filtering
+- 4584197a e2e testing for controller, results, and search pages using Puppeteer
+- 6bdb7c70 Wrap jschart with React component for handling reloading/resetting
+- 316415a9 Add collection of online CPU status for mpstat
+- 2e1c3b0e Some commit updates based review of PR #1207
+- 3424a8f1 Restore creation of pbench_run directory
+- fbecac01 Fix collection of sosreports to recognize tb names
+
+* Version 0.61
+
+This was never officially released because we found problems during testing.
+We instead added the small number of necessary fixes and will release version
+0.62 directly.
 
 * Version 0.60
 
