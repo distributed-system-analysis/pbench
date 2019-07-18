@@ -180,6 +180,6 @@ cat << EOF > $index_content
 $subj
 Processed $ntotal sosreports for $nresults results directories with $nerrs errors
 EOF
-pbench-report-status --name $PROG --timestamp $TS --type status $index_content
+pbench-report-status --name $PROG --timestamp $(timestamp) --type status $index_content
 
 exit 0

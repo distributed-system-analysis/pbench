@@ -444,7 +444,7 @@ def main():
     if lb_obj is None and s3_obj is None:
         return 3
 
-    logger.info('start-{}'.format(config.timestamp()))
+    logger.info('start-{}'.format(config.TS))
 
     # Initiate the backup
     counts = backup_data(lb_obj, s3_obj, config, logger)
@@ -479,7 +479,7 @@ def main():
         report_status(es, logger, config.LOGSDIR,
                       idx_prefix, _NAME_, config.timestamp(), "status", report.name)
 
-    logger.info('end-{}'.format(config.timestamp()))
+    logger.info('end-{}'.format(config.TS))
 
     return 0
 

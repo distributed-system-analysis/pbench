@@ -65,7 +65,7 @@ FAILED: $PROG: $remote_prefix: satellite state change failed twice.
 
 Unable to change the state directories of tarballs, in $remote_host, due to ssh failure.
 EOF
-        pbench-report-status --name $PROG --timestamp $TS --type error $index_content
+        pbench-report-status --name $PROG --timestamp $(timestamp) --type error $index_content
     else
         rm ${state_change_log}
         status=$?
@@ -76,7 +76,7 @@ $PROG ($remote_prefix): Failed to remove local "${state_change_log}"
 ssh to the $remote_host was sucessfull for changing the state of tarballs,
 but failed to remove local "${state_change_log}".
 EOF
-            pbench-report-status --name $PROG --timestamp $TS --type error $index_content
+            pbench-report-status --name $PROG --timestamp $(timestamp) --type error $index_content
         fi
     fi
     return $status
@@ -279,6 +279,6 @@ Remote $remote_prefix: processed $nprocessed files, with $nfailed_md5 md5 failur
 
 EOF
 cat $mail_content >> $index_content
-pbench-report-status --name $PROG --timestamp $TS --type status $index_content
+pbench-report-status --name $PROG --timestamp $(timestamp) --type status $index_content
 
 exit 0
