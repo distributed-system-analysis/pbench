@@ -1,92 +1,173 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+
 import sys, json, warnings, logging, math
+import collections
 
 input_file = sys.argv[1]
 output_file = sys.argv[2]
-metrics = []
+docs = []
+
+
+class InvalidDataFormat(Exception):
+    pass
+
 
 # convert strings to float for elasticsearch visualization
 def convert(metrics_data):
-    if type(metrics_data)==type({}):
+    if isinstance(metrics_data, list):
+        raise InvalidDataFormat(
+                "expected a dict, str, int, or float, got a list")
+    elif isinstance(metrics_data, dict):
         for key in metrics_data:
-            try:
-                metrics_data[key] = int(metrics_data[key])
-            except:
-                try:
-                   metrics_data[key] = float(metrics_data[key])
-                except:
-                   convert(metrics_data[key])
+            metrics_data[key] = convert(metrics_data[key])
+        return metrics_data
+    else:
+        return convert_value(metrics_data)
 
 def convert_value(val):
     try:
         val = int(val)
-    except:
+    except Exception:
         try:
             val = float(val)
-        except:
-            val = val
+        except Exception:
+            pass
+        else:
+            if math.isnan(val):
+                val = 0
+    else:
+        if type(val) == type(sys.maxint + 1):
+            val = float(val)
+            if math.isnan(val):
+                val = 0
     return val
 
-# denormalize data for elasticsearch to scale
-def denormalize_data(values):
-    for data in values:
-        add_metric = {}
-        for key,value in data.items():
-            if type(value) == type({}):
-                convert(data[key])
-            else:
-                data[key] = convert_value(value)
-            if 'buckets' in data or 'quantiles' in data:
-                if key != "buckets" and key != "quantiles":
-                    add_metric[key] = convert_value(value)
-            else:
-                denorm_data = {}
-                denorm_data['metric'] = item['name']
-                denorm_data[key] = data[key]
-                denorm_data['value'] = convert_value(data['value'])
-                denorm_data['@timestamp'] = item['@timestamp']
-                denorm_data['type'] = item['type']
-                metrics.append(denorm_data)
-        for key, value in data.items():
-            if key == "buckets" or key == "quantiles":
-                for keys, val in value.items():
-                    if type(val) == type(sys.maxint+1):
-                        val = float(val)
-                    if math.isnan(val):
-                        val = 0
-                    denorm_data = {}
-                    denorm_data['metric'] = item['name']
-                    denorm_data[key] = keys
-                    denorm_data['value'] = val
-                    denorm_data['@timestamp'] = item['@timestamp']
-                    denorm_data['type'] = item['type']
-                    denorm_data.update(add_metric)
-                    metrics.append(denorm_data)
+# denormalize metrics for elasticsearch to scale
+def denormalize_metrics(new_item, metrics):
+    if not isinstance(metrics, list):
+        raise InvalidDataFormat("expected a list, got %s" % (type(metrics),))
+    _metric_idx = 0
+    for metric in metrics:
+        # For each metric in the list of metrics given, build a new metric
+        # dict containing a copy of items from new_item, adding all the keys
+        # whose values are not arrays (buckets and quantiles are always
+        # arrays).
+        new_metric = dict(new_item)
+        new_metric['_metric_idx'] = _metric_idx
+        for key, val in metric.items():
+            if key not in ( 'buckets', 'quantiles' ):
+                new_metric[key] = val
+        new_metric = convert(new_metric)
+        # At this point, we have a new_metric dict containing all the keys
+        # from the original metric dict excluding "buckets" and "quantiles"
+        # keys.
+        if 'buckets' in metric or 'quantiles' in metric:
+            if ('buckets' in metric and 'quantiles' in metric):
+                raise InvalidDataFormat("invalid data having both 'buckets'"
+                        " and 'quantiles' arrays")
+            # Handle either of these arrays ...
+            for _key in [ 'buckets', 'quantiles' ]:
+                if _key not in metric:
+                    continue
+                store_key = _key[:-1]
+                for key, val in sorted(metric[_key].items()):
+                    new_sub_metric = dict(new_metric)
+                    new_sub_metric[store_key] = key
+                    new_sub_metric['value'] = convert_value(val)
+                    docs.append(new_sub_metric)
+        else:
+            # Nothing else to do, we can add this metric as a document to
+            # the list.
+            docs.append(new_metric)
+        _metric_idx += 1
 
 in_file = open(input_file, "r")
 metrics_datalog = in_file.readlines()
 with open(output_file, 'w') as f:
+    _idx = 0
     for item in metrics_datalog:
-        values = []
         try:
             item = json.loads(item)
         except ValueError:
-            logging.warn("not a valid json document, skipping the entry")
+            logging.warn("line %d not a valid json document, skipping the"
+                    " entry", _idx)
+            # Count this line as processed
+            _idx += 1
             continue
-        values = item['metrics']
-        if len(values) == 1:
-            if len(values[0]) > 1:
-                denormalize_data(values)
+        try:
+            new_item = {
+                '@timestamp': item['@timestamp'],
+                'metric': item['name'],
+                'type': item['type']
+            }
+            metrics = item['metrics']
+        except KeyError:
+            logging.warn("line %d invalid prometheus metrics format, missing"
+                    " keys; keys found: %r", _idx, sorted(item))
+            # Count this line as processed
+            _idx += 1
+            continue
+        if len(item) > 4:
+            logging.warn("line %d invalid prometheus metrics format, too many"
+                    " keys; keys found: %r", _idx, sorted(item))
+            # Count this line as processed
+            _idx += 1
+            continue
+        if not isinstance(metrics, list):
+            logging.warn("line %d invalid prometheus metrics format, metrics is"
+                    " not a list; metrics: %s", _idx, type(metrics))
+            # Count this line as processed
+            _idx += 1
+            continue
+        metrics_l = len(metrics)
+        if metrics_l == 0:
+            logging.warn("line %d invalid prometheus metrics format, metrics is"
+                    " an empty list", _idx)
+            # Count this line as processed
+            _idx += 1
+            continue
+        new_item['_idx'] = _idx
+
+        if metrics_l == 1:
+            metric_val = metrics[0]
+            if not isinstance(metric_val, dict):
+                logging.warn("line %d invalid prometheus metrics format, single"
+                        " metrics entry is not a dict", _idx)
+                # Count this line as processed
+                _idx += 1
+                continue
+            if len(metric_val) > 1:
+                # Handle multiple keys in the only metrics entry
+                try:
+                    denormalize_metrics(new_item, metrics)
+                except InvalidDataFormat as exc:
+                    logging.warn("line %d invalid prometheus metrics format,"
+                            " %s", _idx, exc)
+                    # Count this line as processed
+                    _idx += 1
+                    continue
             else:
-                if item['name'] != "go_memstats_last_gc_time_seconds":
-                    item['metric'] = item['name']
-                    item['value'] = convert_value(values[0].values()[0])
-                    del item['name']
-                    del item['metrics']
-                    metrics.append(item)
-        elif len(values) > 1:
-            denormalize_data(values)
+                if len(metric_val) == 1:
+                    # Special case of only one key in metrics entry
+                    key, value = list(metric_val.items())[0]
+                    new_item[key] = convert_value(value)
+                    docs.append(new_item)
+                else:
+                    logging.warn("line %d invalid prometheus metrics format,"
+                            " single metrics entry has no keys", _idx)
+                    # Count this line as processed
+                    _idx += 1
+                    continue
         else:
-            logging.warn("metric doesn't have a value")
-    json.dump(metrics, f, sort_keys=True, indent=4, separators=(',', ':'))
+            try:
+                denormalize_metrics(new_item, metrics)
+            except InvalidDataFormat as exc:
+                logging.warn("line %d invalid prometheus metrics format,"
+                        " %s", _idx, exc)
+                # Count this line as processed
+                _idx += 1
+                continue
+        # Count this line as processed
+        _idx += 1
+    json.dump(docs, f, sort_keys=True, indent=4, separators=(',', ':'))
