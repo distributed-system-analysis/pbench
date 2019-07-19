@@ -1,4 +1,4 @@
-# Pbench [![Stories in Ready](https://badge.waffle.io/distributed-system-analysis/pbench.png?label=ready&title=Ready)](https://waffle.io/distributed-system-analysis/pbench)
+# Pbench
 A Benchmarking and Performance Analysis Framework
 
 The code base includes three sub-systems. The first is the collection agent
