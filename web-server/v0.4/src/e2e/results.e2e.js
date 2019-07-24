@@ -9,7 +9,7 @@ beforeAll(async () => {
     args: ['--no-sandbox'],
   });
   page = await browser.newPage();
-  await page.goto('http://localhost:8000/', { waitUntil: 'networkidle2' });
+  await page.goto('http://localhost:8000/dashboard', { waitUntil: 'networkidle2' });
 });
 
 afterAll(() => {
