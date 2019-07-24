@@ -29,13 +29,7 @@ class Controllers extends Component {
   }
 
   componentDidMount() {
-    const { controllers } = this.props;
-
-    this.queryDatastoreConfig().then(() => {
-      if (controllers.length === 0) {
-        this.fetchControllers();
-      }
-    });
+    this.queryDatastoreConfig();
   }
 
   componentWillReceiveProps(nextProps) {

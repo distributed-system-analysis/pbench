@@ -32,13 +32,7 @@ class SearchList extends Component {
   }
 
   componentDidMount() {
-    const { mapping } = this.props;
-
-    this.queryDatastoreConfig().then(() => {
-      if (Object.keys(mapping).length === 0) {
-        this.fetchIndexMapping();
-      }
-    });
+    this.queryDatastoreConfig();
   }
 
   componentWillReceiveProps(nextProps, prevProps) {
@@ -52,7 +46,7 @@ class SearchList extends Component {
     }
   }
 
-  queryDatastoreConfig = () => {
+  queryDatastoreConfig = async () => {
     const { dispatch } = this.props;
 
     dispatch({
