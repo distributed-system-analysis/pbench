@@ -2,6 +2,8 @@
 - import_role:
     name: geerlingguy.apache
 - import_role:
+    name: pbench-server-install-config-file
+- import_role:
     name: pbench-server-vars
 - import_role:
     name: pbench-server-activate-create-crontab

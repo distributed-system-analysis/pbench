@@ -1,44 +1,13 @@
 ---
-baseurl: "{{ 'http://coprbe.devel.redhat.com/results/ndokos/pbench/rhel-8.dev-$basearch/'
-                 if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '8'
-                 else
-             'https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench/epel-7-$basearch/'
-                 if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '7'
-                 else
-             'https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench/epel-6-$basearch/'
-                 if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '6'
-                 else
-             'https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench/fedora-$releasever-$basearch/'
-                 if ansible_distribution == 'Fedora'
-                 else
-             '' }}"
-
-testbaseurl: "{{ 'http://coprbe.devel.redhat.com/results/ndokos/pbench-test/rhel-8.dev-$basearch/'
-                 if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '8'
-                 else
-             'https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench-test/epel-7-$basearch/'
-                 if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '7'
-                 else
-             'https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench-test/epel-6-$basearch/'
-                 if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '6'
-                 else
-             'https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench-test/fedora-$releasever-$basearch/'
-                 if ansible_distribution == 'Fedora'
-                 else
-             '' }}"
-
-
-gpgkey: "{{ 'http://coprbe.devel.redhat.com/results/ndokos/pbench/pubkey.gpg'
-                 if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '8'
-                 else
-            'https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench/pubkey.gpg' }}"
-
-testgpgkey: "{{ 'http://coprbe.devel.redhat.com/results/ndokos/pbench-test/pubkey.gpg'
-                 if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '8'
-                 else
-            'https://copr-be.cloud.fedoraproject.org/results/ndokos/pbench-test/pubkey.gpg' }}"
-
-gpgcheck: "{{ '0'
-               if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '8'
-               else
-               1 }}"
+distro: "{{ 'epel' if ansible_distribution == 'RedHat' and ansible_distribution_major_version < '8'
+          else
+            'rhelbeta' if ansible_distribution == 'RedHat' and ansible_distribution_major_version =='8'
+          else
+            'fedora' if ansible_distribution == 'Fedora'
+          else
+            '' }}"
+distrodir: "{{ distro }}-{{ ansible_distribution_major_version }}-$basearch"
+prefix: "https://copr-be.cloud.fedoraproject.org/results/ndokos"
+baseurl: "{{ prefix }}/pbench/{{ distrodir }}/"
+gpgkey: "{{ prefix }}/pbench/pubkey.gpg"
+gpgcheck: 1

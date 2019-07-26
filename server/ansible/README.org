@@ -3,7 +3,11 @@
 * Introduction
 There is an ansible playbook and a set of roles to facilitate the
 installation of pbench-server on a host (or, less commonly, a set of
-hosts, e.g. servers in multiple environments).
+hosts, e.g. servers in multiple environments). The playbook assumes
+that you will be installing RPM packages from a repo: we have a COPR
+repo that is publicly available, but you might prefer to have your own
+repo. Note that the playbooks do *NOT* provide the capability to
+install from source.
 
 The playbook is =pbench-server-install.yml= and the roles are as
 follows:
@@ -44,11 +48,11 @@ Create an inventory file by copying the example file
 can be created anywhere, but for the purposes of this document we
 assume that it is in ~/tmp/pbench-server.hosts~.
 
-In addition to the hosts, the inventory file should contain a variable
-whose value should be the URL where the server config file can be
-found. We provide a generic example inventory file, but a local
-installation should provide its own example inventory file with
-that variable already set to point to the server config file
+In addition to the hosts, the inventory file should define a
+=configurl= variable whose value should be the URL where the server
+config file can be found. We provide a generic example inventory file,
+but a local installation should provide its own example inventory file
+with that variable already set to point to the server config file
 appropriate for that installation.
 
 You might want to create multiple inventory files if you have

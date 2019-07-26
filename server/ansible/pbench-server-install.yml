@@ -9,8 +9,7 @@
     package_state: "latest"
 
   roles:
-    - pbench-server-deps
     - pbench-repo-install
     - pbench-server-install
-    - pbench-server-config-install
+    - pbench-server-install-config-file
     - pbench-server-config
