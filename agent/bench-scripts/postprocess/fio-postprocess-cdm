@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 use File::Basename;
-my $pbench_install_dir $ENV{'pbench_install_dir'};
+my $pbench_install_dir = $ENV{'pbench_install_dir'};
 use lib $ENV{'pbench_lib_dir'};
 use JSON;
 use Data::Dumper;
