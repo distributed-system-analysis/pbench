@@ -4,19 +4,6 @@
 # (see the last task in this file). We need to ask the server
 # for it because it may vary by server.
 
-- name: fetch the pbench directory from remote
-  shell: getconf.py pbench-top-dir pbench-server
-  register: cmd_output
-  environment:
-        CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
-
-- set_fact:
-    pbench_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
-
-- debug:
-    msg: "{{ pbench_dir }}"
-    verbosity: 2
-
 - name: links in doc root to various pbench directories
   file:
     src: "{{ pbench_dir }}/public_html/{{ item }}"

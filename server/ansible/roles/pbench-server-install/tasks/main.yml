@@ -1,5 +1,9 @@
 ---
+- name: satisfy deps
+  import_role:
+    name: pbench-server-deps
+    
 - name: ensure the pbench-server RPM is installed
   package:
-      name: pbench-server
-      state: latest
+    name: pbench-server
+    state: latest

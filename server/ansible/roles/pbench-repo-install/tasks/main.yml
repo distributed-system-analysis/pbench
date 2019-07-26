@@ -1,8 +1,5 @@
 ---
 # Install pbench.repo
 - name: ensure we have the pbench.repo file properly in place
-  template: src=etc/yum.repos.d/{{ item }}.j2 dest=/etc/yum.repos.d/{{ item }} owner=root group=root mode=0644
-  with_items:
-  - pbench.repo
-  - pbench-test.repo
+  template: src=etc/yum.repos.d/pbench-server.repo.j2 dest=/etc/yum.repos.d/pbench-server.repo owner=root group=root mode=0644
 
