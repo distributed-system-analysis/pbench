@@ -182,7 +182,7 @@ sub build_iteration_cmds {
     my @cmds;
 
     if (scalar %multiplex_params) {
-        my @args = (keys %multiplex_params);
+        my @args = sort { $a cmp $b } (keys %multiplex_params);
         my $arg = shift(@args);
         my $values = $multiplex_params{$arg};
         delete $multiplex_params{$arg};
