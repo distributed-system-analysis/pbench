@@ -9,12 +9,13 @@
                                          ansible_distribution_major_version == '30'
                                       else 'python2-dnf' }}"
 
-- name: "Install/uninstall policycoreutils-python."
+- name: "Install/uninstall policycoreutils-python which provides the semanage command."
   package:
     name: "{{ policy_core_utils_package }}"
     state: "{{ package_state }}"
 
-- name: "Install/update python-dnf package (dnf needs this, so we don't try to uninstall it)."
+#  dnf needs this, so we make sure it's installed and up-to-date, but do not try to uninstall it.
+- name: "Install/update python-dnf package."
   package:
     name: "{{ (ansible_distribution_major_version != '7') | ternary(python_dnf_package, omit) }}"
     state: latest

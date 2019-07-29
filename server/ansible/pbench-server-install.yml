@@ -11,5 +11,4 @@
   roles:
     - pbench-repo-install
     - pbench-server-install
-    - pbench-server-install-config-file
     - pbench-server-config
