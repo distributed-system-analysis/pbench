@@ -204,6 +204,134 @@ sub build_iteration_cmds {
     }
 }
 
+# process iparams (internal parameters) that this script is
+# responsible for substituting in the cmds
+sub handle_iparams {
+    my @ARGS = @_;
+
+    my %param_sets;
+    my @params;
+
+    # build the iteration parameter sets and their associated iparams
+    my $current_param_set = 0;
+    for my $param (@ARGS) {
+	if (! exists($param_sets{$current_param_set})) {
+	    $param_sets{$current_param_set} = { };
+	    $param_sets{$current_param_set}{'iparams'} = [];
+	    $param_sets{$current_param_set}{'params'}  = [];
+	}
+
+	if ($param eq "--") {
+	    push(@{$param_sets{$current_param_set}{'params'}}, "--defaults=mandatory");
+	    push(@{$param_sets{$current_param_set}{'params'}}, "--");
+	    $current_param_set++;
+	} elsif ($param =~ /^--\[.+\]/) {
+	    push(@{$param_sets{$current_param_set}{'iparams'}}, $param);
+	} else {
+	    push(@{$param_sets{$current_param_set}{'params'}}, $param);
+	}
+    }
+
+    # loop until all iparams have been processed, once an iparam is
+    # found and processed the process needs to start over to ensure
+    # that proper handling of multiple iparams is done -- if there are
+    # multiple iparams in an parameter set then each iparam (and it's
+    # values) are handled one at time.  when an iparam is handled a
+    # new parameter set is created for each of the iparam's values.
+    # the new parameter sets include any remaining iparams and the same
+    # process will be done to them on a future pass
+    my $do_work = 1;
+    while ($do_work) {
+	$do_work = 0;
+
+	foreach my $param_hkey (sort { $a <=> $b } (keys %param_sets)) {
+	    if (scalar(@{$param_sets{$param_hkey}{'iparams'}})) {
+		my $iparam = shift(@{$param_sets{$param_hkey}{'iparams'}});
+
+		$iparam =~ m/^--(\[.+\])=(.+)$/;
+		my $iparam_key = $1;
+		my $iparam_value = $2;
+
+		$iparam_key =~ m/\[(.+)\]/;
+		my $iparam_name = $1;
+
+		# make sure that the iparam is actually used somewhere
+		my $iparam_match = 0;
+		for my $param (@{$param_sets{$param_hkey}{'params'}}) {
+		    if ($param eq "--") {
+			next;
+		    }
+
+		    $param =~ m/^--(.+)=(.+)$/;
+		    my $param_key = $1;
+		    my $param_value = $2;
+
+		    if ($param_value =~ /\[$iparam_name\]/) {
+			$iparam_match = 1;
+			last;
+		    }
+		}
+
+		if ($iparam_match) {
+		    # for each iparam iteration value that is found
+		    # create a new parameter set
+		    for my $iparam_iter_value (quotewords(',', 0, $iparam_value)) {
+			$param_sets{$current_param_set} = { };
+			$param_sets{$current_param_set}{'iparams'} = [];
+			$param_sets{$current_param_set}{'params'}  = [];
+
+			push(@{$param_sets{$current_param_set}{'iparams'}},
+			     @{$param_sets{$param_hkey}{'iparams'}});
+
+			for my $param(@{$param_sets{$param_hkey}{'params'}}) {
+			    if ($param eq "--") {
+				push(@{$param_sets{$current_param_set}{'params'}}, $param);
+				next;
+			    }
+
+			    $param =~ m/^(--.+)=(.+)$/;
+			    my $param_key = $1;
+			    my $param_value = $2;
+
+			    # substituate the iparam value as many
+			    # times as required in the parameter value
+			    $param_value =~ s/\[$iparam_name\]/$iparam_iter_value/g;
+
+			    push(@{$param_sets{$current_param_set}{'params'}},
+				 $param_key . "=" . $param_value);
+			}
+
+			$current_param_set++;
+		    }
+
+		    # run the loop again in case there are additional
+		    # iparams to process -- the newly created
+		    # parameter sets may have additional iparams
+		    $do_work = 1;
+
+		    # now that this parameter set has been processed
+		    # (and new parameter sets created) it can be
+		    # removed
+		    delete $param_sets{$param_hkey};
+
+		    # only process one iparam at a time before
+		    # starting over so break out of the loop
+		    last;
+		}
+	    }
+	}
+    }
+
+    # transform the parameter sets hash into the parameter array
+    foreach my $param_key (sort { $a <=> $b } (keys %param_sets)) {
+	for my $param (@{$param_sets{$param_key}{'params'}}) {
+	    push(@params, $param);
+	}
+    }
+
+    return @params;
+}
+
 # Main program starts here
 
 # Check for required options for pbench-gen-iterations
@@ -256,22 +384,14 @@ if (! exists $bench_config{"controller"}{"parameters"}{"specs"} ) {
 }
 
 my @cmds;
-my @params;
 my %processed_bench_params; # Benchmark-specific parameters that will have been validated/transformed
 my %processed_pbench_params; # Universal parameters that will have been validated/transformed
 # Add a final params termination (--) if one is not present
 if ($ARGV[-1] ne "--") {
 	push(@ARGV, "--");
 }
-# Copy to new array while inserting the madatory defaults for set of parameters
-for my $param (@ARGV) {
-    if ($param eq "--") {
-        push(@params, "--defaults=mandatory");
-        push(@params, "--");
-    } else {
-        push(@params, $param);
-    }
-}
+
+my @params = handle_iparams(@ARGV);
 
 # Now process all of the parameters
 while ( scalar @params > 0 ) {
