@@ -1,0 +1,25 @@
+---
+- name: "Create links in doc root to various pbench directories."
+  file:
+    src: "{{ pbench_dir }}/public_html/{{ item }}"
+    path: "{{ httpd_document_root_dir }}/{{ item }}"
+    state: link
+  with_items:
+    - incoming
+    - results
+    - users
+    - static
+  notify:
+    - restart apache
+
+- name: "Make sure rsync is installed. Used below."
+  package:
+    name: rsync
+    state: latest
+
+- name: "Copy the web-server bits to the <pbench>/public_html/static directory."
+  synchronize:
+    src: "{{ pbench_server_install_dir }}/html/static/"
+    dest: "{{ pbench_dir }}/public_html/static"
+    recursive: yes
+  delegate_to: "{{ inventory_hostname }}"

@@ -12,12 +12,10 @@ install from source.
 The playbook is =pbench-server-install.yml= and the roles are as
 follows:
 
-- pbench-server-deps: install dependencies.
 - pbench-repo-install: install the pbench repos into /etc/yum.repos.d.
 - pbench-server-install: install the pbench-server RPM.
-- pbench-server-config-install: install the server configuration file.
-- pbench-server-config: configure the server according to the config
-  file that was installed in the previous step.[fn:1]
+- pbench-server-config: install the server onfiguration file and
+  configure the server according to it.[fn:1]
 
 * Setup
 
@@ -44,16 +42,16 @@ Eventually, we plan to put all the roles in Ansible Galaxy.
 
 Create an inventory file by copying the example file
 ~ansible/Inventory/pbench-server.hosts.example~ and modifying the
-=[servers]= section *only*, listing all the relevant hosts.  The file
+=[servers]= section, listing all the relevant hosts.  The file
 can be created anywhere, but for the purposes of this document we
 assume that it is in ~/tmp/pbench-server.hosts~.
 
 In addition to the hosts, the inventory file should define a
 =configurl= variable whose value should be the URL where the server
 config file can be found. We provide a generic example inventory file,
-but a local installation should provide its own example inventory file
-with that variable already set to point to the server config file
-appropriate for that installation.
+but a local installation will require an inventory file with that
+variable already set to point to the server config file appropriate
+for that installation.
 
 You might want to create multiple inventory files if you have
 multiple sets of servers to install to, e.g. "production" servers
@@ -67,19 +65,6 @@ ssh-copy-id root@<host>
 #+end_src
 
 When prompted, enter the root password; repeat for each host.
-
-In addition, one of the ansible sub-roles
-(=pbench-server-activate-web-server=) synchronizes two directories on
-each remote host, using rsync. That means that each host has to be able
-to login to *itself* (using the hostname from the inventory file -
-*not* =localhost=) as root without a password. That requires something
-like the following, where we ssh to each remote host and then on each
-one, we run =ssh-copy-id root@$host=:
-#+begin_src shell
-for host in host1 host2 ... ;do
-    ssh root@$host ssh-copy-id root@$host
-done
-#+end_src
 
 ** Install the =geerlingguy.apache= playbook from Ansible Galaxy
 
@@ -120,18 +105,38 @@ host2             ansible_python_interpreter=/usr/bin/python3
 so that =/usr/bin/python3= will be used by ansible as the python
 interpreter on that host.
 
+** Dependencies
+
+Some playbooks require ~semanage~ which is provided by the
+=policycoreutils-python-utils= package on Fedora and RHEL8; the
+package is called =policycoreutils-python= on RHEL7. There is a
+=pbench-server-deps.yml= playbook in the =contrib/= area (see below)
+that will install the appropriate package, as well as the
+=python2-dnf= or =python3-dnf= package that is required by ansible itself.
+Normally, neither should be a problem: the =policycoreutils-python= package
+should be installed as a dependency when the =pbench-server= RPM is
+installed; =pythonX-dnf= should be installed as part of the base system.
+
 ** Currently supported systems
-The playbooks have been tested on systems that run RHEL7, RHEL8
-and current Fedora distros (Fedora 28, 29 and 30). We are planning
-to continue this support indefinitely, with the caveat that when
-a new release comes out, it may take a little time to test the
-playbooks and fix any breakage.
+The playbooks have been tested on systems that run RHEL7, RHEL8 and
+current Fedora distros (Fedora 28, 29 and 30). We are planning to
+continue supporting the playbooks on RHEL7, RHEL8 and whatever Fedora
+distros are available at that time, with the caveat that when a new
+release comes out, it may take a little time to test the playbooks and
+fix any breakage.
 
 * Some other playbooks
 
-There are two more playbooks, one to install the repo files only and
-one to delete the installation and clean up everything so the
-installation can be retried.
+There asome more playbooks in the contrib area - they are unsupported,
+but they might be useful:
+
+- =pbench-repo-install.yml= installs the pbench repo in each host's
+  =/etc/yum.repos.d= directory. This uses a role from the =server/ansible=
+  directory.
+- =pbench-server-uninstall.yml= uninstalls the pbench-server bits and
+  cleans up (but the cleanup may be incomplete). We have used this
+  for debugging the installation playbook.
+- =pbench-server-deps.yml= un/installs some miscellaneous packages.
 
 You can of course provide your own playbooks that use some of these
 roles: the =pbench-repo-install.yml= playbook mentioned above is
@@ -164,6 +169,9 @@ There are no changes to the playbooks or roles.
 sub-roles, which are *not* meant to stand by themselves (except for
 the =geerlingguy.apache= role):
 
+- pbench-server-install-config-file: install the config file for this
+  particular server. This is a prerequisite for all the roles below
+  (except for the =geerlingguy.apache= role).
 - =geerlingguy.apache=: install and configure apache. This is a role we
   download from Ansible Galaxy.
 - =pbench-server-vars=: query each server and set some additional facts
@@ -176,10 +184,8 @@ the =geerlingguy.apache= role):
 - =pbench-server-activate-create-results-dir-structure=: create the
   structures that store the tarballs and enable further processing by
   the server scripts.
-- =pbench-server-activate-start-httpd=: creation of links to allow
-  access to results.
-- =pbench-server-activate-setup-web-server=: create links to give
-  user agents access to jschart for visualization purposes.
+- =pbench-server-activate-httpd-setup-restart=: creation of links to
+  allow access to results and resources needed to visualize them.
 
 [fn:2] One example of multiple servers is the case where we have a
 master server for most =pbench-agent= hosts, but we also have an

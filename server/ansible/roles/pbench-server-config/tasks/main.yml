@@ -12,6 +12,4 @@
 - import_role:
     name: pbench-server-activate-create-results-dir-structure
 - import_role:
-    name: pbench-server-activate-start-httpd
-- import_role:
-    name: pbench-server-activate-setup-web-server
+    name: pbench-server-activate-httpd-setup-restart

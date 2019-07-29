@@ -1,13 +1,18 @@
 # Change the [servers] section to the set of hosts where you want to
 # install pbench-server. The various hosts can be running any
 # combinations of RHEL7, RHEL8, or (supported) Fedora versions
-# (currently 28 and 29). Installing on more than one server (e.g.
+# (currently 28, 29 and 30). Installing on more than one server (e.g.
 # on a master as well as a satellite server) will require more
 # setup and is described in the server/ansible/README.org file.
 
 [servers]
 <pbench-server-host>
 
+# A pbench-server needs to have a pbench-server.cfg file installed
+# in a designated place. The configurl variable below specifies the
+# location of the config file that should be installed on the server
+# above and should be changed to reflect the local setup. This variable
+# is then used by the pbench-server-config role to install the designated
+# config file on the server.
 [servers:vars]
 configurl = http://pbench.example.com/server/config/pbench-server.cfg
-
