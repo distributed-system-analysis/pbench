@@ -1,0 +1,175 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; sh-indent-for-case-alt: + -*-
+
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
+
+# source the base script
+. "$pbench_bin"/base
+
+function usage() {
+    printf "usage:\n"
+    printf "${script_name} --result-dir=<pbench results dir> --target-dir=<where to put tar ball> [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded=<0|1>]\n"
+}
+
+# Process options and arguments
+opts=$(getopt -q -o h --longoptions "user:,prefix:,result-dir:,target-dir:,xz-single-threaded:,help" -n "getopt.sh" -- "${@}")
+sts=${?}
+if [[ ${sts} -ne 0 ]]; then
+    printf "\n${script_name}: you specified an invalid option\n\n" >&2
+    usage >&2
+    exit 1
+fi
+
+result_dir=""
+target_dir=""
+user="${PBENCH_USER}"
+prefix=""
+xz_single_threaded=0
+eval set -- "${opts}"
+while true; do
+    case "${1}" in
+	--result-dir)
+	    shift;
+            if [[ -n "${1}" ]]; then
+                result_dir="${1}"
+                shift;
+            fi
+            ;;
+	--target-dir)
+	    shift;
+            if [[ -n "${1}" ]]; then
+                target_dir="${1}"
+                shift;
+            fi
+            ;;
+	--user)
+	    shift;
+            if [[ -n "${1}" ]]; then
+                user="${1}"
+                shift;
+            fi
+            ;;
+        --prefix)
+            shift;
+            if [[ -n "${1}" ]]; then
+                prefix="${1}"
+                shift;
+            fi
+            ;;
+	--xz-single-threaded)
+	    shift;
+            if [[ -n "${1}" ]]; then
+		xz_single_threaded="${1}"
+                shift;
+            fi
+	    ;;
+	-h|--help)
+	    usage
+   	    exit 0
+	    ;;
+        --)
+            shift;
+            break;
+            ;;
+    esac
+done
+
+if [[ ! -d "${result_dir}" ]]; then
+    error_log "Invalid result directory provided: \"${result_dir}\""
+    usage >&2
+    exit 1
+fi
+
+if [[ ! -d "${target_dir}" ]]; then
+    error_log "Invalid target directory provided: \"${target_dir}\""
+    exit 1
+fi
+
+# We can now start building the target tarball
+
+# Move into pbench run collection directory
+full_result_dir=$(realpath -e ${result_dir})
+pushd $(dirname full_result_dir) > /dev/null 2>&1
+if [[ ${?} -ne 0 ]]; then
+    exit 1
+fi
+pbench_run_name=$(basename ${result_dir})
+if [[ -f "${pbench_run_name}.copied" ]]; then
+    debug_log "Already copied ${result_dir}"
+    exit 0
+fi
+
+if [[ -d "${pbench_run_name}/.running" ]]; then
+    # The benchmark is still running in this directory, skip it
+    debug_log "The benchmark is still running in ${pbench_run_name} - skipping"
+    debug_log "If that is not true, rmdir ${pbench_run_name}/.running, and try again"
+    exit 0
+fi
+
+mdlog=${pbench_run_name}/metadata.log
+if [[ ! -e "${mdlog}" ]]; then
+    debug_log "The pbench result ${pbench_run_name} does not appear to be a benchmark directory - skipping"
+    debug_log "The ${pbench_run}/${pbench_run_name}/metadata.log file seems to be missing"
+    exit 0
+fi
+
+res_name=$(getconf.py --config ${mdlog} name pbench)
+if [[ "${res_name}" != "${pbench_run_name}" ]]; then
+    warn_log "The run in directory ${pbench_run}/${pbench_run_name} has an unexpected metadata name, \"${res_name}\" - skipping"
+    exit 1
+fi
+
+if [[ -e pbench.log ]]; then
+    # FIXME: We should not copy this log file into a given result, as it may
+    #        contain data not relevant to that results' execution.
+    #
+    # We have a pbench.log file, so make a copy of it in the current result
+    # directory so that any log datas from tools or benchmarks can be
+    # referenced later.
+    /bin/cp pbench.log ${pbench_run_name}/
+fi
+
+# if -u|--user was specified, store the specified user in metadata.log
+if [[ ! -z "$user" ]] ;then
+    printf -- "$user" | pbench-add-metalog-option ${mdlog} run user
+fi
+
+# if -p|--prefix was specified, store the specified prefix in metadata.log
+if [[ ! -z "$prefix" ]] ;then
+    printf -- "$prefix" | pbench-add-metalog-option ${mdlog} run prefix
+fi
+
+result_size=$(du -sb ${pbench_run_name} | awk '{print $1}')
+debug_log "preparing to tar up ${result_size} bytes of data from ${full_result_dir}"
+printf -- "$result_size" | pbench-add-metalog-option ${mdlog} run raw_size
+
+tarball="${target_dir}/${pbench_run_name}.tar.xz"
+if [[ "${xz_single_threaded}" == "1" ]]; then
+    tar_cmd="tar --create --force-local -xz \"${pbench_run_name}\""
+else
+    tar_cmd="tar --create --force-local \"${pbench_run_name}\" | xz -T0"
+fi
+printf -- "${tar_cmd} > \"${tarball}\"\n" >&2
+eval ${tar_cmd} > "${tarball}"
+if [[ $? -ne 0 ]]; then
+    error_log "ERROR: tar ball creation failed for ${result_dir}, skipping"
+    rm -f "${tarball}"
+    exit 1
+fi
+
+tarballmd5="${tarball}.md5.check"
+# We need to calculate the md5 sum in the temp directory
+# in order to get the filename right.
+pushd $(dirname ${tarball}) > /dev/null 2>&1
+md5sum "$(basename ${tarball})" > "${tarballmd5}"
+if [[ $? -ne 0 ]]; then
+    error_log "ERROR: md5sum failed for ${tarball}, skipping"
+    rm -f "${tarball}" "${tarballmd5}"
+    exit 1
+fi
+
+# We ran the gauntlet successfully!
+printf -- "${tarball}\n"
+exit 0

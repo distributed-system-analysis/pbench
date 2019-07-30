@@ -6,44 +6,39 @@ script_name="$(basename ${0})"
 pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
-
-controller=$hostname
+. "${pbench_bin}"/base
 
 function usage() {
     printf "usage:\n"
-    printf "$script_name [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
+    printf "${script_name} [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o u:p:xSh --longoptions "user:,prefix:,xz-single-threaded,show-server,help" -n "getopt.sh" -- "$@");
-if [[ $? -ne 0 ]]; then
-    printf "\n"
-    printf "%s\n" $*
-    printf "$script_name: you specified an invalid option\n\n"
-    usage
-
+opts=$(getopt -q -o u:p:xSh --longoptions "user:,prefix:,xz-single-threaded,show-server,help" -n "getopt.sh" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+    printf "\n${script_name}: you specified an invalid option\n\n" >&2
+    usage >&2
     exit 1
 fi
 
-user=${PBENCH_USER}
-prefix=
-xz_single_threaded=
-show_server=
-eval set -- "$opts";
+user="${PBENCH_USER}"
+prefix=""
+xz_single_threaded=0
+show_server=""
+eval set -- "${opts}"
 while true; do
-    case "$1" in
+    case "${1}" in
 	-u|--user)
 	    shift;
-            if [[ -n "$1" ]]; then
-                user="$1"
+            if [[ -n "${1}" ]]; then
+                user="${1}"
                 shift;
             fi
             ;;
         -p|--prefix)
             shift;
-            if [[ -n "$1" ]]; then
-                prefix="$1"
+            if [[ -n "${1}" ]]; then
+                prefix="${1}"
                 shift;
             fi
             ;;
@@ -66,40 +61,46 @@ while true; do
     esac
 done
 
-if [[ ! -d "$pbench_run" ]]; then
-    error_log "ERROR: pbench local results directory does not exist: $pbench_run"
+if [[ ! -d "${pbench_run}" ]]; then
+    error_log "ERROR: pbench local results directory does not exist: ${pbench_run}"
     exit 1
 fi
 
-if [[ ! -f "$pbench_bin/id_rsa" ]]; then
-	error_log "ERROR: $pbench_bin/id_rsa required for moving results to archive host"
-	exit 1
+if [[ ! -f "${pbench_bin}/id_rsa" ]]; then
+    error_log "ERROR: ${pbench_bin}/id_rsa required for moving results to archive host"
+    exit 1
+fi
+
+controller=${full_hostname}
+if [[ -z "${controller}" ]]; then
+    error_log "Missing controller name (should be \"hostname -f\" value)"
+    exit 1
 fi
 
 # ask the server where to send the tarballs
 results_webserver=$(getconf.py webserver results)
-if [[ -z "$results_webserver" ]]; then
+if [[ -z "${results_webserver}" ]]; then
     error_log "ERROR: No web server host configured from which we can fetch the FQDN of the host to which we copy/move results"
     debug_log "\"webserver\" variable in \"results\" section not set"
     exit 1
 fi
 
 ver=$(yum info installed pbench-agent 2> /dev/null | grep Version | awk '{ print $3 }')
-if [[ -z "$ver" ]]; then
+if [[ -z "${ver}" ]]; then
     ver="unknown"
 fi
 rel=$(yum info installed pbench-agent 2> /dev/null | grep Release | awk '{ print $3 }')
-if [[ -z "$ver" ]]; then
+if [[ -z "${rel}" ]]; then
     rel="unknown"
 fi
 # User-Agent HTTP header: <pbench-agent-ver-rel>:<FQDN>:<$USER>:<full path of this script>""
-user_agent="pbench-agent-$ver-$rel:$(hostname -f):$USER:$0"
+user_agent="pbench-agent-${ver}-${rel}:$(hostname -f):${USER}:${script_name}"
 
 results_host_info_url=$(getconf.py host_info_url results)
-results_host_info=$(curl -s -A "$user_agent" -L "$results_host_info_url")
-if [[ -z "$results_host_info" ]]; then
-    error_log "ERROR: unable to determine results host info from $results_host_info_url"
-    debug_log "the curl -A \"$user_agent\" -L \"$results_host_info_url\" command failed for some unknown reason"
+results_host_info=$(curl -s -A "${user_agent}" -L "${results_host_info_url}")
+if [[ -z "${results_host_info}" ]]; then
+    error_log "ERROR: unable to determine results host info from ${results_host_info_url}"
+    debug_log "the curl -A \"${user_agent}\" -L \"${results_host_info_url}\" command failed for some unknown reason"
     exit 1
 fi
 
@@ -115,171 +116,97 @@ fi
 #     MESSAGE===<text to be display to the user>
 #
 sysmsg=${results_host_info%%===*}
-if [[ "$sysmsg" = "MESSAGE" ]]; then
-    echo "*** Message from sysadmins of $results_webserver:"
-    echo "***"
-    echo "*** ${results_host_info##*===}"
-    echo "***"
-    echo "*** No local actions taken."
+if [[ "${sysmsg}" = "MESSAGE" ]]; then
+    printf -- "*** Message from sysadmins of ${results_webserver}:\n"
+    printf -- "***\n*** ${results_host_info##*===}\n"
+    printf -- "***\n*** No local actions taken.\n"
     exit 1
 fi
 results_repo=${results_host_info%%:*}
 results_user=${results_repo%%@*}
-if [[ -z "$results_user" ]]; then
+if [[ -z "${results_user}" ]]; then
     debug_log "Defaulting to \"pbench\" for the \"results_user\""
     results_user="pbench"
-    results_host="$results_repo"
+    results_host="${results_repo}"
     # Reconstruct the expected results_repo
-    results_repo=$results_user@$results_host
+    results_repo=${results_user}@${results_host}
 fi
 
 results_path_prefix=${results_host_info##*:}
-if [[ -z "$results_path_prefix" ]]; then
-    error_log "ERROR: fetch results host info did not contain a path prefix: $results_host_info"
+if [[ -z "${results_path_prefix}" ]]; then
+    error_log "ERROR: fetch results host info did not contain a path prefix: ${results_host_info}"
     debug_log "expected the results_host_info to have the form: <results_user>@<results_host(FQDN)>:<results_path_prefix>"
     exit 1
 fi
 
-if [[ ! -z "$show_server" ]] ;then
-    echo ${results_repo}
+if [[ ! -z "${show_server}" ]] ;then
+    printf -- "${results_repo}\n"
     exit 0
 fi
 
 # ssh probe test
-ssh -q -i $pbench_bin/id_rsa $ssh_opts $results_repo exit
+ssh -q -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} exit
 if [[ $? -ne 0 ]]; then
-    error_log "ERROR: results host unreachable: $results_repo"
-    debug_log "the following ssh command failed: \"ssh -q -i $pbench_bin/id_rsa $ssh_opts $results_repo exit\""
+    error_log "ERROR: results host unreachable: ${results_repo}"
+    debug_log "the following ssh command failed: \"ssh -q -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} exit\""
     exit 1
 fi
 
 let runs_copied=0
 let failures=0
 
-tmp=${pbench_tmp}/${script_name}.$$
-trap "rm -rf $tmp" EXIT INT QUIT
+tmp=${pbench_tmp}/${script_name}.${$}
+trap "rm -rf ${tmp}" EXIT INT QUIT
 
-mkdir -p $tmp/$controller
-sts=$?
-if [[ $sts -ne 0 ]] ;then
-    error_log "Failed: \"mkdir -p $tmp/$controller\", status $sts"
+mkdir -p ${tmp}/${controller}
+sts=${?}
+if [[ ${sts} -ne 0 ]] ;then
+    error_log "Failed: \"mkdir -p ${tmp}/${controller}\", status ${sts}"
     exit 1
 fi
 # We can now start copying tarballs to the server
 
 # Move into pbench run collection directory
-pushd $pbench_run >/dev/null
+pushd ${pbench_run} >/dev/null
 
 for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v "^tmp/"`; do
-    pbench_run_name=${dir%%/*}
-    if [[ -f "$pbench_run_name.copied" ]]; then
-        debug_log "Already copied $pbench_run/$pbench_run_name"
-        continue
+    # Before the loop we have created a temp directory, $tmp/$controller, to
+    # contain the tarball and the md5 file (as ${tb}.tar.xz.md5.check); pass
+    # that information on to pbench-make-result-tb.
+    result_dir=$(basename ${dir})
+    result_tb_name=$(pbench-make-result-tb --result-dir ${result_dir} --target-dir ${tmp}/${controller} --user ${user} --prefix ${prefix} --xz-single-threaded ${xz_single_threaded})
+    if [[ ${?} -ne 0 ]]; then
+	# Messaging already handled by pbench-make-result-tb
+	continue
     fi
-
-    # if the benchmark is still running in this directory, then skip it
-    if [[ -d "$pbench_run_name/.running" ]]; then
-        debug_log "The benchmark is still running in $pbench_run_name - skipping"
-        debug_log "If that is not true, rmdir $pbench_run_name/.running and try again"
-        continue
+    if [[ -z "${result_tb_name}" ]]; then
+	# Messaging already handled by pbench-make-result-tb
+	continue
     fi
-
-    mdlog=${pbench_run_name}/metadata.log
-    if [[ ! -e "${mdlog}" ]]; then
-        debug_log "The pbench result ${pbench_run_name} does not appear to be a benchmark directory - skipping"
-        debug_log "The ${pbench_run}/${pbench_run_name}/metadata.log file seems to be missing"
-        continue
+    pbench-copy-result-tb ${result_tb_name} ${results_repo} ${results_path_prefix}
+    sts=${?}
+    rm ${result_tb_name} ${result_tb_name}.md5.check
+    if [[ ${?} -ne 0 ]]; then
+	error_log "UNEXPECTED ERROR: rm failed to remove ${result_tb_name} and its .md5.check file"
+	exit 1
     fi
-
-    res_name=$(getconf.py --config ${mdlog} name pbench)
-    if [[ "${res_name}" != "${pbench_run_name}" ]]; then
-        warn_log "The run in directory ${pbench_run}/${pbench_run_name} has an unexpected metadata name, \"${res_name}\" - skipping"
-        continue
-    fi
-
-    # Any result where tools or benchmark results were used get the pbench
-    # logfile so it can be referenced later if needed.
-    if [[ -e pbench.log ]]; then
-        /bin/cp pbench.log $pbench_run_name/
-    fi
-
-    # if -u was specified, store the specified user in metadata.log
-    if [[ ! -z "$user" ]] ;then
-	echo $user | pbench-add-metalog-option ${mdlog} run user
-    fi
-
-    # if -p was specified, store the specified prefix in metadata.log
-    if [[ ! -z "$prefix" ]] ;then
-	echo $prefix | pbench-add-metalog-option ${mdlog} run prefix
-    fi
-
-    result_size=`du -sb $pbench_run_name | awk '{print $1}'`
-    debug_log "preparing to copy $result_size bytes of data from $pbench_run/$pbench_run_name"
-    echo $result_size | pbench-add-metalog-option ${mdlog} run raw_size
-
-    # Create a temp directory $tmp/$controller to contain the tarball
-    # and the md5 file (as ${tb}.tar.xz.md5.check). Copy the directory
-    # with scp -r $tmp/$controller $remote: that will create the
-    # $controller subdirectory on the remote (if necessary) OR fail.
-
-    # If it does not fail, then check the MD5 sum and rename the foo.tar.xz.md5.check file
-    # to foo.tar.xz.md5. That's the signal that the agent has finished with this tarball.
-
-    tarball="$tmp/$controller/$pbench_run_name.tar.xz"
-    if [[ "${xz_single_threaded}" != "1" ]] ;then
-	echo "tar --create --force-local \"$pbench_run_name\" | xz -T0 > \"$tarball\" "
-	tar --create --force-local "$pbench_run_name" | xz -T0 > "$tarball"
-    else
-	echo "tar --create --xz --force-local --file=\"$tarball\" \"$pbench_run_name\" "
-	tar --create --xz --force-local --file="$tarball" "$pbench_run_name"
-    fi
-
-    if [[ $? -ne 0 ]]; then
-        error_log "ERROR: tar failed for $pbench_run/$pbench_run_name, skipping"
-        rm -f "$tarball"
+    if [[ ${sts} -ne 0 ]]; then
         let failures=failures+1
         continue
     fi
-
-    tarballmd5="$tarball.md5.check"
-    # we need to calculate the md5 sum in the temp directory
-    # in order to get the filename right.
-    pushd $(dirname $tarball) > /dev/null
-    md5sum "$(basename $tarball)" > "$tarballmd5"
-    if [[ $? -ne 0 ]]; then
-        error_log "ERROR: md5sum failed for $tarball, skipping"
-        rm -f "$tarball" "$tarballmd5"
-        let failures=failures+1
-	popd >/dev/null
-        continue
-    fi
-    popd >/dev/null
-
-    # finally do the copy
-    scp -r $scp_opts -i $pbench_bin/id_rsa $ssh_opts $tmp/$controller $results_repo:$results_path_prefix
-    if [[ $? -ne 0 ]]; then
-        error_log "ERROR: unable to copy results tarball, $tarball, to $results_repo:$results_path_prefix"
-        rm -f $tarball $tarballmd5
-        let failures=failures+1
-        continue
-    fi
-
-    # Verify the bits copied are good
-    md5name=$(basename $tarball).md5
-    ssh -i $pbench_bin/id_rsa $ssh_opts $results_repo "cd $results_path_prefix/$controller; md5sum --check ${md5name}.check && mv ${md5name}.check ${md5name}"
-    chk_res=$?
-    if [[ $chk_res -ne 0 ]]; then
-        error_log "ERROR: remote copy failed, remote tarball MD5 does not match original"
-        rm -f $tarball $tarballmd5
-        let failures=failures+1
-        continue
-    fi
-    rm -f $tarball $tarballmd5
 
     if [[ "$script_name" == "pbench-move-results" ]]; then
-        rm -rf $pbench_run_name
+        rm -r ${result_dir}
+	if [[ ${?} -ne 0 ]]; then
+	    error_log "UNEXPECTED ERROR: rm failed to remove the ${result_dir} directory hierarchy"
+	    exit 1
+	fi
     else
-        touch $pbench_run_name.copied
+        touch ${result_dir}.copied
+	if [[ ${?} -ne 0 ]]; then
+	    error_log "UNEXPECTED ERROR: touch failed to ${result_dir}.copied"
+	    exit 1
+	fi
     fi
     let runs_copied=runs_copied+1
 done

@@ -1,0 +1,84 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; sh-indent-for-case-alt: + -*-
+
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
+
+# source the base script
+. "${pbench_bin}"/base
+
+function usage() {
+    printf "usage:\n"
+    printf "${script_name} [--help] <full path to tar ball> <results host> <results path prefix>\n"
+}
+
+# Process options and arguments
+opts=$(getopt -q -o h --longoptions "help" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+    printf "\n${script_name}: you specified an invalid option\n\n" >&2
+    usage >&2
+    exit 1
+fi
+
+eval set -- "${opts}"
+while true; do
+    case "${1}" in
+	-h|--help)
+	    usage
+	    exit 0
+	    ;;
+	--)
+	    shift;
+	    break;
+	    ;;
+    esac
+done
+
+tarball=$(realpath -e ${1})
+if [[ ! -f "${tarball}" ]]; then
+    error_log "ERROR: tar ball does not exist, ${tarball}"
+    exit 1
+fi
+if [[ ! -f "${tarball}.md5.check" ]]; then
+    error_log "ERROR: tar ball's .md5.check does not exist, ${tarball}.md5.check"
+    exit 1
+fi
+controller_dir=$(dirname ${tarball})
+cnt=$(find ${controller_dir} -type f 2> /dev/null | wc -l 2> /dev/null)
+if [[ ${cnt} != 2 ]]; then
+    error_log "ERROR (internal): unexpected file count, ${cnt}, associated with tar ball, ${tarball}"
+    exit 1
+fi
+
+results_repo=${2}
+results_path_prefix=${3}
+
+if [[ ! -f "${pbench_bin}/id_rsa" ]]; then
+    error_log "ERROR: ${pbench_bin}/id_rsa required for moving results to archive host"
+    exit 1
+fi
+
+# Copy the directory with scp -r $tmp/$controller $remote: that will
+# create the $controller subdirectory on the remote (if necessary) OR
+# fail. If it does not fail, then check the MD5 sum and rename the
+# foo.tar.xz.md5.check file to foo.tar.xz.md5. That's the signal that the
+# agent has finished with this tarball.
+
+scp -r ${scp_opts} -i ${pbench_bin}/id_rsa ${ssh_opts} ${controller_dir} ${results_repo}:${results_path_prefix}
+if [[ ${?} -ne 0 ]]; then
+    error_log "ERROR: unable to copy results tarball, ${tarball}, to ${results_repo}:${results_path_prefix}"
+    exit 1
+fi
+
+# Verify the remotely copied bits are good
+md5name=$(basename ${tarball}).md5
+controller=$(basename ${controller_dir})
+ssh -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} "cd ${results_path_prefix}/${controller}; md5sum --check ${md5name}.check && mv ${md5name}.check ${md5name}"
+chk_res=${?}
+if [[ ${chk_res} -ne 0 ]]; then
+    error_log "ERROR: remote copy failed, remote tarball MD5 does not match original"
+    exit 1
+fi
+
+exit 0
