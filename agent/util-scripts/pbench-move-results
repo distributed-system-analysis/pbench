@@ -1,9 +1,9 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; sh-indent-for-case-alt: + -*-
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
 . "$pbench_bin"/base
@@ -213,8 +213,9 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
 	echo $prefix | pbench-add-metalog-option ${mdlog} run prefix
     fi
 
-    results_size=`du -sm $pbench_run_name | awk '{print $1}'`
-    debug_log "preparing to copy $results_size MB of data from $pbench_run/$pbench_run_name"
+    result_size=`du -sb $pbench_run_name | awk '{print $1}'`
+    debug_log "preparing to copy $result_size bytes of data from $pbench_run/$pbench_run_name"
+    echo $result_size | pbench-add-metalog-option ${mdlog} run raw_size
 
     # Create a temp directory $tmp/$controller to contain the tarball
     # and the md5 file (as ${tb}.tar.xz.md5.check). Copy the directory

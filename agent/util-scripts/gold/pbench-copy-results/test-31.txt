@@ -295,7 +295,7 @@ tar --create --force-local "pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] preparing to copy 5 MB of data from /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] preparing to copy ##### bytes of data from /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] successfully copied 1 runs, encountered 0 failures
 --- pbench.log file contents
 +++ test-execution.log file contents
@@ -344,6 +344,7 @@ start_run = 2018-05-23T03:21:32.387628370
 end_run = 2018-05-23T03:22:39.538437410
 user = ndk
 prefix = foo/bar
+raw_size = #####
 
 [iterations/1]
 iteration_name = 1
