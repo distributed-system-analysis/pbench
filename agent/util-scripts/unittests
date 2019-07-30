@@ -140,7 +140,9 @@ function _verify_output {
     tscrpt=$3
     expected_status=${4:-0}
     # fix up any pids that have snuck into the output.
-    sed 's;tmp/\([a-z-]*\).[0-9][0-9]*;tmp/\1.NNNNN;g' $_testout |
+    sed -e 's;tmp/\([a-z-]*\).[0-9][0-9]*;tmp/\1.NNNNN;g' \
+        -e 's;raw_size = [0-9][0-9]*;raw_size = #####;g' \
+        -e 's;copy [0-9][0-9]* bytes;copy ##### bytes;g' $_testout |
         diff -c $_tdir/gold/${tscrpt}/${tname}.txt -
     if [[ $? -gt 0 ]]; then
         echo "FAIL - $tname"
