@@ -277,7 +277,7 @@ class RunComparison extends React.Component {
     const expandedRowRender = cluster => {
       const expandedColumns = [
         {
-          title: 'iteration_names',
+          title: 'iteration_name',
           dataIndex: 'iteration_name',
           key: 'iteration_name',
         },

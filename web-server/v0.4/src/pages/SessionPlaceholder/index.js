@@ -3,16 +3,19 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Spin } from 'antd';
 
-@connect(() => ({}))
+@connect(({ global }) => ({
+  datastoreConfig: global.datastoreConfig,
+}))
 class SessionPlaceholder extends React.Component {
   componentDidMount = () => {
-    const { dispatch } = this.props;
+    const { dispatch, datastoreConfig } = this.props;
     const path = window.location.href;
     const id = path.substring(path.lastIndexOf('/') + 1);
     dispatch({
       type: 'dashboard/fetchSharedConfig',
       payload: {
         id,
+        datastoreConfig,
       },
     }).then(config => {
       dispatch(routerRedux.push(config.routing.location.pathname));

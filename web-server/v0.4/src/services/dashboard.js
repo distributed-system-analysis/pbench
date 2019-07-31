@@ -118,9 +118,9 @@ export async function queryTocResult(params) {
 }
 
 export async function querySharedConfig(params) {
-  const { id } = params;
-  return request.post('http://localhost:4466/',
-    {data: {
+  const { id, datastoreConfig } = params;
+  return request.post(datastoreConfig.graphql, {
+    data: {
       query: `
         query($id: ID!) {
             url(where: {id: $id}) {
