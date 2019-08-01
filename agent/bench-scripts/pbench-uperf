@@ -445,7 +445,6 @@ else
 fi
 # we'll record the iterations in this file
 benchmark_iterations="${benchmark_run_dir}/.iterations"
-> ${benchmark_iterations}
 mdlog=${benchmark_run_dir}/metadata.log
 
 function record_iteration {
@@ -466,6 +465,10 @@ function record_iteration {
 }
 
 mkdir -p $benchmark_run_dir/.running
+
+# now that the benchmark_run_dir directory exists, we can initialize the iterations file
+> ${benchmark_iterations}
+
 # save a copy of the command, in case the test needs to be reproduced or post-processed again
 echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
 chmod +x $benchmark_run_dir/$script_name.cmd
