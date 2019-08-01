@@ -339,6 +339,9 @@ benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
 
 mkdir -p ${benchmark_run_dir}/.running
 
+# now that the benchmark_run_dir directory exists, we can initialize the iterations file
+> ${benchmark_iterations}
+
 loops=$round_trips
 if [ $loops -eq 0 ]; then
 	loops=1

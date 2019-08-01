@@ -270,6 +270,10 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
+# now that the benchmark_run_dir directory exists, we can initialize the iterations file
+> ${benchmark_iterations}
+
+
 pbench-register-tool-trigger --group=$tool_group --start-trigger="Timing Measurement began" --stop-trigger="Timing Measurement ended"
 
 # Collect system information before we begin, and record the beginning.

@@ -121,11 +121,14 @@ benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 export benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 benchmark_summary_txt_file="$benchmark_run_dir/$benchmark-summary.txt"
 benchmark_summary_html_file="$benchmark_run_dir/$benchmark-summary.html"
+benchmark_iterations="${benchmark_run_dir}/.iterations"
 
 mkdir -p ${benchmark_run_dir}/.running
 
+# now that the benchmark_run_dir directory exists, we can initialize the iterations file
+> ${benchmark_iterations}
+
 iteration=1-$threads-threads
-benchmark_iterations="${benchmark_run_dir}/.iterations"
 echo $iteration >> $benchmark_iterations
 benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
 result_file=$benchmark_results_dir/result.txt
