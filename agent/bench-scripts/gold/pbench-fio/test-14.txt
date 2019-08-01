@@ -87,8 +87,6 @@ The following options are available:
 --- Finished test-14 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-14_1900.01.01T00.00.00
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-14_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
 /var/tmp/pbench-test-bench/pbench-agent/tools-default
@@ -102,6 +100,3 @@ The following options are available:
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
 --- test-execution.log file contents
-+++ fio_test-14_1900.01.01T00.00.00/metadata.log file contents
-[pbench]
---- fio_test-14_1900.01.01T00.00.00/metadata.log file contents

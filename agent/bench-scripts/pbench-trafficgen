@@ -42,7 +42,7 @@ trafficgen_dir="/opt/lua-trafficgen"
 traffic_generator="trex-txrx" # can be either trex-txrx or moongen-txrx
 trex_use_ht="n"
 trex_use_l2="n"
-benchmark_run_dir=""
+export benchmark_run_dir=""
 traffic_directions="bidirectional"
 max_loss_pcts="0.002"
 num_flows="1024"
@@ -884,6 +884,7 @@ else
 	fi
 	benchmark_fullname=$(basename $benchmark_run_dir)
 fi
+
 # we'll record the iterations in this file
 benchmark_iterations="${benchmark_run_dir}/.iterations"
 > ${benchmark_iterations}
