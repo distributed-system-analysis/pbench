@@ -184,6 +184,11 @@ sub metadata_log_end_run {
         $iteration_names = $iteration_names . "," . $iteration_names[$i];
     }
     $iteration_names =~ s/^,//;
+
+    my $benchmark_run_name = $benchmark_run_dir;
+    $benchmark_run_name =~ s/.*\///g;
+
+    system("echo " . $benchmark_run_name . " | pbench-add-metalog-option " . $mdlog . " pbench name");
     system("echo " . $iteration_names  . " | pbench-add-metalog-option " . $mdlog . " pbench iterations");
     system("echo " . $config  . " | pbench-add-metalog-option " . $mdlog . " pbench config");
     system("echo " . $benchmark_name  . " | pbench-add-metalog-option " . $mdlog . " pbench script");
