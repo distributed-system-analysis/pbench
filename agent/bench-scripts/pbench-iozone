@@ -178,6 +178,10 @@ benchmark_iterations="${benchmark_run_dir}/.iterations"
 benchmark_summary_file="$benchmark_run_dir/$benchmark-summary.txt"
 
 mkdir -p $benchmark_run_dir/.running
+
+# now that the benchmark_run_dir directory exists, we can initialize the iterations file
+> ${benchmark_iterations}
+
 export benchmark config
 pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg

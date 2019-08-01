@@ -131,6 +131,10 @@ if [ ! -z "$cpu" ]; then
 fi
 
 mkdir -p $benchmark_run_dir/.running
+
+# now that the benchmark_run_dir directory exists, we can initialize the iterations file
+> ${benchmark_iterations}
+
 printf "# these results generated with:\n# %s\n\n" "$script_name $orig_cmd" >$benchmark_summary_txt_file
 printf "%20s%20s%20s%20s\n" "iteration" "min" "avg" "max" >>$benchmark_summary_txt_file
 printf "\n" >>$benchmark_summary_txt_file

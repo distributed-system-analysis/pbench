@@ -295,6 +295,10 @@ if [ "$postprocess_only" != "y" ]; then
 fi
 
 mkdir -p $benchmark_run_dir/.running
+
+# now that the benchmark_run_dir directory exists, we can initialize the iterations file
+> ${benchmark_iterations}
+
 benchmark_summary_txt_file="$benchmark_run_dir/summary-result.txt"
 rm -f $benchmark_summary_txt_file
 benchmark_summary_csv_file="$benchmark_run_dir/summary-result.csv"
