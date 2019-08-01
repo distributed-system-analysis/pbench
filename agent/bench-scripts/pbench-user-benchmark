@@ -128,7 +128,7 @@ benchmark_run_dir="$pbench_run/${benchmark_fullname}"
 
 # we'll record the iterations in this file
 benchmark_iterations="${benchmark_run_dir}/.iterations"
-> ${benchmark_iterations}
+
 mdlog=${benchmark_run_dir}/metadata.log
 
 # make the run dir available to the user script
@@ -136,6 +136,9 @@ export benchmark_run_dir
 benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
 mkdir -p $benchmark_results_dir/.running
 export benchmark_results_dir=$benchmark_results_dir
+
+# now that the benchmark_run_dir directory exists, we can initialize the iterations file
+> ${benchmark_iterations}
 
 # For now, since we usually only ever run one iteration here, don't bother
 # collecting sysinfo data before and after, just do it after.
