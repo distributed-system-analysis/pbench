@@ -90,8 +90,6 @@ The following options are available:
 --- Finished test-21 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-21_1900.01.01T00.00.00
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-21_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
 /var/tmp/pbench-test-bench/pbench-agent/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
@@ -103,6 +101,3 @@ grep: /var/tmp/pbench-test-bench/pbench-agent/pbench.log: No such file or direct
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
 --- test-execution.log file contents
-+++ fio_test-21_1900.01.01T00.00.00/metadata.log file contents
-[pbench]
---- fio_test-21_1900.01.01T00.00.00/metadata.log file contents

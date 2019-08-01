@@ -32145,8 +32145,6 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
-/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-22_1900.01.01T00.00.00
-/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-22_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench-agent/trex_cfg.yaml
 --- pbench tree state
 +++ pbench.log file contents
@@ -32175,6 +32173,3 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent beg
 /var/tmp/pbench-test-bench/test-execution.log:/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent end
 --- test-execution.log file contents
-+++ trafficgen_test-22_1900.01.01T00.00.00/metadata.log file contents
-[pbench]
---- trafficgen_test-22_1900.01.01T00.00.00/metadata.log file contents

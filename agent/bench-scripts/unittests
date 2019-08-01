@@ -130,10 +130,11 @@ function _dump_logs {
     _dump_file ${1} user-benchmark-summary.json
     _dump_file ${1} user-benchmark.cmd
     (
-    cd ${_testdir}/${1}
-    for f in $(find . -name results.html 2> /dev/null | sort); do
-        _dump_file ${1} ${f}
-    done
+    if cd ${_testdir}/${1} > /dev/null 2>&1 ;then
+        for f in $(find . -name results.html 2> /dev/null | sort); do
+            _dump_file ${1} ${f}
+        done
+    fi
     )
 }
 
@@ -196,14 +197,6 @@ function _setup_state {
         exit 1
     fi
     cp -a $_tdir/sample-tools/tools-default $_testdir/
-    if [[ ! -z "$1" ]] ;then
-        mkdir -p $_testdir/$1
-	if [[ $? -gt 0 ]]; then
-	    echo "ERROR: failed to create pbench result directory, \"$_testdir/$1\"" >&2
-	    exit 1
-	fi
-        echo [pbench] > $_testdir/$1/metadata.log
-    fi
     mkdir ${_testtmp}
     if [[ $? -gt 0 ]]; then
         echo "ERROR: failed to create tmp directory, \"$_testtmp\"" >&2
