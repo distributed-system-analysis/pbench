@@ -1,4 +1,4 @@
-# Created 2019-07-17 Wed 21:43
+# Created 2019-08-01 Thu 16:46
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,87 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+* Version 0.63
+
+We have a [[https://github.com/distributed-system-analysis/pbench/blob/master/media/full-color.png][logo]]!
+
+This is an *agent-only* release.
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.63-1g92746e14
+of the pbench-agent RPM installed.
+
+
+** agent
+
+The main change to the agent is the move to python3: all python
+scripts now explicitly require python3. In environments other than
+RHEL7 python3 is provided natively, whereas in RHEL7 it is provided by
+SCL, but that is invisible to pbench users.
+
+One implication of the move to python3 is that RHEL6 will be even less
+well supported than it has been up to now: at the moment, both the
+pbench-sysstat package and the configtools package are broken on
+RHEL6. The move to python3 is going to accelerate that trend. Our
+current plan is to fix the existing problems to allow v0.62 to be a
+working version of pbench-agent for RHEL6, but it will be the last
+working version on RHEL6: people will still be able to run benchmarks;
+they just won't be able to run the latest bits. If there are specific
+bug fixes that might make sense to backport, we might do that as time
+permits.
+
+The ~pbench-moongen~ script has been now removed from the tree, as
+previously announced. See the release notes for v0.62 for more
+details.
+
+** server                                                          :external:
+This is an agent-only release. There are no new server RPMs produced.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.63
+:END:
+
+This is an agent-only release. There are no new web-server RPMs produced.
+
+** Changelog
+This is the list of visible commits since v0.62:
+
+- 92746e145 Fix the rest of the bench scripts.
+- 629d5140d Create the iterations file after benchmark_run_dir is created.
+- 781f5ff35 Fix bench-scripts/unittests to *not* create the benchmark run dir.
+- dbf945e12 PbenchCDM.pm: bugfix
+- 59fe7444a pbench-run-benchmark: variable scope bugfix
+- 92b18dcbe pbench-gen-iterations: introduce concept of iparams
+- 852685edd pbench-gen-iterations: sort parameter keys to ensure consistent ordering of iteration arguments
+- 8b7ca55d0 Version bump: v0.63
+- ec328c4f9 fio-postprocess-cdm: fix syntax error
+- aa534255b move .iterations files to pbench run directory
+- 244d164ee removed broken link in readme
+- b1056e4c2 Update eslint-config-prettier version
+- b97b011a3 Resolve e2e tests on dashboard entrypoints
+- 3846567d2 Remove moongen.
+- 9598052f7 Move pbench-agent to python3
+- 8eb17c542 Remove needless missing file output for util-scripts
+- c47b1f045 Add ability to test fio-postprocess-viz.py
+- 2630fa82e Refactor to fix and clean up prom-met-pp
+- e4835f460 Add datalog unit tests; fix prometheus-metrics
+- 6f9d4b6ac Add path analyzer for indexing ToC data
+- 6563b0fff resolve time inconsistency issue
+- 4a925c299 pbench with insights data collection updated
+- 4725244ed pbench with insights data collection
+- 1a31e31cf Create local storage key via window pathname to maintain unique dashboard deployments across one host
+- b0379a933 Render new pbench logo with SiderMenu component and replace favicon
+- d1b59d3f9 Add official pbench logs from Mary Shakshober
+
 
 * Version 0.62
 
@@ -122,11 +203,13 @@ This is the list of visible commits since v0.60:
 - 3424a8f1 Restore creation of pbench_run directory
 - fbecac01 Fix collection of sosreports to recognize tb names
 
+
 * Version 0.61
 
 This was never officially released because we found problems during testing.
 We instead added the small number of necessary fixes and will release version
 0.62 directly.
+
 
 * Version 0.60
 
