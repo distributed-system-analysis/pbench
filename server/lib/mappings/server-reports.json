@@ -2,12 +2,15 @@
     "pbench-server-reports": {
         "_all" : {"enabled" : false},
         "_meta": {
-            "version": "1"
+            "version": "2"
         },
         "date_detection": false,
         "properties": {
             "@timestamp": {
                 "type": "date"
+            },
+            "chunk_id": {
+                "type": "integer"
             },
             "doctype": {
                 "type": "string",
@@ -19,6 +22,12 @@
             },
             "text": {
                 "type": "string"
+            },
+            "total_chunks": {
+                "type": "integer"
+            },
+            "total_size": {
+                "type": "integer"
             }
         }
     }

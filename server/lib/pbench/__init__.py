@@ -257,19 +257,44 @@ class PbenchConfig(object):
         return ts
 
 
-def _gen_json_payload(file_to_index, timestamp, name, doctype):
-    with open(file_to_index, "r") as fp:
-        text = fp.read()
+def _make_json_payload(text, timestamp, name, doctype, chunk_id,
+            number_of_chunks, total_size):
+    """Given a text block, and related metadata, format JSON payload.
+    """
     source = {
         "@timestamp": timestamp,
         "name": name,
         "doctype": doctype,
+        "chunk_id": chunk_id,
+        "total_chunks": number_of_chunks,
+        "total_size": total_size,
         "text": text
     }
     the_bytes = json.dumps(source, sort_keys=True).encode('utf-8')
     source_id = hashlib.md5(the_bytes).hexdigest()
-    return source, source_id, the_bytes.decode('utf-8'), len(the_bytes)
+    return source, source_id, the_bytes.decode('utf-8')
 
+# We set the chunk size to 50 MB which is half the maximum payload size that
+# Elasticsearch typically handles.
+_CHUNK_SIZE = 50 * 1024 * 1024
+
+def _gen_json_payload(file_to_index, timestamp, name, doctype):
+    """Generate a series of JSON documents to be indexed, where the text payload
+    has a maximum size of 50 MB.
+    """
+    total_size = os.path.getsize(file_to_index)
+    number_of_chunks = int(math.ceil(total_size / _CHUNK_SIZE))
+    chunk_id = 0
+    with open(file_to_index, "r") as fp:
+        EOF = False
+        while not EOF:
+            chunk_id += 1
+            text = fp.read(_CHUNK_SIZE)
+            if not text:
+                EOF = True
+            else:
+                yield _make_json_payload(text, timestamp, name, doctype,
+                        chunk_id, number_of_chunks, total_size)
 
 def md5sum(filename):
     """
@@ -323,22 +348,25 @@ def report_status(es, logger, LOGSDIR, idx_prefix, name, timestamp, doctype, fil
         # Snip off the trailing "-<TZ>" - assumes that <TZ> does not contain a "-"
         timestamp_noutc = timestamp.rsplit('-', 1)[0]
 
-        source, source_id, the_bytes, the_bytes_len = _gen_json_payload(
-            file_to_index, timestamp_noutc, name, doctype)
+        payload_gen = _gen_json_payload(file_to_index, timestamp_noutc, name,
+                doctype)
 
         if es is None:
             # We don't have an Elasticsearch configuration, use syslog only.
 
             # Prepend the proper sequence to allow rsyslog to recognize JSON and
-            # process it
+            # process it. We only use the first chunk generated.
+            _, _, the_bytes = next(payload_gen)
             payload = "@cee:{}".format(the_bytes)
             if len(payload) > 4096:
                 # Compress the full message to a file.
                 # xz -9 -c ${tmp}/payload > $LOGSDIR/$name/${prog}-payload.${timestamp%-*}.xz
-                fname = "report-status-payload.{}.xz".format(timestamp_noutc)
+                fname = "report-status-payload.{}.{}.xz".format(name, timestamp_noutc)
                 fpath = os.path.join(LOGSDIR, name, fname)
                 with lzma.open(fpath, mode="w", preset=9) as fp:
-                    f.write(payload)
+                    f.write(the_bytes)
+                    for _, _, the_bytes in payload_gen:
+                        f.write(the_bytes)
             # Always log the first 4,096 bytes
             logger.info("{}", payload[:4096])
         else:
@@ -347,16 +375,19 @@ def report_status(es, logger, LOGSDIR, idx_prefix, name, timestamp, doctype, fil
             # Snip off the time part of the timestamp to get YYYY-MM for the
             # index name.
             datestamp = timestamp_noutc.rsplit('-', 1)[0]
-
-            idx_name = "{}-server-reports.{}".format(idx_prefix, datestamp)
-            action = {
-                "_op_type": _op_type,
-                "_index": idx_name,
-                "_type": 'pbench-server-reports',
-                "_id": source_id,
-                "_source": source
-                }
-            es_res = es_index(es, [ action ], sys.stderr, logger)
+            def _es_payload_gen(_payload_gen):
+                for source, source_id, _ in _payload_gen:
+                    idx_name = "{}.server-reports.{}".format(idx_prefix, datestamp)
+                    action = {
+                        "_op_type": _op_type,
+                        "_index": idx_name,
+                        "_type": 'pbench-server-reports',
+                        "_id": source_id,
+                        "_source": source
+                    }
+                    yield action
+            es_res = es_index(es, _es_payload_gen(payload_gen), sys.stderr,
+                    logger)
             beg, end, successes, duplicates, failures, retries = es_res
             do_log = logger.info if successes == 1 else logger.warning
             do_log("posted status (end ts: {}, duration: {:.2f}s,"

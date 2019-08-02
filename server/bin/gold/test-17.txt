@@ -1,36 +1,42 @@
 +++ Running pbench-unpack-tarballs
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "7ba051dcb227f2bbbcf585d0807315d8",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "5cf4732d563c131f1bf373b60b60db4f",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-unpack-tarballs",
-            "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 1 errors\nProcessed 5 result tar balls, 3 successfully, 0 warnings, 1 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist\n"
+            "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 1 errors\nProcessed 5 result tar balls, 3 successfully, 0 warnings, 1 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist\n",
+            "total_chunks": 1,
+            "total_size": 364
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "c035b87db9c8fe6cfc65f199b59fb9e7",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "3268947b7d40af36d1fd956d5e70926c",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
         },
         "_type": "pbench-server-reports"
     }

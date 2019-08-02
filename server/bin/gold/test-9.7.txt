@@ -1,36 +1,42 @@
 +++ Running pbench-verify-backup-tarballs
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "7855c78dd1d749ba8d6472e0515c0f7b",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "5ba9127ad9215a1954d9f696acbdc115",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\ncontroller/1-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in S3 but not in ARCHIVE\ncontroller/2-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in S3 but not in ARCHIVE\ncontroller/3-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in S3 but not in ARCHIVE\ncontroller/4-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in S3 but not in ARCHIVE\ncontroller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in ARCHIVE but not in S3\n"
+            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\ncontroller/1-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in S3 but not in ARCHIVE\ncontroller/2-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in S3 but not in ARCHIVE\ncontroller/3-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in S3 but not in ARCHIVE\ncontroller/4-pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in S3 but not in ARCHIVE\ncontroller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in ARCHIVE but not in S3\n",
+            "total_chunks": 1,
+            "total_size": 565
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-verify-backup-tarballs (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "b38575bbb86c439faa895a79b4f0a601",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "d7f3347b6f4b2e4a19e6a85e4876c778",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.7/pbench/archive/fs-version-001\n\nController: controller\n\t* No state directories found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.7/pbench/archive/fs-version-001\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.7/pbench/archive/fs-version-001\n\nController: controller\n\t* No state directories found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.7/pbench/archive/fs-version-001\n",
+            "total_chunks": 1,
+            "total_size": 377
         },
         "_type": "pbench-server-reports"
     }

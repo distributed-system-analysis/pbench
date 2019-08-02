@@ -1,36 +1,42 @@
 +++ Running pbench-satellite-cleanup
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "9c76a51432307ad14a65c62b295d3e00",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "9667904a3e33bb6b1fd373abd70243fb",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-satellite-cleanup",
-            "text": "pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors\nTotal 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n"
+            "text": "pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors\nTotal 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n",
+            "total_chunks": 1,
+            "total_size": 274
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-satellite-cleanup (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "ced78d3e069822a8dc33f2cd15d8b23c",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "287e5f8e0f82406e1ec93cb4199149e6",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\nController: controller-a\n\t* No tar ball files found in this controller directory.\n\nController: controller-b\n\t* No tar ball files found in this controller directory.\n\nController: controller-c\n\t* No tar ball files found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\n\nstart-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\nControllers which are empty:\n\tcontroller-a\n\tcontroller-c\n\nend-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\n\nstart-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n\nControllers which are empty:\n\tcontroller-a\n\nResults issues for controller: controller-c\n\tEmpty tar ball directories:\n\t\tdirA/dirB\n\nend-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\nController: controller-a\n\t* No tar ball files found in this controller directory.\n\nController: controller-b\n\t* No tar ball files found in this controller directory.\n\nController: controller-c\n\t* No tar ball files found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\n\nstart-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\nControllers which are empty:\n\tcontroller-a\n\tcontroller-c\n\nend-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\n\nstart-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n\nControllers which are empty:\n\tcontroller-a\n\nResults issues for controller: controller-c\n\tEmpty tar ball directories:\n\t\tdirA/dirB\n\nend-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n",
+            "total_chunks": 1,
+            "total_size": 1186
         },
         "_type": "pbench-server-reports"
     }

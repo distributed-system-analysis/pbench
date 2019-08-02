@@ -75,7 +75,7 @@ drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--        147 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        591 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--        696 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -141,8 +141,8 @@ run-1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
 ----- pbench-dispatch/pbench-dispatch.log
 +++++ pbench-report-status/pbench-report-status.log
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- @cee:{"@timestamp": "1900-01-01T00:00:00", "doctype": "status", "name": "pbench-dispatch", "text": "pbench-dispatch.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates\n\n"}
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- @cee:{"@timestamp": "1900-01-01T00:00:00", "doctype": "status", "name": "pbench-audit-server", "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"}
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- @cee:{"@timestamp": "1900-01-01T00:00:00", "chunk_id": 1, "doctype": "status", "name": "pbench-dispatch", "text": "pbench-dispatch.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates\n\n", "total_chunks": 1, "total_size": 160}
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- @cee:{"@timestamp": "1900-01-01T00:00:00", "chunk_id": 1, "doctype": "status", "name": "pbench-audit-server", "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n", "total_chunks": 1, "total_size": 59}
 ----- pbench-report-status/pbench-report-status.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

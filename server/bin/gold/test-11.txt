@@ -1,19 +1,22 @@
 +++ Running pbench-sync-satellite
 --- Finished pbench-sync-satellite (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "c035b87db9c8fe6cfc65f199b59fb9e7",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "3268947b7d40af36d1fd956d5e70926c",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
         },
         "_type": "pbench-server-reports"
     }
@@ -141,7 +144,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC
 -rw-rw-r--         36 logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controller/ok-checks.log
 -rw-rw-r--          0 logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/mv.log
 -rw-rw-r--        218 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--       1926 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--       2015 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -243,19 +246,22 @@ md5sum: WARNING: 1 computed checksum did NOT match
 run-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC: duration (secs): 0
 run-1900-01-01T00:00:00-UTC: Total 2 files processed, with 1 md5 failures and 0 errors
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "964ce2b07fee521dc44d9668f1144653",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "05dba8a1fd23beca7e9db09156a22497",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-sync-satellite",
-            "text": "pbench-sync-satellite.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 2 files, with 1 md5 failures and 0 errors.\n\nrun-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC\npbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-11/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: duration (secs): 0\nrun-1900-01-01T00:00:00-UTC: Total 2 files processed, with 1 md5 failures and 0 errors\n"
+            "text": "pbench-sync-satellite.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 2 files, with 1 md5 failures and 0 errors.\n\nrun-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC\npbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-11/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: duration (secs): 0\nrun-1900-01-01T00:00:00-UTC: Total 2 files processed, with 1 md5 failures and 0 errors\n",
+            "total_chunks": 1,
+            "total_size": 848
         },
         "_type": "pbench-server-reports"
     }

@@ -1,36 +1,42 @@
 +++ Running pbench-backup-tarballs
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "89a6b3907303d7f7cc254d764aa17c76",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "b0617e6c080038b0d5b64fba80f62cd1",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-backup-tarballs",
-            "text": "pbench-backup-tarballs.py.1900-01-01T00:00:00-UTC(unit-test)\nTotal processed: 1, Local backup successes: 1, Local backup failures: 0, S3 upload successes: 1, SE upload too large: 0, S3 upload failures: 0, Quarantined: 0\n"
+            "text": "pbench-backup-tarballs.py.1900-01-01T00:00:00-UTC(unit-test)\nTotal processed: 1, Local backup successes: 1, Local backup failures: 0, S3 upload successes: 1, SE upload too large: 0, S3 upload failures: 0, Quarantined: 0\n",
+            "total_chunks": 1,
+            "total_size": 220
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-backup-tarballs (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "c035b87db9c8fe6cfc65f199b59fb9e7",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "3268947b7d40af36d1fd956d5e70926c",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
         },
         "_type": "pbench-server-reports"
     }
