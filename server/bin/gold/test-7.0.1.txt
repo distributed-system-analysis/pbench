@@ -636,7 +636,7 @@ Template: pbench-unittests.v1.run
                     "pattern": ",",
                     "type": "pattern"
                 },
-                "path-tokenizer": {
+                "path_tokenizer": {
                     "type": "path_hierarchy"
                 }
             }
