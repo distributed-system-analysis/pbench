@@ -1,36 +1,42 @@
 +++ Running pbench-verify-backup-tarballs
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "34eb2bddaa7c57d2a9934687c850afec",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "fff8a10027f9a5c45e116d1464a97590",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\ncontroller/fio__2016-08-16_22:03:11.tar.xz: present in ARCHIVE but not in S3\ncontroller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in ARCHIVE but not in S3\n"
+            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\ncontroller/fio__2016-08-16_22:03:11.tar.xz: present in ARCHIVE but not in S3\ncontroller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in ARCHIVE but not in S3\n",
+            "total_chunks": 1,
+            "total_size": 246
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-verify-backup-tarballs (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "48faa1075b45cbfd2094aa2b3ffd54b8",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "a108e9ff2218368a0f0f2730b096b2ad",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.1/pbench/archive/fs-version-001\n\nController: controller\n\t* No state directories found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.1/pbench/archive/fs-version-001\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.1/pbench/archive/fs-version-001\n\nController: controller\n\t* No state directories found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.1/pbench/archive/fs-version-001\n",
+            "total_chunks": 1,
+            "total_size": 377
         },
         "_type": "pbench-server-reports"
     }

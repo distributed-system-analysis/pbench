@@ -652,61 +652,6 @@ Template: pbench-unittests.v1.run
 
 
 
-Template: pbench-unittests.v1.server-reports
-
-{
-    "mappings": {
-        "pbench-server-reports": {
-            "_all": {
-                "enabled": false
-            },
-            "_meta": {
-                "version": "1"
-            },
-            "date_detection": false,
-            "properties": {
-                "@timestamp": {
-                    "type": "date"
-                },
-                "doctype": {
-                    "index": "not_analyzed",
-                    "type": "string"
-                },
-                "name": {
-                    "index": "not_analyzed",
-                    "type": "string"
-                },
-                "text": {
-                    "type": "string"
-                }
-            }
-        }
-    },
-    "settings": {
-        "analysis": {
-            "analyzer": {
-                "comma_analyzer": {
-                    "tokenizer": "comma_tokenizer"
-                }
-            },
-            "tokenizer": {
-                "comma_tokenizer": {
-                    "pattern": ",",
-                    "type": "pattern"
-                }
-            }
-        },
-        "index": {
-            "query": {
-                "default_field": "text"
-            }
-        }
-    },
-    "template": "pbench-unittests.v1.server-reports.*"
-}
-
-
-
 Template: pbench-unittests.v1.tool-data-iostat
 
 {
@@ -3028,21 +2973,88 @@ Template: pbench-unittests.v1.tool-data-vmstat
     "template": "pbench-unittests.v1.tool-data-vmstat.*"
 }
 
+
+
+Template: pbench-unittests.v2.server-reports
+
+{
+    "mappings": {
+        "pbench-server-reports": {
+            "_all": {
+                "enabled": false
+            },
+            "_meta": {
+                "version": "2"
+            },
+            "date_detection": false,
+            "properties": {
+                "@timestamp": {
+                    "type": "date"
+                },
+                "chunk_id": {
+                    "type": "integer"
+                },
+                "doctype": {
+                    "index": "not_analyzed",
+                    "type": "string"
+                },
+                "name": {
+                    "index": "not_analyzed",
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "total_chunks": {
+                    "type": "integer"
+                },
+                "total_size": {
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "comma_analyzer": {
+                    "tokenizer": "comma_tokenizer"
+                }
+            },
+            "tokenizer": {
+                "comma_tokenizer": {
+                    "pattern": ",",
+                    "type": "pattern"
+                }
+            }
+        },
+        "index": {
+            "query": {
+                "default_field": "text"
+            }
+        }
+    },
+    "template": "pbench-unittests.v2.server-reports.*"
+}
+
 --- Finished pbench-index (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "c035b87db9c8fe6cfc65f199b59fb9e7",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "3268947b7d40af36d1fd956d5e70926c",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
         },
         "_type": "pbench-server-reports"
     }

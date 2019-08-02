@@ -45,7 +45,7 @@ _NAME_ = "pbench-index"
 # generated those documents.  In turn, this can help us fix indexing problems
 # via re-indexing data with transformations based on the version of the code
 # that generated the documents.
-_VERSION_ = "1.0.0"
+_VERSION_ = "2.0.0"
 
 # Internal debugging flag.
 _DEBUG = 0
@@ -3129,9 +3129,11 @@ def main(options):
         # Exit early if we encounter any errors.
         return res
 
-    with tempfile.TemporaryDirectory(prefix="pbench-index.", dir=idxctx.config.TMP) as tmpdir:
+    with tempfile.TemporaryDirectory(prefix="{}.".format(_NAME_),
+                dir=idxctx.config.TMP) as tmpdir:
+        tb_list = os.path.join(tmpdir, "{}.{}.list".format(_NAME_, idxctx.TS))
         try:
-            with open(os.path.join(tmpdir, "{}.{}.list".format(_NAME_, idxctx.TS)), "w") as lfp:
+            with open(tb_list, "w") as lfp:
                 # Write out all the tar balls we are processing so external
                 # viewers can follow along from home.
                 for size, tb in tarballs:
@@ -3213,10 +3215,15 @@ def main(options):
                 else:
                     # Success fetching indexing error file size.
                     if ie_len > len(tb) + 1:
-                        report_status(idxctx.es, idxctx.logger,
-                                idxctx.config.LOGSDIR, idxctx.idx_prefix,
-                                '.'.join(_NAME_, "errors"), tstos(end),
-                                "status", ie_filename)
+                        try:
+                            report_status(idxctx.es, idxctx.logger,
+                                    idxctx.config.LOGSDIR, idxctx.idx_prefix,
+                                    '.'.join([_NAME_, "errors"]), tstos(end),
+                                    "status", ie_filename)
+                        except Exception:
+                            idxctx.logger.exception("Unexpected error issuing"
+                                    " report status with errors: {}",
+                                     ie_filename)
                 finally:
                     # Unconditionally remove the indexing errors file.
                     try:

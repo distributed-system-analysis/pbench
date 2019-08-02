@@ -1,36 +1,42 @@
 +++ Running pbench-server-prep-shim-001
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "03730a5d82896d4f98f72683615725fc",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "db5d90b833fa5469a87a8820289a3896",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-server-prep-shim-001",
-            "text": "run-1900-01-01T00:00:00-UTC: readlink -e /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-a-bad-link/TODO/tarball-00_YYYY.MM.DDTHH.MM.SS.tar.xz failed: 1\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 7 entries, 3 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 1 errors.\n"
+            "text": "run-1900-01-01T00:00:00-UTC: readlink -e /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-a-bad-link/TODO/tarball-00_YYYY.MM.DDTHH.MM.SS.tar.xz failed: 1\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 7 entries, 3 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 1 errors.\n",
+            "total_chunks": 1,
+            "total_size": 956
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-server-prep-shim-001 (status=1)
 +++ Running pbench-server-prep-shim-002
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "d3066737df64eb4d1ca7e3eeccb57e3a",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "b43b99ea2a58896710ea4758ce340109",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-server-prep-shim-002",
-            "text": "run-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 3 entries, 1 tarballs successful, 1 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.\n"
+            "text": "run-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 3 entries, 1 tarballs successful, 1 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.\n",
+            "total_chunks": 1,
+            "total_size": 331
         },
         "_type": "pbench-server-reports"
     }
@@ -39,76 +45,88 @@ len(actions) = 1
 +++ Running pbench-sync-satellite
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "43b5214ee6c840a6989ffb0a202689c0",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "c9fda5e655838aee5a686c6921109e86",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-dispatch",
-            "text": "pbench-dispatch.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 2 errors\nProcessed 10 result tar balls, 7 successfully (0 partial), with 2 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/TODO/tarball-that-does-not-exist_YYYY.MM.DDTHH.MM.SS.tar.xz does not exist\nrun-1900-01-01T00:00:00-UTC: MD5 check of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-h-bad-md5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz failed for /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-h-bad-md5/TODO/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz\n"
+            "text": "pbench-dispatch.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 2 errors\nProcessed 10 result tar balls, 7 successfully (0 partial), with 2 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-d-duplicate/TODO/tarball-that-does-not-exist_YYYY.MM.DDTHH.MM.SS.tar.xz does not exist\nrun-1900-01-01T00:00:00-UTC: MD5 check of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-h-bad-md5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz failed for /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-h-bad-md5/TODO/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz\n",
+            "total_chunks": 1,
+            "total_size": 694
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-dispatch (status=0)
 +++ Running pbench-unpack-tarballs
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "f896529e32a999291eaa259c50420695",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "6cf3f985bead14580feb9096107ff1ba",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-unpack-tarballs",
-            "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 7 result tar balls, 7 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n"
+            "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 7 result tar balls, 7 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 162
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-move-unpacked
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "39dd07a67d07d5009022dd18b9e3ff0a",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "17b7add5b23ea80dbb82a49268a52dea",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-move-unpacked",
-            "text": "pbench-move-unpacked.run-1900-01-01T00:00:00-UTC(unit-test) - 7 tar balls\nProcessed 7 result tar balls\n\n"
+            "text": "pbench-move-unpacked.run-1900-01-01T00:00:00-UTC(unit-test) - 7 tar balls\nProcessed 7 result tar balls\n\n",
+            "total_chunks": 1,
+            "total_size": 104
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-move-unpacked (status=0)
 +++ Running pbench-copy-sosreports
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "3f33249f2b0c05bbc1d2153344e7084c",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "ae766aae5483bbb21f5347aaa1017085",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-copy-sosreports",
-            "text": "pbench-copy-sosreports.run-1900-01-01T00:00:00-UTC(unit-test)\nProcessed 0 sosreports for 7 results directories with 0 errors\n"
+            "text": "pbench-copy-sosreports.run-1900-01-01T00:00:00-UTC(unit-test)\nProcessed 0 sosreports for 7 results directories with 0 errors\n",
+            "total_chunks": 1,
+            "total_size": 125
         },
         "_type": "pbench-server-reports"
     }
@@ -117,7 +135,6 @@ len(actions) = 1
 +++ Running pbench-index
 Template:  pbench-unittests.v1.result-data
 Template:  pbench-unittests.v1.run
-Template:  pbench-unittests.v1.server-reports
 Template:  pbench-unittests.v1.tool-data-iostat
 Template:  pbench-unittests.v1.tool-data-mpstat
 Template:  pbench-unittests.v1.tool-data-pidstat
@@ -125,18 +142,22 @@ Template:  pbench-unittests.v1.tool-data-proc-interrupts
 Template:  pbench-unittests.v1.tool-data-proc-vmstat
 Template:  pbench-unittests.v1.tool-data-prometheus-metrics
 Template:  pbench-unittests.v1.tool-data-vmstat
-Index:  pbench-unittests-server-reports.1970-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "e0a1c4b9160e2121e7bea73993469ead",
-        "_index": "pbench-unittests-server-reports.1970-01",
+        "_id": "468653800886b427fe1019b8d15136dc",
+        "_index": "pbench-unittests.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index",
-            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 0 results, skipped 7 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/TO-INDEX/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/TO-INDEX/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/TO-INDEX/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/TO-INDEX/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz\n\n"
+            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 0 results, skipped 7 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/TO-INDEX/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/TO-INDEX/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/TO-INDEX/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\n\n/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/TO-INDEX/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 1115
         },
         "_type": "pbench-server-reports"
     }
@@ -147,38 +168,44 @@ len(actions) = 1
 +++ Running pbench-edit-prefixes
 --- Finished pbench-edit-prefixes (status=0)
 +++ Running pbench-backup-tarballs
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "b3cac4fb23c25b49be3978d95c2c0a89",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "1efe0af7546bd1f8a966aed7497339e7",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-backup-tarballs",
-            "text": "pbench-backup-tarballs.py.1900-01-01T00:00:00-UTC(unit-test)\nTotal processed: 8, Local backup successes: 8, Local backup failures: 0, S3 upload successes: 8, SE upload too large: 0, S3 upload failures: 0, Quarantined: 0\n"
+            "text": "pbench-backup-tarballs.py.1900-01-01T00:00:00-UTC(unit-test)\nTotal processed: 8, Local backup successes: 8, Local backup failures: 0, S3 upload successes: 8, SE upload too large: 0, S3 upload failures: 0, Quarantined: 0\n",
+            "total_chunks": 1,
+            "total_size": 220
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-backup-tarballs (status=0)
 +++ Running pbench-verify-backup-tarballs
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "7f89d9b20d621a1416994659d2993892",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "139c7d48c64ffb02d9339a9bda895845",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\nMD5 values don't match for: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\n"
+            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\nMD5 values don't match for: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\n",
+            "total_chunks": 1,
+            "total_size": 827
         },
         "_type": "pbench-server-reports"
     }
@@ -187,19 +214,22 @@ len(actions) = 1
 +++ Running pbench-satellite-cleanup
 --- Finished pbench-satellite-cleanup (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "2a7264f71696008b2bf9261afd449333",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "a57baa2b57c7be767b25e98f28cee23e",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001\n\nController: controller-h-bad-md5\n\t* No tar ball files found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001\n\nController: controller-h-bad-md5\n\t* No tar ball files found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001\n",
+            "total_chunks": 1,
+            "total_size": 384
         },
         "_type": "pbench-server-reports"
     }
@@ -601,7 +631,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC
 -rw-rw-r--         54 logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controllerC/ok-checks.log
 -rw-rw-r--          0 logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/mv.log
 -rw-rw-r--        219 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--       1871 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--       1960 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--       4624 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -709,7 +739,7 @@ drwxrwxr-x          - public_html/users
 +++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-5.2/pbench-satellite-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        468 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--        521 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-satellite-cleanup
 -rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.error
 -rw-rw-r--        312 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
@@ -951,19 +981,22 @@ tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
 run-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC: duration (secs): 0
 run-1900-01-01T00:00:00-UTC: Total 3 files processed, with 0 md5 failures and 0 errors
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "481e8a9fb68a2a381043ca9aaf57e288",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "7e4700fba675e32bf75d3293976c66d8",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-sync-satellite",
-            "text": "pbench-sync-satellite.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 3 files, with 0 md5 failures and 0 errors.\n\nrun-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: duration (secs): 0\nrun-1900-01-01T00:00:00-UTC: Total 3 files processed, with 0 md5 failures and 0 errors\n"
+            "text": "pbench-sync-satellite.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 3 files, with 0 md5 failures and 0 errors.\n\nrun-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: duration (secs): 0\nrun-1900-01-01T00:00:00-UTC: Total 3 files processed, with 0 md5 failures and 0 errors\n",
+            "total_chunks": 1,
+            "total_size": 789
         },
         "_type": "pbench-server-reports"
     }
@@ -1005,7 +1038,7 @@ run-1900-01-01T00:00:00-UTC: Processed 7 tarballs
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 +++++ pbench-report-status/pbench-report-status.log
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- @cee:{"@timestamp": "1900-01-01T00:00:00", "doctype": "status", "name": "pbench-satellite-cleanup", "text": "pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors\nTotal 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n"}
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- @cee:{"@timestamp": "1900-01-01T00:00:00", "chunk_id": 1, "doctype": "status", "name": "pbench-satellite-cleanup", "text": "pbench-satellite-cleanup.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 total errors\nTotal 3 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n", "total_chunks": 1, "total_size": 274}
 ----- pbench-report-status/pbench-report-status.log
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.error
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.error

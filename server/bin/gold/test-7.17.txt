@@ -1,7 +1,6 @@
 +++ Running pbench-index
 Template:  pbench-unittests.v1.result-data
 Template:  pbench-unittests.v1.run
-Template:  pbench-unittests.v1.server-reports
 Template:  pbench-unittests.v1.tool-data-iostat
 Template:  pbench-unittests.v1.tool-data-mpstat
 Template:  pbench-unittests.v1.tool-data-pidstat
@@ -9,6 +8,7 @@ Template:  pbench-unittests.v1.tool-data-proc-interrupts
 Template:  pbench-unittests.v1.tool-data-proc-vmstat
 Template:  pbench-unittests.v1.tool-data-prometheus-metrics
 Template:  pbench-unittests.v1.tool-data-vmstat
+Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.v1.run.2018-10 26
 Index:  pbench-unittests.v1.tool-data-iostat.2018-10-24 20
 Index:  pbench-unittests.v1.tool-data-pidstat.2018-10-24 1860
@@ -26,7 +26,7 @@ len(actions) = 60
                 "file-name": "/var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz",
                 "file-size": 31384,
                 "generated-by": "pbench-index",
-                "generated-by-version": "1.0.0",
+                "generated-by-version": "2.0.0",
                 "md5": "45f0e2af41977b89e07bae4303dc9972",
                 "pbench-agent-version": "0.53-2g786732f6",
                 "result-prefix": "test_glusterfs-storage-block",
@@ -3155,7 +3155,6 @@ len(actions) = 60
 ]
 Template:  pbench-unittests.v1.result-data
 Template:  pbench-unittests.v1.run
-Template:  pbench-unittests.v1.server-reports
 Template:  pbench-unittests.v1.tool-data-iostat
 Template:  pbench-unittests.v1.tool-data-mpstat
 Template:  pbench-unittests.v1.tool-data-pidstat
@@ -3163,37 +3162,44 @@ Template:  pbench-unittests.v1.tool-data-proc-interrupts
 Template:  pbench-unittests.v1.tool-data-proc-vmstat
 Template:  pbench-unittests.v1.tool-data-prometheus-metrics
 Template:  pbench-unittests.v1.tool-data-vmstat
-Index:  pbench-unittests-server-reports.1970-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "87276c7bc386dd4a491161e5a8c5f52b",
-        "_index": "pbench-unittests-server-reports.1970-01",
+        "_id": "f5e00c474a5736ea2b6047e93bd895cb",
+        "_index": "pbench-unittests.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index",
-            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz\n\n"
+            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 249
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-index (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "c035b87db9c8fe6cfc65f199b59fb9e7",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "3268947b7d40af36d1fd956d5e70926c",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
         },
         "_type": "pbench-server-reports"
     }

@@ -1,36 +1,42 @@
 +++ Running pbench-verify-backup-tarballs
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "c1d79d68c22bd0c02953badd1b7ff283",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "6a4bf2dc2b26e9696fc206e5fb63658c",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\nERROR: in ARCHIVE: the calculated MD5 of the following entries failed to match the stored MD5:\ncontroller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\nMD5 values don't match for: controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\ncontroller/fio__2016-08-16_22:03:11.tar.xz: present in ARCHIVE but not in S3\ncontroller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in ARCHIVE but not in S3\n"
+            "text": "pbench-verify-backup-tarballs.py.run-1900-01-01T00:00:00-UTC(unit-test)\nERROR: in ARCHIVE: the calculated MD5 of the following entries failed to match the stored MD5:\ncontroller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\nMD5 values don't match for: controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz\ncontroller/fio__2016-08-16_22:03:11.tar.xz: present in ARCHIVE but not in S3\ncontroller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: present in ARCHIVE but not in S3\n",
+            "total_chunks": 1,
+            "total_size": 503
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-verify-backup-tarballs (status=1)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "ce749b362cd82fbbb1666950845b75f7",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "c3de69caeb4fa7e6b0b2ed9520425ed7",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.4/pbench/archive/fs-version-001\n\nController: controller\n\t* No state directories found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.4/pbench/archive/fs-version-001\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.4/pbench/archive/fs-version-001\n\nController: controller\n\t* No state directories found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.4/pbench/archive/fs-version-001\n",
+            "total_chunks": 1,
+            "total_size": 377
         },
         "_type": "pbench-server-reports"
     }

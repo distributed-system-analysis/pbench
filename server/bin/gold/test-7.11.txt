@@ -1,7 +1,6 @@
 +++ Running pbench-index
 Template:  pbench-unittests.v1.result-data
 Template:  pbench-unittests.v1.run
-Template:  pbench-unittests.v1.server-reports
 Template:  pbench-unittests.v1.tool-data-iostat
 Template:  pbench-unittests.v1.tool-data-mpstat
 Template:  pbench-unittests.v1.tool-data-pidstat
@@ -9,6 +8,7 @@ Template:  pbench-unittests.v1.tool-data-proc-interrupts
 Template:  pbench-unittests.v1.tool-data-proc-vmstat
 Template:  pbench-unittests.v1.tool-data-prometheus-metrics
 Template:  pbench-unittests.v1.tool-data-vmstat
+Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.v1.result-data.2018-02-01 172
 Index:  pbench-unittests.v1.run.2018-02 30
 Index:  pbench-unittests.v1.tool-data-iostat.2018-02-01 15
@@ -28,7 +28,7 @@ len(actions) = 76
                 "file-name": "/var/tmp/pbench-test-server/test-7.11/pbench/archive/fs-version-001/dhcp31-44/fio_rw_2018.02.01T22.40.57.tar.xz",
                 "file-size": 2166868,
                 "generated-by": "pbench-index",
-                "generated-by-version": "1.0.0",
+                "generated-by-version": "2.0.0",
                 "md5": "22a4bc5748b920c6ce271eb68f08d91c",
                 "pbench-agent-version": "0.47-91gb666083",
                 "toc-prefix": "fio_rw_2018.02.01T22.40.57"
@@ -4997,7 +4997,6 @@ len(actions) = 76
 ]
 Template:  pbench-unittests.v1.result-data
 Template:  pbench-unittests.v1.run
-Template:  pbench-unittests.v1.server-reports
 Template:  pbench-unittests.v1.tool-data-iostat
 Template:  pbench-unittests.v1.tool-data-mpstat
 Template:  pbench-unittests.v1.tool-data-pidstat
@@ -5005,37 +5004,44 @@ Template:  pbench-unittests.v1.tool-data-proc-interrupts
 Template:  pbench-unittests.v1.tool-data-proc-vmstat
 Template:  pbench-unittests.v1.tool-data-prometheus-metrics
 Template:  pbench-unittests.v1.tool-data-vmstat
-Index:  pbench-unittests-server-reports.1970-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "532d612a5ae7cd63c93c3506791ace9a",
-        "_index": "pbench-unittests-server-reports.1970-01",
+        "_id": "e37f50d1d37a968b7c6306dd8025493d",
+        "_index": "pbench-unittests.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index",
-            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.11/pbench/archive/fs-version-001/dhcp31-44/TO-INDEX/fio_rw_2018.02.01T22.40.57.tar.xz\n\n"
+            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.11/pbench/archive/fs-version-001/dhcp31-44/TO-INDEX/fio_rw_2018.02.01T22.40.57.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 216
         },
         "_type": "pbench-server-reports"
     }
 ]
 --- Finished pbench-index (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v1.server-reports
-Index:  pbench-unittests-server-reports.1900-01 1
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "c035b87db9c8fe6cfc65f199b59fb9e7",
-        "_index": "pbench-unittests-server-reports.1900-01",
+        "_id": "3268947b7d40af36d1fd956d5e70926c",
+        "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n"
+            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
         },
         "_type": "pbench-server-reports"
     }
