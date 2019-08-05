@@ -7442,6 +7442,7 @@
          }
       },
       "iteration_name" : "tcp_rr-64B-1i",
+      "iteration_name_format" : "%d-%s",
       "iteration_number" : 1
    },
    {
@@ -14891,6 +14892,7 @@
          }
       },
       "iteration_name" : "tcp_rr-64B-8i",
+      "iteration_name_format" : "%d-%s",
       "iteration_number" : 2
    },
    {
@@ -22520,6 +22522,7 @@
          }
       },
       "iteration_name" : "tcp_rr-16384B-1i",
+      "iteration_name_format" : "%d-%s",
       "iteration_number" : 3
    },
    {
@@ -30025,6 +30028,7 @@
          }
       },
       "iteration_name" : "tcp_rr-16384B-8i",
+      "iteration_name_format" : "%d-%s",
       "iteration_number" : 4
    },
    {
@@ -35283,6 +35287,7 @@
          }
       },
       "iteration_name" : "tcp_stream-64B-1i",
+      "iteration_name_format" : "%d-%s",
       "iteration_number" : 5
    },
    {
@@ -40613,6 +40618,7 @@
          }
       },
       "iteration_name" : "tcp_stream-64B-8i",
+      "iteration_name_format" : "%d-%s",
       "iteration_number" : 6
    },
    {
@@ -45979,6 +45985,7 @@
          }
       },
       "iteration_name" : "tcp_stream-16384B-1i",
+      "iteration_name_format" : "%d-%s",
       "iteration_number" : 7
    },
    {
@@ -51349,6 +51356,7 @@
          }
       },
       "iteration_name" : "tcp_stream-16384B-8i",
+      "iteration_name_format" : "%d-%s",
       "iteration_number" : 8
    }
 ]

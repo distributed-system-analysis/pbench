@@ -172,14 +172,16 @@ sub metadata_log_begin_run {
 
 sub metadata_log_end_run {
     my $benchmark_run_dir = shift;
-    my $last_iteration_num = shift;
     my $benchmark_name = shift;
     my $config = shift;
     my $group = shift;
+    my @iteration_names = @_;
+
     my $iteration_names = "";
     my $mdlog = $benchmark_run_dir . "/metadata.log";
-    for (my $i=0; $i<=$last_iteration_num; $i++) {
-        $iteration_names = $iteration_names . ",iteration" . $i;
+
+    for (my $i=0; $i<@iteration_names; $i++) {
+        $iteration_names = $iteration_names . "," . $iteration_names[$i];
     }
     $iteration_names =~ s/^,//;
     system("echo " . $iteration_names  . " | pbench-add-metalog-option " . $mdlog . " pbench iterations");
@@ -192,7 +194,10 @@ sub metadata_log_record_iteration {
     my $benchmark_run_dir = shift;
     my $num = shift;
     my $iteration_params = shift;
-    my $iteration_name = "iteration" . $num;
+    my $iteration_label = shift;
+
+    my $iteration_name = $num . "__" . $iteration_label;
+
     my $mdlog = $benchmark_run_dir . "/metadata.log";
     system("echo " . $num .      " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_number");
     system("echo " . $iteration_name  . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_name");
@@ -203,5 +208,7 @@ sub metadata_log_record_iteration {
             system("echo " . $2 . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " " . $1);
         }
     }
+
+    return($iteration_name);
 }
 1;

@@ -34,16 +34,29 @@ my %iterations_by_num;
 my %all_metric_names_by_type;
 my $iter_num = $1;
 my $iter_name = $2;
+my $iter_name_format;
 my @iterations;
 my $iteration_data_field = 'iteration_data';
 my $iteration_name_field = 'iteration_name';
 my $iteration_number_field = 'iteration_number';
+my $iteration_name_format_field = 'iteration_name_format';
 # build an array from all of the iterations 
 foreach $dir (sort @dirs) {
 	$iteration_dir = $benchmark_run_dir . "/" . $dir;
-	if ((-d $iteration_dir) && (($dir =~ /(\d+)-(.+)/) or ($dir =~ /^iteration(\d+)(.*)/))) {
+	if ((-d $iteration_dir) && (($dir =~ /(\d+)-(.+)/) or
+				    ($dir =~ /(\d+)__(.+)/) or
+				    ($dir =~ /^iteration(\d+)(.*)/))) {
 		$iter_num = $1;
 		$iter_name = $2;
+
+		if ($dir =~ /(\d+)-(.+)/) {
+		    $iter_name_format = "%d-%s";
+		} elsif ($dir =~ /(\d+)__(.+)/) {
+		    $iter_name_format = "%d__%s";
+		} elsif ($dir =~ /^iteration(\d+)(.*)/) {
+		    $iter_name_format = "iteration%d%s";
+		}
+
 		my $length;
 		# collect spacing info for output later
 		$length = get_length($iter_num);
@@ -63,7 +76,7 @@ foreach $dir (sort @dirs) {
 				}
 			close ITERATION_JSON;
 			my $perl_scalar = from_json( $json_text );
-			my %iteration = ( $iteration_number_field => int $iter_num, $iteration_name_field => $iter_name, $iteration_data_field => $perl_scalar );
+			my %iteration = ( $iteration_number_field => int $iter_num, $iteration_name_field => $iter_name, $iteration_data_field => $perl_scalar, $iteration_name_format_field => $iter_name_format );
 			push @iterations, \%iteration;
 		 } else {
 			print "could not find file $result_json_file\n";
@@ -78,6 +91,7 @@ print JSON $json_text;
 close(JSON);
 
 my $iteration_name;
+my $iteration_name_format;
 my $iteration_num;
 my $metric_name;
 my $metric_type;
@@ -397,12 +411,13 @@ printf HTML "</tr>\n";
 foreach my $iteration (sort { $a->{$iteration_number_field} <=> $b->{$iteration_number_field} } @iterations) {
 	#print Dumper \%{ $iteration };
 	$iteration_name = $iteration->{$iteration_name_field};
+	$iteration_name_format = $iteration->{$iteration_name_format_field};
 	my $cell_bgcolor;
 	$iteration_num = $iteration->{$iteration_number_field};
 	printf TXT "%$spacing{iter_num}s%$spacing{iter_name}s", $iteration_num, $iteration_name;
 	printf CSV "%s,%s,", $iteration_num, $iteration_name;
 	my $href_spacing = $spacing{iter_name} - (scalar split("", $iteration_name));
-	printf HTML "<tr><td>%s</td><td nowrap><tt>%s</tt></td>", $iteration_num, "<a href=./$iteration_num-$iteration_name>$iteration_name</a>";
+	printf HTML "<tr><td>%s</td><td nowrap><tt>%s</tt></td>", $iteration_num, sprintf("<a href=./$iteration_name_format>%s</a>", $iteration_num, $iteration_name, $iteration_name);
 	foreach $metric_type (reverse sort keys %spacing) {
 		if ( grep(/^$metric_type$/, @all_metric_types) ) {
 			my $metric_section = "";
