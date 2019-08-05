@@ -11,7 +11,6 @@ MAILFROM=pbench@pbench.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-server-prep-shim-002
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-dispatch.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-dispatch
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-unpack-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-unpack-tarballs
-* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-move-unpacked.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-move-unpacked
 41 * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-copy-sosreports.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-copy-sosreports
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-edit-prefixes.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-edit-prefixes
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-index.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-index
@@ -27,7 +26,6 @@ MAILFROM=pbench@pbench-satellite.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-prep-shim-002
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-dispatch.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-dispatch
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-unpack-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-unpack-tarballs
-* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-move-unpacked.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-move-unpacked
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-edit-prefixes.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-edit-prefixes
 37 * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-satellite-cleanup.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-satellite-cleanup
 ---- /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/crontab/crontab

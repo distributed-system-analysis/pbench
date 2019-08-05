@@ -57,9 +57,6 @@ test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
 test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
 test -d $USERS || doexit "Bad USERS=$USERS"
 
-UNPACK_PATH=$(getconf.py pbench-unpack-dir pbench-server)
-test -d $UNPACK_PATH || doexit "Bad UNPACK_PATH=$UNPACK_PATH"
-
 # Work files
 workdir=$TMP/$PROG.work.$$
 report=$workdir/report
@@ -224,59 +221,32 @@ function verify_incoming {
         done < ${tarball_dirs}
         rm ${tarball_dirs}
 
-        sort ${invalid_tb_dirs}.unsorted > ${invalid_tb_dirs}
-        if [ -s ${invalid_tb_dirs} ]; then
+        if [ -s ${invalid_tb_dirs}.unsorted ]; then
             printf "\tInvalid tar ball directories (not in $ARCHIVE):\n" >> ${lclreport}
-            cat ${invalid_tb_dirs} >> ${lclreport}
+            sort ${invalid_tb_dirs}.unsorted >> ${lclreport}
         fi
-        rm ${invalid_tb_dirs}.unsorted ${invalid_tb_dirs}
+        rm ${invalid_tb_dirs}.unsorted
 
-        sort ${empty_tarball_dirs}.unsorted > ${empty_tarball_dirs}
-        if [ -s ${empty_tarball_dirs} ]; then
+        if [ -s ${empty_tarball_dirs}.unsorted ]; then
             printf "\tEmpty tar ball directories:\n" >> ${lclreport}
-            cat ${empty_tarball_dirs} >> ${lclreport}
+            sort ${empty_tarball_dirs}.unsorted >> ${lclreport}
         fi
-        rm ${empty_tarball_dirs}.unsorted ${empty_tarball_dirs}
+        rm ${empty_tarball_dirs}.unsorted
 
-        missing_archive_tb="${workdir}/missingarchivetb"
-        > ${missing_archive_tb}
         invalid_tb_dir_links="${workdir}/invalidtbdirlinks"
-        > ${invalid_tb_dir_links}
-        bad_unpack_tb_dir="${workdir}/badunpacktbdir"
-        > ${bad_unpack_tb_dir}
+        > ${invalid_tb_dir_links}.unsorted
         while read tb link ; do
-            if [ ! -e $ARCHIVE/${controller}/${tb}.tar.xz ]; then
-                # The tar ball does not exist in the archive hierarchy.
-                printf "\t\t${tb}\n" >> ${missing_archive_tb}
-            elif [ "$link" != "$UNPACK_PATH/${controller}/${tb}" ]; then
-                # The link in the incoming directory does not point to
-                # the expected directory in the unpack hierarchy.
-                printf "\t\t${tb}\n" >> ${invalid_tb_dir_links}
-            elif [ ! -d $UNPACK_PATH/${controller}/${tb} ]; then
-                # The link in the incoming directory does not point to
-                # an actual directory in the unpack hierarchy.
-                printf "\t\t${tb}\n" >> ${bad_unpack_tb_dir}
-            fi
+            # The link in the incoming directory does not point to
+            # the expected directory in the unpack hierarchy.
+            printf "\t\t${tb}\n" >> ${invalid_tb_dir_links}.unsorted
         done < ${tarball_links}
         rm ${tarball_links}
 
-        if [ -s ${missing_archive_tb} ]; then
-            printf "\tInvalid tar ball links (not in $ARCHIVE):\n" >> ${lclreport}
-            cat ${missing_archive_tb} >> ${lclreport}
-        fi
-        rm ${missing_archive_tb}
-
-        if [ -s ${invalid_tb_dir_links} ]; then
+        if [ -s ${invalid_tb_dir_links}.unsorted ]; then
             printf "\tInvalid tar ball links:\n" >> ${lclreport}
-            cat ${invalid_tb_dir_links} >> ${lclreport}
+            sort ${invalid_tb_dir_links}.unsorted >> ${lclreport}
         fi
-        rm ${invalid_tb_dir_links}
-
-        if [ -s ${bad_unpack_tb_dir} ]; then
-            printf "\tTar ball links pointing to bad unpack directory:\n" >> ${lclreport}
-            cat ${bad_unpack_tb_dir} >> ${lclreport}
-        fi
-        rm ${bad_unpack_tb_dir}
+        rm ${invalid_tb_dir_links}.unsorted
 
         if [ -s ${lclreport} ]; then
             printf "\nIncoming issues for controller: ${controller}\n"

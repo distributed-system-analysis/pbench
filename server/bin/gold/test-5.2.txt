@@ -88,28 +88,6 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-unpack-tarballs (status=0)
-+++ Running pbench-move-unpacked
-Template:  pbench-unittests.v2.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
-len(actions) = 1
-[
-    {
-        "_id": "17b7add5b23ea80dbb82a49268a52dea",
-        "_index": "pbench-unittests.server-reports.1900-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "1900-01-01T00:00:00",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-move-unpacked",
-            "text": "pbench-move-unpacked.run-1900-01-01T00:00:00-UTC(unit-test) - 7 tar balls\nProcessed 7 result tar balls\n\n",
-            "total_chunks": 1,
-            "total_size": 104
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-move-unpacked (status=0)
 +++ Running pbench-copy-sosreports
 Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
@@ -283,8 +261,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/COPIED-SOS
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/COPIED-SOS/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/INDEXED
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/MOVED-UNPACKED
-lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/MOVED-UNPACKED/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/SATELLITE-MD5-PASSED
@@ -300,6 +276,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TODO
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/UNPACKED
+lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/UNPACKED/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/WONT-INDEX.4
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/WONT-INDEX.4/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
@@ -312,8 +289,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/COPIED-SOS
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/COPIED-SOS/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/INDEXED
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/MOVED-UNPACKED
-lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/MOVED-UNPACKED/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/SATELLITE-MD5-PASSED
@@ -329,6 +304,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TODO
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/UNPACKED
+lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/UNPACKED/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/WONT-INDEX.4
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/WONT-INDEX.4/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
@@ -343,8 +319,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/COPIED-SOS
 lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/COPIED-SOS/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/INDEXED
-drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/MOVED-UNPACKED
-lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/MOVED-UNPACKED/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/SATELLITE-MD5-PASSED
@@ -360,6 +334,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TODO
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/UNPACKED
+lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/UNPACKED/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/WONT-INDEX.4
 lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/WONT-INDEX.4/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
@@ -379,10 +354,6 @@ lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/COPIED-S
 lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/COPIED-SOS/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
 lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/COPIED-SOS/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/INDEXED
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/MOVED-UNPACKED
-lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/MOVED-UNPACKED/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
-lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/MOVED-UNPACKED/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
-lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/MOVED-UNPACKED/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/SATELLITE-MD5-PASSED
@@ -397,6 +368,9 @@ drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TODO
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/UNPACKED
+lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/UNPACKED/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
+lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/UNPACKED/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
+lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/UNPACKED/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/WONT-INDEX.4
 lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/WONT-INDEX.4/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
@@ -416,8 +390,6 @@ drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/COPIED-SOS
 lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/COPIED-SOS/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz -> ../tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/INDEXED
 lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/INDEXED/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz -> ../tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
-drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/MOVED-UNPACKED
-lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/MOVED-UNPACKED/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz -> ../tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/SATELLITE-MD5-PASSED
@@ -431,6 +403,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/TODO
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/UNPACKED
+lrwxrwxrwx         47 archive/fs-version-001/controller-d-duplicate/UNPACKED/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz -> ../tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/_QUARANTINED
 drwxrwxr-x          - archive/fs-version-001/controller-d-duplicate/_QUARANTINED/BAD-LINK
@@ -447,8 +420,6 @@ drwxrwxr-x          - archive/fs-version-001/controller-g-normal/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/COPIED-SOS
 lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/COPIED-SOS/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/INDEXED
-drwxrwxr-x          - archive/fs-version-001/controller-g-normal/MOVED-UNPACKED
-lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/MOVED-UNPACKED/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/SATELLITE-MD5-PASSED
@@ -463,6 +434,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TODO
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/UNPACKED
+lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/UNPACKED/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/WONT-INDEX.4
 lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/WONT-INDEX.4/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
@@ -473,7 +445,6 @@ drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/INDEXED
-drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/MOVED-UNPACKED
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/SATELLITE-MD5-PASSED
@@ -577,12 +548,6 @@ drwxrwxr-x          - archive.backup/controller-d-duplicate
 drwxrwxr-x          - archive.backup/controller-g-normal
 -rw-rw-r--        216 archive.backup/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         76 archive.backup/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
-drwxrwxr-x          - incoming
-drwxrwxr-x          - incoming/ONE::controllerA
-drwxrwxr-x          - incoming/ONE::controllerB
-drwxrwxr-x          - incoming/ONE::controllerC
-drwxrwxr-x          - incoming/controller-b-with-prefixes
-drwxrwxr-x          - incoming/controller-g-normal
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
@@ -603,11 +568,8 @@ drwxrwxr-x          - logs/pbench-edit-prefixes
 -rw-rw-r--         90 logs/pbench-edit-prefixes/pbench-edit-prefixes.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--       6031 logs/pbench-index/pbench-index.log
-drwxrwxr-x          - logs/pbench-move-unpacked
--rw-rw-r--          0 logs/pbench-move-unpacked/pbench-move-unpacked.error
--rw-rw-r--       1894 logs/pbench-move-unpacked/pbench-move-unpacked.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--       2976 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--       2604 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-001
 -rw-rw-r--        852 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
 -rw-rw-r--        500 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
@@ -634,7 +596,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC
 -rw-rw-r--       1960 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--       4624 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--       2886 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
 -rw-rw-r--        656 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -876,29 +838,7 @@ run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: indexed 0 (skipped 7) results, 0 errors
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
-+++++ pbench-move-unpacked/pbench-move-unpacked.error
------ pbench-move-unpacked/pbench-move-unpacked.error
-+++++ pbench-move-unpacked/pbench-move-unpacked.log
-run-1900-01-01T00:00:00-UTC
-Starting: run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS: size (bytes): 212
-run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 212
-Starting: run-1900-01-01T00:00:00-UTC: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS: size (bytes): 216
-run-1900-01-01T00:00:00-UTC: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 216
-Starting: run-1900-01-01T00:00:00-UTC: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss: size (bytes): 220
-run-1900-01-01T00:00:00-UTC: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 220
-Starting: run-1900-01-01T00:00:00-UTC: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss: size (bytes): 224
-run-1900-01-01T00:00:00-UTC: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 224
-Starting: run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS: size (bytes): 224
-run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
-Starting: run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS: size (bytes): 224
-run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
-Starting: run-1900-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss: size (bytes): 228
-run-1900-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 228
-run-1900-01-01T00:00:00-UTC: Processed 7 tar balls
------ pbench-move-unpacked/pbench-move-unpacked.log
 +++++ pbench-report-status/pbench-report-status.log
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
@@ -1006,25 +946,18 @@ len(actions) = 1
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
 run-1900-01-01T00:00:00-UTC
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench-local/incoming/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS
 run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 212
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench-local/incoming/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS
 run-1900-01-01T00:00:00-UTC: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 216
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench-local/incoming/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss
 run-1900-01-01T00:00:00-UTC: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 220
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench-local/incoming/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss
 run-1900-01-01T00:00:00-UTC: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench-local/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/path2/path3/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS
 run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench-local/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/path0/path1/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS
 run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench-local/incoming/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerC/prefix0/prefix1/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss
 run-1900-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 228
 run-1900-01-01T00:00:00-UTC: Processed 7 tarballs

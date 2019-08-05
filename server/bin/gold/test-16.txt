@@ -88,8 +88,6 @@ drwxrwxr-x          - archive/fs-version-001/controller00/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller00/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller00/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/controller00/INDEXED
-drwxrwxr-x          - archive/fs-version-001/controller00/MOVED-UNPACKED
-lrwxrwxrwx         52 archive/fs-version-001/controller00/MOVED-UNPACKED/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-large_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-MD5-PASSED
@@ -97,14 +95,17 @@ drwxrwxr-x          - archive/fs-version-001/controller00/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-COPY-SOS
+lrwxrwxrwx        128 archive/fs-version-001/controller00/TO-COPY-SOS/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-INDEX
+lrwxrwxrwx        128 archive/fs-version-001/controller00/TO-INDEX/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-UNPACK
 lrwxrwxrwx         52 archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz -> ../benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/TODO
 drwxrwxr-x          - archive/fs-version-001/controller00/UNPACKED
+lrwxrwxrwx         52 archive/fs-version-001/controller00/UNPACKED/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-large_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/WONT-INDEX
 -rw-rw-r--       5920 archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
 -rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz.md5
@@ -115,8 +116,6 @@ drwxrwxr-x          - archive/fs-version-001/controller01/COPIED-SOS
 -rw-rw-r--       3120 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 -rw-rw-r--         85 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller01/INDEXED
-drwxrwxr-x          - archive/fs-version-001/controller01/MOVED-UNPACKED
-lrwxrwxrwx         53 archive/fs-version-001/controller01/MOVED-UNPACKED/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-MD5-PASSED
@@ -124,14 +123,17 @@ drwxrwxr-x          - archive/fs-version-001/controller01/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-COPY-SOS
+lrwxrwxrwx        129 archive/fs-version-001/controller01/TO-COPY-SOS/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-INDEX
+lrwxrwxrwx        129 archive/fs-version-001/controller01/TO-INDEX/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-UNPACK
 lrwxrwxrwx         71 archive/fs-version-001/controller01/TO-UNPACK/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> ../DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/TODO
 drwxrwxr-x          - archive/fs-version-001/controller01/UNPACKED
+lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/WONT-INDEX
 -rw-rw-r--       3180 archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 -rw-rw-r--         85 archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
@@ -142,8 +144,6 @@ drwxrwxr-x          - archive/fs-version-001/controller02/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller02/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller02/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/controller02/INDEXED
-drwxrwxr-x          - archive/fs-version-001/controller02/MOVED-UNPACKED
-lrwxrwxrwx         52 archive/fs-version-001/controller02/MOVED-UNPACKED/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-small_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-MD5-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-MD5-PASSED
@@ -151,13 +151,16 @@ drwxrwxr-x          - archive/fs-version-001/controller02/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-COPY-SOS
+lrwxrwxrwx        128 archive/fs-version-001/controller02/TO-COPY-SOS/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-INDEX
+lrwxrwxrwx        128 archive/fs-version-001/controller02/TO-INDEX/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller02/TODO
 drwxrwxr-x          - archive/fs-version-001/controller02/UNPACKED
+lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-small_1900-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller02/WONT-INDEX
 -rw-rw-r--        848 archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
 -rw-rw-r--         84 archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz.md5

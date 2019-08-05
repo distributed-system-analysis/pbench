@@ -88,8 +88,6 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-unpack-tarballs (status=0)
-+++ Running pbench-move-unpacked
---- Finished pbench-move-unpacked (status=0)
 +++ Running pbench-copy-sosreports
 Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
@@ -252,7 +250,6 @@ drwxrwxr-x          - public_html/users
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-5.1/pbench-local)
 drwxrwxr-x          - archive.backup
-drwxrwxr-x          - incoming
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
@@ -273,9 +270,6 @@ drwxrwxr-x          - logs/pbench-edit-prefixes
 -rw-rw-r--         90 logs/pbench-edit-prefixes/pbench-edit-prefixes.log
 drwxrwxr-x          - logs/pbench-index
 -rw-rw-r--        223 logs/pbench-index/pbench-index.log
-drwxrwxr-x          - logs/pbench-move-unpacked
--rw-rw-r--          0 logs/pbench-move-unpacked/pbench-move-unpacked.error
--rw-rw-r--         78 logs/pbench-move-unpacked/pbench-move-unpacked.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--       2604 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-001
@@ -395,12 +389,6 @@ run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- No tar balls found that need processing
 ----- pbench-index/pbench-index.log
-+++++ pbench-move-unpacked/pbench-move-unpacked.error
------ pbench-move-unpacked/pbench-move-unpacked.error
-+++++ pbench-move-unpacked/pbench-move-unpacked.log
-run-1900-01-01T00:00:00-UTC
-run-1900-01-01T00:00:00-UTC: Processed 0 tarballs
------ pbench-move-unpacked/pbench-move-unpacked.log
 +++++ pbench-report-status/pbench-report-status.log
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)

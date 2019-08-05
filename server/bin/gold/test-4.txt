@@ -69,9 +69,6 @@ len(actions) = 1
 +++ Running pbench-unpack-tarballs
 pbench-unpack-tarballs: Bad USERS=/var/tmp/pbench-test-server/test-4/pbench/public_html/users
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-move-unpacked
-run-1900-01-01T00:00:00-UTC: the unpack path, /var/tmp/pbench-test-server/test-4/pbench/public_html/incoming, is the same as the incoming path, /var/tmp/pbench-test-server/test-4/pbench/public_html/incoming; nothing to do
---- Finished pbench-move-unpacked (status=0)
 +++ Running pbench-copy-sosreports
 Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1

@@ -13,9 +13,6 @@ pbench-dispatch: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 +++ Running pbench-unpack-tarballs
 pbench-unpack-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-move-unpacked
-pbench-move-unpacked: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
---- Finished pbench-move-unpacked (status=1)
 +++ Running pbench-copy-sosreports
 pbench-copy-sosreports: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 --- Finished pbench-copy-sosreports (status=1)
