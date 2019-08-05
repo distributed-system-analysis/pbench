@@ -230,7 +230,7 @@ class PbenchConfig(object):
         # needed.  Every related state directories are paired together with
         # their final state at the end.
         self.LINKDIRS = "TODO BAD-MD5" \
-                " TO-UNPACK UNPACKED MOVED-UNPACKED" \
+                " TO-UNPACK UNPACKED" \
                 " TO-SYNC SYNCED" \
                 " TO-LINK" \
                 " TO-INDEX INDEXED WONT-INDEX" \

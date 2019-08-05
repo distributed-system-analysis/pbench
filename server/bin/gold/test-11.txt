@@ -68,7 +68,6 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controller/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/INDEXED
-drwxrwxr-x          - archive/fs-version-001/ONE::controller/MOVED-UNPACKED
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/SATELLITE-MD5-FAILED
 lrwxrwxrwx        133 archive/fs-version-001/ONE::controller/SATELLITE-MD5-FAILED/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz -> /var/tmp/pbench-test-server/test-11/pbench/archive/fs-version-001/ONE::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz

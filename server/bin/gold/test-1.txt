@@ -13,9 +13,6 @@ pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/f
 +++ Running pbench-unpack-tarballs
 pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-move-unpacked
-pbench-move-unpacked: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
---- Finished pbench-move-unpacked (status=1)
 +++ Running pbench-copy-sosreports
 pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-copy-sosreports (status=1)

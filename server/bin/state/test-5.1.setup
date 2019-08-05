@@ -2,5 +2,4 @@
 
 mkdir pbench-local/archive.backup || exit $?
 mkdir -p pbench-local/s3-backup/testbucket || exit $?
-mkdir pbench-local/incoming
 exit $?

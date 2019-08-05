@@ -13,9 +13,6 @@ pbench-dispatch: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/l
 +++ Running pbench-unpack-tarballs
 pbench-unpack-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
 --- Finished pbench-unpack-tarballs (status=1)
-+++ Running pbench-move-unpacked
-pbench-move-unpacked: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
---- Finished pbench-move-unpacked (status=1)
 +++ Running pbench-copy-sosreports
 pbench-copy-sosreports: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
 --- Finished pbench-copy-sosreports (status=1)

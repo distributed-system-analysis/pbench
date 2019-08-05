@@ -46,21 +46,15 @@ test -d $INCOMING || doexit "Bad INCOMING=$INCOMING"
 test -d $RESULTS || doexit "Bad RESULTS=$RESULTS"
 test -d $USERS || doexit "Bad USERS=$USERS"
 
-UNPACK_PATH=$(getconf.py pbench-unpack-dir pbench-server)
-test -d $UNPACK_PATH || doexit "Bad UNPACK_PATH=$UNPACK_PATH"
-
 # make sure only one copy is running.
 # Use 'flock -n $LOCKFILE /home/pbench/bin/pbench-unpack-tarballs' in the
 # crontab to ensure that only one copy is running. The script itself
 # does not use any locking.
 
-# the link source and destination for this script
+# the link source and destination(s) for this script
 linksrc=TO-UNPACK
-if [ "$(readlink -e $INCOMING)" = "$(readlink -e $UNPACK_PATH)" ]; then
-    linkdest=MOVED-UNPACKED
-else
-    linkdest=UNPACKED
-fi
+linkdest=UNPACKED
+linkdestlist=$(getconf.py -l unpacked-states pbench-server)
 
 tmp=$TMP/$PROG.$$
 trap 'rm -rf $tmp' EXIT INT QUIT
@@ -153,22 +147,22 @@ while read size result ;do
         continue
     fi
 
-    mkdir -p $UNPACK_PATH/$hostname
+    mkdir -p $INCOMING/$hostname
     status=$?
     if [[ $status -ne 0 ]] ;then
-        echo "$TS: mkdir -p $UNPACK_PATH/$hostname failed for $result: code $status" | tee -a $mail_content >&4
+        echo "$TS: mkdir -p $INCOMING/$hostname failed for $result: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         # FIXME: quarantine $result
         continue
     fi
-    if [ -e $UNPACK_PATH/$hostname/${resultname} ]; then
-        echo "$TS: $UNPACK_PATH/$hostname/${resultname} already exists for $result" | tee -a $mail_content >&4
+    if [ -e $INCOMING/$hostname/${resultname} ]; then
+        echo "$TS: $INCOMING/$hostname/${resultname} already exists for $result" | tee -a $mail_content >&4
         nerrs=$nerrs+1
         # FIXME: quarantine $result
         continue
     fi
 
-    mkdir $UNPACK_PATH/$hostname/${resultname}.unpack
+    mkdir $INCOMING/$hostname/${resultname}.unpack
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: 'mkdir ${resultname}.unpack' failed for $result: code $status" | tee -a $mail_content >&4
@@ -178,7 +172,7 @@ while read size result ;do
         continue
     fi
     let start_time=$(timestamp-seconds-since-epoch)
-    tar --extract --no-same-owner --touch --delay-directory-restore --file="$result" --force-local --directory="$UNPACK_PATH/$hostname/${resultname}.unpack"
+    tar --extract --no-same-owner --touch --delay-directory-restore --file="$result" --force-local --directory="$INCOMING/$hostname/${resultname}.unpack"
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: 'tar -xf $result' failed: code $status" | tee -a $mail_content >&4
@@ -186,41 +180,41 @@ while read size result ;do
         # FIXME: quarantine $result
         continue
     fi
-    mv $UNPACK_PATH/$hostname/${resultname}.unpack/${resultname} $UNPACK_PATH/$hostname/${resultname}
+    mv $INCOMING/$hostname/${resultname}.unpack/${resultname} $INCOMING/$hostname/${resultname}
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: '$result' does not contain ${resultname} directory at the top level; skipping" | tee -a $mail_content >&4
-        rm -rf $UNPACK_PATH/$hostname/${resultname}.unpack
+        rm -rf $INCOMING/$hostname/${resultname}.unpack
         nerrs=$nerrs+1
         # FIXME: quarantine $result
         continue
     fi
-    rmdir $UNPACK_PATH/$hostname/${resultname}.unpack
+    rmdir $INCOMING/$hostname/${resultname}.unpack
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: WARNING - '$result' should only contain the ${resultname} directory at the top level, ignoring other content" | tee -a $mail_content >&4
-        rm -rf $UNPACK_PATH/$hostname/${resultname}.unpack
+        rm -rf $INCOMING/$hostname/${resultname}.unpack
         nwarn=$nwarn+1
     fi
 
     # chmod directories to at least 555
-    find $UNPACK_PATH/$hostname/${resultname} -type d -print0 | xargs -0 chmod ugo+rx
+    find $INCOMING/$hostname/${resultname} -type d -print0 | xargs -0 chmod ugo+rx
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: 'chmod ugo+rx' of subdirs $resultname for $result failed: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
-        rm -rf $UNPACK_PATH/$hostname/$resultname
+        rm -rf $INCOMING/$hostname/$resultname
         # FIXME: quarantine $result
         continue
     fi
 
     # chmod files to at least 444
-    chmod -R ugo+r $UNPACK_PATH/$hostname/$resultname
+    chmod -R ugo+r $INCOMING/$hostname/$resultname
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: 'chmod -R ugo+r $resultname' for $result failed: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
-        rm -rf $UNPACK_PATH/$hostname/$resultname
+        rm -rf $INCOMING/$hostname/$resultname
         # FIXME: quarantine $result
         continue
     fi
@@ -229,8 +223,8 @@ while read size result ;do
     # They may also store a user option in the metadata log.
     # We check for both of these here (n.b. if nothing is found
     # they are going to be empty strings):
-    prefix=$(getconf.py -C $UNPACK_PATH/$hostname/$resultname/metadata.log prefix run)
-    user=$(getconf.py -C $UNPACK_PATH/$hostname/$resultname/metadata.log user run)
+    prefix=$(getconf.py -C $INCOMING/$hostname/$resultname/metadata.log prefix run)
+    user=$(getconf.py -C $INCOMING/$hostname/$resultname/metadata.log user run)
 
     # Version 001 agents use a prefix file.  If there is a prefix file,
     # create a link as specified in the prefix file.  pbench-dispatch
@@ -251,24 +245,9 @@ while read size result ;do
     if [[ $status -ne 0 ]] ;then
         echo "$TS: mkdir -p $RESULTS/$hostname/$prefix for $result failed: code $status" | tee -a $mail_content >&4
         nerrs=$nerrs+1
-        rm -rf $UNPACK_PATH/$hostname/$resultname
+        rm -rf $INCOMING/$hostname/$resultname
         continue
     else
-        # when unpack path is incoming
-        if [[ $UNPACK_PATH -ef $INCOMING ]]; then
-            :
-        # when unpack path is tmp directory
-        else
-            echo "ln -s $UNPACK_PATH/$hostname/$resultname $incoming"
-            ln -s $UNPACK_PATH/$hostname/$resultname $incoming
-            status=$?
-            if [[ $status -ne 0 ]] ;then
-                echo "$TS: ln -s $UNPACK_PATH/$hostname/$resultname $incoming for $result failed: code $status" | tee -a $mail_content >&4
-                nerrs=$nerrs+1
-                rm -rf $UNPACK_PATH/$hostname/$resultname
-                continue
-            fi
-        fi
         # make a link in results/
         echo "ln -s $incoming $RESULTS/$hostname/$prefix$resultname"
         ln -s $incoming $RESULTS/$hostname/$prefix$resultname
@@ -277,7 +256,7 @@ while read size result ;do
             echo "$TS: ln -s $incoming $RESULTS/$hostname/$prefix$resultname for $result failed: code $status" | tee -a $mail_content >&4
             nerrs=$nerrs+1
             rm -rf $incoming
-            rm -rf $UNPACK_PATH/$hostname/$resultname
+            rm -rf $INCOMING/$hostname/$resultname
             continue
         fi
 
@@ -289,8 +268,9 @@ while read size result ;do
             status=$?
             if [[ $status -ne 0 ]] ;then
                 echo "$TS: code $status: ln -s ${incoming} $USERS/${user}/${hostname}/${prefix}${resultname}" | tee -a $mail_content >&4
+                nerrs=$nerrs+1
                 rm -rf ${incoming}
-                rm -rf ${UNPACK_PATH}/${hostname}/${resultname}
+                rm -rf ${INCOMING}/${hostname}/${resultname}
                 rm -rf ${RESULTS}/${hostname}/${prefix}${resultname}
                 continue
             fi
@@ -301,12 +281,32 @@ while read size result ;do
     status=$?
     if [[ $status -ne 0 ]] ;then
         echo "$TS: Cannot move symlink to $ARCHIVE/$hostname/$resultname.tar.xz from $linksrc to $linkdest: code $status" | tee -a $mail_content >&4
-        # Cleanup needed here but trap takes care of it.
-        rm -rf $incoming
-        rm -rf ${UNPACK_PATH}/${hostname}/${resultname}
-        rm $RESULTS/$hostname/$prefix$resultname
         nerrs=$nerrs+1
+        # Cleanup needed here but trap takes care of it.
+        rm -rf ${incoming}
+        rm -rf ${INCOMING}/${hostname}/${resultname}
+        rm $RESULTS/$hostname/$prefix$resultname
         continue
+    fi
+
+    # Create a link in each state dir - if any fail, we should delete them all? No, that
+    # would be racy.
+    let toterr=0
+    let totsuc=0
+    for state in ${linkdestlist}; do
+        ln -sf ${ARCHIVE}/${hostname}/${resultname}.tar.xz ${ARCHIVE}/${hostname}/${state}/${resultname}.tar.xz
+        status=$?
+        if [ ${status} -eq 0 ] ;then
+            let totsuc+=1
+        else
+            echo "$TS: Cannot create ${ARCHIVE}/${hostname}/${resultname}.tar.xz link to $state: code $status" | tee -a $mail_content >&4
+            let toterr+=1
+        fi
+    done
+    if [ $toterr -gt 0 ]; then
+        # Count N link creations as one error since it is for handling of a
+        # single tarball.
+        let nerrs+=1
     fi
 
     let end_time=$(timestamp-seconds-since-epoch)

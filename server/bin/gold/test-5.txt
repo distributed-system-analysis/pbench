@@ -88,9 +88,6 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-unpack-tarballs (status=0)
-+++ Running pbench-move-unpacked
-run-1900-01-01T00:00:00-UTC: the unpack path, /var/tmp/pbench-test-server/test-5/pbench/public_html/incoming, is the same as the incoming path, /var/tmp/pbench-test-server/test-5/pbench/public_html/incoming; nothing to do
---- Finished pbench-move-unpacked (status=0)
 +++ Running pbench-copy-sosreports
 Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1

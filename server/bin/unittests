@@ -85,7 +85,6 @@ function _run_allscripts {
     # These next five are related and would flow in this order
     _run pbench-dispatch
     _run pbench-unpack-tarballs
-    _run pbench-move-unpacked
     _run pbench-copy-sosreports
     _run pbench-index
     # These four are independent, running periodically to accomplish
@@ -646,13 +645,7 @@ declare -A cmds=(
 
     # pbench-unpack-tarballs unpacking to the incoming directory
     [test-16]="_run pbench-unpack-tarballs"
-    # pbench-unpack-tarballs unpacking to a temporary directory
     [test-17]="_run pbench-unpack-tarballs"
-
-    # pbench-move-unpacked should do nothing when incoming directory is target
-    [test-18]="_run pbench-move-unpacked"
-    # pbench-move-unpacked should work as expected using a temporary directory
-    [test-19]="_run pbench-move-unpacked"
 
     [test-20]="_run echo audit archive hierarchy"
 
