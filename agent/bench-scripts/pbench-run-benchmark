@@ -54,6 +54,46 @@ if ($benchmark eq "list") {
 # The rest of the parameters are --arg=val, most of which we just pass to other scripts,
 my %params = get_params(@ARGV);
 
+# determine the common parameters from a group of iterations
+sub find_common_parameters {
+    my @iterations = @_;
+
+    my %common_parameters;
+    my $counter = 1;
+    for my $iteration_params (@iterations) {
+	$iteration_params =~ s/^\s+(.+)\s+$/$1/;
+
+	my @split_params = split(/\s+/, $iteration_params);
+
+	# count the number of occurences of each parameter key=value
+	# pair
+	for my $param_piece (@split_params) {
+	    if (! exists($common_parameters{$param_piece})) {
+		$common_parameters{$param_piece} = 1;
+	    } else {
+		$common_parameters{$param_piece}++;
+	    }
+	}
+
+	$counter++;
+    }
+
+    # decrement by one since we are post decrementing in the loop
+    $counter--;
+
+    for my $key (keys %common_parameters) {
+	# if the number of iterations is the same as the count for the
+	# key=value pair then the key=value pair is common across all
+	# iterations -- so remove key=value pairs where the count is
+	# not the same
+	if ($common_parameters{$key} != $counter) {
+	    delete $common_parameters{$key};
+	}
+    }
+
+    return(%common_parameters);
+}
+
 # Prepare for a post-process only mode if detected
 if (exists $params{"postprocess-only"} and $params{"postprocess-only"} eq "y") {
     $pp_only = 1;
@@ -159,6 +199,8 @@ if ($? != 0) {
     printf "%s\nCalling pbench-gen-iterations failed, exiting\n", join(" ", @param_sets);
     exit 1;
 }
+my @iteration_names;
+my %param_sets_common_params = find_common_parameters(@param_sets);
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
 metadata_log_begin_run($base_bench_dir, $params{"tool-group"});
@@ -204,7 +246,44 @@ while (scalar @param_sets > 0) {
         open(BULK_FH, ">bulk-sample.sh");
         print BULK_FH "#!/bin/bash\n";
     }
+
+    my %iterations_common_params = find_common_parameters(@iterations);
+
+    my @iterations_labels;
+
     for my $iteration_params (@iterations) {
+	$iteration_params =~ s/^\s+(.+)\s+$/$1/;
+
+	my @split_params = split(/\s+/, $iteration_params);
+
+	# create a label for the iteration, which becomes part of the
+	# iteration name.  the label should be comprised of the
+	# parameters that are not common across all iterations
+	my $iteration_label = "";
+	for my $param_piece (@split_params) {
+	    # if the param_piece does not exist in either of the
+	    # common parameters hashes then it should become part of
+	    # the iteration's label
+	    if (! exists($iterations_common_params{$param_piece}) ||
+		! exists($param_sets_common_params{$param_piece})) {
+		$iteration_label .= $param_piece . " ";
+	    }
+	}
+
+	# strip off the -- from each parameter, remove beginning and
+	# ending spaces, and convert spaces to underscores
+	$iteration_label =~ s/\s*--/ /g;
+	$iteration_label =~ s/\s+$//;
+	$iteration_label =~ s/^\s+//;
+	$iteration_label =~ s/\s/_/g;
+
+	push(@iterations_labels, $iteration_label);
+    }
+
+    for (my $index=0; $index<@iterations; $index++) {
+	my $iteration_params = $iterations[$index];
+	my $iteration_label = $iterations_labels[$index];
+
         chomp $iteration_params;
         if ($iteration_params =~ /^#/) {
             printf "%s\n", $param_set;
@@ -212,10 +291,11 @@ while (scalar @param_sets > 0) {
         }
         my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,);
         put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
-        metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params);
+	my $iteration_name = metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params, $iteration_label);
+        push(@iteration_names, $iteration_name);
         printf $fh "%d %s\n", $iteration_id, $iteration_params;
         printf "\n\n\niteration_ID: %d\niteration_params: %s\n", $iteration_id, $iteration_params;
-        my $iteration_dir = $base_bench_dir . "/iteration" . $iteration_id;
+        my $iteration_dir = $base_bench_dir . "/" . $iteration_name;
         my @sample_dirs;
         if ($pp_only) {
             opendir(my $iter_dh, $iteration_dir) || die "Can't opendir $iteration_dir: $!";
@@ -276,7 +356,7 @@ while (scalar @param_sets > 0) {
     %last_run_doc = %run_doc; # We need to keep at least 1 run doc to create the config docs later
     $run_part++;
 }
-metadata_log_end_run($base_bench_dir, $iteration_id, $benchmark, $params{'user-tags'}, $params{'tool-group'});
+metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $params{'tool-group'}, @iteration_names);
 close $fh;
 # Generate the result.html (to go away once CDM/Elastic UI is available)
 system(". " . $pbench_install_dir . "/base; " . $pbench_install_dir .
