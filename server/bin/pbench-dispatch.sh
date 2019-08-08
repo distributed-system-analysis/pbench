@@ -177,12 +177,12 @@ while read tarball ;do
         if [ $status -eq 0 ] ;then
             let totsuc+=1
         else
-            echo "$TS: Cannot create $tarball link from $linksrc to $state: code $status" | tee -a $mail_content >&4
+            echo "$TS: Cannot create $tarball link to $state: code $status" | tee -a $mail_content >&4
             let toterr+=1
         fi
     done
     if [ $toterr -gt 0 ]; then
-        # Count N link creations as one error since it is for hanlding of a
+        # Count N link creations as one error since it is for handling of a
         # single tarball.
         let nerrs+=1
     fi
