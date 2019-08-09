@@ -436,7 +436,7 @@ foreach my $iteration (sort { $a->{$iteration_number_field} <=> $b->{$iteration_
 								my $metric_label_string;
 								$metric_label_string = sprintf "%$spacing{$metric_type}{$metric_name}[$j]{$metric_label}s", $iteration->{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label};
 								if ( $metric_label eq get_label('closest_sample_label') ) { # embed a link to the closest sample
-									printf HTML "<td><div align=\"right\"><a href=\"./$iteration_num-$iteration_name/sample$iteration->{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}\">$metric_label_string</a></dev></td>";
+									printf HTML "<td><div align=\"right\"><a href=\"./$iteration_name_format/sample%d\">%s</a></dev></td>", $iteration_num, $iteration_name, $iteration->{$iteration_data_field}{$metric_type}{$metric_name}[$j-1]{$metric_label}, $metric_label_string;
 								} elsif ($metric_type and
 									 $metric_type eq 'throughput' and
 									 $metric_label eq get_label('stddevpct_label') and

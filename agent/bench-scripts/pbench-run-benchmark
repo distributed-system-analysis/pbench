@@ -277,6 +277,14 @@ while (scalar @param_sets > 0) {
 	$iteration_label =~ s/^\s+//;
 	$iteration_label =~ s/\s/_/g;
 
+	# if the logic for determining a label for the iteration has
+	# yielded an empty string just use the benchmark name -- this
+	# is likely because there is a single iteration so all
+	# parameters are common
+	if (length($iteration_label) == 0) {
+	    $iteration_label = $benchmark;
+	}
+
 	push(@iterations_labels, $iteration_label);
     }
 
