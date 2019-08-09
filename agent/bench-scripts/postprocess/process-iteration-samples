@@ -83,12 +83,13 @@ my @json_samples;
 my $nr_significant_figures = 4;
 
 sub get_avg_stddev {
+	my $samples_start_index = shift;
         my @numbers = @_;
 	my $count = scalar @numbers;
 	my $sum = 0;
 
 	if ($count == 1) {
-		return ($numbers[0]{get_label('value_label')}, 0, 0, 1);
+		return ($numbers[0]{get_label('value_label')}, 0, 0, $samples_start_index);
 	} elsif ($count == 0) {
 		return (0, 0, 0, 0);
 	} else {
@@ -109,7 +110,7 @@ sub get_avg_stddev {
 		}
 		$avg = $sum / $count;
 		
-		$index = 1;
+		$index = $samples_start_index;
 		for ($i=0; $i < scalar @numbers; $i++) {
 			$val = $numbers[$i]{get_label('value_label')};
 			$sqdiff = ($avg - $val)**2;
@@ -140,6 +141,7 @@ sub get_avg_stddev {
 	}
 }
 
+my $samples_start_index;
 my $file;
 my $dh;
 # It's possible some of the sample directories have already been archived
@@ -155,6 +157,9 @@ opendir($dh, $dir) || die "$script: could not open directory $dir: $!\n";
 foreach $file ( sort readdir($dh) ) {
 	if ($file =~ /^sample(\d+)$/) {
 		my $sample_id = $1;
+		if (!defined($samples_start_index) || ($sample_id < $samples_start_index)) {
+		    $samples_start_index = $sample_id;
+		}
 		my $sample_file = "$dir/sample$sample_id/result.json";
 		open( TXT, "<$sample_file" ) or die "Can't open $sample_file: $!";
 		my $json_text = "";
@@ -261,7 +266,7 @@ foreach my $metric_name (sort keys %iteration) {
 					($iteration{$metric_name}{$metric_type}[$i]{get_label('mean_label')},
 					 $iteration{$metric_name}{$metric_type}[$i]{get_label('stddev_label')},
 					 $iteration{$metric_name}{$metric_type}[$i]{get_label('stddevpct_label')},
-					 $iteration{$metric_name}{$metric_type}[$i]{get_label('closest_sample_label')}) = get_avg_stddev(@{$iteration{$metric_name}{$metric_type}[$i]{get_label('samples_label')}});
+					 $iteration{$metric_name}{$metric_type}[$i]{get_label('closest_sample_label')}) = get_avg_stddev($samples_start_index, @{$iteration{$metric_name}{$metric_type}[$i]{get_label('samples_label')}});
 					if ($iteration{$metric_name}{$metric_type}[$i]{get_label('role_label')} and
 						$iteration{$metric_name}{$metric_type}[$i]{get_label('role_label')} eq 'aggregate' and
 						$metric_name eq "throughput" and
