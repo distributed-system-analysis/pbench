@@ -88,23 +88,6 @@ class SosreportHostname(Exception):
     pass
 
 
-_ts_start = None
-def _ts(msg, newline=False):
-    """Debugging helper for emitting a timestamp aiding timing.
-    """
-    global _ts_start
-
-    now = datetime.utcnow()
-    if _ts_start:
-        print(now - _ts_start, file=sys.stderr)
-    _ts_start = now
-    if newline:
-        print(msg, file=sys.stderr)
-        _ts_start = None
-    else:
-        print(msg, end=' ', file=sys.stderr)
-    sys.stderr.flush()
-
 def _make_source_id(source, _parent=None):
     the_bytes = json.dumps(source, sort_keys=True).encode('utf-8')
     if _parent is not None:
@@ -712,13 +695,17 @@ class ResultData(PbenchData):
 
 
 def mk_result_data_actions(ptb, idxctx):
+    idxctx.logger.debug("start")
     rd = ResultData(ptb, idxctx)
     if not rd:
+        idxctx.logger.debug("end [no result data]")
         return
     # sources is a generator
     sources = rd.make_source()
     if not sources:
+        idxctx.logger.debug("end [no result data sources]")
         return
+    count = 0
     for source, source_id, parent_id, doc_type in sources:
         try:
             idx_name = rd.generate_index_name('result-data', source)
@@ -744,7 +731,9 @@ def mk_result_data_actions(ptb, idxctx):
             )
             if parent_id is not None:
                 action['_parent'] = parent_id
+            count += 0
             yield action
+    idxctx.logger.debug("end [{:d} result documents]", count)
     return
 
 
@@ -2153,6 +2142,8 @@ def mk_tool_data(ptb, idxctx):
     return
 
 def mk_tool_data_actions(ptb, idxctx):
+    idxctx.logger.debug("start")
+    count = 0
     for td in mk_tool_data(ptb, idxctx):
         # Each ToolData object, td, that is returned here represents how
         # data collected for that tool across all hosts is to be returned.
@@ -2178,7 +2169,9 @@ def mk_tool_data_actions(ptb, idxctx):
                     _id=source_id,
                     _source=source
                 )
+                count += 1
                 yield action
+    idxctx.logger.debug("end [{:d} tool data documents]", count)
     return
 
 ###########################################################################
@@ -2199,12 +2192,14 @@ def mk_toc_actions(ptb, idxctx):
     """Construct Table-of-Contents actions.
 
     These are indexed into the run index along side the runs."""
+    idxctx.logger.debug("start")
     tstamp = ptb.start_run
     # Since the timestamp for every TOC record will be the same, we generate
     # the index name once here using a fake source document on the call to
     # generate_index_name().
     pd = PbenchData(ptb, idxctx)
     idx_name = pd.generate_index_name('toc-data', { "@timestamp": tstamp })
+    count = 0
     for source in ptb.gen_toc():
         source["@timestamp"] = tstamp
         action = _dict_const(
@@ -2215,7 +2210,9 @@ def mk_toc_actions(ptb, idxctx):
             _source=source,
             _parent=ptb.run_metadata['id']
         )
+        count += 1
         yield action
+    idxctx.logger.debug("end [{:d} table-of-contents documents]", count)
     return
 
 ###########################################################################
@@ -2259,9 +2256,9 @@ def get_hostname_f_from_sos_d(sos_d, host=None, ip=None):
 
 def mk_tool_info(sos_d, mdconf, logger):
     """Return a dict containing tool info (local and remote)"""
+    logger.debug("start")
+    tools_array = []
     try:
-        tools_array = []
-
         labels = _dict_const()
         for host in mdconf.get("tools", "hosts").split():
             tools_info = _dict_const()
@@ -2309,12 +2306,11 @@ def mk_tool_info(sos_d, mdconf, logger):
             host = item['hostname']
             if host in labels:
                 item['label'] = labels[host]
-
-        return tools_array
-
     except Exception:
         logger.exception("mk_tool_info")
         return []
+    logger.debug("end [{:d} tools processed]", len(tools_array))
+    return tools_array
 
 def ip_address_to_ip_o_addr(s):
     # This routine deals with the contents of either the ip_-o_addr
@@ -2492,6 +2488,8 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
     return d
 
 def mk_sosreports(tb, extracted_root, logger):
+    logger.debug("start")
+
     sosreports = [ x for x in tb.getnames() if x.find("sosreport") >= 0 and x.endswith('.md5') ]
     sosreports.sort()
 
@@ -2514,6 +2512,7 @@ def mk_sosreports(tb, extracted_root, logger):
         d.update(host_md)
         sosreportlist.append(d)
 
+    logger.debug("end [{:d} sosreports processed]", len(sosreportlist))
     return sosreportlist
 
 def mk_run_action(ptb, idxctx):
@@ -2525,18 +2524,13 @@ def mk_run_action(ptb, idxctx):
        the tarball: its name, size, md5, mtime, etc.  Metadata about the run
        are *data* to be indexed under the "run" field.
     """
+    idxctx.logger.debug("start")
     source = _dict_const([('@timestamp', ptb.start_run)])
-
-    # debug: -T options will cause each call below to be timed
-    # and the elapsed interval printed.
-    debug_time_operations = idxctx.options.debug_time_operations
     source['@metadata'] = ptb.at_metadata
     source['run'] = ptb.run_metadata
-    if debug_time_operations: _ts("mk_sosreports")
     sos_d = mk_sosreports(ptb.tb, ptb.extracted_root, idxctx.logger)
     if sos_d:
         source['sosreports'] = sos_d
-    if debug_time_operations: _ts("mk_tool_info")
     source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf, idxctx.logger)
 
     # make a simple action for indexing
@@ -2549,7 +2543,7 @@ def mk_run_action(ptb, idxctx):
         _id=ptb.run_metadata['id'],
         _source=source,
     )
-    if debug_time_operations: _ts("Done!", newline=True)
+    idxctx.logger.debug("end")
     return action
 
 def make_all_actions(ptb, idxctx):
@@ -2558,19 +2552,15 @@ def make_all_actions(ptb, idxctx):
     source document, the table-of-contents tar ball documents, and finally
     all the tool data.
     """
-    debug_time_operations = idxctx.options.debug_time_operations
-    if debug_time_operations: _ts("mk_run_action")
+    idxctx.logger.debug("start")
     yield mk_run_action(ptb, idxctx)
-    if debug_time_operations: _ts("mk_toc_actions")
     for action in mk_toc_actions(ptb, idxctx):
         yield action
-    if debug_time_operations: _ts("mk_result_data_actions")
     for action in mk_result_data_actions(ptb, idxctx):
         yield action
-    if debug_time_operations: _ts("mk_tool_data_actions")
     for action in mk_tool_data_actions(ptb, idxctx):
         yield action
-    if debug_time_operations: _ts("mk_all_actions-done", newline=True)
+    idxctx.logger.debug("end")
     return
 
 
@@ -2962,8 +2952,6 @@ def main(options, name):
            cfg_name              - Name of the configuration file to use
            dump_index_patterns   - Don't do any indexing, but just emit the
                                    list of index patterns that would be used
-           debug_time_operations - Emit timing information for various steps
-                                   during execution
        All exceptions are caught and logged to syslog with the stacktrace of
        the exception in a sub-object of the logged JSON document.
 
@@ -3103,15 +3091,16 @@ def main(options, name):
     try:
         # Now that we are ready to begin the actual indexing step, ensure we
         # have the proper index templates in place.
-        if options.debug_time_operations: _ts("es_template")
+        idxctx.logger.debug("update_templates [start]")
         idxctx.templates.update_templates(idxctx.es)
     except TemplateError as e:
-        idxctx.logger.error(repr(e))
+        idxctx.logger.error("update_templates [end], error {}", repr(e))
         res = 9
     except Exception:
-        idxctx.logger.exception("Unexpected template processing error")
+        idxctx.logger.exception("update_templates [end]: Unexpected template processing error")
         res = 12
     else:
+        idxctx.logger.debug("update_templates [end]")
         res = 0
 
     if res != 0:
@@ -3120,6 +3109,7 @@ def main(options, name):
 
     with tempfile.TemporaryDirectory(prefix="{}.".format(name),
                 dir=idxctx.config.TMP) as tmpdir:
+        idxctx.logger.debug("start processing list of tar balls")
         tb_list = os.path.join(tmpdir, "{}.{}.list".format(name, idxctx.TS))
         try:
             with open(tb_list, "w") as lfp:
@@ -3141,22 +3131,22 @@ def main(options, name):
 
                 idxctx.logger.info("Starting {} (size {:d})", tb, size)
 
-                if options.debug_time_operations: _ts("index {} ({:d} bytes)".format(tb, size))
                 ptb = None
                 try:
                     # "Open" the tar ball represented by the tar ball object
+                    idxctx.logger.debug("open tar ball")
                     ptb = PbenchTarBall(idxctx, os.path.realpath(tb), tmpdir)
 
                     # Construct the generator for emitting all actions.  The `idxctx`
                     # dictionary is passed along to each generator so that it can add its
                     # context for error handling to the list.
-                    if options.debug_time_operations: _ts("generator setup")
+                    idxctx.logger.debug("generator setup")
                     actions = make_all_actions(ptb, idxctx)
 
                     # File name for containing all indexing errors that
                     # can't/won't be retried.
                     with open(ie_filename, "w") as fp:
-                        if options.debug_time_operations: _ts("es_index")
+                        idxctx.logger.debug("begin indexing")
                         es_res = es_index(idxctx.es, actions, fp, idxctx.logger, idxctx._dbg)
                 except UnsupportedTarballFormat as e:
                     idxctx.logger.error("Unsupported Tarball Format: {}", e)
@@ -3255,7 +3245,7 @@ def main(options, name):
         finally:
             if idxctx:
                 idxctx.dump_opctx()
-            if options.debug_time_operations: _ts("Done", newline=True)
+            idxctx.logger.debug("stopped processing list of tar balls")
 
             idx = _count_lines(indexed)
             skp = _count_lines(skipped)
@@ -3308,7 +3298,7 @@ if __name__ == '__main__':
         sys.exit(1)
     parser = ArgumentParser(
         """Usage: {} [--config <path-to-config-file>] [--dump-index-patterns]"""
-        """ [--time-ops] [--dump_templates]""".format(run_name))
+        """ [--dump_templates]""".format(run_name))
     parser.add_argument(
         "-C", "--config", dest="cfg_name",
         help="Specify config file")
@@ -3319,9 +3309,6 @@ if __name__ == '__main__':
     parser.add_argument(
         "-Q", "--dump-templates", action="store_true", dest="dump_templates",
         help="Emit the full JSON document for each index template used")
-    parser.add_argument(
-        "-T", "--time-ops", action="store_true", dest="debug_time_operations",
-        help="Time action making routines")
     parsed = parser.parse_args()
     status = main(parsed, run_name)
     sys.exit(status)
