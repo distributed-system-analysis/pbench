@@ -2523,15 +2523,6 @@ def mk_sosreports(tb, extracted_root, logger):
 
     return sosreportlist
 
-def mk_user_specified_metadata(idxctx):
-    # parse the JSON string into a dict and return it
-    try:
-        return json.loads(idxctx.options.metadata_string)
-    except Exception:
-        logger.exception("Cannot parse user specified metadata JSON string:"
-                " {}\n", idxctx.options.metadata_string)
-        return {}
-
 def mk_run_action(ptb, idxctx):
     """Extract metadata from the named tarball and create an indexing
        action out of them.
@@ -2548,9 +2539,6 @@ def mk_run_action(ptb, idxctx):
     debug_time_operations = idxctx.options.debug_time_operations
     source['@metadata'] = ptb.at_metadata
     source['run'] = ptb.run_metadata
-    if idxctx.options.metadata_string:
-        if debug_time_operations: _ts("mk_user_specified_metadata")
-        source['user_specified_metadata'] = mk_user_specified_metadata(idxctx)
     if debug_time_operations: _ts("mk_sosreports")
     sos_d = mk_sosreports(ptb.tb, ptb.extracted_root, idxctx.logger)
     if sos_d:
@@ -2983,7 +2971,7 @@ def main(options):
            debug_time_operations - Emit timing information for various steps
                                    during execution
        All exceptions are caught and logged to syslog with the stacktrace of
-       the exception in an sub-object of the logged JSON document.
+       the exception in a sub-object of the logged JSON document.
 
        Status codes used by es_index and the error below are defined from the
        list below to maintain compatibility with the previous code base when
@@ -3105,6 +3093,7 @@ def main(options):
             idxctx.logger.info("No tar balls found that need processing")
             return 0
 
+    # We always process the smallest tar balls first.
     tarballs = sorted(tarballs)
 
     # At this point, tarballs contains a list of tar balls sorted by size
@@ -3332,9 +3321,6 @@ if __name__ == '__main__':
     parser.add_argument(
         "-Q", "--dump-templates", action="store_true", dest="dump_templates",
         help="Emit the full JSON document for each index template used")
-    parser.add_argument(
-        "-M", "--metadata", dest="metadata_string",
-        help="Specify additional metadata (e.g. for browbeat) as a JSON document string")
     parser.add_argument(
         "-T", "--time-ops", action="store_true", dest="debug_time_operations",
         help="Time action making routines")
