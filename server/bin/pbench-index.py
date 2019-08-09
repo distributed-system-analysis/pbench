@@ -3131,11 +3131,7 @@ def main(options):
             indexed = os.path.join(tmpdir, "{}.{}.indexed".format(_NAME_, idxctx.TS))
             erred   = os.path.join(tmpdir, "{}.{}.erred"  .format(_NAME_, idxctx.TS))
             skipped = os.path.join(tmpdir, "{}.{}.skipped".format(_NAME_, idxctx.TS))
-
-            if idxctx.options.indexing_errors:
-                ie_filename = idxctx.options.indexing_errors
-            else:
-                ie_filename = os.path.join(tmpdir, "{}.{}.indexing-errors.json".format(_NAME_, idxctx.TS))
+            ie_filename = os.path.join(tmpdir, "{}.{}.indexing-errors.json".format(_NAME_, idxctx.TS))
 
             for size, tb in tarballs:
                 # Sanity check source tar ball path
@@ -3307,14 +3303,11 @@ def main(options):
 if __name__ == '__main__':
     parser = ArgumentParser(
         """Usage: {} [--config <path-to-config-file>] [--dump-index-patterns]"""
-        """ [--time-ops] [--indexing-errors] [--dump_templates]""".format(_NAME_))
+        """ [--time-ops] [--dump_templates]""".format(_NAME_))
     parser.add_argument(
         "-C", "--config", dest="cfg_name",
         help="Specify config file")
     parser.set_defaults(cfg_name = os.environ.get("CONFIG"))
-    parser.add_argument(
-        "-E", "--indexing-errors", dest="indexing_errors",
-        help="Name of a file to write JSON documents that fail to index")
     parser.add_argument(
         "-I", "--dump-index-patterns", action="store_true", dest="dump_index_patterns",
         help="Emit a list of index patterns used")
