@@ -435,9 +435,8 @@ function _run_test {
     _save_tree
     _dump_logs
     _verify_output ${testname}
-    res=$?
     _reset_state ${testname}
-    return $res
+    return 0
 }
 
 function _reset_state {
@@ -566,8 +565,8 @@ declare -A cmds=(
 
     # Special case of running pbench-index with -I to get a dump
     # of the index patterns in use.
-    [test-7.0.0]="_run pbench-index -I"
-    [test-7.0.1]="_run pbench-index -Q"
+    [test-7.0.0]="_run pbench-index --dump-index-pattern"
+    [test-7.0.1]="_run pbench-index --dump-templates"
 
     [test-7.1]="_run pbench-index"
 
@@ -724,21 +723,22 @@ fi
 
 function report_test_result {
     testname=$1
-    return_status=$2
     pass_or_fail=$(cat ${_testbase}/${testname}/result.txt)
-    if [[ ${pass_or_fail} == "PASS" && ${return_status} -eq 0 ]]; then
+    if [[ ${pass_or_fail} == "PASS" ]]; then
         echo "${pass_or_fail} - ${testname} ($(cat ${_testbase}/${testname}/result.duration))"
         rm ${_testbase}/${testname}/result.txt
         rm -f ${_testbase}/${testname}/result.duration
         rmdir ${_testbase}/${testname}
         res=0
     else
-        cat ${_testbase}/${testname}/output.diff
-        if [[ ${pass_or_fail} == "FAIL" ]]; then
-            echo "FAIL - ${testname} ($(cat ${_testbase}/${testname}/result.duration))"
+        if [[ -e ${_testbase}/${testname}/output.diff ]]; then
+            cat ${_testbase}/${testname}/output.diff
         else
-            echo "FAIL (sts = ${return_status}) - ${testname} ($(cat ${_testbase}/${testname}/result.duration))"
+            echo "+++"
+            echo "*** ${testname} failed with no output"
+            echo "---"
         fi
+        echo "FAIL - ${testname} ($(cat ${_testbase}/${testname}/result.duration))"
         res=1
         rm -f ${_testbase}/${testname}/result.duration
     fi
@@ -763,8 +763,7 @@ for testname in $tests ;do
         pids[${testname}]=${!}
     else
         _run_test ${testname} ${cmd}
-        res=$?
-        report_test_result ${testname} ${res}
+        report_test_result ${testname}
         if [[ $? -ne 0 ]]; then
             let failures=${failures}+1
         fi
@@ -775,9 +774,8 @@ if [ $count -eq 0 ]; then
     let failures=1
 elif [[ $mode == "parallel" ]]; then
     for testname in $tests ;do
-        wait ${pids[${testname}]}
-        res=$?
-        report_test_result ${testname} ${res}
+        wait ${pids[${testname}]} > /dev/null 2>&1
+        report_test_result ${testname}
         if [[ $? -ne 0 ]]; then
             let failures=${failures}+1
         fi
