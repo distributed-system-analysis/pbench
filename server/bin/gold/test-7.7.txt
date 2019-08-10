@@ -1,6 +1,5 @@
 +++ Running pbench-index
 Template:  pbench-unittests.v1.result-data
-Template:  pbench-unittests.v1.run
 Template:  pbench-unittests.v1.tool-data-iostat
 Template:  pbench-unittests.v1.tool-data-mpstat
 Template:  pbench-unittests.v1.tool-data-pidstat
@@ -8,22 +7,31 @@ Template:  pbench-unittests.v1.tool-data-proc-interrupts
 Template:  pbench-unittests.v1.tool-data-proc-vmstat
 Template:  pbench-unittests.v1.tool-data-prometheus-metrics
 Template:  pbench-unittests.v1.tool-data-vmstat
+Template:  pbench-unittests.v2.run
 Template:  pbench-unittests.v2.server-reports
-Index:  pbench-unittests.v1.run.2015-09 5
+Index:  pbench-unittests.v2.run.2015-09 5
 len(actions) = 5
 [
     {
         "_id": "8c30d803bae94ab735a54ddf4976700d",
-        "_index": "pbench-unittests.v1.run.2015-09",
+        "_index": "pbench-unittests.v2.run.2015-09",
         "_op_type": "create",
         "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "indexer": "pbench-index",
+                "pid": 42,
+                "timestamp": "1970-01-01T00:00:00-GMT",
+                "user_id": 44,
+                "version": "3.0.0"
+            },
             "@metadata": {
                 "controller_dir": "alphaville",
                 "file-date": "2019-03-07T02:12:24",
                 "file-name": "/var/tmp/pbench-test-server/test-7.7/pbench/archive/fs-version-001/alphaville/test-7.7.tar.xz",
                 "file-size": 1500,
-                "generated-by": "pbench-index",
-                "generated-by-version": "2.0.0",
                 "md5": "8c30d803bae94ab735a54ddf4976700d",
                 "pbench-agent-version": "unittests",
                 "toc-prefix": "test-7.7"
@@ -67,7 +75,7 @@ len(actions) = 5
     },
     {
         "_id": "a87cfdad0a4736e375082b585388664d",
-        "_index": "pbench-unittests.v1.run.2015-09",
+        "_index": "pbench-unittests.v2.run.2015-09",
         "_op_type": "create",
         "_parent": "8c30d803bae94ab735a54ddf4976700d",
         "_source": {
@@ -89,7 +97,7 @@ len(actions) = 5
     },
     {
         "_id": "9b787427f0300f0be883716994cd676d",
-        "_index": "pbench-unittests.v1.run.2015-09",
+        "_index": "pbench-unittests.v2.run.2015-09",
         "_op_type": "create",
         "_parent": "8c30d803bae94ab735a54ddf4976700d",
         "_source": {
@@ -102,7 +110,7 @@ len(actions) = 5
     },
     {
         "_id": "c565615687a073913a72bebc00f7ac3d",
-        "_index": "pbench-unittests.v1.run.2015-09",
+        "_index": "pbench-unittests.v2.run.2015-09",
         "_op_type": "create",
         "_parent": "8c30d803bae94ab735a54ddf4976700d",
         "_source": {
@@ -115,7 +123,7 @@ len(actions) = 5
     },
     {
         "_id": "be095c07f7fd5757e6dddd22430a531e",
-        "_index": "pbench-unittests.v1.run.2015-09",
+        "_index": "pbench-unittests.v2.run.2015-09",
         "_op_type": "create",
         "_parent": "8c30d803bae94ab735a54ddf4976700d",
         "_source": {
@@ -144,7 +152,6 @@ len(actions) = 5
     }
 ]
 Template:  pbench-unittests.v1.result-data
-Template:  pbench-unittests.v1.run
 Template:  pbench-unittests.v1.tool-data-iostat
 Template:  pbench-unittests.v1.tool-data-mpstat
 Template:  pbench-unittests.v1.tool-data-pidstat
@@ -152,6 +159,7 @@ Template:  pbench-unittests.v1.tool-data-proc-interrupts
 Template:  pbench-unittests.v1.tool-data-proc-vmstat
 Template:  pbench-unittests.v1.tool-data-prometheus-metrics
 Template:  pbench-unittests.v1.tool-data-vmstat
+Template:  pbench-unittests.v2.run
 Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.server-reports.1970-01 1
 len(actions) = 1

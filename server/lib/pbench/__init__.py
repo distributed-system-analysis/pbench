@@ -214,6 +214,11 @@ class PbenchConfig(object):
             self.PBENCH_ENV = ""
 
         try:
+            self.COMMIT_ID = self.conf.get("pbench-server", "commit_id")
+        except NoOptionError:
+            self.COMMIT_ID = "(unknown)"
+
+        try:
             self._unittests = self.conf.get('pbench-server', 'debug_unittest')
         except Exception as e:
             self._unittests = False
