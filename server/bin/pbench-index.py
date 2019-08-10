@@ -43,7 +43,7 @@ from pbench import tstos, get_es, es_index, es_put_template, PbenchConfig, \
 # generated those documents.  In turn, this can help us fix indexing problems
 # via re-indexing data with transformations based on the version of the code
 # that generated the documents.
-_VERSION_ = "2.0.0"
+_VERSION_ = "3.0.0"
 
 # Internal debugging flag.
 _DEBUG = 0
@@ -2527,6 +2527,19 @@ def mk_run_action(ptb, idxctx):
     idxctx.logger.debug("start")
     source = _dict_const([('@timestamp', ptb.start_run)])
     source['@metadata'] = ptb.at_metadata
+    # Note that the contents of the "@generated-by" record does not contribute
+    # to the generation of the documents `_id` field since a run document's ID
+    # is the MD5 hash of the tar ball.
+    source['@generated-by'] = dict([
+        ('indexer', idxctx.name),
+        ('version', _VERSION_),
+        ('commit_id', idxctx.config.COMMIT_ID),
+        ('hostname', idxctx.gethostname()),
+        ('pid', idxctx.getpid()),
+        ('group_id', idxctx.getgid()),
+        ('user_id', idxctx.getuid()),
+        ('timestamp', tstos(idxctx.time()))
+    ])
     source['run'] = ptb.run_metadata
     sos_d = mk_sosreports(ptb.tb, ptb.extracted_root, idxctx.logger)
     if sos_d:
@@ -2682,8 +2695,6 @@ class PbenchTarBall(object):
                 ('file-date', mtime.isoformat()),
                 ('file-name', self.tbname),
                 ('file-size', tb_stat.st_size),
-                ('generated-by', idxctx.name),
-                ('generated-by-version', _VERSION_),
                 ('md5', md5sum),
                 ('toc-prefix', self.dirname)
             ])
@@ -2917,8 +2928,24 @@ class IdxContext(object):
             def _do_time():
                 return 0
             self.time = _do_time
+            def _do_gethostname():
+                return "example.com"
+            self.gethostname = _do_gethostname
+            def _do_getpid():
+                return 42
+            self.getpid = _do_getpid
+            def _do_getgid():
+                return 43
+            self.getgid = _do_getgid
+            def _do_getuid():
+                return 44
+            self.getuid = _do_getuid
         else:
             self.time = time.time
+            self.gethostname = socket.gethostname
+            self.getpid = os.getpid
+            self.getgid = os.getgid
+            self.getuid = os.getuid
         self.TS = self.config.TS
 
         self.logger = get_pbench_logger(self.name, self.config)
