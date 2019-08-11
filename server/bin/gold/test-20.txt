@@ -1,4 +1,4 @@
-+++ Running echo
++++ Running echo audit archive hierarchy
 audit archive hierarchy
 --- Finished echo (status=0)
 +++ Running unit test audit

@@ -42,7 +42,7 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-server-prep-shim-002 (status=0)
-+++ Running pbench-sync-satellite
++++ Running pbench-sync-satellite satellite-one
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
 Template:  pbench-unittests.v2.server-reports
@@ -73,6 +73,8 @@ pbench-unpack-tarballs: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/p
 pbench-copy-sosreports: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
+--- Finished pbench-index (status=3)
++++ Running pbench-index --tool-data
 --- Finished pbench-index (status=3)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
@@ -205,6 +207,8 @@ drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--        147 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--        177 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--        157 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--       1488 logs/pbench-report-status/pbench-report-status.log
@@ -297,6 +301,9 @@ drwxrwxr-x          - tmp
 run-1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
 ----- pbench-dispatch/pbench-dispatch.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 ERROR pbench-index-tool-data.pbench-index main -- pbench-index-tool-data: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
+----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- pbench-index: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 ----- pbench-index/pbench-index.log

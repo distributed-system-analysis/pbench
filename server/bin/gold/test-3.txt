@@ -42,7 +42,7 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-server-prep-shim-002 (status=0)
-+++ Running pbench-sync-satellite
++++ Running pbench-sync-satellite satellite-one
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
 Template:  pbench-unittests.v2.server-reports
@@ -92,6 +92,8 @@ len(actions) = 1
 ]
 --- Finished pbench-copy-sosreports (status=0)
 +++ Running pbench-index
+--- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
 --- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench/public_html/results
@@ -225,6 +227,8 @@ drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--        147 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--        253 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--        223 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--       1860 logs/pbench-report-status/pbench-report-status.log
@@ -319,6 +323,10 @@ run-1900-01-01T00:00:00-UTC: ending at 1900-01-01T00:00:00-UTC, processed 0 sosr
 run-1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
 ----- pbench-dispatch/pbench-dispatch.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1900-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- No tar balls found that need processing
+----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- No tar balls found that need processing

@@ -51,6 +51,8 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
+--- Finished pbench-index (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
@@ -130,6 +132,7 @@ lrwxrwxrwx        132 archive/fs-version-001/bad-controller/TO-COPY-SOS/pbench-u
 lrwxrwxrwx         99 archive/fs-version-001/bad-controller/TO-COPY-SOS/test-7.18.tar.xz -> /var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/test-7.18.tar.xz
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-UNPACK
@@ -185,6 +188,8 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--        253 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       2174 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
@@ -250,6 +255,10 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 ----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1900-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- No tar balls found that need processing
+----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 WARNING pbench-index.pbench-index main -- Missing .md5 file for /var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/TO-INDEX/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz

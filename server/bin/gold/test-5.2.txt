@@ -42,7 +42,7 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-server-prep-shim-002 (status=0)
-+++ Running pbench-sync-satellite
++++ Running pbench-sync-satellite satellite-one
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
 Template:  pbench-unittests.v2.server-reports
@@ -140,6 +140,8 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
+--- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
 --- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
@@ -271,6 +273,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-UNPACK
@@ -299,6 +302,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-UNPACK
@@ -329,6 +333,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-UNPACK
@@ -363,6 +368,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-BACKU
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-UNPACK
@@ -429,6 +435,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-UNPACK
@@ -454,6 +461,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-BACKUP-LARG
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-UNPACK
@@ -567,6 +575,8 @@ drwxrwxr-x          - logs/pbench-edit-prefixes
 -rw-rw-r--          0 logs/pbench-edit-prefixes/pbench-edit-prefixes.error
 -rw-rw-r--         90 logs/pbench-edit-prefixes/pbench-edit-prefixes.log
 drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--        253 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       7001 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--       2604 logs/pbench-report-status/pbench-report-status.log
@@ -810,6 +820,10 @@ run-1900-01-01T00:00:00-UTC: Processed 10 result tar balls, 7 successfully (0 pa
 run-1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
 ----- pbench-edit-prefixes/pbench-edit-prefixes.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1900-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- No tar balls found that need processing
+----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 7 tar balls

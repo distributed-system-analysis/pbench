@@ -238,7 +238,7 @@ class PbenchConfig(object):
                 " TO-UNPACK UNPACKED" \
                 " TO-SYNC SYNCED" \
                 " TO-LINK" \
-                " TO-INDEX INDEXED WONT-INDEX" \
+                " TO-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX" \
                 " TO-COPY-SOS COPIED-SOS" \
                 " TO-BACKUP TO-BACKUP-LARGE BACKED-UP" \
                 " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED" \

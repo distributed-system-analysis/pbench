@@ -19,7 +19,7 @@ from pbench import tstos, get_es, es_index, BadConfig, get_pbench_logger, \
         quarantine, JsonFileError, TemplateError, report_status, rename_tb_link
 from pbench.indexer import IdxContext, ConfigFileError, BadDate, \
         UnsupportedTarballFormat, BadMDLogFormat, SosreportHostname, \
-        PbenchTarBall, make_all_actions
+        PbenchTarBall, make_all_actions, mk_tool_data_actions
 
 
 # Internal debugging flag.
@@ -90,6 +90,9 @@ def main(options, name):
                 file=sys.stderr)
         return 2
 
+    if options.index_tool_data:
+        name = "{}-tool-data".format(name)
+
     idxctx = None
     try:
         idxctx = IdxContext(options, name, _dbg=_DEBUG)
@@ -111,10 +114,18 @@ def main(options, name):
         idxctx.templates.dump_templates()
         return 0
 
-    # The link source and destination for the operation of this script.
-    linksrc = "TO-INDEX"
-    linkdest = "INDEXED"
-    # We only ever use a symlink'd error destination for indexing problems.
+    if options.index_tool_data:
+        # The link source and destination for the operation of this script
+        # when it only indexes tool data.
+        linksrc = "TO-INDEX-TOOL"
+        linkdest = "INDEXED"
+    else:
+        # The link source and destination for the operation of this script
+        # when it indexes run, table-of-contents, and result data.
+        linksrc = "TO-INDEX"
+        linkdest = "TO-INDEX-TOOL"
+    # We only ever use a symlink'd error destination for indexing
+    # problems.
     linkerrdest = "WONT-INDEX"
 
     res = 0
@@ -243,7 +254,10 @@ def main(options, name):
                     # dictionary is passed along to each generator so that it can add its
                     # context for error handling to the list.
                     idxctx.logger.debug("generator setup")
-                    actions = make_all_actions(ptb, idxctx)
+                    if options.index_tool_data:
+                        actions = mk_tool_data_actions(ptb, idxctx)
+                    else:
+                        actions = make_all_actions(ptb, idxctx)
 
                     # File name for containing all indexing errors that
                     # can't/won't be retried.
@@ -408,6 +422,10 @@ if __name__ == '__main__':
     parser.add_argument(
         "-Q", "--dump-templates", action="store_true", dest="dump_templates",
         help="Emit the full JSON document for each index template used")
+    parser.set_defaults(index_tool_data = False)
+    parser.add_argument(
+        "-T", "--tool-data", action="store_true", dest="index_tool_data",
+        help="Only index tool data, assumes run data already exists")
     parsed = parser.parse_args()
     status = main(parsed, run_name)
     sys.exit(status)

@@ -1,4 +1,4 @@
-+++ Running pbench-index
++++ Running pbench-index --dump-templates
 
 
 Template: pbench-unittests.v1.result-data

@@ -4,7 +4,7 @@ pbench-server-prep-shim-001: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench
 +++ Running pbench-server-prep-shim-002
 pbench-server-prep-shim-002: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp
 --- Finished pbench-server-prep-shim-002 (status=1)
-+++ Running pbench-sync-satellite
++++ Running pbench-sync-satellite satellite-one
 pbench-sync-satellite: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp
 --- Finished pbench-sync-satellite (status=1)
 +++ Running pbench-dispatch
@@ -18,6 +18,9 @@ pbench-copy-sosreports: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-loca
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
 pbench-index: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp
+--- Finished pbench-index (status=3)
++++ Running pbench-index --tool-data
+pbench-index-tool-data: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp
 --- Finished pbench-index (status=3)
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp

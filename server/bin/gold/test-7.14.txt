@@ -31,10 +31,8 @@ Template:  pbench-unittests.v1.tool-data-prometheus-metrics
 Template:  pbench-unittests.v1.tool-data-vmstat
 Template:  pbench-unittests.v2.run
 Template:  pbench-unittests.v2.server-reports
-Index:  pbench-unittests.v1.tool-data-mpstat.2018-04-10 2730
-Index:  pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10 73350
 Index:  pbench-unittests.v2.run.2018-04 27
-len(actions) = 45
+len(actions) = 15
 [
     {
         "_id": "f38462917c6b0545e8afd67cb8c393f9",
@@ -6266,7 +6264,53 @@ len(actions) = 45
             "mtime": "2018-04-10T19:01:21"
         },
         "_type": "pbench-run-toc-entry"
-    },
+    }
+]
+Template:  pbench-unittests.v1.result-data
+Template:  pbench-unittests.v1.tool-data-iostat
+Template:  pbench-unittests.v1.tool-data-mpstat
+Template:  pbench-unittests.v1.tool-data-pidstat
+Template:  pbench-unittests.v1.tool-data-proc-interrupts
+Template:  pbench-unittests.v1.tool-data-proc-vmstat
+Template:  pbench-unittests.v1.tool-data-prometheus-metrics
+Template:  pbench-unittests.v1.tool-data-vmstat
+Template:  pbench-unittests.v2.run
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "36f419e288553e46342a94cbdaa8b9f1",
+        "_index": "pbench-unittests.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-index",
+            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 250
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
+Template:  pbench-unittests.v1.result-data
+Template:  pbench-unittests.v1.tool-data-iostat
+Template:  pbench-unittests.v1.tool-data-mpstat
+Template:  pbench-unittests.v1.tool-data-pidstat
+Template:  pbench-unittests.v1.tool-data-proc-interrupts
+Template:  pbench-unittests.v1.tool-data-proc-vmstat
+Template:  pbench-unittests.v1.tool-data-prometheus-metrics
+Template:  pbench-unittests.v1.tool-data-vmstat
+Template:  pbench-unittests.v2.run
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.v1.tool-data-mpstat.2018-04-10 2730
+Index:  pbench-unittests.v1.tool-data-proc-interrupts.2018-04-10 73350
+len(actions) = 30
+[
     {
         "_id": "d1bd9941d26b22eb5619d5f94498b1a1",
         "_index": "pbench-unittests.v1.tool-data-mpstat.2018-04-10",
@@ -7482,17 +7526,17 @@ Index:  pbench-unittests.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "36f419e288553e46342a94cbdaa8b9f1",
+        "_id": "8968aa2a7bda6314bcec7d16e891b390",
         "_index": "pbench-unittests.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
-            "name": "pbench-index",
-            "text": "pbench-index.run-1900-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz\n\n",
+            "name": "pbench-index-tool-data",
+            "text": "pbench-index-tool-data.run-1900-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz\n\n",
             "total_chunks": 1,
-            "total_size": 250
+            "total_size": 265
         },
         "_type": "pbench-server-reports"
     }
@@ -7577,6 +7621,7 @@ drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-COPY-SOS
 lrwxrwxrwx        145 archive/fs-version-001/b03-h01-1029p/TO-COPY-SOS/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz -> /var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-UNPACK
@@ -8489,7 +8534,9 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--      37774 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--      38265 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       3251 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
@@ -8553,6 +8600,158 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 ----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1900-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3324496)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu0_cpu0.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu0_cpu0.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu10_cpu10.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu10_cpu10.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu11_cpu11.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu11_cpu11.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu12_cpu12.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu12_cpu12.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu13_cpu13.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu13_cpu13.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu14_cpu14.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu14_cpu14.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu15_cpu15.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu15_cpu15.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu16_cpu16.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu16_cpu16.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu17_cpu17.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu17_cpu17.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu18_cpu18.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu18_cpu18.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu19_cpu19.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu19_cpu19.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu1_cpu1.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu1_cpu1.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu20_cpu20.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu20_cpu20.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu21_cpu21.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu21_cpu21.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu22_cpu22.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu22_cpu22.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu23_cpu23.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu23_cpu23.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu24_cpu24.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu24_cpu24.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu25_cpu25.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu25_cpu25.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu26_cpu26.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu26_cpu26.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu27_cpu27.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu27_cpu27.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu28_cpu28.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu28_cpu28.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu29_cpu29.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu29_cpu29.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu2_cpu2.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu2_cpu2.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu30_cpu30.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu30_cpu30.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu31_cpu31.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu31_cpu31.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu32_cpu32.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu32_cpu32.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu33_cpu33.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu33_cpu33.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu34_cpu34.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu34_cpu34.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu35_cpu35.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu35_cpu35.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu36_cpu36.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu36_cpu36.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu37_cpu37.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu37_cpu37.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu38_cpu38.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu38_cpu38.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu39_cpu39.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu39_cpu39.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu3_cpu3.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu3_cpu3.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu40_cpu40.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu40_cpu40.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu41_cpu41.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu41_cpu41.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu42_cpu42.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu42_cpu42.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu43_cpu43.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu43_cpu43.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu44_cpu44.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu44_cpu44.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu45_cpu45.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu45_cpu45.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu46_cpu46.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu46_cpu46.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu47_cpu47.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu47_cpu47.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu48_cpu48.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu48_cpu48.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu49_cpu49.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu49_cpu49.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu4_cpu4.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu4_cpu4.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu50_cpu50.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu50_cpu50.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu51_cpu51.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu51_cpu51.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu52_cpu52.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu52_cpu52.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu53_cpu53.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu53_cpu53.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu54_cpu54.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu54_cpu54.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu55_cpu55.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu55_cpu55.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu56_cpu56.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu56_cpu56.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu57_cpu57.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu57_cpu57.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu58_cpu58.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu58_cpu58.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu59_cpu59.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu59_cpu59.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu5_cpu5.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu5_cpu5.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu60_cpu60.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu60_cpu60.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu61_cpu61.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu61_cpu61.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu62_cpu62.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu62_cpu62.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu63_cpu63.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu63_cpu63.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu6_cpu6.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu6_cpu6.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu7_cpu7.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu7_cpu7.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu8_cpu8.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu8_cpu8.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu9_cpu9.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu9_cpu9.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpuall_cpuall.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpuall_cpuall.csv
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [76080 tool data documents]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 76080, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1900-01-01T00:00:00-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3324496)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1900-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
@@ -8575,142 +8774,8 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [26 table-of-contents documents]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [no result data sources]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_data_actions -- start
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu0_cpu0.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu0_cpu0.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu10_cpu10.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu10_cpu10.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu11_cpu11.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu11_cpu11.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu12_cpu12.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu12_cpu12.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu13_cpu13.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu13_cpu13.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu14_cpu14.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu14_cpu14.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu15_cpu15.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu15_cpu15.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu16_cpu16.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu16_cpu16.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu17_cpu17.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu17_cpu17.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu18_cpu18.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu18_cpu18.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu19_cpu19.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu19_cpu19.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu1_cpu1.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu1_cpu1.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu20_cpu20.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu20_cpu20.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu21_cpu21.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu21_cpu21.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu22_cpu22.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu22_cpu22.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu23_cpu23.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu23_cpu23.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu24_cpu24.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu24_cpu24.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu25_cpu25.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu25_cpu25.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu26_cpu26.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu26_cpu26.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu27_cpu27.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu27_cpu27.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu28_cpu28.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu28_cpu28.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu29_cpu29.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu29_cpu29.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu2_cpu2.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu2_cpu2.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu30_cpu30.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu30_cpu30.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu31_cpu31.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu31_cpu31.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu32_cpu32.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu32_cpu32.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu33_cpu33.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu33_cpu33.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu34_cpu34.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu34_cpu34.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu35_cpu35.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu35_cpu35.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu36_cpu36.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu36_cpu36.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu37_cpu37.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu37_cpu37.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu38_cpu38.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu38_cpu38.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu39_cpu39.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu39_cpu39.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu3_cpu3.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu3_cpu3.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu40_cpu40.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu40_cpu40.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu41_cpu41.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu41_cpu41.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu42_cpu42.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu42_cpu42.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu43_cpu43.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu43_cpu43.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu44_cpu44.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu44_cpu44.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu45_cpu45.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu45_cpu45.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu46_cpu46.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu46_cpu46.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu47_cpu47.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu47_cpu47.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu48_cpu48.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu48_cpu48.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu49_cpu49.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu49_cpu49.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu4_cpu4.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu4_cpu4.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu50_cpu50.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu50_cpu50.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu51_cpu51.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu51_cpu51.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu52_cpu52.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu52_cpu52.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu53_cpu53.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu53_cpu53.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu54_cpu54.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu54_cpu54.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu55_cpu55.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu55_cpu55.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu56_cpu56.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu56_cpu56.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu57_cpu57.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu57_cpu57.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu58_cpu58.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu58_cpu58.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu59_cpu59.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu59_cpu59.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu5_cpu5.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu5_cpu5.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu60_cpu60.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu60_cpu60.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu61_cpu61.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu61_cpu61.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu62_cpu62.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu62_cpu62.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu63_cpu63.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu63_cpu63.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu6_cpu6.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu6_cpu6.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu7_cpu7.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu7_cpu7.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu8_cpu8.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu8_cpu8.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu9_cpu9.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu9_cpu9.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpuall_cpuall.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpuall_cpuall.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_data_actions -- end [76080 tool data documents]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 76107, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 27, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1900-01-01T00:00:00-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz: success
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.14/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3324496)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
