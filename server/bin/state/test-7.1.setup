@@ -1,0 +1,10 @@
+#!/bin/bash
+
+tbpath=$(find . -type l -name '*.tar.xz' 2>/dev/null | head -n 1)
+if [[ -z ${tbpath} ]]; then
+    exit 1
+fi
+tbname=$(basename ${tbpath})
+ctrlpath=$(dirname $(dirname ${tbpath}))
+mv ${ctrlpath}/TO-INDEX ${ctrlpath}/TO-UNPACK || exit $?
+exit $?

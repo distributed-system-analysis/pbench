@@ -3125,11 +3125,6 @@ lrwxrwxrwx         73 users -> /var/tmp/pbench-test-server/test-7.0.1/pbench-sat
 +++ pbench tree state (/var/tmp/pbench-test-server/test-7.0.1/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
-drwxrwxr-x          - archive/fs-version-001/controller
-drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX
-lrwxrwxrwx         42 archive/fs-version-001/controller/TO-INDEX/tarball-noop_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-noop_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--        216 archive/fs-version-001/controller/tarball-noop_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         74 archive/fs-version-001/controller/tarball-noop_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/results

@@ -123,6 +123,10 @@ def main(options, name):
         if not os.path.isdir(ARCHIVE_rp):
             idxctx.logger.error("{}: Bad ARCHIVE={}", name, idxctx.config.ARCHIVE)
             res = 3
+        INCOMING_rp = os.path.realpath(idxctx.config.INCOMING)
+        if not os.path.isdir(INCOMING_rp):
+            idxctx.logger.error("{}: Bad INCOMING={}", name, idxctx.config.INCOMING)
+            res = 3
         qdir = idxctx.config.get('pbench-server', 'pbench-quarantine-dir')
         if not os.path.isdir(qdir):
             idxctx.logger.error("{}: {} does not exist, or is not a directory", name, qdir)
@@ -148,9 +152,10 @@ def main(options, name):
                 quarantine(qdir, idxctx.logger, tb)
                 continue
             controller_path = os.path.dirname(rp)
+            controller = os.path.basename(controller_path)
             archive_path = os.path.dirname(controller_path)
             if archive_path != ARCHIVE_rp:
-                idxctx.logger.warning("For tarball {}, original home is not {}", tb, ARCHIVE_rp)
+                idxctx.logger.warning("For tar ball {}, original home is not {}", tb, ARCHIVE_rp)
                 quarantine(qdir, idxctx.logger, tb)
                 continue
             if not os.path.isfile(rp + ".md5"):
@@ -167,7 +172,7 @@ def main(options, name):
                 # Audit should pick up missing .md5 file in ARCHIVE directory.
                 continue
             else:
-                tarballs.append( (size, tb) )
+                tarballs.append( (size, controller, tb) )
     except Exception:
         idxctx.logger.exception("Unexpected error encountered generating list of tar"
                 " balls to process")
@@ -182,7 +187,7 @@ def main(options, name):
 
     # At this point, tarballs contains a list of tar balls sorted by size
     # that were available as symlinks in the various 'linksrc' directories.
-    idxctx.logger.debug("Preparing to index {:d} tarballs", len(tarballs))
+    idxctx.logger.debug("Preparing to index {:d} tar balls", len(tarballs))
 
     try:
         # Now that we are ready to begin the actual indexing step, ensure we
@@ -211,15 +216,15 @@ def main(options, name):
             with open(tb_list, "w") as lfp:
                 # Write out all the tar balls we are processing so external
                 # viewers can follow along from home.
-                for size, tb in tarballs:
-                    print("{:20d} {}".format(size, tb), file=lfp)
+                for size, controller, tb in tarballs:
+                    print("{:20d} {} {}".format(size, controller, tb), file=lfp)
 
             indexed = os.path.join(tmpdir, "{}.{}.indexed".format(name, idxctx.TS))
             erred   = os.path.join(tmpdir, "{}.{}.erred"  .format(name, idxctx.TS))
             skipped = os.path.join(tmpdir, "{}.{}.skipped".format(name, idxctx.TS))
             ie_filename = os.path.join(tmpdir, "{}.{}.indexing-errors.json".format(name, idxctx.TS))
 
-            for size, tb in tarballs:
+            for size, controller, tb in tarballs:
                 # Sanity check source tar ball path
                 linksrc_dir = os.path.dirname(tb)
                 linksrc_dirname = os.path.basename(linksrc_dir)
@@ -231,7 +236,8 @@ def main(options, name):
                 try:
                     # "Open" the tar ball represented by the tar ball object
                     idxctx.logger.debug("open tar ball")
-                    ptb = PbenchTarBall(idxctx, os.path.realpath(tb), tmpdir)
+                    ptb = PbenchTarBall(idxctx, os.path.realpath(tb), tmpdir,
+                            os.path.join(INCOMING_rp, controller))
 
                     # Construct the generator for emitting all actions.  The `idxctx`
                     # dictionary is passed along to each generator so that it can add its
@@ -245,7 +251,7 @@ def main(options, name):
                         idxctx.logger.debug("begin indexing")
                         es_res = es_index(idxctx.es, actions, fp, idxctx.logger, idxctx._dbg)
                 except UnsupportedTarballFormat as e:
-                    idxctx.logger.error("Unsupported Tarball Format: {}", e)
+                    idxctx.logger.error("Unsupported tar ball format: {}", e)
                     tb_res = 4
                 except BadDate as e:
                     idxctx.logger.error("Bad Date: {!r}", e)
@@ -254,13 +260,13 @@ def main(options, name):
                     idxctx.logger.error("No such file: {}", e)
                     tb_res = 6
                 except BadMDLogFormat as e:
-                    idxctx.logger.error("The metadata.log file is curdled in tarball: {}", e)
+                    idxctx.logger.error("The metadata.log file is curdled in tar ball: {}", e)
                     tb_res = 7
                 except SosreportHostname as e:
                     idxctx.logger.error("Bad hostname in sosreport: {}", e)
                     tb_res = 10
                 except tarfile.TarError as e:
-                    idxctx.logger.error("Can't unpack tarball into {}: {}", ptb.extracted_root, e)
+                    idxctx.logger.error("Can't unpack tar ball into {}: {}", ptb.extracted_root, e)
                     tb_res = 11
                 except Exception as e:
                     idxctx.logger.exception("Other indexing error: {}", e)
@@ -272,9 +278,6 @@ def main(options, name):
                             " retries: {:d})", tstos(end), end - beg, successes,
                             duplicates, failures, retries)
                     tb_res = 1 if failures > 0 else 0
-                finally:
-                    if ptb:
-                        ptb.delete_extracted()
                 try:
                     ie_len = os.path.getsize(ie_filename)
                 except _filenotfounderror:

@@ -1,3 +1,25 @@
++++ Running pbench-unpack-tarballs
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "bf68c22d8beb1cc8b0de751e694880e6",
+        "_index": "pbench-unittests.server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-unpack-tarballs",
+            "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 162
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
 Template:  pbench-unittests.v1.result-data
 Template:  pbench-unittests.v1.tool-data-iostat
@@ -3255,14 +3277,156 @@ lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.17/pbench-sate
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/ansible-host
+drwxrwxr-x          - archive/fs-version-001/ansible-host/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/ansible-host/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/ansible-host/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/ansible-host/INDEXED
-lrwxrwxrwx         66 archive/fs-version-001/ansible-host/INDEXED/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz -> ../pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz
+lrwxrwxrwx        144 archive/fs-version-001/ansible-host/INDEXED/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz -> /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ansible-host/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/ansible-host/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/ansible-host/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/ansible-host/SYNCED
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-BACKUP-LARGE
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-COPY-SOS
+lrwxrwxrwx        144 archive/fs-version-001/ansible-host/TO-COPY-SOS/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz -> /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TODO
+drwxrwxr-x          - archive/fs-version-001/ansible-host/UNPACKED
+lrwxrwxrwx         66 archive/fs-version-001/ansible-host/UNPACKED/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz -> ../pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ansible-host/WONT-INDEX
 -rw-rw-r--      31384 archive/fs-version-001/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz
 -rw-rw-r--         98 archive/fs-version-001/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/ansible-host
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result
+-rw-r--r--     161996 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/result.txt
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/csv
+-rw-r--r--        512 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/csv/disk_IOPS.csv
+-rw-r--r--        397 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/csv/disk_Queue_Size.csv
+-rw-r--r--        512 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/csv/disk_Request_Merges_per_sec.csv
+-rw-r--r--        417 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/csv/disk_Request_Size_in_512_byte_sectors.csv
+-rw-r--r--        512 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/csv/disk_Throughput_MB_per_sec.csv
+-rw-r--r--        397 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/csv/disk_Utilization_percent.csv
+-rw-r--r--        512 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/csv/disk_Wait_Time_msec.csv
+-rw-r--r--        382 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/disk-average.txt
+-rw-r--r--       1379 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/disk.html
+-rw-r--r--          0 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/iostat-stderr.txt
+-rw-r--r--       7598 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/iostat-stdout.txt
+-rwxr-xr-x         48 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/iostat/iostat.cmd
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat
+-rw-r--r--      11985 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/context_switches-average.txt
+-rw-r--r--        787 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/context_switches.html
+-rw-r--r--       4830 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/cpu_usage-average.txt
+-rw-r--r--        611 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/cpu_usage.html
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv
+-rw-r--r--      11933 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv/context_switches_nonvoluntary_switches_sec.csv
+-rw-r--r--      11935 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv/context_switches_voluntary_switches_sec.csv
+-rw-r--r--      11933 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv/cpu_usage_percent_cpu.csv
+-rw-r--r--      11933 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv/file_io_io_reads_KB_sec.csv
+-rw-r--r--      11933 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv/file_io_io_writes_KB_sec.csv
+-rw-r--r--      11933 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv/memory_faults_major_faults_sec.csv
+-rw-r--r--      11963 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv/memory_faults_minor_faults_sec.csv
+-rw-r--r--      11877 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv/memory_usage_resident_set_size.csv
+-rw-r--r--      14976 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/csv/memory_usage_virtual_size.csv
+-rw-r--r--      10497 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/file_io-average.txt
+-rw-r--r--        762 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/file_io.html
+-rw-r--r--      10595 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/memory_faults-average.txt
+-rw-r--r--        706 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/memory_faults.html
+-rw-r--r--      11016 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/memory_usage-average.txt
+-rw-r--r--        932 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/memory_usage.html
+-rw-r--r--          0 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/pidstat-stderr.txt
+-rw-r--r--     364333 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/pidstat-stdout.txt
+-rwxr-xr-x         61 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/ansible-host/pidstat/pidstat.cmd
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv
+-rw-r--r--        408 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv/vmstat_block.csv
+-rw-r--r--        538 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv/vmstat_cpu.csv
+-rw-r--r--        878 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv/vmstat_memory.csv
+-rw-r--r--        389 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv/vmstat_procs.csv
+-rw-r--r--        388 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv/vmstat_swap.csv
+-rw-r--r--        518 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv/vmstat_system.csv
+-rw-r--r--        417 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/vmstat-average.txt
+-rw-r--r--          0 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/vmstat-stderr.txt
+-rw-r--r--       2990 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/vmstat-stdout.txt
+-rwxr-xr-x        271 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/vmstat.cmd
+-rw-r--r--       1615 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/vmstat.html
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/csv
+-rw-r--r--        408 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/csv/vmstat_block.csv
+-rw-r--r--        538 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/csv/vmstat_cpu.csv
+-rw-r--r--        878 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/csv/vmstat_memory.csv
+-rw-r--r--        389 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/csv/vmstat_procs.csv
+-rw-r--r--        388 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/csv/vmstat_swap.csv
+-rw-r--r--        518 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/csv/vmstat_system.csv
+-rw-r--r--        417 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/vmstat-average.txt
+-rw-r--r--          0 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/vmstat-stderr.txt
+-rw-r--r--       2990 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/vmstat-stdout.txt
+-rwxr-xr-x        271 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/vmstat.cmd
+-rw-r--r--       1615 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/vmstat.html
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/csv
+-rw-r--r--        440 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/csv/vmstat_block.csv
+-rw-r--r--        538 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/csv/vmstat_cpu.csv
+-rw-r--r--        898 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/csv/vmstat_memory.csv
+-rw-r--r--        390 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/csv/vmstat_procs.csv
+-rw-r--r--        388 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/csv/vmstat_swap.csv
+-rw-r--r--        525 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/csv/vmstat_system.csv
+-rw-r--r--        422 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/vmstat-average.txt
+-rw-r--r--          0 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/vmstat-stderr.txt
+-rw-r--r--       2997 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/vmstat-stdout.txt
+-rwxr-xr-x        271 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/vmstat.cmd
+-rw-r--r--       1615 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-0.scale-ci.example.com/vmstat/vmstat.html
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/csv
+-rw-r--r--        428 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/csv/vmstat_block.csv
+-rw-r--r--        538 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/csv/vmstat_cpu.csv
+-rw-r--r--        898 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/csv/vmstat_memory.csv
+-rw-r--r--        390 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/csv/vmstat_procs.csv
+-rw-r--r--        388 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/csv/vmstat_swap.csv
+-rw-r--r--        526 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/csv/vmstat_system.csv
+-rw-r--r--        419 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/vmstat-average.txt
+-rw-r--r--          0 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/vmstat-stderr.txt
+-rw-r--r--       2998 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/vmstat-stdout.txt
+-rwxr-xr-x        271 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/vmstat.cmd
+-rw-r--r--       1615 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-1.scale-ci.example.com/vmstat/vmstat.html
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/csv
+-rw-r--r--        432 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/csv/vmstat_block.csv
+-rw-r--r--        538 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/csv/vmstat_cpu.csv
+-rw-r--r--        898 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/csv/vmstat_memory.csv
+-rw-r--r--        389 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/csv/vmstat_procs.csv
+-rw-r--r--        388 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/csv/vmstat_swap.csv
+-rw-r--r--        542 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/csv/vmstat_system.csv
+-rw-r--r--        421 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/vmstat-average.txt
+-rw-r--r--          0 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/vmstat-stderr.txt
+-rw-r--r--       3014 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/vmstat-stdout.txt
+-rwxr-xr-x        271 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/vmstat.cmd
+-rw-r--r--       1615 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat/vmstat.html
+-rw-rw-r--        239 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/README
+-rw-r--r--       1395 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/metadata.log
+drwxr-xr-x          - public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/tmp
+-rw-r--r--          0 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/user-benchmark-summary-debug.json
+-rw-r--r--         51 public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/user-benchmark-summary.json
 drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/results/ansible-host
+drwxrwxr-x          - public_html/results/ansible-host/test_glusterfs-storage-block
+lrwxrwxrwx        135 public_html/results/ansible-host/test_glusterfs-storage-block/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18 -> /var/tmp/pbench-test-server/test-7.17/pbench/public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/static/css
 drwxrwxr-x          - public_html/static/css/v0.2
@@ -3289,9 +3453,12 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       8759 logs/pbench-index/pbench-index.log
+-rw-rw-r--       8760 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
+drwxrwxr-x          - logs/pbench-unpack-tarballs
+-rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+-rw-rw-r--        539 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -3352,7 +3519,7 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tarballs
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
@@ -3406,7 +3573,17 @@ drwxrwxr-x          - tmp
 +++++ pbench-report-status/pbench-report-status.log
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-report-status/pbench-report-status.log
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
+run-1900-01-01T00:00:00-UTC
+ln -s /var/tmp/pbench-test-server/test-7.17/pbench/public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18 /var/tmp/pbench-test-server/test-7.17/pbench/public_html/results/ansible-host/test_glusterfs-storage-block/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18
+run-1900-01-01T00:00:00-UTC: ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18: success - elapsed time (secs): 0 - size (bytes): 31384
+run-1900-01-01T00:00:00-UTC: Processed 1 tarballs
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
