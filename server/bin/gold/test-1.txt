@@ -4,7 +4,7 @@ pbench-server-prep-shim-001: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pben
 +++ Running pbench-server-prep-shim-002
 pbench-server-prep-shim-002: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-server-prep-shim-002 (status=1)
-+++ Running pbench-sync-satellite
++++ Running pbench-sync-satellite satellite-one
 pbench-sync-satellite: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-sync-satellite (status=1)
 +++ Running pbench-dispatch
@@ -17,6 +17,8 @@ pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/ar
 pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
+--- Finished pbench-index (status=3)
++++ Running pbench-index --tool-data
 --- Finished pbench-index (status=3)
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
@@ -103,6 +105,8 @@ drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-backup-tarballs
 -rw-rw-r--        280 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--        178 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--        158 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
 -rw-rw-r--        241 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
@@ -163,6 +167,9 @@ drwxrwxr-x          - tmp
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
 1970-01-01T00:00:00.000000 ERROR pbench-backup-tarballs.pbench-backup-tarballs sanity_check -- The ARCHIVE directory /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, does not resolve /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001 to a directory
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 ERROR pbench-index-tool-data.pbench-index main -- pbench-index-tool-data: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
+----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 ----- pbench-index/pbench-index.log

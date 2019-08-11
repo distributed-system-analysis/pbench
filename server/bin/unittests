@@ -42,16 +42,21 @@ PATH=$(remove_path /opt/pbench-agent/bench-scripts $PATH)
 export PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
 
 function _run {
-    tname=$1
+    tname=${1}
     shift
-    echo "+++ Running $tname" >> $_testout
-    $tname $@ >> $_testout 2>&1
-    echo "--- Finished $tname (status=$?)" >> $_testout
+    if [[ -z "${@}" ]]; then
+        echo "+++ Running ${tname}" >> ${_testout}
+    else
+        echo "+++ Running ${tname} ${@}" >> ${_testout}
+    fi
+    ${tname} ${@} >> ${_testout} 2>&1
+    echo "--- Finished ${tname} (status=${?})" >> ${_testout}
 }
 
 function _run_indexing {
     _run pbench-unpack-tarballs
     _run pbench-index
+    _run pbench-index --tool-data
 }
 
 function _run_activate {
@@ -92,6 +97,7 @@ function _run_allscripts {
     _run pbench-unpack-tarballs
     _run pbench-copy-sosreports
     _run pbench-index
+    _run pbench-index --tool-data
     # These four are independent, running periodically to accomplish
     # their specific tasks.
     _run pbench-clean-up-dangling-results-links

@@ -1,4 +1,4 @@
-+++ Running pbench-sync-satellite
++++ Running pbench-sync-satellite satellite-one
 --- Finished pbench-sync-satellite (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v2.server-reports
@@ -79,6 +79,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-BACKUP-LARGE
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-COPY-SOS
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-UNPACK

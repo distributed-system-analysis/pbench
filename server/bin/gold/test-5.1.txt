@@ -42,7 +42,7 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-server-prep-shim-002 (status=0)
-+++ Running pbench-sync-satellite
++++ Running pbench-sync-satellite satellite-one
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
 Template:  pbench-unittests.v2.server-reports
@@ -111,6 +111,8 @@ len(actions) = 1
 ]
 --- Finished pbench-copy-sosreports (status=0)
 +++ Running pbench-index
+--- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
 --- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
@@ -269,6 +271,8 @@ drwxrwxr-x          - logs/pbench-edit-prefixes
 -rw-rw-r--          0 logs/pbench-edit-prefixes/pbench-edit-prefixes.error
 -rw-rw-r--         90 logs/pbench-edit-prefixes/pbench-edit-prefixes.log
 drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--        253 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--        223 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--       2604 logs/pbench-report-status/pbench-report-status.log
@@ -385,6 +389,10 @@ run-1900-01-01T00:00:00-UTC: Processed 0 result tar balls, 0 successfully (0 par
 run-1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
 ----- pbench-edit-prefixes/pbench-edit-prefixes.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1900-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- No tar balls found that need processing
+----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- No tar balls found that need processing

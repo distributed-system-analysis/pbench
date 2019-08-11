@@ -61,6 +61,8 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
+--- Finished pbench-index (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
@@ -139,6 +141,7 @@ drwxrwxr-x          - archive/fs-version-001/alphaville/TO-COPY-SOS
 lrwxrwxrwx         93 archive/fs-version-001/alphaville/TO-COPY-SOS/test-7.5.tar.xz -> /var/tmp/pbench-test-server/test-7.5/pbench/archive/fs-version-001/alphaville/test-7.5.tar.xz
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-UNPACK
@@ -189,6 +192,8 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--        253 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       2126 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
@@ -253,6 +258,10 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 ----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1900-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- No tar balls found that need processing
+----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls

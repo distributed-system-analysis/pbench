@@ -2551,16 +2551,14 @@ def mk_run_action(ptb, idxctx):
 def make_all_actions(ptb, idxctx):
     """Driver for generating all actions on source documents for indexing into
        Elasticsearch. This generator drives the generation of the run source
-       document, the table-of-contents tar ball documents, and finally all the
-       tool data.
+       document, the table-of-contents tar ball documents, and then all the
+       result data.
     """
     idxctx.logger.debug("start")
     yield mk_run_action(ptb, idxctx)
     for action in mk_toc_actions(ptb, idxctx):
         yield action
     for action in mk_result_data_actions(ptb, idxctx):
-        yield action
-    for action in mk_tool_data_actions(ptb, idxctx):
         yield action
     idxctx.logger.debug("end")
     return

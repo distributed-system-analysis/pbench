@@ -1,4 +1,4 @@
-+++ Running pbench-sync-satellite
++++ Running pbench-sync-satellite satellite-one
 --- Finished pbench-sync-satellite (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v2.server-reports
