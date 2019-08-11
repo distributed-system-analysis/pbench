@@ -1,5 +1,5 @@
-"""
-Pbench's Indexer - classes and methods that handle the indexing of pbench result tar balls.
+"""Pbench's Indexer - classes and methods that handle the indexing of pbench
+result tar balls.
 """
 
 import sys
@@ -11,7 +11,6 @@ import hashlib
 import json
 import csv
 import tarfile
-import shutil
 import socket
 from operator import itemgetter
 from datetime import datetime, timedelta
@@ -2028,13 +2027,13 @@ class ToolData(PbenchData):
         return datafiles
 
 
-# tool data are stored in csv files in the tarball.
-# the structure is
+# Tool data are stored in csv files in the tar ball.
+# The structure is
 #      <iterN> -> sampleN -> tools-$group -> <host> -> <tool> -> csv -> files
 # we have access routines for getting the iterations, samples, hosts, tools and files
 # because although we prefer to get as many of these things out of the metadata log,
 # that may not be possible; in the latter case, we fall back to trawling through the
-# tarball and using heuristics.
+# tar ball and using heuristics.
 
 def get_iterations(ptb):
     try:
@@ -2506,13 +2505,13 @@ def mk_sosreports(tb, extracted_root, logger):
     return sosreportlist
 
 def mk_run_action(ptb, idxctx):
-    """Extract metadata from the named tarball and create an indexing
+    """Extract metadata from the named tar ball and create an indexing
        action out of them.
 
-       There are two kinds of metadata: what goes into _source[@metadata]
-       is metadata about the tarball itself - not things that are *part* of
-       the tarball: its name, size, md5, mtime, etc.  Metadata about the run
-       are *data* to be indexed under the "run" field.
+       There are two kinds of metadata: what goes into _source[@metadata] is
+       metadata about the tar ball itself - not things that are *part* of the
+       tar ball: its name, size, md5, mtime, etc.  Metadata about the run are
+       *data* to be indexed under the "run" field.
     """
     idxctx.logger.debug("start")
     source = _dict_const([('@timestamp', ptb.start_run)])
@@ -2550,10 +2549,10 @@ def mk_run_action(ptb, idxctx):
     return action
 
 def make_all_actions(ptb, idxctx):
-    """Driver for generating all actions on source documents for indexing
-    into Elasticsearch. This generator drives the generation of the run
-    source document, the table-of-contents tar ball documents, and finally
-    all the tool data.
+    """Driver for generating all actions on source documents for indexing into
+       Elasticsearch. This generator drives the generation of the run source
+       document, the table-of-contents tar ball documents, and finally all the
+       tool data.
     """
     idxctx.logger.debug("start")
     yield mk_run_action(ptb, idxctx)
@@ -2568,7 +2567,7 @@ def make_all_actions(ptb, idxctx):
 
 
 class PbenchTarBall(object):
-    def __init__(self, idxctx, tbarg, tmpdir):
+    def __init__(self, idxctx, tbarg, tmpdir, extracted_root):
         self.idxctx = idxctx
         self.tbname = tbarg
         self.controller_dir = os.path.basename(os.path.dirname(self.tbname))
@@ -2582,7 +2581,7 @@ class PbenchTarBall(object):
         self.tb = tarfile.open(self.tbname)
 
         # This is the top-level name of the run - it should be the common
-        # first component of every member of the tarball.
+        # first component of every member of the tar ball.
         dirname = os.path.basename(self.tbname)
         self.dirname = dirname[:dirname.rfind('.tar.xz')]
         # ... but let's make sure ...
@@ -2597,30 +2596,28 @@ class PbenchTarBall(object):
                 metadata_log_found = True
             sampled_prefix = m.name.split(os.path.sep)[0]
             if sampled_prefix != self.dirname:
-                # All members of the tarball should have self.dirname as its
+                # All members of the tar ball should have self.dirname as its
                 # prefix.
                 raise UnsupportedTarballFormat(
                     "{} - directory prefix should be \"{}\", but is"
-                    " \"{}\" instead, for tarball member \"{}\"".format(
+                    " \"{}\" instead, for tar ball member \"{}\"".format(
                         self.tbname,
                         self.dirname,
                         sampled_prefix,
                         m.name))
         if not metadata_log_found:
             raise UnsupportedTarballFormat(
-                "{} - tarball is missing \"{}\".".format(
+                "{} - tar ball is missing \"{}\".".format(
                     self.tbname, metadata_log_path))
 
-        # We are expected to clean up the extracted tar ball before we exit.
-        self.extracted_root = tmpdir
-        self.tb.extractall(path=self.extracted_root)
+        self.extracted_root = extracted_root
         if not os.path.isdir(os.path.join(self.extracted_root, self.dirname)):
-            self.delete_extracted()
             raise UnsupportedTarballFormat(
-                "{} - extracted tarball but can't get to the directory \"{}\".".format(
-                    self.tbname,
-                    os.path.join(self.extracted_root, self.dirname)))
-        # Open the MD5 file of the tarball and read the MD5 sum from it.
+                    "{} - extracted tar ball directory \"{}\" does not"
+                    " exist.".format(
+                        self.tbname,
+                        os.path.join(self.extracted_root, self.dirname)))
+        # Open the MD5 file of the tar ball and read the MD5 sum from it.
         md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
         # Construct the @metadata and run metadata dictionaries from the
         # metadata.log file.
@@ -2660,7 +2657,6 @@ class PbenchTarBall(object):
             if not date_orig:
                 raise Exception("empty pbench.date")
         except Exception as e:
-            self.delete_extracted()
             raise BadMDLogFormat("{} - error fetching required metadata.log"
                     " fields, \"{}\"".format(self.tbname, e))
         # Normalize all the timestamps
@@ -2727,8 +2723,8 @@ class PbenchTarBall(object):
                 del self.run_metadata[key]
         # Add the tools group used as run metadata for indexing purposes.
         self.run_metadata['toolsgroup'] = toolsgroup
-        # Update the start and end run times using the already updated
-        # values in the tar ball object.
+        # Update the start and end run times using the already updated values
+        # in the tar ball object.
         self.run_metadata['start'] = self.start_run
         self.run_metadata['end'] = self.end_run
         self.run_metadata['date'] = date
@@ -2783,10 +2779,10 @@ class PbenchTarBall(object):
         ])
 
     def gen_toc(self):
-        """Generate (t)able (o)f (c)ontents JSON documents for this tarball.
+        """Generate (t)able (o)f (c)ontents JSON documents for this tar ball.
 
         There should be one JSON document emitted per directory entry found in
-        the tarball. Each non-directory entry found is added to the given
+        the tar ball. Each non-directory entry found is added to the given
         directory entry it belongs. This is determined by the name element
         which is always the full path of the object in the tar ball.
 
@@ -2879,16 +2875,6 @@ class PbenchTarBall(object):
             else:
                 source['files'] = sorted_file_list
             yield source
-
-    def delete_extracted(self):
-        directory = os.path.join(self.extracted_root, self.dirname)
-        if not os.path.exists(directory):
-            return
-        def remove_readonly(func, path, _):
-            "Clear the readonly bit and reattempt the removal"
-            os.chmod(path, stat.S_IWRITE)
-            func(path)
-        shutil.rmtree(directory, onerror=remove_readonly)
 
 
 class IdxContext(object):

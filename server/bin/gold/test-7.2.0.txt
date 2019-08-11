@@ -1,3 +1,25 @@
++++ Running pbench-unpack-tarballs
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "bf68c22d8beb1cc8b0de751e694880e6",
+        "_index": "pbench-unittests.server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-unpack-tarballs",
+            "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 162
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
 Template:  pbench-unittests.v1.result-data
 Template:  pbench-unittests.v1.tool-data-iostat
@@ -93,14 +115,43 @@ lrwxrwxrwx         73 users -> /var/tmp/pbench-test-server/test-7.2.0/pbench-sat
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/controller
+drwxrwxr-x          - archive/fs-version-001/controller/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/controller/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/controller/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/controller/INDEXED
+drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/controller/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/controller/SYNCED
+drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/controller/TO-BACKUP-LARGE
+drwxrwxr-x          - archive/fs-version-001/controller/TO-COPY-SOS
+lrwxrwxrwx         95 archive/fs-version-001/controller/TO-COPY-SOS/test-7.2.tar.xz -> /var/tmp/pbench-test-server/test-7.2.0/pbench/archive/fs-version-001/controller/test-7.2.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/controller/TODO
+drwxrwxr-x          - archive/fs-version-001/controller/UNPACKED
+lrwxrwxrwx         18 archive/fs-version-001/controller/UNPACKED/test-7.2.tar.xz -> ../test-7.2.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX.4
-lrwxrwxrwx         18 archive/fs-version-001/controller/WONT-INDEX.4/test-7.2.tar.xz -> ../test-7.2.tar.xz
+lrwxrwxrwx         95 archive/fs-version-001/controller/WONT-INDEX.4/test-7.2.tar.xz -> /var/tmp/pbench-test-server/test-7.2.0/pbench/archive/fs-version-001/controller/test-7.2.tar.xz
 -rw-rw-r--       1204 archive/fs-version-001/controller/test-7.2.tar.xz
 -rw-rw-r--         50 archive/fs-version-001/controller/test-7.2.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/controller
+drwxrwxr-x          - public_html/incoming/controller/test-7.2
+drwxrwxr-x          - public_html/incoming/controller/test-7.2/sysinfo
+drwxrwxr-x          - public_html/incoming/controller/test-7.2/sysinfo/foo
+drwxrwxr-x          - public_html/incoming/controller/test-7.2/sysinfo/foo/end
+-rw-rw-r--        876 public_html/incoming/controller/test-7.2/sysinfo/foo/end/sosreport.tar.xz
+-rw-rw-r--         51 public_html/incoming/controller/test-7.2/sysinfo/foo/end/sosreport.tar.xz.md5
 drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/results/controller
+lrwxrwxrwx         86 public_html/results/controller/test-7.2 -> /var/tmp/pbench-test-server/test-7.2.0/pbench/public_html/incoming/controller/test-7.2
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/static/css
 drwxrwxr-x          - public_html/static/css/v0.2
@@ -127,9 +178,12 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       1809 logs/pbench-index/pbench-index.log
+-rw-rw-r--       1812 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
+drwxrwxr-x          - logs/pbench-unpack-tarballs
+-rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+-rw-rw-r--        361 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -190,14 +244,14 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tarballs
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.2.0/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.2.tar.xz (size 1204)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported Tarball Format: /var/tmp/pbench-test-server/test-7.2.0/pbench/archive/fs-version-001/controller/test-7.2.tar.xz - tarball is missing "test-7.2/metadata.log".
+1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-7.2.0/pbench/archive/fs-version-001/controller/test-7.2.tar.xz - tar ball is missing "test-7.2/metadata.log".
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.2.0/pbench/archive/fs-version-001/controller/TO-INDEX/test-7.2.tar.xz (size 1204)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: indexed 0 (skipped 1) results, 0 errors
@@ -206,7 +260,17 @@ drwxrwxr-x          - tmp
 +++++ pbench-report-status/pbench-report-status.log
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-report-status/pbench-report-status.log
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
+run-1900-01-01T00:00:00-UTC
+ln -s /var/tmp/pbench-test-server/test-7.2.0/pbench/public_html/incoming/controller/test-7.2 /var/tmp/pbench-test-server/test-7.2.0/pbench/public_html/results/controller/test-7.2
+run-1900-01-01T00:00:00-UTC: controller/test-7.2: success - elapsed time (secs): 0 - size (bytes): 1204
+run-1900-01-01T00:00:00-UTC: Processed 1 tarballs
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs

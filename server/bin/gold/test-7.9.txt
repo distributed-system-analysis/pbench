@@ -1,3 +1,25 @@
++++ Running pbench-unpack-tarballs
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "bf68c22d8beb1cc8b0de751e694880e6",
+        "_index": "pbench-unittests.server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-unpack-tarballs",
+            "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 162
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
 Template:  pbench-unittests.v1.result-data
 Template:  pbench-unittests.v1.tool-data-iostat
@@ -8711,14 +8733,217 @@ lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-7.9/pbench-satel
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/INDEXED
-lrwxrwxrwx         52 archive/fs-version-001/dhcp31-144/INDEXED/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz -> ../pbench-user-benchmark__2017-04-21_20:38:16.tar.xz
+lrwxrwxrwx        127 archive/fs-version-001/dhcp31-144/INDEXED/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz -> /var/tmp/pbench-test-server/test-7.9/pbench/archive/fs-version-001/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/SYNCED
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-BACKUP-LARGE
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-COPY-SOS
+lrwxrwxrwx        127 archive/fs-version-001/dhcp31-144/TO-COPY-SOS/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz -> /var/tmp/pbench-test-server/test-7.9/pbench/archive/fs-version-001/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/TODO
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/UNPACKED
+lrwxrwxrwx         52 archive/fs-version-001/dhcp31-144/UNPACKED/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz -> ../pbench-user-benchmark__2017-04-21_20:38:16.tar.xz
+drwxrwxr-x          - archive/fs-version-001/dhcp31-144/WONT-INDEX
 -rw-r--r--    1137024 archive/fs-version-001/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz
 -rw-r--r--         84 archive/fs-version-001/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/dhcp31-144
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result
+-rw-r--r--          0 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/result.txt
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/csv
+-rw-r--r--        987 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/csv/disk_IOPS.csv
+-rw-r--r--        621 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/csv/disk_Queue_Size.csv
+-rw-r--r--        982 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/csv/disk_Request_Merges_per_sec.csv
+-rw-r--r--        632 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/csv/disk_Request_Size_in_512_byte_sectors.csv
+-rw-r--r--        982 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/csv/disk_Throughput_MB_per_sec.csv
+-rw-r--r--        621 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/csv/disk_Utilization_percent.csv
+-rw-r--r--        982 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/csv/disk_Wait_Time_msec.csv
+-rw-r--r--       1320 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/disk-average.txt
+-rw-r--r--       1594 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/disk.html
+-rw-r--r--          0 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/iostat-stderr.txt
+-rw-r--r--      12499 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/iostat-stdout.txt
+-rwxr-xr-x         47 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/iostat/iostat.cmd
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat
+-rw-r--r--        176 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/cpu0-average.txt
+-rw-r--r--        654 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/cpu0.html
+-rw-r--r--        194 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/cpuall-average.txt
+-rw-r--r--        662 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/cpuall.html
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/csv
+-rw-r--r--       1264 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/csv/cpu0_cpu0.csv
+-rw-r--r--       1264 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/csv/cpuall_cpuall.csv
+-rw-r--r--          0 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/mpstat-stderr.txt
+-rw-r--r--       5938 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/mpstat-stdout.txt
+-rwxr-xr-x         39 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/mpstat/mpstat.cmd
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/perf
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/perf/perf-percpu
+-rw-r--r--       2380 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/perf/perf-percpu/perf-report-cpu_0.txt.xz
+-rw-r--r--       2745 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/perf/perf-report-consolidated.txt
+-rw-r--r--       2428 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/perf/perf-report.txt.xz
+-rw-r--r--        118 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/perf/perf-stderr.txt
+-rw-r--r--          0 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/perf/perf-stdout.txt
+-rw-r--r--         35 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/perf/perf.cmd
+-rw-r--r--      89828 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/perf/perf.data.xz
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat
+-rw-r--r--      19499 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/context_switches-average.txt
+-rw-r--r--        787 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/context_switches.html
+-rw-r--r--       7861 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/cpu_usage-average.txt
+-rw-r--r--        693 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/cpu_usage.html
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv
+-rw-r--r--      16682 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv/context_switches_nonvoluntary_switches_sec.csv
+-rw-r--r--      16683 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv/context_switches_voluntary_switches_sec.csv
+-rw-r--r--      16657 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv/cpu_usage_percent_cpu.csv
+-rw-r--r--      16657 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv/file_io_io_reads_KB_sec.csv
+-rw-r--r--      16663 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv/file_io_io_writes_KB_sec.csv
+-rw-r--r--      16657 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv/memory_faults_major_faults_sec.csv
+-rw-r--r--      16778 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv/memory_faults_minor_faults_sec.csv
+-rw-r--r--      16675 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv/memory_usage_resident_set_size.csv
+-rw-r--r--      20052 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/csv/memory_usage_virtual_size.csv
+-rw-r--r--      17083 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/file_io-average.txt
+-rw-r--r--        693 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/file_io.html
+-rw-r--r--      17240 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/memory_faults-average.txt
+-rw-r--r--        706 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/memory_faults.html
+-rw-r--r--      17745 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/memory_usage-average.txt
+-rw-r--r--        932 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/memory_usage.html
+-rw-r--r--          0 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/pidstat-stderr.txt
+-rw-r--r--     427562 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/pidstat-stdout.txt
+-rwxr-xr-x         60 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/pidstat/pidstat.cmd
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv
+-rw-r--r--       3576 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-cpu_CPU_000.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_000_IO-APIC_2-edge_timer.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_001_IO-APIC_1-edge_i8042.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_004_IO-APIC_4-edge_serial.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_008_IO-APIC_8-edge_rtc0.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_009_IO-APIC_9-fasteoi_acpi.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_010_IO-APIC_10-fasteoi_ehci_hcd:usb1_uhci_hcd:usb2.csv
+-rw-r--r--        701 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_011_IO-APIC_11-fasteoi_uhci_hcd:usb3_uhci_hcd:usb4_virtio1_ens3.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_012_IO-APIC_12-edge_i8042.csv
+-rw-r--r--        706 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_014_IO-APIC_14-edge_ata_piix.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_015_IO-APIC_15-edge_ata_piix.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_024_PCI-MSI_65536-edge_virtio0-config.csv
+-rw-r--r--        491 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_025_PCI-MSI_65537-edge_virtio0-req.0.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_CAL_Function_call_interrupts.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_DFR_Deferred_Error_APIC_interrupts.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_ERR.csv
+-rw-r--r--        428 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_IWI_IRQ_work_interrupts.csv
+-rw-r--r--        697 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_LOC_Local_timer_interrupts.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_MCE_Machine_check_exceptions.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_MCP_Machine_check_polls.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_MIS.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_NMI_Non-maskable_interrupts.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_PIN_Posted-interrupt_notification_event.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_PIW_Posted-interrupt_wakeup_event.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_PMI_Performance_monitoring_interrupts.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_RES_Rescheduling_interrupts.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_RTR_APIC_ICR_read_retries.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_SPU_Spurious_interrupts.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_THR_Threshold_APIC_interrupts.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_TLB_TLB_shootdowns.csv
+-rw-r--r--        398 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_TRM_Thermal_event_interrupts.csv
+-rw-r--r--       1505 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/proc-interrupts-by-cpu-average.txt
+-rw-r--r--        721 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/proc-interrupts-by-cpu.html
+-rw-r--r--       1505 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/proc-interrupts-by-irq-average.txt
+-rw-r--r--        767 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/proc-interrupts-by-irq.html
+-rw-r--r--          0 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/proc-interrupts-stderr.txt
+-rw-r--r--      29694 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/proc-interrupts-stdout.txt
+-rwxr-xr-x        206 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-interrupts/proc-interrupts.cmd
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv
+-rw-r--r--        536 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_allocstall_delta_sec.csv
+-rw-r--r--        495 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_balloon_delta_sec.csv
+-rw-r--r--        700 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_compact_delta_sec.csv
+-rw-r--r--        446 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_drop_delta_sec.csv
+-rw-r--r--        468 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_htlb_delta_sec.csv
+-rw-r--r--        527 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_kswapd_delta_sec.csv
+-rw-r--r--       6270 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_nr_delta_sec.csv
+-rw-r--r--       1499 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_numa_delta_sec.csv
+-rw-r--r--        835 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_pgalloc_delta_sec.csv
+-rw-r--r--        444 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_pgmigrate_delta_sec.csv
+-rw-r--r--        501 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_pgscan_delta_sec.csv
+-rw-r--r--        536 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_pgskip_delta_sec.csv
+-rw-r--r--        445 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_pgsteal_delta_sec.csv
+-rw-r--r--        399 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_slabs_delta_sec.csv
+-rw-r--r--       1016 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_thp_delta_sec.csv
+-rw-r--r--        717 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_unevictable_delta_sec.csv
+-rw-r--r--        500 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_workingset_delta_sec.csv
+-rw-r--r--        406 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/csv/proc-vmstat_zone_delta_sec.csv
+-rw-r--r--       4083 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/proc-vmstat-average.txt
+-rw-r--r--          0 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/proc-vmstat-stderr.txt
+-rw-r--r--      54426 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/proc-vmstat-stdout.txt
+-rwxr-xr-x        194 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/proc-vmstat.cmd
+-rw-r--r--       4405 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/proc-vmstat/proc-vmstat.html
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar
+-rw-r--r--         62 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/cpu-average.txt
+-rw-r--r--        868 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/cpu.html
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv
+-rw-r--r--        396 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/cpu_all_cpu_busy.csv
+-rw-r--r--        460 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/cpu_frequency_MHz.csv
+-rw-r--r--       1625 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/memory_memory_activity.csv
+-rw-r--r--       3035 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/memory_memory_usage.csv
+-rw-r--r--        501 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l2_carrier_errors.csv
+-rw-r--r--        721 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l2_drops_sec.csv
+-rw-r--r--        721 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l2_errors_sec.csv
+-rw-r--r--        721 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l2_fifo_overrun_errors.csv
+-rw-r--r--        501 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l2_frame_alignment_errors.csv
+-rw-r--r--        676 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l2_network_Mbits_sec.csv
+-rw-r--r--        721 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l2_network_compressed_packets_sec.csv
+-rw-r--r--        507 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l2_network_multicast_packets_sec.csv
+-rw-r--r--        723 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l2_network_packets_sec.csv
+-rw-r--r--       2332 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l345_ip.csv
+-rw-r--r--        847 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l345_nfs_client.csv
+-rw-r--r--        604 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l345_sockets.csv
+-rw-r--r--       1392 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l345_tcp_sockets.csv
+-rw-r--r--        798 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/network_l345_udp.csv
+-rw-r--r--       1368 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/per_cpu_cpu_00.csv
+-rw-r--r--        448 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/system_interrupts_sec.csv
+-rw-r--r--        580 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/csv/system_proc_cswch_sec.csv
+-rw-r--r--       1219 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/memory-average.txt
+-rw-r--r--        874 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/memory.html
+-rw-r--r--       1044 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/network_l2-average.txt
+-rw-r--r--       1830 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/network_l2.html
+-rw-r--r--       1485 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/network_l345-average.txt
+-rw-r--r--       1462 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/network_l345.html
+-rw-r--r--        213 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/per_cpu-average.txt
+-rw-r--r--        661 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/per_cpu.html
+-rw-r--r--          0 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/sar-stderr.txt
+-rw-r--r--     299618 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/sar-stdout.txt
+-rwxr-xr-x        146 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/sar.cmd
+-rw-r--r--     215728 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/sar.data
+-rw-r--r--        134 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/system-average.txt
+-rw-r--r--        876 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/sar/system.html
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/turbostat
+-rw-r--r--        462 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        188 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/1/reference-result/tools-default/dhcp31-144/turbostat/turbostat.cmd
+-rw-r--r--        584 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/metadata.log
+-rw-r--r--     192119 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/pbench.log
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/sysinfo
+drwxr-xr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/sysinfo/end
+drwxrwxr-x          - public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/sysinfo/end/dhcp31-144
+-rwxrwxr-x       5311 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/sysinfo/end/dhcp31-144/block-params.log
+-rwxrwxr-x     180609 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/sysinfo/end/dhcp31-144/config-4.9.13-200.fc25.x86_64
+-rwxrwxr-x     943856 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/sysinfo/end/dhcp31-144/sosreport-dhcp31-144.perf.lab.eng.bos.redhat.com-pbench-20170421203924.tar.xz
+-rwxrwxr-x         33 public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16/sysinfo/end/dhcp31-144/sosreport-dhcp31-144.perf.lab.eng.bos.redhat.com-pbench-20170421203924.tar.xz.md5
 drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/results/dhcp31-144
+lrwxrwxrwx        118 public_html/results/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16 -> /var/tmp/pbench-test-server/test-7.9/pbench/public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/static/css
 drwxrwxr-x          - public_html/static/css/v0.2
@@ -8745,9 +8970,12 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       6734 logs/pbench-index/pbench-index.log
+-rw-rw-r--       6735 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
+drwxrwxr-x          - logs/pbench-unpack-tarballs
+-rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+-rw-rw-r--        462 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -8808,7 +9036,7 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tarballs
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
@@ -8855,7 +9083,17 @@ drwxrwxr-x          - tmp
 +++++ pbench-report-status/pbench-report-status.log
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-report-status/pbench-report-status.log
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
+run-1900-01-01T00:00:00-UTC
+ln -s /var/tmp/pbench-test-server/test-7.9/pbench/public_html/incoming/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16 /var/tmp/pbench-test-server/test-7.9/pbench/public_html/results/dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16
+run-1900-01-01T00:00:00-UTC: dhcp31-144/pbench-user-benchmark__2017-04-21_20:38:16: success - elapsed time (secs): 0 - size (bytes): 1137024
+run-1900-01-01T00:00:00-UTC: Processed 1 tarballs
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs

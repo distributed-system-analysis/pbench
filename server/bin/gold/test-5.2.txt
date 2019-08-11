@@ -567,7 +567,7 @@ drwxrwxr-x          - logs/pbench-edit-prefixes
 -rw-rw-r--          0 logs/pbench-edit-prefixes/pbench-edit-prefixes.error
 -rw-rw-r--         90 logs/pbench-edit-prefixes/pbench-edit-prefixes.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       6986 logs/pbench-index/pbench-index.log
+-rw-rw-r--       7001 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--       2604 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-001
@@ -812,38 +812,38 @@ run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
 ----- pbench-edit-prefixes/pbench-edit-prefixes.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 7 tarballs
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 7 tar balls
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz (size 212)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported Tarball Format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz - tarball is missing "tarball-0_YYYY.MM.DDTHH.MM.SS/metadata.log".
+1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz - tar ball is missing "tarball-0_YYYY.MM.DDTHH.MM.SS/metadata.log".
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz (size 212)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/TO-INDEX/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz (size 216)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported Tarball Format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz - tarball is missing "tarball-normal_YYYY.MM.DDTHH.MM.SS/metadata.log".
+1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz - tar ball is missing "tarball-normal_YYYY.MM.DDTHH.MM.SS/metadata.log".
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/TO-INDEX/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz (size 216)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/TO-INDEX/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz (size 220)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported Tarball Format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz - tarball is missing "tarball-simple2_YYYY-MM-DDTHH-mm-ss/metadata.log".
+1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz - tar ball is missing "tarball-simple2_YYYY-MM-DDTHH-mm-ss/metadata.log".
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/TO-INDEX/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz (size 220)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/TO-INDEX/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz (size 224)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported Tarball Format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz - tarball is missing "tarball-simple1_YYYY-MM-DDTHH-mm-ss/metadata.log".
+1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz - tar ball is missing "tarball-simple1_YYYY-MM-DDTHH-mm-ss/metadata.log".
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/TO-INDEX/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz (size 224)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz (size 224)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported Tarball Format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz - tarball is missing "tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS/metadata.log".
+1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz - tar ball is missing "tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS/metadata.log".
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz (size 224)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz (size 224)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported Tarball Format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz - tarball is missing "tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS/metadata.log".
+1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz - tar ball is missing "tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS/metadata.log".
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz (size 224)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/TO-INDEX/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz (size 228)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported Tarball Format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz - tarball is missing "tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss/metadata.log".
+1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz - tar ball is missing "tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss/metadata.log".
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/TO-INDEX/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz (size 228)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: indexed 0 (skipped 7) results, 0 errors

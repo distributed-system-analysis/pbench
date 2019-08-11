@@ -1,3 +1,25 @@
++++ Running pbench-unpack-tarballs
+Template:  pbench-unittests.v2.server-reports
+Index:  pbench-unittests.server-reports.1900-01 1
+len(actions) = 1
+[
+    {
+        "_id": "bf68c22d8beb1cc8b0de751e694880e6",
+        "_index": "pbench-unittests.server-reports.1900-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "1900-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-unpack-tarballs",
+            "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 162
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
 Template:  pbench-unittests.v1.result-data
 Template:  pbench-unittests.v1.tool-data-iostat
@@ -5097,14 +5119,235 @@ lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.11/pbench-sate
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/COPIED-SOS
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/INDEXED
-lrwxrwxrwx         36 archive/fs-version-001/dhcp31-44/INDEXED/fio_rw_2018.02.01T22.40.57.tar.xz -> ../fio_rw_2018.02.01T22.40.57.tar.xz
+lrwxrwxrwx        111 archive/fs-version-001/dhcp31-44/INDEXED/fio_rw_2018.02.01T22.40.57.tar.xz -> /var/tmp/pbench-test-server/test-7.11/pbench/archive/fs-version-001/dhcp31-44/fio_rw_2018.02.01T22.40.57.tar.xz
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/SYNCED
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-BACKUP-LARGE
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-COPY-SOS
+lrwxrwxrwx        111 archive/fs-version-001/dhcp31-44/TO-COPY-SOS/fio_rw_2018.02.01T22.40.57.tar.xz -> /var/tmp/pbench-test-server/test-7.11/pbench/archive/fs-version-001/dhcp31-44/fio_rw_2018.02.01T22.40.57.tar.xz
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/TODO
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/UNPACKED
+lrwxrwxrwx         36 archive/fs-version-001/dhcp31-44/UNPACKED/fio_rw_2018.02.01T22.40.57.tar.xz -> ../fio_rw_2018.02.01T22.40.57.tar.xz
+drwxrwxr-x          - archive/fs-version-001/dhcp31-44/WONT-INDEX
 -rw-r--r--    2166868 archive/fs-version-001/dhcp31-44/fio_rw_2018.02.01T22.40.57.tar.xz
 -rw-r--r--         68 archive/fs-version-001/dhcp31-44/fio_rw_2018.02.01T22.40.57.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/dhcp31-44
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB
+-rwxr-xr-x        168 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/process-iteration-samples.cmd
+-rw-r--r--      30267 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/result.json
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/clients
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/clients/localhost
+-rw-r--r--        380 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/clients/localhost/fio_bw.1.log
+-rw-r--r--        424 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/clients/localhost/fio_clat.1.log
+-rw-r--r--          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/clients/localhost/fio_clat_hist.1.log
+-rw-r--r--        362 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/clients/localhost/fio_iops.1.log
+-rw-r--r--        424 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/clients/localhost/fio_lat.1.log
+-rw-r--r--        351 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/clients/localhost/fio_slat.1.log
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/csv
+-rw-r--r--        306 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/csv/fio_clat.csv
+-rw-r--r--        284 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/csv/fio_iops_sec.csv
+-rw-r--r--        306 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/csv/fio_lat.csv
+-rw-r--r--        266 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/csv/fio_slat.csv
+-rw-r--r--        552 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/fio-average.txt
+-rwxr-xr-x        146 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/fio-postprocess.cmd
+-rw-r--r--       7988 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/fio-result.txt
+-rwxr-xr-x        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/fio.cmd
+-rw-r--r--       1207 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/fio.html
+-rw-r--r--        284 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/fio.job
+-rw-r--r--      24084 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/result.json
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv
+-rw-r--r--        362 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/disk_IOPS.csv
+-rw-r--r--        186 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/disk_Queue_Size.csv
+-rw-r--r--        323 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/disk_Request_Merges_per_sec.csv
+-rw-r--r--        206 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/disk_Request_Size_in_512_byte_sectors.csv
+-rw-r--r--        358 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/disk_Throughput_MB_per_sec.csv
+-rw-r--r--        196 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/disk_Utilization_percent.csv
+-rw-r--r--        322 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/csv/disk_Wait_Time_msec.csv
+-rw-r--r--       1341 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/disk-average.txt
+-rw-r--r--       2058 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/disk.html
+-rw-r--r--          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/iostat-stderr.txt
+-rw-r--r--       3198 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/iostat-stdout.txt
+-rwxr-xr-x         47 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat/iostat.cmd
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat
+-rw-r--r--        178 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/cpu0-average.txt
+-rw-r--r--        654 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/cpu0.html
+-rw-r--r--        196 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/cpuall-average.txt
+-rw-r--r--        662 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/cpuall.html
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv
+-rw-r--r--        368 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpu0_cpu0.csv
+-rw-r--r--        368 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpuall_cpuall.csv
+-rw-r--r--          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/mpstat-stderr.txt
+-rw-r--r--       1557 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/mpstat-stdout.txt
+-rwxr-xr-x         39 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/mpstat.cmd
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf/perf-percpu
+-rw-r--r--       2948 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf/perf-percpu/perf-report-cpu_0.txt.xz
+-rw-r--r--       4805 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf/perf-report-consolidated.txt
+-rw-r--r--       2948 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf/perf-report.txt.xz
+-rw-r--r--        118 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf/perf-stderr.txt
+-rw-r--r--          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf/perf-stdout.txt
+-rw-r--r--         35 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf/perf.cmd
+-rw-r--r--      73268 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf/perf.data.xz
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/pidstat
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/pidstat/csv
+-rw-r--r--          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/pidstat/pidstat-stderr.txt
+-rw-r--r--         97 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/pidstat/pidstat-stdout.txt
+-rwxr-xr-x         61 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/pidstat/pidstat.cmd
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv
+-rw-r--r--       1753 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-cpu_CPU_000.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_000_IO-APIC_2-edge_timer.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_001_IO-APIC_1-edge_i8042.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_004_IO-APIC_4-edge_ttyS0.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_008_IO-APIC_8-edge_rtc0.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_009_IO-APIC_9-fasteoi_acpi.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_010_IO-APIC_10-fasteoi_uhci_hcd:usb3_uhci_hcd:usb4_virtio1.csv
+-rw-r--r--        188 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_011_IO-APIC_11-fasteoi_ehci_hcd:usb1_uhci_hcd:usb2_ens3.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_012_IO-APIC_12-edge_i8042.csv
+-rw-r--r--        194 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_014_IO-APIC_14-edge_ata_piix.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_015_IO-APIC_15-edge_ata_piix.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_024_PCI-MSI_81920-edge_virtio0-config.csv
+-rw-r--r--        191 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_025_PCI-MSI_81921-edge_virtio0-req.0.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_CAL_Function_call_interrupts.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_DFR_Deferred_Error_APIC_interrupts.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_ERR.csv
+-rw-r--r--        132 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_IWI_IRQ_work_interrupts.csv
+-rw-r--r--        190 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_LOC_Local_timer_interrupts.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_MCE_Machine_check_exceptions.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_MCP_Machine_check_polls.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_MIS.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_NMI_Non-maskable_interrupts.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_NPI_Nested_posted-interrupt_event.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_PIN_Posted-interrupt_notification_event.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_PIW_Posted-interrupt_wakeup_event.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_PMI_Performance_monitoring_interrupts.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_RES_Rescheduling_interrupts.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_RTR_APIC_ICR_read_retries.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_SPU_Spurious_interrupts.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_THR_Threshold_APIC_interrupts.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_TLB_TLB_shootdowns.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/csv/proc-interrupts-by-irq_IRQ_TRM_Thermal_event_interrupts.csv
+-rw-r--r--       1561 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-by-cpu-average.txt
+-rw-r--r--        721 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-by-cpu.html
+-rw-r--r--       1561 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-by-irq-average.txt
+-rw-r--r--       1066 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-by-irq.html
+-rw-r--r--          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-stderr.txt
+-rw-r--r--       8766 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-stdout.txt
+-rwxr-xr-x        189 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts.cmd
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv
+-rw-r--r--        163 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_allocstall_delta_sec.csv
+-rw-r--r--        152 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_balloon_delta_sec.csv
+-rw-r--r--        300 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_compact_delta_sec.csv
+-rw-r--r--        133 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_drop_delta_sec.csv
+-rw-r--r--        155 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_htlb_delta_sec.csv
+-rw-r--r--        184 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_kswapd_delta_sec.csv
+-rw-r--r--       2382 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_nr_delta_sec.csv
+-rw-r--r--        472 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_numa_delta_sec.csv
+-rw-r--r--        113 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_oom_delta_sec.csv
+-rw-r--r--        238 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_pgalloc_delta_sec.csv
+-rw-r--r--        131 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_pgmigrate_delta_sec.csv
+-rw-r--r--        158 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_pgscan_delta_sec.csv
+-rw-r--r--        163 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_pgskip_delta_sec.csv
+-rw-r--r--        132 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_pgsteal_delta_sec.csv
+-rw-r--r--        116 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_slabs_delta_sec.csv
+-rw-r--r--        423 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_thp_delta_sec.csv
+-rw-r--r--        254 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_unevictable_delta_sec.csv
+-rw-r--r--        157 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_workingset_delta_sec.csv
+-rw-r--r--        123 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/csv/proc-vmstat_zone_delta_sec.csv
+-rw-r--r--       4255 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/proc-vmstat-average.txt
+-rw-r--r--          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/proc-vmstat-stderr.txt
+-rw-r--r--      15866 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/proc-vmstat-stdout.txt
+-rwxr-xr-x        177 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/proc-vmstat.cmd
+-rw-r--r--       4618 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/proc-vmstat.html
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar
+-rw-r--r--         63 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/cpu-average.txt
+-rw-r--r--        868 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/cpu.html
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv
+-rw-r--r--        120 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/cpu_all_cpu_busy.csv
+-rw-r--r--        130 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/cpu_frequency_MHz.csv
+-rw-r--r--        569 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/memory_memory_activity.csv
+-rw-r--r--        956 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/memory_memory_usage.csv
+-rw-r--r--        141 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l2_carrier_errors.csv
+-rw-r--r--        211 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l2_drops_sec.csv
+-rw-r--r--        211 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l2_errors_sec.csv
+-rw-r--r--        211 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l2_fifo_overrun_errors.csv
+-rw-r--r--        141 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l2_frame_alignment_errors.csv
+-rw-r--r--        214 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l2_network_Mbits_sec.csv
+-rw-r--r--        211 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l2_network_compressed_packets_sec.csv
+-rw-r--r--        147 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l2_network_multicast_packets_sec.csv
+-rw-r--r--        211 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l2_network_packets_sec.csv
+-rw-r--r--        919 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l345_ip.csv
+-rw-r--r--        262 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l345_nfs_client.csv
+-rw-r--r--        214 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l345_sockets.csv
+-rw-r--r--        507 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l345_tcp_sockets.csv
+-rw-r--r--        288 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/network_l345_udp.csv
+-rw-r--r--        396 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/per_cpu_cpu_00.csv
+-rw-r--r--        138 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/system_interrupts_sec.csv
+-rw-r--r--        192 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/csv/system_proc_cswch_sec.csv
+-rw-r--r--       1232 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/memory-average.txt
+-rw-r--r--        874 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/memory.html
+-rw-r--r--       1044 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/network_l2-average.txt
+-rw-r--r--       1830 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/network_l2.html
+-rw-r--r--       1485 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/network_l345-average.txt
+-rw-r--r--       1462 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/network_l345.html
+-rw-r--r--        215 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/per_cpu-average.txt
+-rw-r--r--        661 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/per_cpu.html
+-rw-r--r--          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/sar-stderr.txt
+-rw-r--r--      74978 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/sar-stdout.txt
+-rwxr-xr-x        129 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/sar.cmd
+-rw-r--r--      62368 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/sar.data
+-rw-r--r--        137 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/system-average.txt
+-rw-r--r--        876 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/sar/system.html
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/turbostat
+-rw-r--r--        442 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        171 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/turbostat/turbostat.cmd
+-rwxr-xr-x        240 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/generate-benchmark-summary.cmd
+-rw-r--r--        692 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/metadata.log
+-rw-r--r--      30053 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/pbench.log
+-rw-r--r--        590 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/result.csv
+-rw-r--r--       3504 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/result.html
+-rw-r--r--      35808 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/result.json
+-rw-r--r--       2743 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/result.txt
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/beg
+drwxrwxr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/beg/dhcp31-44
+-rwxrwxr-x       4661 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/beg/dhcp31-44/block-params.log
+-rwxrwxr-x     190476 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/beg/dhcp31-44/config-4.13.9-300.fc27.x86_64
+-rwxrwxr-x          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/beg/dhcp31-44/security-mitigation-data.txt
+-rwxrwxr-x    1007264 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/beg/dhcp31-44/sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224057.tar.xz
+-rwxrwxr-x         33 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/beg/dhcp31-44/sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224057.tar.xz.md5
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/end
+drwxrwxr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/end/dhcp31-44
+-rwxrwxr-x       4661 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/end/dhcp31-44/block-params.log
+-rwxrwxr-x     190476 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/end/dhcp31-44/config-4.13.9-300.fc27.x86_64
+-rwxrwxr-x          0 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/end/dhcp31-44/security-mitigation-data.txt
+-rwxrwxr-x    1007992 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/end/dhcp31-44/sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224119.tar.xz
+-rwxrwxr-x         33 public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/sysinfo/end/dhcp31-44/sosreport-dhcp31-44.perf.lab.eng.bos.redhat.com-pbench-20180201224119.tar.xz.md5
+drwxr-xr-x          - public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57/tmp
 drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/results/dhcp31-44
+lrwxrwxrwx        102 public_html/results/dhcp31-44/fio_rw_2018.02.01T22.40.57 -> /var/tmp/pbench-test-server/test-7.11/pbench/public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/static/css
 drwxrwxr-x          - public_html/static/css/v0.2
@@ -5131,9 +5374,12 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       5807 logs/pbench-index/pbench-index.log
+-rw-rw-r--       5808 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
+drwxrwxr-x          - logs/pbench-unpack-tarballs
+-rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+-rw-rw-r--        413 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -5194,7 +5440,7 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1900-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tarballs
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
 1970-01-01T00:00:00.000000 INFO pbench-index.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
@@ -5238,7 +5484,17 @@ drwxrwxr-x          - tmp
 +++++ pbench-report-status/pbench-report-status.log
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-report-status/pbench-report-status.log
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
+run-1900-01-01T00:00:00-UTC
+ln -s /var/tmp/pbench-test-server/test-7.11/pbench/public_html/incoming/dhcp31-44/fio_rw_2018.02.01T22.40.57 /var/tmp/pbench-test-server/test-7.11/pbench/public_html/results/dhcp31-44/fio_rw_2018.02.01T22.40.57
+run-1900-01-01T00:00:00-UTC: dhcp31-44/fio_rw_2018.02.01T22.40.57: success - elapsed time (secs): 0 - size (bytes): 2166868
+run-1900-01-01T00:00:00-UTC: Processed 1 tarballs
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
