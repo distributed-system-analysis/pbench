@@ -11,7 +11,7 @@ import tempfile
 from enum import Enum
 from argparse import ArgumentParser
 from s3backup import S3Config
-from pbench import init_report_template, report_status, _rename_tb_link, \
+from pbench import init_report_template, report_status, rename_tb_link, \
     PbenchConfig, BadConfig, get_es, get_pbench_logger, quarantine, md5sum
 from botocore.exceptions import ConnectionClosedError, ClientError
 
@@ -390,13 +390,13 @@ def backup_data(lb_obj, s3_obj, config, logger):
         if local_backup_result == Status.SUCCESS \
                 and s3_backup_result == Status.SUCCESS:
             # Move tar ball symlink to its final resting place
-            _rename_tb_link(tb, os.path.join(
+            rename_tb_link(tb, os.path.join(
                 controller_path, _linkdest), logger)
         elif local_backup_result == Status.SUCCESS \
                 and s3_backup_result == Status.TOO_LARGE:
             # Move tar ball symlink to indicate we still need to deal with all
             # the tar balls that are too large.
-            _rename_tb_link(tb, os.path.join(
+            rename_tb_link(tb, os.path.join(
                 controller_path, _linklarge), logger)
         else:
             # Do nothing when the backup fails, allowing us to retry on a

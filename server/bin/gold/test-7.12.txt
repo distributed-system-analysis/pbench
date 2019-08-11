@@ -4076,7 +4076,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       9295 logs/pbench-index/pbench-index.log
+-rw-rw-r--       9115 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -4148,42 +4148,42 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index make_all_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_run_action -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_sosreports -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_sosreports -- end [3 sosreports processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_tool_info -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_tool_info -- end [3 tools processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_run_action -- end
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_toc_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_toc_actions -- end [57 table-of-contents documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_result_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_result_data_actions -- end [no result data sources]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_tool_data_actions -- start
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/pidstat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/pidstat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/pidstat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_json -- tool-data-indexing: tool prometheus-metrics, json start pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/prometheus-metrics/json/ec2-34-211-228-38.us-west-2.compute.amazonaws.com-10250.json
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_json -- tool-data-indexing: tool prometheus-metrics, json end pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/prometheus-metrics/json/ec2-34-211-228-38.us-west-2.compute.amazonaws.com-10250.json
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_json -- tool-data-indexing: tool prometheus-metrics, json start pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/prometheus-metrics/json/ec2-34-211-228-38.us-west-2.compute.amazonaws.com-8443.json
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_json -- tool-data-indexing: tool prometheus-metrics, json end pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/prometheus-metrics/json/ec2-34-211-228-38.us-west-2.compute.amazonaws.com-8443.json
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/pidstat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/pidstat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/pidstat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/pidstat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/pidstat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool pidstat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/pidstat
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_tool_data_actions -- end [44595 tool data documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index make_all_actions -- end
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [3 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [3 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [57 table-of-contents documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [no result data sources]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool pidstat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool pidstat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool pidstat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_json -- tool-data-indexing: tool prometheus-metrics, json start pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/prometheus-metrics/json/ec2-34-211-228-38.us-west-2.compute.amazonaws.com-10250.json
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_json -- tool-data-indexing: tool prometheus-metrics, json end pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/prometheus-metrics/json/ec2-34-211-228-38.us-west-2.compute.amazonaws.com-10250.json
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_json -- tool-data-indexing: tool prometheus-metrics, json start pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/prometheus-metrics/json/ec2-34-211-228-38.us-west-2.compute.amazonaws.com-8443.json
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_json -- tool-data-indexing: tool prometheus-metrics, json end pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/prometheus-metrics/json/ec2-34-211-228-38.us-west-2.compute.amazonaws.com-8443.json
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool pidstat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool pidstat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool pidstat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_2:ip-172-31-26-72/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool pidstat, start unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool pidstat, gen unified begin for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/pidstat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool pidstat, end unified for pbench-user-benchmark__2018.02.05T20.35.36/1/reference-result/tools-default/svt_node_1:ip-172-31-60-184/pidstat
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_data_actions -- end [44595 tool data documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 44653, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1900-01-01T00:00:00-UTC: EC2::ip-172-31-52-154/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz: success
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.12/pbench/archive/fs-version-001/EC2::ip-172-31-52-154/TO-INDEX/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz (size 5258824)
