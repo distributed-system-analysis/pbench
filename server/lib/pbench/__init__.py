@@ -313,7 +313,7 @@ def md5sum(filename):
     return d.hexdigest()
 
 
-def _rename_tb_link(tb, dest, logger):
+def rename_tb_link(tb, dest, logger):
     try:
         os.mkdir(dest)
     except FileExistsError:

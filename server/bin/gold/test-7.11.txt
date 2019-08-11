@@ -5131,7 +5131,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       5932 logs/pbench-index/pbench-index.log
+-rw-rw-r--       5807 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -5203,31 +5203,31 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index make_all_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_run_action -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_sosreports -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_sosreports -- end [2 sosreports processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_tool_info -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_tool_info -- end [1 tools processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_run_action -- end
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_toc_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_toc_actions -- end [29 table-of-contents documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_result_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_result_data_actions -- end [0 result documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_tool_data_actions -- start
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, start unified for fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_unified -- tool-data-indexing: tool iostat, end unified for fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpu0_cpu0.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpu0_cpu0.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual start fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpuall_cpuall.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _make_source_individual -- tool-data-indexing: tool mpstat, individual end fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpuall_cpuall.csv
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint start fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-stdout.txt
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint end fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-stdout.txt
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _stdout_keyval -- tool-data-indexing: tool proc-vmstat, stdout keyval start fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/proc-vmstat-stdout.txt
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index _stdout_keyval -- tool-data-indexing: tool proc-vmstat, stdout keyval end fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/proc-vmstat-stdout.txt
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_tool_data_actions -- end [217 tool data documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index make_all_actions -- end
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [2 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [1 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [29 table-of-contents documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [0 result documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, start unified for fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_unified -- tool-data-indexing: tool iostat, end unified for fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpu0_cpu0.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpu0_cpu0.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpuall_cpuall.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat/csv/cpuall_cpuall.csv
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint start fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-stdout.txt
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint end fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-interrupts/proc-interrupts-stdout.txt
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _stdout_keyval -- tool-data-indexing: tool proc-vmstat, stdout keyval start fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/proc-vmstat-stdout.txt
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer _stdout_keyval -- tool-data-indexing: tool proc-vmstat, stdout keyval end fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/proc-vmstat/proc-vmstat-stdout.txt
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_data_actions -- end [217 tool data documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 419, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1900-01-01T00:00:00-UTC: dhcp31-44/fio_rw_2018.02.01T22.40.57.tar.xz: success
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.11/pbench/archive/fs-version-001/dhcp31-44/TO-INDEX/fio_rw_2018.02.01T22.40.57.tar.xz (size 2166868)

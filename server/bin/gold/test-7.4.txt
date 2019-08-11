@@ -137,7 +137,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
--rw-rw-r--       2140 logs/pbench-index/pbench-index.log
+-rw-rw-r--       2125 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
 -rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -209,9 +209,9 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index make_all_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_run_action -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
 1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- Bad hostname in sosreport: The sosreport did not collect a hostname other than 'localhost'
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.4/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.4.tar.xz (size 1484)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls

@@ -48,8 +48,8 @@ import tempfile
 from enum import Enum
 from argparse import ArgumentParser
 from s3backup import S3Config, Entry
-from pbench import init_report_template, report_status, _rename_tb_link, \
-    PbenchConfig, BadConfig, get_es, get_pbench_logger, md5sum
+from pbench import init_report_template, report_status, PbenchConfig, \
+        BadConfig, get_es, get_pbench_logger, md5sum
 
 _NAME_    = "pbench-verify-backup-tarballs"
 
@@ -356,7 +356,7 @@ def main():
             # Send the report out.
             es, idx_prefix = init_report_template(config, logger)
             report_status(es, logger, config.LOGSDIR,
-                          idx_prefix, _NAME_, config.timestamp(), 
+                          idx_prefix, _NAME_, config.timestamp(),
                           "status", report.name)
 
     logger.info('end-{}', config.TS)
