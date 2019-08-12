@@ -9,13 +9,13 @@ import TableFilterSelection from '@/components/TableFilterSelection';
 import Button from '@/components/Button';
 import Table from '@/components/Table';
 
-@connect(({ global, dashboard, loading }) => ({
+@connect(({ datastore, global, dashboard, loading }) => ({
   iterations: dashboard.iterations,
   iterationParams: dashboard.iterationParams,
   iterationPorts: dashboard.iterationPorts,
   results: dashboard.results,
   controllers: dashboard.controllers,
-  datastoreConfig: global.datastoreConfig,
+  datastoreConfig: datastore.datastoreConfig,
   selectedControllers: global.selectedControllers,
   selectedResults: global.selectedResults,
   selectedIterationKeys: global.selectedIterationKeys,

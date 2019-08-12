@@ -46,13 +46,13 @@ const tocColumns = [
   },
 ];
 
-@connect(({ global, dashboard, loading }) => ({
+@connect(({ global, datastore, dashboard, loading }) => ({
   iterations: dashboard.iterations,
   iterationParams: dashboard.iterationParams,
   iterationPorts: dashboard.iterationPorts,
   result: dashboard.result,
   tocResult: dashboard.tocResult,
-  datastoreConfig: global.datastoreConfig,
+  datastoreConfig: datastore.datastoreConfig,
   selectedControllers: global.selectedControllers,
   selectedResults: global.selectedResults,
   selectedIndices: global.selectedIndices,

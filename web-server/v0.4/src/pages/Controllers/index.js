@@ -9,15 +9,15 @@ import SearchBar from '@/components/SearchBar';
 import MonthSelect from '@/components/MonthSelect';
 import Table from '@/components/Table';
 
-@connect(({ global, dashboard, loading }) => ({
+@connect(({ datastore, global, dashboard, loading }) => ({
   controllers: dashboard.controllers,
-  indices: global.indices,
+  indices: datastore.indices,
   selectedIndices: global.selectedIndices,
-  datastoreConfig: global.datastoreConfig,
+  datastoreConfig: datastore.datastoreConfig,
   loadingControllers:
     loading.effects['dashboard/fetchControllers'] ||
-    loading.effects['global/fetchMonthIndices'] ||
-    loading.effects['global/fetchDatastoreConfig'],
+    loading.effects['datastore/fetchMonthIndices'] ||
+    loading.effects['datastore/fetchDatastoreConfig'],
 }))
 class Controllers extends Component {
   constructor(props) {
@@ -44,7 +44,7 @@ class Controllers extends Component {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'global/fetchDatastoreConfig',
+      type: 'datastore/fetchDatastoreConfig',
     }).then(() => {
       this.fetchMonthIndices();
     });
@@ -54,7 +54,7 @@ class Controllers extends Component {
     const { dispatch, datastoreConfig } = this.props;
 
     dispatch({
-      type: 'global/fetchMonthIndices',
+      type: 'datastore/fetchMonthIndices',
       payload: { datastoreConfig },
     }).then(() => {
       this.fetchControllers();

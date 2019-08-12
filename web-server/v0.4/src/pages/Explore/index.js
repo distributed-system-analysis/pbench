@@ -6,9 +6,9 @@ import { Card, Button, Popconfirm } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import Table from '@/components/Table';
 
-@connect(({ global, explore, loading }) => ({
+@connect(({ datastore, explore, loading }) => ({
   sharedSessions: explore.sharedSessions,
-  datastoreConfig: global.datastoreConfig,
+  datastoreConfig: datastore.datastoreConfig,
   loadingSharedSessions: loading.effects['explore/fetchSharedSessions'],
 }))
 class Explore extends Component {
@@ -36,7 +36,7 @@ class Explore extends Component {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'global/fetchDatastoreConfig',
+      type: 'datastore/fetchDatastoreConfig',
     }).then(() => {
       this.fetchSharedSessions();
     });

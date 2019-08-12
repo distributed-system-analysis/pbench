@@ -9,14 +9,14 @@ import RowSelection from '@/components/RowSelection';
 import MonthSelect from '@/components/MonthSelect';
 import Table from '@/components/Table';
 
-@connect(({ search, global, loading }) => ({
+@connect(({ search, global, datastore, loading }) => ({
   mapping: search.mapping,
   searchResults: search.searchResults,
   fields: search.fields,
   selectedFields: global.selectedFields,
   selectedIndices: global.selectedIndices,
-  indices: global.indices,
-  datastoreConfig: global.datastoreConfig,
+  indices: datastore.indices,
+  datastoreConfig: datastore.datastoreConfig,
   loadingMapping: loading.effects['search/fetchIndexMapping'],
   loadingSearchResults: loading.effects['search/fetchSearchResults'],
 }))
@@ -50,7 +50,7 @@ class SearchList extends Component {
     const { dispatch } = this.props;
 
     dispatch({
-      type: 'global/fetchDatastoreConfig',
+      type: 'datastore/fetchDatastoreConfig',
     }).then(() => {
       this.fetchMonthIndices();
     });
@@ -60,7 +60,7 @@ class SearchList extends Component {
     const { dispatch, datastoreConfig } = this.props;
 
     dispatch({
-      type: 'global/fetchMonthIndices',
+      type: 'datastore/fetchMonthIndices',
       payload: { datastoreConfig },
     }).then(() => {
       this.fetchIndexMapping();

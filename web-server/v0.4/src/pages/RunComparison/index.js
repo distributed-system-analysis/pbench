@@ -79,12 +79,12 @@ const legendColumns = [
   },
 ];
 
-@connect(({ dashboard, global }) => ({
+@connect(({ dashboard, global, datastore }) => ({
   iterationParams: dashboard.iterationParams,
   selectedControllers: global.selectedControllers,
   selectedResults: global.selectedResults,
   selectedIterations: global.selectedIterations,
-  datastoreConfig: global.datastoreConfig,
+  datastoreConfig: datastore.datastoreConfig,
 }))
 class RunComparison extends React.Component {
   constructor(props) {
