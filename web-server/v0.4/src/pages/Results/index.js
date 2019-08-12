@@ -9,11 +9,11 @@ import RowSelection from '@/components/RowSelection';
 import Table from '@/components/Table';
 import { compareByAlph } from '../../utils/utils';
 
-@connect(({ global, dashboard, loading }) => ({
+@connect(({ datastore, global, dashboard, loading }) => ({
   selectedIndices: global.selectedIndices,
   results: dashboard.results,
   selectedControllers: global.selectedControllers,
-  datastoreConfig: global.datastoreConfig,
+  datastoreConfig: datastore.datastoreConfig,
   loading: loading.effects['dashboard/fetchResults'],
 }))
 class Results extends Component {

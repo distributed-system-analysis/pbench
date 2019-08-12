@@ -83,6 +83,21 @@ export default {
 }
 ```
 
+## Storage Config
+
+Pbench Dashboard stores application data using local browser storage given an application key defined in `app.js`. To deploy multiple instances of the dashboard on the same domain, change the `appName` field to a unique value for each deployment. 
+
+```JavaScript
+const appName = 'dashboard';
+
+const persistConfig = {
+  timeout: 1000,
+  key: appName,
+  storage,
+  blacklist: ['dashboard', 'search'],
+};
+```
+
 ## Build
 
 Build Application
