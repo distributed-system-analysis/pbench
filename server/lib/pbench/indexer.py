@@ -12,14 +12,23 @@ import json
 import csv
 import tarfile
 import socket
+import glob
 from operator import itemgetter
 from datetime import datetime, timedelta
-from collections import Counter
+from collections import Counter, deque
 from configparser import ConfigParser, Error as ConfigParserError, \
         NoSectionError, NoOptionError
+from urllib3 import Timeout, exceptions as ul_excs
+try:
+    from elasticsearch1 import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
+except ImportError:
+    from elasticsearch import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
 
-from pbench import tstos, get_es, PbenchTemplates, PbenchConfig, \
-        get_pbench_logger
+from pbench import tstos, PbenchConfig, get_pbench_logger
+try:
+    from pbench.mock import MockElasticsearch
+except ImportError:
+    MockElasticsearch = None
 
 # This is the version of this python code. We use the version number to mean
 # the following:
@@ -40,7 +49,7 @@ from pbench import tstos, get_es, PbenchTemplates, PbenchConfig, \
 # generated those documents.  In turn, this can help us fix indexing problems
 # via re-indexing data with transformations based on the version of the code
 # that generated the documents.
-_VERSION_ = "3.0.0"
+VERSION = "3.0.0"
 
 # All indexing uses "create" (instead of "index") to avoid updating
 # existing records, allowing us to detect duplicates.
@@ -77,11 +86,577 @@ class SosreportHostname(Exception):
     pass
 
 
-def _make_source_id(source, _parent=None):
-    the_bytes = json.dumps(source, sort_keys=True).encode('utf-8')
-    if _parent is not None:
-        the_bytes += str(_parent).encode('utf-8')
-    return hashlib.md5(the_bytes).hexdigest()
+class JsonFileError(Exception):
+    pass
+
+
+class MappingFileError(JsonFileError):
+    pass
+
+
+class TemplateError(Exception):
+    pass
+
+
+class PbenchTemplates(object):
+    """Encapsulation of methods for loading / working with all the Pbench
+    templates for Elasticsearch.
+    """
+    @staticmethod
+    def _load_json(json_fn):
+        """Simple wrapper function to load a JSON object from the given file,
+        raising the JsonFileError when bad JSON data is encountered.
+        """
+        with open(json_fn, "r") as jsonfp:
+            try:
+                data = json.load(jsonfp)
+            except ValueError as err:
+                raise JsonFileError("{}: {}".format(json_fn, err))
+        return data
+
+    @staticmethod
+    def _fetch_mapping(mapping_fn):
+        """Fetch the mapping JSON data from the given file.
+
+        Returns a tuple consisting of the mapping name pulled from the file, and
+        the python dictionary loaded from the JSON file.
+
+        Raises MappingFileError if it encounters any problem loading the file.
+        """
+        mapping = PbenchTemplates._load_json(mapping_fn)
+        keys = list(mapping.keys())
+        if len(keys) != 1:
+            raise MappingFileError(
+                "Invalid mapping file: {}".format(mapping_fn))
+        return keys[0], mapping[keys[0]]
+
+    def __init__(self, basepath, idx_prefix, logger, \
+                known_tool_handlers=None, _dbg=0):
+        # Where to find the mappings
+        MAPPING_DIR = os.path.join(
+            os.path.dirname(basepath), 'lib', 'mappings')
+        # Where to find the settings
+        SETTING_DIR = os.path.join(
+            os.path.dirname(basepath), 'lib', 'settings')
+
+        self.versions = {}
+        self.templates = {}
+        self.idx_prefix = idx_prefix
+        self.logger = logger
+        self.known_tool_handlers = known_tool_handlers
+        self._dbg = _dbg
+
+        # Pbench report status mapping and settings.
+        server_reports_mappings = {}
+        mfile = os.path.join(MAPPING_DIR, "server-reports.json")
+        key, mapping = self._fetch_mapping(mfile)
+        try:
+            idxver = mapping['_meta']['version']
+        except KeyError:
+            raise MappingFileError(
+                "{} mapping missing _meta field in {}".format(key, mfile))
+        if self._dbg > 5:
+            print("fetch_mapping: {} -- {}\n{}\n".format(mfile, key,
+                    json.dumps(mapping, indent=4, sort_keys=True)))
+        server_reports_mappings[key] = mapping
+        server_reports_settings = self._load_json(
+            os.path.join(SETTING_DIR, "server-reports.json"))
+
+        ip = self.index_patterns['server-reports']
+        idxname = ip['idxname']
+        server_reports_template_name = ip['template_name'].format(
+            prefix=self.idx_prefix, version=idxver, idxname=idxname)
+        server_reports_template_body = dict(
+            template=ip['template_pat'].format(prefix=self.idx_prefix,
+                version=idxver, idxname=idxname),
+            settings=server_reports_settings,
+            mappings=server_reports_mappings)
+        self.templates[server_reports_template_name] = server_reports_template_body
+        self.versions['server-reports'] = idxver
+
+        # For v1 Elasticsearch, we need to use two doc types to have
+        # parent/child relationship between run documents and
+        # table-of-contents documents. So we load two mappings in a loop, but
+        # only one settings file below.
+        run_mappings = {}
+        idxver = None
+        for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "run*.json")):
+            key, mapping = self._fetch_mapping(mapping_fn)
+            try:
+                idxver_val = mapping['_meta']['version']
+            except KeyError:
+                raise MappingFileError(
+                    "{} mapping missing _meta field in {}".format(
+                        key, mapping_fn))
+            else:
+                if idxver is None:
+                    idxver = idxver_val
+                else:
+                    if idxver != idxver_val:
+                        raise MappingFileError("{} mappings have mismatched"
+                            " version fields in {}".format(key, mapping_fn))
+            if self._dbg > 5:
+                print("fetch_mapping: {} -- {}\n{}\n".format(mapping_fn, key,
+                        json.dumps(mapping, indent=4, sort_keys=True)))
+            run_mappings[key] = mapping
+        run_settings = self._load_json(os.path.join(SETTING_DIR, "run.json"))
+
+        ip = self.index_patterns['run-data']
+        idxname = ip['idxname']
+        # The API body for the template create() contains a dictionary with the
+        # settings and the mappings.
+        run_template_name = ip['template_name'].format(prefix=self.idx_prefix,
+            version=idxver, idxname=idxname)
+        run_template_body = dict(
+            template=ip['template_pat'].format(prefix=self.idx_prefix,
+                version=idxver, idxname=idxname),
+            settings=run_settings,
+            mappings=run_mappings)
+        self.templates[run_template_name] = run_template_body
+        # Remember the version we pulled from the mapping file, record it in
+        # both the run and toc-entry names.  NOTE: this use of two mappings
+        # will go away with V6 Elasticsearch.
+        self.versions['run-data'] = idxver
+        self.versions['toc-data'] = idxver
+
+        # Next we load all the result-data mappings and settings.
+        result_mappings = {}
+        mfile = os.path.join(MAPPING_DIR, "result-data.json")
+        key, mapping = self._fetch_mapping(mfile)
+        try:
+            idxver = mapping['_meta']['version']
+        except KeyError:
+            raise MappingFileError(
+                "{} mapping missing _meta field in {}".format(key, mfile))
+        if self._dbg > 5:
+            print("fetch_mapping: {} -- {}\n{}\n".format(mfile, key,
+                    json.dumps(mapping, indent=4, sort_keys=True)))
+        result_mappings[key] = mapping
+        mfile = os.path.join(MAPPING_DIR, "result-data-sample.json")
+        key, mapping = self._fetch_mapping(mfile)
+        try:
+            idxver = mapping['_meta']['version']
+        except KeyError:
+            raise MappingFileError(
+                "{} mapping missing _meta field in {}".format(key, mfile))
+        if self._dbg > 5:
+            print("fetch_mapping: {} -- {}\n{}\n".format(mfile, key,
+                    json.dumps(mapping, indent=4, sort_keys=True)))
+        result_mappings[key] = mapping
+        result_settings = self._load_json(os.path.join(SETTING_DIR, "result-data.json"))
+
+        ip = self.index_patterns['result-data']
+        idxname = ip['idxname']
+        result_template_name = ip['template_name'].format(prefix=self.idx_prefix,
+                version=idxver, idxname=idxname)
+        result_template_body = dict(
+            template=ip['template_pat'].format(prefix=self.idx_prefix,
+                version=idxver, idxname=idxname),
+            settings=result_settings,
+            mappings=result_mappings)
+        self.templates[result_template_name] = result_template_body
+        self.versions['result-data'] = idxver
+
+        # Now for the tool data mappings. First we fetch the base skeleton they
+        # all share.
+        skel = self._load_json(os.path.join(MAPPING_DIR, "tool-data-skel.json"))
+        ip = self.index_patterns['tool-data']
+
+        # Next we load all the tool fragments
+        fpat = re.compile(r'tool-data-frag-(?P<toolname>.+)\.json')
+        tool_mapping_frags = {}
+        for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "tool-data-frag-*.json")):
+            m = fpat.match(os.path.basename(mapping_fn))
+            toolname = m.group('toolname')
+            if self.known_tool_handlers is not None:
+                if toolname not in self.known_tool_handlers:
+                    MappingFileError("Unsupported tool '{}' mapping file {}".format(
+                        toolname, mapping_fn))
+            mapping = self._load_json(mapping_fn)
+            try:
+                idxver = mapping['_meta']['version']
+            except KeyError:
+                raise MappingFileError(
+                    "{} mapping missing _meta field in {}".format(key, mapping_fn))
+            if self._dbg > 5:
+                print("fetch_mapping: {} -- {}\n{}\n".format(mapping_fn, toolname,
+                        json.dumps(mapping, indent=4, sort_keys=True)))
+            del mapping['_meta']
+            tool_mapping_frags[toolname] = mapping
+            self.versions[ip['idxname'].format(tool=toolname)] = idxver
+        tool_settings = self._load_json(os.path.join(SETTING_DIR, "tool-data.json"))
+
+        tool_templates = []
+        for toolname,frag in tool_mapping_frags.items():
+            tool_skel = copy.deepcopy(skel)
+            idxname = ip['idxname'].format(tool=toolname)
+            tool_skel['_meta'] = dict(version=self.versions[idxname])
+            tool_skel['properties'][toolname] = frag
+            tool_mapping = dict([("pbench-{}".format(idxname), tool_skel)])
+            tool_template_name = ip['template_name'].format(prefix=self.idx_prefix,
+                version=idxver, idxname=idxname)
+            tool_template_body = dict(
+                template=ip['template_pat'].format(prefix=self.idx_prefix,
+                    version=self.versions[idxname], idxname=idxname),
+                settings=tool_settings,
+                mappings=tool_mapping)
+            self.templates[tool_template_name] = tool_template_body
+
+    index_patterns = {
+        'result-data': {
+            'idxname':       "result-data",
+            'template_name': "{prefix}.v{version}.{idxname}",
+            'template_pat':  "{prefix}.v{version}.{idxname}.*",
+            'template':      "{prefix}.v{version}.{idxname}.{year}-{month}-{day}",
+            'desc':          "Daily result data (any data generated by the"
+                    " benchmark) for all pbench result tar balls;"
+                    " e.g prefix.v0.result-data.YYYY-MM-DD"
+        },
+        'run-data': {
+            'idxname':       "run",
+            'template_name': "{prefix}.v{version}.{idxname}",
+            'template_pat':  "{prefix}.v{version}.{idxname}.*",
+            'template':      "{prefix}.v{version}.{idxname}.{year}-{month}",
+            'desc':          "Monthly pbench run metadata for index tar balls;"
+                    " contains directories, file names, and their size,"
+                    " permissions, etc.; e.g. prefix.v0.run.YYYY-MM"
+        },
+        'server-reports': {
+            'idxname':       "server-reports",
+            'template_name': "{prefix}.v{version}.{idxname}",
+            'template_pat':  "{prefix}.v{version}.{idxname}.*",
+            'template':      "{prefix}.v{version}.{idxname}.{year}-{month}",
+            'desc':          "Monthly pbench server status reports for all"
+                    " cron jobs; e.g. prefix.v0.server-reports.YYYY-MM"
+        },
+        'toc-data': {
+            'idxname':       "run",
+            'template_name': "{prefix}.v{version}.{idxname}",
+            'template_pat':  "{prefix}.v{version}.{idxname}.*",
+            'template':      "{prefix}.v{version}.{idxname}.{year}-{month}",
+            'desc':          "Monthly table of contents metadata for index tar"
+                    " balls; contains directories, file names, and their size,"
+                    " permissions, etc.; e.g. prefix.v0.run.YYYY-MM"
+        },
+        'tool-data': {
+            'idxname':       "tool-data-{tool}",
+            'template_name': "{prefix}.v{version}.{idxname}",
+            'template_pat':  "{prefix}.v{version}.{idxname}.*",
+            'template':      "{prefix}.v{version}.{idxname}.{year}-{month}-{day}",
+            'desc':          "Daily tool data for all tools land in indices"
+                    " named by tool; e.g. prefix.v0.tool-data-iostat.YYYY-MM-DD"
+        }
+    }
+
+    def dump_idx_patterns(self):
+        patterns = self.index_patterns
+        pattern_names = [idx for idx in patterns]
+        pattern_names.sort()
+        for idx in pattern_names:
+            if idx != "tool-data":
+                idxname = patterns[idx]['idxname']
+                print(patterns[idx]['template'].format(prefix=self.idx_prefix,
+                        version=self.versions[idx], idxname=idxname,
+                        year="YYYY", month="MM", day="DD"))
+            else:
+                tool_names = [tool for tool in self.known_tool_handlers \
+                        if self.known_tool_handlers[tool] is not None]
+                tool_names.sort()
+                for tool_name in tool_names:
+                    idxname = patterns[idx]['idxname'].format(tool=tool_name)
+                    print(patterns[idx]['template'].format(
+                            prefix=self.idx_prefix,
+                            version=self.versions[idxname], idxname=idxname,
+                            year="YYYY", month="MM", day="DD"))
+            print("{}\n".format(patterns[idx]['desc']))
+        sys.stdout.flush()
+
+    def dump_templates(self):
+        template_names = [name for name in self.templates]
+        template_names.sort()
+        for name in template_names:
+            print("\n\nTemplate: {}\n\n{}\n".format(name,
+                    json.dumps(self.templates[name], indent=4, sort_keys=True)))
+        sys.stdout.flush()
+
+    def update_templates(self, es, target_name=None):
+        """Push the various Elasticsearch index templates required by pbench.
+        """
+        if target_name is not None:
+            idxname = self.index_patterns[target_name]['idxname']
+        else:
+            idxname = None
+        template_names = [name for name in self.templates]
+        template_names.sort()
+        successes = retries = 0
+        beg = end = None
+        for name in template_names:
+            if idxname is not None and not name.endswith(idxname):
+                # If we were asked to only load a given template name, skip
+                # all non-matching templates.
+                continue
+            try:
+                _beg, _end, _retries = es_put_template(es,
+                        name=name, body=self.templates[name])
+            except Exception as e:
+                raise TemplateError(e)
+            else:
+                successes += 1
+                if beg is None:
+                    beg = _beg
+                end = _end
+                retries += _retries
+        self.logger.info("done templates (end ts: {}, duration: {:.2f}s,"
+                " successes: {:d}, retries: {:d})",
+                tstos(end), end - beg, successes, retries)
+
+
+def _get_es_hosts(config, logger):
+    """
+    Return list of dicts (a single dict for now) - that's what ES is expecting.
+    """
+    try:
+        URL = config.get('Indexing', 'server')
+    except NoSectionError:
+        logger.warning("Need an [Indexing] section with host and port defined"
+                " in {} configuration file", " ".join(config.files))
+        return None
+    except NoOptionError:
+        try:
+            host = config.get('Indexing', 'host')
+            port = config.get('Indexing', 'port')
+        except NoOptionError:
+            return None
+    else:
+        host, port = URL.rsplit(':', 1)
+    timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
+    return [dict(host=host, port=port, timeout=timeoutobj),]
+
+def get_es(config, logger):
+    """Return an Elasticsearch() object derived from the given configuration.
+    If the configuration does not provide the necessary data, we return None
+    instead.
+    """
+    hosts = _get_es_hosts(config, logger)
+    if hosts is None:
+        return None
+    if config._unittests:
+        if MockElasticsearch is None:
+            raise Exception("MockElasticsearch is not available!")
+        es = MockElasticsearch(hosts, max_retries=0)
+        global helpers
+        helpers.streaming_bulk = es.mockstrm.streaming_bulk
+        def _ts():
+            return 0
+        global _do_ts
+        _do_ts = _ts
+    else:
+        # FIXME: we should just change these two loggers to write to a
+        # file instead of setting the logging level up so high.
+        logging.getLogger("urllib3").setLevel(logging.FATAL)
+        logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
+        es = Elasticsearch(hosts, max_retries=0)
+    return es
+
+def es_put_template(es, name=None, body=None):
+    assert name is not None and body is not None
+    retry = True
+    retry_count = 0
+    backoff = 1
+    beg, end = _do_ts(), None
+    # Derive the mapping name from the template name
+    mapping_name = "pbench-{}".format(name.split('.')[2])
+    try:
+        body_ver = int(body['mappings'][mapping_name]['_meta']['version'])
+    except KeyError as e:
+        raise Exception("Bad template, {}, could not derive mapping name, {}: {!r}".format(name, mapping_name, e))
+    while retry:
+        try:
+            tmpl = es.indices.get_template(name=name)
+        except es_excs.TransportError as exc:
+            # Only retry on certain 500 errors
+            if exc.status_code != 404:
+                if exc.status_code not in [500, 503, 504]:
+                    raise
+                time.sleep(_calc_backoff_sleep(backoff))
+                backoff += 1
+                retry_count += 1
+                continue
+        except es_excs.ConnectionError as exc:
+            # We retry all connection errors
+            time.sleep(_calc_backoff_sleep(backoff))
+            backoff += 1
+            retry_count += 1
+            continue
+        else:
+            try:
+                tmpl_ver = int(tmpl[name]['mappings'][mapping_name]['_meta']['version'])
+            except KeyError as e:
+                pass
+            else:
+                if tmpl_ver == body_ver:
+                    break
+        try:
+            es.indices.put_template(name=name, body=body)
+        except es_excs.TransportError as exc:
+            # Only retry on certain 500 errors
+            if exc.status_code not in [500, 503, 504]:
+                raise
+            time.sleep(_calc_backoff_sleep(backoff))
+            backoff += 1
+            retry_count += 1
+        except es_excs.ConnectionError as exc:
+            # We retry all connection errors
+            time.sleep(_calc_backoff_sleep(backoff))
+            backoff += 1
+            retry_count += 1
+        else:
+            retry = False
+    end = _do_ts()
+    return beg, end, retry_count
+
+# Always use "create" operations, as we also ensure each JSON document being
+# indexed has an "_id" field, so we can tell when we are indexing duplicate
+# data.
+_op_type = "create"
+# 100,000 minute timeouts talking to Elasticsearch; basically we just don't
+# want to timeout waiting for Elasticsearch and then have to retry, as that
+# can add undue burden to the Elasticsearch cluster.
+_read_timeout = 100000*60.0
+_request_timeout = 100000*60.0
+
+def es_index(es, actions, errorsfp, logger, _dbg=0):
+    """
+    Now do the indexing specified by the actions.
+    """
+    # These need to be defined before the closure below. These work because
+    # a closure remembers the binding of a name to an object. If integer
+    # objects were used, the name would be bound to that integer value only
+    # so for the retries, incrementing the integer would change the outer
+    # scope's view of the name.  By using a Counter object, the name to
+    # object binding is maintained, but the object contents are changed.
+    actions_deque = deque()
+    actions_retry_deque = deque()
+    retries_tracker = Counter()
+
+    def actions_tracking_closure(cl_actions):
+        for cl_action in cl_actions:
+            for field in ('_id', '_index', '_type'):
+                assert field in cl_action, "Action missing '{}' field:" \
+                        " {!r}".format(field, cl_action)
+            assert _op_type == cl_action['_op_type'], "Unexpected _op_type" \
+                    " value '{}' in action {!r}".format(
+                    cl_action['_op_type'], cl_action)
+
+            actions_deque.append((0, cl_action))   # Append to the right side ...
+            yield cl_action
+            # if after yielding an action some actions appear on the retry deque
+            # start yielding those actions until we drain the retry queue.
+            backoff = 1
+            while len(actions_retry_deque) > 0:
+                time.sleep(_calc_backoff_sleep(backoff))
+                retries_tracker['retries'] += 1
+                retry_actions = []
+                # First drain the retry deque entirely so that we know when we
+                # have cycled through the entire list to be retried.
+                while len(actions_retry_deque) > 0:
+                    retry_actions.append(actions_retry_deque.popleft())
+                for retry_count, retry_action in retry_actions:
+                    # Append to the right side ...
+                    actions_deque.append((retry_count, retry_action))
+                    yield retry_action
+                # if after yielding all the actions to be retried, some show up
+                # on the retry deque again, we extend our sleep backoff to avoid
+                # pounding on the ES instance.
+                backoff += 1
+
+    beg, end = _do_ts(), None
+    successes = 0
+    duplicates = 0
+    failures = 0
+
+    # Create the generator that closes over the external generator, "actions"
+    generator = actions_tracking_closure(actions)
+
+    streaming_bulk_generator = helpers.streaming_bulk(
+            es, generator, raise_on_error=False,
+            raise_on_exception=False, request_timeout=_request_timeout)
+
+    for ok, resp_payload in streaming_bulk_generator:
+        retry_count, action = actions_deque.popleft()
+        try:
+            resp = resp_payload[_op_type]
+        except KeyError as e:
+            assert not ok, "{!r}".format(ok)
+            assert e.args[0] == _op_type, "e.args = {!r}, _op_type = {!r}".format(e.args, _op_type)
+            # For whatever reason, some errors are always returned using
+            # the "index" operation type instead of _op_type (e.g. "create"
+            # op type still comes back as an "index" response).
+            try:
+                resp = resp_payload['index']
+            except KeyError:
+                # resp is not of expected form; set it to the complete
+                # payload, so that it can be reported properly below.
+                resp = resp_payload
+        try:
+            status = resp['status']
+        except KeyError as e:
+            assert not ok
+            # Limit the length of the error message.
+            logger.error("{!r}", e)
+            status = 999
+        else:
+            assert action['_id'] == resp['_id']
+        if ok:
+            successes += 1
+        else:
+            if status == 409:
+                if retry_count == 0:
+                    # Only count duplicates if the retry count is 0 ...
+                    duplicates += 1
+                else:
+                    # ... otherwise consider it successful.
+                    successes += 1
+            elif status == 400:
+                try:
+                    exc_payload = resp['exception']
+                except KeyError:
+                    pass
+                else:
+                    resp['exception'] = repr(exc_payload)
+                jsonstr = json.dumps({ "action": action, "ok": ok, "resp": resp, "retry_count": retry_count, "timestamp": tstos(_do_ts()) }, indent=4, sort_keys=True)
+                print(jsonstr, file=errorsfp)
+                errorsfp.flush()
+                failures += 1
+            else:
+                try:
+                    exc_payload = resp['exception']
+                except KeyError:
+                    pass
+                else:
+                    resp['exception'] = repr(exc_payload)
+                try:
+                    error = resp['error']
+                except KeyError:
+                    error = ""
+                if status == 403 and error.startswith("IndexClosedException"):
+                    # Don't retry closed index exceptions
+                    jsonstr = json.dumps({ "action": action, "ok": ok, "resp": resp, "retry_count": retry_count, "timestamp": tstos(_do_ts()) }, indent=4, sort_keys=True)
+                    print(jsonstr, file=errorsfp)
+                    errorsfp.flush()
+                    failures += 1
+                else:
+                    # Retry all other errors.
+                    # Limit the length of the error message.
+                    logger.warning("retrying action: {}", json.dumps(resp)[:_MAX_ERRMSG_LENGTH])
+                    actions_retry_deque.append((retry_count + 1, action))
+
+    end = _do_ts()
+
+    assert len(actions_deque) == 0
+    assert len(actions_retry_deque) == 0
+
+    return (beg, end, successes, duplicates, failures, retries_tracker['retries'])
 
 
 class PbenchData(object):
@@ -113,6 +688,13 @@ class PbenchData(object):
         except KeyError:
             pass
         self.counters = Counter()
+
+    @staticmethod
+    def make_source_id(source, _parent=None):
+        the_bytes = json.dumps(source, sort_keys=True).encode('utf-8')
+        if _parent is not None:
+            the_bytes += str(_parent).encode('utf-8')
+        return hashlib.md5(the_bytes).hexdigest()
 
     def mk_abs_timestamp_millis(self, orig_ts):
         """Convert the given millis since the epoch relative or absolute
@@ -501,8 +1083,8 @@ class ResultData(PbenchData):
         for source, _parent, _type in ResultData.gen_sources(
                 iter_data, bm_driver_data, iteration,
                 self.mk_abs_timestamp_millis):
-            yield source, _make_source_id(source, _parent=_parent), _parent, \
-                    _type
+            yield source, PbenchData.make_source_id(source, _parent=_parent), \
+                    _parent, _type
 
     @staticmethod
     def expand_template(templ, d, run=None):
@@ -645,7 +1227,7 @@ class ResultData(PbenchData):
                                 ( 'benchmark', iteration['benchmark'] ),
                                 ( 'sample', sample_md )
                             ])
-                            sample_id = _make_source_id(source)
+                            sample_id = PbenchData.make_source_id(source)
                             yield source, None, 'sample'
                             # Now we can yield each entry of the timeseries
                             # data for this sample.
@@ -720,6 +1302,9 @@ def mk_result_data_actions(ptb, idxctx):
             )
             if parent_id is not None:
                 action['_parent'] = parent_id
+            else:
+                # Only the parent result data documents hold the tracking IDs.
+                source['@generated-by'] = idxctx.get_tracking_id()
             count += 0
             yield action
     idxctx.logger.debug("end [{:d} result documents]", count)
@@ -1452,9 +2037,10 @@ class ToolData(PbenchData):
             # to their proper fields for each identifier. Now we can yield
             # records for each of the identifiers.
             for _id,source in datum.items():
-                source_id = _make_source_id(source)
+                source_id = PbenchData.make_source_id(source)
                 yield source, source_id
-        self.logger.info("tool-data-indexing: tool {}, end unified for {}", self.toolname, self.basepath)
+        self.logger.info("tool-data-indexing: tool {}, end unified for {}",
+                self.toolname, self.basepath)
         return
 
     def _make_source_individual(self):
@@ -1516,7 +2102,7 @@ class ToolData(PbenchData):
                         column = header[col]
                         _d[metric][column] = float(val)
 
-                source_id = _make_source_id(datum)
+                source_id = PbenchData.make_source_id(datum)
                 yield datum, source_id
                 idx += 1
             self.logger.info("tool-data-indexing: tool {}, individual end {}", self.toolname, csv['path'])
@@ -1812,7 +2398,7 @@ class ToolData(PbenchData):
             path = os.path.join(self.ptb.extracted_root, output_file['path'])
             with open(path, 'r') as file_object:
                 for record in func(self, file_object, converter, output_file['path']):
-                    source_id = _make_source_id(record)
+                    source_id = PbenchData.make_source_id(record)
                     yield record, source_id
 
     def _make_source_json(self):
@@ -1907,7 +2493,7 @@ class ToolData(PbenchData):
 
                 # Any further transformations needed should be done here.
 
-                source_id = _make_source_id(source)
+                source_id = PbenchData.make_source_id(source)
                 yield source, source_id
                 idx += 1
             self.logger.info("tool-data-indexing: tool {}, json end {}", self.toolname, df['path'])
@@ -2151,6 +2737,7 @@ def mk_tool_data_actions(ptb, idxctx):
             except BadDate:
                 pass
             else:
+                source['@generated-by'] = idxctx.get_tracking_id()
                 action = _dict_const(
                     _op_type=_op_type,
                     _index=idx_name,
@@ -2519,16 +3106,7 @@ def mk_run_action(ptb, idxctx):
     # Note that the contents of the "@generated-by" record does not contribute
     # to the generation of the documents `_id` field since a run document's ID
     # is the MD5 hash of the tar ball.
-    source['@generated-by'] = dict([
-        ('indexer', idxctx.name),
-        ('version', _VERSION_),
-        ('commit_id', idxctx.config.COMMIT_ID),
-        ('hostname', idxctx.gethostname()),
-        ('pid', idxctx.getpid()),
-        ('group_id', idxctx.getgid()),
-        ('user_id', idxctx.getuid()),
-        ('timestamp', tstos(idxctx.time()))
-    ])
+    source['@generated-by'] = idxctx.get_tracking_id()
     source['run'] = ptb.run_metadata
     sos_d = mk_sosreports(ptb.tb, ptb.extracted_root, idxctx.logger)
     if sos_d:
@@ -2924,9 +3502,9 @@ class IdxContext(object):
 
         self.logger = get_pbench_logger(self.name, self.config)
         self.es = get_es(self.config, self.logger)
-        self.templates = PbenchTemplates(os.path.dirname(os.path.abspath(
-            sys.argv[0])), self.idx_prefix, self.logger, _known_tool_handlers,
-            _dbg=_dbg)
+        self.templates = PbenchTemplates(self.config.BINDIR, self.idx_prefix,
+                self.logger, _known_tool_handlers, _dbg=_dbg)
+        self.tracking_id = None
 
     def dump_opctx(self):
         dump = False
@@ -2936,3 +3514,9 @@ class IdxContext(object):
         if dump:
             self.logger.error("** Errors encountered while indexing: {}",
                     json.dumps(self.opctx, sort_keys=True))
+
+    def set_tracking_id(self, tid):
+        self.tracking_id = tid
+
+    def get_tracking_id(self):
+        return self.tracking_id

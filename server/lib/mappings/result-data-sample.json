@@ -2,7 +2,7 @@
     "pbench-result-data-sample": {
         "_all" : {"enabled" : false},
         "_meta": {
-            "version": "1"
+            "version": "2"
         },
         "date_detection": false,
         "properties": {
@@ -12,6 +12,10 @@
             },
             "@timestamp_original": {
                 "type": "long"
+            },
+            "@generated-by": {
+                "type": "string",
+                "index": "not_analyzed"
             },
             "run": {
                 "properties": {

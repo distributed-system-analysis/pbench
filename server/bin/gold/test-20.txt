@@ -2,15 +2,23 @@
 audit archive hierarchy
 --- Finished echo (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v2.server-reports
+Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "cb5052bf1afaed7063e4d32f87d96a4e",
+        "_id": "f9a45d3c21cefee922ddbfc4c086077e",
         "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
             "@timestamp": "1900-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
@@ -277,9 +285,7 @@ lrwxrwxrwx        109 public_html/users/userC/controllerU/prefix2/tarball-userC_
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--       4524 logs/pbench-audit-server/pbench-audit-server.log
-drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        372 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--       4889 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -464,11 +470,9 @@ Results issues for controller: userB/controllerU
 		prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss
 
 end-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
-+++++ pbench-report-status/pbench-report-status.log
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
------ pbench-report-status/pbench-report-status.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs

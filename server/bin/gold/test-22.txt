@@ -1,13 +1,21 @@
 +++ Running pbench-satellite-cleanup
-Template:  pbench-unittests.v2.server-reports
+Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "9667904a3e33bb6b1fd373abd70243fb",
+        "_id": "8643e77dcfcba69b0de712a26986d5be",
         "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
             "@timestamp": "1900-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
@@ -21,15 +29,23 @@ len(actions) = 1
 ]
 --- Finished pbench-satellite-cleanup (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v2.server-reports
+Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "287e5f8e0f82406e1ec93cb4199149e6",
+        "_id": "2b90efcb5fa21a7660045ddd41953290",
         "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
             "@timestamp": "1900-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
@@ -122,12 +138,10 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--       1127 logs/pbench-audit-server/pbench-audit-server.log
-drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--       1492 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-satellite-cleanup
 -rw-rw-r--          0 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.error
--rw-rw-r--        312 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
+-rw-rw-r--        687 logs/pbench-satellite-cleanup/pbench-satellite-cleanup.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -211,18 +225,16 @@ Results issues for controller: controller-c
 		dirA/dirB
 
 end-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
-+++++ pbench-report-status/pbench-report-status.log
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
------ pbench-report-status/pbench-report-status.log
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.error
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.error
 +++++ pbench-satellite-cleanup/pbench-satellite-cleanup.log
 run-1900-01-01T00:00:00-UTC: pbench-satellite-cleanup starting
 run-1900-01-01T00:00:00-UTC: pbench-satellite-cleanup ends: Total 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.
+1970-01-01T00:00:00.000000 INFO pbench-satellite-cleanup.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-satellite-cleanup.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-satellite-cleanup/pbench-satellite-cleanup.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

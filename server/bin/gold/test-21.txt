@@ -1,13 +1,21 @@
 +++ Running pbench-dispatch
-Template:  pbench-unittests.v2.server-reports
+Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "9d23e73fe58212c49f47713ed7d05123",
+        "_id": "62daf518606f8e9211fb234ea348a409",
         "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
             "@timestamp": "1900-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
@@ -21,15 +29,23 @@ len(actions) = 1
 ]
 --- Finished pbench-dispatch (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v2.server-reports
+Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "3268947b7d40af36d1fd956d5e70926c",
+        "_id": "69a2830ec9cf090127227d032294481c",
         "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
             "@timestamp": "1900-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
@@ -100,12 +116,10 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--        147 logs/pbench-dispatch/pbench-dispatch.log
-drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--        744 logs/pbench-report-status/pbench-report-status.log
+-rw-rw-r--        504 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -155,19 +169,17 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-dispatch/pbench-dispatch.error
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
 run-1900-01-01T00:00:00-UTC
 run-1900-01-01T00:00:00-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
+1970-01-01T00:00:00.000000 INFO pbench-dispatch.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-dispatch.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-dispatch/pbench-dispatch.log
-+++++ pbench-report-status/pbench-report-status.log
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
------ pbench-report-status/pbench-report-status.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs

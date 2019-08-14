@@ -2,12 +2,37 @@
     "pbench-server-reports": {
         "_all" : {"enabled" : false},
         "_meta": {
-            "version": "2"
+            "version": "3"
         },
         "date_detection": false,
         "properties": {
             "@timestamp": {
                 "type": "date"
+            },
+            "@generated-by": {
+                "properties": {
+                    "version": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "commit_id": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "hostname": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "pid": {
+                        "type": "integer"
+                    },
+                    "group_id": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "type": "integer"
+                    }
+                }
             },
             "chunk_id": {
                 "type": "integer"
