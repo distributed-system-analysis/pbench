@@ -5,6 +5,7 @@
     "properties": {
         "@timestamp": { "type": "date" },
         "@timestamp_original": { "type": "string" },
+        "@generated-by": { "type": "string", "index": "not_analyzed" },
         "run": {
             "properties": {
                 "id": { "type": "string", "index": "not_analyzed" },

@@ -90,20 +90,22 @@ class _MockStreamingBulk(object):
         self.index_tracker = Counter()
         self.dupes_by_index_tracker = Counter()
 
-    def streaming_bulk(self, es, actions, **kwargs):
+    @staticmethod
+    def streaming_bulk(es, actions, **kwargs):
         assert isinstance(es, MockElasticsearch), \
                 "Unexpected es object: {!r}".format(es)
+        msb = es.msb
         # First dump the template report before we continue
-        self.mpt.report()
+        msb.mpt.report()
         for action in actions:
-            self.duplicates_tracker[action['_id']] += 1
-            dcnt = self.duplicates_tracker[action['_id']]
+            msb.duplicates_tracker[action['_id']] += 1
+            dcnt = msb.duplicates_tracker[action['_id']]
             if dcnt == 2:
-                self.dupes_by_index_tracker[action['_index']] += 1
-            self.index_tracker[action['_index']] += 1
-            if self.index_tracker[action['_index']] <= self.max_actions:
-                self.actions_l.append(action)
-                self.validate_type(action)
+                msb.dupes_by_index_tracker[action['_index']] += 1
+            msb.index_tracker[action['_index']] += 1
+            if msb.index_tracker[action['_index']] <= msb.max_actions:
+                msb.actions_l.append(action)
+                msb.validate_type(action)
             resp = {}
             resp[action['_op_type']] = { '_id': action['_id'] }
             if dcnt > 2:
@@ -115,7 +117,7 @@ class _MockStreamingBulk(object):
                 resp[action['_op_type']]['status'] = 200
                 ok = True
             yield ok, resp
-        self.report()
+        msb.report()
 
     def validate_type(self, action):
         """Crude approach to validating the constructed dictionaries ahead of
@@ -125,7 +127,8 @@ class _MockStreamingBulk(object):
         try:
             the_mapping = self.mpt.mock_mappings[the_type]
         except KeyError:
-            print("Could not find document type: {}".format(the_type))
+            print("Could not find document type '{}' in {!r}".format(the_type,
+                    list(self.mpt.mock_mappings.keys())))
             return False
 
         the_source = action['_source']

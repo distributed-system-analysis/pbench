@@ -64,7 +64,7 @@ if [ -z "$linkdestlist" ]; then
 $subj
 config file error: either no dispach-states defined or a typo
 EOF
-    pbench-report-status --name $PROG --timestamp $(timestamp) --type error $index_content
+    pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type error ${index_content}
     log_finish
     exit 1
 fi
@@ -225,6 +225,6 @@ $summary_text
 
 EOF
 cat $mail_content >> $index_content
-pbench-report-status --name $PROG --timestamp $(timestamp) --type status $index_content
+pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${index_content}
 
 exit 0

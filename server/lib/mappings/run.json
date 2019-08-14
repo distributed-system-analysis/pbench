@@ -2,7 +2,7 @@
     "pbench-run": {
         "_all" : {"enabled" : false},
         "_meta": {
-            "version": "2"
+            "version": "3"
         },
         "date_detection": false,
         "properties": {
@@ -10,36 +10,8 @@
                 "type": "date"
             },
             "@generated-by": {
-                "properties": {
-                    "indexer": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "version": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "commit_id": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "hostname": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "pid": {
-                        "type": "integer"
-                    },
-                    "group_id": {
-                        "type": "integer"
-                    },
-                    "user_id": {
-                        "type": "integer"
-                    },
-                    "timestamp": {
-                        "type": "date"
-                    }
-                }
+                "type": "string",
+                "index": "not_analyzed"
             },
             "@metadata": {
                 "properties": {

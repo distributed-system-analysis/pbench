@@ -48,10 +48,12 @@ import tempfile
 from enum import Enum
 from argparse import ArgumentParser
 from s3backup import S3Config, Entry
-from pbench import init_report_template, report_status, PbenchConfig, \
-        BadConfig, get_es, get_pbench_logger, md5sum
 
-_NAME_    = "pbench-verify-backup-tarballs"
+from pbench import PbenchConfig, BadConfig, get_pbench_logger, md5sum
+from pbench.report import Report
+
+
+_NAME_ = "pbench-verify-backup-tarballs"
 
 
 class Status(Enum):
@@ -304,8 +306,8 @@ def main():
         if s3_entry_list == Status.FAIL:
             sts += 1
 
-        with tempfile.NamedTemporaryFile(mode='w+t', dir=tmpdir) as report:
-            report.write("{}.{}({})\n".format(prog, config.TS, config.PBENCH_ENV))
+        with tempfile.NamedTemporaryFile(mode='w+t', dir=tmpdir) as reportfp:
+            reportfp.write("{}.{}({})\n".format(prog, config.TS, config.PBENCH_ENV))
 
             try:
                 # Check the data integrity in ARCHIVE (Question 1).
@@ -313,12 +315,12 @@ def main():
             except Exception:
                 msg = "Failed to check data integrity of ARCHIVE ({})".format(config.ARCHIVE)
                 logger.exception(msg)
-                report.write("{}\n".format(msg))
+                reportfp.write("{}\n".format(msg))
                 sts += 1
             else:
                 if md5_result_archive > 0:
-                    # Create a report for failed MD5 results from ARCHIVE (Question 1).
-                    report_failed_md5(archive_obj, tmpdir, report, logger)
+                    # Create a report for failed MD5 results from ARCHIVE (Question 1)
+                    report_failed_md5(archive_obj, tmpdir, reportfp, logger)
                     sts += 1
 
             try:
@@ -327,11 +329,11 @@ def main():
             except Exception:
                 msg = "Failed to check data integrity of BACKUP ({})".format(config.BACKUP)
                 logger.exception(msg)
-                report.write("{}\n".format(msg))
+                reportfp.write("{}\n".format(msg))
             else:
                 if md5_result_backup > 0:
-                    # Create a report for failed MD5 results from BACKUP (Question 2).
-                    report_failed_md5(local_backup_obj, tmpdir, report, logger)
+                    # Create a report for failed MD5 results from BACKUP (Question 2)
+                    report_failed_md5(local_backup_obj, tmpdir, reportfp, logger)
                     sts += 1
 
             # Compare ARCHIVE with BACKUP (Questions 3 and 3a).
@@ -339,25 +341,27 @@ def main():
                                 local_backup_obj,
                                 archive_entry_list,
                                 backup_entry_list,
-                                report)
+                                reportfp)
 
             if s3_config_obj is None:
-                report.write('S3 backup service is inaccessible.\n')
+                reportfp.write('S3 backup service is inaccessible.\n')
             else:
                 # Compare ARCHIVE with S3 (Questions 4, 4a, and 4b).
                 compare_entry_lists(archive_obj,
                                     s3_backup_obj,
                                     archive_entry_list,
                                     s3_entry_list,
-                                    report)
+                                    reportfp)
 
             # Rewind to the beginning.
-            report.seek(0)
-            # Send the report out.
-            es, idx_prefix = init_report_template(config, logger)
-            report_status(es, logger, config.LOGSDIR,
-                          idx_prefix, _NAME_, config.timestamp(),
-                          "status", report.name)
+            reportfp.seek(0)
+
+            report = Report(config, _NAME_)
+            report.init_report_template()
+            try:
+                report.post_status(config.timestamp(), "status", reportfp.name)
+            except Exception:
+                pass
 
     logger.info('end-{}', config.TS)
 

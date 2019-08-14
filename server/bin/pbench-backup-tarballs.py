@@ -11,9 +11,12 @@ import tempfile
 from enum import Enum
 from argparse import ArgumentParser
 from s3backup import S3Config, Status
-from pbench import init_report_template, report_status, rename_tb_link, \
-    PbenchConfig, BadConfig, get_es, get_pbench_logger, quarantine, md5sum
 from botocore.exceptions import ConnectionClosedError, ClientError
+
+from pbench import PbenchConfig, BadConfig, get_pbench_logger, quarantine, \
+        rename_tb_link, md5sum
+from pbench.report import Report
+
 
 _NAME_ = "pbench-backup-tarballs"
 
@@ -421,15 +424,17 @@ def main():
     prog = os.path.basename(sys.argv[0])
 
     # prepare and send report
-    with tempfile.NamedTemporaryFile(mode='w+t', dir=config.TMP) as report:
-        report.write("{}.{}({})\n{}\n".format(
+    with tempfile.NamedTemporaryFile(mode='w+t', dir=config.TMP) as reportfp:
+        reportfp.write("{}.{}({})\n{}\n".format(
             prog, config.timestamp(), config.PBENCH_ENV, result_string))
-        report.seek(0)
+        reportfp.seek(0)
 
-        es, idx_prefix = init_report_template(config, logger)
-        # Call report-status
-        report_status(es, logger, config.LOGSDIR,
-                      idx_prefix, _NAME_, config.timestamp(), "status", report.name)
+        report = Report(config, _NAME_)
+        report.init_report_template()
+        try:
+            report.post_status(config.timestamp(), "status", reportfp.name)
+        except Exception:
+            pass
 
     logger.info('end-{}'.format(config.TS))
 

@@ -327,6 +327,6 @@ Processed $ntotal result tar balls, $ntb successfully, $nwarn warnings, $nerrs e
 
 EOF
 cat $mail_content >> $index_content
-pbench-report-status --name $PROG --timestamp $(timestamp) --type status $index_content
+pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${index_content}
 
 exit 0

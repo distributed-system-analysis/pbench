@@ -2,7 +2,7 @@
     "pbench-result-data": {
         "_all" : {"enabled" : false},
         "_meta": {
-            "version": "1"
+            "version": "2"
         },
         "_parent": {
             "type": "pbench-result-data-sample"
