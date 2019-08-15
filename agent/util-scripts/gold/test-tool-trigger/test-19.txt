@@ -42,7 +42,7 @@ baz
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --kill --iteration=1 --group=default --dir=/tmp --interval=3
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]completed: 
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/0/sample1 --interval=3
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] screen -dmS pbench-tool-sar-default-0 /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/0/sample1 --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/0/sample1 --interval=3
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]completed: 
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/0/sample1
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --stop --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/0/sample1 --interval=3
@@ -53,7 +53,7 @@ baz
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --kill --iteration=1 --group=default --dir=/tmp --interval=3
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]completed: 
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/1/sample1 --interval=3
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] screen -dmS pbench-tool-sar-default-1 /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/1/sample1 --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/1/sample1 --interval=3
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]completed: 
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench/1/sample1
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --stop --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/1/sample1 --interval=3
@@ -62,7 +62,7 @@ baz
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -ls
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dmS pbench-tool-sar-default-0 /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/0/sample1 --interval=3
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/0/sample1 --interval=3
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -ls
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dmS pbench-tool-sar-default-1 /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/1/sample1 --interval=3
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/1/sample1 --interval=3
 --- test-execution.log file contents
