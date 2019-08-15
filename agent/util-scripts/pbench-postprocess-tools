@@ -28,7 +28,7 @@ debug_log "[$script_name]started: $@"
 
 # Process options and arguments
 
-opts=$(getopt -q -o d:g: --longoptions "dir:,group:,iteration:" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o d:g:i: --longoptions "dir:,group:,iteration:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
@@ -159,7 +159,7 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 			((i++))
 		done < "$tool_group_dir/$this_tool_file"
 		name="$this_tool_file"
-		screen_name="pbench-tool-$name-$group-$iteration_num"
+		screen_name="pbench-tool-$name-$group"
 		debug_log "[$script_name] $pbench_bin/tool-scripts/$name --$action --iteration=$iteration --group=$group --dir=$dir ${tool_opts[@]}"
 		if [ "$action" == "start" ]; then 
 			# using screen to avoid tty issues and guarantee tool is backgrounded
