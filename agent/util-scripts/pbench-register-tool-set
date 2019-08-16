@@ -1,119 +1,171 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
-# The sole purpose of this script is to ensure a tool
-# of your choosing is used during the execution of a benchmark.
-# For a list of performance tools, look at the
-# $pbench_bin/tool-scripts directory.
+# The sole purpose of this script is to ensure a tool set of your choosing is
+# used during the execution of a benchmark on the optional list of remote
+# hostnames specified. For a list of available tool sets, use the --help
+# option.
 
 # Defaults
 toolset="default"
-remote=""
-label=""
-group=""
+remotes_arg=""
+labels_arg=""
+group_arg=""
+install_arg=""
 default_interval=$(getconf.py interval pbench/tools)
 if [[ -z "${default_interval}" ]] ;then
 	default_interval=3
 fi
 
 function usage() {
-	printf "usage:\n"
-	printf "$script_name --toolset=<tool-set> [--group=<group-name>] [--remote=<remote-host>] [--label=<label>] [--interval=<interval] -- [all tool specific options here]\n"
+	# Usage is formatted for a 80 column width screen.
+	printf -- "usage:\n"
+	printf -- "${script_name} --toolset=<tool-set> [--group=<group-name>]"
+	printf -- " [--interval=<interval>] [--no-install]"
+	printf -- " [--remotes=<remote-host>[,<remote-host>]]"
+	printf -- " [--labels=<label>[,<label>]]\n"
+	printf -- "${script_name} --toolset=<tool-set> [--group=<group-name>]"
+	printf -- " [--interval=<interval>] [--no-install]"
+	printf -- " [--remotes=@<remotes-file>]\n\n"
+        #             1         2         3         4         5         6         7         8
+	# (tab)    1 901234567890123456789012345678901234567890123456789012345678901234567890
+	printf -- "\tWhere the list of labels must match the list of remotes.\n\n"
+	printf -- "\tOne can specify as the argument to the \"--remotes\" option a single\n"
+	printf -- "\tremote host, a list of remote hosts (comma-separated, no spaces) or an\n"
+	printf -- "\t\"at\" sign (\"@\") followed by a filename.  In this last case, the file\n"
+	printf -- "\tshould contain a list of hosts and their (optional) labels.  Each line\n"
+	printf -- "\tof the file should contain a host name, optionally followed by a label\n"
+	printf -- "\tseparated by a comma (\",\"); empty lines are ignored, and comments are\n"
+	printf -- "\tdenoted by a leading hash, or pound (\"#\"), character.\n"
+	printf -- "\nAvailable tool sets from ${CONFIG}:\n"
+	toolsets_raw=$(getconf.py -a pbench/tools | grep tool-set | awk '{print $1}')
+	for toolset_raw in ${toolsets_raw}; do
+		printf -- "\t${toolset_raw%%-*}\n"
+	done
 }
 
 # Process options and arguments
-opts=$(getopt -q -o hr:l:g:i: --longoptions "help,toolset:,remote:,label:,group:,interval:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "%s\n" $*
-	printf "$script_name: you specified an invalid option or forgot a required option value\n\n"
-	usage
+opts=$(getopt -q -o ht:g:i:r:l: --longoptions "help,toolset:,group:,interval:,no-install,remote:,remotes:,label:,labels:" -n "getopt.sh" -- "${@}")
+if [[ ${?} -ne 0 ]]; then
+	printf -- "\n${*}\n" >&2
+	printf -- "${script_name}: you specified an invalid option\n\n" >&2
+	usage >&2
 	exit 1
 fi
-eval set -- "$opts";
+
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		--toolset)
-		shift;
-		if [ -n "$1" ]; then
-			toolset="$1"
-			shift;
+	case "${1}" in
+	-t|--toolset)
+		shift
+		if [[ -n "${1}" ]]; then
+			toolset="${1}"
+			shift
 		fi
 		;;
-		-r|--remote)
-		shift;
-		if [ -n "$1" ]; then
-			remote="--remote=$1"
-			shift;
+	-r|--remote|--remotes)
+		shift
+		if [[ -n "${1}" ]]; then
+			remotes_arg=" --remotes=${1}"
+			shift
 		fi
 		;;
-		-l|--label)
-		shift;
-		if [ -n "$1" ]; then
-			label="--label=$1"
-			shift;
+	-l|--label|--labels)
+		shift
+		if [[ -n "${1}" ]]; then
+			labels_arg=" --labels=${1}"
+			shift
 		fi
 		;;
-		-g|--group)
-		shift;
-		if [ -n "$1" ]; then
-			group="--group=$1"
-			shift;
+	-g|--group)
+		shift
+		if [[ -n "${1}" ]]; then
+			group_arg=" --group=${1}"
+			shift
 		fi
 		;;
-		-i|--interval)
-		shift;
-		if [ -n "$1" ]; then
-			default_interval="$1"
-			shift;
+	-i|--interval)
+		shift
+		if [[ -n "${1}" ]]; then
+			default_interval="${1}"
+			shift
 		fi
 		;;
-		-h|--help)
-		usage;
+	--no-install)
+		shift
+		install_arg=" --no-install"
+		;;
+	-h|--help)
+		usage
 		exit 0
 		;;
-		--)
-		shift;
-		break;
+	--)
+		shift
+		break
 		;;
 	esac
 done
 
-typeset -i nerrs=0
-case "$toolset" in
-	default)
-	default_tool_set=$(getconf.py -l default-tool-set pbench/tools)
-	for tool_name in $default_tool_set; do
-		if [[ ${tool_name} == "perf" ]]; then
-			# Ignore, we'll register it after all the others
-			# FIXME: Why is perf always registered?
-			continue
+if [[ -z "${toolset}" ]]; then
+	printf -- "ERROR: Missing --toolset=<tool-set> argument\n" >&2
+	usage >&2
+	exit 1
+fi
+
+the_tool_set=$(getconf.py -l ${toolset}-tool-set pbench/tools 2>/dev/null)
+if [[ ${?} -ne 0 ]]; then
+	printf -- "ERROR: failed to fetch tool set, ${toolset}-tool-set, from the pbench-agent configuration file\n" >&2
+	exit 1
+fi
+if [[ -z ${the_tool_set} ]]; then
+	printf -- "ERROR: empty tool set, ${toolset}-tool-set, fetched from the pbench-agent configuration file\n" >&2
+	exit 1
+fi
+
+if [[ -n "${labels_arg}" ]]; then
+	pbench-register-tool --name=perf --test-labels ${remotes_arg}${labels_arg}
+	if [[ ${?} -ne 0 ]]; then
+		if [[ -z "${remotes_arg}" ]]; then
+			remotes_arg="(default) --remotes=${full_hostname}"
 		fi
-		interval=$(getconf.py interval tools/${tool_name})
-		if [ -z "${interval}" ] ;then
-			interval=${default_interval}
-		fi
-		pbench-register-tool --name=${tool_name} $remote $label $group -- --interval="$interval"
-		rc=$?
-		if [ $rc != 0 ] ;then
-			nerrs=$nerrs+1
-		fi
-	done
-	# low overhead perf
-	# FIXME: Why is perf always registered?
-	pbench-register-tool --name=perf $remote $label $group -- --record-opts="record -a --freq=100"
-	rc=$?
-	if [ $rc != 0 ] ;then
-		nerrs=$nerrs+1
+		error_log "The number of labels given, \"${labels_arg}\", does not match the number of remotes given, \"${remotes_arg}\""
+		usage >&2
+		exit 1
 	fi
-	;;
-esac
+fi
+
+typeset -i nerrs=0
+reg_perf=0
+for tool_name in ${the_tool_set}; do
+	if [[ ${tool_name} == "perf" ]]; then
+		# Ignore, we'll register it after all the others
+		reg_perf=1
+		continue
+	fi
+	interval=$(getconf.py interval tools/${tool_name})
+	if [[ -z "${interval}" ]]; then
+		interval=${default_interval}
+	fi
+	pbench-register-tool --name=${tool_name}${group_arg}${install_arg}${remotes_arg}${labels_arg} -- --interval="$interval"
+	rc=${?}
+	if [[ ${rc} != 0 ]]; then
+		nerrs=${nerrs}+1
+	fi
+done
+# low overhead perf
+if [[ ${reg_perf} -ne 0 ]]; then
+	pbench-register-tool --name=perf${group_arg}${install_arg}${remotes_arg}${labels_arg} -- --record-opts="record -a --freq=100"
+	rc=${?}
+	if [[ ${rc} != 0 ]] ;then
+		nerrs=${nerrs}+1
+	fi
+fi
 
 exit $nerrs

@@ -1,0 +1,75 @@
++++ Running test-47 pbench-register-tool --name=mpstat --no-install --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis --labels=labelOne,labelTwo
+[error][1900-01-01T00:00:00.000000] --labels=labelOne,labelTwo not allowed with remotes file (@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis)
+usage:
+pbench-register-tool --name=<tool-name> [--group=<group-name>] [--no-install] [--remotes=<remote-host>[,<remote-host>]] [--labels=<label>[,<label>]] -- [all tool specific options here]
+pbench-register-tool --name=<tool-name> [--group=<group-name>] [--no-install] [--remotes=@<remotes-file>] -- [all tool specific options here]
+
+	Where the list of labels must match the list of remotes, one label per
+	host.
+
+	One can specify as the argument to the "--remotes" option a single
+	remote host, a list of remote hosts (comma-separated, no spaces) or an
+	"at" sign ("@") followed by a filename.  In this last case, the file
+	should contain a list of hosts and their (optional) labels.  Each line
+	of the file should contain a host name, optionally followed by a label
+	separated by a comma (","); empty lines are ignored, and comments are
+	denoted by a leading hash, or pound ("#"), character.
+
+Available tools:
+	blktrace
+	bpftrace
+	cpuacct
+	disk
+	dm-cache
+	docker
+	docker-info
+	external-data-source
+	haproxy-ocp
+	iostat
+	jmap
+	jstack
+	kvm-spinlock
+	kvmstat
+	kvmtrace
+	lockstat
+	mpstat
+	numastat
+	oc
+	openvswitch
+	pcp
+	perf
+	pidstat
+	pprof
+	proc-interrupts
+	proc-sched_debug
+	proc-vmstat
+	prometheus-metrics
+	qemu-migrate
+	rabbit
+	sar
+	strace
+	sysfs
+	systemtap
+	tcpdump
+	turbostat
+	user-tool
+	virsh-migrate
+	vmstat
+
+For a list of tool specific options, run:
+	/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/<tool-name> --help
+--- Finished test-47 pbench-register-tool (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis
+/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis:
+# good list with no labels
+one.example.com
+two.example.com
+three.example.com
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] --labels=labelOne,labelTwo not allowed with remotes file (@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis)
+--- pbench.log file contents

@@ -1,0 +1,26 @@
++++ Running test-11.12 pbench-register-tool-set --group=other --no-install
+mpstat tool is now registered in group other
+vmstat tool is now registered in group other
+iostat tool is now registered in group other
+perf tool is now registered in group other
+--- Finished test-11.12 pbench-register-tool-set (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-other
+/var/tmp/pbench-test-utils/pbench/tools-other/iostat
+/var/tmp/pbench-test-utils/pbench/tools-other/mpstat
+/var/tmp/pbench-test-utils/pbench/tools-other/perf
+/var/tmp/pbench-test-utils/pbench/tools-other/vmstat
+--- pbench tree state
++++ pbench.log file contents
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] mpstat tool is now registered in group other
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] vmstat tool is now registered in group other
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] iostat tool is now registered in group other
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --record-opts=record -a --freq=100
+/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] perf tool is now registered in group other
+--- pbench.log file contents
