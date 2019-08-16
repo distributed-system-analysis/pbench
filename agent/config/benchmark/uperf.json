@@ -1,0 +1,66 @@
+{
+  "controller" : {
+    "pre-script" : "/opt/pbench-agent/bench-scripts/postprocess/uperf-prepare-xmlfile",
+    "post-script" : "/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess-cdm",
+    "parameters" : { 
+      "defaults": {
+        "basic" : [ "--test-type=stream", "--protocol=tcp", "--message-size=16384",
+          "--instances=1", "--runtime=1m"
+          ],
+        "full" : [ "--test-type=stream,maerts", "--protocol=tcp,udp",
+          "--message-size=64,256,1024,4096,16384,32768", "--instances=1,8",
+          "--runtime=30"
+          ],
+        "mandatory" : []
+      },
+      "specs" : {
+        "size_KMG" : {
+          "description" : "bytes in k/K (1024), m/M (1024^2), g/G (1024^3) or no units: 256 4k 16M 1g",
+          "arguments" : [ "message-size", "wsize", "rsize" ],
+       	  "value_regex" : "[0-9]+[kbmgKBZZMG]{0,1}",
+       	  "value_transforms" : [ "s/([0-9]+)[gG]/($1*1024).\"M\"/e",
+            "s/([0-9]+)[mM]/($1*1024).\"K\"/e", "s/([0-9]+)[kK]/($1*1024)/e"
+            ]
+          },
+        "hosts-or-IPs" : {
+          "description" : "list of valid hostnames or IPs",
+          "arguments" : [ "remotehost" ],
+          "value_regex" : "\\S+"
+          },
+        "test-types" : {
+          "description" : "all possible uperf test types",
+          "arguments" : [ "test-type" ],
+          "value_regex" : "^stream$|^maerts$|^rr$|^bidirec$"
+          },
+        "protocols" : {
+          "description" : "all possible protocols",
+          "arguments" : [ "protocol" ],
+          "value_regex" : "^tcp|udp$"
+          },
+        "time_smh" : {
+          "description" : "time in seconds, minutes, or hours: 10s 2m 1h",
+          "arguments" : [ "runtime" ],
+          "value_regex" : "^[0-9]+[smh]{0,1}$",
+       	  "value_transforms" : [ "s/([0-9]+)[hH]/($1*60).\"M\"/e",
+            "s/([0-9]+)[mM]/($1*60)/e"
+            ]
+          },
+        "positive_integer" : {
+          "description" : "a whole number greater than 0",
+          "arguments" : [ "instances" ],
+          "value_regex" : "[1-9][0-9]*"
+          }
+        }
+      }
+    },
+  "client" : { 
+    "packages" : [ "pbench-uperf-1.0.4-1" ],
+    "copy-to" : [ "/var/lib/pbench-agent/tmp/uperf.xml" ],
+    "bin" : "/opt/pbench-agent/bench-scripts/postprocess/uperf-client-launcher",
+    "param_regex" : []
+  },
+  "server" : { 
+    "bin" : "/opt/pbench-agent/bench-scripts/postprocess/uperf-server-launcher",
+    "param_regex" : []
+  }
+}

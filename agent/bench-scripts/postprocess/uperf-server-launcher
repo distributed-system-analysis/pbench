@@ -1,0 +1,7 @@
+#!/bin/bash
+
+port=`echo "20000 + 3 * $pbench_count" | bc`
+# Build a script so one can re-run manually if necessary for debugging purposes
+echo "/usr/local/bin/uperf -v -s -P $port >uperf-server-stdout.txt 2>uperf-server-stderr.txt" >uperf-server.cmd
+chmod +x uperf-server.cmd
+exec ./uperf-server.cmd

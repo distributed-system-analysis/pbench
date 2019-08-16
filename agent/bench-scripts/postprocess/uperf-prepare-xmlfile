@@ -1,0 +1,52 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+
+while [ ! -z $1 ]; do
+	arg=`echo $1 | awk -F= '{print $1}'`
+	if [ $arg == "--test-type" ]; then
+		val=`echo $1 | awk -F= '{print $2}'`
+		if [ $val == "stream" -o $val == "maerts" -o $val == "rr" ]; then
+			test_type="$val"
+			break
+		elif [ $val == "bidirec" ]; then
+			# Assigned this way only for the purpose of building the XML below
+			test_type="stream,maerts"
+			break
+		else
+			echo "test-type $val is not valid"
+			exit 1
+		fi
+	fi
+	shift
+done
+
+if [ -z "$test_type" ]; then
+	echo "--test-type=stream|maerts|bidirec|rr was not provided, exiting"
+	exit 1
+fi
+	
+file=$pbench_tmp/uperf.xml
+echo '<?xml version="1.0"?>' >$file
+echo '<profile name="netperf">' >>$file
+for this_test_type in `echo $test_type | sed -e 's/,/ /g'`; do
+	echo "  <group nthreads=\"\$instances\">" >>$file
+	[ "$this_test_type" == "maerts" ] && flowop="accept" || flowop="connect"
+	echo '    <transaction iterations="1">' >>$file
+	echo '      <flowop type="'$flowop'" options="remotehost=$remotehost protocol=$protocol"/>' >>$file
+	echo '    </transaction>' >>$file
+	echo '    <transaction duration="$runtime">' >>$file
+	if [ "$this_test_type" == "rr" ]; then
+		echo '      <flowop type="write" options="size=$wsize"/>' >>$file
+		echo '      <flowop type="read"  options="size=$rsize"/>' >>$file
+	elif [ "$this_test_type" == "stream" ]; then
+		echo '      <flowop type="write" options="count=16 size=$wsize"/>' >>$file
+	elif [ "$this_test_type" == "maerts" ]; then
+		echo '      <flowop type="read" options="count=16 size=$rsize"/>' >>$file
+	fi
+	echo '    </transaction>' >>$file
+	echo '    <transaction iterations="1">' >>$file
+	echo '      <flowop type="disconnect"/>' >>$file
+	echo '    </transaction>' >>$file
+	echo '  </group>' >>$file
+done
+echo '</profile>' >>$file

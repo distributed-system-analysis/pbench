@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Include uperf envronment variables so it is clear what uperf options were used
+uperf_vars=""
+while [ ! -z "$1" ]; do
+	arg=`echo $1 | awk -F= '{print $1}' | sed -e s/^--// -e 's/-/_/g'`
+	val=`echo $1 | awk -F= '{print $2}'`
+	if [ $arg == "message_size" ]; then
+		uperf_vars="$uperf_vars wsize=$val rsize=$val"
+	elif [ $arg == "remotehost" ]; then
+		let field=$pbench_count+1
+		remotehost=`echo $val | cut -d, -f$field`
+		uperf_vars="$uperf_vars remotehost=$remotehost"
+	elif [ $arg == "servers" -a -z "$remotehost" ]; then
+		let field=$pbench_count+1
+		server=`echo $val | cut -d, -f$field`
+		uperf_vars="$uperf_vars remotehost=$server"
+	else
+		uperf_vars="$uperf_vars $arg=$val"
+	fi
+	shift
+done
+uperf_vars=`echo $uperf_vars | sed -e 's/^ //'`
+port=`echo "20000 + 3 * $pbench_count" | bc`
+# Build a script so one can re-run manually if necessary for debugging purposes
+printf "#!/bin/bash\n%s%s\n" "$uperf_vars" " exec /usr/local/bin/uperf -v -m ./uperf.xml -x -a -i 1 -P $port >uperf-client-stdout.txt 2>uperf-client-stderr.txt" >uperf-client.cmd
+chmod +x ./uperf-client.cmd
+exec ./uperf-client.cmd
