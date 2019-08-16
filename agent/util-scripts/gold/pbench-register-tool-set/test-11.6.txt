@@ -1,48 +1,42 @@
-+++ Running test-11.3 pbench-register-tool-set 
++++ Running test-11.6 pbench-register-tool-set --labels=labelNO
 mpstat tool is now registered in group default
+vmstat tool is now registered in group default
 iostat tool is now registered in group default
-pidstat tool is now registered in group default
-sar tool is now registered in group default
 perf tool is now registered in group default
---- Finished test-11.3 pbench-register-tool-set (status=0)
+--- Finished test-11.6 pbench-register-tool-set (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/iostat
+/var/tmp/pbench-test-utils/pbench/tools-default/label
 /var/tmp/pbench-test-utils/pbench/tools-default/mpstat
 /var/tmp/pbench-test-utils/pbench/tools-default/perf
-/var/tmp/pbench-test-utils/pbench/tools-default/pidstat
-/var/tmp/pbench-test-utils/pbench/tools-default/sar
+/var/tmp/pbench-test-utils/pbench/tools-default/vmstat
 /var/tmp/pbench-test-utils/pbench/tools-default/iostat:
---interval=10
+--interval=3
+/var/tmp/pbench-test-utils/pbench/tools-default/label:
+labelNO
 /var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
---interval=10
+--interval=3
 /var/tmp/pbench-test-utils/pbench/tools-default/perf:
 --record-opts=record -a --freq=100
-/var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
---interval=30
-/var/tmp/pbench-test-utils/pbench/tools-default/sar:
---interval=10
+/var/tmp/pbench-test-utils/pbench/tools-default/vmstat:
+--interval=3
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=10
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
 /var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] mpstat tool is now registered in group default
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=10
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
+/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] vmstat tool is now registered in group default
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
 /var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] iostat tool is now registered in group default
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=30
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
-/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] pidstat tool is now registered in group default
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=10
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
-/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] sar tool is now registered in group default
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --record-opts=record -a --freq=100
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install perf

@@ -1,34 +1,31 @@
 +++ Running test-11 pbench-register-tool-set --remote=fubar
-[error][1900-01-01T00:00:00.000000] Failed to register tool mpstat remotely\n
-[error][1900-01-01T00:00:00.000000] Failed to register tool vmstat remotely\n
-[error][1900-01-01T00:00:00.000000] Failed to register tool iostat remotely\n
-[error][1900-01-01T00:00:00.000000] Failed to register tool perf remotely\n
+[error][1900-01-01T00:00:00.000000] Failed to register tool mpstat on remote host fubar\n
+[error][1900-01-01T00:00:00.000000] Failed to register tool vmstat on remote host fubar\n
+[error][1900-01-01T00:00:00.000000] Failed to register tool iostat on remote host fubar\n
+[error][1900-01-01T00:00:00.000000] Failed to register tool perf on remote host fubar\n
 --- Finished test-11 pbench-register-tool-set (status=4)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tools-default
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar:
 --- pbench tree state
 +++ pbench.log file contents
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts[0]="--interval=3"; pbench-register-tool --name=mpstat --group=default $label_opt -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] Failed to register tool mpstat remotely\n
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  tool_opts[0]="--interval=3"; pbench-register-tool --name=mpstat --group=default -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] Failed to register tool mpstat on remote host fubar\n
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts[0]="--interval=3"; pbench-register-tool --name=vmstat --group=default $label_opt -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] Failed to register tool vmstat remotely\n
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  tool_opts[0]="--interval=3"; pbench-register-tool --name=vmstat --group=default -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] Failed to register tool vmstat on remote host fubar\n
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts[0]="--interval=3"; pbench-register-tool --name=iostat --group=default $label_opt -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] Failed to register tool iostat remotely\n
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  tool_opts[0]="--interval=3"; pbench-register-tool --name=iostat --group=default -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] Failed to register tool iostat on remote host fubar\n
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --record-opts=record -a --freq=100
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts[0]="--record-opts=record -a --freq=100"; pbench-register-tool --name=perf --group=default $label_opt -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] Failed to register tool perf remotely\n
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  tool_opts[0]="--record-opts=record -a --freq=100"; pbench-register-tool --name=perf --group=default -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] Failed to register tool perf on remote host fubar\n
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no fubar tool_opts[0]="--interval=3"; pbench-register-tool --name=mpstat --group=default  -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no fubar tool_opts[0]="--interval=3"; pbench-register-tool --name=vmstat --group=default  -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no fubar tool_opts[0]="--interval=3"; pbench-register-tool --name=iostat --group=default  -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no fubar tool_opts[0]="--record-opts=record -a --freq=100"; pbench-register-tool --name=perf --group=default  -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no fubar  tool_opts[0]="--interval=3"; pbench-register-tool --name=mpstat --group=default -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no fubar  tool_opts[0]="--interval=3"; pbench-register-tool --name=vmstat --group=default -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no fubar  tool_opts[0]="--interval=3"; pbench-register-tool --name=iostat --group=default -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no fubar  tool_opts[0]="--record-opts=record -a --freq=100"; pbench-register-tool --name=perf --group=default -- "${tool_opts[@]}" 2>&1
 --- test-execution.log file contents

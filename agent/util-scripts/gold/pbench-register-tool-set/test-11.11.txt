@@ -1,0 +1,7 @@
++++ Running test-11.11 pbench-register-tool-set --toolset=doesntexist
+ERROR: failed to fetch tool set, doesntexist-tool-set, from the pbench-agent configuration file
+--- Finished test-11.11 pbench-register-tool-set (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state
