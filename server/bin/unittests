@@ -86,7 +86,6 @@ function _run_activate {
 function _run_allscripts {
     # These three pull in new tar balls from move-results and remote
     # satellite pbench servers feeding them into the dispatch loop.
-    _run pbench-server-prep-shim-001
     _run pbench-server-prep-shim-002
     # NOTE WELL: the "satellite-one" argument refers a configuration
     # section in the unit test's pbench-server.cfg file - keep them
@@ -647,10 +646,8 @@ declare -A cmds=(
     [test-11]="_run pbench-sync-satellite satellite-one"
 
     # shim - failure, no quarantine directory
-    [test-12]="_run pbench-server-prep-shim-001"
     [test-13]="_run pbench-server-prep-shim-002"
     # shim - failure, no reception area
-    [test-14]="_run pbench-server-prep-shim-001"
     [test-15]="_run pbench-server-prep-shim-002"
 
     # pbench-unpack-tarballs unpacking to the incoming directory
