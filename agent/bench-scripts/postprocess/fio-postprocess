@@ -235,22 +235,19 @@ foreach $client_hostname_dir (@client_hostname_dirs) {
 			my @samples;
 			my $description_label;
 			my $this_metric;
-                        if ($log_type eq "iops")        {
-                                                        $description_label = "Number of I/O operations sent by client for a period of 1 second";
-                                                        $this_metric = \@iops_sec;
-                                        }
-                        elsif ($log_type eq "lat")      {
-                                                        $description_label = "Average total latency per I/O operation";
-                                                        $this_metric = \@lat;
-                                        }
-                        elsif ($log_type eq "clat")     {
-                                                        $description_label = "Average completion latency per I/O operation";
-                                                        $this_metric = \@clat;
-                                        }
-                        elsif ($log_type eq "slat")     {
-                                                        $description_label = "Average submission latency per I/O operation";
-                                                        $this_metric = \@slat;
-                                        }
+                        if ($log_type eq "iops") {
+                        	$description_label = "Number of I/O operations sent by client for a period of 1 second";
+                                $this_metric = \@iops_sec;
+                        } elsif ($log_type eq "lat") {
+                        	$description_label = "Average total latency per I/O operation";
+                                $this_metric = \@lat;
+                        } elsif ($log_type eq "clat") {
+                        	$description_label = "Average completion latency per I/O operation";
+                                $this_metric = \@clat;
+                        } elsif ($log_type eq "slat") {
+                        	$description_label = "Average submission latency per I/O operation";
+                                $this_metric = \@slat;
+                        }
 			open(IN_FILE, "$dir/clients/$client_hostname_dir/$log_file") || die "$script: could not open file $dir/clients/$client_hostname_dir/$log_file $!\n";
 			while (<IN_FILE>) {
 				$line = "$_";
