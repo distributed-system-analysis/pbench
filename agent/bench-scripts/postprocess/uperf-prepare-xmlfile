@@ -1,0 +1,56 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+#echo "<profile name=\"protocol:\$protocol-test_type:\$test_type-wsize:\$wsize-threads:\$threads\">"
+
+echo "$@" >pre-script-args.txt
+test_type=stream
+while [ ! -z $1 ]; do
+	arg=`echo $1 | awk -F= '{print $1}'`
+	if [ $arg == "--test-type" ]; then
+		test_type=`echo $1 | awk -F= '{print $2}'`
+		break
+	fi
+	shift
+done
+	
+file=$pbench_tmp/uperf.xml
+echo '<?xml version="1.0"?>' >$file
+echo '<profile name="netperf">' >>$file
+echo "  <group nthreads=\"\$instances\">" >>$file
+case $test_type in
+	rr)
+	echo '    <transaction iterations="1">' >>$file
+	echo '      <flowop type="connect" options="remotehost=$remotehost protocol=$protocol"/>' >>$file
+	echo '    </transaction>' >>$file
+	echo '    <transaction duration="$runtime">' >>$file
+	echo '      <flowop type="write" options="size=$wsize"/>' >>$file
+	echo '      <flowop type="read"  options="size=$rsize"/>' >>$file
+	echo '    <transaction iterations="1">' >>$file
+	echo '      <flowop type="disconnect"/>' >>$file
+	echo '    </transaction>' >>$file
+	;;
+	stream|bidirec)
+	echo '    <transaction iterations="1">' >>$file
+	echo '      <flowop type="connect" options="remotehost=$remotehost protocol=$protocol"/>' >>$file
+	echo '    </transaction>' >>$file
+	echo '    <transaction duration="$runtime">' >>$file
+	echo '      <flowop type="write" options="count=16 size=$wsize"/>' >>$file
+	echo '    </transaction>' >>$file
+	echo '    <transaction iterations="1">' >>$file
+	echo '      <flowop type="disconnect" />' >>$file
+	echo '    </transaction>' >>$file
+	;;
+	maerts|bidirec)
+	echo '    <transaction iterations="1">' >>$file
+	echo '      <flowop type="accept" options="remotehost=$remotehost protocol=$protocol"/>' >>$file
+	echo '    </transaction>' >>$file
+	echo '    <transaction duration="$runtime">' >>$file
+	echo '      <flowop type="read" options="count=16 size=$rsize"/>' >>$file
+	echo '    </transaction>' >>$file
+	echo '    <transaction iterations="1">' >>$file
+	echo '      <flowop type="disconnect"/>' >>$file
+	echo '    </transaction>' >>$file
+	;;
+esac
+echo '  </group>' >>$file
+echo '</profile>' >>$file

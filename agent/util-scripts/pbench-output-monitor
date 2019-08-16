@@ -16,7 +16,12 @@ function setup_pipe()
 
 function run()
 {
-    ${CMD} > >(tee -i ${STDOUT_FILE}) 2> >(tee -i ${STDERR_FILE} >&2)
+    ${CMD} > >(tee -i ${STDOUT_FILE}) 2> >(tee -i ${STDERR_FILE} >&2) &
+    echo $! >pid.txt
+    echo '#!/bin/bash' >kill.sh
+    echo 'kill -15 `cat pid.txt`' >>kill.sh # used for killing pbench servers
+    chmod +x kill.sh
+    wait
 
     rm ${STDOUT_FILE} ${STDERR_FILE}
 }

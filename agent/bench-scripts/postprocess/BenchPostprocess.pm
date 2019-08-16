@@ -26,6 +26,7 @@ sub get_label {
 			'description_label' => 'description',
 			'role_label' => 'role',
 			'hostname_label' => 'hostname',
+			'client_num_label' => 'client_num',
 			'client_hostname_label' => 'client_hostname',
 			'server_hostname_label' => 'server_hostname',
 			'server_port_label' => 'server_port',

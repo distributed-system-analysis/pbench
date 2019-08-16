@@ -19,7 +19,9 @@ use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_clie
                         get_pbench_install_dir );
 use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
                         remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
-                        sync_dir_from_hosts verify_success yum_install_hosts);
+                        sync_dir_from_hosts verify_success yum_install_hosts
+                        copy_files_to_hostdirs create_hostdirs ssh_hostdirs
+                        sync_from_hostdirs remove_from_hostdirs kill_ssh);
 use PbenchCDM        qw(create_bench_iter_sample_doc);
 
 my $pbench_bench_config_dir = get_pbench_bench_config_dir;
@@ -59,12 +61,21 @@ if ($sample_dir =~ /.+([0-9])+$/) {
 }
 $sample{'sample'}{'num'} = $sample_num;
 
-# build a hash of clients and servers to be used in almost all the steps bewlow
+# build a hash of clients and servers to be used in almost all the steps below
 my %hosts;
 for my $type ("client", "server") {
+    my $count = 0;
     if (exists $iteration{'run'}{'bench'}{$type . 's'} and $iteration{'run'}{'bench'}{$type . 's'}) {
-        my @hosts = split(/ /, $iteration{'run'}{'bench'}{$type . 's'});
-        $hosts{$type} = \@hosts;
+        my @host_records;
+        for my $host (split(/\s+/, $iteration{'run'}{'bench'}{$type . 's'})) {
+            my %record = ('hostname' => $host,
+                          'type' => $type,
+                          'count' => $count,
+                          'dir' => $sample_dir . "-" . $type . $count );
+            push(@host_records, \%record);
+            $count++;
+        }
+        $hosts{$type} = \@host_records;
     }
 }
 
@@ -78,16 +89,11 @@ if (! $pp_only) {
     # pre-benchmark-execution:
     # - verify access to clients and servers by attempting to create the directories
     for my $type (keys %hosts) {
-        if (scalar @{ $hosts{$type} }) {
-            if ($specs{$type} and ${specs}{$type}{"copy-to"}) {
-                my $result;
-                my $rc;
-                my @files = @{ ${specs}{$type}{"copy-to"} };
-                # the end of the dir name gets "-client" or "-server" just in case this host is
-                # also a controller or both client and server
-                $result = create_dir_hosts(\@{ $hosts{$type} }, $sample_dir . "-" .  $type,
-                                           $base_dir);
-            }
+        if (scalar @{ $hosts{$type} }) { # the list of hosts for client or server
+            my $result;
+            # the end of the dir name gets "-client" or "-server" just in case this host is
+            # also a controller or both client and server
+            $result = create_hostdirs(\@{ $hosts{$type} }, $base_dir);
         }
     }
     # - verify required software on clients and server (todo)
@@ -123,16 +129,15 @@ if (! $pp_only) {
                 my @files = @{ ${specs}{$type}{"copy-to"} };
                 # the end of the dir name gets "-client" or "-server" just in case this host is
                 # also a controller or both client and server
-                $result = copy_files_to_hosts(\@{ $hosts{$type} }, \@files, $sample_dir . "-" .
-                                              $type, $base_dir);
+                $result = copy_files_to_hostdirs(\@{ $hosts{$type} }, \@files, $base_dir);
             }
-	    if ($specs{$type} and ${specs}{$type}{"bin"}) {
-		# since there is an executable that is going to be used lets copy over the output
-		# wrapper in advance
-		my $result;
-		my @files = ( $local_output_wrapper_path ."/" . $output_wrapper_name );
-		$result = copy_files_to_hosts(\@{ $hosts{$type} }, \@files, $remote_output_wrapper_path, $base_dir);
-	    }
+	        if ($specs{$type} and ${specs}{$type}{"bin"}) {
+		        # since there is an executable that is going to be used lets copy over the output
+		        # wrapper in advance
+		        my $result;
+		        my @files = ( $local_output_wrapper_path . "/" . $output_wrapper_name );
+		        $result = copy_files_to_hosts(\@{ $hosts{$type} }, \@files, $remote_output_wrapper_path, $base_dir);
+	        }
         }
     }
     # - execute pre-benchmark scripts on clients and servers (todo)
@@ -143,8 +148,10 @@ if (! $pp_only) {
             
     # benchmark-execution:
     print "starting benchmark\n";
+    my $server_ssh_logdir; # Saving this logdir, in order to kill this stuff after the test
     for my $type (reverse sort keys %hosts) { # reverse so "server" is first
         if ($hosts{$type} and scalar @{ $hosts{$type} }) {
+            printf "launching %s(s)\n", $type;
             my $cmd;
             if ($specs{$type}{"bin"}) {
                 $cmd = $remote_output_wrapper_path . "/" . $output_wrapper_name. " " .
@@ -164,12 +171,27 @@ if (! $pp_only) {
                     $cmd = eval "\$_='$cmd'; $r; return scalar \$_";
                 }
             }
-            my $result = ssh_hosts(\@{ $hosts{$type} }, $cmd, $sample_dir . "-" . $type, $base_dir);
+            if ($type eq "server") {
+                # Servers need to be backgrounded so we can proceed to running
+                # the clients.
+                $server_ssh_logdir = ssh_hostdirs(\@{ $hosts{$type} }, $cmd, $base_dir, 1);
+            } else {
+                ssh_hostdirs(\@{ $hosts{$type} }, $cmd, $base_dir, 0);
+            }
+            if ($type eq 'server') {
+                my $seconds = scalar @{ $hosts{$type} };
+                printf "Waiting %d seconds for servers to be ready\n", $seconds;
+                sleep($seconds);
+            }
         }
+    }
+    if (defined $server_ssh_logdir) {
+        kill_ssh($server_ssh_logdir); # Servers can now be shut down
     }
 
     # stop the tools:
     print "stopping tools\n";
+    print "pbench-stop-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir . "\n";
     system("pbench-stop-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
 
     # post-process the tools:
@@ -182,14 +204,10 @@ if (! $pp_only) {
     for my $type (keys %hosts) {
         if ($hosts{$type} and scalar @{ $hosts{$type} }) {
             mkdir($sample_dir . "/" . $type . "s");
-            my $sync_result = sync_dir_from_hosts(\@{ $hosts{$type} },
-                                                  $sample_dir . "-" . $type . "/", #copy-from
+            my $sync_result = sync_from_hostdirs(\@{ $hosts{$type} },
                                                   $sample_dir . "/" . $type . "s", #copy-to
                                                   $base_dir);
-                                                  # adding the "/" ensures the base dir
-                                                  # name is not copied
-            my $remove_result = remove_dir_from_hosts(\@{ $hosts{$type} },
-                                                      $sample_dir . "-" . $type,
+            my $remove_result = remove_from_hostdirs(\@{ $hosts{$type} },
                                                       $base_dir);
         }
     }

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+echo "This is the uperf server launcher"
+echo "args: $@"
+
+port=`echo "20000 + 3 * $pbench_count" | bc`
+#existing_pid=`
+echo "/usr/local/bin/uperf -v -s -P $port >server-stdout.txt 2>server-stderr.txt" >server.cmd
+echo "exit $?" >>server.cmd
+chmod +x server.cmd
+./server.cmd & echo "$!" >server.pid
+wait

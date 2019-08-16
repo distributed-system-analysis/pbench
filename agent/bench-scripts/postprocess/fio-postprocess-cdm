@@ -51,17 +51,25 @@ if ($pp_mode eq 'cdm') {
     my $earliest_timestamp;
     my $latest_timestamp;
     my %fio_cdm;
-    for my $host (@client_dirs) {
+    my $count = 0;
+    for my $client_host_dir (@client_dirs) {
         # Until the CDM/Elastic UI/Web interface is ready, we need to 
         # call the legacy fio post-processing script to generate a
         # Pbench result.json for each sample.  In order to do that, we
         # need a single "fio-result.json", so we symilnk that from the
         # first client to the main directory, where that script expects
         # it to be
+        my $host = $client_host_dir;
+        my $client_num = $count;
+        # Newer results may have dir names with client_number followed by hostname, like 0-perf84
+        if ($client_host_dir =~ /^(\d+)-(\S+)/) {
+            $host = $2;
+            $client_num = $1;
+        }
         mkdir("../../es/metrics");
         mkdir("../../es/metrics/" . $host);
         print "client: $host\n";
-        opendir(my $client_dh, "clients/" . $host) ||
+        opendir(my $client_dh, "clients/" . $client_host_dir) ||
             die "$script_name: could not open client directory: $!\n";
         my @log_files = grep(/fio_([a-z]+)\.(\d+)\.log$/, (sort readdir($client_dh)));
         closedir $client_dh;
@@ -69,8 +77,8 @@ if ($pp_mode eq 'cdm') {
             if ($log_file =~ /fio_([a-z]+)\.(\d+)\.log$/) {
                 my $metric_type = $1;
                 my $job_id = $2;
-                open(my $log_fh, "clients/$host/$log_file")
-                    || die "$script_name: could not open file clients/$host/$log_file $!\n";
+                open(my $log_fh, "clients/$client_host_dir/$log_file")
+                    || die "$script_name: could not open file clients/$client_host_dir/$log_file $!\n";
                 while (<$log_fh>) {
                     my $line = "$_";
                     chomp($line);
@@ -87,8 +95,8 @@ if ($pp_mode eq 'cdm') {
                         } else {
                             $rwtype = "Unknown";
                         }
-                        my %md = ( 'host' => $host, 'job' => $job_id, 'action' => $rwtype );
-                        log_cdm_metric_sample('fio', 'throughput', $metric_type, '%host%-%job%-%action%',
+                        my %md = ( 'client' => $client_num, 'host' => $host, 'job' => $job_id, 'action' => $rwtype );
+                        log_cdm_metric_sample('fio', 'throughput', $metric_type, '%client%-%host%-%job%-%action%',
                                             \%md, \%{ $fio_cdm{$host} }, $timestamp_ms, $value);
                         $earliest_timestamp = $timestamp_ms if (not defined $earliest_timestamp
                                                                 or $timestamp_ms < $earliest_timestamp);
@@ -99,6 +107,7 @@ if ($pp_mode eq 'cdm') {
                 close($log_fh);
             }
         }
+        $count++;
         # Metric documents are not generated yet because we
         # don't have all the info for the period document
     }

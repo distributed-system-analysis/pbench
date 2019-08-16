@@ -1,0 +1,216 @@
+#!/usr/bin/perl
+## -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 4 -*-
+## vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
+
+use strict;
+use warnings;
+use File::Basename;
+use File::Find;
+use lib $ENV{'pbench_lib_dir'};
+use lib $ENV{'pbench_bspp_dir'};
+use JSON;
+use Data::Dumper;
+use PbenchCDM qw(log_cdm_metric_sample gen_cdm_metric_data create_bench_iter_sample_period_doc);
+use PbenchBase qw(get_json_file put_json_file get_params);
+use GenData qw(gen_data);
+use BenchPostprocess qw(trim_series get_label create_uid get_mean get_timestamps
+                        calc_aggregate_metrics create_graph_hash);
+
+if (scalar @ARGV < 5) {
+    print "You must supply 4 arguments to fio-postprocess-cdm:\n";
+    print "(1) The run directory\n";
+    print "(2) The sample directory\n";
+    print "(3) The tool group\n";
+    print "(4) 0 or 1 indicating this is the last sample\n";
+    print "(5) html = generate result.json and html reports, cdm = generate CommonDataModel documents\n";
+    exit 1;
+}
+
+my $script_name = basename($0);
+my $sample_dir = shift(@ARGV); # The full path of where the benchmark sample was run in,
+                               # typically: $run_dir/<iteration_dir>/<sample_dir>
+my $run_dir = shift(@ARGV); # The full path of where the pbench run stores its data,
+                            # typically: /var/lib/pbench-agent/<this-pbench-run>>
+my $tool_group = shift(@ARGV);
+my $last_sample = shift(@ARGV); # "1" if this is the last sample
+my $pp_mode = shift(@ARGV); # html = old static report, cdm = CommonDataModel
+my %uperf_metrics, my $earliest, my $latest; # For CDM 
+my %workload, my %parameters, my @benchmark, my %latency; # For html report
+my @usec, my %throughput, my @Gb_sec, my @trans_sec; # For html report
+my $series_trim = 3;
+
+my $json_ref = get_json_file("sample.json");
+my %sample = %$json_ref; # This is the CDM doc for this benchmark-iteration-sample
+my %params = get_params(split(/\s+/, $sample{'iteration'}{'params'}));
+my $sample_id = $sample{'sample'}{'id'};
+
+# Create [at least one] benchmark period: a window of time during this benchmark, this one named
+# "measurement", to indicate this period as the one the the UI/query tool computes a summary
+# metric 
+my %period = create_bench_iter_sample_period_doc(\%sample, "measurement");
+# The primary metric needs to match exactly one metric-type that gets created from the benchmark data
+if (defined $params{'test-type'}) {
+    if ($params{'test-type'} eq 'rr') {
+        $sample{'iteration'}{'primary_metric'} = "trans_sec";
+    } else {
+        $sample{'iteration'}{'primary_metric'} = "Gb_sec";
+    }
+} else {
+    die '"test-type" is missing from the benchmark parameters\n';
+}
+$sample{'iteration'}{'primary_period'} = "measurement";
+put_json_file(\%sample, $run_dir . "/es/bench/sample-" . $sample{'sample'}{'id'} . ".json");
+
+my %ops_per_trans = ('stream' => 1, 'maerts' => 2, 'rr' => 2, 'bidirec' => 2);
+my $clients = $sample_dir . "/clients";
+opendir(DH, $clients) || die "$script_name: could not open directory $clients: $!\n";
+foreach my $client_dir (grep(/^(\d+)-(\S+)/, (sort readdir(DH)))) {
+    my $server_name = 'unknown';
+    my $server_port = '0';
+    (my $client_num, my $client_name) = ($client_dir =~ /^(\d+)-(\S+)/);
+    my $client_file = $clients . "/" . $client_dir . "/uperf-client-stdout.txt";
+    open(FH, $client_file) || die "Could not open client file " . $client_file . "$!\n";
+    my $prev_ts, my $prev_bytes, my $prev_ops, my @latency_samples, my @throughput_samples;;
+    my %metadata = ( 'client_num' => $client_num, 'client' => $client_name );
+    while (<FH>) {
+        chomp;
+        # for each sample in the uperf result file, we get a number of bytes and a timestamp
+        # example of a sample: "time:1395170796.1234 name:Txn2 nr_bytes:22037790720 nr_ops:43042560"
+        if ( (my $ts, my $bytes, my $ops) =
+             /^timestamp_ms:(\d+)\.\d+\s+name:Txn2\s+nr_bytes:(\d+)\s+nr_ops:(\d+)/) {
+            if (defined $prev_ts ) {
+                my $sec_diff = ($ts - $prev_ts) / 1000;
+                my $ops_diff = $ops - $prev_ops;
+                my $trans_sec = $ops_diff / $ops_per_trans{$params{'test-type'}} / $sec_diff;
+                my $bytes_diff = $bytes - $prev_bytes;
+                my $Gb_sec = $bytes_diff * 8 / 1000000000 / $sec_diff;
+                if ($pp_mode eq 'cdm') {
+                    log_cdm_metric_sample('uperf', 'throughput', 'trans_sec', '%client_num%-%client%',
+                                        \%metadata, \%{ $uperf_metrics{$client_name} }, $ts, $trans_sec);
+                    log_cdm_metric_sample('uperf', 'throughput', 'Gb_sec', '%client_num%-%client%',
+                                        \%metadata, \%{ $uperf_metrics{$client_name} }, $ts, $Gb_sec);
+                    $earliest = $ts if (not defined $earliest or $ts < $earliest);
+                    $latest = $ts if (not defined $latest or $ts > $latest);
+                } else { # $pp_mode = html
+                    if ($params{'test-type'} =~ /rr/) {
+                        # for request-response, 1 transaction is two ops, a write and a read.
+                        # the latency is the full round trip for 1 transaction, which is
+                        # also = ($instances / trans_sec) if --log-response-times in pbench_uperf
+                        # is used, the write and read latency can be computed (later).
+                        if ( $ops_diff != 0) {
+                            my %latency_sample = ( get_label('date_label') => int $ts,
+                                                get_label('value_label') => $params{'instances'} /
+                                                                            $trans_sec * 1000000);
+                            push(@latency_samples, \%latency_sample);
+                        }
+                        my %throughput_sample = (get_label('date_label') => int $ts,
+                                                get_label('value_label') => $trans_sec);
+                        push(@throughput_samples, \%throughput_sample);
+                    } else {
+                        my %throughput_sample = (get_label('date_label') => int $ts,
+                                                get_label('value_label') => $Gb_sec);
+                        push(@throughput_samples, \%throughput_sample);
+                    }
+                }
+            }
+            ($prev_ts, $prev_bytes, $prev_ops)  = ($ts, $bytes, $ops);
+        }
+    }
+    close FH;
+    if ($pp_mode eq "html") {
+        if ( scalar @latency_samples > 0 ) {
+            trim_series(\@latency_samples, $series_trim, $series_trim);
+            my %this_lat_dataset;
+            my $description = "Average elapsed time spanning: client sending, server " .
+                              "accepting/sending, and client receiving 1 message, over " .
+                              "a 1 second window";
+            my $mean = get_mean(\@latency_samples);
+            %this_lat_dataset = (get_label('description_label') => $description,
+                                 get_label('role_label') => 'client',
+                                 get_label('client_hostname_label') => $client_name,
+                                 get_label('client_num_label') => $client_num,
+                                 get_label('value_label') => $mean,
+                                 get_label('timeseries_label') => \@latency_samples,
+                                 get_label('uid_label') => create_uid('client_num_label',
+                                                                     'client_hostname_label'));
+            push(@usec, \%this_lat_dataset);
+        }
+        if ( scalar @throughput_samples > 0 ) {
+            trim_series(\@throughput_samples, $series_trim, $series_trim);
+            my %this_tput_dataset;
+            my $mean = get_mean(\@throughput_samples);
+            %this_tput_dataset = (get_label('role_label') => 'client',
+                                  get_label('client_hostname_label') => $client_name,
+                                  get_label('client_num_label') => $client_num,
+                                  get_label('value_label') => $mean,
+                                  get_label('timeseries_label') => \@throughput_samples,
+                                  get_label('uid_label') => create_uid('client_num_label',
+                                                                       'client_hostname_label'));
+            if ($params{'test-type'} =~ /rr/) {
+                $this_tput_dataset{get_label('description_label')} = "Number of transactions sent" .
+                                                                     "by client for a period of" .
+                                                                     "1 second";
+                push(@trans_sec, \%this_tput_dataset);
+            } else {
+                $this_tput_dataset{get_label('description_label')} = "Number of gigabits sent by" .
+                                                                     "client for a period of 1" .
+                                                                     "second";
+                push(@Gb_sec, \%this_tput_dataset);
+            }
+        }
+    }
+}
+closedir DH;
+
+if ($pp_mode eq "cdm") {
+    $period{'period'}{'begin'} = $earliest;
+    $period{'period'}{'end'} = $latest;
+    my $period_file = $run_dir . "/es/bench/period-" . $period{'period'}{'id'} . ".json";
+    put_json_file(\%period, $period_file);
+    # Now that the period document is complete, we can create the metric documents
+    for my $host (keys %uperf_metrics) {
+        gen_cdm_metric_data(\%{ $uperf_metrics{$host} }, $period_file, $run_dir . "/es", $host, "fio");
+    }
+    # Now post-process the tools for CDM
+    my $tools_cdm_pp_cmd = "pbench-postprocess-tools-cdm " . $period_file . " " .
+                        $run_dir . "/es  " . $sample_dir;
+    printf "tools_cdm_pp cmd\n%s\n\n", $tools_cdm_pp_cmd;
+    my $tools_cdm_pp_output = `$tools_cdm_pp_cmd`;
+    printf "tools_cdm_pp output\n%s\n\n", $tools_cdm_pp_output;
+} else { # html report
+    my %benchmark_parameters_dataset = ( get_label('benchmark_name_label') => 'uperf',
+                                         get_label('benchmark_version_label') => "1.04",
+                                         get_label('test_type_label') => $params{'test-type'},
+                                         get_label('protocol_label') => $params{'protocol'},
+                                         get_label('message_size_bytes_label') => $params{'size'},
+                                         get_label('instances_label') => $params{'instances'},
+                                         get_label('clients_label') => $params{'clients'},
+                                         get_label('servers_label') => $params{'servers'},
+                                         get_label('primary_metric_label') => $sample{'iteration'}{'primary_metric'},
+                                         get_label('uid_label') => create_uid('benchmark_name_label',
+                                                   'controller_host_label'));
+    push(@benchmark, \%benchmark_parameters_dataset);
+
+    # construct what we have so far in a master workload hash
+    $throughput{'Gb_sec'} = \@Gb_sec if (@Gb_sec);
+    $throughput{'trans_sec'} = \@trans_sec if (@trans_sec);
+    $latency{'usec'} = \@usec if (@usec);
+    $parameters{'benchmark'} = \@benchmark if (@benchmark);
+    $workload{'throughput'} = \%throughput if (%throughput);
+    $workload{'latency'} = \%latency if (%latency);
+    $workload{'parameters'} = \%parameters if (%parameters);
+
+    calc_aggregate_metrics(\%workload);
+    my %uperf_graph;
+    create_graph_hash(\%uperf_graph, \%workload);
+    my %graph_threshold;
+    my %graph_type;
+    gen_data(\%uperf_graph, \%graph_type, \%graph_threshold, $sample_dir, 1);
+    put_json_file(\%workload, $sample_dir . "/result.json");
+    # Every benchmark postprocess script is responsible for calling process-iteration-samples
+    # because only it knows what the primary metric is
+    if (defined $last_sample and $last_sample eq "1") {
+        system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/process-iteration-samples " .
+               "`/bin/pwd`/.. " . $sample{'iteration'}{'primary_metric'} . " 100 0 1 n n");
+    }
+}
