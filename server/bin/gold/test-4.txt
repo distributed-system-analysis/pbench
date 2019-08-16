@@ -1,25 +1,3 @@
-+++ Running pbench-server-prep-shim-001
-Template:  pbench-unittests.v2.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
-len(actions) = 1
-[
-    {
-        "_id": "c3ba1ecbbbacbbd80a4b161fe9463f1c",
-        "_index": "pbench-unittests.server-reports.1900-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "1900-01-01T00:00:00",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-server-prep-shim-001",
-            "text": "run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n",
-            "total_chunks": 1,
-            "total_size": 137
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-server-prep-shim-001 (status=0)
 +++ Running pbench-server-prep-shim-002
 Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
@@ -151,9 +129,6 @@ pbench-audit-server: Bad USERS=/var/tmp/pbench-test-server/test-4/pbench/public_
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-4/var-www-html)
 lrwxrwxrwx         62 incoming -> /var/tmp/pbench-test-server/test-4/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        117 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        117 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
@@ -162,17 +137,12 @@ lrwxrwxrwx         60 static -> /var/tmp/pbench-test-server/test-4/pbench/public
 lrwxrwxrwx         59 users -> /var/tmp/pbench-test-server/test-4/pbench/public_html/users
 --- var/www/html tree state
 +++ results host info (/var/tmp/pbench-test-server/test-4/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-4/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-4/pbench-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/test-4/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 /var/tmp/pbench-test-server/test-4/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-4/pbench-local/pbench-move-results-receive/fs-version-002
 /var/tmp/pbench-test-server/test-4/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-4/var-www-html-satellite)
 lrwxrwxrwx         72 incoming -> /var/tmp/pbench-test-server/test-4/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        137 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        137 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
@@ -181,8 +151,6 @@ lrwxrwxrwx         70 static -> /var/tmp/pbench-test-server/test-4/pbench-satell
 lrwxrwxrwx         69 users -> /var/tmp/pbench-test-server/test-4/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
 +++ results host info (/var/tmp/pbench-test-server/test-4/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-4/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-4/pbench-satellite-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/test-4/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 /var/tmp/pbench-test-server/test-4/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-4/pbench-satellite-local/pbench-move-results-receive/fs-version-002
 /var/tmp/pbench-test-server/test-4/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
@@ -234,10 +202,7 @@ drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        253 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--        223 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--       1860 logs/pbench-report-status/pbench-report-status.log
-drwxrwxr-x          - logs/pbench-server-prep-shim-001
--rw-rw-r--          0 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
--rw-rw-r--        165 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
+-rw-rw-r--       1488 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--          0 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 -rw-rw-r--        165 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
@@ -249,14 +214,10 @@ drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
 -rw-rw-r--        656 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
-drwxrwxr-x          - quarantine/duplicates-001
 drwxrwxr-x          - quarantine/duplicates-002
-drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
-drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - s3-backup
 drwxrwxr-x          - s3-backup/testbucket
@@ -299,14 +260,10 @@ drwxrwxr-x          - logs/pbench-sync-package-tarballs
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
-drwxrwxr-x          - quarantine/duplicates-001
 drwxrwxr-x          - quarantine/duplicates-002
-drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
-drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - tmp
 --- pbench-satellite-local tree state
@@ -358,15 +315,7 @@ run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-report-status/pbench-report-status.log
-+++++ pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
------ pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
-+++++ pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
-run-1900-01-01T00:00:00-UTC
-run-1900-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
------ pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.log

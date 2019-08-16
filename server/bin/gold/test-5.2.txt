@@ -1,32 +1,10 @@
-+++ Running pbench-server-prep-shim-001
-Template:  pbench-unittests.v2.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
-len(actions) = 1
-[
-    {
-        "_id": "db5d90b833fa5469a87a8820289a3896",
-        "_index": "pbench-unittests.server-reports.1900-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "1900-01-01T00:00:00",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-server-prep-shim-001",
-            "text": "run-1900-01-01T00:00:00-UTC: readlink -e /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-a-bad-link/TODO/tarball-00_YYYY.MM.DDTHH.MM.SS.tar.xz failed: 1\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 7 entries, 3 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 1 errors.\n",
-            "total_chunks": 1,
-            "total_size": 956
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-server-prep-shim-001 (status=1)
 +++ Running pbench-server-prep-shim-002
 Template:  pbench-unittests.v2.server-reports
 Index:  pbench-unittests.server-reports.1900-01 1
 len(actions) = 1
 [
     {
-        "_id": "b43b99ea2a58896710ea4758ce340109",
+        "_id": "9bbd0b5839033a763a144f29fb66bc9f",
         "_index": "pbench-unittests.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
@@ -34,9 +12,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-server-prep-shim-002",
-            "text": "run-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 3 entries, 1 tarballs successful, 1 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.\n",
+            "text": "run-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: processed /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\nrun-1900-01-01T00:00:00-UTC: Processed 7 entries, 4 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.\n",
             "total_chunks": 1,
-            "total_size": 331
+            "total_size": 941
         },
         "_type": "pbench-server-reports"
     }
@@ -218,9 +196,6 @@ len(actions) = 1
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-5.2/var-www-html)
 lrwxrwxrwx         64 incoming -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        119 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        119 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
@@ -229,17 +204,12 @@ lrwxrwxrwx         62 static -> /var/tmp/pbench-test-server/test-5.2/pbench/publ
 lrwxrwxrwx         61 users -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/users
 --- var/www/html tree state
 +++ results host info (/var/tmp/pbench-test-server/test-5.2/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-5.2/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/test-5.2/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 /var/tmp/pbench-test-server/test-5.2/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002
 /var/tmp/pbench-test-server/test-5.2/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
 +++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-5.2/var-www-html-satellite)
 lrwxrwxrwx         74 incoming -> /var/tmp/pbench-test-server/test-5.2/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
-lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL001 -> pbench-results-host-info.URL001.active
--rw-rw-r--        139 pbench-results-host-info.versioned/pbench-results-host-info.URL001.active
--rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        139 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
@@ -248,8 +218,6 @@ lrwxrwxrwx         72 static -> /var/tmp/pbench-test-server/test-5.2/pbench-sate
 lrwxrwxrwx         71 users -> /var/tmp/pbench-test-server/test-5.2/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
 +++ results host info (/var/tmp/pbench-test-server/test-5.2/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-5.2/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-5.2/pbench-satellite-local/pbench-move-results-receive/fs-version-001
-/var/tmp/pbench-test-server/test-5.2/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL001.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 /var/tmp/pbench-test-server/test-5.2/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-5.2/pbench-satellite-local/pbench-move-results-receive/fs-version-002
 /var/tmp/pbench-test-server/test-5.2/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
@@ -346,9 +314,6 @@ lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/WONT-INDEX.4/tarba
 -rw-rw-r--        228 archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
 -rw-rw-r--         84 archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes
-drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/.prefix
--rw-rw-r--         12 archive/fs-version-001/controller-b-with-prefixes/.prefix/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.prefix
--rw-rw-r--         12 archive/fs-version-001/controller-b-with-prefixes/.prefix/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.prefix
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/BACKED-UP
 lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
 lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/BACKED-UP/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
@@ -503,13 +468,9 @@ drwxrwxr-x          - public_html/results/ONE::controllerC/prefix0
 drwxrwxr-x          - public_html/results/ONE::controllerC/prefix0/prefix1
 lrwxrwxrwx        124 public_html/results/ONE::controllerC/prefix0/prefix1/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss
 drwxrwxr-x          - public_html/results/controller-b-with-prefixes
-drwxrwxr-x          - public_html/results/controller-b-with-prefixes/path0
-drwxrwxr-x          - public_html/results/controller-b-with-prefixes/path0/path1
-lrwxrwxrwx        132 public_html/results/controller-b-with-prefixes/path0/path1/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS
-drwxrwxr-x          - public_html/results/controller-b-with-prefixes/path2
-drwxrwxr-x          - public_html/results/controller-b-with-prefixes/path2/path3
-lrwxrwxrwx        132 public_html/results/controller-b-with-prefixes/path2/path3/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS
 lrwxrwxrwx        121 public_html/results/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS
+lrwxrwxrwx        132 public_html/results/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS
+lrwxrwxrwx        132 public_html/results/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS
 drwxrwxr-x          - public_html/results/controller-g-normal
 lrwxrwxrwx        119 public_html/results/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS -> /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS
 drwxrwxr-x          - public_html/static
@@ -579,13 +540,10 @@ drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        253 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       7001 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-report-status
--rw-rw-r--       2604 logs/pbench-report-status/pbench-report-status.log
-drwxrwxr-x          - logs/pbench-server-prep-shim-001
--rw-rw-r--        852 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
--rw-rw-r--        500 logs/pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
+-rw-rw-r--       2232 logs/pbench-report-status/pbench-report-status.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
--rw-rw-r--        434 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
--rw-rw-r--        315 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+-rw-rw-r--        650 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
+-rw-rw-r--        562 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC
@@ -606,45 +564,30 @@ drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC
 -rw-rw-r--       1960 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--       2886 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--       2862 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
 -rw-rw-r--        656 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-a-bad-link
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-a-bad-link/TODO
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-b-with-prefixes
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-b-with-prefixes/TODO
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-c-missing-md5
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-c-missing-md5/TODO
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-d-duplicate
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-d-duplicate/TODO
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-e-bad-md5
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001/controller-e-bad-md5/TODO
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-b-with-prefixes
+-rw-rw-r--         12 pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/prefix.tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS
+-rw-rw-r--         12 pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.prefix
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-c-missing-md5
+-rw-rw-r--        208 pbench-move-results-receive/fs-version-002/controller-c-missing-md5/tarball-w-missing-md5_YYYY.MM.DDTHH.MM.SS.tar.xz
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-d-duplicate
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-e-bad-md5
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-f-bad-md5
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-g-normal
 drwxrwxr-x          - quarantine
-drwxrwxr-x          - quarantine/__BAD_TODO_LINKS
-lrwxrwxrwx         17 quarantine/__BAD_TODO_LINKS/tarball-00_YYYY.MM.DDTHH.MM.SS.tar.xz -> ../does-not-exist
-drwxrwxr-x          - quarantine/duplicates-001
-drwxrwxr-x          - quarantine/duplicates-001/controller-d-duplicate
--rw-rw-r--        204 quarantine/duplicates-001/controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
--rw-rw-r--         79 quarantine/duplicates-001/controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
 drwxrwxr-x          - quarantine/duplicates-002
 drwxrwxr-x          - quarantine/duplicates-002/controller-d-duplicate
 -rw-rw-r--        204 quarantine/duplicates-002/controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         79 quarantine/duplicates-002/controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
-drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
-drwxrwxr-x          - quarantine/md5-001
-drwxrwxr-x          - quarantine/md5-001/controller-c-missing-md5
--rw-rw-r--        208 quarantine/md5-001/controller-c-missing-md5/tarball-w-missing-md5_YYYY.MM.DDTHH.MM.SS.tar.xz
-drwxrwxr-x          - quarantine/md5-001/controller-e-bad-md5
--rw-rw-r--        204 quarantine/md5-001/controller-e-bad-md5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz
--rw-rw-r--         77 quarantine/md5-001/controller-e-bad-md5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
 drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - quarantine/md5-002/controller-e-bad-md5
+-rw-rw-r--        204 quarantine/md5-002/controller-e-bad-md5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz
+-rw-rw-r--         77 quarantine/md5-002/controller-e-bad-md5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
 drwxrwxr-x          - quarantine/md5-002/controller-f-bad-md5
 -rw-rw-r--        220 quarantine/md5-002/controller-f-bad-md5/tarball-bad-md5-1_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         79 quarantine/md5-002/controller-f-bad-md5/tarball-bad-md5-1_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
@@ -719,14 +662,10 @@ drwxrwxr-x          - logs/pbench-sync-package-tarballs
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.error
 -rw-rw-r--          0 logs/pbench-sync-package-tarballs/pbench-sync-package-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
-drwxrwxr-x          - pbench-move-results-receive/fs-version-001
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
-drwxrwxr-x          - quarantine/duplicates-001
 drwxrwxr-x          - quarantine/duplicates-002
-drwxrwxr-x          - quarantine/errors-001
 drwxrwxr-x          - quarantine/errors-002
-drwxrwxr-x          - quarantine/md5-001
 drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - tmp
 --- pbench-satellite-local tree state
@@ -876,35 +815,23 @@ run-1900-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-report-status.__init__ report_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-report-status/pbench-report-status.log
-+++++ pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
-run-1900-01-01T00:00:00-UTC: readlink -e /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-a-bad-link/TODO/tarball-00_YYYY.MM.DDTHH.MM.SS.tar.xz failed: 1
-run-1900-01-01T00:00:00-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-c-missing-md5/tarball-w-missing-md5_YYYY.MM.DDTHH.MM.SS.tar.xz failed MD5 check
-run-1900-01-01T00:00:00-UTC: Duplicate: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz
-run-1900-01-01T00:00:00-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-001/controller-e-bad-md5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz failed MD5 check
------ pbench-server-prep-shim-001/pbench-server-prep-shim-001.error
-+++++ pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
-run-1900-01-01T00:00:00-UTC
-tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz: OK
-tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz: OK
-tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz: OK
-md5sum: tarball-w-missing-md5_YYYY.MM.DDTHH.MM.SS.tar.xz.md5: No such file or directory
-tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz: FAILED
-md5sum: WARNING: 1 computed checksum did NOT match
-run-1900-01-01T00:00:00-UTC: Processed 7 entries, 3 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 1 errors.
------ pbench-server-prep-shim-001/pbench-server-prep-shim-001.log
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 run-1900-01-01T00:00:00-UTC: Duplicate: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz duplicate name
+run-1900-01-01T00:00:00-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-e-bad-md5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz failed MD5 check
 run-1900-01-01T00:00:00-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_YYYY.MM.DDTHH.MM.SS.tar.xz failed MD5 check
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 run-1900-01-01T00:00:00-UTC
+tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz: OK
+tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz: OK
+tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz: OK
+tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz: FAILED
+md5sum: WARNING: 1 computed checksum did NOT match
 tarball-bad-md5-1_YYYY.MM.DDTHH.MM.SS.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
 tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz: OK
-run-1900-01-01T00:00:00-UTC: Processed 3 entries, 1 tarballs successful, 1 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.
+run-1900-01-01T00:00:00-UTC: Processed 7 entries, 4 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 +++++ pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controllerA/fail-checks.log
 ----- pbench-sync-satellite/ONE/run-1900-01-01T00:00:00-UTC/controllerA/fail-checks.log
@@ -979,9 +906,9 @@ ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::cont
 run-1900-01-01T00:00:00-UTC: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 220
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss
 run-1900-01-01T00:00:00-UTC: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/path2/path3/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS
 run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/path0/path1/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS
 run-1900-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerC/prefix0/prefix1/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss
 run-1900-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 228
