@@ -40,6 +40,10 @@ export default {
         type: 'getMonthIndices',
         payload: indices,
       });
+      yield put({
+        type: 'global/updateSelectedIndices',
+        payload: [indices[0]],
+      });
     },
   },
 
@@ -53,7 +57,6 @@ export default {
     getMonthIndices(state, { payload }) {
       return {
         ...state,
-        selectedIndices: [payload[0]],
         indices: payload,
       };
     },
