@@ -7,11 +7,12 @@ import storage from 'redux-persist/lib/storage';
  * `dashboard` and `search` are blacklisted from the saved state as the namespaces
  * persist data that is constantly updated on the server side.
  */
-const appName = 'dashboard';
+const pathKey = window.location.pathname.split('/')[1];
+const appPath = pathKey || 'dashboard';
 
 const persistConfig = {
   timeout: 1000,
-  key: appName,
+  key: appPath,
   storage,
   blacklist: ['dashboard', 'search', 'datastore'],
 };
