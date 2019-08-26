@@ -114,7 +114,19 @@ export async function queryTocResult(params) {
     selectedIndices
   )}/_search?q=_parent:"${id}"`;
 
-  return request.post(endpoint);
+  return request.post(endpoint, {
+    data: {
+      aggs: {
+        directories: {
+          terms: {
+            field: 'directory',
+            exclude: '.*pid.*',
+            size: 0,
+          },
+        },
+      },
+    },
+  });
 }
 
 export async function queryIterations(params) {
