@@ -109,15 +109,6 @@ if (exists $params{"postprocess-only"} and $params{"postprocess-only"} eq "y") {
     printf "base_bench_dir: %s\n", $base_bench_dir;
 }
 
-# Document the params used for this invocation so one can re-run, and then they can add
-# "--postprocess-only=y --base-bench_dir=$base_bench_dir" if they wish to not run but
-# only postprocess.
-my $cmdfile = $base_bench_dir . "/pbench-run-benchmark.cmd";
-printf "cmdfile: %s\n", $cmdfile;
-open(my $cmd_fh, ">" . $cmdfile) ||
-    die "Could not create $cmdfile";
-printf $cmd_fh "pbench-run-benchmark %s %s", $benchmark, join(" ", @ARGV);
-
 # Every benchmark must have at least 1 client, even if the client is the same host as the controller
 if (! exists $params{'clients'}) {
     print "You must specify at least 1 client with --clients\n";
@@ -136,8 +127,6 @@ for my $param (qw(user-name user-email user-desc user-tags)) {
             $params{$param} = "";
         } else {
             $params{$param} = $ENV{$env_var};
-            # Store these in case someone wants to postprocess this run
-            printf $cmd_fh "--%s=%s ", $params{$param}, $ENV{$env_var};
         }
     }
 }
@@ -159,6 +148,15 @@ if ($pp_only) {
     # Spaces in directories, just don't do it
     $base_bench_dir =~ s/\s+/_/g;
     mkdir("$base_bench_dir");
+
+    # Document the params used for this invocation so one can re-run, and then they can add
+    # "--postprocess-only=y --base-bench_dir=$base_bench_dir" if they wish to not run but
+    # only postprocess.
+    my $cmdfile = $base_bench_dir . "/pbench-run-benchmark.cmd";
+    printf "cmdfile: %s\n", $cmdfile;
+    open(my $cmd_fh, ">" . $cmdfile) ||
+	die "Could not create $cmdfile";
+    printf $cmd_fh "pbench-run-benchmark %s %s\n", $benchmark, join(" ", @ARGV);
 }
 my $es_dir = $base_bench_dir . "/es";
 if ($pp_only) {
@@ -184,10 +182,6 @@ my %last_run_doc;
 print "Generating all benchmark iterations\n";
 # We don't want these params passed to gen-iterations because they are not benchmark-native options
 remove_params(\@ARGV, qw(postprocess-only user-desc user-tags user-name user-email pre-sample-cmd postprocess-mode));
-if (! $pp_only) {
-    # Store the rest of the params for re-running or postprocessing
-    printf $cmd_fh " %s", join(" ", @ARGV);
-}
 # First call pbench-gen-iterations and only resolve any --defaults=, so that the run
 # doc has the full set of params
 my $get_defs_cmd = "pbench-gen-iterations " . $benchmark . " --defaults-only " . join(" ", @ARGV);
