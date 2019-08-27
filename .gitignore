@@ -2,4 +2,7 @@ doc/*.html
 __pycache__
 *.swp
 unittests.log
+run-unittests.log
+dist
 *~
+????-*.patch
