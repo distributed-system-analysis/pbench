@@ -303,7 +303,7 @@ export const parseClusteredIterations = (clusteredIterations, clusterLabels, sel
         clusterObject[iteration] =
           clusteredIterations[primaryMetric][cluster][iteration][
             Object.keys(clusteredIterations[primaryMetric][cluster][iteration]).find(key => {
-              if (key.includes('all') && key.includes('mean')) {
+              if (key.includes('all') && key.includes('mean') && key.includes(primaryMetric)) {
                 return key;
               }
               return false;
