@@ -1,4 +1,4 @@
-# Created 2019-08-01 Thu 16:46
+# Created 2019-08-27 Tue 23:18
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,92 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+* Version 0.64
+
+This is an *agent-only* release. We are testing a new server RPM in the staging environment,
+but we are not quite ready to run it in production yet.
+
+** agent
+
+Most of the visible agent changes are to the ~pbench-run-benchmark~ script
+which is intended to eventually replace all the benchmark-specific scripts.
+Currently, ~fio~ and ~uperf~ are supported. The script supports both the
+current =results.json= output that we use for indexing *and* its eventual
+replacement: CDM (Common Data Model). We are planning to document this
+for v0.65 and ask for volunteers to start testing it. The goal is to
+eventually deprecate *all* existing benchmark scripts.
+
+Some other significant changes to ~pbench-agent~:
+
+- The perl Switch dependency is *gone* - and there was rejoicing
+  throughout the land.
+- ~pbench-move-results~ now makes use of two scripts that are user-visible:
+  ~pbench-make-result-tb~ creates a results tar ball, ~pbench-copy-results-tb~
+  moves/copies the tar ball to the server. These components can then be used
+  independently as well.
+
+** server
+This is an agent-only release. There are no new server RPMs produced,
+but there *are* significant changes to the server code that we are
+planning to test in the staging environment before finally pushing them
+to production. THe most significant changes affect the speed of the
+indexer:
+
+- We no longer unpack the tar ball a second time, as we did earlier.
+  Instead, we unpack it once normally and then use the unpacked tar ball
+  when indexing.
+- The indexer is split into two: one part to index run, TOC and results
+  data which are relatively small and can be done quickly and one part
+  to index tool data which are much larger and can potentially take a long
+  time. Indexing the run, TOC and results data quickly will allow the
+  dashboard to find results much quicker than currently. The tool data
+  will be missing of course, until the second part of the indexer finishes,
+- We now have the capability to back up tar ball to the S3 service on datahub.
+- There are ansible playbooks for deploying the server.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.64
+:END:
+
+This is an agent-only release. There are no new web-server RPMs produced.
+
+** Changelog
+This is the list of visible commits since v0.63:
+
+- 67eb14bb4 Version bump: 0.64
+- 4437fe927 Added configuration documentation
+- 343f6b607 pbench-*-tools: fixup some iteration related issues
+- c3ea38a0a reformat fio-postprocess to use if/elsif instead of switch
+- a7e64a057 Update fio-postprocess to use if/elsif instead of switch
+- 6cb1faac1 pbench-run-benchmark and cdm updates:
+- 1f5b4e195 Break pbench-index into two indexers: run/result & tools
+- 15bc32500 Make pbench-index take advantage of unpacked tbs
+- 4b016dd33 Create a pbench "indexer" module
+- e70923a87 Add "@generated-by" indexing info for tracking
+- 88ae43c21 Remove the pbench-index debug timing code
+- f87cd24ba Remove a few global variables in pbench-index
+- 0a4659f32 Various fixes to server side unit tests
+- d90446cda Remove obsolete --indexing-errors argument
+- 7260bf8d2 Remove user-metadata opt from server invocation
+- 2da19c7a7 Remove move-unpacked; unpack additional states
+- 67f8b18d0 A few cleanups for pbench-dispatch.sh
+- c9a1ee357 Enable dispatch-states in the server default
+- 199251072 update the closest samples index handling
+- 2fa4a2812 Break up pbench-move-results into components
+- 1eb2f91c5 Add raw_size run variable for tar balls
+- d9b26e680 Fix name of path_tokenizer
+- 81cce2e3c Fix server reports index, and report status
+- 0252831a8 Override the apache_options in the geerlinguy.apache role.
+- d94cebaea Address review comments.
+- 813879ea8 Partially address review comments.
+- 81cfa8210 Server installation ansible playbooks and roles.
+- 8ec25dcbb Eliminate some variables from pbench-server-default.cfg
+- 2d966deb8 PbenchBase.pm: add required metadata log for benchmark run name
+- 39763c07a fixup iteration naming for pbench-run-benchmark
+
+
 
 * Version 0.63
 
@@ -96,7 +182,6 @@ This is the list of visible commits since v0.62:
 - b0379a933 Render new pbench logo with SiderMenu component and replace favicon
 - d1b59d3f9 Add official pbench logs from Mary Shakshober
 
-
 * Version 0.62
 
 This is an *agent-only* release. It contains a few fixes for problems
@@ -164,7 +249,7 @@ This is the list of visible commits since v0.60:
 - f581e328 Query dashboard datastoreConfig on page entrypoints
 - 63be7664 (tag: v0.61, foo) v0.61: version bump
 - f60d73bc Modify PbenchConfig.timestamp() to return string in proper format
-- 020a8451 (origin/master, origin/HEAD) Rewrite backup tarballs to support S3
+- 020a8451 (origin/master, origin/HEAD) Rewrite backup tar balls to support S3
 - 1bfb91c1 Add additional fio argument check & unit tests
 - 07778112 Reduce redundant test setup operations
 - fbb91c19 Rename bench-scripts test dir to pbench-agent
@@ -807,7 +892,7 @@ This is the list of visible commits since v0.53:
 - 0fc2f327 Fix server unit test 11 to remove rsync references
 - ec476b4f Hide remaining unit test checks from scripts
 - e3c22874 Fix pbench-server-prep-shim-002 error handling
-- 1bbfd78a Ensure backup tarballs doesn't include state dirs
+- 1bbfd78a Ensure backup tar balls doesn't include state dirs
 - 4eb3f4f4 No longer need to check for LOGSDIR in audit-archive
 - d65ea1a5 Consistently handle pushd/popd error output
 - 6f38fd6a Fix quarantine to ignore arguments that don't exist
@@ -963,7 +1048,7 @@ since v0.51:
 - 8ddd17e1 Index into Elasticsearch with streaming_bulk() API
 - 4546946b Ensure we only process tool data once
 - 85fe020f Change index name prefix for unittests
-- a5046895 Refactor use of PbenchTarBall & csv handler table
+- a5046895 Refactor use of PbenchTar Ball & csv handler table
 - 736b3abd Check tool timestamps against run end
 - 0e8a2ced Add pre-computed source IDs to each indexed doc
 - c5569317 Fix timestamp handling; move errors to counters
@@ -1047,7 +1132,7 @@ See the [[https://github.com/distributed-system-analysis/pbench/issues][issues o
 
 *** Bug fixes and enhancements
 
-- The scripts that back up tarballs and verify their integrity were
+- The scripts that back up tar balls and verify their integrity were
   reworked after the server migration that we went through, to make
   them more robust and to detect problems as early as possible.
 
@@ -1082,7 +1167,7 @@ since v0.50:
 - 248fb946 Fix trailing squirly brace in unit test output
 - 3f807a7b Clean up test state entirely between tests
 - b38fb776 Replace use of sed with a JSON payload generator
-- e30caf09 Add a proper log environment for verify-backup-tarballs
+- e30caf09 Add a proper log environment for verify-backup-tar balls
 - 7ad4bbc9 Capture pbench-report-status payload in unittests
 - 6dfcaf8a Fix report-status to operate in the face of a missing log file
 - ca3afdb3 Remove the pbench-server config from test state files
@@ -1250,11 +1335,11 @@ since v0.48:
 - ae097a1 Fix DEBUG test.
 - ad51bc3 Server-side result state setting script.
 - 9d6a345 inotify version of unittests
-- 1bfacb2 inotify version of pbench-unpack-tarballs
+- 1bfacb2 inotify version of pbench-unpack-tar balls
 - ffdb29c inotify version of pbench-dispatch
 - 8971d32 pbench-sync-satellite: add entry to dispatch-list file
 - 9dd56ae script-all: pass logdir as an argument for logging
-- b8add69 unpack-tarballs: pass logdir as an argument for logging
+- b8add69 unpack-tar balls: pass logdir as an argument for logging
 - 26356e8 pbench-dispatch: pass logdir as an argument for logging
 - 5839da5 example of the service file
 - 8eaa5a2 base.sh: add a new funtion for appending logs of service scripts
@@ -1626,7 +1711,7 @@ The pprof tools is undergoing some renovation right now: see issue #675
 
 
 
-The script that copies the contents of each tarball to the distributed
+The script that copies the contents of each tar ball to the distributed
 
 file system uses a job queue implementation to do multiple copies in
 
@@ -1658,7 +1743,7 @@ Almost all of the scripts are running from cron at a 1-minute
 
 interval. In most cases, the script is able to finish all the work
 
-during that one minute. There are two exceptions: moving the tarball
+during that one minute. There are two exceptions: moving the tar ball
 
 contents from local storage to a DFS backend can take a long time
 
@@ -1718,7 +1803,7 @@ since v0.45:
 
 - 665fbd0 pbench-server: fix two bugs and a typo.
 
-- 3d53059 pbench-unpack-tarballs: fix conflicting file names.
+- 3d53059 pbench-unpack-tar balls: fix conflicting file names.
 
 - 7d03d86 Fix thinko and unit test.
 
@@ -1916,13 +2001,13 @@ The server code underwent fairly radical changes:
 
 
 
-- There is a new dispatch script that handles incoming tarballs, checks
+- There is a new dispatch script that handles incoming tar balls, checks
 
   MD5s and dispatches to the appropriate set of scripts (depending
 
   on the server).
 
-- Tarballs are unpacked locally and are *not* copied to the distributed
+- Tar Balls are unpacked locally and are *not* copied to the distributed
 
   file system backend synchronously. Instead, the data can be viewed from
 
@@ -1996,9 +2081,9 @@ since v0.44:
 
 - 095e404 Add dispatch script
 
-- 23bc56a Hide latency of copying unpacked tarballs
+- 23bc56a Hide latency of copying unpacked tar balls
 
-- 3ffd96a Update the script to unpack tarballs and create symlinks for them
+- 3ffd96a Update the script to unpack tar balls and create symlinks for them
 
 - fa21b13 Add support for creating job pools
 
@@ -2014,7 +2099,7 @@ since v0.44:
 
 - 3ad44e2 Add new sync script instead of rsync
 
-- 54bba60 Add sync-package-tarballs script
+- 54bba60 Add sync-package-tar balls script
 
 - 91102fe openvswitch-[datalog|postprocess]: handle OpenFlow13 protocol better
 
@@ -2524,7 +2609,7 @@ has been sped up to allow more frequent invocation from cron. However,
 
 the rsyncing itself and (particularly) the unpacking of the synced
 
-tarballs on the master server is still a bottleneck. We have a work
+tar balls on the master server is still a bottleneck. We have a work
 
 item to improve that in v0.44.
 
@@ -3074,7 +3159,7 @@ since v0.40:
 
 - d23a302 Clean up the status mail
 
-- bbffa61 pbench-rsync-satellite: Fix tarball deletions and send status email
+- bbffa61 pbench-rsync-satellite: Fix tar ball deletions and send status email
 
 
 
@@ -3245,17 +3330,17 @@ See [[#web-server-0.40][web-server]] below.
 
 
 
-- Add mail notifications to the scripts that backs up results tarballs
+- Add mail notifications to the scripts that backs up results tar balls
 
   for safekeeping.
 
 
 
-- Add verification script to detect bit-rot in tarballs.
+- Add verification script to detect bit-rot in tar balls.
 
 
 
-- We now run a cron job to fetch tarballs from "satellite" servers and
+- We now run a cron job to fetch tar balls from "satellite" servers and
 
   store them on our "production" server. The intent is to relieve some
 
@@ -3349,7 +3434,7 @@ since v0.39:
 
 - abdcec5 Update jschart to show the datapoints on highlighted datasets for histogram and xy charts
 
-- 1cb8864 Delete remote tarballs after checking.
+- 1cb8864 Delete remote tar balls after checking.
 
 - 480b20a Sync satellite to master.
 
@@ -3359,7 +3444,7 @@ since v0.39:
 
 - 7d0f360 Add/fix help string to pbench_fio.
 
-- 65de78b Add verify script for backup tarballs.
+- 65de78b Add verify script for backup tar balls.
 
 - cc8594a Fix a subsitution bug in BenchPostprocess::get_uid
 
@@ -3367,7 +3452,7 @@ since v0.39:
 
 - 3a13b5a Process only the last moongen validation phase
 
-- d21fd21 Add mail notification for pbench-backup-tarballs
+- d21fd21 Add mail notification for pbench-backup-tar balls
 
 - 0465506 Fixes to fully handle epoch time: - Parse job file from fio-postprocess-viz.py to detect when log_unix_epoch is present (using 'timeseries' instead of 'xy' in jschart) - jschart expects ms not s (no more divide by 1000 on time values) - Pass job file parameter whenever we call fiologparser_hist.py and fio-postproces-viz.py - Update to make-fio-jobfile.py to handle config options without values (e.g. 'stonewall' in fio)
 
