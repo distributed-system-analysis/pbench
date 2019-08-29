@@ -80,13 +80,16 @@
 
 use strict;
 use warnings;
-use lib $ENV{'pbench_lib_dir'};
+my $pbench_install_dir;
+BEGIN {
+    chomp($pbench_install_dir = `getconf.py pbench_install_dir pbench-agent`);
+    }
+use lib $pbench_install_dir . "/lib";
 use Text::ParseWords;
 use JSON;
 use Data::Dumper;
-use PbenchBase qw(get_json_file get_benchmark_names
-                  get_pbench_bench_config_dir load_benchmark_config);
-my $pbench_bench_config_dir = get_pbench_bench_config_dir;
+use PbenchBase qw(get_json_file get_benchmark_names load_benchmark_config);
+my $pbench_bench_config_dir = $pbench_install_dir . "/config/benchmark";
 
 # Return an array of all the valid arguments for a specific benchmark
 sub get_benchmark_args {

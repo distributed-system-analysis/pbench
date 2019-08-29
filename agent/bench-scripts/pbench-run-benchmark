@@ -15,14 +15,16 @@
 use strict;
 use warnings;
 use File::Basename;
-my $pbench_install_dir = $ENV{'pbench_install_dir'};
-use lib $ENV{'pbench_lib_dir'};
+my $pbench_install_dir;
+BEGIN {
+    chomp($pbench_install_dir = `getconf.py pbench_install_dir pbench-agent`);
+    }
+use lib $pbench_install_dir . "/lib";
 use File::Path qw(remove_tree);
 use PbenchCDM        qw(create_run_doc create_config_osrelease_doc create_config_cpuinfo_doc
                         create_config_netdevs_doc create_config_ethtool_doc create_config_base_doc
                         get_uuid create_bench_iter_doc create_config_doc);
 use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir
-                        get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir
                         get_benchmark_results_dir get_params remove_params get_hostname
                         metadata_log_begin_run metadata_log_end_run metadata_log_record_iteration);
 use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
@@ -35,17 +37,18 @@ my %defaults = ( "num-samples" => 1,
 
 my $pp_only = 0;
 my $base_bench_dir = "";
+my $pbench_bench_config_dir = $pbench_install_dir . "/config/benchmark";
 
 # The only required [positional] argument is the benchmark name; verify it now
 if (scalar @ARGV == 0) {
     print "You must supply at least a benchmark name:\n";
-    my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
+    my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
     printf "%s\n",  join(" ", @benchmarks);
     exit;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-    my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
+    my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
     printf "%s\n",  join(" ", @benchmarks);
     exit;
 }
@@ -299,7 +302,7 @@ while (scalar @param_sets > 0) {
         }
         my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,);
         put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
-	my $iteration_name = metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params, $iteration_label);
+	    my $iteration_name = metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params, $iteration_label);
         push(@iteration_names, $iteration_name);
         printf $fh "%d %s\n", $iteration_id, $iteration_params;
         printf "\n\n\niteration_ID: %d\niteration_params: %s\n", $iteration_id, $iteration_params;
