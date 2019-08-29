@@ -1,11 +1,11 @@
 +++ Running pbench-unpack-tarballs
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "069fa8950bd067fee71a733b322d3d63",
-        "_index": "pbench-unittests.v3.server-reports.1900-01",
+        "_id": "816924e0fce2d2ebe1962f95a8adacf5",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -16,11 +16,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1900-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-unpack-tarballs",
-            "text": "pbench-unpack-tarballs.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 1 errors\nProcessed 5 result tar balls, 3 successfully, 0 warnings, 1 errors, and 1 duplicates\n\nrun-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist\n",
+            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 1 errors\nProcessed 5 result tar balls, 3 successfully, 0 warnings, 1 errors, and 1 duplicates\n\nrun-1970-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist\n",
             "total_chunks": 1,
             "total_size": 364
         },
@@ -30,12 +30,12 @@ len(actions) = 1
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "69a2830ec9cf090127227d032294481c",
-        "_index": "pbench-unittests.v3.server-reports.1900-01",
+        "_id": "fb8eea157f633b56122a0db0334f1218",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -46,11 +46,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1900-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
         },
@@ -277,24 +277,24 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
-run-1900-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist
+run-1970-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
-run-1900-01-01T00:00:00-UTC
+run-1970-01-01T00:00:00-UTC
 ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller02/prefix02/benchmark-result-small_1900-01-01T00:00:00
-run-1900-01-01T00:00:00-UTC: controller02/benchmark-result-small_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 848
+run-1970-01-01T00:00:00-UTC: controller02/benchmark-result-small_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 848
 ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
 ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/users/user01/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
-run-1900-01-01T00:00:00-UTC: controller01/benchmark-result-medium_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 3180
+run-1970-01-01T00:00:00-UTC: controller01/benchmark-result-medium_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 3180
 ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00
-run-1900-01-01T00:00:00-UTC: controller00/benchmark-result-large_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 5920
-run-1900-01-01T00:00:00-UTC: Processed 3 tarballs
-1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:00-UTC: controller00/benchmark-result-large_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 5920
+run-1970-01-01T00:00:00-UTC: Processed 3 tarballs
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

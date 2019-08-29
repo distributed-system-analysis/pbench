@@ -2,12 +2,12 @@
 --- Finished pbench-sync-satellite (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "fb71b863e670df358a7cd512caacd04a",
-        "_index": "pbench-unittests.v3.server-reports.1900-01",
+        "_id": "d6a16a9a452070d0d06c11930dbd1bfc",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -18,11 +18,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1900-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-10/pbench/archive/fs-version-001\n\nController: controller\n\t* No state directories found in this controller directory.\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-10/pbench/archive/fs-version-001\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n\nstart-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-10/pbench/archive/fs-version-001\n\nController: controller\n\t* No state directories found in this controller directory.\n\nend-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-10/pbench/archive/fs-version-001\n",
             "total_chunks": 1,
             "total_size": 375
         },
@@ -158,34 +158,34 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 
-start-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-10/pbench/archive/fs-version-001
+start-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-10/pbench/archive/fs-version-001
 
 Controller: controller
 	* No state directories found in this controller directory.
 
-end-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-10/pbench/archive/fs-version-001
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+end-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-10/pbench/archive/fs-version-001
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-sync-satellite/ONE/change_state.log
 ----- pbench-sync-satellite/ONE/change_state.log
 +++++ pbench-sync-satellite/pbench-sync-satellite.error
 ----- pbench-sync-satellite/pbench-sync-satellite.error
 +++++ pbench-sync-satellite/pbench-sync-satellite.log
-run-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC
-run-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC
-run-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC
-run-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC
-run-1900-01-01T00:00:00-UTC: duration (secs): 0
-run-1900-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
-1970-01-01T00:00:00.000000 INFO pbench-sync-satellite.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
+run-1970-01-01T00:00:00-UTC: start - 1970-01-01T00:00:00-UTC
+run-1970-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:00-UTC
+run-1970-01-01T00:00:00-UTC: remote tarballs unpacked - 1970-01-01T00:00:00-UTC
+run-1970-01-01T00:00:00-UTC: end - 1970-01-01T00:00:00-UTC
+run-1970-01-01T00:00:00-UTC: duration (secs): 0
+run-1970-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-sync-satellite.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "9292a481093ea0f16b531240e31f6020",
-        "_index": "pbench-unittests.v3.server-reports.1900-01",
+        "_id": "2275a09f9d9e6774e1d3e7d3d9e3b1d5",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -196,18 +196,18 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1900-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-sync-satellite",
-            "text": "pbench-sync-satellite.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 0 files, with 0 md5 failures and 0 errors.\n\nrun-1900-01-01T00:00:00-UTC: start - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: remote tarballs unpacked - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: end - 1900-01-01T00:00:00-UTC\nrun-1900-01-01T00:00:00-UTC: duration (secs): 0\nrun-1900-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors\n",
+            "text": "pbench-sync-satellite.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 0 files, with 0 md5 failures and 0 errors.\n\nrun-1970-01-01T00:00:00-UTC: start - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: remote tarballs unpacked - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: end - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: duration (secs): 0\nrun-1970-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors\n",
             "total_chunks": 1,
             "total_size": 570
         },
         "_type": "pbench-server-reports"
     }
 ]
-1970-01-01T00:00:00.000000 INFO pbench-sync-satellite.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-sync-satellite.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-sync-satellite/pbench-sync-satellite.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

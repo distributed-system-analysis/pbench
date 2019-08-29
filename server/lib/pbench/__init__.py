@@ -8,29 +8,30 @@ import time
 import json
 import errno
 import logging
-import math
 import configtools
 import shutil
 import hashlib
 
-from datetime import datetime
-from random import SystemRandom
+from time import time as _time
+from datetime import datetime, tzinfo, timedelta
 from functools import partial
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
 
+class simple_utc(tzinfo):
+    def tzname(self, *args, **kwargs):
+        return "UTC"
+    def utcoffset(self, dt):
+        return timedelta(0)
+    def dst(self, dt):
+        return timedelta(0)
+
+
 def tstos(ts=None):
-    return time.strftime("%Y-%m-%dT%H:%M:%S-%Z", time.gmtime(ts))
-
-_do_ts = time.time
-_r = SystemRandom()
-_MAX_SLEEP_TIME = 120
-_MAX_ERRMSG_LENGTH = 16384
-
-def _calc_backoff_sleep(backoff):
-    global _r
-    b = math.pow(2, backoff)
-    return _r.uniform(0, min(b, _MAX_SLEEP_TIME))
+    if ts is None:
+        ts = _time()
+    dt = datetime.utcfromtimestamp(ts).replace(tzinfo=simple_utc())
+    return dt.strftime("%Y-%m-%dT%H:%M:%S-%Z")
 
 
 class _Message(object):
@@ -223,6 +224,12 @@ class PbenchConfig(object):
         else:
             self._unittests = bool(self._unittests)
 
+        if self._unittests:
+            def mocked_time():
+                return 0
+            global _time
+            _time = mocked_time
+
         # Constants
 
         # Force UTC everywhere
@@ -250,14 +257,10 @@ class PbenchConfig(object):
 
     def timestamp(self):
         """
-        "Return timestamp formatted as a string of the following form:
+        "Return the current timestamp formatted as a string of the following form:
                   <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
         """
-        if self._unittests:
-            ts = "1900-01-01T00:00:00-UTC"
-        else:
-            ts = tstos()
-        return ts
+        return tstos(_time())
 
 
 def md5sum(filename):

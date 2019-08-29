@@ -5,6 +5,7 @@ result tar balls.
 import sys
 import os
 import re
+import logging
 import stat
 import copy
 import hashlib
@@ -13,6 +14,9 @@ import csv
 import tarfile
 import socket
 import glob
+import math
+from time import sleep as _sleep
+from random import SystemRandom
 from operator import itemgetter
 from datetime import datetime, timedelta
 from collections import Counter, deque
@@ -24,11 +28,15 @@ try:
 except ImportError:
     from elasticsearch import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
 
-from pbench import tstos, PbenchConfig, get_pbench_logger
+# We import the entire pbench module so that mocking time works by changing
+# the _time binding in the pbench module for unit tests via the PbenchConfig
+# constructor's execution.
+import pbench
 try:
     from pbench.mock import MockElasticsearch
 except ImportError:
     MockElasticsearch = None
+
 
 # This is the version of this python code. We use the version number to mean
 # the following:
@@ -51,6 +59,9 @@ except ImportError:
 # that generated the documents.
 VERSION = "3.0.0"
 
+# Maximum length of messages logged by es_index()
+_MAX_ERRMSG_LENGTH = 16384
+
 # All indexing uses "create" (instead of "index") to avoid updating
 # existing records, allowing us to detect duplicates.
 _op_type = "create"
@@ -58,8 +69,19 @@ _op_type = "create"
 # UID keyword pattern
 uid_keyword_pat = re.compile("%\w*?%")
 
-# global - defaults to normal dict, ordered dict for unittests
+# global - defaults to normal dict, ordered dict for unit tests
 _dict_const = dict
+
+_r = SystemRandom()
+_MAX_SLEEP_TIME = 120
+
+def _calc_backoff_sleep(backoff):
+    global _r
+    b = math.pow(2, backoff)
+    return _r.uniform(0, min(b, _MAX_SLEEP_TIME))
+
+def _sleep_w_backoff(backoff):
+    _sleep(_calc_backoff_sleep(backoff))
 
 
 class BadDate(Exception):
@@ -408,7 +430,7 @@ class PbenchTemplates(object):
                 retries += _retries
         self.logger.info("done templates (end ts: {}, duration: {:.2f}s,"
                 " successes: {:d}, retries: {:d})",
-                tstos(end), end - beg, successes, retries)
+                pbench.tstos(end), end - beg, successes, retries)
 
     def generate_index_name(self, template_name, source, toolname=None):
         """Return a fully formed index name given its template, prefix, source
@@ -482,10 +504,6 @@ def get_es(config, logger):
         es = MockElasticsearch(hosts, max_retries=0)
         global helpers
         helpers.streaming_bulk = es.mockstrm.streaming_bulk
-        def _ts():
-            return 0
-        global _do_ts
-        _do_ts = _ts
     else:
         # FIXME: we should just change these two loggers to write to a
         # file instead of setting the logging level up so high.
@@ -499,7 +517,7 @@ def es_put_template(es, name=None, body=None):
     retry = True
     retry_count = 0
     backoff = 1
-    beg, end = _do_ts(), None
+    beg, end = pbench._time(), None
     # Derive the mapping name from the template name
     mapping_name = "pbench-{}".format(name.split('.')[2])
     try:
@@ -514,13 +532,13 @@ def es_put_template(es, name=None, body=None):
             if exc.status_code != 404:
                 if exc.status_code not in [500, 503, 504]:
                     raise
-                time.sleep(_calc_backoff_sleep(backoff))
+                _sleep_w_backoff(backoff)
                 backoff += 1
                 retry_count += 1
                 continue
         except es_excs.ConnectionError as exc:
             # We retry all connection errors
-            time.sleep(_calc_backoff_sleep(backoff))
+            _sleep_w_backoff(backoff)
             backoff += 1
             retry_count += 1
             continue
@@ -538,17 +556,17 @@ def es_put_template(es, name=None, body=None):
             # Only retry on certain 500 errors
             if exc.status_code not in [500, 503, 504]:
                 raise
-            time.sleep(_calc_backoff_sleep(backoff))
+            _sleep_w_backoff(backoff)
             backoff += 1
             retry_count += 1
         except es_excs.ConnectionError as exc:
             # We retry all connection errors
-            time.sleep(_calc_backoff_sleep(backoff))
+            _sleep_w_backoff(backoff)
             backoff += 1
             retry_count += 1
         else:
             retry = False
-    end = _do_ts()
+    end = pbench._time()
     return beg, end, retry_count
 
 # Always use "create" operations, as we also ensure each JSON document being
@@ -590,7 +608,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
             # start yielding those actions until we drain the retry queue.
             backoff = 1
             while len(actions_retry_deque) > 0:
-                time.sleep(_calc_backoff_sleep(backoff))
+                _sleep_w_backoff(backoff)
                 retries_tracker['retries'] += 1
                 retry_actions = []
                 # First drain the retry deque entirely so that we know when we
@@ -606,7 +624,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                 # pounding on the ES instance.
                 backoff += 1
 
-    beg, end = _do_ts(), None
+    beg, end = pbench._time(), None
     successes = 0
     duplicates = 0
     failures = 0
@@ -660,7 +678,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                     pass
                 else:
                     resp['exception'] = repr(exc_payload)
-                jsonstr = json.dumps({ "action": action, "ok": ok, "resp": resp, "retry_count": retry_count, "timestamp": tstos(_do_ts()) }, indent=4, sort_keys=True)
+                jsonstr = json.dumps({ "action": action, "ok": ok, "resp": resp, "retry_count": retry_count, "timestamp": pbench.tstos() }, indent=4, sort_keys=True)
                 print(jsonstr, file=errorsfp)
                 errorsfp.flush()
                 failures += 1
@@ -677,7 +695,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                     error = ""
                 if status == 403 and error.startswith("IndexClosedException"):
                     # Don't retry closed index exceptions
-                    jsonstr = json.dumps({ "action": action, "ok": ok, "resp": resp, "retry_count": retry_count, "timestamp": tstos(_do_ts()) }, indent=4, sort_keys=True)
+                    jsonstr = json.dumps({ "action": action, "ok": ok, "resp": resp, "retry_count": retry_count, "timestamp": pbench.tstos() }, indent=4, sort_keys=True)
                     print(jsonstr, file=errorsfp)
                     errorsfp.flush()
                     failures += 1
@@ -687,7 +705,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                     logger.warning("retrying action: {}", json.dumps(resp)[:_MAX_ERRMSG_LENGTH])
                     actions_retry_deque.append((retry_count + 1, action))
 
-    end = _do_ts()
+    end = pbench._time()
 
     assert len(actions_deque) == 0
     assert len(actions_retry_deque) == 0
@@ -3470,7 +3488,7 @@ class IdxContext(object):
         self.name = name
         self._dbg = _dbg
         self.opctx = []
-        self.config = PbenchConfig(options.cfg_name)
+        self.config = pbench.PbenchConfig(options.cfg_name)
         try:
             self.idx_prefix = self.config.get('Indexing', 'index_prefix')
         except Exception as e:
@@ -3480,13 +3498,14 @@ class IdxContext(object):
                 raise ConfigFileError("Index prefix, '{}', not allowed to"
                         " contain a period ('.')".format(self.idx_prefix))
 
+        # We expose the pbench module's internal _time() method here for
+        # convenience, allowing us to more easily mock out "time" for unit
+        # test environments.
+        self.time = pbench._time
         if self.config._unittests:
             import collections
             global _dict_const
             _dict_const = collections.OrderedDict
-            def _do_time():
-                return 0
-            self.time = _do_time
             def _do_gethostname():
                 return "example.com"
             self.gethostname = _do_gethostname
@@ -3500,14 +3519,13 @@ class IdxContext(object):
                 return 44
             self.getuid = _do_getuid
         else:
-            self.time = time.time
             self.gethostname = socket.gethostname
             self.getpid = os.getpid
             self.getgid = os.getgid
             self.getuid = os.getuid
         self.TS = self.config.TS
 
-        self.logger = get_pbench_logger(self.name, self.config)
+        self.logger = pbench.get_pbench_logger(self.name, self.config)
         self.es = get_es(self.config, self.logger)
         self.templates = PbenchTemplates(self.config.BINDIR, self.idx_prefix,
                 self.logger, _known_tool_handlers, _dbg=_dbg)

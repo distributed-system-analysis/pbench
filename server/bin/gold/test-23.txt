@@ -113,14 +113,14 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- @cee:{"@generated-by": {"commit_id": "unit-test", "group_id": 43, "hostname": "example.com", "pid": 42, "user_id": 44, "version": ""}, "@timestamp": "1900-01-01T00:00:00", "chunk_id": 1, "doctype": "status", "name": "pbench-audit-server", "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n", "total_chunks": 1, "total_size": 59}
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- @cee:{"@generated-by": {"commit_id": "unit-test", "group_id": 43, "hostname": "example.com", "pid": 42, "user_id": 44, "version": ""}, "@timestamp": "1970-01-01T00:00:00", "chunk_id": 1, "doctype": "status", "name": "pbench-audit-server", "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n", "total_chunks": 1, "total_size": 59}
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-dispatch/pbench-dispatch.error
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
-run-1900-01-01T00:00:00-UTC
-run-1900-01-01T00:00:00-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
-1970-01-01T00:00:00.000000 INFO pbench-dispatch.report post_status -- @cee:{"@generated-by": {"commit_id": "unit-test", "group_id": 43, "hostname": "example.com", "pid": 42, "user_id": 44, "version": ""}, "@timestamp": "1900-01-01T00:00:00", "chunk_id": 1, "doctype": "status", "name": "pbench-dispatch", "text": "pbench-dispatch.run-1900-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates\n\n", "total_chunks": 1, "total_size": 160}
+run-1970-01-01T00:00:00-UTC
+run-1970-01-01T00:00:00-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
+1970-01-01T00:00:00.000000 INFO pbench-dispatch.report post_status -- @cee:{"@generated-by": {"commit_id": "unit-test", "group_id": 43, "hostname": "example.com", "pid": 42, "user_id": 44, "version": ""}, "@timestamp": "1970-01-01T00:00:00", "chunk_id": 1, "doctype": "status", "name": "pbench-dispatch", "text": "pbench-dispatch.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates\n\n", "total_chunks": 1, "total_size": 160}
 ----- pbench-dispatch/pbench-dispatch.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
