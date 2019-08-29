@@ -30,7 +30,7 @@ pbenchdir=$(getconf.py -C $configfile install-dir pbench-agent)
 if [ -f $keyfile ] ;then
     cp $keyfile $pbenchdir/id_rsa
     chown $user.$group $pbenchdir/id_rsa
-    chmod 640 $pbenchdir/id_rsa
+    chmod 600 $pbenchdir/id_rsa
 else
     exit 3
 fi
