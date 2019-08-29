@@ -3,12 +3,12 @@ audit archive hierarchy
 --- Finished echo (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "f9a45d3c21cefee922ddbfc4c086077e",
-        "_index": "pbench-unittests.v3.server-reports.1900-01",
+        "_id": "87916be88d34d58317da28ba81817616",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -19,11 +19,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1900-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n\nstart-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\nBad Controllers:\n\t-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt\n\t-rw-rw-r--          0 Mon Sep 24 14:38:32.0000000000 2018 wayward-file.txt\n\nController: controller.empty\n\t* No state directories found in this controller directory.\n\t* No tar ball files found in this controller directory.\n\nController: controller.unexp_state_dirs\n\t* Unexpected state directories found in this controller directory:\n\t  ++++++++++\n\t  an-unexpected\n\t  unexpected\n\t  ----------\n\t* No tar ball files found in this controller directory.\n\nController: controller.wont_index\n\t* No tar ball files found in this controller directory.\n\nController: controller00\n\t* Unexpected symlinks in controller directory:\n\t  ++++++++++\n\t  an-unexpected-symlink -> /dev/null\n\t  unexpected-symlink -> /dev/null\n\t  ----------\n\t* Unexpected files in controller directory:\n\t  ++++++++++\n\t  .prefix\n\t  unexpected-file\n\t  ----------\n\t* Prefix directory, .prefix, is not a directory!\n\nController: controller01\n\t* Unexpected file system objects in .prefix directory:\n\t  ++++++++++\n\t  a-unexpected\n\t  unexpected\n\t  ----------\n\t* Wrong prefix file names found in /.prefix directory:\n\t  ++++++++++\n\t  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  ----------\n\nend-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\n\nstart-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller00\n\tcontroller02\n\nIncoming issues for controller: controller02\n\tInvalid tar ball directories (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tnot-in-archive_1900-01-01T00:00:00\n\tEmpty tar ball directories:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tInvalid tar ball links:\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\t\ttarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss\n\t\ttarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss\n\nend-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\n\nstart-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller01\n\nResults issues for controller: controller00\n\tEmpty tar ball directories:\n\t\torphaned-prefix\n\nResults issues for controller: controller01\n\tTar ball links with unused prefix files:\n\t\ttarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with missing prefix files:\n\t\tmissing/prefix/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefix files:\n\t\tgood/prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefixes:\n\t\tbad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss\n\nResults issues for controller: controller02\n\tInvalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\tIncorrectly constructed tar ball links:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tTar ball links to invalid incoming location:\n\t\ttarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss\n\nend-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\n\nstart-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nResults issues for controller: userB/controllerU\n\tTar ball links not configured for this user:\n\t\ttarball-noUser_YYYY-MM-DDTHH-mm-ss\n\tTar ball links for the wrong user:\n\t\tprefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss\n\nend-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n\nstart-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\nBad Controllers:\n\t-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt\n\t-rw-rw-r--          0 Mon Sep 24 14:38:32.0000000000 2018 wayward-file.txt\n\nController: controller.empty\n\t* No state directories found in this controller directory.\n\t* No tar ball files found in this controller directory.\n\nController: controller.unexp_state_dirs\n\t* Unexpected state directories found in this controller directory:\n\t  ++++++++++\n\t  an-unexpected\n\t  unexpected\n\t  ----------\n\t* No tar ball files found in this controller directory.\n\nController: controller.wont_index\n\t* No tar ball files found in this controller directory.\n\nController: controller00\n\t* Unexpected symlinks in controller directory:\n\t  ++++++++++\n\t  an-unexpected-symlink -> /dev/null\n\t  unexpected-symlink -> /dev/null\n\t  ----------\n\t* Unexpected files in controller directory:\n\t  ++++++++++\n\t  .prefix\n\t  unexpected-file\n\t  ----------\n\t* Prefix directory, .prefix, is not a directory!\n\nController: controller01\n\t* Unexpected file system objects in .prefix directory:\n\t  ++++++++++\n\t  a-unexpected\n\t  unexpected\n\t  ----------\n\t* Wrong prefix file names found in /.prefix directory:\n\t  ++++++++++\n\t  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  ----------\n\nend-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\n\nstart-1970-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller00\n\tcontroller02\n\nIncoming issues for controller: controller02\n\tInvalid tar ball directories (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tnot-in-archive_1900-01-01T00:00:00\n\tEmpty tar ball directories:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tInvalid tar ball links:\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\t\ttarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss\n\t\ttarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss\n\nend-1970-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\n\nstart-1970-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller01\n\nResults issues for controller: controller00\n\tEmpty tar ball directories:\n\t\torphaned-prefix\n\nResults issues for controller: controller01\n\tTar ball links with unused prefix files:\n\t\ttarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with missing prefix files:\n\t\tmissing/prefix/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefix files:\n\t\tgood/prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefixes:\n\t\tbad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss\n\nResults issues for controller: controller02\n\tInvalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\tIncorrectly constructed tar ball links:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tTar ball links to invalid incoming location:\n\t\ttarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss\n\nend-1970-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\n\nstart-1970-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nResults issues for controller: userB/controllerU\n\tTar ball links not configured for this user:\n\t\ttarball-noUser_YYYY-MM-DDTHH-mm-ss\n\tTar ball links for the wrong user:\n\t\tprefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss\n\nend-1970-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n",
             "total_chunks": 1,
             "total_size": 4583
         },
@@ -336,7 +336,7 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 
-start-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
+start-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
 
 Bad Controllers:
 	-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt
@@ -382,10 +382,10 @@ Controller: controller01
 	  prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
 	  ----------
 
-end-1900-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
+end-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
 
 
-start-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
+start-1970-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 
 Unexpected files found:
 	an-unexpected-symlink
@@ -412,10 +412,10 @@ Incoming issues for controller: controller02
 		tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss
 		tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss
 
-end-1900-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
+end-1970-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 
 
-start-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
+start-1970-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
 
 Unexpected files found:
 	an-unexpected-symlink
@@ -453,10 +453,10 @@ Results issues for controller: controller02
 	Tar ball links to invalid incoming location:
 		tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss
 
-end-1900-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
+end-1970-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
 
 
-start-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
+start-1970-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
 
 Unexpected files found:
 	an-unexpected-symlink
@@ -469,9 +469,9 @@ Results issues for controller: userB/controllerU
 	Tar ball links for the wrong user:
 		prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss
 
-end-1900-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+end-1970-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

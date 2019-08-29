@@ -10,7 +10,7 @@ import hashlib
 import socket
 from configparser import Error as NoSectionError, NoOptionError
 
-from pbench import tstos, get_pbench_logger
+import pbench
 from pbench.indexer import PbenchTemplates, get_es, es_index, _op_type
 
 
@@ -27,7 +27,7 @@ class Report(object):
                 user_id=None, hostname=None, version=None, templates=None):
         self.config = config
         self.name = name
-        self.logger = get_pbench_logger(name, config)
+        self.logger = pbench.get_pbench_logger(name, config)
 
         # We always create a base "tracking" document composed of parameters
         # from the caller, and other environmental data. This document is used
@@ -197,11 +197,11 @@ class Report(object):
                         else self.logger.warning
                 do_log("posted status (end ts: {}, duration: {:.2f}s,"
                         " successes: {:d}, duplicates: {:d}, failures: {:d},"
-                        " retries: {:d})", tstos(end), end - beg, successes,
-                        duplicates, failures, retries)
+                        " retries: {:d})", pbench.tstos(end), end - beg,
+                        successes, duplicates, failures, retries)
         except Exception:
             self.logger.exception("Failed to post status, name = {},"
-                    " timestamp = {}, doctype = {}, file_to_index = {}", self.name,
-                    timestamp, doctype, file_to_index)
+                    " timestamp = {}, doctype = {}, file_to_index = {}",
+                    self.name, timestamp, doctype, file_to_index)
             raise
         return self.tracking_id

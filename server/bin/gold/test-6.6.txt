@@ -1,11 +1,11 @@
 +++ Running pbench-backup-tarballs
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "edc3280978262970fc9375105aa79c5b",
-        "_index": "pbench-unittests.v3.server-reports.1900-01",
+        "_id": "99cd21f62cb2a82439e7f33e94f1f552",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -16,11 +16,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1900-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-backup-tarballs",
-            "text": "pbench-backup-tarballs.py.1900-01-01T00:00:00-UTC(unit-test)\nTotal processed: 2, Local backup successes: 1, Local backup failures: 0, S3 upload successes: 1, S3 upload failures: 0, Quarantined: 1\n",
+            "text": "pbench-backup-tarballs.py.1970-01-01T00:00:00-UTC(unit-test)\nTotal processed: 2, Local backup successes: 1, Local backup failures: 0, S3 upload successes: 1, S3 upload failures: 0, Quarantined: 1\n",
             "total_chunks": 1,
             "total_size": 196
         },
@@ -30,12 +30,12 @@ len(actions) = 1
 --- Finished pbench-backup-tarballs (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "69a2830ec9cf090127227d032294481c",
-        "_index": "pbench-unittests.v3.server-reports.1900-01",
+        "_id": "fb8eea157f633b56122a0db0334f1218",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -46,11 +46,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1900-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1900-01-01T00:00:00-UTC(unit-test)\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
         },
@@ -186,18 +186,18 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-run-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-run-1970-01-01T00:00:00-UTC
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Already locally backed-up: foo/fio__2016-08-18_15:47:09.tar.xz
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- The tarball foo/fio__2016-08-18_15:47:09.tar.xz is already present in S3 bucket with same md5
 1970-01-01T00:00:00.000000 ERROR pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Quarantine: /var/tmp/pbench-test-server/test-6.6/pbench/archive/fs-version-001/foo/TO-BACKUP/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz, md5sum of /var/tmp/pbench-test-server/test-6.6/pbench/archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz does not match with its md5 file /var/tmp/pbench-test-server/test-6.6/pbench/archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.md5
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 2, Local backup successes: 1, Local backup failures: 0, S3 upload successes: 1, S3 upload failures: 0, Quarantined: 1
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1900-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1970-01-01T00:00:00-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
