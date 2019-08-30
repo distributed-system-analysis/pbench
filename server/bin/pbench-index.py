@@ -231,7 +231,8 @@ def main(options, name):
 
     report = Report(idxctx.config, name, es=idxctx.es, pid=idxctx.getpid(),
             group_id=idxctx.getgid(), user_id=idxctx.getuid(),
-            hostname=idxctx.gethostname(), version=VERSION)
+            hostname=idxctx.gethostname(), version=VERSION,
+            templates=idxctx.templates)
     # We use the "start" report ID as the tracking ID for all indexed
     # documents.
     try:

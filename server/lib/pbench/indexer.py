@@ -410,6 +410,42 @@ class PbenchTemplates(object):
                 " successes: {:d}, retries: {:d})",
                 tstos(end), end - beg, successes, retries)
 
+    def generate_index_name(self, template_name, source, toolname=None):
+        """Return a fully formed index name given its template, prefix, source
+        data (for an @timestamp field) and an optional tool name."""
+        try:
+            template = self.index_patterns[template_name]['template']
+            idxname_tmpl = self.index_patterns[template_name]['idxname']
+        except KeyError as e:
+            raise Exception("Invalid template name, '{}': {}".format(
+                template_name, e))
+        if toolname is not None:
+            idxname = idxname_tmpl.format(tool=toolname)
+            try:
+                version = self.versions[idxname]
+            except KeyError as e:
+                raise Exception("Invalid tool index name for version, '{}':"
+                    " {}".format(idxname, e))
+        else:
+            idxname = idxname_tmpl
+            try:
+                version = self.versions[template_name]
+            except KeyError as e:
+                raise Exception("Invalid index template name for version,"
+                    " '{}': {}".format(idxname, e))
+        try:
+            ts_val = source['@timestamp']
+        except KeyError:
+            self.counters['ts_missing_at_timestamp'] += 1
+            raise BadDate("missing @timestamp in a source document:"
+                    " {!r}".format(source))
+        except TypeError as e:
+            raise Exception("Failed to generate index name, {!r}, source:"
+                    " {!r}".format(e, source))
+        year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
+        return template.format(prefix=self.idx_prefix, version=version,
+                idxname=idxname, year=year, month=month, day=day)
+
 
 def _get_es_hosts(config, logger):
     """
@@ -761,41 +797,12 @@ class PbenchData(object):
     def generate_index_name(self, template_name, source, toolname=None):
         """Return a fully formed index name given its template, prefix, source
         data (for an @timestamp field) and an optional tool name."""
-        try:
-            template = self.idxctx.templates.index_patterns[template_name]['template']
-            idxname_tmpl = self.idxctx.templates.index_patterns[template_name]['idxname']
-        except KeyError as e:
-            raise Exception("Invalid template name, '{}': {}".format(
-                template_name, e))
-        if toolname is not None:
-            idxname = idxname_tmpl.format(tool=toolname)
-            try:
-                version = self.idxctx.templates.versions[idxname]
-            except KeyError as e:
-                raise Exception("Invalid tool index name for version, '{}':"
-                    " {}".format(idxname, e))
-        else:
-            idxname = idxname_tmpl
-            try:
-                version = self.idxctx.templates.versions[template_name]
-            except KeyError as e:
-                raise Exception("Invalid index template name for version,"
-                    " '{}': {}".format(idxname, e))
-        try:
-            ts_val = source['@timestamp']
-        except KeyError:
-            self.counters['ts_missing_at_timestamp'] += 1
-            raise BadDate("missing @timestamp in a source document:"
-                    " {!r}".format(source))
-        except TypeError as e:
-            raise Exception("Failed to generate index name, {!r}, source:"
-                    " {!r}".format(e, source))
         year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
         if (year, month, day) < (self.year, self.month, self.day):
             raise BadDate("TS y/m/d, {!r}, earlier than pbench run, {!r}".format(
                     (year, month, day), (self.year, self.month, self.day)))
-        return template.format(prefix=self.idxctx.idx_prefix, version=version,
-                idxname=idxname, year=year, month=month, day=day)
+        return self.idxctx.templates.generate_index_name(template_name,
+                source, toolname=toolname)
 
 
 ###########################################################################
