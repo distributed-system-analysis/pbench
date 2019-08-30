@@ -72,12 +72,12 @@ firewall-cmd --permanent --add-service=http
 --- Finished verifying server activation (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "69a2830ec9cf090127227d032294481c",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {

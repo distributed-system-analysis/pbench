@@ -1,11 +1,11 @@
 +++ Running pbench-verify-backup-tarballs
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "2b29b051b3f1a30553b03960b3800a9c",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -30,12 +30,12 @@ len(actions) = 1
 --- Finished pbench-verify-backup-tarballs (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "a3be04ad4d03d09ce45528ad3ca479c1",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {

@@ -24,7 +24,7 @@ class Report(object):
     _CHUNK_SIZE = 50 * 1024 * 1024
 
     def __init__(self, config, name, es=None, pid=None, group_id=None,
-                user_id=None, hostname=None, version=None):
+                user_id=None, hostname=None, version=None, templates=None):
         self.config = config
         self.name = name
         self.logger = get_pbench_logger(name, config)
@@ -75,6 +75,11 @@ class Report(object):
                     self.es = None
             else:
                 self.es = es
+        if templates is not None:
+            self.templates = templates
+        else:
+            self.templates = PbenchTemplates(self.config.BINDIR,
+                    self.idx_prefix, self.logger)
 
     def init_report_template(self):
         """Setup the Elasticsearch templates needed for properly indexing
@@ -82,9 +87,7 @@ class Report(object):
         """
         if self.es is None:
             return
-        templates = PbenchTemplates(self.config.BINDIR, self.idx_prefix,
-                self.logger)
-        templates.update_templates(self.es, 'server-reports')
+        self.templates.update_templates(self.es, 'server-reports')
 
     @staticmethod
     def _make_json_payload(source):
@@ -172,16 +175,13 @@ class Report(object):
             else:
                 # We have an Elasticsearch configuration.
 
-                # Snip off the time part of the timestamp to get YYYY-MM for the
-                # index name.
-                datestamp = timestamp_noutc.rsplit('-', 1)[0]
                 def _es_payload_gen(_payload_gen):
                     for source, source_id, _ in _payload_gen:
                         if self.tracking_id is None:
                             # First generated document becomes the tracking ID.
                             self.tracking_id = source_id
-                        idx_name = "{}.server-reports.{}".format(
-                                self.idx_prefix, datestamp)
+                        idx_name = self.templates.generate_index_name(
+                                "server-reports", source)
                         action = {
                             "_op_type": _op_type,
                             "_index": idx_name,

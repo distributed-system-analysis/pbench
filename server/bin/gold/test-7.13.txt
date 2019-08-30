@@ -1,11 +1,11 @@
 +++ Running pbench-unpack-tarballs
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "a71b2579e4030cb522095fb9d295141e",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -39,12 +39,12 @@ Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1970-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "8b0a858cc2900c40ad6a6f2789367e86",
-        "_index": "pbench-unittests.server-reports.1970-01",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -5076,12 +5076,12 @@ Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1970-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "542c4600afea6ddf1d8ef423816e825b",
-        "_index": "pbench-unittests.server-reports.1970-01",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -5115,12 +5115,12 @@ Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1970-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "a49255f14070b6824a0008c8b8f8fe2b",
-        "_index": "pbench-unittests.server-reports.1970-01",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -10650,12 +10650,12 @@ Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1970-01 1
+Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "2162043cba577019f91e588fc93bb43e",
-        "_index": "pbench-unittests.server-reports.1970-01",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -10680,12 +10680,12 @@ len(actions) = 1
 --- Finished pbench-index (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "69a2830ec9cf090127227d032294481c",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {

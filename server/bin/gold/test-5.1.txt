@@ -1,11 +1,11 @@
 +++ Running pbench-server-prep-shim-002
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "33b0ac96b26379558eeff87951e4e0ef",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -32,12 +32,12 @@ len(actions) = 1
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "62daf518606f8e9211fb234ea348a409",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -62,12 +62,12 @@ len(actions) = 1
 --- Finished pbench-dispatch (status=0)
 +++ Running pbench-unpack-tarballs
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "3fd266f1e61972ac557cc27453a4101b",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -92,12 +92,12 @@ len(actions) = 1
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-copy-sosreports
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "d46db5d399d3728ca0583c1b3b6bde3d",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -130,12 +130,12 @@ len(actions) = 1
 --- Finished pbench-edit-prefixes (status=0)
 +++ Running pbench-backup-tarballs
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "89ecc2b8f7bf3d8f0c137bbfed57c851",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -160,12 +160,12 @@ len(actions) = 1
 --- Finished pbench-backup-tarballs (status=0)
 +++ Running pbench-verify-backup-tarballs
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "680a688e31057789b817408ce97b2771",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -192,12 +192,12 @@ len(actions) = 1
 --- Finished pbench-satellite-cleanup (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "69a2830ec9cf090127227d032294481c",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -305,7 +305,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--          0 logs/pbench-sync-satellite/ONE/change_state.log
 -rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--       2211 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--       2217 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--        449 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -433,12 +433,12 @@ run-1900-01-01T00:00:00-UTC: duration (secs): 0
 run-1900-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
 1970-01-01T00:00:00.000000 INFO pbench-sync-satellite.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-GMT, duration: 0.00s, successes: 1, retries: 0)
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.server-reports.1900-01 1
+Index:  pbench-unittests.v3.server-reports.1900-01 1
 len(actions) = 1
 [
     {
         "_id": "9292a481093ea0f16b531240e31f6020",
-        "_index": "pbench-unittests.server-reports.1900-01",
+        "_index": "pbench-unittests.v3.server-reports.1900-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
