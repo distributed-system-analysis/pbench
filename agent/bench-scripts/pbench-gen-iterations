@@ -80,13 +80,20 @@
 
 use strict;
 use warnings;
-use lib $ENV{'pbench_lib_dir'};
+use File::Basename;
+my %pbench_env;
+BEGIN {
+    chomp(my $script_path = dirname($0));
+    chomp(my $dir = `cd ${script_path}/..; /bin/pwd`);
+    foreach (grep(/^pbench\S+=/, `. $dir/base; env`)) {
+    $pbench_env{$1} = $2 if (/^pbench_(\S+)=(.+)/);
+    }
+}
+use lib $pbench_env{'lib_dir'};
 use Text::ParseWords;
 use JSON;
 use Data::Dumper;
-use PbenchBase qw(get_json_file get_benchmark_names
-                  get_pbench_bench_config_dir load_benchmark_config);
-my $pbench_bench_config_dir = get_pbench_bench_config_dir;
+use PbenchBase qw(get_json_file get_benchmark_names load_benchmark_config);
 
 # Return an array of all the valid arguments for a specific benchmark
 sub get_benchmark_args {
@@ -336,13 +343,13 @@ sub handle_iparams {
 # Check for required options for pbench-gen-iterations
 if (scalar @ARGV == 0) {
     print "You must supply at least a benchmark name:\n";
-    my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
+    my @benchmarks = get_benchmark_names($pbench_env{'install_dir'} . "/config/benchmark");
     printf "%s\n",  join(" ", @benchmarks);
     exit;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-    my @benchmarks = get_benchmark_names($pbench_bench_config_dir);
+    my @benchmarks = get_benchmark_names($pbench_env{'install_dir'} . "/config/benchmark");
     printf "%s\n",  join(" ", @benchmarks);
     exit;
 }
@@ -362,8 +369,8 @@ if ($ARGV[0] eq "--defaults-only") {
 #     get transformed
 
 # This is what we need to validate against
-my %pbench_config = load_benchmark_config($pbench_bench_config_dir, "pbench");
-my %bench_config = load_benchmark_config($pbench_bench_config_dir, $benchmark);
+my %pbench_config = load_benchmark_config($pbench_env{'install_dir'} . "/config/benchmark", "pbench");
+my %bench_config = load_benchmark_config($pbench_env{'install_dir'} . "/config/benchmark", $benchmark);
 # Ensure we have some basic info from the benchmark configuration
 if (! exists $bench_config{"controller"} ) {
     print "There is no 'contoller' section in the benchmark config\n";

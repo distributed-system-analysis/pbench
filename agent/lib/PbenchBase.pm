@@ -7,13 +7,21 @@ package PbenchBase;
 use strict;
 use warnings;
 use File::Basename;
+my %pbench_env;
+BEGIN {
+    chomp(my $script_path = dirname($0));
+    chomp(my $dir = `cd ${script_path}/..; /bin/pwd`);
+    foreach (grep(/^pbench\S+=/, `. $dir/base; env`)) {
+    $pbench_env{$1} = $2 if (/^pbench_(\S+)=(.+)/);
+    }
+}
+use lib $pbench_env{'lib_dir'};
 use Cwd 'abs_path';
 use Exporter qw(import);
 use List::Util qw(max);
 use JSON;
 
 our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir
-                    get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir
                     get_benchmark_results_dir get_params remove_params remove_element get_hostname
                     get_pbench_datetime load_benchmark_config metadata_log_begin_run
                     metadata_log_end_run metadata_log_record_iteration);
@@ -24,31 +32,6 @@ sub get_hostname {
     my $hostname = `hostname -s`;
     chomp $hostname;
     return $hostname;
-}
-
-sub get_pbench_run_dir {
-    my $dir = $ENV{'pbench_run'};
-    if (not defined $dir) {
-        $dir = `getconf.py pbench_run pbench-agent 2>/dev/null`;
-    } elsif (not defined $dir) {
-        $dir = "/var/lib/pbench-agent";
-    }
-    chomp $dir;
-    return $dir;
-}
-
-sub get_pbench_install_dir {
-    my $dir = $ENV{'pbench_install_dir'}; # typically /opt/pbench-agent
-    chomp $dir;
-    return $dir;
-}
-
-sub get_pbench_config_dir {
-    return get_pbench_install_dir() . "/config";
-}
-
-sub get_pbench_bench_config_dir {
-    return get_pbench_install_dir() . "/config/benchmark";
 }
 
 # Process @ARGV-like array and return a hash with key=argument and value=value
@@ -155,7 +138,7 @@ sub get_pbench_datetime { #our common date & time forma
 sub get_benchmark_results_dir {
     my $benchmark = shift;
     my $config = shift;
-    my $basedir = get_pbench_run_dir();
+    my $basedir = $pbench_env{'run'};
     my $datetime = get_pbench_datetime();
     my $benchdir = $basedir . "/" . $benchmark . "_" . $config . "_" . $datetime;
 }
@@ -171,8 +154,9 @@ sub load_benchmark_config {
 
 sub metadata_log_begin_run {
     my $benchmark_run_dir = shift;
+    my $benchmark_name = shift;
     my $group = shift;
-    system("pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " beg");
+    system(". " . $pbench_env{'install_dir'} . "/base; benchmark=" . $benchmark_name . " pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " beg");
 }
 
 sub metadata_log_end_run {
@@ -193,11 +177,11 @@ sub metadata_log_end_run {
     my $benchmark_run_name = $benchmark_run_dir;
     $benchmark_run_name =~ s/.*\///g;
 
-    system("echo " . $benchmark_run_name . " | pbench-add-metalog-option " . $mdlog . " pbench name");
-    system("echo " . $iteration_names  . " | pbench-add-metalog-option " . $mdlog . " pbench iterations");
-    system("echo " . $config  . " | pbench-add-metalog-option " . $mdlog . " pbench config");
-    system("echo " . $benchmark_name  . " | pbench-add-metalog-option " . $mdlog . " pbench script");
-    system("benchmark=" . $benchmark_name . " pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " end");
+    system(". " . $pbench_env{'install_dir'} . "/base; echo " . $benchmark_run_name . " | pbench-add-metalog-option " . $mdlog . " pbench name");
+    system(". " . $pbench_env{'install_dir'} . "/base; echo " . $iteration_names  . " | pbench-add-metalog-option " . $mdlog . " pbench iterations");
+    system(". " . $pbench_env{'install_dir'} . "/base; echo " . $config  . " | pbench-add-metalog-option " . $mdlog . " pbench config");
+    system(". " . $pbench_env{'install_dir'} . "/base; echo " . $benchmark_name  . " | pbench-add-metalog-option " . $mdlog . " pbench script");
+    system(". " . $pbench_env{'install_dir'} . "/base; benchmark=" . $benchmark_name . " pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " end");
 }
 
 sub metadata_log_record_iteration {
@@ -209,13 +193,13 @@ sub metadata_log_record_iteration {
     my $iteration_name = $num . "__" . $iteration_label;
 
     my $mdlog = $benchmark_run_dir . "/metadata.log";
-    system("echo " . $num .      " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_number");
-    system("echo " . $iteration_name  . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_name");
+    system(". " . $pbench_env{'install_dir'} . "/base; echo " . $num .      " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_number");
+    system(". " . $pbench_env{'install_dir'} . "/base; echo " . $iteration_name  . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_name");
     my @params = split(/\s+/, $iteration_params);
     while (scalar @params > 0) {
         my $param = shift @params;
         if ($param =~ /\-\-(\S+)\=(\S+)/) {
-            system("echo " . $2 . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " " . $1);
+            system(". " . $pbench_env{'install_dir'} . "/base; echo " . $2 . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " " . $1);
         }
     }
 
