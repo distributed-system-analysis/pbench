@@ -44,11 +44,10 @@
 
 - name: ensure reception areas and quarantine areas are present
   file:
-    path: "{{ pbench_reception_dir }}/{{ item }}"
+    path: "{{ pbench_reception_dir_prefix }}-{{ item }}"
     owner: "{{ pbench_user }}"
     group: "{{ pbench_group }}"
     mode:  0775
     state: directory
   with_items:
-    - fs-version-001
-    - fs-version-002
+    - 002

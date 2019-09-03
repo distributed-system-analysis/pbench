@@ -97,10 +97,10 @@
     CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
-    pbench_reception_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
+    pbench_reception_dir_prefix: "{{ cmd_output.stdout_lines[0].strip() }}"
 
 - debug:
-    msg: "{{ pbench_reception_dir }}"
+    msg: "{{ pbench_reception_dir_prefix }}"
     verbosity: 1
 
 # httpd document root
