@@ -50,4 +50,4 @@
     mode:  0775
     state: directory
   with_items:
-    - 002
+    - "002"
