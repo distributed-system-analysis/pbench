@@ -12,6 +12,7 @@ import configtools
 import shutil
 import hashlib
 
+from logging import handlers
 from time import time as _time
 from datetime import datetime, tzinfo, timedelta
 from functools import partial
@@ -143,7 +144,8 @@ def get_pbench_logger(caller, config):
 
     We also return a logger that supports "brace" style message formatting,
     e.g. logger.warning("that = {}", that)
-    """
+    """ 
+
     pbench_logger = logging.getLogger(caller)
     if caller not in _handlers:
         pbench_logger.setLevel(logging.DEBUG)
@@ -153,16 +155,25 @@ def get_pbench_logger(caller, config):
         except FileExistsError:
             # directory already exists, ignore
             pass
-        fh = logging.FileHandler(os.path.join(logdir, "{}.log".format(caller)))
-        fh.setLevel(logging.DEBUG)
+
+        if config.logger_type == "file":
+            handler = logging.FileHandler(os.path.join(logdir, "{}.log".format(caller)))
+        elif config.logger_type == "devlog":
+            handler = handlers.SysLogHandler(address='/dev/log')
+        elif config.logger_type == "hostport":         #hostport logger type uses UDP-based logging
+            handler = handlers.SysLogHandler(address=(config.logger_host, int(config.logger_port)))
+        else:
+            raise Exception("Unsupported logger type")
+        
+        handler.setLevel(logging.DEBUG)
         if not config._unittests:
             logfmt = "{asctime} {levelname} {process} {thread} {name}.{module} {funcName} {lineno} -- {message}"
         else:
             logfmt = "1970-01-01T00:00:00.000000 {levelname} {name}.{module} {funcName} -- {message}"
         formatter = _PbenchLogFormatter(fmt=logfmt)
-        fh.setFormatter(formatter)
-        _handlers[caller] = fh
-        pbench_logger.addHandler(fh)
+        handler.setFormatter(formatter)
+        _handlers[caller] = handler
+        pbench_logger.addHandler(handler)
     return _StyleAdapter(pbench_logger)
 
 
@@ -179,7 +190,6 @@ class PbenchConfig(object):
         # Enumerate the list of files
         config_files = configtools.file_list(cfg_name)
         config_files.reverse()
-
         self.conf = ConfigParser()
         self.files = self.conf.read(config_files)
 
@@ -195,7 +205,6 @@ class PbenchConfig(object):
             if not os.path.isdir(self.BINDIR): raise BadConfig("Bad BINDIR={}".format(self.BINDIR))
             self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
             if not os.path.isdir(self.LIBDIR): raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))
-
             # the scripts may use this to send status messages
             self.mail_recipients = self.conf.get("pbench-server", "mailto")
         except (NoOptionError, NoSectionError) as exc:
@@ -216,6 +225,18 @@ class PbenchConfig(object):
             self.COMMIT_ID = self.conf.get("pbench-server", "commit_id")
         except NoOptionError:
             self.COMMIT_ID = "(unknown)"
+        
+        try:
+            self.logger_type = self.conf.get("logging", "logger_type")
+        except (NoOptionError, NoSectionError):
+            self.logger_type = "devlog"
+        else:
+            if self.logger_type == "hostport":
+                try:
+                    self.logger_host = self.conf.get("logging", "logger_host")
+                    self.logger_port = self.conf.get("logging", "logger_port")
+                except(NoOptionError) as exc:
+                    raise BadConfig(str(exc))
 
         try:
             self._unittests = self.conf.get('pbench-server', 'debug_unittest')
