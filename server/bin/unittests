@@ -49,6 +49,7 @@ function _run {
     else
         echo "+++ Running ${tname} ${@}" >> ${_testout}
     fi
+    export PYTHONPATH=${_testopt}/lib:$PYTHONPATH
     ${tname} ${@} >> ${_testout} 2>&1
     echo "--- Finished ${tname} (status=${?})" >> ${_testout}
 }
@@ -302,6 +303,7 @@ function _setup_state {
 
     # Expected location of the final configuration files
     export CONFIG=$_testopt/lib/config/pbench-server.cfg
+    export LOGSDIR=$_testdir_local/logs
     export SATCONFIG=$_testopt_sat/lib/config/pbench-server.cfg
 
     # The activate invocations are supposed to work without CONFIG being set,
@@ -314,6 +316,12 @@ function _setup_state {
     _state_config="${_tdir}/state/${1}.config/pbench-server.cfg"
     if [ ! -e ${_state_config} ]; then
         _state_config="${_tdir}/state/config/pbench-server.cfg"
+    else
+        # the testcase-specific config file includes the global state config file
+        # but under the name "state-pbench-server.cfg" to prevent conflicts. It also
+        # gets the default section below, so we have to include the install-dir line in it
+        # and delete it from the global state config file.
+        sed 1d "${_tdir}/state/config/pbench-server.cfg" > ${_testopt}/lib/config/state-pbench-server.cfg
     fi
     > ${_testtmp}/pbench-server.cfg
     printf "[DEFAULT]\n"                   >> ${_testtmp}/pbench-server.cfg
@@ -340,6 +348,12 @@ function _setup_state {
     _state_config="${_tdir}/state/${1}.config-satellite/pbench-server.cfg"
     if [ ! -e ${_state_config} ]; then
         _state_config="${_tdir}/state/config-satellite/pbench-server.cfg"
+    else
+        # the testcase-specific config file includes the global state config file
+        # but under the name "state-pbench-server.cfg" to prevent conflicts. It also
+        # gets the default section below, so we have to include the install-dir line in it
+        # and delete it from the global state config file.
+        sed 1d "${_tdir}/state/config/pbench-server.cfg" > ${_testopt}/lib/config/state-pbench-server.cfg
     fi
     > ${_testtmp}/pbench-server.cfg
     printf "[DEFAULT]\n"                   >> ${_testtmp}/pbench-server.cfg
@@ -462,8 +476,10 @@ function _reset_state {
 
     export PATH=${_orig_PATH}
     unset CONFIG
+    unset LOGSDIR
     unset SATCONFIG
 
+    rm -f ${_testopt}/lib/config/state-pbench-server.cfg
     rm -f $_testactout
     rm -f $_testlog
     rm -f $_testactlog
@@ -678,6 +694,19 @@ declare -A cmds=(
     # Tests that the behavior of the find command works as we expect to
     # ensure that buckets for pbench-unpack-tarballs work properly.
     [test-25]="_run test-find-behavior"
+
+    # Test to Log messages on File
+    [test-26.1]="_run test_logger_type.py"
+
+    # Test to Log messages on devlog
+    [test-26.2]="_run test_logger_type.py" 
+
+    # Test to check error when logger_port and logger_host are not provided with hostport
+    [test-26.3]="_run test_logger_type.py"
+
+    # Test to Log messages on hostport with logger-host and logger_port
+    [test-26.4]="_run test_logger_type.py"  
+
 )
 all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\+\)-\([0-9]\+\)/\1.\2/')
 
