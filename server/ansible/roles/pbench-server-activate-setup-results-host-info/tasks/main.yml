@@ -10,7 +10,7 @@
 - name: "set up active files"
   copy:
     dest:  "{{ httpd_document_root_dir }}/{{ pbench_host_info_prefix }}{{ item }}.active"
-    content: "{{ pbench_user}}@{{ pbench_host }}:{{ pbench_reception_dir }}-{{ item }}\n"
+    content: "{{ pbench_user}}@{{ pbench_host }}:{{ pbench_reception_dir_prefix }}-{{ item }}\n"
     owner: "{{ pbench_user }}"
     group: "{{ pbench_group }}"
     mode:  0444
