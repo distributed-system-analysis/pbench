@@ -103,6 +103,28 @@ $ yarn test
 
 This will run test cases for all files referenced with a `*.test.js` or `*.e2e.js` naming schema. 
 
+## Installing private packages with yarn and npm
+
+If you are using npm packages to distribute common utilities across projects, the dashboard can be configured to pull private packages from an internal npm server. 
+
+To enable pulling packages from different registries, populate the `.npmrc` and `.yarnrc` files at the root of the project with the following fields:
+
+.npmrc 
+
+```
+registry=https://repository.example.com/repository/
+cafile=example.crt
+```
+
+.yarnrc
+
+```
+registry "https://repository.example.com/repository/"
+cafile example.crt
+```
+
+Please note that the `cafile` field is optional for registries that require Certificate Authority signing certificates. Example files (`example.npmrc` and `example.yarnrc`) have been included at the root of the project with the required fields and example values.
+
 ## Template
 
 This application is based on v1 of Ant Design Pro which is a production-ready UI solution for admin interfaces. For more information regarding the foundation and template of the application, please visit [https://v1.pro.ant.design/docs/getting-started](https://v1.pro.ant.design/docs/getting-started).
