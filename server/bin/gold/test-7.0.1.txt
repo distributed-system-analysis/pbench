@@ -3049,12 +3049,18 @@ Template: pbench-unittests.v3.result-data
             "analyzer": {
                 "comma_analyzer": {
                     "tokenizer": "comma_tokenizer"
+                },
+                "path_analyzer": {
+                    "tokenizer": "path_tokenizer"
                 }
             },
             "tokenizer": {
                 "comma_tokenizer": {
                     "pattern": ",",
                     "type": "pattern"
+                },
+                "path_tokenizer": {
+                    "type": "path_hierarchy"
                 }
             }
         },
@@ -3435,10 +3441,10 @@ Template: pbench-unittests.v3.server-reports
                     "type": "string"
                 },
                 "total_chunks": {
-                    "type": "integer"
+                    "type": "long"
                 },
                 "total_size": {
-                    "type": "integer"
+                    "type": "long"
                 }
             }
         }

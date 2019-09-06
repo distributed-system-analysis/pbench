@@ -49,10 +49,10 @@
                 "type": "string"
             },
             "total_chunks": {
-                "type": "integer"
+                "type": "long"
             },
             "total_size": {
-                "type": "integer"
+                "type": "long"
             }
         }
     }

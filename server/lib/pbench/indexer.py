@@ -1001,12 +1001,11 @@ class ResultData(PbenchData):
                 self.counters['not_valid_json_file'] += 1
                 continue
 
-            # The outer results object shoul be an array of iterations. Probe
+            # The outer results object should be an array of iterations. Probe
             # to see if that is true.
             if not isinstance(results, list):
                 self.logger.warning("result-data-indexing: encountered unexpected"
                         " JSON file format, %s" % (result_json,))
-                self.counters['unexpected_json_file_format'] += 1
                 continue
 
             for iteration in results:
@@ -2784,13 +2783,17 @@ def mk_tool_data(ptb, idxctx):
         samples = get_samples(ptb, iteration)
         for sample in samples:
             for host_tools in tools_array:
-                if not host_tools['tools']:
+                try:
+                    tools_data = host_tools['tools']
+                except KeyError:
+                    # No actual tools found.
                     continue
-                tool_names = list(host_tools['tools'].keys())
+                hostname = host_tools['hostname']
+                tool_names = list(tools_data.keys())
                 tool_names.sort()
                 for tool in tool_names:
                     yield ToolData(ptb, iteration, sample,
-                            host_tools['hostname'], tool, idxctx)
+                            hostname, tool, idxctx)
     return
 
 def mk_tool_data_actions(ptb, idxctx):
