@@ -11493,7 +11493,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--       3946 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       4333 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       3432 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
@@ -11563,6 +11563,10 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [1 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [1 tools processed]
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _stdout_keyval -- tool-data-indexing: tool proc-vmstat, stdout keyval start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat/proc-vmstat-stdout.txt

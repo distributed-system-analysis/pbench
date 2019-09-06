@@ -5546,7 +5546,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--       5284 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       5671 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       3327 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
@@ -5616,6 +5616,10 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [2 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [1 tools processed]
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool iostat, start unified for fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool iostat, end unified for fio_rw_2018.02.01T22.40.57/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat

@@ -8644,7 +8644,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--      38456 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--      38843 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       3432 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
@@ -8714,6 +8714,10 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [1 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [1 tools processed]
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu0_cpu0.csv
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu0_cpu0.csv
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_individual -- tool-data-indexing: tool mpstat, individual start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv/cpu10_cpu10.csv
