@@ -98,19 +98,6 @@ len(actions) = 30
             "@timestamp": "2018-10-04T06:53:52.212763",
             "host_tools_info": [
                 {
-                    "hostname": "rhel8-4",
-                    "tools": {
-                        "iostat": "--interval=3",
-                        "mpstat": "--interval=3",
-                        "perf": "--record-opts=record -a --freq=100",
-                        "pidstat": "--interval=30",
-                        "proc-interrupts": "--interval=3",
-                        "proc-vmstat": "--interval=3",
-                        "sar": "--interval=3",
-                        "turbostat": "--interval=3"
-                    }
-                },
-                {
                     "hostname": "10.10.10.103",
                     "hostname-s": "rhel8-6",
                     "tools": {
@@ -127,6 +114,19 @@ len(actions) = 30
                 {
                     "hostname": "10.10.10.71",
                     "hostname-s": "rhel8-5",
+                    "tools": {
+                        "iostat": "--interval=3",
+                        "mpstat": "--interval=3",
+                        "perf": "--record-opts=record -a --freq=100",
+                        "pidstat": "--interval=30",
+                        "proc-interrupts": "--interval=3",
+                        "proc-vmstat": "--interval=3",
+                        "sar": "--interval=3",
+                        "turbostat": "--interval=3"
+                    }
+                },
+                {
+                    "hostname": "rhel8-4",
                     "tools": {
                         "iostat": "--interval=3",
                         "mpstat": "--interval=3",
@@ -10858,7 +10858,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--      18833 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--      19220 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       3408 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
@@ -10928,6 +10928,10 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [3 tools processed]
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool iostat, start unified for uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-6/iostat
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-6/iostat
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool iostat, end unified for uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-6/iostat

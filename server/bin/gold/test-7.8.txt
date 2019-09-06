@@ -94,20 +94,6 @@ len(actions) = 30
             "@timestamp": "2016-10-06T16:34:08.098427",
             "host_tools_info": [
                 {
-                    "hostname": "master_40gb",
-                    "hostname-f": "master_40gb",
-                    "tools": {
-                        "iostat": "--interval=3",
-                        "mpstat": "--interval=3",
-                        "perf": "--record-opts=record -a --freq=100",
-                        "pidstat": "--interval=3",
-                        "proc-interrupts": "--interval=3",
-                        "proc-vmstat": "--interval=3",
-                        "sar": "--interval=3",
-                        "turbostat": "--interval=3"
-                    }
-                },
-                {
                     "hostname": "flat7_40gb",
                     "hostname-f": "flat7_40gb",
                     "tools": {
@@ -124,6 +110,20 @@ len(actions) = 30
                 {
                     "hostname": "flat8_40gb",
                     "hostname-f": "flat8_40gb",
+                    "tools": {
+                        "iostat": "--interval=3",
+                        "mpstat": "--interval=3",
+                        "perf": "--record-opts=record -a --freq=100",
+                        "pidstat": "--interval=3",
+                        "proc-interrupts": "--interval=3",
+                        "proc-vmstat": "--interval=3",
+                        "sar": "--interval=3",
+                        "turbostat": "--interval=3"
+                    }
+                },
+                {
+                    "hostname": "master_40gb",
+                    "hostname-f": "master_40gb",
                     "tools": {
                         "iostat": "--interval=3",
                         "mpstat": "--interval=3",
@@ -9192,7 +9192,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--      29468 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--      29855 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       3332 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
@@ -9262,6 +9262,10 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [6 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [3 tools processed]
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool iostat, start unified for uperf__2016-10-06_16:34:03/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool iostat, gen unified begin for uperf__2016-10-06_16:34:03/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool iostat, end unified for uperf__2016-10-06_16:34:03/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat

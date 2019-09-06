@@ -324,6 +324,8 @@ class PbenchTemplates(object):
                 mappings=tool_mapping)
             self.templates[tool_template_name] = tool_template_body
 
+        self.counters = Counter()
+
     index_patterns = {
         'result-data': {
             'idxname':       "result-data",
@@ -421,6 +423,7 @@ class PbenchTemplates(object):
                 _beg, _end, _retries = es_put_template(es,
                         name=name, body=self.templates[name])
             except Exception as e:
+                self.counters['put_template_failures'] += 1
                 raise TemplateError(e)
             else:
                 successes += 1
@@ -439,6 +442,7 @@ class PbenchTemplates(object):
             template = self.index_patterns[template_name]['template']
             idxname_tmpl = self.index_patterns[template_name]['idxname']
         except KeyError as e:
+            self.counters['invalid_template_name'] += 1
             raise Exception("Invalid template name, '{}': {}".format(
                 template_name, e))
         if toolname is not None:
@@ -446,6 +450,7 @@ class PbenchTemplates(object):
             try:
                 version = self.versions[idxname]
             except KeyError as e:
+                self.counters['invalid_tool_index_name'] += 1
                 raise Exception("Invalid tool index name for version, '{}':"
                     " {}".format(idxname, e))
         else:
@@ -453,6 +458,7 @@ class PbenchTemplates(object):
             try:
                 version = self.versions[template_name]
             except KeyError as e:
+                self.counters['invalid_template_name'] += 1
                 raise Exception("Invalid index template name for version,"
                     " '{}': {}".format(idxname, e))
         try:
@@ -462,6 +468,7 @@ class PbenchTemplates(object):
             raise BadDate("missing @timestamp in a source document:"
                     " {!r}".format(source))
         except TypeError as e:
+            self.counters['bad_source'] += 1
             raise Exception("Failed to generate index name, {!r}, source:"
                     " {!r}".format(e, source))
         year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
@@ -845,7 +852,10 @@ class ResultData(PbenchData):
         super().__init__(ptb, idxctx)
 
         self.idxctx.opctx.append(
-            _dict_const(object="ResultData", counters=self.counters))
+            _dict_const(
+                    tbname=ptb.tbname,
+                    object="ResultData",
+                    counters=self.counters))
         self.json_dirs = None
         try:
             self.json_dirs = ResultData.get_result_json_dirs(ptb)
@@ -858,7 +868,9 @@ class ResultData(PbenchData):
         Fetch the list of directories containing result.json files for this
         experiment; return a list directory path names.
         """
-        paths = [x for x in ptb.tb.getnames() if (os.path.basename(x) == "result.json") and ptb.tb.getmember(x).isfile()]
+        paths = [x for x in ptb.tb.getnames()
+                if (os.path.basename(x) == "result.json")
+                    and ptb.tb.getmember(x).isfile()]
         dirnames = []
         for p in paths:
             dirnames.append(os.path.dirname(p))
@@ -900,8 +912,6 @@ class ResultData(PbenchData):
             'throughput': ['iops_sec']
         },
         "trafficgen": {
-        },
-        "moongen": {
         },
         "user-benchmark": {
         }
@@ -1212,6 +1222,10 @@ class ResultData(PbenchData):
                             except KeyError:
                                 self.counters['sample_missing_timeseries'] += 1
                                 continue
+                            else:
+                                if not tseries:
+                                    self.counters['sample_empty_timeseries'] += 1
+                                    continue
                             start = tseries[0]
                             end = tseries[-1]
                             try:
@@ -1726,7 +1740,11 @@ class ToolData(PbenchData):
     def __init__(self, ptb, iteration, sample, host, tool, idxctx):
         super().__init__(ptb, idxctx)
         self.toolname = tool
-        idxctx.opctx.append(_dict_const(object="ToolData-%s" % (tool), counters=self.counters))
+        idxctx.opctx.append(_dict_const(
+                tbname=ptb.tbname,
+                object="ToolData-%s-%s-%s-%s" % (
+                    iteration, sample, host, tool),
+                counters=self.counters))
         try:
             iterseqno = int(iteration.split('-', 1)[0])
         except ValueError:
@@ -2685,60 +2703,23 @@ def get_samples(ptb, iteration):
     samples.sort()
     return samples
 
-def get_hosts(mdconf, logger):
-    try:
-        # N.B. Space-separated list
-        hosts = mdconf.get("tools", "hosts")
-    except ConfigParserError:
-        logger.exception("ConfigParser error in get_hosts: tool data will"
-                " *not* be indexed -- this is most probably a bug: please open"
-                " an issue")
-        return []
-    except NoSectionError:
-        logger.warning("No [tools] section in metadata.log: tool data will"
-                " *not* be indexed.")
-        return []
-    except NoOptionError:
-        logger.warning("No \"hosts\" option in [tools] section in metadata"
-                " log: tool data will *NOT* be indexed.")
-        return []
-    hosts_set = set(hosts.split())
-    hosts = list(hosts_set)
-    hosts.sort()
-    return hosts
-
-def get_tools(host, mdconf, logger):
-    try:
-        tools = mdconf.options("tools/{}".format(host))
-    except ConfigParserError:
-        logger.exception("ConfigParser error in get_tools: tool data will"
-                " *not* be indexed -- this is most probably a bug: please open"
-                " an issue")
-        return []
-    except NoSectionError:
-        logger.warning("No [tools/{}] section in metadata.log: tool data will"
-                " *not* be indexed", host)
-        return []
-    except NoOptionError:
-        logger.warning("No tools in [tools/{}] section in metadata log: tool"
-                " data will *NOT* be indexed", host)
-        return []
-    # Be sure we don't include tool metadata
-    tools_list = [ tool for tool in set(tools) \
-            if not tool.startswith("remote@") and tool not in ("hostname-s", "label") ]
-    tools_list.sort()
-    return tools_list
-
 def mk_tool_data(ptb, idxctx):
+    # Process the sosreports to ensure we get all the information about the
+    # host names for the tools.
+    sos_d = mk_sosreports(ptb.tb, ptb.extracted_root, idxctx.logger)
+    tools_array = mk_tool_info(sos_d, ptb.mdconf, idxctx.logger)
     iterations = get_iterations(ptb)
     for iteration in iterations:
         samples = get_samples(ptb, iteration)
         for sample in samples:
-            hosts = get_hosts(ptb.mdconf, idxctx.logger)
-            for host in hosts:
-                tools = get_tools(host, ptb.mdconf, idxctx.logger)
-                for tool in tools:
-                    yield ToolData(ptb, iteration, sample, host, tool, idxctx)
+            for host_tools in tools_array:
+                if not host_tools['tools']:
+                    continue
+                tool_names = list(host_tools['tools'].keys())
+                tool_names.sort()
+                for tool in tool_names:
+                    yield ToolData(ptb, iteration, sample,
+                            host_tools['hostname'], tool, idxctx)
     return
 
 def mk_tool_data_actions(ptb, idxctx):
@@ -2855,51 +2836,94 @@ def get_hostname_f_from_sos_d(sos_d, host=None, ip=None):
     else:
         return search_by_ip(sos_d, ip)
 
+def get_section_items(section, mdconf, logger):
+    try:
+        section_items = mdconf.items(section)
+    except NoSectionError:
+        logger.warning("No [{}] section in metadata.log: tool data will"
+                " *not* be indexed", section)
+        return []
+    except ConfigParserError:
+        logger.exception("ConfigParser error in get_section_items: tool data"
+                " will *not* be indexed -- this is most probably a bug: please"
+                " open an issue")
+        return []
+    section_items.sort()
+    return section_items
+
+def get_hosts(mdconf, logger):
+    try:
+        # N.B. Space-separated list
+        hosts = mdconf.get("tools", "hosts")
+    except NoSectionError:
+        logger.warning("No [tools] section in metadata.log: tool data will"
+                " *not* be indexed.")
+        return []
+    except NoOptionError:
+        logger.warning("No \"hosts\" option in [tools] section in metadata"
+                " log: tool data will *NOT* be indexed.")
+        return []
+    except ConfigParserError:
+        logger.exception("ConfigParser error in get_hosts: tool data will"
+                " *not* be indexed -- this is most probably a bug: please open"
+                " an issue")
+        return []
+    hosts_set = set(hosts.split())
+    hosts = list(hosts_set)
+    hosts.sort()
+    return hosts
+
 def mk_tool_info(sos_d, mdconf, logger):
     """Return a dict containing tool info (local and remote)"""
     logger.debug("start")
     tools_array = []
     try:
         labels = _dict_const()
-        for host in mdconf.get("tools", "hosts").split():
+        for host in get_hosts(mdconf, logger):
+            section = "tools/{}".format(host)
+            section_items = get_section_items(section, mdconf, logger)
+            if not section_items:
+                # No tools for this host, skip it.
+                continue
+
             tools_info = _dict_const()
+
             # XXX - we should have an FQDN for the host but
             # sometimes we have only an IP address.
             tools_info['hostname'] = host
-            # import pdb; pdb.set_trace()
             if valid_ip(host):
                 full_hostname = get_hostname_f_from_sos_d(sos_d, ip=host)
             else:
                 full_hostname = get_hostname_f_from_sos_d(sos_d, host=host)
             if full_hostname:
                 tools_info['hostname-f'] = full_hostname
-            section = "tools/{}".format(host)
-            items = mdconf.items(section)
-            options = mdconf.options(section)
-            if 'label' in options:
-                tools_info['label'] = mdconf.get(section, 'label')
 
-            # process remote entries for a label and remember them in the labels dict
-            remoteitems = [x for x in items if x[0].startswith('remote@') and x[1]]
-            for (k,v) in remoteitems:
-                host = k.replace('remote@', '', 1)
-                labels[host] = v
-
-            # now, forget about any label or remote entries - they have been dealt with.
-            items = [x for x in items if x[0] != 'label' and not x[0].startswith('remote')]
-
+            # Process the list of items to extract all the tools, remotes and
+            # their labels, short host names, and the local label.
             tools = _dict_const()
-            tools.update(items)
-            try:
-                hostname_s = tools['hostname-s']
-            except KeyError:
-                pass
-            else:
-                # Move the tool/host "hostname-s" value to the tools_info level.
-                if tools_info['hostname'] != hostname_s:
-                    tools_info['hostname-s'] = hostname_s
-                del tools['hostname-s']
-            tools_info['tools'] = tools
+            for k,v in section_items:
+                if k == 'label':
+                    # Local label
+                    if v:
+                        tools_info['label'] = v
+                    continue
+                if k == 'hostname-s':
+                    # Move the tool/host "hostname-s" value to the tools_info level.
+                    if tools_info['hostname'] != v:
+                        tools_info['hostname-s'] = v
+                    continue
+                if k.startswith('remote@'):
+                    # Process remote entries for a label and remember them in
+                    # the labels dict.
+                    if v:
+                        rhost = k.replace('remote@', '', 1)
+                        labels[rhost] = v
+                    continue
+                # Otherwise, it must be a tool key / value pair, where the key
+                # is the name of the tool, and the value is the tool options.
+                tools[k] = v
+            if tools:
+                tools_info['tools'] = tools
             tools_array.append(tools_info)
 
         # now process remote labels
@@ -3532,13 +3556,13 @@ class IdxContext(object):
         self.tracking_id = None
 
     def dump_opctx(self):
-        dump = False
+        counters_list = []
         for ctx in self.opctx:
             if ctx['counters']:
-                dump = True
-        if dump:
-            self.logger.error("** Errors encountered while indexing: {}",
-                    json.dumps(self.opctx, sort_keys=True))
+                counters_list.append(ctx)
+        if counters_list:
+            self.logger.warning("** Errors encountered while indexing: {}",
+                    json.dumps(counters_list, sort_keys=True))
 
     def set_tracking_id(self, tid):
         self.tracking_id = tid

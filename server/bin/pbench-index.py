@@ -297,20 +297,20 @@ def main(options, name):
                         es_res = es_index(idxctx.es, actions, fp,
                                 idxctx.logger, idxctx._dbg)
                 except UnsupportedTarballFormat as e:
-                    idxctx.logger.error("Unsupported tar ball format: {}", e)
+                    idxctx.logger.warning("Unsupported tar ball format: {}", e)
                     tb_res = 4
                 except BadDate as e:
-                    idxctx.logger.error("Bad Date: {!r}", e)
+                    idxctx.logger.warning("Bad Date: {!r}", e)
                     tb_res = 5
                 except _filenotfounderror as e:
-                    idxctx.logger.error("No such file: {}", e)
+                    idxctx.logger.warning("No such file: {}", e)
                     tb_res = 6
                 except BadMDLogFormat as e:
-                    idxctx.logger.error("The metadata.log file is curdled in"
+                    idxctx.logger.warning("The metadata.log file is curdled in"
                             " tar ball: {}", e)
                     tb_res = 7
                 except SosreportHostname as e:
-                    idxctx.logger.error("Bad hostname in sosreport: {}", e)
+                    idxctx.logger.warning("Bad hostname in sosreport: {}", e)
                     tb_res = 10
                 except tarfile.TarError as e:
                     idxctx.logger.error("Can't unpack tar ball into {}: {}",
