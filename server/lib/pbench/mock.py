@@ -160,7 +160,18 @@ class _MockStreamingBulk(object):
                 print("Missing type")
                 return False
             if isinstance(source, list):
-                if mtype != 'nested':
+                if mtype == 'string':
+                    # If a list only contains strings then to Elasticsearch it
+                    # is as if the strings were all concatenated together
+                    # separated by spaces and tokenized.
+                    for item in source:
+                        if not isinstance(item, str):
+                            print("List contains an element of type, {}, when"
+                                    " expecting only strings".format(
+                                        type(item)))
+                            return False
+                    return True
+                elif mtype != 'nested':
                     # Fail first because the mapping type is not 'nested'
                     # for a list object.
                     print("Type list not nested")
@@ -171,16 +182,20 @@ class _MockStreamingBulk(object):
                 print("List type without a properties entry")
                 return False
             if mtype in ('string', 'date', 'ip'):
-                if not isinstance(source, str):
+                if source is not None and not isinstance(source, str):
                     print("Expected 'str'")
                     ret_val = False
             elif mtype in ('integer', 'long'):
-                if not isinstance(source, int):
+                if source is not None and not isinstance(source, int):
                     print("Expected 'int'")
                     ret_val = False
             elif mtype in ('float', 'double'):
-                if not isinstance(source, float) and not isinstance(source, int):
+                if source is not None and not isinstance(source, float) and not isinstance(source, int):
                     print("Expected 'float' or 'int'")
+                    ret_val = False
+            elif mtype in ('boolean',):
+                if source is not None and not isinstance(source, bool):
+                    print("Expected 'bool'")
                     ret_val = False
             else:
                 print("Unrecognized type: {}".format(mtype))

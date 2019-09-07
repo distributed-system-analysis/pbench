@@ -1,355 +1,6 @@
 +++ Running pbench-index --dump-templates
 
 
-Template: pbench-unittests.v2.result-data
-
-{
-    "mappings": {
-        "pbench-result-data": {
-            "_all": {
-                "enabled": false
-            },
-            "_meta": {
-                "version": "2"
-            },
-            "_parent": {
-                "type": "pbench-result-data-sample"
-            },
-            "date_detection": false,
-            "properties": {
-                "@timestamp": {
-                    "format": "dateOptionalTime",
-                    "type": "date"
-                },
-                "@timestamp_original": {
-                    "type": "long"
-                },
-                "iteration": {
-                    "properties": {
-                        "name": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "number": {
-                            "type": "long"
-                        }
-                    }
-                },
-                "result": {
-                    "properties": {
-                        "@idx": {
-                            "type": "long"
-                        },
-                        "read_or_write": {
-                            "type": "long"
-                        },
-                        "value": {
-                            "type": "double"
-                        }
-                    }
-                },
-                "run": {
-                    "properties": {
-                        "id": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "name": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        }
-                    }
-                },
-                "sample": {
-                    "properties": {
-                        "@idx": {
-                            "type": "long"
-                        },
-                        "measurement_type": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "measurement_units": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "name": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "uid": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "pbench-result-data-sample": {
-            "_all": {
-                "enabled": false
-            },
-            "_meta": {
-                "version": "2"
-            },
-            "date_detection": false,
-            "properties": {
-                "@generated-by": {
-                    "index": "not_analyzed",
-                    "type": "string"
-                },
-                "@timestamp": {
-                    "format": "dateOptionalTime",
-                    "type": "date"
-                },
-                "@timestamp_original": {
-                    "type": "long"
-                },
-                "benchmark": {
-                    "properties": {
-                        "bs": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "clients": {
-                            "analyzer": "comma_analyzer",
-                            "type": "string"
-                        },
-                        "clocksource": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "closest_sample": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "direct": {
-                            "type": "string"
-                        },
-                        "filename": {
-                            "type": "string"
-                        },
-                        "instances": {
-                            "type": "long"
-                        },
-                        "iodepth": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "ioengine": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "log_avg_msec": {
-                            "type": "string"
-                        },
-                        "log_hist_msec": {
-                            "type": "string"
-                        },
-                        "max_stddevpct": {
-                            "type": "double"
-                        },
-                        "message_size_bytes": {
-                            "type": "long"
-                        },
-                        "name": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "numjobs": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "primary_metric": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "protocol": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "ramp_time": {
-                            "type": "string"
-                        },
-                        "runtime": {
-                            "type": "string"
-                        },
-                        "rw": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "servers": {
-                            "analyzer": "comma_analyzer",
-                            "type": "string"
-                        },
-                        "size": {
-                            "type": "string"
-                        },
-                        "sync": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "test_type": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "time_based": {
-                            "type": "string"
-                        },
-                        "uid": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "uid_tmpl": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "version": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "iteration": {
-                    "properties": {
-                        "name": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "number": {
-                            "type": "long"
-                        }
-                    }
-                },
-                "run": {
-                    "properties": {
-                        "config": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "controller": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "date": {
-                            "type": "date"
-                        },
-                        "end": {
-                            "type": "date"
-                        },
-                        "id": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "name": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "script": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "start": {
-                            "type": "date"
-                        },
-                        "toolsgroup": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        }
-                    }
-                },
-                "sample": {
-                    "properties": {
-                        "@idx": {
-                            "type": "long"
-                        },
-                        "client_hostname": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "closest_sample": {
-                            "type": "long"
-                        },
-                        "description": {
-                            "type": "string"
-                        },
-                        "end": {
-                            "type": "date"
-                        },
-                        "mean": {
-                            "type": "double"
-                        },
-                        "measurement_type": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "measurement_units": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "name": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "role": {
-                            "type": "string"
-                        },
-                        "server_hostname": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "server_port": {
-                            "type": "string"
-                        },
-                        "start": {
-                            "type": "date"
-                        },
-                        "stddev": {
-                            "type": "double"
-                        },
-                        "stddevpct": {
-                            "type": "double"
-                        },
-                        "uid": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "uid_tmpl": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "value": {
-                            "type": "double"
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "settings": {
-        "analysis": {
-            "analyzer": {
-                "comma_analyzer": {
-                    "tokenizer": "comma_tokenizer"
-                }
-            },
-            "tokenizer": {
-                "comma_tokenizer": {
-                    "pattern": ",",
-                    "type": "pattern"
-                }
-            }
-        },
-        "index": {
-            "query": {
-                "default_field": "@metadata.experiment"
-            }
-        }
-    },
-    "template": "pbench-unittests.v2.result-data.*"
-}
-
-
-
 Template: pbench-unittests.v2.tool-data-iostat
 
 {
@@ -2697,6 +2348,723 @@ Template: pbench-unittests.v2.tool-data-vmstat
         }
     },
     "template": "pbench-unittests.v2.tool-data-vmstat.*"
+}
+
+
+
+Template: pbench-unittests.v3.result-data
+
+{
+    "mappings": {
+        "pbench-result-data": {
+            "_all": {
+                "enabled": false
+            },
+            "_meta": {
+                "version": "3"
+            },
+            "_parent": {
+                "type": "pbench-result-data-sample"
+            },
+            "date_detection": false,
+            "properties": {
+                "@timestamp": {
+                    "format": "dateOptionalTime",
+                    "type": "date"
+                },
+                "@timestamp_original": {
+                    "type": "long"
+                },
+                "iteration": {
+                    "properties": {
+                        "name": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "number": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "result": {
+                    "properties": {
+                        "@idx": {
+                            "type": "long"
+                        },
+                        "read_or_write": {
+                            "type": "long"
+                        },
+                        "value": {
+                            "type": "double"
+                        }
+                    }
+                },
+                "run": {
+                    "properties": {
+                        "id": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "name": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        }
+                    }
+                },
+                "sample": {
+                    "properties": {
+                        "@idx": {
+                            "type": "long"
+                        },
+                        "measurement_idx": {
+                            "type": "long"
+                        },
+                        "measurement_title": {
+                            "type": "string"
+                        },
+                        "measurement_type": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "name": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "uid": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "pbench-result-data-sample": {
+            "_all": {
+                "enabled": false
+            },
+            "_meta": {
+                "version": "3"
+            },
+            "date_detection": false,
+            "properties": {
+                "@generated-by": {
+                    "index": "not_analyzed",
+                    "type": "string"
+                },
+                "@timestamp": {
+                    "format": "dateOptionalTime",
+                    "type": "date"
+                },
+                "@timestamp_original": {
+                    "type": "long"
+                },
+                "benchmark": {
+                    "properties": {
+                        "active_device_pairs": {
+                            "type": "string"
+                        },
+                        "bs": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "claimed_dev_pairs": {
+                            "properties": {
+                                "dev_pair": {
+                                    "type": "string"
+                                },
+                                "rx": {
+                                    "type": "long"
+                                },
+                                "tx": {
+                                    "type": "long"
+                                }
+                            },
+                            "type": "nested"
+                        },
+                        "clients": {
+                            "analyzer": "comma_analyzer",
+                            "type": "string"
+                        },
+                        "clocksource": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "closest_sample": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "device_pairs": {
+                            "analyzer": "comma_analyzer",
+                            "type": "string"
+                        },
+                        "direct": {
+                            "type": "string"
+                        },
+                        "duplicate_packet_failure_mode": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "enable_trex_profiler": {
+                            "type": "boolean"
+                        },
+                        "filename": {
+                            "type": "string"
+                        },
+                        "instances": {
+                            "type": "long"
+                        },
+                        "iodepth": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "ioengine": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "latency_rate": {
+                            "type": "long"
+                        },
+                        "loaded_traffic_profile": {
+                            "properties": {
+                                "streams": {
+                                    "properties": {
+                                        "direction": {
+                                            "type": "string"
+                                        },
+                                        "duration": {
+                                            "type": "string"
+                                        },
+                                        "enabled": {
+                                            "type": "boolean"
+                                        },
+                                        "flow_mods": {
+                                            "properties": {
+                                                "ip": {
+                                                    "properties": {
+                                                        "dst": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "src": {
+                                                            "type": "boolean"
+                                                        }
+                                                    }
+                                                },
+                                                "mac": {
+                                                    "properties": {
+                                                        "dst": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "src": {
+                                                            "type": "boolean"
+                                                        }
+                                                    }
+                                                },
+                                                "port": {
+                                                    "properties": {
+                                                        "dst": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "src": {
+                                                            "type": "boolean"
+                                                        }
+                                                    }
+                                                },
+                                                "protocol": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "flow_offset": {
+                                            "type": "long"
+                                        },
+                                        "flows": {
+                                            "type": "long"
+                                        },
+                                        "frame_size": {
+                                            "type": "long"
+                                        },
+                                        "frame_type": {
+                                            "index": "not_analyzed",
+                                            "type": "string"
+                                        },
+                                        "latency": {
+                                            "type": "boolean"
+                                        },
+                                        "latency_only": {
+                                            "type": "boolean"
+                                        },
+                                        "offset": {
+                                            "type": "long"
+                                        },
+                                        "profile_id": {
+                                            "type": "long"
+                                        },
+                                        "protocol": {
+                                            "index": "not_analyzed",
+                                            "type": "string"
+                                        },
+                                        "rate": {
+                                            "type": "long"
+                                        },
+                                        "repeat": {
+                                            "type": "boolean"
+                                        },
+                                        "repeat_delay": {
+                                            "type": "string"
+                                        },
+                                        "repeat_flows": {
+                                            "type": "boolean"
+                                        },
+                                        "stream_id": {
+                                            "type": "boolean"
+                                        },
+                                        "stream_types": {
+                                            "type": "string"
+                                        },
+                                        "the_packet": {
+                                            "type": "string"
+                                        },
+                                        "traffic_direction": {
+                                            "index": "not_analyzed",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "nested"
+                                }
+                            }
+                        },
+                        "log_avg_msec": {
+                            "type": "string"
+                        },
+                        "log_hist_msec": {
+                            "type": "string"
+                        },
+                        "loss_granularity": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "max_loss_pct": {
+                            "type": "long"
+                        },
+                        "max_port": {
+                            "type": "long"
+                        },
+                        "max_retries": {
+                            "type": "long"
+                        },
+                        "max_stddevpct": {
+                            "type": "double"
+                        },
+                        "measure_latency": {
+                            "type": "long"
+                        },
+                        "message_size_bytes": {
+                            "type": "long"
+                        },
+                        "name": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "negative_packet_loss_mode": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "null_stats": {
+                            "properties": {
+                                "rx_active": {
+                                    "type": "boolean"
+                                },
+                                "rx_l1_bps": {
+                                    "type": "long"
+                                },
+                                "rx_l2_bps": {
+                                    "type": "long"
+                                },
+                                "rx_latency_average": {
+                                    "type": "long"
+                                },
+                                "rx_latency_l1_bps": {
+                                    "type": "long"
+                                },
+                                "rx_latency_l2_bps": {
+                                    "type": "long"
+                                },
+                                "rx_latency_lost_packets": {
+                                    "type": "long"
+                                },
+                                "rx_latency_lost_packets_pct": {
+                                    "type": "long"
+                                },
+                                "rx_latency_lost_pps": {
+                                    "type": "long"
+                                },
+                                "rx_latency_maximum": {
+                                    "type": "long"
+                                },
+                                "rx_latency_packets": {
+                                    "type": "long"
+                                },
+                                "rx_latency_pps": {
+                                    "type": "long"
+                                },
+                                "rx_lost_packets": {
+                                    "type": "long"
+                                },
+                                "rx_lost_packets_pct": {
+                                    "type": "long"
+                                },
+                                "rx_lost_pps": {
+                                    "type": "long"
+                                },
+                                "rx_packets": {
+                                    "type": "long"
+                                },
+                                "rx_pps": {
+                                    "type": "long"
+                                },
+                                "tx_active": {
+                                    "type": "boolean"
+                                },
+                                "tx_l1_bps": {
+                                    "type": "long"
+                                },
+                                "tx_l2_bps": {
+                                    "type": "long"
+                                },
+                                "tx_latency_l1_bps": {
+                                    "type": "long"
+                                },
+                                "tx_latency_l2_bps": {
+                                    "type": "long"
+                                },
+                                "tx_latency_packets": {
+                                    "type": "long"
+                                },
+                                "tx_latency_pps": {
+                                    "type": "long"
+                                },
+                                "tx_packets": {
+                                    "type": "long"
+                                },
+                                "tx_pps": {
+                                    "type": "long"
+                                },
+                                "tx_pps_target": {
+                                    "type": "long"
+                                }
+                            }
+                        },
+                        "numjobs": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "output_dir": {
+                            "analyzer": "path_analyzer",
+                            "type": "string"
+                        },
+                        "port_primary_info_file": {
+                            "type": "string"
+                        },
+                        "port_secondary_info_file": {
+                            "type": "string"
+                        },
+                        "primary_metric": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "protocol": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "ramp_time": {
+                            "type": "string"
+                        },
+                        "random_seed": {
+                            "type": "double"
+                        },
+                        "rate": {
+                            "type": "double"
+                        },
+                        "rate_tolerance": {
+                            "type": "long"
+                        },
+                        "rate_tolerance_failure": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "rate_unit": {
+                            "type": "string"
+                        },
+                        "repeat_final_validation": {
+                            "type": "boolean"
+                        },
+                        "runtime": {
+                            "type": "string"
+                        },
+                        "runtime_tolerance": {
+                            "type": "long"
+                        },
+                        "rw": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "search_granularity": {
+                            "type": "double"
+                        },
+                        "search_runtime": {
+                            "type": "long"
+                        },
+                        "servers": {
+                            "analyzer": "comma_analyzer",
+                            "type": "string"
+                        },
+                        "size": {
+                            "type": "string"
+                        },
+                        "sniff_runtime": {
+                            "type": "long"
+                        },
+                        "sync": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "teaching_measurement_interval": {
+                            "type": "long"
+                        },
+                        "teaching_measurement_packet_rate": {
+                            "type": "long"
+                        },
+                        "teaching_warmup_packet_rate": {
+                            "type": "long"
+                        },
+                        "test_dev_pairs": {
+                            "properties": {
+                                "dev_pair": {
+                                    "type": "string"
+                                },
+                                "direction": {
+                                    "type": "string"
+                                },
+                                "path": {
+                                    "type": "string"
+                                },
+                                "rx": {
+                                    "type": "string"
+                                },
+                                "tx": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "nested"
+                        },
+                        "test_type": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "time_based": {
+                            "type": "string"
+                        },
+                        "traffic_direction": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "traffic_generator": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "traffic_profile": {
+                            "analyzer": "path_analyzer",
+                            "type": "string"
+                        },
+                        "trafficgen_uid": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "trafficgen_uid_tmpl": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "trex_profiler_interval": {
+                            "type": "long"
+                        },
+                        "trial": {
+                            "type": "string"
+                        },
+                        "trial_mode": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "trial_primary_output_file": {
+                            "type": "string"
+                        },
+                        "trial_profiler_file": {
+                            "type": "string"
+                        },
+                        "trial_secondary_output_file": {
+                            "type": "string"
+                        },
+                        "uid": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "uid_tmpl": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "validation_runtime": {
+                            "type": "long"
+                        },
+                        "version": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "warmup_trial_runtime": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "iteration": {
+                    "properties": {
+                        "name": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "number": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "run": {
+                    "properties": {
+                        "config": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "controller": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "date": {
+                            "type": "date"
+                        },
+                        "end": {
+                            "type": "date"
+                        },
+                        "id": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "name": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "script": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "start": {
+                            "type": "date"
+                        },
+                        "toolsgroup": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        }
+                    }
+                },
+                "sample": {
+                    "properties": {
+                        "@idx": {
+                            "type": "long"
+                        },
+                        "client_hostname": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "closest_sample": {
+                            "type": "long"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "end": {
+                            "type": "date"
+                        },
+                        "mean": {
+                            "type": "double"
+                        },
+                        "measurement_idx": {
+                            "type": "long"
+                        },
+                        "measurement_title": {
+                            "type": "string"
+                        },
+                        "measurement_type": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "name": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "role": {
+                            "type": "string"
+                        },
+                        "server_hostname": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "server_port": {
+                            "type": "string"
+                        },
+                        "skip_aggregate": {
+                            "type": "long"
+                        },
+                        "start": {
+                            "type": "date"
+                        },
+                        "stddev": {
+                            "type": "double"
+                        },
+                        "stddevpct": {
+                            "type": "double"
+                        },
+                        "uid": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "uid_tmpl": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "value": {
+                            "type": "double"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "comma_analyzer": {
+                    "tokenizer": "comma_tokenizer"
+                }
+            },
+            "tokenizer": {
+                "comma_tokenizer": {
+                    "pattern": ",",
+                    "type": "pattern"
+                }
+            }
+        },
+        "index": {
+            "query": {
+                "default_field": "@metadata.experiment"
+            }
+        }
+    },
+    "template": "pbench-unittests.v3.result-data.*"
 }
 
 

@@ -29,7 +29,6 @@ len(actions) = 1
 ]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -37,6 +36,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -62,7 +62,6 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -70,9 +69,10 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v2.result-data.2018-02-02 440
+Index:  pbench-unittests.v3.result-data.2018-02-02 440
 Index:  pbench-unittests.v3.run.2018-02 48
 len(actions) = 30
 [
@@ -874,8 +874,8 @@ len(actions) = 30
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "a0480a0ae46a019c876b771161a2b2e0",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "7d3536ded4dc4aa6550597046ec355a5",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
             "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
@@ -916,8 +916,9 @@ len(actions) = 30
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
                 "end": "2018-02-02T20:59:06.463000",
                 "mean": 405.60634258864,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "role": "client",
                 "server_hostname": "dhcp31-245.perf.lab.eng.bos.redhat.com",
@@ -932,10 +933,10 @@ len(actions) = 30
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "b891fa0e7ec232e05adb1ff5f931a7fb",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "1d452c293a88962bd45976a2f787787f",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:13.411000",
             "@timestamp_original": 1517605093411,
@@ -953,8 +954,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -962,10 +964,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "55f0d4d50573ec137436d3c4cbe21c75",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "d7407d744d8ed2d0a8309d547fd52b83",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:14.412000",
             "@timestamp_original": 1517605094412,
@@ -983,8 +985,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -992,10 +995,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "3bc83760de8bd8b44ea542686e0b1f30",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "595ca1b5db352da1c19cdd38a2d238dc",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:15.413000",
             "@timestamp_original": 1517605095413,
@@ -1013,8 +1016,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1022,10 +1026,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "fc52ada6d5fc918c813f7b085c1b9041",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "1db507f1a56f6e0ef9b286bf7722aa21",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:16.414000",
             "@timestamp_original": 1517605096414,
@@ -1043,8 +1047,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1052,10 +1057,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "eca5ab7af42ed690c456a638ac79dee4",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "fa71d3bfb2e45149d2cfd73ed5fecffb",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:17.416000",
             "@timestamp_original": 1517605097416,
@@ -1073,8 +1078,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1082,10 +1088,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "ccc69a4940d6f4476d63f0d5cc304a86",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "9f69226c17e850a62fbb591ce0874444",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:18.417000",
             "@timestamp_original": 1517605098417,
@@ -1103,8 +1109,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1112,10 +1119,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "68c7fef1e4da7b346d8e7e8911092a65",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "06dac057143fe562abe2452dde7dfbe4",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:19.417000",
             "@timestamp_original": 1517605099417,
@@ -1133,8 +1140,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1142,10 +1150,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "418ee05e45d9d9c48140c755b9bfc802",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "3f2d9b125950ed339d4e7742d77f66a1",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:20.418000",
             "@timestamp_original": 1517605100418,
@@ -1163,8 +1171,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1172,10 +1181,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "a9298702d52163aa4ee15d5a20335f75",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "1e939a5ebda281879a96a476bd924d60",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:21.419000",
             "@timestamp_original": 1517605101419,
@@ -1193,8 +1202,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1202,10 +1212,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "8e3b2b0e08f73d2173bc6d91d242e00e",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "159229887afb5b84842964c18ca0e3d3",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:22.420000",
             "@timestamp_original": 1517605102420,
@@ -1223,8 +1233,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1232,10 +1243,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "ceca456f4868b545b2e2a20923f297fe",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "6ecbffd5c04b9a7b581b95ed407a04ba",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:23.421000",
             "@timestamp_original": 1517605103421,
@@ -1253,8 +1264,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1262,10 +1274,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "0ed0ff2f52e34df34039ba202002d335",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "f425239bf242f06283f4799f014ef084",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:24.422000",
             "@timestamp_original": 1517605104422,
@@ -1283,8 +1295,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1292,10 +1305,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "b948a5df8a691247996bd2e35b0cf8a0",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "b85ae9b7616d9e4c5a9dd193c518a0f1",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:25.423000",
             "@timestamp_original": 1517605105423,
@@ -1313,8 +1326,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1322,10 +1336,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "8e72ad2047f8249701d862837b7bc5c9",
-        "_index": "pbench-unittests.v2.result-data.2018-02-02",
+        "_id": "4ea8f96415e7565ffa2064aad9c2222a",
+        "_index": "pbench-unittests.v3.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "a0480a0ae46a019c876b771161a2b2e0",
+        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
         "_source": {
             "@timestamp": "2018-02-02T20:58:26.425000",
             "@timestamp_original": 1517605106425,
@@ -1343,8 +1357,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:dhcp31-44.perf.lab.eng.bos.redhat.com-server_hostname:dhcp31-245.perf.lab.eng.bos.redhat.com-server_port:20010"
             }
@@ -1352,7 +1367,6 @@ len(actions) = 30
         "_type": "pbench-result-data"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -1360,6 +1374,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -1391,7 +1406,6 @@ len(actions) = 1
 ]
 --- Finished pbench-index (status=0)
 +++ Running pbench-index --tool-data
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -1399,6 +1413,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -1424,7 +1439,6 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -1432,6 +1446,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v2.tool-data-iostat.2018-02-02 120
@@ -9658,7 +9673,6 @@ len(actions) = 75
         "_type": "pbench-tool-data-proc-vmstat"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -9666,6 +9680,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1

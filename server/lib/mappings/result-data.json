@@ -2,7 +2,7 @@
     "pbench-result-data": {
         "_all" : {"enabled" : false},
         "_meta": {
-            "version": "2"
+            "version": "3"
         },
         "_parent": {
             "type": "pbench-result-data-sample"
@@ -52,9 +52,11 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
-                    "measurement_units": {
-                        "type": "string",
-                        "index": "not_analyzed"
+                    "measurement_idx": {
+                        "type": "long"
+                    },
+                    "measurement_title": {
+                        "type": "string"
                     },
                     "uid": {
                         "type": "string",
