@@ -1,0 +1,2556 @@
++++ Running pbench-unpack-tarballs
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "b93953b18f6989015766c339934a6c8e",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-unpack-tarballs",
+            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 162
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-unpack-tarballs (status=0)
++++ Running pbench-index
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "8b0a858cc2900c40ad6a6f2789367e86",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "doctype": "start",
+            "name": "pbench-index"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.result-data.2019-08-27 24200
+Index:  pbench-unittests.v3.run.2019-08 8
+len(actions) = 23
+[
+    {
+        "_id": "7b1d050eab2b577f772b152aeb100fa1",
+        "_index": "pbench-unittests.v3.run.2019-08",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@metadata": {
+                "controller_dir": "perf122",
+                "file-date": "2019-09-07T01:54:23",
+                "file-name": "/var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz",
+                "file-size": 1030152,
+                "md5": "7b1d050eab2b577f772b152aeb100fa1",
+                "pbench-agent-version": "0.57-1g2cbeba41",
+                "toc-prefix": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "@timestamp": "2019-08-27T15:00:07.506390",
+            "host_tools_info": [
+                {
+                    "hostname": "perf124",
+                    "tools": {
+                        "turbostat": "--interval=3"
+                    }
+                }
+            ],
+            "run": {
+                "config": "basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs_",
+                "controller": "perf122.perf.lab.eng.bos.redhat.com",
+                "date": "2019-08-27T14:58:38",
+                "end": "2019-08-27T15:29:19.403664",
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "iterations": "1-forwarding_test.json-5pct_drop",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38",
+                "script": "trafficgen",
+                "start": "2019-08-27T15:00:07.506390",
+                "toolsgroup": "default"
+            }
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "01b8e5e1bb365124c2719da1ea48f73a",
+        "_index": "pbench-unittests.v3.run.2019-08",
+        "_op_type": "create",
+        "_parent": "7b1d050eab2b577f772b152aeb100fa1",
+        "_source": {
+            "@timestamp": "2019-08-27T15:00:07.506390",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-08-27T15:29:14",
+                    "name": "generate-benchmark-summary.cmd",
+                    "size": 604,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-09-07T01:50:22",
+                    "name": "metadata.log",
+                    "size": 750,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-08-27T15:00:07",
+                    "name": "pbench-trafficgen.cmd",
+                    "size": 404,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T20:22:02",
+                    "name": "pbench.log",
+                    "size": 3637,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:14",
+                    "name": "result.csv",
+                    "size": 20702,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:14",
+                    "name": "result.html",
+                    "size": 102946,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:14",
+                    "name": "result.json",
+                    "size": 4061369,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:14",
+                    "name": "result.txt",
+                    "size": 73495,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:00:12",
+                    "name": "trex_cfg.yaml",
+                    "size": 818,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-09-07T01:53:01"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "bb51b46687bb9f04e03755cf879479b6",
+        "_index": "pbench-unittests.v3.run.2019-08",
+        "_op_type": "create",
+        "_parent": "7b1d050eab2b577f772b152aeb100fa1",
+        "_source": {
+            "@timestamp": "2019-08-27T15:00:07.506390",
+            "directory": "/1-forwarding_test.json-5pct_drop/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:00:12",
+                    "name": "forwarding_test.json",
+                    "size": 1948,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "process-iteration-samples.cmd",
+                    "size": 267,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:14",
+                    "name": "result.json",
+                    "size": 3452409,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-08-27T15:00:12",
+                    "name": "trafficgen.cmd",
+                    "size": 563,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-08-27T15:29:14"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "92c72b6d13e6dc1992b1708c53e3917c",
+        "_index": "pbench-unittests.v3.run.2019-08",
+        "_op_type": "create",
+        "_parent": "7b1d050eab2b577f772b152aeb100fa1",
+        "_source": {
+            "@timestamp": "2019-08-27T15:00:07.506390",
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:28:50",
+                    "name": "binary-search.json",
+                    "size": 2618434,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:00:12",
+                    "name": "binary-search.port-info.extra.txt",
+                    "size": 3195,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:00:12",
+                    "name": "binary-search.port-info.txt",
+                    "size": 5667,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:00:44",
+                    "name": "binary-search.trial-001.extra.txt",
+                    "size": 10882,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:00:44",
+                    "name": "binary-search.trial-001.json-port-profiles.txt",
+                    "size": 13316,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:00:44",
+                    "name": "binary-search.trial-001.profiler.txt.xz",
+                    "size": 12628,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:00:44",
+                    "name": "binary-search.trial-001.txt",
+                    "size": 66053,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:01:15",
+                    "name": "binary-search.trial-002.extra.txt",
+                    "size": 11035,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:01:15",
+                    "name": "binary-search.trial-002.json-port-profiles.txt",
+                    "size": 13316,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:01:15",
+                    "name": "binary-search.trial-002.profiler.txt.xz",
+                    "size": 12420,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:01:15",
+                    "name": "binary-search.trial-002.txt",
+                    "size": 66555,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:03:17",
+                    "name": "binary-search.trial-003.extra.txt",
+                    "size": 10963,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:03:17",
+                    "name": "binary-search.trial-003.json-port-profiles.txt",
+                    "size": 13320,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:03:16",
+                    "name": "binary-search.trial-003.profiler.txt.xz",
+                    "size": 45428,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:03:17",
+                    "name": "binary-search.trial-003.txt",
+                    "size": 66598,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:03:48",
+                    "name": "binary-search.trial-004.extra.txt",
+                    "size": 10918,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:03:48",
+                    "name": "binary-search.trial-004.json-port-profiles.txt",
+                    "size": 13316,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:03:48",
+                    "name": "binary-search.trial-004.profiler.txt.xz",
+                    "size": 12728,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:03:48",
+                    "name": "binary-search.trial-004.txt",
+                    "size": 66086,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:04:20",
+                    "name": "binary-search.trial-005.extra.txt",
+                    "size": 11004,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:04:20",
+                    "name": "binary-search.trial-005.json-port-profiles.txt",
+                    "size": 13316,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:04:20",
+                    "name": "binary-search.trial-005.profiler.txt.xz",
+                    "size": 13052,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:04:20",
+                    "name": "binary-search.trial-005.txt",
+                    "size": 66303,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:04:51",
+                    "name": "binary-search.trial-006.extra.txt",
+                    "size": 11025,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:04:51",
+                    "name": "binary-search.trial-006.json-port-profiles.txt",
+                    "size": 13316,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:04:51",
+                    "name": "binary-search.trial-006.profiler.txt.xz",
+                    "size": 12680,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:04:51",
+                    "name": "binary-search.trial-006.txt",
+                    "size": 66457,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:05:23",
+                    "name": "binary-search.trial-007.extra.txt",
+                    "size": 11052,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:05:23",
+                    "name": "binary-search.trial-007.json-port-profiles.txt",
+                    "size": 13316,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:05:23",
+                    "name": "binary-search.trial-007.profiler.txt.xz",
+                    "size": 12556,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:05:23",
+                    "name": "binary-search.trial-007.txt",
+                    "size": 66573,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:05:54",
+                    "name": "binary-search.trial-008.extra.txt",
+                    "size": 11091,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:05:54",
+                    "name": "binary-search.trial-008.json-port-profiles.txt",
+                    "size": 13316,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:05:54",
+                    "name": "binary-search.trial-008.profiler.txt.xz",
+                    "size": 12536,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:05:54",
+                    "name": "binary-search.trial-008.txt",
+                    "size": 66701,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:07:56",
+                    "name": "binary-search.trial-009.extra.txt",
+                    "size": 11113,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:07:56",
+                    "name": "binary-search.trial-009.json-port-profiles.txt",
+                    "size": 13320,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:07:55",
+                    "name": "binary-search.trial-009.profiler.txt.xz",
+                    "size": 47016,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:07:56",
+                    "name": "binary-search.trial-009.txt",
+                    "size": 66706,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:08:27",
+                    "name": "binary-search.trial-010.extra.txt",
+                    "size": 11045,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:08:27",
+                    "name": "binary-search.trial-010.json-port-profiles.txt",
+                    "size": 13316,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:08:27",
+                    "name": "binary-search.trial-010.profiler.txt.xz",
+                    "size": 12484,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:08:27",
+                    "name": "binary-search.trial-010.txt",
+                    "size": 66656,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:10:29",
+                    "name": "binary-search.trial-011.extra.txt",
+                    "size": 11116,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:10:29",
+                    "name": "binary-search.trial-011.json-port-profiles.txt",
+                    "size": 13320,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:10:28",
+                    "name": "binary-search.trial-011.profiler.txt.xz",
+                    "size": 48044,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:10:29",
+                    "name": "binary-search.trial-011.txt",
+                    "size": 66754,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:11:00",
+                    "name": "binary-search.trial-012.extra.txt",
+                    "size": 11048,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:11:00",
+                    "name": "binary-search.trial-012.json-port-profiles.txt",
+                    "size": 13320,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:11:00",
+                    "name": "binary-search.trial-012.profiler.txt.xz",
+                    "size": 12352,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:11:00",
+                    "name": "binary-search.trial-012.txt",
+                    "size": 66636,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:13:02",
+                    "name": "binary-search.trial-013.extra.txt",
+                    "size": 11100,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:13:02",
+                    "name": "binary-search.trial-013.json-port-profiles.txt",
+                    "size": 13324,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:13:01",
+                    "name": "binary-search.trial-013.profiler.txt.xz",
+                    "size": 47544,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:13:02",
+                    "name": "binary-search.trial-013.txt",
+                    "size": 66759,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:13:34",
+                    "name": "binary-search.trial-014.extra.txt",
+                    "size": 11069,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:13:34",
+                    "name": "binary-search.trial-014.json-port-profiles.txt",
+                    "size": 13324,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:13:33",
+                    "name": "binary-search.trial-014.profiler.txt.xz",
+                    "size": 12504,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:13:34",
+                    "name": "binary-search.trial-014.txt",
+                    "size": 66677,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:15:35",
+                    "name": "binary-search.trial-015.extra.txt",
+                    "size": 11114,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:15:35",
+                    "name": "binary-search.trial-015.json-port-profiles.txt",
+                    "size": 13328,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:15:34",
+                    "name": "binary-search.trial-015.profiler.txt.xz",
+                    "size": 47768,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:15:35",
+                    "name": "binary-search.trial-015.txt",
+                    "size": 66750,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:16:07",
+                    "name": "binary-search.trial-016.extra.txt",
+                    "size": 11046,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:16:07",
+                    "name": "binary-search.trial-016.json-port-profiles.txt",
+                    "size": 13328,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:16:07",
+                    "name": "binary-search.trial-016.profiler.txt.xz",
+                    "size": 12684,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:16:07",
+                    "name": "binary-search.trial-016.txt",
+                    "size": 66632,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:16:38",
+                    "name": "binary-search.trial-017.extra.txt",
+                    "size": 11053,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:16:38",
+                    "name": "binary-search.trial-017.json-port-profiles.txt",
+                    "size": 13336,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:16:38",
+                    "name": "binary-search.trial-017.profiler.txt.xz",
+                    "size": 12796,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:16:38",
+                    "name": "binary-search.trial-017.txt",
+                    "size": 66721,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:18:40",
+                    "name": "binary-search.trial-018.extra.txt",
+                    "size": 11126,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:18:40",
+                    "name": "binary-search.trial-018.json-port-profiles.txt",
+                    "size": 13340,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:18:39",
+                    "name": "binary-search.trial-018.profiler.txt.xz",
+                    "size": 48224,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:18:40",
+                    "name": "binary-search.trial-018.txt",
+                    "size": 66867,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:23:43",
+                    "name": "binary-search.trial-019.extra.txt",
+                    "size": 11143,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:23:43",
+                    "name": "binary-search.trial-019.json-port-profiles.txt",
+                    "size": 13344,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:23:41",
+                    "name": "binary-search.trial-019.profiler.txt.xz",
+                    "size": 118316,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:23:43",
+                    "name": "binary-search.trial-019.txt",
+                    "size": 66796,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:28:46",
+                    "name": "binary-search.trial-020.extra.txt",
+                    "size": 11148,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:28:46",
+                    "name": "binary-search.trial-020.json-port-profiles.txt",
+                    "size": 13344,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:28:45",
+                    "name": "binary-search.trial-020.profiler.txt",
+                    "size": 2806032,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:28:46",
+                    "name": "binary-search.trial-020.txt",
+                    "size": 66821,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "result.json",
+                    "size": 2820518,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:28:50",
+                    "name": "result.txt",
+                    "size": 245851,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen-average.txt",
+                    "size": 19768,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-08-27T15:29:12",
+                    "name": "trafficgen-postprocess.cmd",
+                    "size": 302,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen.html",
+                    "size": 10870,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-08-27T15:29:13"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "7aa1a1fac00a10d1321a513a516f8977",
+        "_index": "pbench-unittests.v3.run.2019-08",
+        "_op_type": "create",
+        "_parent": "7b1d050eab2b577f772b152aeb100fa1",
+        "_source": {
+            "@timestamp": "2019-08-27T15:00:07.506390",
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1/csv/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Global BPS.csv",
+                    "size": 3885,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Global CPU Utilization.csv",
+                    "size": 5025,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Global PPS.csv",
+                    "size": 3220,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Global Per Core Bandwidth.csv",
+                    "size": 3107,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Global Queue Full.csv",
+                    "size": 1641,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface BPS - Port 0.csv",
+                    "size": 5925,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface BPS - Port 1.csv",
+                    "size": 5925,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface BPS - Port 2.csv",
+                    "size": 2361,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface BPS - Port 3.csv",
+                    "size": 2361,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface BPS - Port total.csv",
+                    "size": 5941,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface PPS - Port 0.csv",
+                    "size": 4828,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface PPS - Port 1.csv",
+                    "size": 4820,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface PPS - Port 2.csv",
+                    "size": 1877,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface PPS - Port 3.csv",
+                    "size": 1877,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface PPS - Port total.csv",
+                    "size": 4832,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface Utilization - Port 0.csv",
+                    "size": 3627,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface Utilization - Port 1.csv",
+                    "size": 3608,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface Utilization - Port 2.csv",
+                    "size": 1879,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface Utilization - Port 3.csv",
+                    "size": 1879,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Interface Utilization - Port total.csv",
+                    "size": 3823,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Profiler data sample collection latency.csv",
+                    "size": 3078,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream Latency - PGID 1063.csv",
+                    "size": 3919,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream Latency - PGID 1064.csv",
+                    "size": 3922,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream Latency - PGID 1190.csv",
+                    "size": 3925,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream Latency - PGID 1191.csv",
+                    "size": 3923,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1063.csv",
+                    "size": 2983,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1064.csv",
+                    "size": 2987,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1190.csv",
+                    "size": 3055,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1191.csv",
+                    "size": 3061,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - PGID 1000.csv",
+                    "size": 9751,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - PGID 1001.csv",
+                    "size": 9741,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - PGID 1063.csv",
+                    "size": 9725,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - PGID 1064.csv",
+                    "size": 9743,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - PGID 1127.csv",
+                    "size": 9745,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - PGID 1128.csv",
+                    "size": 9751,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - PGID 1190.csv",
+                    "size": 9723,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - PGID 1191.csv",
+                    "size": 9731,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port 0 RX.csv",
+                    "size": 9247,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port 0 TX.csv",
+                    "size": 9243,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port 1 RX.csv",
+                    "size": 9249,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port 1 TX.csv",
+                    "size": 9240,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port 2 RX.csv",
+                    "size": 3343,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port 2 TX.csv",
+                    "size": 3343,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port 3 RX.csv",
+                    "size": 3343,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port 3 TX.csv",
+                    "size": 3343,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port total RX.csv",
+                    "size": 15185,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:13",
+                    "name": "trafficgen_Stream PPS - Port total TX.csv",
+                    "size": 15172,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-08-27T15:29:13"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "662aade823f3847ed63ff8331e48554a",
+        "_index": "pbench-unittests.v3.run.2019-08",
+        "_op_type": "create",
+        "_parent": "7b1d050eab2b577f772b152aeb100fa1",
+        "_source": {
+            "@timestamp": "2019-08-27T15:00:07.506390",
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/",
+            "mode": "0o755",
+            "mtime": "2019-08-27T15:29:11"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "4a183a40dfb56155c33c079b95934732",
+        "_index": "pbench-unittests.v3.run.2019-08",
+        "_op_type": "create",
+        "_parent": "7b1d050eab2b577f772b152aeb100fa1",
+        "_source": {
+            "@timestamp": "2019-08-27T15:00:07.506390",
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/",
+            "mode": "0o755",
+            "mtime": "2019-09-07T01:49:35"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "e0a4db3a14ed7eb56d5d913b78bf7ffc",
+        "_index": "pbench-unittests.v3.run.2019-08",
+        "_op_type": "create",
+        "_parent": "7b1d050eab2b577f772b152aeb100fa1",
+        "_source": {
+            "@timestamp": "2019-08-27T15:00:07.506390",
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/turbostat/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:12",
+                    "name": "turbostat-stderr.txt",
+                    "size": 3720,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-08-27T15:29:12",
+                    "name": "turbostat-stdout.txt",
+                    "size": 348821,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-08-27T15:29:12",
+                    "name": "turbostat.cmd",
+                    "size": 275,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-08-27T15:29:12"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@timestamp": "2019-08-27T15:18:43.666000",
+            "@timestamp_original": 1566919123666,
+            "benchmark": {
+                "active_device_pairs": "0:1",
+                "claimed_dev_pairs": [
+                    {
+                        "dev_pair": "0:1",
+                        "rx": 1,
+                        "tx": 0
+                    },
+                    {
+                        "dev_pair": "0:1",
+                        "rx": 0,
+                        "tx": 1
+                    },
+                    {
+                        "dev_pair": "2:3",
+                        "rx": 3,
+                        "tx": 2
+                    },
+                    {
+                        "dev_pair": "2:3",
+                        "rx": 2,
+                        "tx": 3
+                    }
+                ],
+                "device_pairs": "0:1,2:3",
+                "duplicate_packet_failure_mode": "quit",
+                "enable_trex_profiler": true,
+                "latency_rate": 1000,
+                "loaded_traffic_profile": {
+                    "streams": [
+                        {
+                            "direction": "->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": false,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": false,
+                                    "src": true
+                                },
+                                "protocol": false
+                            },
+                            "flow_offset": 0,
+                            "flows": 10240,
+                            "frame_size": 74,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 0,
+                            "protocol": "UDP",
+                            "rate": 900000,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": "scapy:Ether(dst='68:05:ca:32:0e:50',src='68:05:ca:32:14:d0')/IP(src='192.166.0.1',dst='192.170.0.15')/TCP(sport=32768,dport=80,flags=2)",
+                            "traffic_direction": "unidirectional"
+                        },
+                        {
+                            "direction": "->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "protocol": false
+                            },
+                            "flow_offset": 0,
+                            "flows": 1,
+                            "frame_size": 64,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 1,
+                            "protocol": "UDP",
+                            "rate": 100000,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": "scapy:Ether(dst='68:05:ca:32:0e:50',src='68:05:ca:32:14:d0')/IP(src='192.168.0.15',dst='192.170.0.15')/UDP(sport=40000,dport=45000)",
+                            "traffic_direction": "unidirectional"
+                        },
+                        {
+                            "direction": "<-",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": false,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": false,
+                                    "src": true
+                                },
+                                "protocol": false
+                            },
+                            "flow_offset": 0,
+                            "flows": 10240,
+                            "frame_size": 74,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 2,
+                            "protocol": "UDP",
+                            "rate": 900000,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": "scapy:Ether(dst='68:05:ca:32:0d:f0',src='68:05:ca:32:0d:e0')/IP(src='192.168.0.20',dst='192.172.0.1')/TCP(sport=32768,dport=80,flags=2)",
+                            "traffic_direction": "revunidirectional"
+                        },
+                        {
+                            "direction": "<-",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "protocol": false
+                            },
+                            "flow_offset": 0,
+                            "flows": 1,
+                            "frame_size": 64,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 3,
+                            "protocol": "UDP",
+                            "rate": 100000,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": "scapy:Ether(dst='68:05:ca:32:0d:f0',src='68:05:ca:32:0d:e0')/IP(src='192.168.0.20',dst='192.170.0.20')/UDP(sport=50000,dport=55000)",
+                            "traffic_direction": "revunidirectional"
+                        }
+                    ]
+                },
+                "loss_granularity": "direction",
+                "max_loss_pct": 5,
+                "max_port": 3,
+                "max_retries": 3,
+                "max_stddevpct": 5,
+                "measure_latency": 1,
+                "name": "trafficgen",
+                "negative_packet_loss_mode": "quit",
+                "null_stats": {
+                    "rx_active": false,
+                    "rx_l1_bps": 0,
+                    "rx_l2_bps": 0,
+                    "rx_latency_average": 0,
+                    "rx_latency_l1_bps": 0,
+                    "rx_latency_l2_bps": 0,
+                    "rx_latency_lost_packets": 0,
+                    "rx_latency_lost_packets_pct": 0,
+                    "rx_latency_lost_pps": 0,
+                    "rx_latency_maximum": 0,
+                    "rx_latency_packets": 0,
+                    "rx_latency_pps": 0,
+                    "rx_lost_packets": 0,
+                    "rx_lost_packets_pct": 0,
+                    "rx_lost_pps": 0,
+                    "rx_packets": 0,
+                    "rx_pps": 0,
+                    "tx_active": false,
+                    "tx_l1_bps": 0,
+                    "tx_l2_bps": 0,
+                    "tx_latency_l1_bps": 0,
+                    "tx_latency_l2_bps": 0,
+                    "tx_latency_packets": 0,
+                    "tx_latency_pps": 0,
+                    "tx_packets": 0,
+                    "tx_pps": 0,
+                    "tx_pps_target": 0
+                },
+                "output_dir": "/var/lib/pbench-agent/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1",
+                "port_primary_info_file": "binary-search.port-info.txt",
+                "port_secondary_info_file": "binary-search.port-info.extra.txt",
+                "primary_metric": "rx_mpps",
+                "random_seed": 0.838364247908113,
+                "rate": 526.10400390625,
+                "rate_tolerance": 3,
+                "rate_tolerance_failure": "quit",
+                "rate_unit": "%",
+                "repeat_final_validation": true,
+                "runtime": "300",
+                "runtime_tolerance": 5,
+                "search_granularity": 0.1,
+                "search_runtime": 120,
+                "sniff_runtime": 30,
+                "teaching_measurement_interval": 10,
+                "teaching_measurement_packet_rate": 1000,
+                "teaching_warmup_packet_rate": 1000,
+                "test_dev_pairs": [
+                    {
+                        "dev_pair": "0:1",
+                        "direction": "->",
+                        "path": "0->1",
+                        "rx": "1",
+                        "tx": "0"
+                    },
+                    {
+                        "dev_pair": "0:1",
+                        "direction": "<-",
+                        "path": "0<-1",
+                        "rx": "0",
+                        "tx": "1"
+                    }
+                ],
+                "traffic_direction": "bidirectional",
+                "traffic_generator": "trex-txrx-profile",
+                "traffic_profile": "/var/lib/pbench-agent/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/forwarding_test.json",
+                "trafficgen_uid": "trafficgen-9828978-traffic_generator:trex-txrx-profile-trial:19",
+                "trafficgen_uid_tmpl": "trafficgen-9828978-traffic_generator:%traffic_generator%-trial:%trial%",
+                "trex_profiler_interval": 3,
+                "trial": "19",
+                "trial_mode": "validation",
+                "trial_primary_output_file": "binary-search.trial-019.txt",
+                "trial_profiler_file": "binary-search.trial-019.profiler.txt",
+                "trial_secondary_output_file": "binary-search.trial-019.extra.txt",
+                "uid": "benchmark_name:trafficgen-controller_host:perf122.perf.lab.eng.bos.redhat.com",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                "validation_runtime": 300,
+                "version": "9828978",
+                "warmup_trial_runtime": 30
+            },
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "run": {
+                "config": "basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs_",
+                "controller": "perf122.perf.lab.eng.bos.redhat.com",
+                "date": "2019-08-27T14:58:38",
+                "end": "2019-08-27T15:29:19.403664",
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38",
+                "script": "trafficgen",
+                "start": "2019-08-27T15:00:07.506390"
+            },
+            "sample": {
+                "@idx": 0,
+                "closest_sample": 1,
+                "description": "Time (in milliseconds) to collect a profiler data sample",
+                "end": "2019-08-27T15:23:40.370000",
+                "mean": 25.0029684317232,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "skip_aggregate": 1,
+                "start": "2019-08-27T15:18:43.666000",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "tsdelta",
+                "uid_tmpl": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data-sample"
+    },
+    {
+        "_id": "05b92c612ad92dc8e269fdecfa6eac89",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:18:43.666000",
+            "@timestamp_original": 1566919123666,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 0,
+                "value": 21.9731330871582
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "7fc8014bc5ee1c328827d777680cfbb0",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:18:46.691000",
+            "@timestamp_original": 1566919126691,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 1,
+                "value": 22.5811004638672
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "c2912bfc07150d8d0a61209896be109b",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:18:49.715000",
+            "@timestamp_original": 1566919129715,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 2,
+                "value": 22.2759246826172
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "791b7bc3ddaf2012712f5237a586d5db",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:18:52.740000",
+            "@timestamp_original": 1566919132740,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 3,
+                "value": 22.2928524017334
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "34eeffb0d65ab91660ec9739e9355196",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:18:55.766000",
+            "@timestamp_original": 1566919135766,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 4,
+                "value": 22.7870941162109
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "09bed5da05d760c93c7cc83a20525db4",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:18:58.790000",
+            "@timestamp_original": 1566919138790,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 5,
+                "value": 22.1741199493408
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "329f0493a9e9e54118d87b720cd0fbcf",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:19:01.816000",
+            "@timestamp_original": 1566919141816,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 6,
+                "value": 23.0808258056641
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "3e5a7ac032b92867c9fa9ad3217aa35f",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:19:04.842000",
+            "@timestamp_original": 1566919144842,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 7,
+                "value": 23.9048004150391
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "8e77b5b7f8035c5490328ef636626d8e",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:19:07.867000",
+            "@timestamp_original": 1566919147867,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 8,
+                "value": 22.5200653076172
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "2c27a4911ff0b248769ec345191bf777",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:19:10.892000",
+            "@timestamp_original": 1566919150892,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 9,
+                "value": 22.4809646606445
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "4c5594fac088bbbe54cd3c4e1b06ac23",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:19:13.918000",
+            "@timestamp_original": 1566919153918,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 10,
+                "value": 24.1680145263672
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "1fb0d3d3814d76e5d971a759cc974e60",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:19:16.945000",
+            "@timestamp_original": 1566919156945,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 11,
+                "value": 24.1310596466064
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "fe7e22f6ca449f767bed9b1d3b450204",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:19:19.972000",
+            "@timestamp_original": 1566919159972,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 12,
+                "value": 24.1918563842773
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "217d903d0919afba04f67c25a187e12f",
+        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_op_type": "create",
+        "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
+        "_source": {
+            "@timestamp": "2019-08-27T15:19:22.999000",
+            "@timestamp_original": 1566919162999,
+            "iteration": {
+                "name": "1-forwarding_test.json-5pct_drop",
+                "number": 1
+            },
+            "result": {
+                "@idx": 13,
+                "value": 23.2841968536377
+            },
+            "run": {
+                "id": "7b1d050eab2b577f772b152aeb100fa1",
+                "name": "trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "b449627d22c68bf361fa0ef48418cf5e",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-index",
+            "text": "pbench-index.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/TO-INDEX/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 295
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "a49255f14070b6824a0008c8b8f8fe2b",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "doctype": "start",
+            "name": "pbench-index-tool-data"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+len(actions) = 0
+[]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "0f7d7aedc7f7b26f1d2847abcf3f7684",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-index-tool-data",
+            "text": "pbench-index-tool-data.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/TO-INDEX-TOOL/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 310
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-index (status=0)
++++ Running unit test audit
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "fb8eea157f633b56122a0db0334f1218",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished unit test audit (status=0)
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.19/var-www-html)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-7.19/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-7.19/pbench/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-7.19/pbench/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-7.19/pbench/public_html/users
+--- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.19/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.19/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.19/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.19/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.19/var-www-html-satellite)
+lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-7.19/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-7.19/pbench-satellite/public_html/results
+lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-7.19/pbench-satellite/public_html/static
+lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.19/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.19/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.19/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.19/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.19/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ pbench tree state (/var/tmp/pbench-test-server/test-7.19/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/perf122
+drwxrwxr-x          - archive/fs-version-001/perf122/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/perf122/BACKUP-FAILED
+drwxrwxr-x          - archive/fs-version-001/perf122/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/perf122/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/perf122/INDEXED
+lrwxrwxrwx        190 archive/fs-version-001/perf122/INDEXED/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz -> /var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz
+drwxrwxr-x          - archive/fs-version-001/perf122/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/perf122/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/perf122/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/perf122/SYNCED
+drwxrwxr-x          - archive/fs-version-001/perf122/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/perf122/TO-COPY-SOS
+lrwxrwxrwx        190 archive/fs-version-001/perf122/TO-COPY-SOS/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz -> /var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz
+drwxrwxr-x          - archive/fs-version-001/perf122/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/perf122/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/perf122/TO-INDEX-TOOL
+drwxrwxr-x          - archive/fs-version-001/perf122/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/perf122/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/perf122/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/perf122/TODO
+drwxrwxr-x          - archive/fs-version-001/perf122/UNPACKED
+lrwxrwxrwx        117 archive/fs-version-001/perf122/UNPACKED/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz -> ../trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz
+drwxrwxr-x          - archive/fs-version-001/perf122/WONT-INDEX
+-rw-rw-r--    1030152 archive/fs-version-001/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz
+-rw-rw-r--        151 archive/fs-version-001/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz.md5
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/perf122
+drwxr-xr-x          - public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38
+drwxr-xr-x          - public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop
+-rw-r--r--       1948 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/forwarding_test.json
+-rwxr-xr-x        267 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/process-iteration-samples.cmd
+-rw-r--r--    3452409 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/result.json
+drwxr-xr-x          - public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1
+-rw-r--r--    2618434 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.json
+-rw-r--r--       3195 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.port-info.extra.txt
+-rw-r--r--       5667 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.port-info.txt
+-rw-r--r--      10882 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-001.extra.txt
+-rw-r--r--      13316 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-001.json-port-profiles.txt
+-rw-r--r--      12628 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-001.profiler.txt.xz
+-rw-r--r--      66053 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-001.txt
+-rw-r--r--      11035 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-002.extra.txt
+-rw-r--r--      13316 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-002.json-port-profiles.txt
+-rw-r--r--      12420 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-002.profiler.txt.xz
+-rw-r--r--      66555 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-002.txt
+-rw-r--r--      10963 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-003.extra.txt
+-rw-r--r--      13320 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-003.json-port-profiles.txt
+-rw-r--r--      45428 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-003.profiler.txt.xz
+-rw-r--r--      66598 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-003.txt
+-rw-r--r--      10918 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-004.extra.txt
+-rw-r--r--      13316 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-004.json-port-profiles.txt
+-rw-r--r--      12728 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-004.profiler.txt.xz
+-rw-r--r--      66086 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-004.txt
+-rw-r--r--      11004 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-005.extra.txt
+-rw-r--r--      13316 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-005.json-port-profiles.txt
+-rw-r--r--      13052 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-005.profiler.txt.xz
+-rw-r--r--      66303 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-005.txt
+-rw-r--r--      11025 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-006.extra.txt
+-rw-r--r--      13316 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-006.json-port-profiles.txt
+-rw-r--r--      12680 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-006.profiler.txt.xz
+-rw-r--r--      66457 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-006.txt
+-rw-r--r--      11052 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-007.extra.txt
+-rw-r--r--      13316 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-007.json-port-profiles.txt
+-rw-r--r--      12556 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-007.profiler.txt.xz
+-rw-r--r--      66573 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-007.txt
+-rw-r--r--      11091 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-008.extra.txt
+-rw-r--r--      13316 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-008.json-port-profiles.txt
+-rw-r--r--      12536 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-008.profiler.txt.xz
+-rw-r--r--      66701 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-008.txt
+-rw-r--r--      11113 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-009.extra.txt
+-rw-r--r--      13320 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-009.json-port-profiles.txt
+-rw-r--r--      47016 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-009.profiler.txt.xz
+-rw-r--r--      66706 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-009.txt
+-rw-r--r--      11045 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-010.extra.txt
+-rw-r--r--      13316 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-010.json-port-profiles.txt
+-rw-r--r--      12484 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-010.profiler.txt.xz
+-rw-r--r--      66656 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-010.txt
+-rw-r--r--      11116 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-011.extra.txt
+-rw-r--r--      13320 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-011.json-port-profiles.txt
+-rw-r--r--      48044 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-011.profiler.txt.xz
+-rw-r--r--      66754 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-011.txt
+-rw-r--r--      11048 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-012.extra.txt
+-rw-r--r--      13320 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-012.json-port-profiles.txt
+-rw-r--r--      12352 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-012.profiler.txt.xz
+-rw-r--r--      66636 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-012.txt
+-rw-r--r--      11100 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-013.extra.txt
+-rw-r--r--      13324 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-013.json-port-profiles.txt
+-rw-r--r--      47544 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-013.profiler.txt.xz
+-rw-r--r--      66759 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-013.txt
+-rw-r--r--      11069 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-014.extra.txt
+-rw-r--r--      13324 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-014.json-port-profiles.txt
+-rw-r--r--      12504 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-014.profiler.txt.xz
+-rw-r--r--      66677 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-014.txt
+-rw-r--r--      11114 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-015.extra.txt
+-rw-r--r--      13328 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-015.json-port-profiles.txt
+-rw-r--r--      47768 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-015.profiler.txt.xz
+-rw-r--r--      66750 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-015.txt
+-rw-r--r--      11046 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-016.extra.txt
+-rw-r--r--      13328 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-016.json-port-profiles.txt
+-rw-r--r--      12684 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-016.profiler.txt.xz
+-rw-r--r--      66632 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-016.txt
+-rw-r--r--      11053 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-017.extra.txt
+-rw-r--r--      13336 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-017.json-port-profiles.txt
+-rw-r--r--      12796 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-017.profiler.txt.xz
+-rw-r--r--      66721 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-017.txt
+-rw-r--r--      11126 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-018.extra.txt
+-rw-r--r--      13340 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-018.json-port-profiles.txt
+-rw-r--r--      48224 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-018.profiler.txt.xz
+-rw-r--r--      66867 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-018.txt
+-rw-r--r--      11143 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-019.extra.txt
+-rw-r--r--      13344 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-019.json-port-profiles.txt
+-rw-r--r--     118316 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-019.profiler.txt.xz
+-rw-r--r--      66796 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-019.txt
+-rw-r--r--      11148 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-020.extra.txt
+-rw-r--r--      13344 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-020.json-port-profiles.txt
+-rw-r--r--    2806032 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-020.profiler.txt
+-rw-r--r--      66821 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/binary-search.trial-020.txt
+drwxr-xr-x          - public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv
+-rw-r--r--       3885 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Global BPS.csv
+-rw-r--r--       5025 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Global CPU Utilization.csv
+-rw-r--r--       3220 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Global PPS.csv
+-rw-r--r--       3107 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Global Per Core Bandwidth.csv
+-rw-r--r--       1641 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Global Queue Full.csv
+-rw-r--r--       5925 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface BPS - Port 0.csv
+-rw-r--r--       5925 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface BPS - Port 1.csv
+-rw-r--r--       2361 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface BPS - Port 2.csv
+-rw-r--r--       2361 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface BPS - Port 3.csv
+-rw-r--r--       5941 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface BPS - Port total.csv
+-rw-r--r--       4828 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface PPS - Port 0.csv
+-rw-r--r--       4820 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface PPS - Port 1.csv
+-rw-r--r--       1877 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface PPS - Port 2.csv
+-rw-r--r--       1877 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface PPS - Port 3.csv
+-rw-r--r--       4832 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface PPS - Port total.csv
+-rw-r--r--       3627 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 0.csv
+-rw-r--r--       3608 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 1.csv
+-rw-r--r--       1879 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 2.csv
+-rw-r--r--       1879 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 3.csv
+-rw-r--r--       3823 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Interface Utilization - Port total.csv
+-rw-r--r--       3078 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Profiler data sample collection latency.csv
+-rw-r--r--       3919 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1063.csv
+-rw-r--r--       3922 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1064.csv
+-rw-r--r--       3925 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1190.csv
+-rw-r--r--       3923 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1191.csv
+-rw-r--r--       2983 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1063.csv
+-rw-r--r--       2987 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1064.csv
+-rw-r--r--       3055 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1190.csv
+-rw-r--r--       3061 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1191.csv
+-rw-r--r--       9751 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1000.csv
+-rw-r--r--       9741 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1001.csv
+-rw-r--r--       9725 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1063.csv
+-rw-r--r--       9743 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1064.csv
+-rw-r--r--       9745 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1127.csv
+-rw-r--r--       9751 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1128.csv
+-rw-r--r--       9723 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1190.csv
+-rw-r--r--       9731 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1191.csv
+-rw-r--r--       9247 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 RX.csv
+-rw-r--r--       9243 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 TX.csv
+-rw-r--r--       9249 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 RX.csv
+-rw-r--r--       9240 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 TX.csv
+-rw-r--r--       3343 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 RX.csv
+-rw-r--r--       3343 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 TX.csv
+-rw-r--r--       3343 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 RX.csv
+-rw-r--r--       3343 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 TX.csv
+-rw-r--r--      15185 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port total RX.csv
+-rw-r--r--      15172 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/csv/trafficgen_Stream PPS - Port total TX.csv
+-rw-r--r--    2820518 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/result.json
+-rw-r--r--     245851 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/result.txt
+drwxr-xr-x          - public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/tools-default
+drwxr-xr-x          - public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124
+drwxr-xr-x          - public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/turbostat
+-rw-r--r--       3720 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/turbostat/turbostat-stderr.txt
+-rw-r--r--     348821 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        275 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/turbostat/turbostat.cmd
+-rw-r--r--      19768 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/trafficgen-average.txt
+-rwxr-xr-x        302 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/trafficgen-postprocess.cmd
+-rw-r--r--      10870 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/sample1/trafficgen.html
+-rwxr-xr-x        563 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/1-forwarding_test.json-5pct_drop/trafficgen.cmd
+-rwxr-xr-x        604 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/generate-benchmark-summary.cmd
+-rw-r--r--        750 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/metadata.log
+-rwxr-xr-x        404 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/pbench-trafficgen.cmd
+-rw-r--r--       3637 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/pbench.log
+-rw-r--r--      20702 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/result.csv
+-rw-r--r--     102946 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/result.html
+-rw-r--r--    4061369 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/result.json
+-rw-r--r--      73495 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/result.txt
+-rw-r--r--        818 public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38/trex_cfg.yaml
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/results/perf122
+lrwxrwxrwx        181 public_html/results/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38 -> /var/tmp/pbench-test-server/test-7.19/pbench/public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-7.19/pbench-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--       3324 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       3951 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-unpack-tarballs
+-rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+-rw-rw-r--       1021 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-7.19/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.19/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
++++ pbench log file contents
+++++ pbench-local/logs
++++++ pbench-audit-server/pbench-audit-server.error
+----- pbench-audit-server/pbench-audit-server.error
++++++ pbench-audit-server/pbench-audit-server.log
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/TO-INDEX-TOOL/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz (size 1030152)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [1 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/TO-INDEX-TOOL/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz (size 1030152)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index-tool-data/pbench-index-tool-data.log
++++++ pbench-index/pbench-index.log
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
+1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/TO-INDEX/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz (size 1030152)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [1 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [7 table-of-contents documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [0 result documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 24208, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/TO-INDEX/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz (size 1030152)
+1970-01-01T00:00:00.000000 WARNING pbench-index.indexer dump_opctx -- ** Errors encountered while indexing: [{"counters": {"sample_missing_timeseries": 27}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.19/pbench/archive/fs-version-001/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38.tar.xz"}]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index/pbench-index.log
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
+run-1970-01-01T00:00:00-UTC
+ln -s /var/tmp/pbench-test-server/test-7.19/pbench/public_html/incoming/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38 /var/tmp/pbench-test-server/test-7.19/pbench/public_html/results/perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38
+run-1970-01-01T00:00:00-UTC: perf122/trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38: success - elapsed time (secs): 0 - size (bytes): 1030152
+run-1970-01-01T00:00:00-UTC: Processed 1 tarballs
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
+---- pbench-local/logs
+++++ pbench-satellite-local/logs
+---- pbench-satellite-local/logs
+--- pbench log file contents

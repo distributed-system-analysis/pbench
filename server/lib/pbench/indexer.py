@@ -888,34 +888,76 @@ class ResultData(PbenchData):
         gen = self._make_source_json()
         return gen
 
-    # Table of data for supported benchmarks and what to look for in the
-    # results JSON for "sub-lists" of reported data.
+    # Set of supported benchmarks.
     #
-    # Latency results include a latency['usec'] list (or
-    # latency['clat'|'slat'|???] in the fio case) *and* a
-    # throughput['trans_sec'] list (or throughput['iops_sec'] in the fio
-    # case). Each list has elements for "all" and for each client/server pair
-    # (or client?) used in the test.
+    # There are three categories of "result types" produced by the benchmarks
+    # we support for indexing: "latency", "resource", and "throughput".  At
+    # least one of these result types is expected, but benchmarks produce some
+    # combination of the three.
     #
-    # Throughput results include a trans_sec, Gb_sec or iops_sec list only,
-    # depending on the benchmark (uperf or fio) and the kind of iteration:
-    # latency measurements include a trans_sec throughput sublist, but
-    # throughput measurements include a GB_sec sublist (for uperf) or an
-    # iops_sec sublist (for fio).
-    _benchmarks = {
-        'uperf': {
-            'latency': ['usec'],
-            'throughput': ['trans_sec', 'Gb_sec']
-        },
-        "fio": {
-            'latency': ['clat', 'lat', 'slat'],
-            'throughput': ['iops_sec']
-        },
-        "trafficgen": {
-        },
-        "user-benchmark": {
-        }
-    }
+    # So a result.json top-level might look like the following:
+    #
+    #   [
+    #     {
+    #       "iteration_data": {
+    #         "parameters": {...},
+    #         "latency": {...},
+    #         "resource": {...},
+    #         "throughput": {...}
+    #       }
+    #     }
+    #   ]
+    #
+    # Each "result type" is a dictionary containing one or more results with
+    # the "title" of each result being the "key" in the dictionary, and its
+    # value an array of result data.  For example, the following are typical
+    # contents one might see of fio, trafficgen, and uperf data:
+    #
+    #   [ # fio
+    #     {
+    #       "iteration_data": {
+    #         "parameters": {...},
+    #         "latency": {
+    #           "clat": [],
+    #           "lat": [],
+    #           "slat": []
+    #         },
+    #         "throughput": {
+    #           "iops_sec": []
+    #         }
+    #       }
+    #     }
+    #   ]
+    #
+    #   [ # trafficgen
+    #     {
+    #       "iteration_data": {
+    #         "parameters": {...},
+    #         "latency": {
+    #         },
+    #         "resource": {
+    #         },
+    #         "throughput": {
+    #         }
+    #       }
+    #     }
+    #   ]
+    #
+    #   [ # uperf
+    #     {
+    #       "iteration_data": {
+    #         "parameters": {...},
+    #         "latency": {
+    #           "usec": []
+    #         },
+    #         "throughput": {
+    #           "trans_sec": [],
+    #           "Gb_sec": []
+    #         }
+    #       }
+    #     }
+    #   ]
+    _benchmarks = set(['fio', 'trafficgen', 'uperf', 'user-benchmark'])
 
     def _make_source_json(self):
         """Generate source documents for all result.json files we need to
@@ -1043,16 +1085,14 @@ class ResultData(PbenchData):
             self.counters['bad_result_data_in_json_file_missing_bm_name'] += 1
             return
         # Skip any results that we don't support.
-        try:
-            bm_driver_data = self._benchmarks[benchmark]
-        except KeyError:
-            # We don't handle this kind of benchmark currently, so we
-            # silently skip it.
+        if benchmark not in self._benchmarks:
             return
-        else:
-            del bm_md['benchmark_name']
-            bm_md['name'] = benchmark
-        # Rename the benchmark_version field.
+
+        # Rename the benchmark_name field to just 'name'.
+        del bm_md['benchmark_name']
+        bm_md['name'] = benchmark
+
+        # Rename the benchmark_version field to just 'version'.
         try:
             bmv = bm_md['benchmark_version']
         except KeyError:
@@ -1090,12 +1130,47 @@ class ResultData(PbenchData):
             conflicts = new_conflicts
 
         try:
-            bm_md['uid_tmpl'] = bm_md['uid']
+            curr_runtime = bm_md['runtime']
         except KeyError:
-            # Ignore a missing uid field
+            # Ignore a missing 'runtime' field
             pass
         else:
-            bm_md['uid'] = ResultData.expand_template(bm_md['uid_tmpl'], bm_md, run=self.run_metadata)
+            # Ensure the "runtime" field is a string
+            bm_md['runtime'] = str(bm_md['runtime'])
+
+        try:
+            # Attempt to copy the `uid` field to a renamed field adding the
+            # "_tmpl" suffix to indicate it is just a template for forming
+            # the UID value.
+            bm_md['uid_tmpl'] = bm_md['uid']
+        except KeyError:
+            # Ignore a missing 'uid' field
+            pass
+        else:
+            # Now that we have a proper "template" field, generate the actual
+            # UID from the template using the existing metadata we have
+            # collected.
+            bm_md['uid'] = ResultData.expand_template(bm_md['uid_tmpl'],
+                    bm_md, run=self.run_metadata)
+
+        try:
+            # Attempt to copy the `trafficgen_uid` field to a renamed field
+            # adding the "_tmpl" suffix to indicate it is just a template for
+            # forming the trafficgen UID value.
+            #
+            # FIXME: this is a "traffigen" specific field; we take care of
+            # this here because we don't have a mechanism for source-data-
+            # specific transformations external to the code.
+            bm_md['trafficgen_uid_tmpl'] = bm_md['trafficgen_uid']
+        except KeyError:
+            # Ignore a missing 'trafficgen_uid' field
+            pass
+        else:
+            # Now that we have a proper "template" field, generate the actual
+            # UID from the template using the existing metadata we have
+            # collected.
+            bm_md['trafficgen_uid'] = ResultData.expand_template(
+                    bm_md['trafficgen_uid_tmpl'], bm_md, run=self.run_metadata)
 
         iteration = _dict_const([
                 ( 'run', self.run_metadata ),
@@ -1115,9 +1190,8 @@ class ResultData(PbenchData):
         # array of result data for the given sample.  And iteration can have
         # N samples, so we yield N sample documents, each followed by M result
         # data documents.
-        for source, _parent, _type in ResultData.gen_sources(
-                iter_data, bm_driver_data, iteration,
-                self.mk_abs_timestamp_millis):
+        for source, _parent, _type in ResultData.gen_sources(self,
+                iter_data, iteration, self.mk_abs_timestamp_millis):
             yield source, PbenchData.make_source_id(source, _parent=_parent), \
                     _parent, _type
 
@@ -1157,33 +1231,34 @@ class ResultData(PbenchData):
         return s
 
     @staticmethod
-    def make_sample_wrapper(mtype, units, datum):
+    def make_sample_wrapper(result_type, title, result_el_idx, result_el):
         # Save the samples for the caller, then delete it from the datum.
-        samples = datum['samples']
-        del datum['samples']
+        samples = result_el['samples']
+        del result_el['samples']
         try:
-            datum['closest_sample'] = datum['closest sample']
+            result_el['closest_sample'] = result_el['closest sample']
         except KeyError:
             pass
         else:
-            del datum['closest sample']
+            del result_el['closest sample']
         try:
-            datum['read_or_write'] = datum['read(0) or write(1)']
+            result_el['read_or_write'] = result_el['read(0) or write(1)']
         except KeyError:
             pass
         else:
-            del datum['read(0) or write(1)']
+            del result_el['read(0) or write(1)']
         # Add argument values ...
-        datum['measurement_type'] = mtype
-        datum['measurement_units'] = units
-        # Construct the uid from the template and the values in datum
+        result_el['measurement_type'] = result_type
+        result_el['measurement_idx'] = result_el_idx
+        result_el['measurement_title'] = title
+        # Construct the uid from the template and the values in result_el
         # and replace the template with the result.
-        datum['uid_tmpl'] = datum['uid']
-        datum['uid'] = ResultData.expand_template(datum['uid_tmpl'], datum)
-        return datum, samples
+        result_el['uid_tmpl'] = result_el['uid']
+        result_el['uid'] = ResultData.expand_template(result_el['uid_tmpl'], result_el)
+        return result_el, samples
 
     @staticmethod
-    def gen_sources(results, sublists, iteration, cvt_ts):
+    def gen_sources(obj, results, iteration, cvt_ts):
         """Generate actual source documents from the given results object.
 
         This generator yields: source, parent_id, doc_type
@@ -1195,112 +1270,108 @@ class ResultData(PbenchData):
             ( 'id', iteration['run']['id'] ),
             ( 'name', iteration['run']['name'] )
             ])
-        for result_type in ['latency', 'throughput']:
+        for result_type in ['latency', 'resource', 'throughput']:
             try:
                 result_type_results = results[result_type]
             except KeyError:
                 # No results to report.
-                pass
-            else:
-                for sublist in sublists[result_type]:
-                    try:
-                        result_type_list = result_type_results[sublist]
-                    except KeyError:
-                        # This sublist does not exist, ignore.
-                        continue
-                    for result_type_el in result_type_list:
-                        sample_md, samples = ResultData.make_sample_wrapper(
-                                result_type, sublist, result_type_el)
-                        sample_idx = 0
-                        for sample in samples:
-                            # Reach into the timeseries data to get the first
-                            # entry as the start time of the sample, and the
-                            # last entry as the ending timestamp of the
-                            # sample.
-                            try:
-                                tseries = sample['timeseries']
-                            except KeyError:
-                                self.counters['sample_missing_timeseries'] += 1
+                continue
+            for title, results_list_for_title in sorted(
+                    result_type_results.items()):
+                for result_el_idx, result_el in enumerate(results_list_for_title):
+                    sample_md, samples = ResultData.make_sample_wrapper(
+                            result_type, title, result_el_idx, result_el)
+                    sample_idx = 0
+                    for sample in samples:
+                        # Reach into the timeseries data to get the first
+                        # entry as the start time of the sample, and the
+                        # last entry as the ending timestamp of the
+                        # sample.
+                        try:
+                            tseries = sample['timeseries']
+                        except KeyError:
+                            obj.counters['sample_missing_timeseries'] += 1
+                            continue
+                        else:
+                            if not tseries:
+                                obj.counters['sample_empty_timeseries'] += 1
                                 continue
-                            else:
-                                if not tseries:
-                                    self.counters['sample_empty_timeseries'] += 1
-                                    continue
-                            start = tseries[0]
-                            end = tseries[-1]
-                            try:
-                                start_ts = cvt_ts(start['date'])
-                                end_ts = cvt_ts(end['date'])
-                            except KeyError:
-                                self.counters['timeseries_missing_date'] += 1
-                                continue
-                            except BadDate:
-                                # Ignore entire sample if start/end timestamps
-                                # are bad.  Already counted.
-                                continue
-                            del sample['timeseries']
-                            # Remember the order in which samples were
-                            # processed (zero based).
-                            sample_md['@idx'] = sample_idx
-                            sample_idx += 1
-                            # Construct the same name (one based)
-                            sample_md['name'] = "sample{:d}".format(sample_idx)
-                            sample_md_subset = _dict_const([
-                                    ( 'name', sample_md['name'] ),
-                                    ( '@idx', sample_md['@idx'] ),
-                                    ( 'uid', sample_md['uid'] ),
-                                    ( 'measurement_type', sample_md['measurement_type'] ),
-                                    ( 'measurement_units', sample_md['measurement_units'] )
-                                ])
-                            sample_md['start'] = start_ts
-                            sample_md['end'] = end_ts
-                            # Now we can emit the sample document knowing the
-                            # ID of its iteration parent document.
-                            source = _dict_const([
-                                ( '@timestamp', start_ts ),
-                                ( '@timestamp_original', start['date'] ),
-                                # Sample documents inherit the run and
-                                # iteration data of its parent.
-                                ( 'run', iteration['run'] ),
-                                ( 'iteration', iteration['iteration'] ),
-                                ( 'benchmark', iteration['benchmark'] ),
-                                ( 'sample', sample_md )
+                        start = tseries[0]
+                        end = tseries[-1]
+                        try:
+                            start_ts = cvt_ts(start['date'])
+                            end_ts = cvt_ts(end['date'])
+                        except KeyError:
+                            obj.counters['timeseries_missing_date'] += 1
+                            continue
+                        except BadDate:
+                            # Ignore entire sample if start/end timestamps
+                            # are bad.  Already counted.
+                            continue
+                        del sample['timeseries']
+                        # Remember the order in which samples were
+                        # processed (zero based).
+                        sample_md['@idx'] = sample_idx
+                        sample_idx += 1
+                        # Construct the same name (one based)
+                        sample_md['name'] = "sample{:d}".format(sample_idx)
+                        sample_md_subset = _dict_const([
+                                ( 'name', sample_md['name'] ),
+                                ( '@idx', sample_md['@idx'] ),
+                                ( 'uid', sample_md['uid'] ),
+                                ( 'measurement_type', sample_md['measurement_type'] ),
+                                ( 'measurement_idx', sample_md['measurement_idx'] ),
+                                ( 'measurement_title', sample_md['measurement_title'] )
                             ])
-                            sample_id = PbenchData.make_source_id(source)
-                            yield source, None, 'sample'
-                            # Now we can yield each entry of the timeseries
-                            # data for this sample.
-                            prev_ts = None
-                            value_idx = 0
-                            for res in tseries:
-                                orig_ts = res['date']
-                                del res['date']
-                                if prev_ts is not None:
-                                    assert prev_ts <= orig_ts, "prev_ts %r > orig_ts %r" % (prev_ts, orig_ts)
-                                ts = cvt_ts(orig_ts)
-                                prev_ts = orig_ts
-                                # Now we can emit the actual timeseries value
-                                # as a small record not having any sample or
-                                # iteration data, found only by its parent
-                                # sample ID or by its parent identifying
-                                # metadata.
-                                res['@idx'] = value_idx
-                                value_idx += 1
-                                try:
-                                    res['read_or_write'] = res['read(0) or write(1)']
-                                except KeyError:
-                                    pass
-                                else:
-                                    del res['read(0) or write(1)']
-                                source = _dict_const([
-                                    ( '@timestamp', ts ),
-                                    ( '@timestamp_original', orig_ts ),
-                                    ( 'run', run_md_subset),
-                                    ( 'iteration', iteration_md_subset ),
-                                    ( 'sample', sample_md_subset ),
-                                    ( 'result', res )
-                                    ])
-                                yield source, sample_id, 'res'
+                        sample_md['start'] = start_ts
+                        sample_md['end'] = end_ts
+                        # Now we can emit the sample document knowing the
+                        # ID of its iteration parent document.
+                        source = _dict_const([
+                            ( '@timestamp', start_ts ),
+                            ( '@timestamp_original', start['date'] ),
+                            # Sample documents inherit the run and
+                            # iteration data of its parent.
+                            ( 'run', iteration['run'] ),
+                            ( 'iteration', iteration['iteration'] ),
+                            ( 'benchmark', iteration['benchmark'] ),
+                            ( 'sample', sample_md )
+                        ])
+                        sample_id = PbenchData.make_source_id(source)
+                        yield source, None, 'sample'
+                        # Now we can yield each entry of the timeseries
+                        # data for this sample.
+                        prev_ts = None
+                        value_idx = 0
+                        for res in tseries:
+                            orig_ts = res['date']
+                            del res['date']
+                            if prev_ts is not None:
+                                assert prev_ts <= orig_ts, "prev_ts %r > orig_ts %r" % (prev_ts, orig_ts)
+                            ts = cvt_ts(orig_ts)
+                            prev_ts = orig_ts
+                            # Now we can emit the actual timeseries value
+                            # as a small record not having any sample or
+                            # iteration data, found only by its parent
+                            # sample ID or by its parent identifying
+                            # metadata.
+                            res['@idx'] = value_idx
+                            value_idx += 1
+                            try:
+                                res['read_or_write'] = res['read(0) or write(1)']
+                            except KeyError:
+                                pass
+                            else:
+                                del res['read(0) or write(1)']
+                            source = _dict_const([
+                                ( '@timestamp', ts ),
+                                ( '@timestamp_original', orig_ts ),
+                                ( 'run', run_md_subset),
+                                ( 'iteration', iteration_md_subset ),
+                                ( 'sample', sample_md_subset ),
+                                ( 'result', res )
+                                ])
+                            yield source, sample_id, 'res'
         return
 
 

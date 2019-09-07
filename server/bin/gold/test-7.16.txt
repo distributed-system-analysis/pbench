@@ -29,7 +29,6 @@ len(actions) = 1
 ]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -37,6 +36,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -62,7 +62,6 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -70,13 +69,14 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
-A source does not conform to mapping: key 'uperf_servers' not found in ['bs', 'clients', 'clocksource', 'closest_sample', 'direct', 'filename', 'instances', 'iodepth', 'ioengine', 'log_avg_msec', 'log_hist_msec', 'max_stddevpct', 'message_size_bytes', 'name', 'numjobs', 'primary_metric', 'protocol', 'ramp_time', 'runtime', 'rw', 'servers', 'size', 'sync', 'test_type', 'time_based', 'uid', 'uid_tmpl', 'version']
-A source does not conform to mapping: key 'uperf_clients' not found in ['bs', 'clients', 'clocksource', 'closest_sample', 'direct', 'filename', 'instances', 'iodepth', 'ioengine', 'log_avg_msec', 'log_hist_msec', 'max_stddevpct', 'message_size_bytes', 'name', 'numjobs', 'primary_metric', 'protocol', 'ramp_time', 'runtime', 'rw', 'servers', 'size', 'sync', 'test_type', 'time_based', 'uid', 'uid_tmpl', 'version']
-A source does not conform to mapping: key 'uperf__servers' not found in ['bs', 'clients', 'clocksource', 'closest_sample', 'direct', 'filename', 'instances', 'iodepth', 'ioengine', 'log_avg_msec', 'log_hist_msec', 'max_stddevpct', 'message_size_bytes', 'name', 'numjobs', 'primary_metric', 'protocol', 'ramp_time', 'runtime', 'rw', 'servers', 'size', 'sync', 'test_type', 'time_based', 'uid', 'uid_tmpl', 'version']
+A source does not conform to mapping: key 'uperf_servers' not found in ['active_device_pairs', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'closest_sample', 'device_pairs', 'direct', 'duplicate_packet_failure_mode', 'enable_trex_profiler', 'filename', 'instances', 'iodepth', 'ioengine', 'latency_rate', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'numjobs', 'output_dir', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'uperf_clients' not found in ['active_device_pairs', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'closest_sample', 'device_pairs', 'direct', 'duplicate_packet_failure_mode', 'enable_trex_profiler', 'filename', 'instances', 'iodepth', 'ioengine', 'latency_rate', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'numjobs', 'output_dir', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'uperf__servers' not found in ['active_device_pairs', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'closest_sample', 'device_pairs', 'direct', 'duplicate_packet_failure_mode', 'enable_trex_profiler', 'filename', 'instances', 'iodepth', 'ioengine', 'latency_rate', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'numjobs', 'output_dir', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'validation_runtime', 'version', 'warmup_trial_runtime']
 A source does not conform to mapping: key 'benchmark' has bad mapping
-Index:  pbench-unittests.v2.result-data.2018-10-04 724
+Index:  pbench-unittests.v3.result-data.2018-10-04 724
 Index:  pbench-unittests.v3.run.2018-10 64
 len(actions) = 30
 [
@@ -928,8 +928,8 @@ len(actions) = 30
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "b42e5b0e9c2e9647dc753ac395621b84",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "2e1b3b9fe7328434a71301a01674fd58",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
@@ -973,8 +973,9 @@ len(actions) = 30
                 "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
                 "end": "2018-10-04T12:40:28.404000",
                 "mean": 58.38,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "role": "client",
                 "server_hostname": "40.40.20.71",
@@ -989,10 +990,10 @@ len(actions) = 30
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "90ee70c24739652802dbcb81d9ed4fdb",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "99287ed5f6fc9eb779c24cf8a10301fb",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:29.152000",
             "@timestamp_original": 1538656649152,
@@ -1010,8 +1011,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1019,10 +1021,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "a8712133f6ba0b65238fb8f528ee9f92",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "fadebee834d833f2c932e77d2af80791",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:30.153000",
             "@timestamp_original": 1538656650153,
@@ -1040,8 +1042,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1049,10 +1052,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "2442d9021c252d5ad71750045ee7ef63",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "4708139e7d1a57dc068afd751ae81974",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:31.154000",
             "@timestamp_original": 1538656651154,
@@ -1070,8 +1073,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1079,10 +1083,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "c2fb9bd44be46e494bc7dddd68baf453",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "3449ff2dea67ec6da17c1bccb83c188e",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:32.156000",
             "@timestamp_original": 1538656652156,
@@ -1100,8 +1104,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1109,10 +1114,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "89403bcf6722bcf78638f05f8b4d1881",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "aae0a74ef7da2905027e743a326495e3",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:33.157000",
             "@timestamp_original": 1538656653157,
@@ -1130,8 +1135,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1139,10 +1145,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "5c58552ee8e42bdddaf23d9f335d295c",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "89b005a28785368f7b8962acd65c94da",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:34.158000",
             "@timestamp_original": 1538656654158,
@@ -1160,8 +1166,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1169,10 +1176,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "d40c25fa0c158d9bd427a4fd90ceee28",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "689abe11442635cf1baad780fdc48a64",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:35.159000",
             "@timestamp_original": 1538656655159,
@@ -1190,8 +1197,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1199,10 +1207,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "0bce9f5701a9687b711faa4934fda1f6",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "f4830c4ba30c1ad345da816985e7bbbc",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:36.160000",
             "@timestamp_original": 1538656656160,
@@ -1220,8 +1228,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1229,10 +1238,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "dc1636dd472a03f9fe4a9de546b37456",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "955be56150fedb4849cd5b840d89579f",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:37.179000",
             "@timestamp_original": 1538656657179,
@@ -1250,8 +1259,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1259,10 +1269,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "3767b672a06c56c57ea767de35140de8",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "6913bad8592de6026c60616ca404cd24",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:38.180000",
             "@timestamp_original": 1538656658180,
@@ -1280,8 +1290,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1289,10 +1300,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1866dfe01b594b9d8c0049f311672084",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "60e68091b28da5b54b0749c86dd94909",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:39.181000",
             "@timestamp_original": 1538656659181,
@@ -1310,8 +1321,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1319,10 +1331,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "d172b27d99a24dc0c135906e6ac3583d",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "036dd42c5486f49f2a90467cb24d8b6b",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:40.182000",
             "@timestamp_original": 1538656660182,
@@ -1340,8 +1352,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1349,10 +1362,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "96278eb237751b967371da9904513a21",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "ac6b35c2ec2230c7665217e18540f3bb",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:41.182000",
             "@timestamp_original": 1538656661182,
@@ -1370,8 +1383,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1379,10 +1393,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "9b79d28714252e2a155c50489dd06386",
-        "_index": "pbench-unittests.v2.result-data.2018-10-04",
+        "_id": "299fa21926acd24d103818a0a275f9ab",
+        "_index": "pbench-unittests.v3.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "b42e5b0e9c2e9647dc753ac395621b84",
+        "_parent": "2e1b3b9fe7328434a71301a01674fd58",
         "_source": {
             "@timestamp": "2018-10-04T12:37:42.183000",
             "@timestamp_original": 1538656662183,
@@ -1400,8 +1414,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
                 "measurement_type": "latency",
-                "measurement_units": "usec",
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
@@ -1409,7 +1424,6 @@ len(actions) = 30
         "_type": "pbench-result-data"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -1417,6 +1431,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -1448,7 +1463,6 @@ len(actions) = 1
 ]
 --- Finished pbench-index (status=0)
 +++ Running pbench-index --tool-data
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -1456,6 +1470,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -1481,7 +1496,6 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -1489,6 +1503,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v2.tool-data-iostat.2018-10-04 558
@@ -9889,7 +9904,6 @@ len(actions) = 75
         "_type": "pbench-tool-data-proc-vmstat"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -9897,6 +9911,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1

@@ -622,6 +622,9 @@ declare -A cmds=(
     # Test bad controller.
     [test-7.18]="_run_indexing"
 
+    # Test trafficgen data.
+    [test-7.19]="_run_indexing"
+
     # activation test
     [test-8]="_run_activate"
 

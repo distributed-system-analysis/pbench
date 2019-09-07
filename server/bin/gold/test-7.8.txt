@@ -29,7 +29,6 @@ len(actions) = 1
 ]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -37,6 +36,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -62,7 +62,6 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -70,9 +69,10 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v2.result-data.2016-10-06 3597
+Index:  pbench-unittests.v3.result-data.2016-10-06 3597
 Index:  pbench-unittests.v3.run.2016-10 63
 len(actions) = 30
 [
@@ -1465,8 +1465,8 @@ len(actions) = 30
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "724e78807e85478f370f897658803675",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
@@ -1506,8 +1506,9 @@ len(actions) = 30
                 "description": "Number of gigabits sent by client for a period of 1 second",
                 "end": "2016-10-06T17:04:16.282000",
                 "mean": 13.7508199962502,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "role": "client",
                 "server_hostname": "10.10.40.14",
@@ -1522,10 +1523,10 @@ len(actions) = 30
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "326f979ec374cd721811e2e2b935e4c1",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "314542c33c78a95afd7f9ba3226e7bc1",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:17.472000",
             "@timestamp_original": 1475771657472,
@@ -1543,8 +1544,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1552,10 +1554,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "83c909a949255343c9b89f36dd43400c",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "133ef5e1f81327c2f077df2d0f5c7754",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:18.473000",
             "@timestamp_original": 1475771658473,
@@ -1573,8 +1575,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1582,10 +1585,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "6d9460475b8c60f816aa1589d6340edd",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "f14b43f73d8dad45035eb99c06f6dee4",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:19.474000",
             "@timestamp_original": 1475771659474,
@@ -1603,8 +1606,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1612,10 +1616,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "d413b878bf493b9c0d423a597545d477",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "3936e48938cec2a2ce8a5d9722469910",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:20.475000",
             "@timestamp_original": 1475771660475,
@@ -1633,8 +1637,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1642,10 +1647,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "b1d12efdda7acec5417c20f986018ea9",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "ac79c2193adab384cf28c44289b1a5a0",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:21.476000",
             "@timestamp_original": 1475771661476,
@@ -1663,8 +1668,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1672,10 +1678,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "59e2790347c49735c5f6045b5069408c",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "72750309ee07ac05f96c9efd98d9e2e7",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:22.478000",
             "@timestamp_original": 1475771662478,
@@ -1693,8 +1699,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1702,10 +1709,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "37f404c12adf4f5badf9dc1f5cf95a46",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "47266e25c06c8b025d8253a4e90654f0",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:23.479000",
             "@timestamp_original": 1475771663479,
@@ -1723,8 +1730,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1732,10 +1740,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "227516ecebd6eb2ff22b7229613ab9f9",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "8b1b25f41c19ebb696e7d86aa688a495",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:24.480000",
             "@timestamp_original": 1475771664480,
@@ -1753,8 +1761,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1762,10 +1771,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "25c35eb0b93791994f4aa0f4704e58eb",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "2ad377df20a6a34e84583d63f1dc5dda",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:25.481000",
             "@timestamp_original": 1475771665481,
@@ -1783,8 +1792,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1792,10 +1802,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "0070047359b9b82052d5d78479ed15fc",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "71bde8b18e39fea5baaee95f93a9e7f2",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:26.482000",
             "@timestamp_original": 1475771666482,
@@ -1813,8 +1823,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1822,10 +1833,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "e21a3afef69772c16def843fc4d08383",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "aa2f484b9c7805ed1323cb90bec54d5e",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:27.483000",
             "@timestamp_original": 1475771667483,
@@ -1843,8 +1854,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1852,10 +1864,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "f0191b1f791a197a080b246be0e58fe1",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "001fc38009f734aeff4636d86877e416",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:28.484000",
             "@timestamp_original": 1475771668484,
@@ -1873,8 +1885,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1882,10 +1895,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "bbc8328e5332bb33dc56c56451c56e3a",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "c4b90363f973a5a1978762cae30b3a5d",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:29.485000",
             "@timestamp_original": 1475771669485,
@@ -1903,8 +1916,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1912,10 +1926,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "acde83121febed484e5b9c2c39017a2c",
-        "_index": "pbench-unittests.v2.result-data.2016-10-06",
+        "_id": "2a29ef04522512e39af370830fe33035",
+        "_index": "pbench-unittests.v3.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "724e78807e85478f370f897658803675",
+        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
         "_source": {
             "@timestamp": "2016-10-06T16:34:30.486000",
             "@timestamp_original": 1475771670486,
@@ -1933,8 +1947,9 @@ len(actions) = 30
             },
             "sample": {
                 "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
                 "measurement_type": "throughput",
-                "measurement_units": "Gb_sec",
                 "name": "sample1",
                 "uid": "client_hostname:10.10.40.15-server_hostname:10.10.40.14-server_port:20010"
             }
@@ -1942,7 +1957,6 @@ len(actions) = 30
         "_type": "pbench-result-data"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -1950,6 +1964,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -1981,7 +1996,6 @@ len(actions) = 1
 ]
 --- Finished pbench-index (status=0)
 +++ Running pbench-index --tool-data
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -1989,6 +2003,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -2014,7 +2029,6 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -2022,6 +2036,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v2.tool-data-iostat.2016-10-06 27
@@ -8284,7 +8299,6 @@ len(actions) = 72
         "_type": "pbench-tool-data-proc-vmstat"
     }
 ]
-Template:  pbench-unittests.v2.result-data
 Template:  pbench-unittests.v2.tool-data-iostat
 Template:  pbench-unittests.v2.tool-data-mpstat
 Template:  pbench-unittests.v2.tool-data-pidstat
@@ -8292,6 +8306,7 @@ Template:  pbench-unittests.v2.tool-data-proc-interrupts
 Template:  pbench-unittests.v2.tool-data-proc-vmstat
 Template:  pbench-unittests.v2.tool-data-prometheus-metrics
 Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
 Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
