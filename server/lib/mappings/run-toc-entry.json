@@ -49,6 +49,14 @@
             },
             "mtime" : {
                 "type": "date"
+            },
+            "name" : {
+                "type": "string",
+                "index": "not_analyzed"
+            },
+            "ancestor_path_elements": {
+                "type": "string",
+                "index": "not_analyzed"
             }
         }
     }

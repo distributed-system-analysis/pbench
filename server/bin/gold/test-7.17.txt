@@ -195,26 +195,30 @@ len(actions) = 15
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "684ec54d6f71eaf6394957791b372cc8",
+        "_id": "867aa6785453e10a80b81f9d8fc7422c",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/",
+            "directory": "/1",
             "mode": "0o755",
-            "mtime": "2018-10-24T14:38:18"
+            "mtime": "2018-10-24T14:38:18",
+            "name": "1"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "8e72f4b79cb2516a2ce4c925ac1a458e",
+        "_id": "45b42d7d9749e64b9a38c31300275e25",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/",
+            "ancestor_path_elements": [
+                "1"
+            ],
+            "directory": "/1/reference-result",
             "files": [
                 {
                     "mode": "0o644",
@@ -225,44 +229,62 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-24T14:58:52"
+            "mtime": "2018-10-24T14:58:52",
+            "name": "reference-result"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "c96733aae007a9e73d810c185c3bb7d5",
+        "_id": "91fafa6c2fbfc1d65d181b9940533581",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result"
+            ],
+            "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
-            "mtime": "2018-10-24T14:58:51"
+            "mtime": "2018-10-24T14:58:51",
+            "name": "tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "3712fb522f32571434b74f5680e944d1",
+        "_id": "ee5b8aa52013ec6102c83c51ad1c7cbc",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/ansible-host/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default"
+            ],
+            "directory": "/1/reference-result/tools-default/ansible-host",
             "mode": "0o755",
-            "mtime": "2019-02-12T21:12:50"
+            "mtime": "2019-02-12T21:12:50",
+            "name": "ansible-host"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "b16be8b6bacede708f4465ec72d8fb5b",
+        "_id": "11ff83fe2be512e072500ce7ab48838e",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/ansible-host/iostat/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "ansible-host"
+            ],
+            "directory": "/1/reference-result/tools-default/ansible-host/iostat",
             "files": [
                 {
                     "mode": "0o644",
@@ -301,18 +323,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-24T14:58:41"
+            "mtime": "2018-10-24T14:58:41",
+            "name": "iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "0826065879c5536f7db43ad9505bf866",
+        "_id": "0ab4e336686ea9fed43ad589778869cb",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/ansible-host/iostat/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "ansible-host",
+                "iostat"
+            ],
+            "directory": "/1/reference-result/tools-default/ansible-host/iostat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -365,18 +395,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-24T14:58:41"
+            "mtime": "2018-10-24T14:58:41",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "bbf24f7f6f14a18309bf2c9d7834a1e5",
+        "_id": "0b20f14eb3a1339a5b0cc73a0cdb44f7",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/ansible-host/pidstat/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "ansible-host"
+            ],
+            "directory": "/1/reference-result/tools-default/ansible-host/pidstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -471,18 +508,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-24T14:58:41"
+            "mtime": "2018-10-24T14:58:41",
+            "name": "pidstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "42c7c3d89a30e7eeb8ad82142a1b6fa6",
+        "_id": "47007fd30b0c0df15f5f113359cf74e8",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/ansible-host/pidstat/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "ansible-host",
+                "pidstat"
+            ],
+            "directory": "/1/reference-result/tools-default/ansible-host/pidstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -549,31 +594,44 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-24T14:58:41"
+            "mtime": "2018-10-24T14:58:41",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "f9728318f42ef861ccb4886a0bf35c77",
+        "_id": "fce5746a99c76e52c2de7ecc857a0911",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default"
+            ],
+            "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com",
             "mode": "0o755",
-            "mtime": "2019-02-12T21:13:46"
+            "mtime": "2019-02-12T21:13:46",
+            "name": "app-node-0.scale-ci.example.com"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "5a6a5331f89e94f0bfa5d9640d722f41",
+        "_id": "50d80a78f3bbe457be7e0c9f291b30df",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "app-node-0.scale-ci.example.com"
+            ],
+            "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -612,18 +670,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-24T14:58:51"
+            "mtime": "2018-10-24T14:58:51",
+            "name": "vmstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "7d8e5e44fd931ea850d048007fd8d081",
+        "_id": "ac0bb5b0d46462ff0a65571fe3ab75ad",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "app-node-0.scale-ci.example.com",
+                "vmstat"
+            ],
+            "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -669,31 +735,44 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-24T14:58:51"
+            "mtime": "2018-10-24T14:58:51",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "d98f8d88d045960db697918f5ae6b4da",
+        "_id": "0ed9fc137a7b234654eabc1a66c53638",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default"
+            ],
+            "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com",
             "mode": "0o755",
-            "mtime": "2019-02-12T21:13:46"
+            "mtime": "2019-02-12T21:13:46",
+            "name": "app-node-1.scale-ci.example.com"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "6ee7768bb5a6e5af034c29e9b78adb56",
+        "_id": "8bc037a0f83f0aa821041b35097f6aef",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "45f0e2af41977b89e07bae4303dc9972",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
-            "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "app-node-1.scale-ci.example.com"
+            ],
+            "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -732,7 +811,8 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-24T14:58:51"
+            "mtime": "2018-10-24T14:58:51",
+            "name": "vmstat"
         },
         "_type": "pbench-run-toc-entry"
     }

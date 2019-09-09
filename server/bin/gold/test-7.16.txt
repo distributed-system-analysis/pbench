@@ -219,13 +219,13 @@ len(actions) = 30
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "ae8f7af273bc8dc8faa4ce542091748f",
+        "_id": "c012555954f7934284635f0bf4eac68f",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/",
+            "directory": "/21-tcp_rr-1024B-1i",
             "files": [
                 {
                     "mode": "0o755",
@@ -264,18 +264,22 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:40:38"
+            "mtime": "2018-10-30T17:40:38",
+            "name": "21-tcp_rr-1024B-1i"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "59d735e8008150e3a320ed5a5bc59e0c",
+        "_id": "8d4d8c4a6f408c09829772fbadd70fd4",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1",
             "files": [
                 {
                     "mode": "0o644",
@@ -314,18 +318,23 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T18:20:55"
+            "mtime": "2018-10-30T18:20:55",
+            "name": "sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "949f4fb2e3964245fcba7c1487866d41",
+        "_id": "719905a1992693966ddf8da167193e8f",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/csv/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -343,44 +352,62 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:20"
+            "mtime": "2018-10-30T17:21:20",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "872a368046c9ab04af7343ec4c97cde1",
+        "_id": "bf166044e0d975f8e467f550f6ff36f5",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default",
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:20"
+            "mtime": "2018-10-30T17:21:20",
+            "name": "tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "c13f5db9203e803341919efbe561d8a5",
+        "_id": "187f077f1f04e48d064f36af02dc2502",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4",
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:20"
+            "mtime": "2018-10-30T17:21:20",
+            "name": "rhel8-4"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "a1b47f1cfa518c5b4ae3c08698a57970",
+        "_id": "7ab8b21d72d70e87a849451743b16c49",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/iostat/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-4"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/iostat",
             "files": [
                 {
                     "mode": "0o644",
@@ -419,18 +446,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:20"
+            "mtime": "2018-10-30T17:21:20",
+            "name": "iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "ffdd381bf171fb96fe3df18af67e5c8f",
+        "_id": "6adf7d121ed390884e5533b2573581a2",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/iostat/csv/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-4",
+                "iostat"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/iostat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -483,18 +518,25 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:20"
+            "mtime": "2018-10-30T17:21:20",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "b9b025009efa00a9ec35c3ce846277b4",
+        "_id": "1c9f6e487398c10fe3722ee325896a42",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/mpstat/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-4"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/mpstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -589,18 +631,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:19"
+            "mtime": "2018-10-30T17:21:19",
+            "name": "mpstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "634ecabe85d97bc99986d0b0e4b1ddc0",
+        "_id": "c5302f975494a9f8db912363537f4eaf",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/mpstat/csv/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-4",
+                "mpstat"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/mpstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -639,18 +689,25 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:19"
+            "mtime": "2018-10-30T17:21:19",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "70959e07c98eadf13eb44cae92731b51",
+        "_id": "bc0148bc54325708bb2a83180fc233cf",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/perf/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-4"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/perf",
             "files": [
                 {
                     "mode": "0o644",
@@ -696,18 +753,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:20"
+            "mtime": "2018-10-30T17:21:20",
+            "name": "perf"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "59fdcce83b5c5a03413e2c2ff982f6c1",
+        "_id": "fe30938605214828d72c24c5c7883a81",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/perf/perf-percpu/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-4",
+                "perf"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/perf/perf-percpu",
             "files": [
                 {
                     "mode": "0o644",
@@ -739,18 +804,25 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:20"
+            "mtime": "2018-10-30T17:21:20",
+            "name": "perf-percpu"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "a4a59258f983511935c4729dfffe5ec8",
+        "_id": "69864109f3555ab25dd674757601e229",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/pidstat/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-4"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/pidstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -845,18 +917,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:19"
+            "mtime": "2018-10-30T17:21:19",
+            "name": "pidstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "b064cd48db3a0e662120ee8d88985924",
+        "_id": "e205be2eeab2c60ba2f9393f6fa500a9",
         "_index": "pbench-unittests.v3.run.2018-10",
         "_op_type": "create",
         "_parent": "b7377b15e32ba3fa1579cf01cd90b192",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
-            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/pidstat/csv/",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-4",
+                "pidstat"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/pidstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -923,7 +1003,8 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-10-30T17:21:20"
+            "mtime": "2018-10-30T17:21:20",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },

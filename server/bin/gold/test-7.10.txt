@@ -249,13 +249,13 @@ len(actions) = 30
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "17fb7d4414b5091f6f8084cb3b6f6743",
+        "_id": "7a03e52ff28e8296d28df67fc9fde313",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/",
+            "directory": "/1-tcp_rr-64B-8i",
             "files": [
                 {
                     "mode": "0o755",
@@ -294,18 +294,22 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:12"
+            "mtime": "2018-02-02T20:59:12",
+            "name": "1-tcp_rr-64B-8i"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "c22974008b3a6b83162a4557b1347cd2",
+        "_id": "6f3efe68da6eab2f3253e4e3f167e17e",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1",
             "files": [
                 {
                     "mode": "0o644",
@@ -344,18 +348,23 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:12"
+            "mtime": "2018-02-02T20:59:12",
+            "name": "sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "0c4d157f7f62a4a439788474ac26e24a",
+        "_id": "8d6dbcd7db016016a694906223d8ee04",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/csv/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -373,44 +382,62 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:12"
+            "mtime": "2018-02-02T20:59:12",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "4ed15729fad856e109fbe93c7d048c8d",
+        "_id": "0ea6a57c177a39a1c45d05a8b440e4f7",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default",
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:11"
+            "mtime": "2018-02-02T20:59:11",
+            "name": "tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "fb5dd823222a366763e656aba844ca9c",
+        "_id": "486b26c1c458511aaf6c23ba4c4d5f1f",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1",
+                "tools-default"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44",
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:11"
+            "mtime": "2018-02-02T20:59:11",
+            "name": "dhcp31-44"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "840ffa8f661cd5045561eab927a7bd49",
+        "_id": "1016657ad71ea3f14bf265e291769c7d",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/iostat/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1",
+                "tools-default",
+                "dhcp31-44"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/iostat",
             "files": [
                 {
                     "mode": "0o644",
@@ -449,18 +476,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:10"
+            "mtime": "2018-02-02T20:59:10",
+            "name": "iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "a65fc37063bdea8d4a7b45ba2976ec3f",
+        "_id": "0e4753a903276bd9224fe512cd31ddbb",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/iostat/csv/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1",
+                "tools-default",
+                "dhcp31-44",
+                "iostat"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/iostat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -513,18 +548,25 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:10"
+            "mtime": "2018-02-02T20:59:10",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "a1003a4095cf111f01c8f490915eb6d7",
+        "_id": "244ba47b7a554cda01f0e6d6ca35be2e",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/mpstat/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1",
+                "tools-default",
+                "dhcp31-44"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/mpstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -577,18 +619,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:10"
+            "mtime": "2018-02-02T20:59:10",
+            "name": "mpstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "600e69aed3109663b8e1703a57347b9c",
+        "_id": "643148d0c775e5c4c6a27b01cb3263b5",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/mpstat/csv/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1",
+                "tools-default",
+                "dhcp31-44",
+                "mpstat"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/mpstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -606,18 +656,25 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:10"
+            "mtime": "2018-02-02T20:59:10",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "416de1ad0039a79d781a7a9fa3683216",
+        "_id": "369860cff77e538f675589b9158ce971",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/perf/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1",
+                "tools-default",
+                "dhcp31-44"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/perf",
             "files": [
                 {
                     "mode": "0o644",
@@ -663,18 +720,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:11"
+            "mtime": "2018-02-02T20:59:11",
+            "name": "perf"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "de293ba14498573ff39e2268e0bca137",
+        "_id": "7d0bc7add03de4273fdaaa765cdc4fc2",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/perf/perf-percpu/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1",
+                "tools-default",
+                "dhcp31-44",
+                "perf"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/perf/perf-percpu",
             "files": [
                 {
                     "mode": "0o644",
@@ -685,18 +750,25 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:11"
+            "mtime": "2018-02-02T20:59:11",
+            "name": "perf-percpu"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "864b9bb87b7d8a0b7dbd87934d98c1dd",
+        "_id": "7626a7073bed24488deca1450cb31167",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/pidstat/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1",
+                "tools-default",
+                "dhcp31-44"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/pidstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -791,18 +863,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:10"
+            "mtime": "2018-02-02T20:59:10",
+            "name": "pidstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "b5a23e3b86b055d7b387495e0474fb2f",
+        "_id": "b66bb8b32810d57c661aa235027ab098",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "4689ac905cf35910d5d110ea6724d5f3",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
-            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/pidstat/csv/",
+            "ancestor_path_elements": [
+                "1-tcp_rr-64B-8i",
+                "sample1",
+                "tools-default",
+                "dhcp31-44",
+                "pidstat"
+            ],
+            "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/pidstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -869,7 +949,8 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:59:10"
+            "mtime": "2018-02-02T20:59:10",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },

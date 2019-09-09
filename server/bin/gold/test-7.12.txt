@@ -330,26 +330,30 @@ len(actions) = 15
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "021469f7cd835739e0e0b06ef1c79d7c",
+        "_id": "7db28ceecd5e9e13ec439b18a062ecba",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/",
+            "directory": "/1",
             "mode": "0o755",
-            "mtime": "2018-02-05T21:06:05"
+            "mtime": "2018-02-05T21:06:05",
+            "name": "1"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "36c12750613894ed367ddeecdbeaedfd",
+        "_id": "1422fd184de001cdba37246cdd890dba",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/",
+            "ancestor_path_elements": [
+                "1"
+            ],
+            "directory": "/1/reference-result",
             "files": [
                 {
                     "mode": "0o644",
@@ -360,44 +364,62 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-05T21:09:07"
+            "mtime": "2018-02-05T21:09:07",
+            "name": "reference-result"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "aa18fc1e91a5e16053a1e8c5dbf75f90",
+        "_id": "fcba27144a2a3398f5e5a2b2284b2480",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result"
+            ],
+            "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
-            "mtime": "2018-02-05T21:08:31"
+            "mtime": "2018-02-05T21:08:31",
+            "name": "tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "7b45219df04efabc825417d7d24aa7d0",
+        "_id": "ad194d825ed872e0c93479ce03b2e9bf",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216",
             "mode": "0o755",
-            "mtime": "2018-02-05T21:07:41"
+            "mtime": "2018-02-05T21:07:41",
+            "name": "svt_master_1_etcd_1:ip-172-31-47-216"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "2e2114b18fd3af0ec962e6fce2790266",
+        "_id": "421df93b1834a492cb5bf3dd1b401b79",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "svt_master_1_etcd_1:ip-172-31-47-216"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk",
             "files": [
                 {
                     "mode": "0o644",
@@ -436,18 +458,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-05T21:06:08"
+            "mtime": "2018-02-05T21:06:08",
+            "name": "disk"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "91cc17e503b64d582228e271f4b0bd9f",
+        "_id": "6b2e2573ddad5acab13d7df37769f2dc",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "svt_master_1_etcd_1:ip-172-31-47-216",
+                "disk"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -493,18 +523,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-05T21:06:08"
+            "mtime": "2018-02-05T21:06:08",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "5a40b256812157189dc8a458f203b48e",
+        "_id": "176e1b77faecb27bc7907fa92ced2a6d",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "svt_master_1_etcd_1:ip-172-31-47-216"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp",
             "files": [
                 {
                     "mode": "0o644",
@@ -1334,31 +1371,48 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-05T21:07:05"
+            "mtime": "2018-02-05T21:07:05",
+            "name": "haproxy-ocp"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "a2c5e796b34b8ba9056cab9f3e8347f1",
+        "_id": "37cacb687e74239a23cd57c812f1e0dc",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "svt_master_1_etcd_1:ip-172-31-47-216",
+                "haproxy-ocp"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config",
             "mode": "0o755",
-            "mtime": "2018-02-05T21:06:13"
+            "mtime": "2018-02-05T21:06:13",
+            "name": "config"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "3dff0a72dae2c40f49c70c3eeea024fa",
+        "_id": "4daa68dc4ba50911548dcdd4586608aa",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/start/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "svt_master_1_etcd_1:ip-172-31-47-216",
+                "haproxy-ocp",
+                "config"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/start",
             "files": [
                 {
                     "mode": "0o644",
@@ -1376,18 +1430,27 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-05T21:06:14"
+            "mtime": "2018-02-05T21:06:14",
+            "name": "start"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "f6b10978d880486a1ccf1cedeef0f087",
+        "_id": "ee96ccafd08e5d033a98b4d0a6048c8c",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/stop/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "svt_master_1_etcd_1:ip-172-31-47-216",
+                "haproxy-ocp",
+                "config"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/stop",
             "files": [
                 {
                     "mode": "0o644",
@@ -1405,18 +1468,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-05T21:06:13"
+            "mtime": "2018-02-05T21:06:13",
+            "name": "stop"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "82edf280e87463cacb87444ae98ae798",
+        "_id": "d30f5fe1fbfe36d9cb2d8895343d27bf",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "svt_master_1_etcd_1:ip-172-31-47-216",
+                "haproxy-ocp"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -1861,31 +1932,48 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-05T21:06:33"
+            "mtime": "2018-02-05T21:06:33",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "0896285affdce668a01910061e47449a",
+        "_id": "0c57a79d62cc04b55e9d46bc8c8c4b9c",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "svt_master_1_etcd_1:ip-172-31-47-216",
+                "haproxy-ocp"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs",
             "mode": "0o755",
-            "mtime": "2018-02-05T21:06:11"
+            "mtime": "2018-02-05T21:06:11",
+            "name": "logs"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "23b3c3c9907ebc2ece2e61ea5315c63a",
+        "_id": "8f0831c5f7583784ade6e8aaf90fa40f",
         "_index": "pbench-unittests.v3.run.2018-02",
         "_op_type": "create",
         "_parent": "168d7c14773f67f2befb7614c1c199d9",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
-            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/start/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "svt_master_1_etcd_1:ip-172-31-47-216",
+                "haproxy-ocp",
+                "logs"
+            ],
+            "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/start",
             "files": [
                 {
                     "mode": "0o644",
@@ -1903,7 +1991,8 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-05T21:06:11"
+            "mtime": "2018-02-05T21:06:11",
+            "name": "start"
         },
         "_type": "pbench-run-toc-entry"
     }
