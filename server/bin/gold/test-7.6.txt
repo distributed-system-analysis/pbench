@@ -150,39 +150,48 @@ len(actions) = 5
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "a5484091371e3429da1a41c6a534cffd",
+        "_id": "96238f5130ff95c8b14421d73f319aed",
         "_index": "pbench-unittests.v3.run.2015-09",
         "_op_type": "create",
         "_parent": "3a981319b66a844654ec964067b3850e",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
-            "directory": "/sysinfo/",
+            "directory": "/sysinfo",
             "mode": "0o775",
-            "mtime": "2015-09-21T18:57:56"
+            "mtime": "2015-09-21T18:57:56",
+            "name": "sysinfo"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "8db456ab71c968252356420162e8400f",
+        "_id": "eda813a9535fac1b065b3c3957465b28",
         "_index": "pbench-unittests.v3.run.2015-09",
         "_op_type": "create",
         "_parent": "3a981319b66a844654ec964067b3850e",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
-            "directory": "/sysinfo/foo/",
+            "ancestor_path_elements": [
+                "sysinfo"
+            ],
+            "directory": "/sysinfo/foo",
             "mode": "0o775",
-            "mtime": "2015-09-21T18:58:00"
+            "mtime": "2015-09-21T18:58:00",
+            "name": "foo"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "59d6d323ec1b5d454349f5f8c10b4155",
+        "_id": "fe9b8472a4acc957088f1b51608e5f42",
         "_index": "pbench-unittests.v3.run.2015-09",
         "_op_type": "create",
         "_parent": "3a981319b66a844654ec964067b3850e",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
-            "directory": "/sysinfo/foo/end/",
+            "ancestor_path_elements": [
+                "sysinfo",
+                "foo"
+            ],
+            "directory": "/sysinfo/foo/end",
             "files": [
                 {
                     "mode": "0o664",
@@ -200,7 +209,8 @@ len(actions) = 5
                 }
             ],
             "mode": "0o775",
-            "mtime": "2015-09-21T20:27:20"
+            "mtime": "2015-09-21T20:27:20",
+            "name": "end"
         },
         "_type": "pbench-run-toc-entry"
     }

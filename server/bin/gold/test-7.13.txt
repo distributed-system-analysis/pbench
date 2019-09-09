@@ -306,26 +306,30 @@ len(actions) = 15
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "839e52b870ae14b571fc9aeee8ffc739",
+        "_id": "ab1dd00efbc107b04748520156494c1c",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/",
+            "directory": "/1",
             "mode": "0o755",
-            "mtime": "2018-04-10T19:01:19"
+            "mtime": "2018-04-10T19:01:19",
+            "name": "1"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "2e03302dd66697c999590eb94a284c1d",
+        "_id": "3bf4979b71fe103f940c0213421fc6de",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/",
+            "ancestor_path_elements": [
+                "1"
+            ],
+            "directory": "/1/reference-result",
             "files": [
                 {
                     "mode": "0o644",
@@ -336,44 +340,62 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:04:23"
+            "mtime": "2018-04-10T19:04:23",
+            "name": "reference-result"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "f42b18ed72a0c59345c9da9962a023db",
+        "_id": "4eeca493e1cc105d0b59273ee7f9319d",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result"
+            ],
+            "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
-            "mtime": "2018-04-10T19:03:55"
+            "mtime": "2018-04-10T19:03:55",
+            "name": "tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "2a6fe1b7d6625f6cac18bf29e21377f5",
+        "_id": "9a4a3dbbf0746f25830eae7e8ded5fc6",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p",
             "mode": "0o755",
-            "mtime": "2018-05-22T20:28:32"
+            "mtime": "2018-05-22T20:28:32",
+            "name": "b03-h01-1029p"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "ca7a74107a002d9c385d1cf29257afc5",
+        "_id": "35ecb0a7d61a58cf3e50f8b2bb1bbfa8",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "b03-h01-1029p"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf",
             "files": [
                 {
                     "mode": "0o644",
@@ -419,18 +441,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:03:55"
+            "mtime": "2018-04-10T19:03:55",
+            "name": "perf"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "488198b15bb9e8374c70a481ac8133df",
+        "_id": "9a4dd03f532a5b220ef6035467a16c21",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf/perf-percpu/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "b03-h01-1029p",
+                "perf"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf/perf-percpu",
             "files": [
                 {
                     "mode": "0o644",
@@ -882,18 +912,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:03:52"
+            "mtime": "2018-04-10T19:03:52",
+            "name": "perf-percpu"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "ab779fb52ad79ee494a0e90cefa806ba",
+        "_id": "3a5e38d0c29de66ccd963eac2d6f5c12",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "b03-h01-1029p"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts",
             "files": [
                 {
                     "mode": "0o644",
@@ -960,18 +997,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2019-05-15T17:18:57"
+            "mtime": "2019-05-15T17:18:57",
+            "name": "proc-interrupts"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "55961d51d9aa392e6a6dba077ead7a77",
+        "_id": "fcdd84bf3aea2756844067a3144638c5",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "b03-h01-1029p",
+                "proc-interrupts"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -4111,18 +4156,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:03:34"
+            "mtime": "2018-04-10T19:03:34",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "3d8e6590762f4699dbde6ca6989b3677",
+        "_id": "96b7b6f74450dfc3c3653084861b2ae0",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "b03-h01-1029p"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -4161,18 +4213,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:03:27"
+            "mtime": "2018-04-10T19:03:27",
+            "name": "proc-vmstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "683e238bd288e1690fd1473437ac24b5",
+        "_id": "f071a0929b9b3dfe9ef99d9fe8703cb7",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "b03-h01-1029p",
+                "proc-vmstat"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -4295,18 +4355,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:03:27"
+            "mtime": "2018-04-10T19:03:27",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "aa78b79c9c3c6d95e541b09d3ddac16b",
+        "_id": "ed44840cab7f174f07a24cb51bc8742e",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "b03-h01-1029p"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar",
             "files": [
                 {
                     "mode": "0o644",
@@ -4422,18 +4489,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:03:43"
+            "mtime": "2018-04-10T19:03:43",
+            "name": "sar"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "259cb75b288a7f63874e8ecbcda492b0",
+        "_id": "dc9491659744cdc1e29e0ef0ad9043e9",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "b03-h01-1029p",
+                "sar"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -5025,18 +5100,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:03:43"
+            "mtime": "2018-04-10T19:03:43",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "f57f1da27de3cd8f8f273137a145d080",
+        "_id": "34ce756d29db3275e7796f7002175efc",
         "_index": "pbench-unittests.v3.run.2018-04",
         "_op_type": "create",
         "_parent": "a9019fa5e4128a77c5910fccddbb5de3",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
-            "directory": "/1/reference-result/tools-default/b03-h01-1029p/turbostat/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "b03-h01-1029p"
+            ],
+            "directory": "/1/reference-result/tools-default/b03-h01-1029p/turbostat",
             "files": [
                 {
                     "mode": "0o644",
@@ -5061,7 +5143,8 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:01:21"
+            "mtime": "2018-04-10T19:01:21",
+            "name": "turbostat"
         },
         "_type": "pbench-run-toc-entry"
     }

@@ -3479,8 +3479,9 @@ class PbenchTarBall(object):
 
         There should be one JSON document emitted per directory entry found in
         the tar ball. Each non-directory entry found is added to the given
-        directory entry it belongs. This is determined by the name element
-        which is always the full path of the object in the tar ball.
+        directory entry to which it belongs. This is determined by the
+        "Tarball" entry's `.name` attribute, which is always the full path of
+        the object in the tar ball.
 
         So given a tar file that looks like
         <prefix = "pbench-user-benchmark_ex-tb_2018.10.24T14.38.18">:
@@ -3502,23 +3503,22 @@ class PbenchTarBall(object):
         This method should emit JSON documents that look like:
 
         { "directory": "/",                                       "mode": 0o755, "mtime": "2018-10-24T10:58:01" }
-        { "directory": "/1/",                                     "mode": 0o755, "mtime": "2018-10-24T10:38:01" }
-        { "directory": "/rr/",                                    "mode": 0o755, "mtime": "2018-10-24T10:58:02" }
-        { "directory": "/rr/td/",                                 "mode": 0o755, "mtime": "2018-10-24T10:58:03" }
-        { "directory": "/rr/td/host.example.com/",                "mode": 0o755, "mtime": "2018-10-24T10:58:04" }
-        { "directory": "/rr/td/host.exmaple.com/iostat/",         "mode": 0o755, "mtime": "2018-10-24T10:58:05",
+        { "directory": "/1",                                      "mode": 0o755, "mtime": "2018-10-24T10:38:01" }
+        { "directory": "/rr",                                     "mode": 0o755, "mtime": "2018-10-24T10:58:02" }
+        { "directory": "/rr/td",                                  "mode": 0o755, "mtime": "2018-10-24T10:58:03" }
+        { "directory": "/rr/td/host.example.com",                 "mode": 0o755, "mtime": "2018-10-24T10:58:04" }
+        { "directory": "/rr/td/host.exmaple.com/iostat",          "mode": 0o755, "mtime": "2018-10-24T10:58:05",
             "files": [
                 { "name": "iostat.cmd",             "size":   48, "mode": 0o755, "mtime": "2018-10-24T10:38:06" },
                 { "name": "iostat-stdout.txt",      "size": 7598, "mode": 0o644, "mtime": "2018-10-24T10:58:07" },
                 { "name": "disk-average.txt",       "size":  382, "mode": 0o644, "mtime": "2018-10-24T10:58:11" },
                 { "name": "disk.html",              "size": 1379, "mode": 0o644, "mtime": "2018-10-24T10:58:12" }
             ] }
-        { "directory": "/rr/td/host.exmaple.com/iostat/csv/",     "mode": 0o755, "mtime": "2018-10-24T10:58:08",
+        { "directory": "/rr/td/host.exmaple.com/iostat/csv",      "mode": 0o755, "mtime": "2018-10-24T10:58:08",
             "files": [
                 { "name": "disk_IOPS.csv",           "size": 512, "mode": 0o644, "mtime": "2018-10-24T10:58:09" },
                 { "name": "disk_Wait_Time_msec.csv", "size": 512, "mode": 0o644, "mtime": "2018-10-24T10:58:10" }
             ] }
-
         """
         prefix_l = len(self.dirname)
         # Note we have to fully populate the dictionary by processing all the
@@ -3527,21 +3527,31 @@ class PbenchTarBall(object):
         toc_dirs = _dict_const()
         for m in self.members:
             # Always strip the prefix
-            name = m.name[prefix_l:]
+            path = m.name[prefix_l:]
             if m.isdir():
-                dname = name if name.endswith(os.path.sep) else "{}{}".format(
-                    name, os.path.sep)
-                if dname in toc_dirs:
+                if path == "/" or path == "":
+                    dpath = "/"
+                    name = None
+                    path_els = []
+                else:
+                    dpath = path[:-1] if path.endswith(os.path.sep) else path
+                    name = os.path.basename(dpath)
+                    path_els = dpath.split(os.path.sep)[1:-1]
+                if dpath in toc_dirs:
                     raise Exception("Logic bomb! Found a directory entry that"
                             " already exists!")
-                toc_dirs[dname] = _dict_const(
-                        directory=dname,
+                toc_dirs[dpath] = _dict_const(
+                        directory=dpath,
                         mtime=datetime.utcfromtimestamp(float(m.mtime)).isoformat(),
                         mode=oct(m.mode)
                     )
+                if name:
+                    toc_dirs[dpath]['name'] = name
+                if len(path_els) > 0:
+                    toc_dirs[dpath]['ancestor_path_elements'] = path_els
             else:
                 fentry = _dict_const(
-                        name=os.path.basename(name),
+                        name=os.path.basename(path),
                         mtime=datetime.utcfromtimestamp(float(m.mtime)).isoformat(),
                         size=m.size,
                         mode=oct(m.mode)
@@ -3553,15 +3563,13 @@ class PbenchTarBall(object):
                 fentry['type'] = ftype
                 if m.issym():
                     fentry['linkpath'] = m.linkpath
-                dname = os.path.dirname(name)
-                if not dname.endswith(os.path.sep):
-                    dname = "{}{}".format(dname, os.path.sep)
+                dpath = os.path.dirname(path)
                 # we may have created an empty dir entry already without a
                 # 'files' entry, so we now make sure that there is an
                 # empty 'files' entry that we can populate.
-                if 'files' not in toc_dirs[dname]:
-                    toc_dirs[dname]['files'] = []
-                toc_dirs[dname]['files'].append(fentry)
+                if 'files' not in toc_dirs[dpath]:
+                    toc_dirs[dpath]['files'] = []
+                toc_dirs[dpath]['files'].append(fentry)
         for key in sorted(toc_dirs.keys()):
             source = toc_dirs[key]
             try:

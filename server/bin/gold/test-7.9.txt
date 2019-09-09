@@ -179,26 +179,30 @@ len(actions) = 15
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "04ce7388058620db79b45710faef43f3",
+        "_id": "d0c6035fcccbda31d30e353229d29072",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/",
+            "directory": "/1",
             "mode": "0o755",
-            "mtime": "2017-04-21T20:38:16"
+            "mtime": "2017-04-21T20:38:16",
+            "name": "1"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "80776fdd9944ac28420af4df289f6305",
+        "_id": "1c3346ab941eddfb1b2a991cf22af127",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/",
+            "ancestor_path_elements": [
+                "1"
+            ],
+            "directory": "/1/reference-result",
             "files": [
                 {
                     "mode": "0o644",
@@ -209,44 +213,62 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:29"
+            "mtime": "2017-04-21T20:39:29",
+            "name": "reference-result"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "4bd7e6cab484c876655c5792f271c0ad",
+        "_id": "66bef871f9e9560d254e2bc9b2c1d5b7",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result"
+            ],
+            "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:22"
+            "mtime": "2017-04-21T20:39:22",
+            "name": "tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "8fe823f4ba3da2c823dfd6f798cac4ea",
+        "_id": "12c227cb992d73161c2ca9cac6688029",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144",
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:22"
+            "mtime": "2017-04-21T20:39:22",
+            "name": "dhcp31-144"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "3db1bff2f00d3d9bfffa017150752343",
+        "_id": "7e33b5c693b19f746c40fff8576d5914",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/iostat/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "dhcp31-144"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144/iostat",
             "files": [
                 {
                     "mode": "0o644",
@@ -285,18 +307,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:20"
+            "mtime": "2017-04-21T20:39:20",
+            "name": "iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "0281c7ef1d5c6df076d9a0c9064edafe",
+        "_id": "cf4cee24603cd52eb80d8ab5a2648fe5",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/iostat/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "dhcp31-144",
+                "iostat"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144/iostat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -349,18 +379,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:20"
+            "mtime": "2017-04-21T20:39:20",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "c2493ad822177f15d301c28741f31b32",
+        "_id": "cb78dfb81f7880a0231ef9f8efccc265",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "dhcp31-144"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -413,18 +450,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:21"
+            "mtime": "2017-04-21T20:39:21",
+            "name": "mpstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "2ce11c98dd69c6daf9a6692f62b7c966",
+        "_id": "ec418f48bf4d71b7b6f7548dca0f858b",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "dhcp31-144",
+                "mpstat"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -442,18 +487,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:21"
+            "mtime": "2017-04-21T20:39:21",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "601520c9116fc9bdcd1c3fab3563f35d",
+        "_id": "91df82972dedee1dd07f5a5715643f7f",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/perf/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "dhcp31-144"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144/perf",
             "files": [
                 {
                     "mode": "0o644",
@@ -499,18 +551,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:22"
+            "mtime": "2017-04-21T20:39:22",
+            "name": "perf"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "53b404bf7c83fdb27503ed4aa93c5b25",
+        "_id": "5f9eff7654429b57966aa1acbba6ffcf",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/perf/perf-percpu/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "dhcp31-144",
+                "perf"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144/perf/perf-percpu",
             "files": [
                 {
                     "mode": "0o644",
@@ -521,18 +581,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:21"
+            "mtime": "2017-04-21T20:39:21",
+            "name": "perf-percpu"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "18a73366bcfed0a4d655d963d1b41a29",
+        "_id": "adfedd4f979b9ba84ddbc1048f9d2954",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "dhcp31-144"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -627,18 +694,26 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:21"
+            "mtime": "2017-04-21T20:39:21",
+            "name": "pidstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "5b5cd21cc0e2d8d816a2b6062250e4d6",
+        "_id": "b7d2c1a25805df26326e0a67151b34fd",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat/csv/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "dhcp31-144",
+                "pidstat"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -705,18 +780,25 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:21"
+            "mtime": "2017-04-21T20:39:21",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "0cc2757f39b84ea903d563dc296aee13",
+        "_id": "b4534a5b74f0212ba4bf6cde8c3b3522",
         "_index": "pbench-unittests.v3.run.2017-04",
         "_op_type": "create",
         "_parent": "e67f9a770c94850a06db9c4bbe7f1ff9",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
-            "directory": "/1/reference-result/tools-default/dhcp31-144/proc-interrupts/",
+            "ancestor_path_elements": [
+                "1",
+                "reference-result",
+                "tools-default",
+                "dhcp31-144"
+            ],
+            "directory": "/1/reference-result/tools-default/dhcp31-144/proc-interrupts",
             "files": [
                 {
                     "mode": "0o644",
@@ -769,7 +851,8 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:20"
+            "mtime": "2017-04-21T20:39:20",
+            "name": "proc-interrupts"
         },
         "_type": "pbench-run-toc-entry"
     }

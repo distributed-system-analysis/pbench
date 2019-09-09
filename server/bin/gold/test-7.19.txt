@@ -194,13 +194,13 @@ len(actions) = 23
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "bb51b46687bb9f04e03755cf879479b6",
+        "_id": "69604d48e09dc14a572e7c5c3939429e",
         "_index": "pbench-unittests.v3.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
             "@timestamp": "2019-08-27T15:00:07.506390",
-            "directory": "/1-forwarding_test.json-5pct_drop/",
+            "directory": "/1-forwarding_test.json-5pct_drop",
             "files": [
                 {
                     "mode": "0o644",
@@ -232,18 +232,22 @@ len(actions) = 23
                 }
             ],
             "mode": "0o755",
-            "mtime": "2019-08-27T15:29:14"
+            "mtime": "2019-08-27T15:29:14",
+            "name": "1-forwarding_test.json-5pct_drop"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "92c72b6d13e6dc1992b1708c53e3917c",
+        "_id": "f57cb4d9b747503fc70e3411abb63af5",
         "_index": "pbench-unittests.v3.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
             "@timestamp": "2019-08-27T15:00:07.506390",
-            "directory": "/1-forwarding_test.json-5pct_drop/sample1/",
+            "ancestor_path_elements": [
+                "1-forwarding_test.json-5pct_drop"
+            ],
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1",
             "files": [
                 {
                     "mode": "0o644",
@@ -863,18 +867,23 @@ len(actions) = 23
                 }
             ],
             "mode": "0o755",
-            "mtime": "2019-08-27T15:29:13"
+            "mtime": "2019-08-27T15:29:13",
+            "name": "sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "7aa1a1fac00a10d1321a513a516f8977",
+        "_id": "da058ec6a14d12a93bf081b52acedbab",
         "_index": "pbench-unittests.v3.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
             "@timestamp": "2019-08-27T15:00:07.506390",
-            "directory": "/1-forwarding_test.json-5pct_drop/sample1/csv/",
+            "ancestor_path_elements": [
+                "1-forwarding_test.json-5pct_drop",
+                "sample1"
+            ],
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -1207,44 +1216,62 @@ len(actions) = 23
                 }
             ],
             "mode": "0o755",
-            "mtime": "2019-08-27T15:29:13"
+            "mtime": "2019-08-27T15:29:13",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "662aade823f3847ed63ff8331e48554a",
+        "_id": "4ccc0fa7d2e0cfb972d7b9eed44edcd2",
         "_index": "pbench-unittests.v3.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
             "@timestamp": "2019-08-27T15:00:07.506390",
-            "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/",
+            "ancestor_path_elements": [
+                "1-forwarding_test.json-5pct_drop",
+                "sample1"
+            ],
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default",
             "mode": "0o755",
-            "mtime": "2019-08-27T15:29:11"
+            "mtime": "2019-08-27T15:29:11",
+            "name": "tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "4a183a40dfb56155c33c079b95934732",
+        "_id": "e1f2843626d5560707fa72742a2fc8eb",
         "_index": "pbench-unittests.v3.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
             "@timestamp": "2019-08-27T15:00:07.506390",
-            "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/",
+            "ancestor_path_elements": [
+                "1-forwarding_test.json-5pct_drop",
+                "sample1",
+                "tools-default"
+            ],
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124",
             "mode": "0o755",
-            "mtime": "2019-09-07T01:49:35"
+            "mtime": "2019-09-07T01:49:35",
+            "name": "perf124"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "e0a4db3a14ed7eb56d5d913b78bf7ffc",
+        "_id": "8a3d8b929a947730655c514734573c09",
         "_index": "pbench-unittests.v3.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
             "@timestamp": "2019-08-27T15:00:07.506390",
-            "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/turbostat/",
+            "ancestor_path_elements": [
+                "1-forwarding_test.json-5pct_drop",
+                "sample1",
+                "tools-default",
+                "perf124"
+            ],
+            "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/turbostat",
             "files": [
                 {
                     "mode": "0o644",
@@ -1269,7 +1296,8 @@ len(actions) = 23
                 }
             ],
             "mode": "0o755",
-            "mtime": "2019-08-27T15:29:12"
+            "mtime": "2019-08-27T15:29:12",
+            "name": "turbostat"
         },
         "_type": "pbench-run-toc-entry"
     },

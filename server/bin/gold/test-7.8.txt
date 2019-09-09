@@ -427,13 +427,13 @@ len(actions) = 30
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "7b64aba5a31361dabfb599d2c24237cc",
+        "_id": "bda3aaaaa228fa3cb621273605412307",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/",
+            "directory": "/1-tcp_stream-16384B-32i",
             "files": [
                 {
                     "mode": "0o755",
@@ -472,18 +472,22 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2016-10-06T17:05:23"
+            "mtime": "2016-10-06T17:05:23",
+            "name": "1-tcp_stream-16384B-32i"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "bc52feaba4d41b804a65edda650768df",
+        "_id": "9ef1686429b646f90a2fb99563fa9118",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1",
             "files": [
                 {
                     "mode": "0o644",
@@ -522,18 +526,23 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2016-10-06T17:05:22"
+            "mtime": "2016-10-06T17:05:22",
+            "name": "sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "54bf589ce1dcf36bafeb8b214ac2c211",
+        "_id": "052d36c13bfeff1d1dc34b5a09c8540e",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/csv/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -544,44 +553,62 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2016-10-06T17:05:22"
+            "mtime": "2016-10-06T17:05:22",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "10721319c4f6c8a28dbb092437c1160c",
+        "_id": "8c02a58d2eb3b9d75dcfb757fcba68e5",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default",
             "mode": "0o755",
-            "mtime": "2016-10-06T17:05:21"
+            "mtime": "2016-10-06T17:05:21",
+            "name": "tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "218a61d6ed3a6e1fea2dbfb788354b6e",
+        "_id": "dd3da72a12214011e9f088ba9b900e59",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1",
+                "tools-default"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb",
             "mode": "0o755",
-            "mtime": "2016-10-06T17:05:21"
+            "mtime": "2016-10-06T17:05:21",
+            "name": "flat7_40gb"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "74fc6a2331306332c3c58a449a172f5d",
+        "_id": "a230ba3bcd2e5534fed71d805751e53b",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1",
+                "tools-default",
+                "flat7_40gb"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat",
             "files": [
                 {
                     "mode": "0o644",
@@ -620,18 +647,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2016-10-06T17:05:21"
+            "mtime": "2016-10-06T17:05:21",
+            "name": "iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "56e0219ecbce3ff8b03b3ab4c1b663bb",
+        "_id": "d8b1d31fb1b4c3d861195959acc7a257",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat/csv/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1",
+                "tools-default",
+                "flat7_40gb",
+                "iostat"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -684,18 +719,25 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-02-17T18:51:14"
+            "mtime": "2017-02-17T18:51:14",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "de45b294e92ebc1627df90da7f037ab0",
+        "_id": "3e1a5e845847c6cbdd98ad9bc640f801",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/mpstat/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1",
+                "tools-default",
+                "flat7_40gb"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/mpstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -958,18 +1000,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-02-17T18:58:55"
+            "mtime": "2017-02-17T18:58:55",
+            "name": "mpstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "ad4b4d17b6ae9d109340b8a644eb2576",
+        "_id": "ca034e78c50de1d9c2b3e4e8a78b2f8e",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/mpstat/csv/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1",
+                "tools-default",
+                "flat7_40gb",
+                "mpstat"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/mpstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -1092,18 +1142,25 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-02-17T18:51:14"
+            "mtime": "2017-02-17T18:51:14",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "a474529d3a8f983ea118841fe75ae762",
+        "_id": "363b404b1a56012eecf5703f465d3d4e",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/perf/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1",
+                "tools-default",
+                "flat7_40gb"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/perf",
             "files": [
                 {
                     "mode": "0o644",
@@ -1149,18 +1206,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2016-10-06T17:05:21"
+            "mtime": "2016-10-06T17:05:21",
+            "name": "perf"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "0b2edc3f2e4700668ecf22e65b468694",
+        "_id": "bd5acbb560e0f7b0573920f8b800b30d",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/perf/perf-percpu/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1",
+                "tools-default",
+                "flat7_40gb",
+                "perf"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/perf/perf-percpu",
             "files": [
                 {
                     "mode": "0o644",
@@ -1276,18 +1341,25 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2016-10-06T17:05:21"
+            "mtime": "2016-10-06T17:05:21",
+            "name": "perf-percpu"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "8b42c299c1720d09ed15c74550fa37bc",
+        "_id": "a74be58ad2c165e38da079c90a91edc3",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/pidstat/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1",
+                "tools-default",
+                "flat7_40gb"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/pidstat",
             "files": [
                 {
                     "mode": "0o644",
@@ -1382,18 +1454,26 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-02-17T18:57:33"
+            "mtime": "2017-02-17T18:57:33",
+            "name": "pidstat"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "15fb2c21d2ecb12fc2198caceffdc583",
+        "_id": "7b5b4fa83e73db58d35163305464365e",
         "_index": "pbench-unittests.v3.run.2016-10",
         "_op_type": "create",
         "_parent": "60440687c87a6f49cbb34653eae36c78",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
-            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/pidstat/csv/",
+            "ancestor_path_elements": [
+                "1-tcp_stream-16384B-32i",
+                "sample1",
+                "tools-default",
+                "flat7_40gb",
+                "pidstat"
+            ],
+            "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/pidstat/csv",
             "files": [
                 {
                     "mode": "0o644",
@@ -1460,7 +1540,8 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-02-17T18:51:14"
+            "mtime": "2017-02-17T18:51:14",
+            "name": "csv"
         },
         "_type": "pbench-run-toc-entry"
     },
