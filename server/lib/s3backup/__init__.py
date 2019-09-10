@@ -11,7 +11,7 @@ import shutil
 import time
 import configtools
 from datetime import datetime
-from configparser import ConfigParser
+from configparser import ConfigParser, NoSectionError, NoOptionError
 from boto3.s3.transfer import TransferConfig
 from botocore.exceptions import ConnectionClosedError, ClientError
 
@@ -54,7 +54,6 @@ class S3Config(object):
 
         self.chunk_size = 256 * self.MB
         self.multipart_threshold = 5 * self.GB
-        self.bucket_name = config.get('pbench-server-backup', 'bucket_name')
         self.transfer_config = TransferConfig(
             multipart_threshold=self.multipart_threshold,
             multipart_chunksize=self.chunk_size)
@@ -63,6 +62,26 @@ class S3Config(object):
             self.connector = MockS3Connector(config)
         else:
             self.connector = S3Connector(config)
+
+        # Normally, the connector defines a bucket_name attribute as
+        # specified in the config file.  The application layer does
+        # not know anything about the connector and we want to keep it
+        # that way, but it has to know the bucket_name because it
+        # executes a head_bucket() call on it, in order to figure out
+        # whether S3 is enabled and whether the bucket exists and is
+        # accessible. So we copy the bucket_name here so that it can
+        # be accessed by the application layer, but if bucket_name is
+        # not defined at all (which is possible when we deliberately
+        # turn off the S3 backup by deleting the relevant section in
+        # the config file), we would get an AttributeError exception
+        # here. We don't want to abort the application though: it might
+        # still want to continue with local backups, so we  catch the
+        # exception and set the bucket_name to None in that case. The
+        # application will have to check for that.
+        try:
+            self.bucket_name = self.connector.bucket_name
+        except AttributeError:
+            self.bucket_name = None
 
     def getsize(self, tar):
         return self.connector.getsize(tar)
@@ -206,19 +225,25 @@ class Connector(object):
 
 class S3Connector(Connector):
     def __init__(self, config):
-        self.endpoint_url = config.get('pbench-server-backup', 'endpoint_url')
-        self.bucket_name = config.get('pbench-server-backup', 'bucket_name')
-        self.access_key_id = config.get(
-            'pbench-server-backup', 'access_key_id')
-        self.secret_access_key = config.get(
-            'pbench-server-backup', 'secret_access_key')
-        self.s3client = boto3.client('s3',
-                                     aws_access_key_id='{}'.format(
-                                         self.access_key_id),
-                                     aws_secret_access_key='{}'.format(
-                                         self.secret_access_key),
-                                     endpoint_url='{}'.format(self.endpoint_url))
-        self.transfer_config = None
+        # S3 backup can be turned off by commenting out the
+        # [pbench-server-backup]endpoint_url option in the config
+        # file.
+        try:
+            self.endpoint_url = config.get('pbench-server-backup', 'endpoint_url')
+        except (NoSectionError, NoOptionError):
+            self.endpoint_url = None
+        else:
+            self.bucket_name = config.get('pbench-server-backup', 'bucket_name')
+            self.access_key_id = config.get(
+                'pbench-server-backup', 'access_key_id')
+            self.secret_access_key = config.get(
+                'pbench-server-backup', 'secret_access_key')
+            self.s3client = boto3.client('s3',
+                                         aws_access_key_id='{}'.format(
+                                             self.access_key_id),
+                                         aws_secret_access_key='{}'.format(
+                                             self.secret_access_key),
+                                         endpoint_url='{}'.format(self.endpoint_url))
 
     def list_objects(self, **kwargs):
         return self.s3client.list_objects_v2(**kwargs)
@@ -244,8 +269,6 @@ class S3Connector(Connector):
         return self.s3client.delete_object(Bucket=Bucket, Key=Key)
 
 # Connector to the mock "S3" service for unit testing.
-
-
 class MockS3Connector(Connector):
     """
     The mock object is used for unit testing. It provides a "connector"
@@ -258,8 +281,12 @@ class MockS3Connector(Connector):
     GB = 1024 ** 3
 
     def __init__(self, config):
-        self.path = config.get('pbench-server-backup', 'endpoint_url')
-        self.bucket_name = config.get('pbench-server-backup', 'bucket_name')
+        try:
+            self.path = config.get('pbench-server-backup', 'endpoint_url')
+        except (NoSectionError, NoOptionError):
+            self.path = None
+        else:
+            self.bucket_name = config.get('pbench-server-backup', 'bucket_name')
 
     def list_objects(self, **kwargs):
         ob_dict = {}
@@ -299,6 +326,8 @@ class MockS3Connector(Connector):
         return ob_dict
 
     def put_object(self, Bucket=None, Key=None, Body=None, ContentMD5=None):
+        if not self.path:
+            return Status.FAIL
         md5_hex_value = hashlib.md5(Body.read()).hexdigest()
         md5_base64_value = (base64.b64encode(
             bytes.fromhex(md5_hex_value))).decode()
@@ -316,6 +345,8 @@ class MockS3Connector(Connector):
         return Status.FAIL
 
     def upload_fileobj(self, Body=None, Bucket=None, Key=None, Config=None, ExtraArgs=None):
+        if not self.path:
+            return Status.FAIL
         test_controller = Key.split("/")[0]
         try:
             os.mkdir("{}/{}/{}".format(self.path,
@@ -343,6 +374,8 @@ class MockS3Connector(Connector):
                 os.path.join(self.path, Bucket)))
 
     def get_object(self, Bucket=None, Key=None):
+        if not self.path:
+            return None
         ob_dict = {}
         result_path = os.path.join(self.path, Bucket, Key)
         with open(result_path, 'rb') as f:
