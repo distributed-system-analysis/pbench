@@ -554,9 +554,9 @@ declare -A cmds=(
     [test-6.7]="_run pbench-backup-tarballs"
     # check for no bucket
     [test-6.8]="_run pbench-backup-tarballs"
-    # Upload fail since s3 already have the result with different md5sum
+    # Upload fail since s3 already contains the result with different md5sum
     [test-6.9]="_run pbench-backup-tarballs"
-    # Upload successful since s3 already have the result with same md5sum
+    # Upload successful since s3 already contains the result with same md5sum
     [test-6.10]="_run pbench-backup-tarballs"
     # Upload successfull
     [test-6.11]="_run pbench-backup-tarballs"
@@ -572,6 +572,10 @@ declare -A cmds=(
     # failure because of a mismatched md5 sum when we try to upload to
     # the (mock) s3 service.
 
+    # check for successful local backup if S3 is disabled
+    [test-6.13]="_run pbench-backup-tarballs"
+    [test-6.14]="_run pbench-backup-tarballs"
+    
     # indexing tests are all test-7.*
 
     # Special case of running pbench-index with -I to get a dump

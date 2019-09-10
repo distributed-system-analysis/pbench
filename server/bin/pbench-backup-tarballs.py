@@ -102,13 +102,18 @@ def sanity_check(lb_obj, s3_obj, config, logger):
             'which is not a directory'.format(qdir, os.path.realpath(qdir)))
         lb_obj = None
 
-    # make sure the S3 bucket exists
-    try:
-        s3_obj.head_bucket(s3_obj.bucket_name)
-    except Exception:
-        logger.error(
-            "Bucket: {} does not exist or you have no access".format(s3_obj.bucket_name))
+    # make sure the S3 bucket is defined, exists and is accessible
+    if s3_obj.bucket_name is None:
+        logger.warning(
+            "Bucket not defined in config file - S3 backup is disabled.")
         s3_obj = None
+    else:
+        try:
+            s3_obj.head_bucket(s3_obj.bucket_name)
+        except Exception:
+            logger.warning(
+                "Bucket {} does not exist or is not accessible - S3 backup is disabled".format(s3_obj.bucket_name))
+            s3_obj = None
 
     return (lb_obj, s3_obj)
 
@@ -352,7 +357,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
                 s3_backup_result)
 
         if local_backup_result == Status.SUCCESS \
-                and s3_backup_result == Status.SUCCESS:
+                and (s3_obj is None or s3_backup_result == Status.SUCCESS):
             # Move tar ball symlink to its final resting place
             rename_tb_link(tb, os.path.join(
                 controller_path, _linkdest), logger)
