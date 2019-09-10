@@ -1,6 +1,12 @@
 import moment from 'moment';
 import { parse, stringify } from 'qs';
 
+export function getAppPath() {
+  const pathKey = window.location.pathname.split('/')[1];
+  const appPath = pathKey || 'dashboard';
+  return appPath;
+}
+
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
 }
