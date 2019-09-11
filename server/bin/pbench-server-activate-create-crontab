@@ -143,11 +143,11 @@ for role in $roles ;do
             done
             ;;
         pbench-prep)
-            shims=$(getconf.py -l shims $role)
+            versions=$(getconf.py -l pbench-move-results-receive-versions pbench-server)
             tasks=$(getconf.py -l tasks $role)
-            for shim in $shims ;do
+            for version in $versions ;do
                 for task in $tasks; do
-                    crontab_with_substitutions $shim $task
+                    crontab_with_substitutions prep-shim-$version $task
                 done
             done
             ;;
