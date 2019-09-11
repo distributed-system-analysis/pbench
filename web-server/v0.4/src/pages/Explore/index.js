@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Card, Button, Popconfirm } from 'antd';
+import { getAppPath } from '../../utils/utils';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import Table from '@/components/Table';
@@ -55,7 +56,7 @@ class Explore extends Component {
     const { dispatch } = this.props;
 
     const parsedConfig = JSON.parse(record.config);
-    window.localStorage.setItem('persist:root', parsedConfig);
+    window.localStorage.setItem(`persist:${getAppPath()}`, parsedConfig);
 
     dispatch(routerRedux.push(parsedConfig.routing.location.pathname));
   };

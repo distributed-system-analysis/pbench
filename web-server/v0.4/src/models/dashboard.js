@@ -8,7 +8,7 @@ import {
   querySharedConfig,
 } from '../services/dashboard';
 import { parseIterationData } from '../utils/parse';
-import { insertTocTreeData } from '../utils/utils';
+import { insertTocTreeData, getAppPath } from '../utils/utils';
 
 export default {
   namespace: 'dashboard',
@@ -162,7 +162,7 @@ export default {
       const response = yield call(querySharedConfig, payload);
       const { config } = response.data.url;
       const parsedConfig = JSON.parse(config);
-      window.localStorage.setItem('persist:root', parsedConfig);
+      window.localStorage.setItem(`persist:${getAppPath()}`, parsedConfig);
       return parsedConfig;
     },
     *fetchIterations({ payload }, { call, put }) {
