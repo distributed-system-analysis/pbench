@@ -5,13 +5,13 @@ user-server
 [servers:vars]
 results_url="http://{{ inventory_hostname }}"
 run_index="run.example"
+graphql_url="http://{{ inventory_hostname }}"
 
 [ui-server]
 ui-server.example.com
 
 [ui-server:vars]
 elasticsearch_url="http://elasticsearch.example.com"
-results_url="http://{{ inventory_hostname }}"
 prefix="ui-server.example."
 
 [user-server]

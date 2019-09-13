@@ -4,7 +4,7 @@ This will ease installation, and deployment of the pbench dashboard.
 ## Required
 - Ansible needs to be installed on the host where you want to run this playbook
 - An inventory file containing the following key values defined:
-  - "`elasticsearch`", "`production`", "`run_index`", "`prefix`", "`graphql`"
+  - "`elasticsearch_url`", "`results_url`", "`graphql_url`", "`run_index`", "`prefix`"
     See the `/web-server/v0.4/README.md` for more details. 
 
 ## Run
