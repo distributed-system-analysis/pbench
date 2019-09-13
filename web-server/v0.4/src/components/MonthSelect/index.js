@@ -37,8 +37,19 @@ export default class MonthSelect extends PureComponent {
     this.setState({ updateDisabled: true });
   };
 
+  onUpdateMonth = selectedValues => {
+    const { indices, onChange } = this.props;
+
+    if (selectedValues.length === 0) {
+      onChange([indices[0]]);
+    } else {
+      onChange(selectedValues);
+      this.setState({ updateDisabled: false });
+    }
+  };
+
   render() {
-    const { indices, value, onChange, updateButtonVisible } = this.props;
+    const { indices, value, updateButtonVisible } = this.props;
     const { updateDisabled } = this.state;
 
     return (
@@ -49,10 +60,7 @@ export default class MonthSelect extends PureComponent {
             style={{ width: '100%' }}
             placeholder="Select index"
             value={value}
-            onChange={selectedValue => {
-              onChange(selectedValue);
-              this.setState({ updateDisabled: false });
-            }}
+            onChange={selectedValues => this.onUpdateMonth(selectedValues)}
             tokenSeparators={[',']}
           >
             {indices.map(item => (
