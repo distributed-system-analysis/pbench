@@ -58,7 +58,7 @@ export async function queryResults(params) {
   return request.post(endpoint, {
     data: {
       fields: [
-        '@metadata.controllerDir',
+        '@metadata.controller_dir',
         '@metadata.satellite',
         'run.controller',
         'run.start',
@@ -122,7 +122,7 @@ export async function queryIterations(params) {
 
   const iterationRequests = [];
   selectedResults.forEach(result => {
-    let controllerDir = result['@metadata.controllerDir'];
+    let controllerDir = result['@metadata.controller_dir'];
     if (controllerDir === undefined) {
       controllerDir = result['run.controller'];
       controllerDir = controllerDir.includes('.')

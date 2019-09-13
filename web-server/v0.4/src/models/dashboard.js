@@ -89,8 +89,8 @@ export default {
         if (typeof fields['run.prefix'] !== 'undefined') {
           record['run.prefix'] = fields['run.prefix'].shift();
         }
-        if (typeof fields['@metadata.controllerDir'] !== 'undefined') {
-          record['@metadata.controllerDir'] = fields['@metadata.controllerDir'].shift();
+        if (typeof fields['@metadata.controller_dir'] !== 'undefined') {
+          record['@metadata.controller_dir'] = fields['@metadata.controller_dir'].shift();
         }
         if (typeof fields['@metadata.satellite'] !== 'undefined') {
           record['@metadata.satellite'] = fields['@metadata.satellite'].shift();
