@@ -2390,22 +2390,30 @@ class ToolData(PbenchData):
         """
         cpu_column_ids = None
         cpu_count = None
-        ts_str = None
+        ts_str = ""
         ts_orig = None
+        ts_orig_str = ""
         prev_ts_orig = None
         prev_gauges = _dict_const()
         idx = 0
-        self.logger.info("tool-data-indexing: tool {}, stdout procint start {}", self.toolname, path)
+        lineno = 0
+        self.logger.info(
+                "tool-data-indexing: tool {}, stdout procint start {}",
+                self.toolname, path)
         for line in file_object:
+            lineno += 1
             if line.startswith('timestamp:'):
                 idx += 1
                 prev_ts_orig = ts_orig
                 # Get the second column, the timestamp value, which is
                 # *seconds* since the epoch, and then convert to millis
                 # since the epoch.
-                ts_orig = float(line.split(':')[1])
-                if prev_ts_orig is not None:
-                    assert prev_ts_orig <= ts_orig, "prev_ts_orig %r > ts_orig %r" % (prev_ts_orig, ts_orig)
+                ts_orig_str = line.split(':')[1].strip()
+                ts_orig = float(ts_orig_str)
+                if prev_ts_orig is not None and prev_ts_orig > ts_orig:
+                    raise BadToolData(
+                            "procint: prev_ts_orig {!r} > ts_orig {!r} at line %d".format(
+                                prev_ts_orig, ts_orig, lineno))
                 ts_str = self.mk_abs_timestamp_millis(ts_orig * 1000)
                 # The next line is assumed to be the header, so instead of
                 # looping to get to it, we just pull it out and process it
@@ -2415,7 +2423,8 @@ class ToolData(PbenchData):
                 cpu_column_ids = []
                 for cpu in columns:
                     if not cpu.startswith("CPU"):
-                        raise Exception("Bad proc-interrupts-stdout.txt file encountered")
+                        raise BadToolData("procint: unexpected CPU header {}"
+                                " encountered at line %d".format(cpu, lineno))
                     cpu_column_ids.append(cpu[3:])
                 cpu_count = len(cpu_column_ids)
                 continue
@@ -2424,7 +2433,7 @@ class ToolData(PbenchData):
             if int_id in ( 'ERR', 'MIS' ):
                 record = _dict_const()
                 record['@timestamp'] = ts_str
-                record['@timestamp_original'] = str(ts_orig)
+                record['@timestamp_original'] = ts_orig_str
                 record['run'] = self.run_metadata
                 record['iteration'] = self.iteration_metadata
                 record['sample'] = self.sample_metadata
@@ -2449,7 +2458,7 @@ class ToolData(PbenchData):
                     col += 1
                     record = _dict_const()
                     record['@timestamp'] = ts_str
-                    record['@timestamp_original'] = str(ts_orig)
+                    record['@timestamp_original'] = ts_orig_str
                     record['run'] = self.run_metadata
                     record['iteration'] = self.iteration_metadata
                     record['sample'] = self.sample_metadata
