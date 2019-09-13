@@ -6,3 +6,5 @@ run-unittests.log
 dist
 *~
 ????-*.patch
+.npmrc
+.yarnrc
