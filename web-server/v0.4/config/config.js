@@ -5,7 +5,8 @@ export default {
     'process.env': process.env.NODE_ENV,
   },
   dynamicImport: undefined,
-  base: '/dashboard',
+  base: '/dashboard/',
+  history: 'hash',
   publicPath: process.env.NODE_ENV === 'development' ? '/' : '/dashboard/',
   ignoreMomentLocale: true,
   lessLoaderOptions: {
