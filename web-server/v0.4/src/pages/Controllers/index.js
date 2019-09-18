@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Card, Form } from 'antd';
-import { compareByAlph } from '../../utils/utils';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import SearchBar from '@/components/SearchBar';
@@ -137,7 +136,7 @@ class Controllers extends Component {
         title: 'Controller',
         dataIndex: 'controller',
         key: 'controller',
-        sorter: (a, b) => compareByAlph(a['run.controller'], b['run.controller']),
+        sorter: (a, b) => a.key.localeCompare(b.key),
       },
       {
         title: 'Last Modified',

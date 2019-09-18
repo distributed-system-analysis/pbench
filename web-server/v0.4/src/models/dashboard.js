@@ -59,7 +59,7 @@ export default {
       const response = yield call(queryResults, payload);
       const results = [];
 
-      response.hits.hits.forEach((result, index) => {
+      response.hits.hits.forEach(result => {
         const { fields } = result;
         const name = fields['run.name'].shift();
         const controller = fields['run.controller'].shift();
@@ -74,7 +74,7 @@ export default {
             : fields['run.end_run'][0];
 
         const record = {
-          key: index,
+          key: name,
           startUnixTimestamp: Date.parse(start),
           'run.name': name,
           'run.controller': controller,

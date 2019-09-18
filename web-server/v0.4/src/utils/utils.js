@@ -153,18 +153,6 @@ export function isUrl(path) {
   return reg.test(path);
 }
 
-export function compareByAlph(a, b) {
-  let ret;
-  if (a > b) {
-    ret = 1;
-  } else if (a < b) {
-    ret = -1;
-  } else {
-    ret = 0;
-  }
-  return ret;
-}
-
 export const renameProp = (oldProp, newProp, { [oldProp]: old, ...others }) => ({
   [newProp]: old,
   ...others,

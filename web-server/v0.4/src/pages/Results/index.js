@@ -7,7 +7,6 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import SearchBar from '@/components/SearchBar';
 import RowSelection from '@/components/RowSelection';
 import Table from '@/components/Table';
-import { compareByAlph } from '../../utils/utils';
 
 @connect(({ datastore, global, dashboard, loading }) => ({
   selectedIndices: global.selectedIndices,
@@ -134,7 +133,7 @@ class Results extends Component {
         title: 'Result',
         dataIndex: 'run.name',
         key: 'run.name',
-        sorter: (a, b) => compareByAlph(a['run.name'], b['run.name']),
+        sorter: (a, b) => a.key.localeCompare(b.key),
       },
       {
         title: 'Config',
