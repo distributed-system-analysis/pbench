@@ -1,0 +1,35 @@
+#!/bin/bash
+
+cd $(dirname $0)
+cat > mock/datastoreConfig.js <<EOF
+export default {
+  '/dev/datastoreConfig': {
+    elasticsearch: 'http://test_domain.com',
+    results: 'http://test_domain.com',
+    graphql: 'http://test_domain.com',
+    prefix: 'test_prefix.',
+    run_index: 'test_index.',
+  },
+};
+EOF
+yarn --network-timeout 1000000
+if [[ $? -ne 0 ]]; then
+  echo "yarn failed!" >&2
+  exit 1
+fi
+yarn start &
+if [[ $? -ne 0 ]]; then
+  echo "yarn failed!" >&2
+  exit 1
+fi
+sleep 60
+if [[ $? -ne 0 ]]; then
+  echo "sleep failed!" >&2
+  exit 1
+fi
+yarn test:e2e
+if [[ $? -ne 0 ]]; then
+  echo "yarn e2e tests failed!" >&2
+  exit 1
+fi
+exit 0

@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import { mockIndices, mockMappings, mockSearch } from '../../mock/api';
 
 let browser;
 let page;
@@ -9,7 +10,34 @@ beforeAll(async () => {
     args: ['--no-sandbox'],
   });
   page = await browser.newPage();
-  await page.goto('http://localhost:8000/dashboard/search', { waitUntil: 'networkidle2' });
+  await page.goto('http://localhost:8000/dashboard/#/search/');
+  await page.setRequestInterception(true);
+  page.on('request', request => {
+    if (request.method() === 'POST' && request.postData().includes('query_string')) {
+      request.respond({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify(mockSearch),
+      });
+    } else if (request.method() === 'GET' && request.url().includes('indices')) {
+      request.respond({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify(mockIndices),
+      });
+    } else if (request.method() === 'GET' && request.url().includes('mappings')) {
+      request.respond({
+        status: 200,
+        contentType: 'application/json',
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify(mockMappings),
+      });
+    } else {
+      request.continue();
+    }
+  });
 });
 
 afterAll(() => {
@@ -19,9 +47,9 @@ afterAll(() => {
 describe('search page component', () => {
   test(
     'should load run mapping',
-    async () => {
-      await page.waitForResponse(response => response.status() === 200);
+    async done => {
       await page.waitForSelector('.ant-table-tbody', { visible: true });
+      done();
     },
     30000
   );
@@ -54,7 +82,6 @@ describe('search page component', () => {
     await page.waitForSelector('.ant-select-selection', { visible: true });
     await page.click('.ant-select-selection');
     await page.click('.ant-select-dropdown-menu-item');
-    await page.click('.ant-select-dropdown-menu-item[aria-selected="false"]');
     await page.click('.ant-select-dropdown-menu-item[aria-selected="false"]');
   });
 
