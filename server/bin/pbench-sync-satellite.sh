@@ -77,6 +77,8 @@ ssh to the $remote_host was sucessfull for changing the state of tarballs,
 but failed to remove local "${state_change_log}".
 EOF
             pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type error ${index_content}
+        else
+            rm ${logdir}/mv.log
         fi
     fi
     return $status
@@ -250,7 +252,19 @@ for host in $hosts ;do
         for x in $state_list; do
             echo "$host/TO-SYNC/$x" >> ${state_change_log}
         done
+        rm $logdir/$host/ok-checks.log
     fi
+
+    if [[ ! -s $logdir/$host/fail-checks.log ]] ; then
+        rm $logdir/$host/fail-checks.log
+        grep -q -F -v 'OK' $logdir/$host/md5-checks.log
+        if [[ $? -ne 0 ]]; then
+            rm $logdir/$host/md5-checks.log
+        fi
+    fi
+
+    rmdir ${logdir}/${host} 2>/dev/null
+
     popd > /dev/null 2>&4
 done
 

@@ -641,20 +641,6 @@ drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--        943 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
-drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC
-drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA
--rw-rw-r--          0 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA/fail-checks.log
--rw-rw-r--         47 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA/md5-checks.log
--rw-rw-r--         47 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA/ok-checks.log
-drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB
--rw-rw-r--          0 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB/fail-checks.log
--rw-rw-r--         47 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB/md5-checks.log
--rw-rw-r--         47 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB/ok-checks.log
-drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC
--rw-rw-r--          0 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC/fail-checks.log
--rw-rw-r--         54 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC/md5-checks.log
--rw-rw-r--         54 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC/ok-checks.log
--rw-rw-r--          0 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/mv.log
 -rw-rw-r--        219 logs/pbench-sync-satellite/pbench-sync-satellite.error
 -rw-rw-r--       2586 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
@@ -921,32 +907,6 @@ run-1970-01-01T00:00:00-UTC: Processed 7 entries, 4 tarballs successful, 2 quara
 1970-01-01T00:00:00.000000 INFO pbench-server-prep-shim-002.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-server-prep-shim-002.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA/fail-checks.log
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA/fail-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA/md5-checks.log
-tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz: OK
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA/md5-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA/ok-checks.log
-tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz: OK
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerA/ok-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB/fail-checks.log
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB/fail-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB/md5-checks.log
-tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz: OK
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB/md5-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB/ok-checks.log
-tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz: OK
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerB/ok-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC/fail-checks.log
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC/fail-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC/md5-checks.log
-tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz: OK
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC/md5-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC/ok-checks.log
-tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz: OK
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controllerC/ok-checks.log
-+++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/mv.log
------ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/mv.log
 +++++ pbench-sync-satellite/pbench-sync-satellite.error
 pbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)
 pbench-sync-satellite: completed satellite state changes
