@@ -2395,11 +2395,32 @@ class ToolData(PbenchData):
         ts_orig_str = ""
         prev_ts_orig = None
         prev_gauges = _dict_const()
-        idx = 0
-        lineno = 0
+
         self.logger.info(
                 "tool-data-indexing: tool {}, stdout procint start {}",
                 self.toolname, path)
+
+        source_base = _dict_const()
+        source_base['@timestamp'] = ts_str
+        source_base['@timestamp_original'] = ts_orig_str
+        source_base['run'] = self.run_metadata
+        source_base['iteration'] = self.iteration_metadata
+        source_base['sample'] = self.sample_metadata
+        def create_src(record):
+            source = _dict_const()
+            source.update(source_base)
+            #source = _dict_const([
+            #    ('@timestamp', ts_str),
+            #    ('@timestamp_original', ts_orig_str),
+            #    ('run', self.run_metadata),
+            #    ('iteration', self.iteration_metadata),
+            #    ('sample', self.sample_metadata),
+            #    (self.toolname, record)
+            #])
+            return source
+
+        idx = 0
+        lineno = 0
         for line in file_object:
             lineno += 1
             if line.startswith('timestamp:'):
@@ -2432,55 +2453,54 @@ class ToolData(PbenchData):
             int_id = parts[0][:-1]
             if int_id in ( 'ERR', 'MIS' ):
                 record = _dict_const()
-                record['@timestamp'] = ts_str
-                record['@timestamp_original'] = ts_orig_str
-                record['run'] = self.run_metadata
-                record['iteration'] = self.iteration_metadata
-                record['sample'] = self.sample_metadata
-                record[self.toolname] = _dict_const()
-                record[self.toolname]['@idx'] = idx
-                record[self.toolname]['int_id'] = int_id
-                record[self.toolname]['gauge'] = value = converter(parts[1])
-                if int_id in prev_gauges:
-                    duration = ts_orig - prev_ts_orig
+                record['@idx'] = idx
+                record['int_id'] = int_id
+                try:
+                    value = converter(parts[1])
+                except IndexError:
+                    raise BadToolData("")
+                else:
+                    record['gauge'] = value
+                try:
                     value_diff = value - prev_gauges[int_id]
+                except KeyError:
+                    pass
+                else:
+                    duration = ts_orig - prev_ts_orig
                     the_rate = value_diff / duration
-                    record[self.toolname]['rate'] = the_rate
+                    record['rate'] = the_rate
                 prev_gauges[int_id] = value
-                yield record
+                yield create_src(record)
             else:
                 desc_str = parts[-1]
                 col = 1
-                records = []
                 cpu_gauges = []
+                try:
+                    prev_cpu_gauges = prev_gauges[int_id]
+                except KeyError:
+                    prev_cpu_gauges = []
+                else:
+                    duration = ts_orig - prev_ts_orig
                 for cpu in cpu_column_ids:
                     val = converter(parts[col])
-                    col += 1
-                    record = _dict_const()
-                    record['@timestamp'] = ts_str
-                    record['@timestamp_original'] = ts_orig_str
-                    record['run'] = self.run_metadata
-                    record['iteration'] = self.iteration_metadata
-                    record['sample'] = self.sample_metadata
-                    record[self.toolname] = _dict_const()
-                    record[self.toolname]['@idx'] = idx
-                    record[self.toolname]['int_id'] = int_id
-                    record[self.toolname]['cpu_id'] = cpu
-                    record[self.toolname]['desc'] = desc_str
-                    record[self.toolname]['gauge'] = val
-                    records.append(record)
                     cpu_gauges.append(val)
-                if int_id in prev_gauges:
-                    prev_cpu_gauges = prev_gauges[int_id]
-                    col = 0
-                    duration = ts_orig - prev_ts_orig
-                    for record in records:
-                        value_diff = record[self.toolname]['gauge'] - prev_cpu_gauges[col]
-                        the_rate = value_diff / duration
-                        record[self.toolname]['rate'] = the_rate
+                    record = _dict_const()
+                    record['@idx'] = idx
+                    record['int_id'] = int_id
+                    record['cpu_id'] = cpu
+                    record['desc'] = desc_str
+                    record['gauge'] = val
+                    if prev_cpu_gauges:
+                        try:
+                            value_diff = val - prev_cpu_gauges[col]
+                        except IndexError:
+                            pass
+                        else:
+                            the_rate = value_diff / duration
+                            record['rate'] = the_rate
+                    yield create_src(record)
+                    col += 1
                 prev_gauges[int_id] = cpu_gauges
-                for record in records:
-                    yield record
         self.logger.info("tool-data-indexing: tool {}, stdout procint end {}", self.toolname, path)
         return
 
@@ -2520,7 +2540,7 @@ class ToolData(PbenchData):
             path = os.path.join(self.ptb.extracted_root, output_file['path'])
             with open(path, 'r') as file_object:
                 for record in func(self, file_object, converter, output_file['path']):
-                    source_id = PbenchData.make_source_id(record)
+                    source_id = None #PbenchData.make_source_id(record)
                     yield record, source_id
 
     def _make_source_json(self):
