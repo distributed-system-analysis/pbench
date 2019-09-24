@@ -37,7 +37,7 @@ export default {
       });
       yield put({
         type: 'global/modifySelectedFields',
-        payload: ['run.name', 'run.config', 'run.controller'],
+        payload: ['run.name', 'run.config', 'run.controller', '@metadata.controller_dir'],
       });
     },
     *fetchSearchResults({ payload }, { call, put }) {

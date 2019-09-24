@@ -50,7 +50,8 @@ class Results extends Component {
     const { dispatch, results } = this.props;
     const selectedRows = [];
     selectedRowKeys.forEach(key => {
-      selectedRows.push(results[key]);
+      const selectedKey = results.find(result => result.key === key);
+      selectedRows.push(selectedKey);
     });
     this.setState({ selectedRowKeys });
 
