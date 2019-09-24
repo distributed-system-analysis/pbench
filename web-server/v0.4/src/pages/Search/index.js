@@ -105,7 +105,7 @@ class SearchList extends Component {
 
     dispatch({
       type: 'global/updateSelectedFields',
-      payload: ['run.name', 'run.config', 'run.controller'],
+      payload: ['run.name', 'run.config', 'run.controller', '@metadata.controller_dir'],
     });
   };
 
