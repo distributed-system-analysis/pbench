@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+from argparse import ArgumentParser
+from getopt import getopt, GetoptError
+ 
+
+_PROG = sys.argv[0]
+
+def main(parsed):
+    combined_options_w_args_list = []
+    combined_options_wo_args_list = []
+
+    sopts = parsed.shortopts
+    done = False
+    while sopts:
+        opt_chr = sopts[0]
+        sopts = sopts[1:]
+        if sopts and sopts[0] == ':':
+            combined_options_w_args_list.append('-' + opt_chr)
+            sopts = sopts[1:]
+        else:
+            combined_options_wo_args_list.append('-' + opt_chr)
+    long_opts = []
+    if parsed.longopts:
+        lopts = parsed.longopts.split(',')
+        for o in lopts:
+            if o[-1] == ':':
+                combined_options_w_args_list.append('--' + o[:-1])
+                o = o[:-1] + '='
+            else:
+                combined_options_wo_args_list.append('--' + o)
+            long_opts.append(o)
+    combined_options_w_args = set(combined_options_w_args_list)
+    combined_options_wo_args = set(combined_options_wo_args_list)
+    try:
+        opts, args = getopt(parsed.remaining, parsed.shortopts, long_opts)
+    except GetoptError as err:
+        print("\n{}: {}".format(parsed.progname, err), file=sys.stderr)
+        return 2
+    output_str = []
+    for o, a in opts:
+        if o in combined_options_w_args:
+            if not a or a in combined_options_w_args or a in combined_options_wo_args:
+                print("\n{}: {} missing its required option argument".format(parsed.progname, o), file=sys.stderr)
+                return 2
+            assert a, "Logic bomb! 'a' should have a value"
+            o_str = "{} '{}'".format(o, a)
+        else:
+            o_str = "{}".format(o, a)
+        output_str.append(o_str)
+    output_str.append('--')
+    for arg in args:
+        output_str.append("'{}'".format(arg))
+    print(" ".join(output_str))
+    return 0
+
+
+if __name__ == '__main__':
+    parser = ArgumentParser(
+        "Usage: {} [options] -o|--options optstring [options] [--]"
+        " parameters".format(_PROG))
+    parser.add_argument("-q", action="store_true")
+    parser.add_argument(
+        "-o", "--options", dest="shortopts",
+        help="The short (one-character) options to be recognized.  If this option is not found, the first parameter of getopt that does not start with a '-' (and is not an option argument) is used as the short options string.  Each short option character in shortopts may be followed by one colon to indicate it has a required argument, and by two colons to indicate it has an optional argument.  The first character of shortopts may be '+' or '-' to influence the way options are parsed and output is generated (see section SCANNING MODES for details).")
+    parser.add_argument(
+        "-l", "--longoptions", dest="longopts",
+        help="The long (multi-character) options to be recognized.  More than one option name may be specified at once, by separating the names with commas.  This option may be given more than once, the longopts are cumulative.  Each long option name in longopts may be followed by one colon to indicate it has a required argument, and by two colons to indicate it has an optional argument.")
+    parser.add_argument(
+        "-n", "--name", dest="progname",
+        help="The name that will be used by the getopt(3) routines when it reports errors.  Note that errors of getopt(1) are still reported as coming from getopt.")
+    parser.add_argument("remaining", nargs='*')
+    parsed = parser.parse_args()
+    status = main(parsed)
+    sys.exit(status)

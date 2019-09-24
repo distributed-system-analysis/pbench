@@ -14,7 +14,7 @@ function usage() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o p: --longoptions "prefix:" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o p: --longoptions "prefix:" -n "${script_name}" -- "${@}")
 if [ $? -ne 0 ]; then
     printf "\n"
     printf "%s\n" $*

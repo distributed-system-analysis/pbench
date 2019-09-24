@@ -9,48 +9,39 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 . "${pbench_bin}"/base
 
 function usage() {
-    printf "usage:\n"
-    printf "${script_name} [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
-}
-
-function missing_arg() {
-    printf "\n${script_name}: ${1} is missing its argument\n\n" >&2
-    usage >&2
-    exit 1
+    printf -- "usage:\n"
+    printf -- "${script_name} [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o u:p:xSh --longoptions "user:,prefix:,xz-single-threaded,show-server,help" -n "getopt.sh" -- "${@}")
-if [[ ${?} -ne 0 ]]; then
-    printf "\n${script_name}: you specified an invalid option or an unexpected argument\n\n" >&2
+opts=$(pbench-argparse -o u:p:xSh --longoptions "user:,prefix:,xz-single-threaded,show-server,help" -n "${script_name}" -- "${@}")
+sts=${?}
+if [[ ${sts} -ne 0 ]]; then
+    printf -- "\n" >&2
     usage >&2
-    exit 1
+    exit ${sts}
 fi
 
+# Now process the arguments to get actual values from them.
 user="${PBENCH_USER}"
 prefix=""
 xz_single_threaded=0
 show_server=""
+
 eval set -- "${opts}"
 while true; do
     opt="${1}"
     shift
     case "${opt}" in
 	-u|--user)
-	    if [[ -n "${1}" ]]; then
-		user="${1}"
-		shift;
-	    else
-		missing_arg "${opt}"
-	    fi
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    user="${1}"
+	    shift
 	    ;;
 	-p|--prefix)
-	    if [[ -n "${1}" ]]; then
-		prefix="${1}"
-		shift;
-	    else
-		missing_arg "${opt}"
-	    fi
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    prefix="${1}"
+	    shift
 	    ;;
 	-x|--xz-single-threaded)
 	    xz_single_threaded=1
@@ -63,12 +54,13 @@ while true; do
    	    exit 0
 	    ;;
 	--)
-	    break;
+	    break
 	    ;;
 	*)
-	    printf "\n${script_name}: you specified an invalid option or an unexpected argument\n\n" >&2
+	    printf "\n${script_name}: you specified an invalid option or provided an unexpected argument: \"${opt}\"\n\n" >&2
 	    usage >&2
 	    exit 1
+	    ;;
     esac
 done
 

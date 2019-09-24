@@ -14,23 +14,30 @@ function usage() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o h --longoptions "help" -- "${@}")
-if [[ ${?} -ne 0 ]]; then
-    printf "\n${script_name}: you specified an invalid option\n\n" >&2
+opts=$(pbench-argparse -q -o h --longoptions "help" -n "${script_name}" -- "${@}")
+sts=${?}
+if [[ ${sts} -ne 0 ]]; then
+    printf -- "\n" >&2
     usage >&2
-    exit 1
+    exit ${sts}
 fi
 
 eval set -- "${opts}"
 while true; do
-    case "${1}" in
+    opt="${1}"
+    shift
+    case "${opt}" in
 	-h|--help)
 	    usage
 	    exit 0
 	    ;;
 	--)
-	    shift;
-	    break;
+	    break
+	    ;;
+	*)
+	    printf "\n${script_name}: you specified an invalid option or provided an unexpected argument: \"${opt}\"\n\n" >&2
+	    usage >&2
+	    exit 1
 	    ;;
     esac
 done

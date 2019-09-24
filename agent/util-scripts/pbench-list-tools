@@ -1,75 +1,86 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
-# This script can list all tools from all groups,
-# list tools from a specific group, or list which
-# groups contain a specific tool
+# This script can list all tools from all groups, list tools from a specific
+# group, or list which groups contain a specific tool
+
+function usage() {
+    printf -- "usage:\n"
+    printf -- "${script_name} [--help] [--name=<tool name>] [--group=<tool group>] [--with-options]\n"
+    printf -- "The following options are available (use neither, one, or the other, but not both):\n\n"
+    printf -- "\t-n str --name=str, list the perftool groups which str is used\n\n"
+    printf -- "\t-g str --group=str, list the tools used in this str\n\n"
+    printf -- "\t-o --with-options, list the options with each tool\n"
+}
+
+# Process options and arguments
+opts=$(pbench-argparse -q -o g:n:oh --longoptions "group:,name:,with-options,help" -n "${script_name}" -- "${@}")
+sts=${?}
+if [[ ${sts} -ne 0 ]]; then
+    printf -- "\n" >&2
+    usage >&2
+    exit ${sts}
+fi
 
 # Defaults
 name=""
 group=""
 with_options=0
+with_options_opt=""
 
-# Process options and arguments
-
-opts=$(getopt -q -o tn:og: --longoptions "with-options,name:,group:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following options are available (use neither, one, or the other, but not both):\n\n"
-	printf -- "\t-n str --name=str, list the perftool groups which str is used\n"
-	printf "\n"
-	printf -- "\t-g str --group=str, list the tools used in this str\n"
-	printf "\n"
-	printf -- "\t-o --with-options, list the options with each tool\n"
-
-
-	exit 1
-fi
-eval set -- "$opts";
+eval set -- "$opts"
 while true; do
-	case "$1" in
-		-n|--name)
+    opt="${1}"
+    shift
+    case "${opt}" in
+	-n|--name)
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    if [[ "${group}" = "" ]]; then
+		name="${1}"
+		shift
+	    else
+		printf "You cannot specify both a group and a name\n\n" >&2
+		usage >&2
+		exit 1
+	    fi
+	    ;;
+	-g|--group)
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    if [[ "${name}" = "" ]]; then
+		group="${1}"
 		shift;
-		if [ -n "$1" -a "$group" = "" ]; then
-			name="$1"
-			shift;
-		else
-			printf "You cannot specify both group and a name\n"
-			exit 1
-		fi
-		;;
-		-g|--group)
-		shift;
-		if [ -n "$1" -a "$name" = "" ]; then
-			group="$1"
-			shift;
-		else
-			printf "You cannot specify both group and a name\n"
-			exit 1
-		fi
-		;;
-		-o|--with-options)
-		shift;
-		with_options=1
-		with_options_opt="--with-options" # used if we ssh for remote list
-		;;
-		--)
-		shift;
-		break;
-		;;
-                *)
-                    break
-                    ;;
-	esac
+	    else
+		printf "You cannot specify both a name and a group\n\n" >&2
+		usage >&2
+		exit 1
+	    fi
+	    ;;
+	-o|--with-options)
+	    with_options=1
+	    with_options_opt="--with-options" # used if we ssh for remote list
+	    ;;
+	-h|--help)
+	    usage
+	    exit 0
+	    ;;
+	--)
+	    break
+	    ;;
+	*)
+	    printf "\n${script_name}: you specified an invalid option or provided an unexpected argument: \"${opt}\"\n\n" >&2
+	    usage >&2
+	    exit 1
+	    ;;
+    esac
 done
+
 if [ -d "$pbench_run" ]; then
 	pushd "$pbench_run" >/dev/null
 	if [ -z $name ]; then
@@ -112,7 +123,7 @@ if [ -d "$pbench_run" ]; then
 				printf "%s: %s\n" "$group" "$tools"
 			fi
 		done
-	else 
+	else
 		# list the groups which include this tool
 		for group in `/bin/ls tools-* 2>/dev/null | sed -e s/^tools-//g`; do
 			if /bin/ls tools-$group | grep -q "^$name"; then

@@ -11,10 +11,10 @@
 --interval=50
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] started: --dir=/var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/vmstat --stop --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/tmp --interval=50
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] stopping vmstat
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] completed: --dir=/var/tmp/pbench-test-utils/pbench/tmp
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x vmstat

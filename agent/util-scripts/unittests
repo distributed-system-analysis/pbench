@@ -249,6 +249,7 @@ declare -A tools=(
     [test-39]="pbench-copy-results"
     [test-40]="pbench-copy-results"
     [test-41]="pbench-copy-results"
+    [test-42]="pbench-move-results"
 )
 
 declare -A options=(
@@ -291,6 +292,7 @@ declare -A options=(
     [test-38]="--user="
     [test-39]="--prefix=goo/tar"
     [test-40]="--user=pap"
+    [test-42]="--user --prefix --xz-single-threaded"
 )
 
 declare -A expected_status=(
@@ -303,8 +305,9 @@ declare -A expected_status=(
     [test-29]=1
     [test-35]=1
     [test-36]=1
-    [test-37]=1
-    [test-38]=1
+    [test-37]=2
+    [test-38]=2
+    [test-42]=2
 )
 
 declare -A pre_hooks=(

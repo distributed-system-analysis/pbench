@@ -5,12 +5,12 @@
 # needs to be invoked *after* the base script is sourced and *after*
 # the benchmark_run_dir is set.
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
 # This script will collect metadata about a pbench run.  This is
 # typically called at the beginning and end of a benchmark script to
@@ -29,34 +29,40 @@ function usage {
 }
 
 # Process options and arguments
-
-opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-    printf "\n"
-    printf "$script_name: you specified an invalid option\n\n"
-    usage
-    exit 1
+opts=$(pbench-argparse -q -o d:g:h --longoptions "dir:,group:,help" -n "${script_name}" -- "${@}")
+sts=${?}
+if [[ ${sts} -ne 0 ]]; then
+    printf -- "\n" >&2
+    usage >&2
+    exit ${sts}
 fi
-eval set -- "$opts";
+
+eval set -- "${opts}"
 while true; do
-    case "$1" in
+    opt="${1}"
+    shift
+    case "${opt}" in
 	-d|--dir)
-	    shift;
-	    if [ -n "$1" ]; then
-		    dir="$1"
-		shift;
-	    fi
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    dir="$1"
+	    shift
 	    ;;
 	-g|--group)
-	    shift;
-	    if [ -n "$1" ]; then
-		    group="$1"
-		    shift;
-	    fi
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    group="$1"
+	    shift
+	    ;;
+	-h|--help)
+	    usage
+   	    exit 0
 	    ;;
 	--)
-	    shift;
-	    break;
+	    break
+	    ;;
+	*)
+	    printf "\n${script_name}: you specified an invalid option or provided an unexpected argument: \"${opt}\"\n\n" >&2
+	    usage >&2
+	    exit 1
 	    ;;
     esac
 done

@@ -7,50 +7,66 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-# This script can list all tools from all groups,
-# list tools from a specific group, or list which
-# groups contain a specific tool
+# This script can list triggers for a single tool group or for all tool
+# groups.
+
+function usage() {
+    printf -- "usage:\n"
+    printf -- "${script_name} [--help] [--group=<tool group name>]\n"
+    printf -- "The following option is available:\n\n"
+    printf -- "\t-g str --group=str, list the triggers used by this group\n"
+    printf -- "\t                    (defaults to all tool groups)\n"
+}
+
+# Process options and arguments
+opts=$(pbench-argparse -q -o g:h --longoptions "group:,help" -n "${script_name}" -- "${@}")
+sts=${?}
+if [[ ${sts} -ne 0 ]]; then
+    printf -- "\n" >&2
+    usage >&2
+    exit ${sts}
+fi
 
 # Defaults
 name=""
 group=""
 with_options=0
 
-# Process options and arguments
-
-opts=$(getopt -q -o to:g: --longoptions "group:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following option is available: \n\n"
-	printf -- "\t-g str --group=str, list the triggers used by this group\n"
-	exit 1
-fi
-eval set -- "$opts";
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		-g|--group)
-		shift;
-		group="$1"
-		shift;
-		;;
-		--)
-		shift;
-		break;
-		;;
-	esac
+    opt="${1}"
+    shift
+    case "${opt}" in
+	-g|--group)
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    group="$1"
+	    shift
+	    ;;
+	--)
+	    break
+	    ;;
+	*)
+	    printf "\n${script_name}: you specified an invalid option or provided an unexpected argument: \"${opt}\"\n\n" >&2
+	    usage >&2
+	    exit 1
+	    ;;
+    esac
 done
-if [ -d "$pbench_run" ]; then
-	pushd "$pbench_run" >/dev/null
-	# list tool triggers in one or all groups
-	if [ -z "$group" ]; then
-		groups=`/bin/cat tool-triggers 2>/dev/null | grep -v '^#' | sed -e s/:.*//`
-	else
-		groups="$group"
-	fi
 
-	for grp in $groups ;do
-		sed -n '/^'$grp'/p' tool-triggers
-	done
-	popd  >/dev/null
+if [[ ! -d "${pbench_run}" ]]; then
+    printf -- "Logic bomb! pbench_run directory, ${pbench_run}, does not exist or is not a directory\n" >&2; exit 200;
 fi
+pushd "${pbench_run}" >/dev/null
+
+# list tool triggers in one or all groups
+if [[ -z "${group}" ]]; then
+    groups=$(/bin/cat tool-triggers 2>/dev/null | grep -v '^#' | sed -e s/:.*//)
+else
+    groups="${group}"
+fi
+
+for grp in ${groups} ;do
+    sed -n '/^'${grp}'/p' tool-triggers
+done
+
+popd >/dev/null

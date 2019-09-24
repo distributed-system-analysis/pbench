@@ -1,6 +1,6 @@
 +++ Running test-20 pbench-postprocess-tools --dir=/var/tmp/pbench-test-utils/pbench/tmp --group=default --iteration=1
-[warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
-[warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+[warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+[warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 --- Finished test-20 pbench-postprocess-tools (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -24,10 +24,10 @@ bar
 /var/tmp/pbench-test-utils/pbench/tmp/tools-default/bar:testhost/iostat/iostat-stdout.txt:
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/tmp --group=default --iteration=1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] started: --dir=/var/tmp/pbench-test-utils/pbench/tmp --group=default --iteration=1
+/var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --postprocess --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/tmp --interval=10
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] postprocessing iostat
-/var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]completed: 
+/var/tmp/pbench-test-utils/pbench/pbench.log:[warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] completed: --dir=/var/tmp/pbench-test-utils/pbench/tmp --group=default --iteration=1
 --- pbench.log file contents

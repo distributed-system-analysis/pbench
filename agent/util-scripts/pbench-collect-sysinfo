@@ -49,54 +49,54 @@ function usage {
 	printf -- "\t       --check,       checks if sysinfo is set to one of the accepted values\n"
 }
 
-opts=$(getopt -q -o d:g:h --longoptions "dir:,group:,help,options,sysinfo:,check" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	usage
-	exit 1
+opts=$(pbench-argparse -q -o d:g:h --longoptions "dir:,group:,help,options,sysinfo:,check" -n "${script_name}" -- "${@}")
+sts=${?}
+if [[ ${sts} -ne 0 ]]; then
+    printf -- "\n" >&2
+    usage >&2
+    exit ${sts}
 fi
-eval set -- "$opts";
+
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		-g|--group)
-		shift;
-		if [ -n "$1" ]; then
-			group="$1"
-			shift;
-		fi
-		;;
-		-d|--dir)
-		shift;
-		if [ -n "$1" ]; then
-			dir="$1"
-			shift;
-		fi
-		;;
-		--options)
-		display_sysinfo_opts
-		exit 0
-		;;
-		--sysinfo)
-		shift;
-		if [ -n "$1" ]; then
-			sysinfo="$1"
-			shift;
-		fi
-		;;
-		--check)
-		check=true
-		shift;
-		;;
-		-h|--help)
-		usage
-		exit 0
-		;;
-		--)
-		shift;
-		break;
-		;;
-	esac
+    opt="${1}"
+    shift
+    case "${opt}" in
+	-g|--group)
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    group="${1}"
+	    shift
+	    ;;
+	-d|--dir)
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    dir="${1}"
+	    shift
+	    ;;
+	--options)
+	    display_sysinfo_opts
+	    exit 0
+	    ;;
+	--sysinfo)
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    sysinfo="${1}"
+	    shift
+	    ;;
+	--check)
+	    check=true
+	    ;;
+	-h|--help)
+	    usage
+	    exit 0
+	    ;;
+	--)
+	    break
+	    ;;
+	*)
+	    printf "\n${script_name}: you specified an invalid option or provided an unexpected argument: \"${opt}\"\n\n" >&2
+	    usage >&2
+	    exit 1
+	    ;;
+    esac
 done
 
 # if unspecified, collect the default sysinfo

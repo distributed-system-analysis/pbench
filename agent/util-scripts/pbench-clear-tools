@@ -13,54 +13,62 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # Specifying a tool name and/or group will limit the scope of the
 # removal.
 
-# Defaults
-name=""
-group="default"
-
-# Process options and arguments
-
-opts=$(getopt -q -o g:n: --longoptions "group:,name:,remote:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
+function usage() {
+    printf "usage:\n"
+    printf "${script_name} [--help] <full path to tar ball> <results host> <results path prefix>\n"
 	printf "The following are required:\n\n"
 	printf -- "\t-g str --group=str, str = the group from which tools should be removed\n"
 	printf -- "\t                          (the default group is 'default')\n"
 	printf -- "\t-n str --name=str, str = a specific tool to be removed.  If no tool is specified, all tools in the group are removed\n"
-        printf -- "\t-n str --remote=str, str = a specific remote on which tools needs to be cleared.  If no remote is specified, all the tools are removed\n"
-	printf "\n"
+	printf -- "\t-n str --remote=str, str = a specific remote on which tools needs to be cleared.  If no remote is specified, all the tools are removed\n\n"
+}
 
-	exit 1
+# Process options and arguments
+opts=$(pbench-argparse -q -o g:n:r:h --longoptions "group:,name:,remote:,help" -n "${script_name}" -- "${@}")
+sts=${?}
+if [[ ${sts} -ne 0 ]]; then
+    printf -- "\n" >&2
+    usage >&2
+	exit ${sts}
 fi
-eval set -- "$opts";
+
+# Defaults
+name=""
+group="default"
+
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		-n|--name)
-		shift;
-		if [ -n "$1" ]; then
-			name="$1"
-			shift;
-		fi
-		;;
-		-g|--group)
-		shift;
-		if [ -n "$1" ]; then
-			group="$1"
-			shift;
-		fi
-		;;
-		-r|--remote)
-                shift;
-                if [ -n "$1" ]; then
-                        remote="$1"
-                        shift;
-                fi
-                ;;
-		--)
-		shift;
-		break;
-		;;
-	esac
+    opt="${1}"
+    shift
+    case "${opt}" in
+	-n|--name)
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    name="${1}"
+	    shift
+	    ;;
+	-g|--group)
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+	    group="${1}"
+	    shift
+	    ;;
+	-r|--remote)
+	    if [[ -z "${1}" ]]; then printf -- "Logic bomb! empty argument for ${opt}\n" >&2; exit 100; fi
+            remote="${1}"
+            shift
+            ;;
+	-h|--help)
+	    usage
+	    exit 0
+	    ;;
+	--)
+	    break
+	    ;;
+	*)
+	    printf "\n${script_name}: you specified an invalid option or provided an unexpected argument: \"${opt}\"\n\n" >&2
+	    usage >&2
+	    exit 1
+	    ;;
+    esac
 done
 
 pushd $pbench_run >/dev/null
