@@ -74,6 +74,11 @@ export const mockMappings = {
               user: { type: 'string', index: 'not_analyzed' },
             },
           },
+          '@metadata': {
+            properties: {
+              controller_dir: { type: 'string', index: 'not_analyzed' },
+            },
+          },
         },
       },
     },
@@ -91,6 +96,9 @@ export const mockSearch = {
             name: 'test_run',
             script: 'test',
             user: 'test_user',
+          },
+          '@metadata': {
+            controller_dir: 'test_controller',
           },
         },
       },
