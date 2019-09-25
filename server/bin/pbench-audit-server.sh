@@ -194,7 +194,7 @@ function verify_incoming {
             # directory, handled in another part of the audit.
             continue
         fi
-        lclreport="${workdir}/$(basename ${controller})"
+        lclreport="${workdir}/$(basename -- ${controller})"
         > ${lclreport}
 
         tarball_dirs="${workdir}/tarballdirs"
@@ -277,7 +277,7 @@ function verify_results {
             # directory, handled in another part of the audit.
             continue
         fi
-        lclreport="${workdir}/$(basename ${controller})"
+        lclreport="${workdir}/$(basename -- ${controller})"
         > ${lclreport}
 
         # The hierarchy of a controller in the results tree should only
@@ -328,7 +328,7 @@ function verify_results {
         wrong_user_links="${workdir}/wronguserlinks"
         > ${wrong_user_links}
         while read path link ; do
-            tb=$(basename ${path})
+            tb=$(basename -- ${path})
             if [ ! -e $ARCHIVE/${controller}/${tb}.tar.xz ]; then
                 # The tar ball does not exist in the archive hierarchy.
                 printf "\t\t${path}\n" >> ${invalid_tb_links}
@@ -342,7 +342,7 @@ function verify_results {
                     # a directory or link in the incoming hierarchy.
                     printf "\t\t${path}\n" >> ${invalid_tb_dir_links}
                 else
-                    prefix_path=$(dirname ${path})
+                    prefix_path=$(dirname -- ${path})
                     prefix_file="$ARCHIVE/${controller}/.prefix/${tb}.prefix"
                     # Version 002 agents use the metadata log to store a
                     # prefix.
@@ -484,9 +484,9 @@ function verify_controllers {
     elif [ "${hierarchy_root}" = "$RESULTS" ]; then
         kind="results"
         user=""
-    elif [ "$(dirname ${hierarchy_root})" = "$USERS" ]; then
+    elif [ "$(dirname -- ${hierarchy_root})" = "$USERS" ]; then
         kind="results"
-        user=$(basename ${hierarchy_root})
+        user=$(basename -- ${hierarchy_root})
     else
         printf "${PROG}: verify_controllers bad argument, hierarchy_root=\"${hierarchy_root}\"\n" >&2
         return 1
@@ -502,7 +502,7 @@ function verify_controllers {
     > ${controllers}.unsorted
     find ${hierarchy_root} -maxdepth 1 \
             \( ! -type d -fprintf ${unexpected_objects}.unsorted "\t%f\n" \) \
-            -o \( -type d ! -name . ! -name $(basename ${hierarchy_root}) -fprintf ${controllers}.unsorted "%f\n" \)
+            -o \( -type d ! -name . ! -name $(basename -- ${hierarchy_root}) -fprintf ${controllers}.unsorted "%f\n" \)
     status=$?
     if [ $status -ne 0 ]; then
         printf "*** ERROR *** unable to traverse hiearchy ${hierarchy_root}: find failed with $status\n"
@@ -599,7 +599,7 @@ function verify_users {
     > ${users}.unsorted
     find $USERS -maxdepth 1 \
             \( ! -type d -fprintf ${unexpected_objects}.unsorted "\t%f\n" \) \
-            -o \( -type d ! -name . ! -name $(basename $USERS) -fprintf ${users}.unsorted "%f\n" \)
+            -o \( -type d ! -name . ! -name $(basename -- $USERS) -fprintf ${users}.unsorted "%f\n" \)
     status=$?
     if [ $status -ne 0 ]; then
         printf "*** ERROR *** unable to traverse hiearchy $USERS: find failed with $status\n"
@@ -638,7 +638,7 @@ function verify_archive {
     > ${controllers}.unsorted
     find $ARCHIVE -maxdepth 1 \
          \( ! -type d -fprintf ${bad_controllers}.unsorted "\t%M %10s %t %f\n" \) \
-         -o \( -type d ! -name . ! -name $(basename $ARCHIVE) -fprintf ${controllers}.unsorted "%p\n" \)
+         -o \( -type d ! -name . ! -name $(basename -- $ARCHIVE) -fprintf ${controllers}.unsorted "%p\n" \)
     if [ $? -gt 0 ]; then
         printf "\n*** ERROR *** unable to traverse $ARCHIVE hierarchy\n"
         let cnt=cnt+1
@@ -657,7 +657,7 @@ function verify_archive {
     # $ARCHIVE directory itself, while keeping them all in sorted order.
     sort ${controllers}.unsorted > ${controllers}
     while read controller ;do
-        lclreport="${workdir}/$(basename ${controller})"
+        lclreport="${workdir}/$(basename -- ${controller})"
         > ${lclreport}
 
         > ${directories}.unsorted
@@ -665,13 +665,13 @@ function verify_archive {
         > ${unexpected_objects}.unsorted
         > ${tarballs}
         find ${controller} -maxdepth 1 \
-                \( -type d ! -name . ! -name $(basename ${controller}) ! -name .prefix -fprintf ${directories}.unsorted "\t  %f\n" \) \
+                \( -type d ! -name . ! -name $(basename -- ${controller}) ! -name .prefix -fprintf ${directories}.unsorted "\t  %f\n" \) \
                 -o \( -type l -fprintf ${unexpected_symlinks}.unsorted "\t  %f -> %l\n" \) \
                 -o \( -type f ! -name '*.tar.xz.md5' ! -name '*.tar.xz' -fprintf ${unexpected_objects}.unsorted "\t  %f\n" \) \
                 -o \( -type f \( -name '*.tar.xz.md5' -o -name '*.tar.xz' \) -fprintf ${tarballs} "%f\n" \)
         status=$?
         if [ $status -gt 0 ]; then
-            printf "*** ERROR *** unable to traverse controller hierarchy for $(basename ${controller}): find failed with $status\n" >> ${lclreport}
+            printf "*** ERROR *** unable to traverse controller hierarchy for $(basename -- ${controller}): find failed with $status\n" >> ${lclreport}
             let cnt=cnt+1
         else
             sort ${directories}.unsorted > ${directories}
@@ -689,7 +689,7 @@ function verify_archive {
         rm -f ${tarballs}
 
         if [ -s ${lclreport} ]; then
-            printf "\nController: $(basename ${controller})\n"
+            printf "\nController: $(basename -- ${controller})\n"
             cat ${lclreport}
             let cnt=cnt+1
         fi
