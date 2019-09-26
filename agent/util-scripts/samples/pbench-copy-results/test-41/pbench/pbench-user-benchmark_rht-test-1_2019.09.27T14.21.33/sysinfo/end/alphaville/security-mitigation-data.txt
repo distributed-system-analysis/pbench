@@ -1,0 +1,4 @@
+/sys/devices/system/cpu/vulnerabilities/meltdown:Mitigation: PTI
+/sys/devices/system/cpu/vulnerabilities/spectre_v1:Mitigation: __user pointer sanitization
+/sys/devices/system/cpu/vulnerabilities/spectre_v2:Mitigation: Full generic retpoline, IBPB, IBRS_FW
+

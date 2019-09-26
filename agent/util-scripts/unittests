@@ -238,6 +238,11 @@ declare -A tools=(
     [test-34]="pbench-move-results"
     [test-35]="pbench-register-tool-trigger"
     [test-36]="pbench-register-tool-trigger"
+    [test-37]="pbench-move-results"
+    [test-38]="pbench-move-results"
+    [test-39]="pbench-copy-results"
+    [test-40]="pbench-copy-results"
+    [test-41]="pbench-copy-results"
 )
 
 declare -A options=(
@@ -276,6 +281,10 @@ declare -A options=(
     [test-34]="--help"
     [test-35]="--group=default --start-trigger=\"START:DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     [test-36]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP:DEFAULT\""
+    [test-37]="--prefix="
+    [test-38]="--user="
+    [test-39]="--prefix=goo/tar"
+    [test-40]="--user=pap"
 )
 
 declare -A expected_status=(
@@ -288,6 +297,8 @@ declare -A expected_status=(
     [test-29]=1
     [test-35]=1
     [test-36]=1
+    [test-37]=1
+    [test-38]=1
 )
 
 declare -A pre_hooks=(
@@ -307,7 +318,10 @@ declare -A post_hooks=(
     [test-03]='unset benchmark'
     [test-04]='unset benchmark'
     [test-22]='unset benchmark'
-    [test-31]='(echo "+++ metadata.log file contents"; cat $_testdir/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32/metadata.log; echo "--- metadata.log file contents") >> $_testout'
+    [test-31]='(echo "+++ metadata.log file contents"; cat ${_testdir}/pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32/metadata.log; echo "--- metadata.log file contents") >> ${_testout}'
+    [test-39]='(echo "+++ metadata.log file contents"; cat ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.09.27T14.21.31/metadata.log; echo "--- metadata.log file contents") >> ${_testout}'
+    [test-40]='(echo "+++ metadata.log file contents"; cat ${_testdir}/pbench-user-benchmark_pap-test-1_2019.09.27T14.21.32/metadata.log; echo "--- metadata.log file contents") >> ${_testout}'
+    [test-41]='(echo "+++ metadata.log file contents"; cat ${_testdir}/pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33/metadata.log; echo "--- metadata.log file contents") >> ${_testout}'
 )
 
 tests="$*"

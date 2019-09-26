@@ -13,11 +13,17 @@ function usage() {
     printf "${script_name} --result-dir=<pbench results dir> --target-dir=<where to put tar ball> [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded=<0|1>]\n"
 }
 
+function missing_arg() {
+    printf "\n${script_name}: ${1} is missing its argument\n\n" >&2
+    usage >&2
+    exit 1
+}
+
 # Process options and arguments
 opts=$(getopt -q -o h --longoptions "user:,prefix:,result-dir:,target-dir:,xz-single-threaded:,help" -n "getopt.sh" -- "${@}")
 sts=${?}
 if [[ ${sts} -ne 0 ]]; then
-    printf "\n${script_name}: you specified an invalid option\n\n" >&2
+    printf "\n${script_name}: you specified an invalid option or an unexpected argument\n\n" >&2
     usage >&2
     exit 1
 fi
@@ -29,50 +35,61 @@ prefix=""
 xz_single_threaded=0
 eval set -- "${opts}"
 while true; do
-    case "${1}" in
+    opt="${1}"
+    shift
+    case "${opt}" in
 	--result-dir)
-	    shift;
-            if [[ -n "${1}" ]]; then
-                result_dir="${1}"
-                shift;
-            fi
-            ;;
+	    if [[ -n "${1}" ]]; then
+		result_dir="${1}"
+		shift
+	    else
+		missing_arg "${opt}"
+	    fi
+	    ;;
 	--target-dir)
-	    shift;
-            if [[ -n "${1}" ]]; then
-                target_dir="${1}"
-                shift;
-            fi
-            ;;
+	    if [[ -n "${1}" ]]; then
+		target_dir="${1}"
+		shift
+	    else
+		missing_arg "${opt}"
+	    fi
+	    ;;
 	--user)
-	    shift;
-            if [[ -n "${1}" ]]; then
-                user="${1}"
-                shift;
-            fi
-            ;;
-        --prefix)
-            shift;
-            if [[ -n "${1}" ]]; then
-                prefix="${1}"
-                shift;
-            fi
-            ;;
+	    if [[ -n "${1}" ]]; then
+		user="${1}"
+		shift
+	    else
+		missing_arg "${opt}"
+	    fi
+	    ;;
+	--prefix)
+	    if [[ -n "${1}" ]]; then
+		prefix="${1}"
+		shift
+	    else
+		missing_arg "${opt}"
+	    fi
+	    ;;
 	--xz-single-threaded)
-	    shift;
-            if [[ -n "${1}" ]]; then
+	    if [[ -n "${1}" ]]; then
 		xz_single_threaded="${1}"
-                shift;
-            fi
+		shift
+	    else
+		missing_arg "${opt}"
+	    fi
 	    ;;
 	-h|--help)
 	    usage
-   	    exit 0
+	    exit 0
 	    ;;
-        --)
-            shift;
-            break;
-            ;;
+	--)
+	    break;
+	    ;;
+	*)
+	    printf "\n${script_name}: you specified an invalid option or an unexpected argument: \"${opt}\"\n\n" >&2
+	    usage >&2
+	    exit 1
+	    ;;
     esac
 done
 

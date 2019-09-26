@@ -1,0 +1,54 @@
+turbostat version 17.06.23 - Len Brown <lenb@kernel.org>
+CPUID(0): GenuineIntel 13 CPUID levels; family:model:stepping 0x6:3c:3 (6:60:3)
+CPUID(1): SSE3 MONITOR SMX EIST TM2 TSC MSR ACPI-TM TM
+CPUID(6): APERF, TURBO, DTS, PTM, No-HWP, No-HWPnotify, No-HWPwindow, No-HWPepp, No-HWPpkg, EPB
+cpu1: MSR_IA32_MISC_ENABLE: 0x00850089 (TCC EIST No-MWAIT PREFETCH TURBO)
+CPUID(7): No-SGX
+cpu1: MSR_MISC_PWR_MGMT: 0x00400000 (ENable-EIST_Coordination DISable-EPB DISable-OOB)
+RAPL: 5578 sec. Joule Counter Range, at 47 Watts
+cpu1: MSR_PLATFORM_INFO: 0x80838f3011c00
+8 * 100.0 = 800.0 MHz max efficiency frequency
+28 * 100.0 = 2800.0 MHz base frequency
+cpu1: MSR_IA32_POWER_CTL: 0x0004005f (C1E auto-promotion: ENabled)
+cpu1: MSR_TURBO_RATIO_LIMIT: 0x24242526
+36 * 100.0 = 3600.0 MHz max turbo 4 active cores
+36 * 100.0 = 3600.0 MHz max turbo 3 active cores
+37 * 100.0 = 3700.0 MHz max turbo 2 active cores
+38 * 100.0 = 3800.0 MHz max turbo 1 active cores
+cpu1: MSR_CONFIG_TDP_NOMINAL: 0x0000001c (base_ratio=28)
+cpu1: MSR_CONFIG_TDP_LEVEL_1: 0x00000000 ()
+cpu1: MSR_CONFIG_TDP_LEVEL_2: 0x00000000 ()
+cpu1: MSR_CONFIG_TDP_CONTROL: 0x80000000 ( lock=1)
+cpu1: MSR_TURBO_ACTIVATION_RATIO: 0x00000000 (MAX_NON_TURBO_RATIO=0 lock=0)
+cpu1: MSR_PKG_CST_CONFIG_CONTROL: 0x1e008405 (UNdemote-C3, UNdemote-C1, demote-C3, demote-C1, locked: pkg-cstate-limit=5: pc7s)
+cpu1: POLL: CPUIDLE CORE POLL IDLE
+cpu1: C1: MWAIT 0x00
+cpu1: C1E: MWAIT 0x01
+cpu1: C3: MWAIT 0x10
+cpu1: C6: MWAIT 0x20
+cpu1: C7s: MWAIT 0x32
+cpu1: cpufreq driver: intel_pstate
+cpu1: cpufreq governor: powersave
+cpufreq intel_pstate no_turbo: 0
+cpu1: MSR_MISC_FEATURE_CONTROL: 0x00000000 (L2-Prefetch L2-Prefetch-pair L1-Prefetch L1-IP-Prefetch)
+cpu0: MSR_IA32_ENERGY_PERF_BIAS: 0x0000000f (powersave)
+cpu0: MSR_CORE_PERF_LIMIT_REASONS, 0x31211000 (Active: MultiCoreTurbo, ) (Logged: Transitions, MultiCoreTurbo, Amps, Auto-HWP, PROCHOT, )
+cpu0: MSR_GFX_PERF_LIMIT_REASONS, 0x00010000 (Active: ) (Logged: PROCHOT, )
+cpu0: MSR_RING_PERF_LIMIT_REASONS, 0x0d010000 (Active: ) (Logged: PROCHOT, Amps, PkgPwrL1, PkgPwrL2, )
+cpu0: MSR_RAPL_POWER_UNIT: 0x000a0e03 (0.125000 Watts, 0.000061 Joules, 0.000977 sec.)
+cpu0: MSR_PKG_POWER_INFO: 0x00000178 (47 W TDP, RAPL 0 - 0 W, 0.000000 sec.)
+cpu0: MSR_PKG_POWER_LIMIT: 0x4281d600dc8178 (UNlocked)
+cpu0: PKG Limit #1: ENabled (47.000000 Watts, 28.000000 sec, clamp DISabled)
+cpu0: PKG Limit #2: ENabled (58.750000 Watts, 0.002441* sec, clamp DISabled)
+cpu0: MSR_PP0_POLICY: 0
+cpu0: MSR_PP0_POWER_LIMIT: 0x00000000 (UNlocked)
+cpu0: Cores Limit: DISabled (0.000000 Watts, 0.000977 sec, clamp DISabled)
+cpu0: MSR_PP1_POLICY: 0
+cpu0: MSR_PP1_POWER_LIMIT: 0x00000000 (UNlocked)
+cpu0: GFX Limit: DISabled (0.000000 Watts, 0.000977 sec, clamp DISabled)
+cpu0: MSR_IA32_TEMPERATURE_TARGET: 0x00641000 (100 C)
+cpu0: MSR_IA32_PACKAGE_THERM_STATUS: 0x882d0808 (55 C)
+cpu0: MSR_IA32_PACKAGE_THERM_INTERRUPT: 0x00000003 (100 C, 100 C)
+cpu1: MSR_PKGC3_IRTL: 0x00008842 (valid, 67584 ns)
+cpu1: MSR_PKGC6_IRTL: 0x00008873 (valid, 117760 ns)
+cpu1: MSR_PKGC7_IRTL: 0x00008891 (valid, 148480 ns)
