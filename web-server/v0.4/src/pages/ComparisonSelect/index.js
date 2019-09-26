@@ -24,11 +24,11 @@ import Table from '@/components/Table';
 class ComparisonSelect extends React.Component {
   constructor(props) {
     super(props);
-    const { iterations, selectedIterationKeys } = props;
+    const { iterations } = props;
 
     this.state = {
       resultIterations: iterations,
-      selectedRowKeys: selectedIterationKeys,
+      selectedRows: [],
     };
   }
 
@@ -48,7 +48,6 @@ class ComparisonSelect extends React.Component {
 
     if (nextProps.iterations !== iterations) {
       this.setState({ resultIterations: nextProps.iterations });
-      this.setState({ selectedRowKeys: nextProps.selectedIterationKeys });
     }
   }
 
@@ -61,16 +60,10 @@ class ComparisonSelect extends React.Component {
   };
 
   onCompareIterations = () => {
-    const { selectedRowKeys, resultIterations } = this.state;
+    const { selectedRows, resultIterations } = this.state;
 
-    if (selectedRowKeys.flat(1).length > 0) {
-      const selectedRowData = [];
-      selectedRowKeys.forEach(rowKey => {
-        selectedRowKeys[rowKey].forEach(row => {
-          selectedRowData.push(resultIterations[rowKey].iterations[selectedRowKeys[rowKey][row]]);
-        });
-      });
-      this.compareIterations(selectedRowData);
+    if (selectedRows.length > 0) {
+      this.compareIterations(selectedRows);
     } else {
       let selectedIterations = [];
       resultIterations.forEach(result => {
@@ -80,15 +73,8 @@ class ComparisonSelect extends React.Component {
     }
   };
 
-  onSelectChange = record => {
-    const { selectedRowKeys } = this.state;
-
-    if (selectedRowKeys[record.table].includes(record.key)) {
-      selectedRowKeys[record.table].splice(selectedRowKeys[record.table].indexOf(record.key), 1);
-    } else {
-      selectedRowKeys[record.table].push(record.key);
-    }
-    this.setState({ selectedRowKeys });
+  onSelectChange = selectedRows => {
+    this.setState({ selectedRows });
   };
 
   onFilterTable = (selectedParams, selectedPorts) => {
@@ -114,7 +100,7 @@ class ComparisonSelect extends React.Component {
   };
 
   render() {
-    const { resultIterations, selectedRowKeys } = this.state;
+    const { resultIterations } = this.state;
     const { iterationParams, iterationPorts, selectedControllers, loading } = this.props;
     return (
       <PageHeaderLayout
@@ -134,10 +120,10 @@ class ComparisonSelect extends React.Component {
               filters={iterationParams}
               ports={iterationPorts}
             />
-            {resultIterations.map((iteration, index) => {
+            {resultIterations.map(iteration => {
               const rowSelection = {
-                selectedRowKeys: selectedRowKeys[index],
-                onSelect: record => this.onSelectChange(record),
+                onSelect: (record, selected, selectedRows) => this.onSelectChange(selectedRows),
+                onSelectAll: (selected, selectedRows) => this.onSelectAll(selectedRows),
               };
               return (
                 <div key={iteration.resultName} style={{ marginTop: 32 }}>
@@ -152,6 +138,7 @@ class ComparisonSelect extends React.Component {
                     rowSelection={rowSelection}
                     columns={iteration.columns}
                     dataSource={iteration.iterations}
+                    hideDefaultSelections
                     bordered
                   />
                 </div>
