@@ -1,0 +1,11 @@
++++ Running test-38 pbench-move-results --user=
+
+pbench-move-results: --user is missing its argument
+
+usage:
+pbench-move-results [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]
+--- Finished test-38 pbench-move-results (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state

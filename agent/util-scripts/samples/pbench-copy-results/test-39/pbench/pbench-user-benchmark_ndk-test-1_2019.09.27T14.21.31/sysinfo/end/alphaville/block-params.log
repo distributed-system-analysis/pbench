@@ -1,0 +1,126 @@
+/sys/block/sda/sda2/start 10487808
+/sys/block/sda/sda2/inflight        0        0
+/sys/block/sda/sda2/power/runtime_suspended_time 0
+/sys/block/sda/sda2/power/autosuspend_delay_ms /sys/block/sda/sda2/power/runtime_active_time 0
+/sys/block/sda/sda2/power/control auto
+/sys/block/sda/sda2/power/runtime_status unsupported
+/sys/block/sda/sda2/dev 8:2
+/sys/block/sda/sda2/ro 0
+/sys/block/sda/sda2/partition 2
+/sys/block/sda/sda2/stat   360987     2291 18131996   136912   839542   126444 45172725 11010846        0   530180 11147262
+/sys/block/sda/sda2/size 989726720
+/sys/block/sda/sda2/alignment_offset 0
+/sys/block/sda/sda2/trace/end_lba disabled
+/sys/block/sda/sda2/trace/act_mask disabled
+/sys/block/sda/sda2/trace/start_lba disabled
+/sys/block/sda/sda2/trace/enable 0
+/sys/block/sda/sda2/trace/pid disabled
+/sys/block/sda/sda2/uevent MAJOR=8
+MINOR=2
+DEVNAME=sda2
+DEVTYPE=partition
+PARTN=2
+/sys/block/sda/sda2/discard_alignment 0
+/sys/block/sda/range 16
+/sys/block/sda/capability 50
+/sys/block/sda/inflight        0        0
+/sys/block/sda/ext_range 256
+/sys/block/sda/power/runtime_suspended_time 0
+/sys/block/sda/power/autosuspend_delay_ms /sys/block/sda/power/runtime_active_time 0
+/sys/block/sda/power/control auto
+/sys/block/sda/power/runtime_status unsupported
+/sys/block/sda/dev 8:0
+/sys/block/sda/hidden 0
+/sys/block/sda/ro 0
+/sys/block/sda/stat   361251     2297 18147134   137054   887878   126446 45172877 11186662        0   594695 11323331
+/sys/block/sda/events_poll_msecs -1
+/sys/block/sda/events_async /sys/block/sda/removable 0
+/sys/block/sda/size 1000215216
+/sys/block/sda/events /sys/block/sda/alignment_offset 0
+/sys/block/sda/sda1/start 2048
+/sys/block/sda/sda1/inflight        0        0
+/sys/block/sda/sda1/power/runtime_suspended_time 0
+/sys/block/sda/sda1/power/autosuspend_delay_ms /sys/block/sda/sda1/power/runtime_active_time 0
+/sys/block/sda/sda1/power/control auto
+/sys/block/sda/sda1/power/runtime_status unsupported
+/sys/block/sda/sda1/dev 8:1
+/sys/block/sda/sda1/ro 0
+/sys/block/sda/sda1/partition 1
+/sys/block/sda/sda1/stat      180        6    10770      129       17        2      152       24        0      101      153
+/sys/block/sda/sda1/size 10485760
+/sys/block/sda/sda1/alignment_offset 0
+/sys/block/sda/sda1/trace/end_lba disabled
+/sys/block/sda/sda1/trace/act_mask disabled
+/sys/block/sda/sda1/trace/start_lba disabled
+/sys/block/sda/sda1/trace/enable 0
+/sys/block/sda/sda1/trace/pid disabled
+/sys/block/sda/sda1/uevent MAJOR=8
+MINOR=1
+DEVNAME=sda1
+DEVTYPE=partition
+PARTN=1
+/sys/block/sda/sda1/discard_alignment 0
+/sys/block/sda/queue/hw_sector_size 512
+/sys/block/sda/queue/max_discard_segments 1
+/sys/block/sda/queue/max_segment_size 65536
+/sys/block/sda/queue/physical_block_size 512
+/sys/block/sda/queue/discard_max_bytes 2147450880
+/sys/block/sda/queue/rotational 0
+/sys/block/sda/queue/iosched/target_latency_us 300000
+/sys/block/sda/queue/iosched/target_latency 300
+/sys/block/sda/queue/iosched/slice_sync_us 100000
+/sys/block/sda/queue/iosched/low_latency 1
+/sys/block/sda/queue/iosched/fifo_expire_async 250
+/sys/block/sda/queue/iosched/slice_sync 100
+/sys/block/sda/queue/iosched/group_idle_us 8000
+/sys/block/sda/queue/iosched/back_seek_max 16384
+/sys/block/sda/queue/iosched/slice_idle 0
+/sys/block/sda/queue/iosched/slice_async_us 40000
+/sys/block/sda/queue/iosched/slice_idle_us 0
+/sys/block/sda/queue/iosched/group_idle 8
+/sys/block/sda/queue/iosched/slice_async_rq 2
+/sys/block/sda/queue/iosched/fifo_expire_sync 125
+/sys/block/sda/queue/iosched/back_seek_penalty 2
+/sys/block/sda/queue/iosched/slice_async 40
+/sys/block/sda/queue/iosched/quantum 8
+/sys/block/sda/queue/write_same_max_bytes 0
+/sys/block/sda/queue/zoned none
+/sys/block/sda/queue/max_sectors_kb 1280
+/sys/block/sda/queue/discard_zeroes_data 0
+/sys/block/sda/queue/read_ahead_kb 128
+/sys/block/sda/queue/discard_max_hw_bytes 2147450880
+/sys/block/sda/queue/wbt_lat_usec /sys/block/sda/queue/nomerges 0
+/sys/block/sda/queue/max_segments 168
+/sys/block/sda/queue/rq_affinity 1
+/sys/block/sda/queue/iostats 1
+/sys/block/sda/queue/dax 0
+/sys/block/sda/queue/minimum_io_size 512
+/sys/block/sda/queue/chunk_sectors 0
+/sys/block/sda/queue/io_poll 0
+/sys/block/sda/queue/write_zeroes_max_bytes 0
+/sys/block/sda/queue/max_hw_sectors_kb 32767
+/sys/block/sda/queue/add_random 0
+/sys/block/sda/queue/optimal_io_size 0
+/sys/block/sda/queue/nr_requests 128
+/sys/block/sda/queue/scheduler noop deadline [cfq] 
+/sys/block/sda/queue/discard_granularity 512
+/sys/block/sda/queue/logical_block_size 512
+/sys/block/sda/queue/io_poll_delay 0
+/sys/block/sda/queue/max_integrity_segments 0
+/sys/block/sda/queue/write_cache write back
+/sys/block/sda/trace/end_lba disabled
+/sys/block/sda/trace/act_mask disabled
+/sys/block/sda/trace/start_lba disabled
+/sys/block/sda/trace/enable 0
+/sys/block/sda/trace/pid disabled
+/sys/block/sda/uevent MAJOR=8
+MINOR=0
+DEVNAME=sda
+DEVTYPE=disk
+/sys/block/sda/integrity/write_generate 0
+/sys/block/sda/integrity/device_is_integrity_capable 0
+/sys/block/sda/integrity/tag_size 0
+/sys/block/sda/integrity/read_verify 0
+/sys/block/sda/integrity/protection_interval_bytes 0
+/sys/block/sda/integrity/format none
+/sys/block/sda/discard_alignment 0

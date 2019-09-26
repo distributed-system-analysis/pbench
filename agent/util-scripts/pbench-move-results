@@ -13,10 +13,16 @@ function usage() {
     printf "${script_name} [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
 }
 
+function missing_arg() {
+    printf "\n${script_name}: ${1} is missing its argument\n\n" >&2
+    usage >&2
+    exit 1
+}
+
 # Process options and arguments
 opts=$(getopt -q -o u:p:xSh --longoptions "user:,prefix:,xz-single-threaded,show-server,help" -n "getopt.sh" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
-    printf "\n${script_name}: you specified an invalid option\n\n" >&2
+    printf "\n${script_name}: you specified an invalid option or an unexpected argument\n\n" >&2
     usage >&2
     exit 1
 fi
@@ -27,37 +33,42 @@ xz_single_threaded=0
 show_server=""
 eval set -- "${opts}"
 while true; do
-    case "${1}" in
+    opt="${1}"
+    shift
+    case "${opt}" in
 	-u|--user)
-	    shift;
-            if [[ -n "${1}" ]]; then
-                user="${1}"
-                shift;
-            fi
-            ;;
-        -p|--prefix)
-            shift;
-            if [[ -n "${1}" ]]; then
-                prefix="${1}"
-                shift;
-            fi
-            ;;
+	    if [[ -n "${1}" ]]; then
+		user="${1}"
+		shift;
+	    else
+		missing_arg "${opt}"
+	    fi
+	    ;;
+	-p|--prefix)
+	    if [[ -n "${1}" ]]; then
+		prefix="${1}"
+		shift;
+	    else
+		missing_arg "${opt}"
+	    fi
+	    ;;
 	-x|--xz-single-threaded)
-	    shift;
 	    xz_single_threaded=1
 	    ;;
 	-S|--show-server)
-	    shift;
-	    show_server=1
+	    show_server="show"
 	    ;;
 	-h|--help)
 	    usage
    	    exit 0
 	    ;;
-        --)
-            shift;
-            break;
-            ;;
+	--)
+	    break;
+	    ;;
+	*)
+	    printf "\n${script_name}: you specified an invalid option or an unexpected argument\n\n" >&2
+	    usage >&2
+	    exit 1
     esac
 done
 
@@ -174,7 +185,17 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
     # contain the tarball and the md5 file (as ${tb}.tar.xz.md5.check); pass
     # that information on to pbench-make-result-tb.
     result_dir=$(basename ${dir})
-    result_tb_name=$(pbench-make-result-tb --result-dir ${result_dir} --target-dir ${tmp}/${controller} --user ${user} --prefix ${prefix} --xz-single-threaded ${xz_single_threaded})
+    if [[ -n "${user}" ]]; then
+	user_arg="--user ${user}"
+    else
+	user_arg=""
+    fi
+    if [[ -n "${prefix}" ]]; then
+	prefix_arg="--prefix ${prefix}"
+    else
+	prefix_arg=""
+    fi
+    result_tb_name=$(pbench-make-result-tb --result-dir "${result_dir}" --target-dir "${tmp}/${controller}" ${user_arg} ${prefix_arg} --xz-single-threaded "${xz_single_threaded}")
     if [[ ${?} -ne 0 ]]; then
 	# Messaging already handled by pbench-make-result-tb
 	continue
@@ -191,18 +212,18 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
 	exit 1
     fi
     if [[ ${sts} -ne 0 ]]; then
-        let failures=failures+1
-        continue
+	let failures=failures+1
+	continue
     fi
 
     if [[ "$script_name" == "pbench-move-results" ]]; then
-        rm -r ${result_dir}
+	rm -r ${result_dir}
 	if [[ ${?} -ne 0 ]]; then
 	    error_log "UNEXPECTED ERROR: rm failed to remove the ${result_dir} directory hierarchy"
 	    exit 1
 	fi
     else
-        touch ${result_dir}.copied
+	touch ${result_dir}.copied
 	if [[ ${?} -ne 0 ]]; then
 	    error_log "UNEXPECTED ERROR: touch failed to ${result_dir}.copied"
 	    exit 1
@@ -216,9 +237,9 @@ popd >/dev/null
 let anything=runs_copied+failures
 if [[ $anything -gt 0 ]]; then
     if [[ "$script_name" == "pbench-move-results" ]]; then
-        op="moved"
+	op="moved"
     else
-        op="copied"
+	op="copied"
     fi
     debug_log "successfully $op $runs_copied runs, encountered $failures failures"
 fi
