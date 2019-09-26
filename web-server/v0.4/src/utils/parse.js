@@ -25,14 +25,14 @@ export const parseIterationData = results => {
     };
     selectedIterationKeys.push([]);
 
-    result.iterationData.forEach((iteration, index) => {
+    result.iterationData.forEach(iteration => {
       let iterationMetadata = {
         iteration_name: iteration.iteration_name,
         iteration_number: iteration.iteration_number,
         result_name: result.resultName,
         controller_name: result.controllerName,
         table: result.tableId,
-        key: index,
+        key: iteration.iteration_number,
       };
       const iterationConfig = iteration.iteration_data.parameters.benchmark
         ? Object.entries(iteration.iteration_data.parameters.benchmark[0])

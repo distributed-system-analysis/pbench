@@ -21,7 +21,7 @@ class Results extends Component {
 
     this.state = {
       results: props.results,
-      selectedRowKeys: [],
+      selectedRows: [],
     };
   }
 
@@ -46,14 +46,10 @@ class Results extends Component {
     }
   }
 
-  onSelectChange = selectedRowKeys => {
-    const { dispatch, results } = this.props;
-    const selectedRows = [];
-    selectedRowKeys.forEach(key => {
-      const selectedKey = results.find(result => result.key === key);
-      selectedRows.push(selectedKey);
-    });
-    this.setState({ selectedRowKeys });
+  onSelectChange = selectedRows => {
+    const { dispatch } = this.props;
+
+    this.setState({ selectedRows });
 
     dispatch({
       type: 'global/updateSelectedResults',
@@ -122,11 +118,11 @@ class Results extends Component {
   };
 
   render() {
-    const { results, selectedRowKeys } = this.state;
+    const { results, selectedRows } = this.state;
     const { selectedControllers, loading } = this.props;
     const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange,
+      // eslint-disable-next-line no-shadow
+      onSelect: (record, selected, selectedRows) => this.onSelectChange(selectedRows),
     };
 
     const columns = [
@@ -164,7 +160,7 @@ class Results extends Component {
               onSearch={this.onSearch}
             />
             <RowSelection
-              selectedItems={selectedRowKeys}
+              selectedItems={selectedRows}
               compareActionName="Compare Results"
               onCompare={this.compareResults}
             />
