@@ -1,17 +1,17 @@
 +++ Running pbench-server-prep-shim-002
-pbench-server-prep-shim-002: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
+pbench-server-prep-shim-002: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-sync-satellite satellite-one
-pbench-sync-satellite: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
+pbench-sync-satellite: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-sync-satellite (status=1)
 +++ Running pbench-dispatch
-pbench-dispatch: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
+pbench-dispatch: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-dispatch (status=1)
 +++ Running pbench-unpack-tarballs
-pbench-unpack-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
+pbench-unpack-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-copy-sosreports
-pbench-copy-sosreports: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
+pbench-copy-sosreports: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
 pbench-index: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
@@ -20,10 +20,10 @@ pbench-index: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 pbench-index-tool-data: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 --- Finished pbench-index (status=3)
 +++ Running pbench-clean-up-dangling-results-links
-pbench-clean-up-dangling-results-links: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
+pbench-clean-up-dangling-results-links: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-edit-prefixes
-pbench-edit-prefixes: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
+pbench-edit-prefixes: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-edit-prefixes (status=1)
 +++ Running pbench-backup-tarballs
 pbench-backup-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
@@ -32,10 +32,10 @@ pbench-backup-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 pbench-verify-backup-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 --- Finished pbench-verify-backup-tarballs (status=1)
 +++ Running pbench-satellite-cleanup
-pbench-satellite-cleanup: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench-satellite
+pbench-satellite-cleanup: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench-satellite (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server-satellite/lib/config/pbench-server.cfg)
 --- Finished pbench-satellite-cleanup (status=1)
 +++ Running unit test audit
-pbench-audit-server: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
+pbench-audit-server: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished unit test audit (status=1)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-0/var-www-html)
 lrwxrwxrwx         62 incoming -> /var/tmp/pbench-test-server/test-0/pbench/public_html/incoming

@@ -46,7 +46,7 @@ from pbench import PbenchConfig, BadConfig
 try:
     config = PbenchConfig(config_name)
 except BadConfig as e:
-    print("{}: {}".format(_prog, e), file=sys.stderr)
+    print("{}: {} (config file {})".format(_prog, e, config_name), file=sys.stderr)
     sys.exit(1)
 
 # Exclude the "files" and "conf" attributes from being exported
