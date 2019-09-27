@@ -1,17 +1,17 @@
 +++ Running pbench-server-prep-shim-002
-pbench-server-prep-shim-002: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
+pbench-server-prep-shim-002: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-server-prep-shim-002 (status=1)
 +++ Running pbench-sync-satellite satellite-one
-pbench-sync-satellite: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
+pbench-sync-satellite: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-sync-satellite (status=1)
 +++ Running pbench-dispatch
-pbench-dispatch: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
+pbench-dispatch: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-dispatch (status=1)
 +++ Running pbench-unpack-tarballs
-pbench-unpack-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
+pbench-unpack-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-copy-sosreports
-pbench-copy-sosreports: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
+pbench-copy-sosreports: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-copy-sosreports (status=1)
 +++ Running pbench-index
 pbench-index: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
@@ -20,10 +20,10 @@ pbench-index: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
 pbench-index-tool-data: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
 --- Finished pbench-index (status=3)
 +++ Running pbench-clean-up-dangling-results-links
-pbench-clean-up-dangling-results-links: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
+pbench-clean-up-dangling-results-links: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-clean-up-dangling-results-links (status=1)
 +++ Running pbench-edit-prefixes
-pbench-edit-prefixes: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
+pbench-edit-prefixes: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-edit-prefixes (status=1)
 +++ Running pbench-backup-tarballs
 pbench-backup-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
@@ -32,10 +32,10 @@ pbench-backup-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-
 pbench-verify-backup-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
 --- Finished pbench-verify-backup-tarballs (status=1)
 +++ Running pbench-satellite-cleanup
-pbench-satellite-cleanup: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-satellite-local/logs
+pbench-satellite-cleanup: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-satellite-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server-satellite/lib/config/pbench-server.cfg)
 --- Finished pbench-satellite-cleanup (status=1)
 +++ Running unit test audit
-pbench-audit-server: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs
+pbench-audit-server: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished unit test audit (status=1)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-0.1/var-www-html)
 lrwxrwxrwx         64 incoming -> /var/tmp/pbench-test-server/test-0.1/pbench/public_html/incoming
