@@ -172,7 +172,7 @@ export default {
         },
       });
       yield put({
-        type: 'global/modifySelectedIterationKeys',
+        type: 'global/modifySelectedIterations',
         payload: parsedIterationData.selectedIterationKeys,
       });
     },

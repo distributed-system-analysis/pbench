@@ -7,7 +7,6 @@ export default {
     selectedResults: [],
     selectedControllers: [],
     selectedFields: [],
-    selectedIterationKeys: [],
     selectedIterations: [],
   },
 
@@ -73,12 +72,6 @@ export default {
       return {
         ...state,
         selectedFields: payload,
-      };
-    },
-    modifySelectedIterationKeys(state, { payload }) {
-      return {
-        ...state,
-        selectedIterationKeys: payload,
       };
     },
     modifySelectedIterations(state, { payload }) {
