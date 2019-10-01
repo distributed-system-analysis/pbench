@@ -63,7 +63,7 @@ class ComparisonSelect extends React.Component {
     const { selectedRows, resultIterations } = this.state;
 
     if (selectedRows.length > 0) {
-      this.compareIterations(selectedRows);
+      this.compareIterations(selectedRows.flat());
     } else {
       let selectedIterations = [];
       resultIterations.forEach(result => {
@@ -73,7 +73,9 @@ class ComparisonSelect extends React.Component {
     }
   };
 
-  onSelectChange = selectedRows => {
+  onSelectChange = (selectedIterations, result) => {
+    const { selectedRows } = this.state;
+    selectedRows[result] = selectedIterations;
     this.setState({ selectedRows });
   };
 
@@ -120,10 +122,11 @@ class ComparisonSelect extends React.Component {
               filters={iterationParams}
               ports={iterationPorts}
             />
-            {resultIterations.map(iteration => {
+            {resultIterations.map((iteration, result) => {
               const rowSelection = {
-                onSelect: (record, selected, selectedRows) => this.onSelectChange(selectedRows),
-                onSelectAll: (selected, selectedRows) => this.onSelectAll(selectedRows),
+                onSelect: (record, selected, selectedRows) =>
+                  this.onSelectChange(selectedRows, result),
+                onSelectAll: (selected, selectedRows) => this.onSelectChange(selectedRows, result),
               };
               return (
                 <div key={iteration.resultName} style={{ marginTop: 32 }}>
