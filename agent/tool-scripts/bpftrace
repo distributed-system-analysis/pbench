@@ -37,7 +37,7 @@ function usage {
 	printf -- "\t--script=str              path to bpftrace script (required w/ --start)\n"
 }
 
-opts=$(getopt -q -o dgi --longoptions "dir:,script:,group:,iteration:,start,stop,install,postprocess" -n "getopt.sh" -- "$@")
+opts=$(pbench-argparse -q -o dgi --longoptions "dir:,script:,group:,iteration:,start,stop,install,postprocess" -n "pbench-argparse.sh" -- "$@")
 if [[ $? -ne 0 ]]; then
 	printf -- "\n" >$2
 	printf -- "$script_name: you specified an invalid option\n\n" >$2

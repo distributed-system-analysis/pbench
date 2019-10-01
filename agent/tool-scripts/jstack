@@ -73,7 +73,7 @@ function run_jstack() {
 
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,pid:,pattern:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o idp --longoptions "dir:,group:,iteration:,pid:,pattern:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	usage
 	exit 1

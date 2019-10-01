@@ -40,7 +40,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -o d:hg:i:r:p: --longoptions "dir:,group:,iteration:,callgraph,record-opts:,report-opts:,start,stop,install,postprocess,help" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -o d:hg:i:r:p: --longoptions "dir:,group:,iteration:,callgraph,record-opts:,report-opts:,start,stop,install,postprocess,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"

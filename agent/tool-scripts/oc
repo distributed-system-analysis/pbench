@@ -25,7 +25,7 @@ iteration="1"
 options="none"
 interval=10
 
-opts=$(getopt -o d --longoptions "dir:,group:,iteration:,occomponent:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -o d --longoptions "dir:,group:,iteration:,occomponent:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 # occomponent not used at time, place holder for eventual future PR where oc parameters will be specified from command line 
 
 eval set -- "$opts"; 

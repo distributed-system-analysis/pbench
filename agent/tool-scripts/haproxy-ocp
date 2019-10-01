@@ -98,7 +98,7 @@ router_logs_collect() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess,collect,counters-clear-all,postprocess-script:" -n "getopt.sh" -- "$@")
+opts=$(pbench-argparse -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess,collect,counters-clear-all,postprocess-script:" -n "getopt.sh" -- "$@")
 
 if [ $? -ne 0 ]; then
     usage 1

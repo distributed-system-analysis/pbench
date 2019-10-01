@@ -51,7 +51,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o dgio --longoptions "dir:,group:,iteration:,interval:,options:,threads,patterns:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o dgio --longoptions "dir:,group:,iteration:,interval:,options:,threads,patterns:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [[ $? -ne 0 ]]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"

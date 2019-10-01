@@ -22,7 +22,7 @@ mode="none"
 iteration="1"
 interval=60
 
-opts=$(getopt -o d --longoptions "dir:,group:,iteration:,osecomponent:,interval:,inventory:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -o d --longoptions "dir:,group:,iteration:,osecomponent:,interval:,inventory:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 
 eval set -- "$opts"; 
 while true ; do 

@@ -25,7 +25,7 @@ iteration="1"
 options="none"
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess,tool-name:,file-to-capture:,start-script:,postprocess-script:" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess,tool-name:,file-to-capture:,start-script:,postprocess-script:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"

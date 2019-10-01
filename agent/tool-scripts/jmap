@@ -64,7 +64,7 @@ function run_jmap() {
 
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,pid:,pattern:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o idp --longoptions "dir:,group:,iteration:,pid:,pattern:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf "\n"
 	printf "$script_name: you specified an invalid option\n\n"
