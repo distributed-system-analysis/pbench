@@ -53,7 +53,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o C:h --longoptions "config:,threads:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"

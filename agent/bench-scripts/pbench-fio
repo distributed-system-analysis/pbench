@@ -164,7 +164,7 @@ function usage {
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:" -n "getopt.sh" -- "$@");
+	opts=$(pbench-argparse -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf -- "${script_name} $*\n"
 		printf -- "\n"

@@ -52,7 +52,7 @@ function mpt_usage() {
 }
 
 function mpt_process_options() {
-  ARGS=$(getopt -o hib:d:s:p:T: --longoptions "help,install,broker:,duration:,message-sizes:,parallel-instances:,throttle:" -n "$0" -- "$@");
+  ARGS=$(pbench-argparse -o hib:d:s:p:T: --longoptions "help,install,broker:,duration:,message-sizes:,parallel-instances:,throttle:" -n "$0" -- "$@");
   eval set -- "$ARGS";
   while true; do
     case "$1" in

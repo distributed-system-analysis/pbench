@@ -176,7 +176,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "client-label:,server-label:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o C:c:hi:m:p:r:S:t: --longoptions "client-label:,server-label:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"

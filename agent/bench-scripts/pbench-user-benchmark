@@ -50,7 +50,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench-post:,pbench-pre:,use-tool-triggers,no-stderr-capture" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench-post:,pbench-pre:,use-tool-triggers,no-stderr-capture" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"

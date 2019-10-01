@@ -78,7 +78,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o h --longoptions "max-downtime:,compcache_size:,speed:,seconds-before-postprocess:,seconds-before-migrate:,postprocess:,round-trips:,vm:,dir:,config:,src-host:,src-ipaddr:,dest-host:,dest-ipaddr:,timeout:,use-libvirt:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o h --longoptions "max-downtime:,compcache_size:,speed:,seconds-before-postprocess:,seconds-before-migrate:,postprocess:,round-trips:,vm:,dir:,config:,src-host:,src-ipaddr:,dest-host:,dest-ipaddr:,timeout:,use-libvirt:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"

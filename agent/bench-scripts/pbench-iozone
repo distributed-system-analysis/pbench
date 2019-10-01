@@ -79,7 +79,7 @@ function usage {
 	printf -- "\t\t                    available: $(pbench-collect-sysinfo --options)\n"
 }
 
-opts=$(getopt -q -o C:d:hn:r:s: --longoptions "config:,targets:,file_sizes:,record_sizes:,number_of_runs:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
+opts=$(pbench-argparse -q -o C:d:hn:r:s: --longoptions "config:,targets:,file_sizes:,record_sizes:,number_of_runs:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
