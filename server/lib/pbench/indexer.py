@@ -2395,6 +2395,14 @@ class ToolData(PbenchData):
         prev_ts_orig = None
         prev_gauges = _dict_const()
         idx = 0
+        fixed_record = _dict_const()
+        fixed_record['run'] = self.run_metadata
+        fixed_record['iteration'] = self.iteration_metadata
+        fixed_record['sample'] = self.sample_metadata
+        m = hashlib.md5()
+        for (k,v) in fixed_record:
+            m.update("{}:{}".format(k, v).encode("UTF-8"))
+
         self.logger.info("tool-data-indexing: tool {}, stdout procint start {}", self.toolname, path)
         for line in file_object:
             if line.startswith('timestamp:'):
@@ -2425,9 +2433,6 @@ class ToolData(PbenchData):
                 record = _dict_const()
                 record['@timestamp'] = ts_str
                 record['@timestamp_original'] = str(ts_orig)
-                record['run'] = self.run_metadata
-                record['iteration'] = self.iteration_metadata
-                record['sample'] = self.sample_metadata
                 record[self.toolname] = _dict_const()
                 record[self.toolname]['@idx'] = idx
                 record[self.toolname]['int_id'] = int_id
@@ -2437,8 +2442,11 @@ class ToolData(PbenchData):
                     value_diff = value - prev_gauges[int_id]
                     the_rate = value_diff / duration
                     record[self.toolname]['rate'] = the_rate
+                n = m.copy()
+                for (k,v) in record:
+                    n.update("{}:{}".format(k, v).encode("UTF-8"))
                 prev_gauges[int_id] = value
-                yield record
+                yield record.update(fixed_record), n.hexdigest()
             else:
                 desc_str = parts[-1]
                 col = 1
@@ -2450,9 +2458,6 @@ class ToolData(PbenchData):
                     record = _dict_const()
                     record['@timestamp'] = ts_str
                     record['@timestamp_original'] = str(ts_orig)
-                    record['run'] = self.run_metadata
-                    record['iteration'] = self.iteration_metadata
-                    record['sample'] = self.sample_metadata
                     record[self.toolname] = _dict_const()
                     record[self.toolname]['@idx'] = idx
                     record[self.toolname]['int_id'] = int_id
@@ -2471,7 +2476,10 @@ class ToolData(PbenchData):
                         record[self.toolname]['rate'] = the_rate
                 prev_gauges[int_id] = cpu_gauges
                 for record in records:
-                    yield record
+                    n = m.copy()
+                    for (k,v) in record:
+                        n.update("{}:{}".format(k, v).encode("UTF-8"))
+                    yield record.update(fixed_record), n.hexdigest()
         self.logger.info("tool-data-indexing: tool {}, stdout procint end {}", self.toolname, path)
         return
 
@@ -2510,8 +2518,7 @@ class ToolData(PbenchData):
                 continue
             path = os.path.join(self.ptb.extracted_root, output_file['path'])
             with open(path, 'r') as file_object:
-                for record in func(self, file_object, converter, output_file['path']):
-                    source_id = PbenchData.make_source_id(record)
+                for (record, source_id)  in func(self, file_object, converter, output_file['path']):
                     yield record, source_id
 
     def _make_source_json(self):
