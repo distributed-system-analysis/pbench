@@ -345,7 +345,7 @@ class RunComparison extends React.Component {
               ))}
             </Select>
             <Button type="primary" onClick={this.resetIterationClusters} style={{ marginLeft: 8 }}>
-              {'Reset'}
+              Reset
             </Button>
           </div>
         </Description>
@@ -355,7 +355,7 @@ class RunComparison extends React.Component {
     const action = (
       <div>
         <Button type="primary" onClick={this.showExportModal}>
-          {'Export'}
+          Export
         </Button>
       </div>
     );

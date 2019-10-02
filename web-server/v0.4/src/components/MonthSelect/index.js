@@ -71,7 +71,7 @@ export default class MonthSelect extends PureComponent {
         {updateButtonVisible ? (
           <FormItem>
             <Button name="Update" type="primary" disabled={updateDisabled} onClick={this.reFetch}>
-              {'Update'}
+              Update
             </Button>
           </FormItem>
         ) : (
