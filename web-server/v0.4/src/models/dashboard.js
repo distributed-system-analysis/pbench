@@ -15,7 +15,7 @@ export default {
 
   state: {
     result: [],
-    results: [],
+    results: {},
     iterationParams: {},
     iterationPorts: [],
     iterations: [],
@@ -57,7 +57,7 @@ export default {
     },
     *fetchResults({ payload }, { call, put }) {
       const response = yield call(queryResults, payload);
-      const results = [];
+      const runs = [];
 
       response.hits.hits.forEach(result => {
         const { fields } = result;
@@ -95,9 +95,11 @@ export default {
         if (typeof fields['@metadata.satellite'] !== 'undefined') {
           record['@metadata.satellite'] = fields['@metadata.satellite'].shift();
         }
-
-        results.push(record);
+        runs.push(record);
       });
+
+      const results = {};
+      results[payload.controller[0]] = runs;
 
       yield put({
         type: 'getResults',
@@ -205,7 +207,7 @@ export default {
     getResults(state, { payload }) {
       return {
         ...state,
-        results: payload,
+        results: { ...state.results, ...payload },
       };
     },
     getResult(state, { payload }) {

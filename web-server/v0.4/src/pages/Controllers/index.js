@@ -28,14 +28,19 @@ class Controllers extends Component {
   }
 
   componentDidMount() {
-    this.queryDatastoreConfig();
+    const { controllers } = this.state;
+    const { indices, selectedIndices } = this.props;
+
+    if (controllers.length === 0 || indices.length === 0 || selectedIndices.length === 0) {
+      this.queryDatastoreConfig();
+    }
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     const { controllers } = this.props;
 
-    if (nextProps.controllers !== controllers) {
-      this.setState({ controllers: nextProps.controllers });
+    if (prevProps.controllers !== controllers) {
+      this.setState({ controllers });
     }
   }
 
