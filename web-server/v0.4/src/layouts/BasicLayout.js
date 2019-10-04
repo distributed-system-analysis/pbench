@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Layout, Icon, message } from 'antd';
+import { Layout, Icon, Spin, message } from 'antd';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -231,7 +231,24 @@ class BasicLayout extends React.PureComponent {
               onNoticeVisibleChange={this.handleNoticeVisibleChange}
             />
           </Header>
-          <Content style={{ margin: '24px 24px 0', height: '100%' }}>{children}</Content>
+          <Content style={{ margin: '24px 24px 0', height: '100%' }}>
+            <PersistGate
+              // eslint-disable-next-line no-underscore-dangle
+              persistor={persistStore(window.g_app._store)}
+              loading={
+                <Spin
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  spinning
+                />
+              }
+            >
+              {children}
+            </PersistGate>
+          </Content>
           <Footer style={{ padding: 0 }}>
             <GlobalFooter
               links={[
@@ -261,14 +278,11 @@ class BasicLayout extends React.PureComponent {
     );
 
     return (
-      // eslint-disable-next-line no-underscore-dangle
-      <PersistGate persistor={persistStore(window.g_app._store)}>
-        <DocumentTitle title={this.getPageTitle(pathname)}>
-          <ContainerQuery query={query}>
-            {params => <div className={classNames(params)}>{layout}</div>}
-          </ContainerQuery>
-        </DocumentTitle>
-      </PersistGate>
+      <DocumentTitle title={this.getPageTitle(pathname)}>
+        <ContainerQuery query={query}>
+          {params => <div className={classNames(params)}>{layout}</div>}
+        </ContainerQuery>
+      </DocumentTitle>
     );
   }
 }

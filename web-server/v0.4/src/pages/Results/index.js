@@ -10,7 +10,9 @@ import Table from '@/components/Table';
 
 @connect(({ datastore, global, dashboard, loading }) => ({
   selectedIndices: global.selectedIndices,
-  results: dashboard.results,
+  results: dashboard.results[global.selectedControllers[0]]
+    ? dashboard.results[global.selectedControllers[0]]
+    : [],
   selectedControllers: global.selectedControllers,
   datastoreConfig: datastore.datastoreConfig,
   loading: loading.effects['dashboard/fetchResults'],
@@ -26,23 +28,25 @@ class Results extends Component {
   }
 
   componentDidMount() {
-    const { dispatch, datastoreConfig, selectedIndices, selectedControllers } = this.props;
+    const { dispatch, results, datastoreConfig, selectedIndices, selectedControllers } = this.props;
 
-    dispatch({
-      type: 'dashboard/fetchResults',
-      payload: {
-        datastoreConfig,
-        selectedIndices,
-        controller: selectedControllers,
-      },
-    });
+    if (results.length === 0) {
+      dispatch({
+        type: 'dashboard/fetchResults',
+        payload: {
+          datastoreConfig,
+          selectedIndices,
+          controller: selectedControllers,
+        },
+      });
+    }
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     const { results } = this.props;
 
-    if (nextProps.results !== results) {
-      this.setState({ results: nextProps.results });
+    if (prevProps.results !== results) {
+      this.setState({ results });
     }
   }
 

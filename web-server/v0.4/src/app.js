@@ -11,10 +11,10 @@ import { getAppPath } from './utils/utils';
  */
 
 const persistConfig = {
-  timeout: 1000,
+  throttle: 1000,
   key: getAppPath(),
   storage,
-  blacklist: ['dashboard', 'search', 'datastore'],
+  whitelist: ['global'],
 };
 
 const persistEnhancer = () => createStore => (reducer, initialState, enhancer) => {
@@ -27,20 +27,8 @@ const persistEnhancer = () => createStore => (reducer, initialState, enhancer) =
 };
 
 // eslint-disable-next-line import/prefer-default-export
-export const dva =
-  process.env.APP_TYPE === 'build'
-    ? {
-        config: {
-          extraEnhancers: [persistEnhancer()],
-        },
-      }
-    : {
-        config: {
-          extraEnhancers: [persistEnhancer()],
-        },
-        plugins: [
-          {
-            // onAction: createLogger(),
-          },
-        ],
-      };
+export const dva = {
+  config: {
+    extraEnhancers: [persistEnhancer()],
+  },
+};

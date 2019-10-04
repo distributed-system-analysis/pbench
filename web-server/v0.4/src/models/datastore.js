@@ -42,7 +42,10 @@ export default {
       });
       yield put({
         type: 'global/updateSelectedIndices',
-        payload: [indices[0]],
+        payload: {
+          indices: [indices[0]],
+          type: 'fetch',
+        },
       });
     },
   },

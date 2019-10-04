@@ -51,6 +51,13 @@ export default {
       };
     },
     modifySelectedIndices(state, { payload }) {
+      if (payload.type) {
+        return {
+          ...state,
+          selectedIndices:
+            state.selectedIndices.length === 0 ? payload.indices : state.selectedIndices,
+        };
+      }
       return {
         ...state,
         selectedIndices: payload,
