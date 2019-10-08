@@ -968,7 +968,7 @@ trafficgen debug options
   running already)
 
 --skip-git-pull
-  Do not call git pull on the lua-trafficgen repo if it already exists
+  Do not call git pull on the trafficgen repo if it already exists
 
 
 options common in most pbench benchmark scripts
@@ -1207,7 +1207,7 @@ trafficgen debug options
   running already)
 
 --skip-git-pull
-  Do not call git pull on the lua-trafficgen repo if it already exists
+  Do not call git pull on the trafficgen repo if it already exists
 
 
 options common in most pbench benchmark scripts
@@ -1448,7 +1448,7 @@ trafficgen debug options
   running already)
 
 --skip-git-pull
-  Do not call git pull on the lua-trafficgen repo if it already exists
+  Do not call git pull on the trafficgen repo if it already exists
 
 
 options common in most pbench benchmark scripts

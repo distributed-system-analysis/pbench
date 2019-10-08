@@ -25,7 +25,7 @@ script_path=`dirname $0`
 script_name=`basename $0`
 pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 benchmark_name="trafficgen"
-trafficgen_dir="/opt/lua-trafficgen"
+trafficgen_dir="/opt/trafficgen"
 # source the base script
 . "$pbench_bin"/base
 
@@ -311,7 +311,7 @@ function usage {
 	printf -- "  running already)\n"
 	printf -- "\n"
 	printf -- "--skip-git-pull\n"
-	printf -- "  Do not call git pull on the lua-trafficgen repo if it already exists\n"
+	printf -- "  Do not call git pull on the trafficgen repo if it already exists\n"
 	printf -- "\n\n"
 	printf -- "options common in most pbench benchmark scripts\n"
 	printf -- "-----------------------------------------------\n"
@@ -818,24 +818,24 @@ if [ "${postprocess_only}" == "n" ]; then
 	if [ -d $trafficgen_dir ]; then
 		if [ $skip_git_pull == "n" ]; then
 			if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
-				echo "lua-trafficgen is up to date"
+				echo "trafficgen is up to date"
 				popd >/dev/null
 			else
-				warn_log "could not get latest lua-trafficgen"
+				warn_log "could not get latest trafficgen"
 				exit 1
 			fi
 		fi
 	else
-		if pushd /opt >/dev/null && git clone https://github.com/atheurer/lua-trafficgen.git; then
-			echo "lua-trafficgen is up to date"
+		if pushd /opt >/dev/null && git clone https://github.com/atheurer/trafficgen.git; then
+			echo "trafficgen is up to date"
 			popd >/dev/null
 		else
-			warn_log "could not get latest lua-trafficgen"
+			warn_log "could not get latest trafficgen"
 			exit 1
 		fi
 	fi
 
-	# Moongen is built under the lua-trafficgen repo
+	# Moongen is built under the trafficgen repo
 	if [ $traffic_generator == "moongen-txrx" ]; then
 		if ! [ -x $trafficgen_dir/MoonGen/build/MoonGen ]; then
 			pushd >/dev/null $trafficgen_dir
