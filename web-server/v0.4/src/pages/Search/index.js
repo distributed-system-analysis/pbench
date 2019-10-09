@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Input, Card, Row, Col, Divider, Tag, Spin } from 'antd';
+import { Input, Card, Row, Form, Tag, Icon, Spin, Select, Popover, Descriptions } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import _ from 'lodash';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import Button from '@/components/Button';
@@ -15,6 +16,7 @@ import Table from '@/components/Table';
   fields: search.fields,
   selectedFields: global.selectedFields,
   selectedIndices: global.selectedIndices,
+  selectedResults: global.selectedResults,
   indices: datastore.indices,
   datastoreConfig: datastore.datastoreConfig,
   loadingMapping: loading.effects['search/fetchIndexMapping'],
@@ -27,20 +29,27 @@ class SearchList extends Component {
     this.state = {
       searchQuery: '',
       updateFiltersDisabled: true,
-      selectedRowKeys: [],
+      selectedRuns: [],
     };
   }
 
   componentDidMount() {
-    this.queryDatastoreConfig();
+    const { indices, mapping, selectedIndices } = this.props;
+
+    if (indices.length === 0 || Object.keys(mapping).length === 0 || selectedIndices.length === 0) {
+      this.queryDatastoreConfig();
+    }
   }
 
-  componentWillReceiveProps(nextProps, prevProps) {
-    const { selectedIndices, selectedFields } = this.props;
+  componentDidUpdate(prevProps) {
+    const { selectedResults, selectedIndices, selectedFields } = this.props;
 
+    if (prevProps.selectedResults !== selectedResults) {
+      this.setState({ selectedRuns: selectedResults });
+    }
     if (
-      selectedIndices !== prevProps.selectedIndices ||
-      selectedFields !== prevProps.selectedFields
+      prevProps.selectedIndices !== selectedIndices ||
+      prevProps.selectedFields !== selectedFields
     ) {
       this.setState({ updateFiltersDisabled: false });
     }
@@ -79,25 +88,26 @@ class SearchList extends Component {
     });
   };
 
-  onRowSelectChange = (selectedRowKeys, selectedRows) => {
-    const { dispatch } = this.props;
-    const selectedControllers = [];
-    selectedRows.forEach(row => {
-      const controller = row['run.controller'];
-      if (!selectedControllers.includes(controller)) {
-        selectedControllers.push(controller);
-      }
-    });
-    this.setState({ selectedRowKeys });
+  onRemoveRun = selectedRowData => {
+    let { selectedRuns } = this.state;
 
-    dispatch({
-      type: 'global/updateSelectedResults',
-      payload: selectedRows,
+    selectedRuns = selectedRuns.filter(run => {
+      if (run.key === selectedRowData.key) {
+        return false;
+      }
+      return true;
     });
-    dispatch({
-      type: 'global/updateSelectedControllers',
-      payload: selectedControllers,
-    });
+
+    this.setState({ selectedRuns });
+  };
+
+  onSelectChange = selectedRowData => {
+    let { selectedRuns } = this.state;
+
+    selectedRuns = [...selectedRuns, ...selectedRowData];
+    selectedRuns = _.uniqBy(selectedRuns, 'key');
+
+    this.setState({ selectedRuns });
   };
 
   resetSelectedFields = async () => {
@@ -139,25 +149,42 @@ class SearchList extends Component {
     this.setState({ searchQuery: e.target.value });
   };
 
+  commitRunSelections = async () => {
+    const { selectedRuns } = this.state;
+    const { dispatch } = this.props;
+
+    const selectedControllers = new Set([]);
+    selectedRuns.forEach(run => {
+      const controller = run['run.controller'];
+      selectedControllers.add(controller);
+    });
+
+    dispatch({
+      type: 'global/updateSelectedResults',
+      payload: selectedRuns,
+    });
+    dispatch({
+      type: 'global/updateSelectedControllers',
+      payload: [...selectedControllers],
+    });
+  };
+
   fetchSearchQuery = () => {
     const { searchQuery } = this.state;
     const { dispatch, datastoreConfig, selectedFields, selectedIndices } = this.props;
 
-    dispatch({
-      type: 'search/fetchSearchResults',
-      payload: {
-        datastoreConfig,
-        selectedIndices,
-        selectedFields,
-        query: searchQuery,
-      },
+    this.commitRunSelections().then(() => {
+      dispatch({
+        type: 'search/fetchSearchResults',
+        payload: {
+          datastoreConfig,
+          selectedIndices,
+          selectedFields,
+          query: searchQuery,
+        },
+      });
+      this.setState({ updateFiltersDisabled: true });
     });
-    dispatch({
-      type: 'global/updateSelectedResults',
-      payload: [],
-    });
-    this.setState({ selectedRowKeys: [] });
-    this.setState({ updateFiltersDisabled: true });
   };
 
   retrieveResults = selectedResults => {
@@ -183,15 +210,17 @@ class SearchList extends Component {
   compareResults = () => {
     const { dispatch } = this.props;
 
-    dispatch(
-      routerRedux.push({
-        pathname: '/comparison-select',
-      })
-    );
+    this.commitRunSelections().then(() => {
+      dispatch(
+        routerRedux.push({
+          pathname: '/comparison-select',
+        })
+      );
+    });
   };
 
   render() {
-    const { selectedRowKeys, updateFiltersDisabled } = this.state;
+    const { selectedRuns, updateFiltersDisabled } = this.state;
     const {
       selectedIndices,
       indices,
@@ -212,104 +241,147 @@ class SearchList extends Component {
     });
 
     const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onRowSelectChange,
+      onSelect: (record, selected, selectedRows) => this.onSelectChange(selectedRows),
+      onSelectAll: (record, selected, selectedRows) => this.onSelectChange(selectedRows),
     };
 
     return (
       <PageHeaderLayout
         content={
-          <div style={{ textAlign: 'center' }}>
-            <Input.Search
-              placeholder="Search the datastore"
-              enterButton
-              size="large"
-              onChange={this.updateSearchQuery}
-              onSearch={this.fetchSearchQuery}
-              style={{ width: 522 }}
-            />
+          <div>
+            <div style={{ textAlign: 'center' }}>
+              <Input.Search
+                prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                placeholder="Search the datastore"
+                enterButton="Search"
+                size="large"
+                onChange={this.updateSearchQuery}
+                onSearch={this.fetchSearchQuery}
+                style={{ width: 522, marginBottom: 16 }}
+              />
+            </div>
+            <Spin spinning={loadingMapping}>
+              <Form
+                style={{
+                  padding: '24px',
+                  backgroundColor: '#FAFAFA',
+                  border: '1px solid #D9D9D9',
+                  borderRadius: '6px',
+                }}
+              >
+                <Row style={{ display: 'flex', flexWrap: 'wrap' }}>
+                  <div style={{ marginRight: 16 }}>
+                    <p style={{ marginBottom: 0, fontSize: 12, fontWeight: 600 }}>months</p>
+                    <MonthSelect
+                      indices={indices}
+                      updateButtonVisible={false}
+                      onChange={this.updateSelectedIndices}
+                      value={selectedIndices}
+                      style={{ width: 160 }}
+                    />
+                  </div>
+                  {Object.keys(mapping).map(field => (
+                    <div key={field}>
+                      <p style={{ marginBottom: 4, fontSize: 12, fontWeight: 600 }}>{field}</p>
+                      <Select
+                        mode="multiple"
+                        key={field}
+                        placeholder={field}
+                        value={selectedFields.filter(item => {
+                          return item.split('.')[0] === field;
+                        })}
+                        onSelect={value => this.updateSelectedFields(`${field}.${value}`)}
+                        onDeselect={value => this.updateSelectedFields(`${value}`)}
+                        style={{ marginRight: 16, width: 160 }}
+                        dropdownMatchSelectWidth={false}
+                      >
+                        {mapping[field].map(item => {
+                          return (
+                            <Select.Option value={item} label={item}>
+                              {item}
+                            </Select.Option>
+                          );
+                        })}
+                      </Select>
+                    </div>
+                  ))}
+                </Row>
+                <Row>
+                  <div style={{ textAlign: 'right' }}>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      name="Filter"
+                      disabled={updateFiltersDisabled}
+                      onClick={this.fetchSearchQuery}
+                    />
+                    <Button
+                      type="secondary"
+                      style={{ marginLeft: 8 }}
+                      onClick={this.resetSelectedFields}
+                      name="Reset"
+                    />
+                  </div>
+                </Row>
+              </Form>
+            </Spin>
           </div>
         }
       >
         <div>
-          <Row gutter={24}>
-            <Col lg={7} md={24}>
-              <Card
-                title="Filter Results"
-                extra={
-                  <div>
-                    <Button name="Reset" size="small" onClick={this.resetSelectedFields} />
-                    <Button
-                      name="Apply"
-                      type="primary"
-                      size="small"
-                      disabled={updateFiltersDisabled}
-                      onClick={this.fetchSearchQuery}
-                      style={{ marginLeft: 16 }}
-                    />
+          <Card>
+            <p style={{ fontWeight: '400', color: 'rgba(0,0,0,.50)' }}>
+              {searchResults.resultCount !== undefined && `${searchResults.resultCount} hits`}
+            </p>
+            <RowSelection
+              selectedItems={selectedRuns}
+              compareActionName="Compare Results"
+              onCompare={this.compareResults}
+            />
+            <br />
+            <div style={{ display: 'flex', flex: 1, flexDirection: 'row', flexWrap: 'wrap' }}>
+              {selectedRuns.map(run => {
+                return (
+                  <div key={run['run.id']}>
+                    <Popover
+                      content={
+                        <Descriptions bordered column={1} size="small">
+                          {columns.map(column => {
+                            return (
+                              <Descriptions.Item key={column.dataIndex} label={column.dataIndex}>
+                                {run[column.dataIndex]}
+                              </Descriptions.Item>
+                            );
+                          })}
+                        </Descriptions>
+                      }
+                    >
+                      <Tag
+                        visible
+                        style={{ marginBottom: 8 }}
+                        closable
+                        onClose={() => this.onRemoveRun(run)}
+                      >
+                        {run['run.name']}
+                      </Tag>
+                    </Popover>
                   </div>
-                }
-                style={{ marginBottom: 24 }}
-              >
-                <Spin spinning={loadingMapping}>
-                  <MonthSelect
-                    indices={indices}
-                    updateButtonVisible={false}
-                    onChange={this.updateSelectedIndices}
-                    value={selectedIndices}
-                  />
-                  <Divider />
-                </Spin>
-                {Object.keys(mapping).map(field => (
-                  <div key={field}>
-                    <p style={{ fontWeight: 'bold' }}>{field}</p>
-                    <p>
-                      {mapping[field].map(item => {
-                        const fieldItem = `${field}.${item}`;
-                        return (
-                          <Tag
-                            key={fieldItem}
-                            onClick={() => this.updateSelectedFields(fieldItem)}
-                            style={{ marginTop: 8 }}
-                            color={selectedFields.includes(fieldItem) && 'blue'}
-                          >
-                            {item}
-                          </Tag>
-                        );
-                      })}
-                    </p>
-                    <Divider />
-                  </div>
-                ))}
-              </Card>
-            </Col>
-            <Col lg={17} md={24}>
-              <Card>
-                <p style={{ fontWeight: 'bold' }}>
-                  {searchResults.resultCount !== undefined
-                    ? `${searchResults.resultCount} hits`
-                    : null}
-                </p>
-                <RowSelection
-                  selectedItems={selectedRowKeys}
-                  compareActionName="Compare Results"
-                  onCompare={this.compareResults}
-                />
-                <Table
-                  style={{ marginTop: 20 }}
-                  rowSelection={rowSelection}
-                  columns={columns}
-                  dataSource={searchResults.results}
-                  onRow={record => ({
-                    onClick: () => {
-                      this.retrieveResults([record]);
-                    },
-                  })}
-                  loading={loadingSearchResults}
-                />
-              </Card>
-            </Col>
-          </Row>
+                );
+              })}
+            </div>
+            <Table
+              style={{ marginTop: 20 }}
+              rowSelection={rowSelection}
+              columns={columns}
+              dataSource={searchResults.results}
+              onRow={record => ({
+                onClick: () => {
+                  this.retrieveResults([record]);
+                },
+              })}
+              loading={loadingSearchResults}
+            />
+          </Card>
         </div>
       </PageHeaderLayout>
     );
