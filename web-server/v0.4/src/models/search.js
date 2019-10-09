@@ -52,14 +52,14 @@ export default {
         const parsedResult = {};
 
         selectedFields.forEach(field => {
-          parsedResult[field] = result._source[field.split('.')[0]][field.split('.')[1]];
+          if (typeof result.fields[field] !== 'undefined') {
+            const fieldValue = result.fields[field][0];
+            parsedResult[field] = fieldValue;
+          }
         });
 
-        if (typeof result._source.run.prefix !== 'undefined') {
-          parsedResult['run.prefix'] = result._source.run.prefix;
-        }
-        if (typeof result._source.run.id !== 'undefined') {
-          parsedResult.key = result._source.run.id;
+        if (typeof result._id !== 'undefined') {
+          parsedResult.key = result._id;
         }
 
         parsedResults.push(parsedResult);

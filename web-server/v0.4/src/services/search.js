@@ -19,25 +19,29 @@ export async function searchQuery(params) {
   });
 
   const endpoint = `${datastoreConfig.elasticsearch}/${indices}/_search`;
-  let queryEndpoint = '_type:pbench-run AND (';
-
-  selectedFields.forEach((field, i) => {
-    if (i < selectedFields.length - 1) {
-      queryEndpoint = queryEndpoint.concat(`${field}:*${query}* OR `);
-    } else {
-      queryEndpoint = queryEndpoint.concat(`${field}:*${query}*)`);
-    }
-  });
 
   return request.post(endpoint, {
     data: {
+      size: 10000,
+      sort: [
+        {
+          '@timestamp': {
+            order: 'desc',
+            unmapped_type: 'boolean',
+          },
+        },
+      ],
       query: {
-        query_string: {
-          analyze_wildcard: true,
-          query: queryEndpoint,
+        filtered: {
+          query: {
+            query_string: {
+              query: `*${query}*`,
+              analyze_wildcard: true,
+            },
+          },
         },
       },
-      size: 1000,
+      fields: selectedFields,
     },
   });
 }

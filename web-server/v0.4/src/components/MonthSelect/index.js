@@ -54,7 +54,7 @@ export default class MonthSelect extends PureComponent {
 
     return (
       <div>
-        <FormItem label="Selected Months" colon={false} style={{ fontWeight: '500' }}>
+        <FormItem>
           <Select
             mode="multiple"
             style={{ width: '100%' }}
