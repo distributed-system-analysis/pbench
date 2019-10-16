@@ -60,9 +60,18 @@ the report as well, and they have been updated accordingly.
 ![Image](https://lh5.googleusercontent.com/V14SjFhimKYF1fH6TXMfaoZtDCj2ZH0d9USqe8YHyn0xOOVYekiXtx2CwdOQbSvxWPB6JVEfi4jSM_mjkSMaaI7voQNYQ8gDWntMhzCMbj3wrK3H4eCSEsdVq_XP_aZMdb5h9xU4)
 
 8. Assign the PR to yourself and add appropriate labels.
-9. Add “WIP” label if the work is still in progress.
-10. Request for review once the work is ready for getting reviewed
+9. Add “**WIP**” label if the work is still in progress.
+10. Add "**DO NOT MERGE**" label if the work is not needed to be merged or there is no agreement on the work yet.
+11. Make sure to add Milestone to the PR to mention specific release.
+12. Request for review once the work is ready for getting reviewed
 ![Image](https://lh6.googleusercontent.com/iM-vaIsFQ8ew7vpNDUvmSY9MVjyTadTZkngdlQfo7qYe_QQuFSA8yZ_3P40fBdeNw6Q-lSJwDD59jfBoQgdNP3mGHPgrjVicsyGt8QkMMAaDYowHsIyAnukXsEiFPSOnYnrZyze3)
+
+## Creating an Isssue
+1. Make sure to add proper details to the Issue raised
+2. Upload screenshot(if possible) in dashboard issues
+3. Apply proper labels to the Issue
+4. Make sure to add Milestone and Project to the issue to mention specific release.
+5. Try to actively respond to the communication in case of comments in the same issue.
 
 ## Reviewing a pull request
 1. Go to Files changed and check for the fixes proposed by the Pull Request
@@ -72,6 +81,7 @@ the report as well, and they have been updated accordingly.
   c. There is proper indentation and alignment
   d. No additional lines are added unnecessarily
   e. The code has proper explanation with the comment lines (If required)
+  f. Do not merge the PR with "DO NOT MERGE" or "WIP" label.
 3. In case of the requirement of running the changes in the PR in local system follow the mentioned process:	
   - To fetch a remote PR into your local repo,
   ```
