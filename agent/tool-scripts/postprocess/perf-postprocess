@@ -2,50 +2,69 @@
 
 # Author: Andrew Theurer
 #
-# usage: perf-postprocess <dir>  dir = directory where perf-report.txt can be found
+# usage: perf-postprocess <dir> [callgraph]
+#   dir = directory where perf.data and/or perf-report.txt can be found
 #
-# The purpose of this script is to generate a consolidated report per-symbol.
+# The purpose of this script is to generate a consolidated report per-symbol,
+# if not given the "callgraph" argument, and a "flame graph" SVG file if
+# "callgraph" is requested.
 
 use strict;
 use warnings;
 
 my $dir=$ARGV[0];
-my $file="perf-report.txt";
-my $pct;
-my $samples;
-my $bin;
-my $object;
-my $mode;
-my $symbol;
-my %symbol_samples;
-my $total_samples = 0;
+my $callgraph=$ARGV[1];
 
-my $line;
+if ($callgraph) {
+	my $flamegraph_pl=`rpm -qa flamegraph`;
+	my $stackcollapse_perf_pl=`rpm -qa flamegraph-stackcollapse-perf`;
 
-open(TXT, "$dir/$file") || die "could not find $dir/$file\n";
-while (my $line = <TXT>) {
-	chomp $line;
-	#    32.95%        928412         qemu-kvm  [kernel.kallsyms]             [k] _raw_spin_lock
-	#     5.50%        242887         qemu-kvm  [kernel.kallsyms]             [k] kvm_vcpu_on_spin
-	#     3.66%        261976         qemu-kvm  [kernel.kallsyms]             [k] update_cfs_rq_blocked_load
-
-	if ($line =~ /^\s*(\d+\.\d+)%\s+(\d+)\s+(\S+)\s+\[(\S+)\]\s+\[(\S+)\]\s+(\S+)/) {
-		$pct = $1;
-		$samples = $2;
-		$bin = $3;
-		$object = $4;
-		$mode = $5;
-		$symbol = $6;
-		# print "found pct: [$pct] samples: [$samples] bin: [$bin] object: [$object] mode: [$mode] symbol [$symbol]\n";
-		$symbol_samples{$symbol} += $samples;
-		$total_samples += $samples;
+	if ($flamegraph_pl && $stackcollapse_perf_pl) {
+		`perf script -i ${dir}/perf.data > ${dir}/out.perf`;
+		`stackcollapse-perf.pl ${dir}/out.perf > ${dir}/out.folded`;
+		`flamegraph.pl ${dir}/out.folded > ${dir}/flamegraph.svg`;
+		unlink( "${dir}/out.perf", "${dir}/out.folded" );
+	} else {
+		die "WARNING: FlameGraph support is not present, please check installation";
 	}
-}
-close(TXT);
+} else {
+	my $file="perf-report.txt";
+	my $pct;
+	my $samples;
+	my $bin;
+	my $object;
+	my $mode;
+	my $symbol;
+	my %symbol_samples;
+	my $total_samples = 0;
 
-$file = "perf-report-consolidated.txt";
-open(TXT, ">$dir/$file") || die "could not find $dir/$file\n";
-foreach $symbol (sort { $symbol_samples{$b} <=> $symbol_samples{$a} } keys(%symbol_samples)) {
-	printf TXT "%10d %6.2f%% %s\n", $symbol_samples{$symbol}, (100 * $symbol_samples{$symbol}/$total_samples), $symbol;
+	my $line;
+
+	open(TXT, "$dir/$file") || die "ERROR: could not find $dir/$file\n";
+	while (my $line = <TXT>) {
+		chomp $line;
+		#    32.95%        928412         qemu-kvm  [kernel.kallsyms]             [k] _raw_spin_lock
+		#     5.50%        242887         qemu-kvm  [kernel.kallsyms]             [k] kvm_vcpu_on_spin
+		#     3.66%        261976         qemu-kvm  [kernel.kallsyms]             [k] update_cfs_rq_blocked_load
+
+		if ($line =~ /^\s*(\d+\.\d+)%\s+(\d+)\s+(\S+)\s+\[(\S+)\]\s+\[(\S+)\]\s+(\S+)/) {
+			$pct = $1;
+			$samples = $2;
+			$bin = $3;
+			$object = $4;
+			$mode = $5;
+			$symbol = $6;
+			# print "found pct: [$pct] samples: [$samples] bin: [$bin] object: [$object] mode: [$mode] symbol [$symbol]\n";
+			$symbol_samples{$symbol} += $samples;
+			$total_samples += $samples;
+		}
+	}
+	close(TXT);
+
+	$file = "perf-report-consolidated.txt";
+	open(TXT, ">$dir/$file") || die "could not find $dir/$file\n";
+	foreach $symbol (sort { $symbol_samples{$b} <=> $symbol_samples{$a} } keys(%symbol_samples)) {
+		printf TXT "%10d %6.2f%% %s\n", $symbol_samples{$symbol}, (100 * $symbol_samples{$symbol}/$total_samples), $symbol;
+	}
+	close(TXT);
 }
-close(TXT);

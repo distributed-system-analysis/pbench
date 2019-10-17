@@ -136,7 +136,7 @@ tool_output_file=$tool_output_dir/$tool.txt
 case "$mode" in
 	install)
 		check_install_rpm $tool_package_name
-        	;;
+		;;
 	start)
 		if ! cat /proc/mounts | grep -q debugfs; then
 			mount -t debugfs none /sys/kernel/debug
@@ -146,7 +146,7 @@ case "$mode" in
 			error_log "$script_name: start -- unable to create directory $tool_output_dir"
 			exit 1
 		fi
-	        echo "$tool_cmd" > $tool_cmd_file
+		echo "$tool_cmd" > $tool_cmd_file
 		# call the tool and background it...
 		$tool_cmd --output=$tool_output_dir/perf.data > "$tool_output_dir/perf-stdout.txt" 2> "$tool_output_dir/perf-stderr.txt" & echo $! > "$tool_pid_file"
 		wait
@@ -191,13 +191,13 @@ case "$mode" in
 			popd > /dev/null 2>&1
 			# Generate the initial report.
 			$tool_bin $report_opts -i ${tool_output_dir}/perf.data --stdio > ${tool_output_dir}/perf-report.txt 2> ${tool_output_dir}/perf-report.err
-			xz --threads=0 ${tool_output_dir}/perf.data
-			# only postprocess the perf report if the default options are used
+			# postprocess the perf report according the options used
+			callgraph_opt=""
 			if echo $record_opts | grep -E -q -- -g\|--callgraph; then
-				debug_log "$script_name: not going to run perf postprocess script since this report contains a callgraph"
-			else
-				$script_path/postprocess/$script_name-postprocess ${tool_output_dir}
+				callgraph_opt="callgraph"
 			fi
+			$script_path/postprocess/$script_name-postprocess ${tool_output_dir}  ${callgraph_opt}
+			xz --threads=0 ${tool_output_dir}/perf.data
 			xz --threads=0 ${tool_output_dir}/perf-report.txt
 			# Provide a README file to help users work with perf data locally.
 			cp ${script_path}/${script_name}.README ${tool_output_dir}/README
