@@ -90,16 +90,13 @@ export const mockSearch = {
     total: 1,
     hits: [
       {
-        _source: {
-          run: {
-            config: 'test-size-1',
-            name: 'test_run',
-            script: 'test',
-            user: 'test_user',
-          },
-          '@metadata': {
-            controller_dir: 'test_controller',
-          },
+        _id: '1111',
+        fields: {
+          'run.config': ['test-size-1'],
+          'run.name': ['test_run'],
+          'run.script': ['test_controller'],
+          'run.user': ['test_user'],
+          '@metadata.controller_dir': ['test_controller'],
         },
       },
     ],

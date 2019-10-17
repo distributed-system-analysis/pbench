@@ -46,55 +46,61 @@ afterAll(() => {
 
 describe('search page component', () => {
   test('should load month indices', async () => {
-    await page.waitForSelector(
-      '.ant-form-item-control > .ant-form-item-children > .ant-select > .ant-select-selection > .ant-select-selection__rendered'
-    );
+    await page.waitForSelector('.ant-select:nth-child(1) > .ant-select-selection');
     const testMonth = await page.$eval(
-      '.ant-select-selection > .ant-select-selection__rendered > ul > li.ant-select-selection__choice',
+      '.ant-select:nth-child(1) > .ant-select-selection > .ant-select-selection__rendered > ul > .ant-select-selection__choice',
       elem => elem.getAttribute('title')
     );
     expect(testMonth).toBe(mockIndices[0].index.split('.').pop());
   });
 
   test('should load mappings', async () => {
-    await page.waitForSelector(
-      'div.ant-col.ant-col-md-24.ant-col-lg-7 > div > div.ant-card-body > div:nth-child(2) > p:nth-child(2) > span:nth-child(1)'
-    );
+    await page.waitForSelector('.ant-select:nth-child(2) > .ant-select-selection');
     const testField = await page.$eval(
-      'div.ant-col.ant-col-md-24.ant-col-lg-7 > div > div.ant-card-body > div:nth-child(2) > p:nth-child(2) > span:nth-child(1)',
-      elem => elem.innerHTML
+      '.ant-select:nth-child(2) > .ant-select-selection > .ant-select-selection__rendered > ul > .ant-select-selection__choice',
+      elem => elem.getAttribute('title')
     );
-    expect(testField).toBe('config');
+    expect(testField).toBe('run.name');
   });
 
   test('should select month index', async () => {
-    await page.waitForSelector('.ant-select-selection', { visible: true });
-    await page.click('.ant-select-selection');
+    await page.waitForSelector('.ant-select:nth-child(1) > .ant-select-selection', {
+      visible: true,
+    });
+    await page.click('.ant-select:nth-child(1) > .ant-select-selection');
     await page.click('.ant-select-dropdown-menu-item');
     await page.click('.ant-select-dropdown-menu-item[aria-selected="false"]');
   });
 
   test('should select field tag', async () => {
-    await page.waitForSelector('.ant-tag', { visible: true });
-    await page.click('.ant-tag');
+    await page.waitForSelector('.ant-select:nth-child(2) > .ant-select-selection', {
+      visible: true,
+    });
+    await page.click('.ant-select:nth-child(2) > .ant-select-selection');
+    await page.waitForSelector(
+      '.ant-select-dropdown-menu > .ant-select-dropdown-menu-item-active',
+      {
+        visible: true,
+      }
+    );
+    await page.click('.ant-select-dropdown-menu > .ant-select-dropdown-menu-item-active');
+    await page.click(
+      '.ant-select-dropdown-menu > .ant-select-dropdown-menu-item-active[aria-selected="false"]'
+    );
   });
 
   test('should apply filter changes', async () => {
     await page.waitForSelector(
-      '.ant-card-head > .ant-card-head-wrapper > .ant-card-extra > div > .ant-btn-primary'
+      '.ant-spin-container > .ant-form > .ant-row > div > .ant-btn-primary'
     );
-    await page.click(
-      '.ant-card-head > .ant-card-head-wrapper > .ant-card-extra > div > .ant-btn-primary'
-    );
+    await page.click('.ant-spin-container > .ant-form > .ant-row > div > .ant-btn-primary');
   });
 
   test('should reset filter changes', async () => {
     await page.waitForSelector(
-      '.ant-card-head > .ant-card-head-wrapper > .ant-card-extra > div > .ant-btn:nth-child(1)'
+      '.ant-spin-container > .ant-form > .ant-row > div > .ant-btn-secondary'
     );
-    await page.click(
-      '.ant-card-head > .ant-card-head-wrapper > .ant-card-extra > div > .ant-btn:nth-child(1)'
-    );
+    await page.click('.ant-spin-container > .ant-form > .ant-row > div > .ant-btn-secondary');
   });
 
   test('should input search query', async () => {
