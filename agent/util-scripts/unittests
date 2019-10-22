@@ -259,6 +259,7 @@ declare -A tools=(
     [test-45]="pbench-register-tool"
     [test-46]="pbench-register-tool"
     [test-47]="pbench-register-tool"
+    [test-48]="eval"
 )
 
 declare -A options=(
@@ -326,6 +327,7 @@ declare -A options=(
     [test-45]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-46]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-47]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis --labels=labelOne,labelTwo"
+    [test-48]="pbench-add-metalog-option ${_testdir}/metadata.log run percent < ${_testdir}/tmp/foo.txt"
 )
 
 declare -A expected_status=(
@@ -360,6 +362,7 @@ declare -A pre_hooks=(
     [test-45]='mkdir ${_testdir}/tmp; printf -- "# good list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
     [test-46]='mkdir ${_testdir}/tmp; printf -- "# bad list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com,labelThree,junk\n" > ${_testdir}/tmp/remotes.lis'
     [test-47]='mkdir ${_testdir}/tmp; printf -- "# good list with no labels\none.example.com\ntwo.example.com\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
+    [test-48]='mkdir ${_testdir}/tmp; printf -- "%s\n" "30%" > ${_testdir}/tmp/foo.txt'
 )
 
 declare -A post_hooks=(
