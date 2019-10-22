@@ -17,7 +17,7 @@ def main(lfile, section, option):
     config.read(lfile)
     # python3
     # config[section][option] = ', '.join(sys.stdin.read().split())
-    sin = sys.stdin.read()
+    sin = sys.stdin.read().replace("%","%%")
     try:
         config.set(section, option, ', '.join(sin.split()))
     except NoSectionError:
