@@ -209,14 +209,14 @@ export default class PageHeader extends PureComponent {
     if (selectedControllers !== undefined) {
       titleHeader = selectedControllers.map(i => <Tag color="blue">{i}</Tag>);
       titleHeader = (
-        <div>
+        <div id="titleheader">
           <h1 className={styles.title}>Selected Controllers</h1>
           {titleHeader}
         </div>
       );
     } else {
       titleHeader = title && (
-        <div>
+        <div id="titleheader">
           <h1 className={styles.title}>{title}</h1>
         </div>
       );
