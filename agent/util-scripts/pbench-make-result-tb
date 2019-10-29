@@ -162,6 +162,9 @@ result_size=$(du -sb ${pbench_run_name} | awk '{print $1}')
 debug_log "preparing to tar up ${result_size} bytes of data from ${full_result_dir}"
 printf -- "$result_size" | pbench-add-metalog-option ${mdlog} run raw_size
 
+ts=$(timestamp)
+printf -- "%s" "$ts" | pbench-add-metalog-option ${mdlog} pbench tar-ball-creation-timestamp
+
 tarball="${target_dir}/${pbench_run_name}.tar.xz"
 if [[ "${xz_single_threaded}" == "1" ]]; then
     tar_cmd="tar --create --force-local -xz \"${pbench_run_name}\""
