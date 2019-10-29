@@ -322,6 +322,7 @@ config = ndk-test-1
 date = 2019-09-27T14:21:31
 rpm-version = 0.50-1g799ea025
 iterations = 1, 1
+tar-ball-creation-timestamp = 1900-01-01T00:00:00.000000
 
 [tools]
 hosts = alphaville
