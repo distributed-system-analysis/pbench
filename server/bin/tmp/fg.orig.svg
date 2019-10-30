@@ -1,0 +1,308 @@
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg version="1.1" width="1200" height="374" onload="init(evt)" viewBox="0 0 1200 374" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><!--Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples.--><!--NOTES: --><defs><linearGradient id="background" y1="0" y2="1" x1="0" x2="0"><stop stop-color="#eeeeee" offset="5%"/><stop stop-color="#eeeeb0" offset="95%"/></linearGradient></defs><style type="text/css">
+text { font-family:"Verdana"; font-size:12px; fill:rgb(0,0,0); }
+#title { text-anchor:middle; font-size:17px; }
+#search { opacity:0.1; cursor:pointer; }
+#search:hover, #search.show { opacity:1; }
+#subtitle { text-anchor:middle; font-color:rgb(160,160,160); }
+#unzoom { cursor:pointer; }
+#frames > *:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+.hide { display:none; }
+.parent { opacity:0.5; }
+</style><script type="text/ecmascript"><![CDATA[var nametype = 'Function:';
+var fontsize = 12;
+var fontwidth = 0.59;
+var xpad = 10;
+var inverted = true;
+var searchcolor = 'rgb(230,0,230)';]]><![CDATA["use strict";
+var details, searchbtn, unzoombtn, matchedtxt, svg, searching;
+function init(evt) {
+    details = document.getElementById("details").firstChild;
+    searchbtn = document.getElementById("search");
+    unzoombtn = document.getElementById("unzoom");
+    matchedtxt = document.getElementById("matched");
+    svg = document.getElementsByTagName("svg")[0];
+    searching = 0;
+}
+
+window.addEventListener("click", function(e) {
+	var target = find_group(e.target);
+	if (target) {
+        if (target.nodeName == "a") {
+            if (e.ctrlKey === false) return;
+            e.preventDefault();
+        }
+        if (target.classList.contains("parent")) unzoom();
+        zoom(target);
+    }
+    else if (e.target.id == "unzoom") unzoom();
+    else if (e.target.id == "search") search_prompt();
+}, false)
+
+// mouse-over for info
+// show
+window.addEventListener("mouseover", function(e) {
+	var target = find_group(e.target);
+	if (target) details.nodeValue = nametype + " " + g_to_text(target);
+}, false)
+// clear
+window.addEventListener("mouseout", function(e) {
+	var target = find_group(e.target);
+	if (target) details.nodeValue = ' ';
+}, false)
+// ctrl-F for search
+window.addEventListener("keydown",function (e) {
+    if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+        e.preventDefault();
+        search_prompt();
+    }
+}, false)
+// functions
+function find_child(node, selector) {
+	var children = node.querySelectorAll(selector);
+	if (children.length) return children[0];
+	return;
+}
+function find_group(node) {
+	var parent = node.parentElement;
+	if (!parent) return;
+	if (parent.id == "frames") return node;
+	return find_group(parent);
+}
+function orig_save(e, attr, val) {
+    if (e.attributes["_orig_" + attr] != undefined) return;
+    if (e.attributes[attr] == undefined) return;
+    if (val == undefined) val = e.attributes[attr].value;
+    e.setAttribute("_orig_" + attr, val);
+}
+function orig_load(e, attr) {
+    if (e.attributes["_orig_"+attr] == undefined) return;
+    e.attributes[attr].value = e.attributes["_orig_" + attr].value;
+    e.removeAttribute("_orig_" + attr);
+}
+function g_to_text(e) {
+    var text = find_child(e, "title").firstChild.nodeValue;
+    return (text)
+}
+function g_to_func(e) {
+    var func = g_to_text(e);
+    // if there's any manipulation we want to do to the function
+    // name before it's searched, do it here before returning.
+    return (func);
+}
+function update_text(e) {
+    var r = find_child(e, "rect");
+    var t = find_child(e, "text");
+    var w = parseFloat(r.attributes.width.value) -3;
+    var txt = find_child(e, "title").textContent.replace(/\\([^(]*\\)\$/,"");
+    t.attributes.x.value = parseFloat(r.attributes.x.value) + 3;
+    // Smaller than this size won't fit anything
+    if (w < 2 * fontsize * fontwidth) {
+        t.textContent = "";
+        return;
+    }
+    t.textContent = txt;
+    // Fit in full text width
+    if (/^ *\$/.test(txt) || t.getSubStringLength(0, txt.length) < w)
+        return;
+    for (var x = txt.length - 2; x > 0; x--) {
+        if (t.getSubStringLength(0, x + 2) <= w) {
+            t.textContent = txt.substring(0, x) + "..";
+            return;
+        }
+    }
+    t.textContent = "";
+}
+// zoom
+function zoom_reset(e) {
+    if (e.attributes != undefined) {
+        orig_load(e, "x");
+        orig_load(e, "width");
+    }
+    if (e.childNodes == undefined) return;
+    for(var i = 0, c = e.childNodes; i < c.length; i++) {
+        zoom_reset(c[i]);
+    }
+}
+function zoom_child(e, x, ratio) {
+    if (e.attributes != undefined) {
+        if (e.attributes.x != undefined) {
+            orig_save(e, "x");
+            e.attributes.x.value = (parseFloat(e.attributes.x.value) - x - xpad) * ratio + xpad;
+            if(e.tagName == "text")
+                e.attributes.x.value = find_child(e.parentNode, "rect[x]").attributes.x.value + 3;
+        }
+        if (e.attributes.width != undefined) {
+            orig_save(e, "width");
+            e.attributes.width.value = parseFloat(e.attributes.width.value) * ratio;
+        }
+    }
+    if (e.childNodes == undefined) return;
+    for(var i = 0, c = e.childNodes; i < c.length; i++) {
+        zoom_child(c[i], x - xpad, ratio);
+    }
+}
+function zoom_parent(e) {
+    if (e.attributes) {
+        if (e.attributes.x != undefined) {
+            orig_save(e, "x");
+            e.attributes.x.value = xpad;
+        }
+        if (e.attributes.width != undefined) {
+            orig_save(e, "width");
+            e.attributes.width.value = parseInt(svg.width.baseVal.value) - (xpad*2);
+        }
+    }
+    if (e.childNodes == undefined) return;
+    for(var i = 0, c = e.childNodes; i < c.length; i++) {
+        zoom_parent(c[i]);
+    }
+}
+function zoom(node) {
+    var attr = find_child(node, "rect").attributes;
+    var width = parseFloat(attr.width.value);
+    var xmin = parseFloat(attr.x.value);
+    var xmax = parseFloat(xmin + width);
+    var ymin = parseFloat(attr.y.value);
+    var ratio = (svg.width.baseVal.value - 2 * xpad) / width;
+    // XXX: Workaround for JavaScript float issues (fix me)
+    var fudge = 0.0001;
+    unzoombtn.classList.remove("hide");
+    var el = document.getElementById("frames").children;
+    for (var i = 0; i < el.length; i++) {
+        var e = el[i];
+        var a = find_child(e, "rect").attributes;
+        var ex = parseFloat(a.x.value);
+        var ew = parseFloat(a.width.value);
+        // Is it an ancestor
+        if (!inverted) {
+            var upstack = parseFloat(a.y.value) > ymin;
+        } else {
+            var upstack = parseFloat(a.y.value) < ymin;
+        }
+        if (upstack) {
+            // Direct ancestor
+            if (ex <= xmin && (ex+ew+fudge) >= xmax) {
+                e.classList.add("parent");
+                zoom_parent(e);
+                update_text(e);
+            }
+            // not in current path
+            else
+                e.classList.add("hide");
+        }
+        // Children maybe
+        else {
+            // no common path
+            if (ex < xmin || ex + fudge >= xmax) {
+                e.classList.add("hide");
+            }
+            else {
+                zoom_child(e, xmin, ratio);
+                update_text(e);
+            }
+        }
+    }
+}
+function unzoom() {
+    unzoombtn.classList.add("hide");
+    var el = document.getElementById("frames").children;
+    for(var i = 0; i < el.length; i++) {
+        el[i].classList.remove("parent");
+        el[i].classList.remove("hide");
+        zoom_reset(el[i]);
+        update_text(el[i]);
+    }
+}
+// search
+function reset_search() {
+    var el = document.querySelectorAll("#frames rect");
+    for (var i = 0; i < el.length; i++) {
+        orig_load(el[i], "fill")
+    }
+}
+function search_prompt() {
+    if (!searching) {
+        var term = prompt("Enter a search term (regexp " +
+            "allowed, eg: ^ext4_)", "");
+        if (term != null) {
+            search(term)
+        }
+    } else {
+        reset_search();
+        searching = 0;
+        searchbtn.classList.remove("show");
+        searchbtn.firstChild.nodeValue = "Search"
+        matchedtxt.classList.add("hide");
+        matchedtxt.firstChild.nodeValue = ""
+    }
+}
+function search(term) {
+    var re = new RegExp(term);
+    var el = document.getElementById("frames").children;
+    var matches = new Object();
+    var maxwidth = 0;
+    for (var i = 0; i < el.length; i++) {
+        var e = el[i];
+        var func = g_to_func(e);
+        var rect = find_child(e, "rect");
+        if (func == null || rect == null)
+            continue;
+        // Save max width. Only works as we have a root frame
+        var w = parseFloat(rect.attributes.width.value);
+        if (w > maxwidth)
+            maxwidth = w;
+        if (func.match(re)) {
+            // highlight
+            var x = parseFloat(rect.attributes.x.value);
+            orig_save(rect, "fill");
+            rect.attributes.fill.value = searchcolor;
+            // remember matches
+            if (matches[x] == undefined) {
+                matches[x] = w;
+            } else {
+                if (w > matches[x]) {
+                    // overwrite with parent
+                    matches[x] = w;
+                }
+            }
+            searching = 1;
+        }
+    }
+    if (!searching)
+        return;
+    searchbtn.classList.add("show");
+    searchbtn.firstChild.nodeValue = "Reset Search";
+    // calculate percent matched, excluding vertical overlap
+    var count = 0;
+    var lastx = -1;
+    var lastw = 0;
+    var keys = Array();
+    for (k in matches) {
+        if (matches.hasOwnProperty(k))
+            keys.push(k);
+    }
+    // sort the matched frames by their x location
+    // ascending, then width descending
+    keys.sort(function(a, b){
+        return a - b;
+    });
+    // Step through frames saving only the biggest bottom-up frames
+    // thanks to the sort order. This relies on the tree property
+    // where children are always smaller than their parents.
+    var fudge = 0.0001;	// JavaScript floating point
+    for (var k in keys) {
+        var x = parseFloat(keys[k]);
+        var w = matches[keys[k]];
+        if (x >= lastx + lastw - fudge) {
+            count += w;
+            lastx = x;
+            lastw = w;
+        }
+    }
+    // display matched percent
+    matchedtxt.classList.remove("hide");
+    var pct = 100 * count / maxwidth;
+    if (pct != 100) pct = pct.toFixed(1);
+    matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+}
+]]></script><rect x="0" y="0" width="1200" height="374" fill="url(#background)"/><text id="title" x="600.00" y="24.00">py-spy</text><text id="details" x="10.00" y="357.00"> </text><text id="unzoom" class="hide" x="10.00" y="24.00">Reset Zoom</text><text id="search" x="1090.00" y="24.00">Search</text><text id="matched" x="1090.00" y="357.00"> </text><g id="frames"><g><title>_stdout_procint (pbench/indexer.py:2399) (16 samples, 0.26%)</title><rect x="19" y="84" width="4" height="15" fill="rgb(214,77,29)"/><text x="22.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2422) (11 samples, 0.18%)</title><rect x="23" y="84" width="2" height="15" fill="rgb(250,204,8)"/><text x="26.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2445) (46 samples, 0.76%)</title><rect x="25" y="84" width="9" height="15" fill="rgb(237,4,39)"/><text x="28.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2447) (9 samples, 0.15%)</title><rect x="35" y="84" width="1" height="15" fill="rgb(233,188,27)"/><text x="38.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2448) (76 samples, 1.25%)</title><rect x="36" y="84" width="15" height="15" fill="rgb(228,123,11)"/><text x="39.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2449) (6 samples, 0.10%)</title><rect x="51" y="84" width="1" height="15" fill="rgb(222,203,13)"/><text x="54.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2450) (36 samples, 0.59%)</title><rect x="52" y="84" width="7" height="15" fill="rgb(209,194,12)"/><text x="55.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2451) (18 samples, 0.30%)</title><rect x="59" y="84" width="4" height="15" fill="rgb(227,36,27)"/><text x="62.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2452) (238 samples, 3.93%)</title><rect x="63" y="84" width="46" height="15" fill="rgb(254,102,39)"/><text x="66.00" y="94.50">_std..</text></g><g><title>_stdout_procint (pbench/indexer.py:2453) (29 samples, 0.48%)</title><rect x="109" y="84" width="6" height="15" fill="rgb(226,225,34)"/><text x="112.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2454) (14 samples, 0.23%)</title><rect x="115" y="84" width="3" height="15" fill="rgb(228,74,44)"/><text x="118.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2455) (19 samples, 0.31%)</title><rect x="118" y="84" width="3" height="15" fill="rgb(242,79,50)"/><text x="121.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2456) (78 samples, 1.29%)</title><rect x="121" y="84" width="15" height="15" fill="rgb(252,171,4)"/><text x="124.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2457) (22 samples, 0.36%)</title><rect x="136" y="84" width="5" height="15" fill="rgb(224,203,21)"/><text x="139.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2458) (26 samples, 0.43%)</title><rect x="141" y="84" width="5" height="15" fill="rgb(217,35,48)"/><text x="144.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2459) (30 samples, 0.49%)</title><rect x="146" y="84" width="6" height="15" fill="rgb(244,81,28)"/><text x="149.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2460) (15 samples, 0.25%)</title><rect x="152" y="84" width="3" height="15" fill="rgb(206,228,36)"/><text x="155.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2461) (29 samples, 0.48%)</title><rect x="155" y="84" width="5" height="15" fill="rgb(250,140,27)"/><text x="158.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2462) (26 samples, 0.43%)</title><rect x="160" y="84" width="5" height="15" fill="rgb(215,99,15)"/><text x="163.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2463) (32 samples, 0.53%)</title><rect x="165" y="84" width="6" height="15" fill="rgb(221,66,27)"/><text x="168.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2468) (6 samples, 0.10%)</title><rect x="173" y="84" width="1" height="15" fill="rgb(244,43,18)"/><text x="176.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2469) (40 samples, 0.66%)</title><rect x="174" y="84" width="8" height="15" fill="rgb(252,88,18)"/><text x="177.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2470) (20 samples, 0.33%)</title><rect x="182" y="84" width="3" height="15" fill="rgb(246,109,17)"/><text x="185.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2471) (40 samples, 0.66%)</title><rect x="185" y="84" width="8" height="15" fill="rgb(250,98,50)"/><text x="188.00" y="94.50"></text></g><g><title>_stdout_procint (pbench/indexer.py:2473) (7 samples, 0.12%)</title><rect x="193" y="84" width="2" height="15" fill="rgb(252,22,49)"/><text x="196.00" y="94.50"></text></g><g><title>_make_source_stdout (pbench/indexer.py:2513) (923 samples, 15.23%)</title><rect x="18" y="68" width="180" height="15" fill="rgb(224,3,41)"/><text x="21.00" y="78.50">_make_source_stdout (pb..</text></g><g><title>_stdout_procint (pbench/indexer.py:2474) (16 samples, 0.26%)</title><rect x="195" y="84" width="3" height="15" fill="rgb(237,9,41)"/><text x="198.00" y="94.50"></text></g><g><title>dumps (json/__init__.py:229) (14 samples, 0.23%)</title><rect x="258" y="100" width="3" height="15" fill="rgb(233,184,24)"/><text x="261.00" y="110.50"></text></g><g><title>dumps (json/__init__.py:230) (11 samples, 0.18%)</title><rect x="261" y="100" width="2" height="15" fill="rgb(234,210,25)"/><text x="264.00" y="110.50"></text></g><g><title>dumps (json/__init__.py:233) (13 samples, 0.21%)</title><rect x="263" y="100" width="3" height="15" fill="rgb(210,220,37)"/><text x="266.00" y="110.50"></text></g><g><title>dumps (json/__init__.py:237) (83 samples, 1.37%)</title><rect x="267" y="100" width="16" height="15" fill="rgb(223,124,15)"/><text x="270.00" y="110.50"></text></g><g><title>__init__ (json/encoder.py:147) (35 samples, 0.58%)</title><rect x="356" y="116" width="7" height="15" fill="rgb(236,41,24)"/><text x="359.00" y="126.50"></text></g><g><title>__init__ (json/encoder.py:148) (28 samples, 0.46%)</title><rect x="363" y="116" width="5" height="15" fill="rgb(237,216,12)"/><text x="366.00" y="126.50"></text></g><g><title>__init__ (json/encoder.py:149) (11 samples, 0.18%)</title><rect x="368" y="116" width="2" height="15" fill="rgb(238,37,41)"/><text x="371.00" y="126.50"></text></g><g><title>__init__ (json/encoder.py:150) (20 samples, 0.33%)</title><rect x="370" y="116" width="4" height="15" fill="rgb(245,171,44)"/><text x="373.00" y="126.50"></text></g><g><title>__init__ (json/encoder.py:151) (23 samples, 0.38%)</title><rect x="374" y="116" width="5" height="15" fill="rgb(243,69,52)"/><text x="377.00" y="126.50"></text></g><g><title>__init__ (json/encoder.py:152) (22 samples, 0.36%)</title><rect x="379" y="116" width="4" height="15" fill="rgb(223,132,33)"/><text x="382.00" y="126.50"></text></g><g><title>__init__ (json/encoder.py:153) (8 samples, 0.13%)</title><rect x="383" y="116" width="2" height="15" fill="rgb(236,8,6)"/><text x="386.00" y="126.50"></text></g><g><title>__init__ (json/encoder.py:155) (8 samples, 0.13%)</title><rect x="385" y="116" width="1" height="15" fill="rgb(223,31,29)"/><text x="388.00" y="126.50"></text></g><g><title>encode (json/encoder.py:191) (53 samples, 0.87%)</title><rect x="388" y="116" width="10" height="15" fill="rgb(229,209,51)"/><text x="391.00" y="126.50"></text></g><g><title>iterencode (json/encoder.py:214) (18 samples, 0.30%)</title><rect x="421" y="132" width="3" height="15" fill="rgb(220,45,52)"/><text x="424.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:215) (9 samples, 0.15%)</title><rect x="424" y="132" width="2" height="15" fill="rgb(249,143,46)"/><text x="427.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:218) (16 samples, 0.26%)</title><rect x="426" y="132" width="3" height="15" fill="rgb(244,102,49)"/><text x="429.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:219) (12 samples, 0.20%)</title><rect x="429" y="132" width="2" height="15" fill="rgb(244,207,47)"/><text x="432.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:223) (7 samples, 0.12%)</title><rect x="431" y="132" width="2" height="15" fill="rgb(220,125,45)"/><text x="434.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:224) (94 samples, 1.55%)</title><rect x="433" y="132" width="18" height="15" fill="rgb(240,46,32)"/><text x="436.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:246) (7 samples, 0.12%)</title><rect x="451" y="132" width="1" height="15" fill="rgb(218,211,49)"/><text x="454.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:247) (12 samples, 0.20%)</title><rect x="452" y="132" width="3" height="15" fill="rgb(225,61,33)"/><text x="455.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:249) (40 samples, 0.66%)</title><rect x="455" y="132" width="8" height="15" fill="rgb(254,226,54)"/><text x="458.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:250) (34 samples, 0.56%)</title><rect x="463" y="132" width="7" height="15" fill="rgb(213,169,19)"/><text x="466.00" y="142.50"></text></g><g><title>iterencode (json/encoder.py:251) (144 samples, 2.38%)</title><rect x="470" y="132" width="28" height="15" fill="rgb(210,53,18)"/><text x="473.00" y="142.50">i..</text></g><g><title>encode (json/encoder.py:199) (3,278 samples, 54.08%)</title><rect x="398" y="116" width="638" height="15" fill="rgb(228,44,5)"/><text x="401.00" y="126.50">encode (json/encoder.py:199)</text></g><g><title>iterencode (json/encoder.py:257) (2,766 samples, 45.64%)</title><rect x="498" y="132" width="538" height="15" fill="rgb(214,209,9)"/><text x="501.00" y="142.50">iterencode (json/encoder.py:257)</text></g><g><title>encode (json/encoder.py:200) (68 samples, 1.12%)</title><rect x="1036" y="116" width="14" height="15" fill="rgb(208,225,9)"/><text x="1039.00" y="126.50"></text></g><g><title>make_source_id (pbench/indexer.py:755) (4,327 samples, 71.39%)</title><rect x="215" y="84" width="842" height="15" fill="rgb(210,200,6)"/><text x="218.00" y="94.50">make_source_id (pbench/indexer.py:755)</text></g><g><title>dumps (json/__init__.py:238) (3,975 samples, 65.58%)</title><rect x="283" y="100" width="774" height="15" fill="rgb(211,144,13)"/><text x="286.00" y="110.50">dumps (json/__init__.py:238)</text></g><g><title>encode (json/encoder.py:202) (38 samples, 0.63%)</title><rect x="1050" y="116" width="7" height="15" fill="rgb(205,214,34)"/><text x="1053.00" y="126.50"></text></g><g><title>make_source_id (pbench/indexer.py:756) (11 samples, 0.18%)</title><rect x="1057" y="84" width="2" height="15" fill="rgb(223,36,9)"/><text x="1060.00" y="94.50"></text></g><g><title>_make_source_stdout (pbench/indexer.py:2514) (5,019 samples, 82.81%)</title><rect x="198" y="68" width="977" height="15" fill="rgb(210,37,33)"/><text x="201.00" y="78.50">_make_source_stdout (pbench/indexer.py:2514)</text></g><g><title>make_source_id (pbench/indexer.py:758) (595 samples, 9.82%)</title><rect x="1059" y="84" width="116" height="15" fill="rgb(233,36,3)"/><text x="1062.00" y="94.50">make_source_id..</text></g><g><title>&lt;module&gt; (indexer-driver.py:129) (6,004 samples, 99.06%)</title><rect x="10" y="52" width="1168" height="15" fill="rgb(224,11,36)"/><text x="13.00" y="62.50">&lt;module&gt; (indexer-driver.py:129)</text></g><g><title>_make_source_stdout (pbench/indexer.py:2515) (18 samples, 0.30%)</title><rect x="1175" y="68" width="3" height="15" fill="rgb(235,110,35)"/><text x="1178.00" y="78.50"></text></g><g><title>&lt;module&gt; (indexer-driver.py:130) (40 samples, 0.66%)</title><rect x="1178" y="52" width="8" height="15" fill="rgb(245,139,6)"/><text x="1181.00" y="62.50"></text></g><g><title>&lt;module&gt; (pbench/indexer.py:25) (8 samples, 0.13%)</title><rect x="1188" y="148" width="1" height="15" fill="rgb(225,104,18)"/><text x="1191.00" y="158.50"></text></g><g><title>_find_and_load (&lt;frozen importlib._bootstrap&gt;:983) (8 samples, 0.13%)</title><rect x="1188" y="164" width="1" height="15" fill="rgb(216,152,4)"/><text x="1191.00" y="174.50"></text></g><g><title>_find_and_load_unlocked (&lt;frozen importlib._bootstrap&gt;:967) (8 samples, 0.13%)</title><rect x="1188" y="180" width="1" height="15" fill="rgb(231,175,50)"/><text x="1191.00" y="190.50"></text></g><g><title>_load_unlocked (&lt;frozen importlib._bootstrap&gt;:677) (8 samples, 0.13%)</title><rect x="1188" y="196" width="1" height="15" fill="rgb(215,53,53)"/><text x="1191.00" y="206.50"></text></g><g><title>exec_module (&lt;frozen importlib._bootstrap_external&gt;:728) (7 samples, 0.12%)</title><rect x="1188" y="212" width="1" height="15" fill="rgb(228,97,18)"/><text x="1191.00" y="222.50"></text></g><g><title>_call_with_frames_removed (&lt;frozen importlib._bootstrap&gt;:219) (7 samples, 0.12%)</title><rect x="1188" y="228" width="1" height="15" fill="rgb(242,120,32)"/><text x="1191.00" y="238.50"></text></g><g><title>&lt;module&gt; (urllib3/__init__.py:8) (7 samples, 0.12%)</title><rect x="1188" y="244" width="1" height="15" fill="rgb(211,135,17)"/><text x="1191.00" y="254.50"></text></g><g><title>_find_and_load (&lt;frozen importlib._bootstrap&gt;:983) (7 samples, 0.12%)</title><rect x="1188" y="260" width="1" height="15" fill="rgb(251,149,8)"/><text x="1191.00" y="270.50"></text></g><g><title>_find_and_load_unlocked (&lt;frozen importlib._bootstrap&gt;:967) (7 samples, 0.12%)</title><rect x="1188" y="276" width="1" height="15" fill="rgb(223,222,14)"/><text x="1191.00" y="286.50"></text></g><g><title>_load_unlocked (&lt;frozen importlib._bootstrap&gt;:677) (7 samples, 0.12%)</title><rect x="1188" y="292" width="1" height="15" fill="rgb(210,162,51)"/><text x="1191.00" y="302.50"></text></g><g><title>exec_module (&lt;frozen importlib._bootstrap_external&gt;:728) (7 samples, 0.12%)</title><rect x="1188" y="308" width="1" height="15" fill="rgb(205,220,15)"/><text x="1191.00" y="318.50"></text></g><g><title>_call_with_frames_removed (&lt;frozen importlib._bootstrap&gt;:219) (7 samples, 0.12%)</title><rect x="1188" y="324" width="1" height="15" fill="rgb(210,170,3)"/><text x="1191.00" y="334.50"></text></g><g><title>all (6,061 samples, 100%)</title><rect x="10" y="36" width="1180" height="15" fill="rgb(230,227,38)"/><text x="13.00" y="46.50"></text></g><g><title>&lt;module&gt; (indexer-driver.py:9) (16 samples, 0.26%)</title><rect x="1186" y="52" width="4" height="15" fill="rgb(209,158,12)"/><text x="1189.00" y="62.50"></text></g><g><title>_find_and_load (&lt;frozen importlib._bootstrap&gt;:983) (16 samples, 0.26%)</title><rect x="1186" y="68" width="4" height="15" fill="rgb(214,71,7)"/><text x="1189.00" y="78.50"></text></g><g><title>_find_and_load_unlocked (&lt;frozen importlib._bootstrap&gt;:967) (13 samples, 0.21%)</title><rect x="1187" y="84" width="3" height="15" fill="rgb(248,152,54)"/><text x="1190.00" y="94.50"></text></g><g><title>_load_unlocked (&lt;frozen importlib._bootstrap&gt;:677) (13 samples, 0.21%)</title><rect x="1187" y="100" width="3" height="15" fill="rgb(226,45,27)"/><text x="1190.00" y="110.50"></text></g><g><title>exec_module (&lt;frozen importlib._bootstrap_external&gt;:728) (13 samples, 0.21%)</title><rect x="1187" y="116" width="3" height="15" fill="rgb(220,161,22)"/><text x="1190.00" y="126.50"></text></g><g><title>_call_with_frames_removed (&lt;frozen importlib._bootstrap&gt;:219) (13 samples, 0.21%)</title><rect x="1187" y="132" width="3" height="15" fill="rgb(241,60,0)"/><text x="1190.00" y="142.50"></text></g></g></svg>

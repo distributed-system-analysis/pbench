@@ -1,0 +1,2 @@
+[{'path': 'fake-dir/1-driver/sampl1/tools-default/localhost/proc-interrupts/proc-interrupts-stdout.txt', 'basename': 'proc-interrupts-stdout.txt', 'handler_rec': {'pattern': re.compile('^proc-interrupts-stdout\\.txt$'), 'subformat': 'procint', 'converter': <class 'int'>}}]
+Generated 3458092 records in 29.50 seconds (0.00).

@@ -1,0 +1,38 @@
+* Source id implementations
+
+| file           | Description                                                | duration | flamegraph |
+|----------------+------------------------------------------------------------+----------+------------|
+| index.py.orig  | Original json.dumps()                                      |       60 |            |
+| index.py.ujson | Use ujson.dumps() in make_source_id                        |       35 |            |
+| index.py.str   | Use str() instead of ujson.dumps() N.B. unsorted keys      |       38 |            |
+| index.py.siss  | simple, inline, sorted keys; subdicts formatted as strings |       25 |            |
+| index.py.sfss  | same but with a simple function to handle simple dicts     |     29.5 |            |
+| index.py.rfss  | recursive - string                                         |       60 |            |
+| index.py.rfsb  | recursive - bytes                                          |       63 |            |
+
+"Simple" dictionaries are dictionaries where the keys are strings and the values are scalars (strings, integers, floats).
+But we have some cases where values are dictionaries: in such cases, we just format them as strings.
+
+- siss :: simple, inline, sorted, string - basically the initial POC to test the idea of getting a partial md5 object (of the fixed part of a dict)
+          getting a copy of it and modifying it by appending more stuff (the variable part):
+          #+begin_src python
+          fixedd[key] = val
+          ...
+          fixedmd5 = hashlib.md5()
+          for key, val in sorted(fixedd.items()):
+               fixedmd5.update("{}.{}".format(key, val).encode("UTF-8"))
+          loop over various variable parts
+               vard[key] = val
+               ...
+               vard["row"] = row         # for proc-interrupts data
+               vard["col"] = col
+               f = fixedmd5.copy()
+               for key, val in sorted(vard.items()):
+                    f.update("{}.{}".format(key, val).encode("UTF-8"))
+               source id is f.hexdigest
+           endloop
+          #+end_src
+- sfss :: simple, function, sorted, string - same as above but encapsulate the md5 calculations in a function.
+- rfss :: recursive, function, sorted, string - same as above but deal with "arbitrary" dicts.
+- rfsb :: recursive, function, sorted, bytes - same as above but use bytearrays insted of strings.
+
