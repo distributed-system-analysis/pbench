@@ -152,34 +152,34 @@ function verify_prefixes {
 
     let cnt=0
 
+    > ${non_prefixes}
+    > ${wrong_prefixes}
     find ${controller_arg}/.prefix -maxdepth 1 \
-            \( ! -name 'prefix.*' ! -name '*.prefix' -fprintf ${non_prefixes}.unsorted "\t  %f\n" \) \
-            -o \( -name 'prefix.*' -fprintf ${wrong_prefixes}.unsorted "\t  %f\n" \)
+            \( ! -name 'prefix.*' ! -name '*.prefix' -fprintf ${non_prefixes} "\t  %f\n" \) \
+            -o \( -name 'prefix.*' -fprintf ${wrong_prefixes} "\t  %f\n" \)
     status=$?
     if [[ $status -ne 0 ]]; then
         printf "*** ERROR *** unable to traverse ${controller_arg}/.prefix: find failed with $status\n"
         let cnt=cnt+1
     fi
 
-    sort ${non_prefixes}.unsorted > ${non_prefixes} 2>&1
     if [[ -s ${non_prefixes} ]]; then
         printf "\t* Unexpected file system objects in .prefix directory:\n"
         printf "\t  ++++++++++\n"
-        cat ${non_prefixes}
+        sort ${non_prefixes} 2>&1
         printf "\t  ----------\n"
         let cnt=cnt+1
     fi
-    rm -f ${non_prefixes} ${non_prefixes}.unsorted
+    rm -f ${non_prefixes}
 
-    sort ${wrong_prefixes}.unsorted > ${wrong_prefixes} 2>&1
     if [[ -s ${wrong_prefixes} ]]; then
         printf "\t* Wrong prefix file names found in /.prefix directory:\n"
         printf "\t  ++++++++++\n"
-        cat ${wrong_prefixes}
+        sort ${wrong_prefixes} 2>&1
         printf "\t  ----------\n"
         let cnt=cnt+1
     fi
-    rm -f ${wrong_prefixes} ${wrong_prefixes}.unsorted
+    rm -f ${wrong_prefixes}
 
     return $cnt
 }
@@ -199,55 +199,67 @@ function verify_incoming {
         > ${lclreport}
 
         tarball_dirs="${workdir}/tarballdirs"
+        > ${tarball_dirs}
         empty_tarball_dirs="${workdir}/emptytarballdirs"
-        > ${empty_tarball_dirs}.unsorted
+        > ${empty_tarball_dirs}
+        unpacking_tarball_dirs="${workdir}/unpackingtarballdirs"
+        > ${unpacking_tarball_dirs}
         tarball_links="${workdir}/tarballlinks"
+        > ${tarball_links}
         find $INCOMING/${controller} -maxdepth 1 \
-                \( -type d ! -name ${controller} ! -empty -fprintf ${tarball_dirs} "%f\n" \) \
-                -o \( -type d ! -name ${controller} -empty -fprintf ${empty_tarball_dirs}.unsorted "\t\t%f\n" \) \
-                -o \( -type l -fprintf ${tarball_links} "%f %l\n" \)
+                   \( -type d ! -name ${controller} ! -name '*.unpack' ! -empty -fprintf ${tarball_dirs} "%f\n" \) \
+                -o \( -type d ! -name ${controller} ! -name '*.unpack'   -empty -fprintf ${empty_tarball_dirs} "\t\t%f\n" \) \
+                -o \( -type d ! -name ${controller}   -name '*.unpack'          -fprintf ${unpacking_tarball_dirs} "\t\t%f\n" \) \
+                -o \( -type l                                                   -fprintf ${tarball_links} "\t\t%f\n" \)
         status=$?
         if [[ $status -ne 0 ]]; then
-            printf "*** ERROR *** unable to traverse $INCOMING/${controller}: find failed with $status" >> ${lclreport}
+            printf "*** ERROR *** unable to traverse ${INCOMING}/${controller}: find failed with ${status}"
             let cnt=cnt+1
+            continue
         fi
 
         invalid_tb_dirs="${workdir}/invalidtbdirs"
-        > ${invalid_tb_dirs}.unsorted
         while read tb ; do
             if [[ -r $ARCHIVE/${controller}/${tb}.tar.xz ]]; then
                 continue
             fi
-            printf "\t\t${tb}\n" >> ${invalid_tb_dirs}.unsorted
-        done < ${tarball_dirs}
+            printf "\t\t${tb}\n"
+        done < ${tarball_dirs} > ${invalid_tb_dirs}
         rm ${tarball_dirs}
 
-        if [[ -s ${invalid_tb_dirs}.unsorted ]]; then
+        if [[ -s ${invalid_tb_dirs} ]]; then
             printf "\tInvalid tar ball directories (not in $ARCHIVE):\n" >> ${lclreport}
-            sort ${invalid_tb_dirs}.unsorted >> ${lclreport}
+            sort ${invalid_tb_dirs} >> ${lclreport} 2>&1
         fi
-        rm ${invalid_tb_dirs}.unsorted
+        rm ${invalid_tb_dirs}
 
-        if [[ -s ${empty_tarball_dirs}.unsorted ]]; then
+        if [[ -s ${empty_tarball_dirs} ]]; then
             printf "\tEmpty tar ball directories:\n" >> ${lclreport}
-            sort ${empty_tarball_dirs}.unsorted >> ${lclreport}
+            sort ${empty_tarball_dirs} >> ${lclreport} 2>&1
         fi
-        rm ${empty_tarball_dirs}.unsorted
+        rm ${empty_tarball_dirs}
 
-        invalid_tb_dir_links="${workdir}/invalidtbdirlinks"
-        > ${invalid_tb_dir_links}.unsorted
-        while read tb link ; do
-            # The link in the incoming directory does not point to
-            # the expected directory in the unpack hierarchy.
-            printf "\t\t${tb}\n" >> ${invalid_tb_dir_links}.unsorted
-        done < ${tarball_links}
-        rm ${tarball_links}
+        invalid_unpacking_dirs="${workdir}/invalidunpacking"
+        while read tb_u ; do
+            tb=${tb_u%*.unpack}
+            if [[ -r $ARCHIVE/${controller}/${tb}.tar.xz ]]; then
+                continue
+            fi
+            printf "\t\t${tb_u}\n"
+        done < ${unpacking_tarball_dirs} > ${invalid_unpacking_dirs}
+        rm ${unpacking_tarball_dirs}
 
-        if [[ -s ${invalid_tb_dir_links}.unsorted ]]; then
+        if [[ -s ${invalid_unpacking_dirs} ]]; then
+            printf "\tInvalid unpacking directories (missing tar ball):\n" >> ${lclreport}
+            sort ${invalid_unpacking_dirs} >> ${lclreport} 2>&1
+        fi
+        rm ${invalid_unpacking_dirs}
+
+        if [[ -s ${tarball_links} ]]; then
             printf "\tInvalid tar ball links:\n" >> ${lclreport}
-            sort ${invalid_tb_dir_links}.unsorted >> ${lclreport}
+            sort ${tarball_links} >> ${lclreport} 2>&1
         fi
-        rm ${invalid_tb_dir_links}.unsorted
+        rm ${tarball_links}
 
         if [[ -s ${lclreport} ]]; then
             printf "\nIncoming issues for controller: ${controller}\n"
@@ -288,24 +300,23 @@ function verify_results {
         # no prefix file exists, then the default of a symlink in the
         # controller is all that should exist for a given tar ball.
         empty_tarball_dirs="${workdir}/emptytarballdirs"
-        > ${empty_tarball_dirs}.unsorted
+        > ${empty_tarball_dirs}
         tarball_links="${workdir}/tarballlinks"
-        > ${tarball_links}
+        > ${tarball_links}.unsorted
         find ${results_hierarchy}/${controller} \
-                \( -type d ! -name ${controller} -empty -fprintf ${empty_tarball_dirs}.unsorted "\t\t%P\n" \) \
-                -o \( -type l -fprintf ${tarball_links} "%P %l\n" \)
+                \( -type d ! -name ${controller} -empty -fprintf ${empty_tarball_dirs} "\t\t%P\n" \) \
+                -o \( -type l -fprintf ${tarball_links}.unsorted "%P %l\n" \)
         status=$?
         if [[ $status -ne 0 ]]; then
             printf "*** ERROR *** unable to traverse ${results_hierarchy}/${controller}: find failed with $status" >> ${lclreport}
             let cnt=cnt+1
         fi
 
-        sort ${empty_tarball_dirs}.unsorted > ${empty_tarball_dirs}
         if [[ -s ${empty_tarball_dirs} ]]; then
             printf "\tEmpty tar ball directories:\n" >> ${lclreport}
-            cat ${empty_tarball_dirs} >> ${lclreport}
+            sort ${empty_tarball_dirs} >> ${lclreport} 2>&1
         fi
-        rm ${empty_tarball_dirs}.unsorted ${empty_tarball_dirs}
+        rm ${empty_tarball_dirs}
 
         # Verify the link name should be a link to the $INCOMING directory or
         # a symlink of the same name, and should be the name of a valid tar
@@ -328,6 +339,8 @@ function verify_results {
         > ${unexpected_user_links}
         wrong_user_links="${workdir}/wronguserlinks"
         > ${wrong_user_links}
+        sort ${tarball_links}.unsorted > ${tarball_links}
+        rm ${tarball_links}.unsorted
         while read path link ; do
             tb=$(basename -- ${path})
             if [[ ! -e $ARCHIVE/${controller}/${tb}.tar.xz ]]; then
@@ -499,10 +512,10 @@ function verify_controllers {
     # directory (if the $hierarchy_root directory resolves to "."), and
     # ignoring the $hierarchy_root directory itself, while keeping them all
     # in sorted order.
-    > ${unexpected_objects}.unsorted
+    > ${unexpected_objects}
     > ${controllers}.unsorted
     find ${hierarchy_root} -maxdepth 1 \
-            \( ! -type d -fprintf ${unexpected_objects}.unsorted "\t%f\n" \) \
+            \( ! -type d -fprintf ${unexpected_objects} "\t%f\n" \) \
             -o \( -type d ! -name . ! -name $(basename -- ${hierarchy_root}) -fprintf ${controllers}.unsorted "%f\n" \)
     status=$?
     if [[ $status -ne 0 ]]; then
@@ -510,13 +523,12 @@ function verify_controllers {
         let cnt=cnt+1
     fi
 
-    sort ${unexpected_objects}.unsorted > ${unexpected_objects}
     if [[ -s ${unexpected_objects} ]]; then
         printf "\nUnexpected files found:\n"
-        cat ${unexpected_objects}
+        sort ${unexpected_objects} 2>&1
         let cnt=cnt+1
     fi
-    rm -f ${unexpected_objects}.unsorted ${unexpected_objects}
+    rm -f ${unexpected_objects}
 
     sort ${controllers}.unsorted > ${controllers}
     if [[ -s ${controllers} ]]; then
@@ -596,10 +608,10 @@ function verify_users {
     # The $USERS hierarchy should only contain directories at the first
     # level, which themselves should be just like a sub-set of the
     # $RESULTS tree.
-    > ${unexpected_objects}.unsorted
+    > ${unexpected_objects}
     > ${users}.unsorted
     find $USERS -maxdepth 1 \
-            \( ! -type d -fprintf ${unexpected_objects}.unsorted "\t%f\n" \) \
+            \( ! -type d -fprintf ${unexpected_objects} "\t%f\n" \) \
             -o \( -type d ! -name . ! -name $(basename -- $USERS) -fprintf ${users}.unsorted "%f\n" \)
     status=$?
     if [[ $status -ne 0 ]]; then
@@ -607,13 +619,12 @@ function verify_users {
         let cnt=cnt+1
     fi
 
-    sort ${unexpected_objects}.unsorted > ${unexpected_objects}
     if [[ -s ${unexpected_objects} ]]; then
         printf "\nUnexpected files found:\n"
-        cat ${unexpected_objects}
+        sort ${unexpected_objects} 2>&1
         let cnt=cnt+1
     fi
-    rm -f ${unexpected_objects}.unsorted ${unexpected_objects}
+    rm -f ${unexpected_objects}
 
     sort ${users}.unsorted > ${users}
     while read user ;do
@@ -635,23 +646,22 @@ function verify_archive {
     # find all the normal controller directories, ignoring the "." (current)
     # directory (if the $ARCHIVE directory resolves to "."), and ignoring the
     # $ARCHIVE directory itself, while keeping them all in sorted order.
-    > ${bad_controllers}.unsorted
+    > ${bad_controllers}
     > ${controllers}.unsorted
     find $ARCHIVE -maxdepth 1 \
-         \( ! -type d -fprintf ${bad_controllers}.unsorted "\t%M %10s %t %f\n" \) \
+         \( ! -type d -fprintf ${bad_controllers} "\t%M %10s %t %f\n" \) \
          -o \( -type d ! -name . ! -name $(basename -- $ARCHIVE) -fprintf ${controllers}.unsorted "%p\n" \)
     if [[ $? -gt 0 ]]; then
         printf "\n*** ERROR *** unable to traverse $ARCHIVE hierarchy\n"
         let cnt=cnt+1
     fi
 
-    sort -k 8 ${bad_controllers}.unsorted > ${bad_controllers}
     if [[ -s ${bad_controllers} ]]; then
         printf "\nBad Controllers:\n"
-        cat ${bad_controllers}
+        sort -k 8 ${bad_controllers} 2>&1
         let cnt=cnt+1
     fi
-    rm -f ${bad_controllers}.unsorted ${bad_controllers}
+    rm -f ${bad_controllers}
 
     # Find all the normal controller directories, ignoring the "." (current)
     # directory (if the $ARCHIVE directory resolves to "."), and ignoring the
