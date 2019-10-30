@@ -234,7 +234,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "dc4f85271b109093019f0431f11fc117",
+        "_id": "50fc60798c3b8ddcfc13f828d048233d",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -250,9 +250,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC(unit-test)\nMD5 values don't match for: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\n",
+            "text": "pbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC (unit-test) started at 1970-01-01T00:00:00-UTC\n\nComparing ARCHIVE with BACKUP\n-----------------------------\n\nComparing ARCHIVE with S3\n-------------------------\nMD5 values don't match for: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-d-duplicate/tarball-duplicate_YYYY.MM.DDTHH.MM.SS.tar.xz\nMD5 values don't match for: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz\n\n\nPhases (started):\nArchive List Creation:       1970-01-01T00:00:00-UTC\nLocal Backup List Creation:  1970-01-01T00:00:00-UTC\nS3 List Creation:            1970-01-01T00:00:00-UTC\nArchive MD5 Checks:          1970-01-01T00:00:00-UTC\nLocal Backup MD5 Checks:     1970-01-01T00:00:00-UTC\n\npbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC (unit-test) finished at 1970-01-01T00:00:00-UTC\n",
             "total_chunks": 1,
-            "total_size": 827
+            "total_size": 1372
         },
         "_type": "pbench-server-reports"
     }
@@ -647,7 +647,7 @@ drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--       3233 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
--rw-rw-r--        651 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
+-rw-rw-r--       2057 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-b-with-prefixes
@@ -976,6 +976,16 @@ run-1970-01-01T00:00:00-UTC: Processed 7 tarballs
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 +++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- start-run-1970-01-01T00:00:00-UTC
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting archive list creation
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished archive list (<Status.SUCCESS: 10>)
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting local backup list creation
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished local backup list (<Status.SUCCESS: 10>)
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting S3 list creation
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished S3 list (<Status.SUCCESS: 10>)
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Checking MD5 signatures of archive
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished checking MD5 signatures of archive
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Checking MD5 signatures of local backup
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished checking MD5 signatures of local backup
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-run-1970-01-01T00:00:00-UTC
