@@ -575,7 +575,7 @@ declare -A cmds=(
     # check for successful local backup if S3 is disabled
     [test-6.13]="_run pbench-backup-tarballs"
     [test-6.14]="_run pbench-backup-tarballs"
-    
+
     # indexing tests are all test-7.*
 
     # Special case of running pbench-index with -I to get a dump
@@ -674,6 +674,10 @@ declare -A cmds=(
 
     # Tests config file that specifies two shims versions
     [test-24]="_run_activate"
+
+    # Tests that the behavior of the find command works as we expect to
+    # ensure that buckets for pbench-unpack-tarballs work properly.
+    [test-25]="_run test-find-behavior"
 )
 all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\+\)-\([0-9]\+\)/\1.\2/')
 
