@@ -117,6 +117,43 @@ export async function queryTocResult(params) {
   return request.post(endpoint);
 }
 
+export async function queryIterationSamples(params) {
+  const { datastoreConfig, selectedResults } = params;
+
+  const endpoint = `${
+    datastoreConfig.elasticsearch
+  }/staging-pbench.v3.result-data.2019-06-*/_search?scroll=1m`;
+
+  return request.post(endpoint, {
+    data: {
+      query: {
+        filtered: {
+          query: {
+            multi_match: {
+              query: selectedResults.map(result => result.id).join(' AND '),
+              fields: ['run.id'],
+            },
+          },
+          filter: {
+            term: {
+              _type: 'pbench-result-data-sample',
+            },
+          },
+        },
+      },
+      size: 1000,
+      sort: [
+        {
+          '@timestamp': {
+            order: 'desc',
+            unmapped_type: 'boolean',
+          },
+        },
+      ],
+    },
+  });
+}
+
 export async function queryIterations(params) {
   const { datastoreConfig, selectedResults } = params;
 

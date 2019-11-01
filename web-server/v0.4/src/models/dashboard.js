@@ -1,9 +1,11 @@
+import _ from 'lodash';
 import {
   queryControllers,
   queryResults,
   queryResult,
   queryTocResult,
   queryIterations,
+  queryIterationSamples,
   queryTimeseriesData,
 } from '../services/dashboard';
 
@@ -158,6 +160,41 @@ export default {
       yield put({
         type: 'getTocResult',
         payload: tocTree,
+      });
+    },
+    *fetchIterationSamples({ payload }, { call, put }) {
+      const response = yield call(queryIterationSamples, payload);
+      let filteredParams = {};
+      const paramBlacklist = [
+        '@idx',
+        'description',
+        'end',
+        'max_stddevpct',
+        'mean',
+        'measurement_idx',
+        'name',
+        'start',
+        'stddev',
+        'stddevpct',
+        'uid_tmpl',
+      ];
+
+      response.hits.hits.forEach(sample => {
+        // eslint-disable-next-line no-underscore-dangle
+        const source = sample._source;
+        const runParams = _.omit({ ...source.benchmark, ...source.sample }, paramBlacklist);
+        filteredParams = _.mergeWith(filteredParams, runParams, (objVal, srcVal) => {
+          if (objVal !== undefined) {
+            const uniqParams = _.uniq([...objVal, ...[srcVal]]);
+            return uniqParams;
+          }
+          return [srcVal];
+        });
+      });
+
+      yield put({
+        type: 'dashboard/modifyConfigCategories',
+        payload: filteredParams,
       });
     },
     *fetchIterations({ payload }, { call, put }) {

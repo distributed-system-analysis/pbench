@@ -18,6 +18,7 @@ import Table from '@/components/Table';
   datastoreConfig: datastore.datastoreConfig,
   selectedControllers: global.selectedControllers,
   selectedResults: global.selectedResults,
+  selectedIndices: global.selectedIndices,
   selectedIterationKeys: global.selectedIterationKeys,
   loading: loading.effects['dashboard/fetchIterations'],
 }))
@@ -33,11 +34,17 @@ class ComparisonSelect extends React.Component {
   }
 
   componentDidMount() {
-    const { selectedResults, datastoreConfig, dispatch } = this.props;
+    const { selectedResults, selectedIndices, datastoreConfig, dispatch } = this.props;
 
     dispatch({
       type: 'dashboard/fetchIterations',
-      payload: { selectedResults, datastoreConfig },
+      payload: { selectedResults, selectedIndices, datastoreConfig },
+    }).catch(() => {
+      this.openNetworkErrorNotification('error');
+    });
+    dispatch({
+      type: 'dashboard/fetchIterationSamples',
+      payload: { selectedResults, selectedIndices, datastoreConfig },
     }).catch(() => {
       this.openNetworkErrorNotification('error');
     });
