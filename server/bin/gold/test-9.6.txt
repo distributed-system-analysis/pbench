@@ -4,7 +4,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "80989909329ec9f87ce201890d37d57e",
+        "_id": "cf4c6198a01c8cb8b80e8335d26b0658",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -20,9 +20,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC (unit-test) started at 1970-01-01T00:00:00-UTC\n\nComparing ARCHIVE with BACKUP\n-----------------------------\n\nComparing ARCHIVE with S3\n-------------------------\ncontroller/fio__2016-08-16_22:03:11.tar.xz: present in S3 but not in ARCHIVE\n\n\nPhases (started):\nArchive List Creation:       1970-01-01T00:00:00-UTC\nLocal Backup List Creation:  1970-01-01T00:00:00-UTC\nS3 List Creation:            1970-01-01T00:00:00-UTC\nArchive MD5 Checks:          1970-01-01T00:00:00-UTC\nLocal Backup MD5 Checks:     1970-01-01T00:00:00-UTC\n\npbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC (unit-test) finished at 1970-01-01T00:00:00-UTC\n",
+            "text": "pbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC(unit-test)\ncontroller/fio__2016-08-16_22:03:11.tar.xz: present in S3 but not in ARCHIVE\n",
             "total_chunks": 1,
-            "total_size": 694
+            "total_size": 149
         },
         "_type": "pbench-server-reports"
     }
@@ -125,7 +125,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--        683 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
--rw-rw-r--       2057 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
+-rw-rw-r--        651 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -194,16 +194,6 @@ end-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- start-run-1970-01-01T00:00:00-UTC
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting archive list creation
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished archive list (<Status.SUCCESS: 10>)
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting local backup list creation
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished local backup list (<Status.SUCCESS: 10>)
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting S3 list creation
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished S3 list (<Status.SUCCESS: 10>)
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Checking MD5 signatures of archive
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished checking MD5 signatures of archive
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Checking MD5 signatures of local backup
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished checking MD5 signatures of local backup
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-run-1970-01-01T00:00:00-UTC
