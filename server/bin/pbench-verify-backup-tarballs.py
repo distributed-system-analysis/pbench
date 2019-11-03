@@ -42,6 +42,7 @@ re-verify.
 import os
 import sys
 import glob
+import errno
 import hashlib
 import shutil
 import tempfile
@@ -62,89 +63,131 @@ class Status(Enum):
 
 
 class BackupObject(object):
-    def __init__(self, name, dirname):
+    def __init__(self, name, dirname, tmpdir, logger):
         self.name = name
-        self.dirname = dirname
-        self.list_name = "list.{}".format(self.name)
         self.description = self.name
+        if dirname is None:
+            self.s3_config_obj = None
+            self.dirname = None
+        elif isinstance(dirname, S3Config):
+            self.s3_config_obj = dirname
+            self.dirname = None
+        else:
+            if not os.path.isdir(dirname):
+                raise Exception('Bad {}: {}'.format(name, dirname))
+            self.dirname = dirname
+            self.s3_config_obj = None
+        self.tmpdir = tmpdir
+        self.logger = logger
+        self.content_list = None
+        self.missing_list = None
+        self.error_list = None
 
-
-def sanity_check(s3_obj, logger):
-    # make sure the S3 bucket exists
-    try:
-        s3_obj.head_bucket(Bucket=s3_obj.bucket_name)
-    except Exception:
-        logger.exception(
-            "Bucket: {} does not exist or you have no access\n".format(s3_obj.bucket_name))
-        s3_obj = None
-    return s3_obj
-
-
-def checkmd5(target_dir, tmpdir, backup_obj, logger):
-    # Function to check integrity of results in a local (archive or local
-    # backup) directory.
-    #
-    # This function returns the count of results that failed the MD5 sum
-    # check, and raises exceptions on failure.
-
-    tarlist = glob.iglob(os.path.join(target_dir, "*", "*.tar.xz"))
-    indicator_file = os.path.join(tmpdir, backup_obj.list_name)
-    indicator_file_ok = os.path.join(tmpdir, "{}.ok".
-                                     format(backup_obj.list_name))
-    indicator_file_fail = os.path.join(tmpdir, "{}.fail".
-                                       format(backup_obj.list_name))
-    nfailed_md5 = 0
-    with open(indicator_file, 'w') as f_list,\
-        open(indicator_file_ok, 'w') as f_ok,\
-        open(indicator_file_fail, 'w') as f_fail:
+    def fs_entry_list_creation(self):
+        # Function to create entry list for results in a file-system
+        # (archive or backup) directory.
+        tarlist = glob.iglob(os.path.join(self.dirname, "*", "*.tar.xz"))
+        self.content_list = []
+        self.missing_list = []
+        self.error_list = []
         for tar in tarlist:
             result_name = os.path.basename(tar)
             controller = os.path.basename(os.path.dirname(tar))
-            md5 = "{}.md5".format(tar)
-            f_list.write("{}\n".format(
-                os.path.join(controller, result_name)))
+            md5_file = "{}.md5".format(tar)
             try:
-                with open(md5) as f:
-                    md5_value = f.readline().split(" ")[0]
-            except Exception:
-                nfailed_md5 += 1
-                logger.exception(
-                    "Could not open the MD5 file, {}", md5)
+                with open(md5_file) as k:
+                    md5 = k.readline().split(" ")[0]
+            except OSError as ex:
+                if ex.errno == errno.ENOENT:
+                    self.missing_list.append(tar)
+                else:
+                    self.error_list.append(tar)
+                    self.logger.exception("ERROR reading file {}", md5_file)
                 continue
-            md5_returned = md5sum(tar)
-            if md5_value == md5_returned:
-                f_ok.write("{}: {}\n".format(
-                    os.path.join(controller, result_name), "OK"))
+            except Exception:
+                self.error_list.append(tar)
+                self.logger.exception("ERROR reading file {}", md5_file)
+                continue
             else:
-                nfailed_md5 += 1
-                f_fail.write("{}: {}\n".format(
-                    os.path.join(controller, result_name), "FAILED"))
-    return nfailed_md5
+                self.content_list.append(
+                        Entry(os.path.join(controller, result_name), md5))
+        return Status.SUCCESS
 
-
-def report_failed_md5(backup_obj, tmpdir, report, logger):
-    # Function to report the results that failed md5 sum check.
-    fail_f = os.path.join(tmpdir, "{}.fail".format(backup_obj.list_name))
-    if os.path.exists(fail_f) and os.path.getsize(fail_f) > 0:
+    def s3_entry_list_creation(self):
+        self.content_list = []
+        kwargs = {'Bucket': self.s3_config_obj.bucket_name}
         try:
-            with open(fail_f) as f:
-                failed_list = f.read()
+            while True:
+                resp = self.s3_config_obj.list_objects(**kwargs)
+                for obj in resp['Contents']:
+                    md5_returned = obj['ETag'].strip("\"")
+                    self.content_list.append(Entry(obj['Key'], md5_returned))
+                try:
+                    kwargs['ContinuationToken'] = resp['NextContinuationToken']
+                except KeyError:
+                    break
         except Exception:
-            # Could not open the file
-            logger.exception(
-                "Could not open the file {}".format(fail_f))
+            self.logger.exception(
+                    "ERROR fetching list of objects from S3")
+            return Status.FAIL
         else:
+            return Status.SUCCESS
+
+    def entry_list_creation(self):
+        if self.s3_config_obj is not None:
+            return self.s3_entry_list_creation()
+        elif self.dirname is not None:
+            return self.fs_entry_list_creation()
+        else:
+            return Status.FAIL
+
+    def checkmd5(self):
+        # Function to check integrity of results in a local (archive or local
+        # backup) directory.
+        #
+        # This function returns the count of results that failed the MD5 sum
+        # check, and raises exceptions on failure.
+
+        self.indicator_file = os.path.join(self.tmpdir, "list.{}".format(self.name))
+        self.indicator_file_ok = "{}.ok".format(self.indicator_file)
+        self.indicator_file_fail = "{}.fail".format(self.indicator_file)
+        self.nfailed_md5 = 0
+        with open(self.indicator_file, 'w') as f_list,\
+                open(self.indicator_file_ok, 'w') as f_ok,\
+                open(self.indicator_file_fail, 'w') as f_fail:
+            for tar in self.content_list:
+                md5_returned = md5sum(os.path.join(self.dirname, tar.name))
+                if tar.md5 == md5_returned:
+                    f_ok.write("{}: {}\n".format(tar.name, "OK"))
+                else:
+                    self.nfailed_md5 += 1
+                    f_fail.write("{}: {}\n".format(tar.name, "FAILED"))
+        return self.nfailed_md5
+
+    def report_failed_md5(self, report):
+        # Function to report the results that failed md5 sum check.
+        fail_f = self.indicator_file_fail
+        if os.path.exists(fail_f) and os.path.getsize(fail_f) > 0:
             report.write(
-                "ERROR: in {}: the calculated MD5 of the following entries "
-                "failed to match the stored MD5:\n{}".format(backup_obj.name, failed_list))
+                    "\nMD5 Errors ({}): the calculated MD5 values of the following entries "
+                    "failed to match the stored MD5:\n".format(self.name))
+            try:
+                with open(fail_f) as f:
+                    report.write(f.readline())
+            except Exception:
+                # Could not open/read the file
+                msg = "Failure trying to read from the file {}".format(fail_f)
+                self.logger.exception(msg)
+                report.write(
+                    "ERROR - {}\n".format(msg))
 
 
-def compare_entry_lists(list_one_obj, list_two_obj, list_one, list_two, report):
+def compare_entry_lists(list_one_obj, list_two_obj, report):
     # Compare the two lists and report the differences.
-    sorted_list_one_content = sorted(list_one, key=lambda k: k.name)
-    sorted_list_two_content = sorted(list_two, key=lambda k: k.name)
-    len_list_one_content = len(list_one)
-    len_list_two_content = len(list_two)
+    sorted_list_one_content = sorted(list_one_obj.content_list, key=lambda k: k.name)
+    sorted_list_two_content = sorted(list_two_obj.content_list, key=lambda k: k.name)
+    len_list_one_content = len(sorted_list_one_content)
+    len_list_two_content = len(sorted_list_two_content)
     i, j = 0, 0
     while (i < len_list_one_content) and (j < len_list_two_content):
         if sorted_list_one_content[i] == sorted_list_two_content[j]:
@@ -192,54 +235,15 @@ def compare_entry_lists(list_one_obj, list_two_obj, list_one, list_two, report):
         assert (i == len_list_one_content) and (j == len_list_two_content), "Logic bomb!"
 
 
-def entry_list_creation(backup_obj, target_dir, logger):
-    # Function to create entry list for results in a local
-    # (archive or local backup) directory.
-    if not os.path.isdir(target_dir):
-        logger.error('Bad {}: {}'.format(backup_obj.name, target_dir))
-        return Status.FAIL
-
-    tarlist = glob.iglob(os.path.join(target_dir, "*", "*.tar.xz"))
-    content_list = []
-    for tar in tarlist:
-        result_name = os.path.basename(tar)
-        controller = os.path.basename(os.path.dirname(tar))
-        md5_file = "{}.md5".format(tar)
-        try:
-            with open(md5_file) as k:
-                md5 = k.readline().split(" ")[0]
-        except Exception:
-            logger.exception("Could not open the file {}", md5_file)
-            continue
-        else:
-            content_list.append(
-                Entry(os.path.join(controller, result_name), md5))
-    return content_list
-
-
-def entry_list_creation_s3(s3_config_obj, logger):
-    # Function to create entry list for results in S3.
-    if s3_config_obj is None:
-        return Status.FAIL
-
-    s3_content_list = []
-    kwargs = {'Bucket': s3_config_obj.bucket_name}
+def sanity_check(s3_obj, logger):
+    # make sure the S3 bucket exists
     try:
-        while True:
-            resp = s3_config_obj.list_objects(**kwargs)
-            for obj in resp['Contents']:
-                md5_returned = obj['ETag'].strip("\"")
-                s3_content_list.append(Entry(obj['Key'], md5_returned))
-            try:
-                kwargs['ContinuationToken'] = resp['NextContinuationToken']
-            except KeyError:
-                break
+        s3_obj.head_bucket(Bucket=s3_obj.bucket_name)
     except Exception:
         logger.exception(
-            "Something went wrong while listing the objects from S3")
-        return Status.FAIL
-    else:
-        return s3_content_list
+            "Bucket: {} does not exist or you have no access\n".format(s3_obj.bucket_name))
+        s3_obj = None
+    return s3_obj
 
 
 def main():
@@ -261,18 +265,21 @@ def main():
     archive = config.ARCHIVE
     if not os.path.isdir(archive):
         logger.error(
-            "The setting for ARCHIVE in the config file is {}, but that is not a directory", archive)
+                "The setting for ARCHIVE in the config file is {}, but that is"
+                " not a directory", archive)
         return 1
 
     # add a BACKUP field to the config object
     config.BACKUP = backup = config.conf.get("pbench-server", "pbench-backup-dir")
     if len(backup) == 0:
         logger.error(
-            "Unspecified backup directory, no pbench-backup-dir config in pbench-server section")
+                "Unspecified backup directory, no pbench-backup-dir config in"
+                " pbench-server section")
         return 1
-
     if not os.path.isdir(backup):
-        logger.error("The setting for BACKUP in the config file is {}, but that is not a directory", backup)
+        logger.error(
+                "The setting for BACKUP in the config file is {}, but that is"
+                " not a directory", backup)
         return 1
 
     # instantiate the s3config class
@@ -280,6 +287,7 @@ def main():
     s3_config_obj = sanity_check(s3_config_obj, logger)
 
     logger.info('start-{}', config.TS)
+    start = config.timestamp()
 
     prog = os.path.basename(sys.argv[0])
 
@@ -287,71 +295,105 @@ def main():
     # N.B. tmpdir is the pathname of the temp directory.
     with tempfile.TemporaryDirectory() as tmpdir:
 
-        archive_obj = BackupObject("ARCHIVE", config.ARCHIVE)
-        local_backup_obj = BackupObject("BACKUP", config.BACKUP)
-        s3_backup_obj = BackupObject("S3", s3_config_obj)
-
-        # Create entry list for archive
-        archive_entry_list = entry_list_creation(archive_obj, config.ARCHIVE, logger)
-        if archive_entry_list == Status.FAIL:
-            sts += 1
-
-        # Create entry list for backup
-        backup_entry_list = entry_list_creation(local_backup_obj, config.BACKUP, logger)
-        if backup_entry_list == Status.FAIL:
-            sts += 1
-
-        # Create entry list for S3
-        s3_entry_list = entry_list_creation_s3(s3_config_obj, logger)
-        if s3_entry_list == Status.FAIL:
-            sts += 1
+        archive_obj = BackupObject("ARCHIVE", config.ARCHIVE, tmpdir, logger)
+        local_backup_obj = BackupObject("BACKUP", config.BACKUP, tmpdir, logger)
+        s3_backup_obj = BackupObject("S3", s3_config_obj, tmpdir, logger)
 
         with tempfile.NamedTemporaryFile(mode='w+t', dir=tmpdir) as reportfp:
-            reportfp.write("{}.{}({})\n".format(prog, config.TS, config.PBENCH_ENV))
+            reportfp.write("{}.{} ({}) started at {}\n".format(
+                    prog, config.TS, config.PBENCH_ENV, start))
+            if s3_config_obj is None:
+                reportfp.write(
+                        "\nNOTICE: S3 backup service is inaccessible; skipping"
+                        " ARCHIVE to S3 comparison\n\n")
 
+            # FIXME: Parallelize these three ...
+
+            # Create entry list for archive
+            logger.debug('Starting archive list creation')
+            ar_start = config.timestamp()
+            ret_sts = archive_obj.entry_list_creation()
+            if ret_sts == Status.FAIL:
+                sts += 1
+            logger.debug('Finished archive list ({!r})', ret_sts)
+
+            # Create entry list for backup
+            logger.debug('Starting local backup list creation')
+            lb_start = config.timestamp()
+            ret_sts = local_backup_obj.entry_list_creation()
+            if ret_sts == Status.FAIL:
+                sts += 1
+            logger.debug('Finished local backup list ({!r})', ret_sts)
+
+            # Create entry list for S3
+            if s3_config_obj is not None:
+                logger.debug('Starting S3 list creation')
+                s3_start = config.timestamp()
+                ret_sts = s3_backup_obj.entry_list_creation()
+                if ret_sts == Status.FAIL:
+                    sts += 1
+                logger.debug('Finished S3 list ({!r})', ret_sts)
+
+            logger.debug('Checking MD5 signatures of archive')
+            ar_md5_start = config.timestamp()
             try:
                 # Check the data integrity in ARCHIVE (Question 1).
-                md5_result_archive = checkmd5(config.ARCHIVE, tmpdir, archive_obj, logger)
-            except Exception:
+                md5_result_archive = archive_obj.checkmd5()
+            except Exception as ex:
                 msg = "Failed to check data integrity of ARCHIVE ({})".format(config.ARCHIVE)
                 logger.exception(msg)
-                reportfp.write("{}\n".format(msg))
+                reportfp.write("\n{} - '{}'\n".format(msg, ex))
                 sts += 1
             else:
                 if md5_result_archive > 0:
                     # Create a report for failed MD5 results from ARCHIVE (Question 1)
-                    report_failed_md5(archive_obj, tmpdir, reportfp, logger)
+                    archive_obj.report_failed_md5(reportfp)
                     sts += 1
+            logger.debug('Finished checking MD5 signatures of archive')
 
+            logger.debug('Checking MD5 signatures of local backup')
+            lb_md5_start = config.timestamp()
             try:
                 # Check the data integrity in BACKUP (Question 2).
-                md5_result_backup = checkmd5(config.BACKUP, tmpdir, local_backup_obj, logger)
-            except Exception:
+                md5_result_backup = local_backup_obj.checkmd5()
+            except Exception as ex:
                 msg = "Failed to check data integrity of BACKUP ({})".format(config.BACKUP)
                 logger.exception(msg)
-                reportfp.write("{}\n".format(msg))
+                reportfp.write("\n{} - '{}'\n".format(msg, ex))
             else:
                 if md5_result_backup > 0:
                     # Create a report for failed MD5 results from BACKUP (Question 2)
-                    report_failed_md5(local_backup_obj, tmpdir, reportfp, logger)
+                    local_backup_obj.report_failed_md5(reportfp)
                     sts += 1
+            logger.debug('Finished checking MD5 signatures of local backup')
 
             # Compare ARCHIVE with BACKUP (Questions 3 and 3a).
+            msg = "Comparing ARCHIVE with BACKUP"
+            reportfp.write("\n{}\n{}\n".format(msg, "-" * len(msg)))
             compare_entry_lists(archive_obj,
                                 local_backup_obj,
-                                archive_entry_list,
-                                backup_entry_list,
                                 reportfp)
 
-            if s3_config_obj is None:
-                reportfp.write('S3 backup service is inaccessible.\n')
-            else:
+            if s3_config_obj is not None:
                 # Compare ARCHIVE with S3 (Questions 4, 4a, and 4b).
+                msg = "Comparing ARCHIVE with S3"
+                reportfp.write("\n{}\n{}\n".format(msg, "-" * len(msg)))
                 compare_entry_lists(archive_obj,
                                     s3_backup_obj,
-                                    archive_entry_list,
-                                    s3_entry_list,
                                     reportfp)
+
+            if s3_config_obj is None:
+                s3_start = "<skipped>"
+            reportfp.write("\n\nPhases (started):\n"
+                           "Archive List Creation:       {}\n"
+                           "Local Backup List Creation:  {}\n"
+                           "S3 List Creation:            {}\n"
+                           "Archive MD5 Checks:          {}\n"
+                           "Local Backup MD5 Checks:     {}\n".format(
+                    ar_start, lb_start, s3_start, ar_md5_start, lb_md5_start))
+
+            end = config.timestamp()
+            reportfp.write("\n{}.{} ({}) finished at {}\n".format(prog, config.TS, config.PBENCH_ENV, end))
 
             # Rewind to the beginning.
             reportfp.seek(0)
