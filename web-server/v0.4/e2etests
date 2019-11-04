@@ -17,17 +17,7 @@ if [[ $? -ne 0 ]]; then
   echo "yarn failed!" >&2
   exit 1
 fi
-yarn start &
-if [[ $? -ne 0 ]]; then
-  echo "yarn failed!" >&2
-  exit 1
-fi
-sleep 60
-if [[ $? -ne 0 ]]; then
-  echo "sleep failed!" >&2
-  exit 1
-fi
-yarn test:e2e
+yarn start && yarn test:e2e
 if [[ $? -ne 0 ]]; then
   echo "yarn e2e tests failed!" >&2
   exit 1
