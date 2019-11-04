@@ -259,7 +259,7 @@ declare -A tools=(
     [test-45]="pbench-register-tool"
     [test-46]="pbench-register-tool"
     [test-47]="pbench-register-tool"
-    [test-48]="eval"
+    [test-48]="test-add-metalog-%-option"
 )
 
 declare -A options=(
@@ -327,7 +327,6 @@ declare -A options=(
     [test-45]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-46]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-47]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis --labels=labelOne,labelTwo"
-    [test-48]="pbench-add-metalog-option ${_testdir}/metadata.log run percent < ${_testdir}/tmp/foo.txt"
 )
 
 declare -A expected_status=(
