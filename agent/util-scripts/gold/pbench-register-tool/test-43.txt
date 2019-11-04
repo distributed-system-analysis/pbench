@@ -14,14 +14,14 @@ turbostat tool is now registered in group default
 /var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: 
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: ""
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] The remote host you have provided, localhost, matches a local interface, so we will register this tool locally only
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] The remote host you have provided, testhost.example.com, matches a local interface, and has already been registered locally
 /var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] turbostat tool is now registered in group default
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=turbostat --group=default -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=turbostat --group=default -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=turbostat --group=default --no-install -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=turbostat --group=default --no-install -- "${tool_opts[@]}" 2>&1
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no one.example.com  pbench-register-tool --name=turbostat --group=default -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no two.example.com  pbench-register-tool --name=turbostat --group=default -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no one.example.com  pbench-register-tool --name=turbostat --group=default --no-install -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no two.example.com  pbench-register-tool --name=turbostat --group=default --no-install -- "${tool_opts[@]}" 2>&1
 --- test-execution.log file contents
