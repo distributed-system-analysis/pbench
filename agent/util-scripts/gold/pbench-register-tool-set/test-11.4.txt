@@ -9,13 +9,13 @@
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@one.example.com:
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  tool_opts[0]="--interval=3"; pbench-register-tool --name=mpstat --group=default -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  tool_opts[0]="--interval=3"; pbench-register-tool --name=vmstat --group=default -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=3
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  tool_opts[0]="--interval=3"; pbench-register-tool --name=iostat --group=default -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --record-opts=record -a --freq=100
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts=record -a --freq=100"
 /var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  tool_opts[0]="--record-opts=record -a --freq=100"; pbench-register-tool --name=perf --group=default -- "${tool_opts[@]}" 2>&1
 --- pbench.log file contents
 +++ test-execution.log file contents

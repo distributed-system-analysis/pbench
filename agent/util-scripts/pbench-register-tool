@@ -152,7 +152,8 @@ if [[ ${remotes_arg::1} == "@" ]]; then
 		IFS=',' read -ra parts <<< "${line}"
 		if [[ ${#parts[@]} == 0 ]]; then
 			# Ignore empty lines
-			:
+			(( lineno++ ))
+			continue
 		elif [[ ${#parts[@]} == 1 ]]; then
 			# Assume the only part is a remote host name.
 			remotes_A[${idx}]=${parts[0]}
@@ -163,7 +164,7 @@ if [[ ${remotes_arg::1} == "@" ]]; then
 			remotes_A[${idx}]=${parts[0]}
 			labels_A[${parts[0]}]=${parts[1]}
 		else
-			error_log "--remotes=@${remotes_file} contains an invalid file format, expected lines with \"<hostname>[,<label>]\""
+			error_log "--remotes=@${remotes_file} contains an invalid file format, expected lines with \"<hostname>[,<label>]\" at line #${lineno}"
 			usage >&2
 			exit 1
 		fi
@@ -225,7 +226,7 @@ tool_opt_array_cmd=""
 for (( i=0; ${i} < ${#tool_opts[@]}; i++ )); do
 	tool_opt_array_cmd="${tool_opt_array_cmd} tool_opts[${i}]=\"${tool_opts[${i}]}\";"
 done
-debug_log "tool_opts: ${tool_opts[@]}"
+debug_log "tool_opts: \"${tool_opts[@]}\""
 
 # At this point all argument processing is complete.
 
@@ -240,7 +241,8 @@ idx=0
 local_hostname=""
 local_label=""
 declare -A remotes
-for remote in ${remotes_A[@]}; do
+for (( i=0; ${i} < ${#remotes_A[@]}; i++ )); do
+	remote="${remotes_A[${i}]}"
 	for local_interface in ${local_interfaces}; do
 		if [[ "${remote}" == "${local_interface}" ]]; then
 			if [[ -z "${local_hostname}" ]]; then
@@ -314,9 +316,10 @@ exit_rc=${rc}
 if [[ ${do_install} == 1 ]]; then
 	install_opt=""
 else
-	isntall_opt="--no-install"
+	install_opt=" --no-install"
 fi
-for remote in ${remotes[@]}; do
+for (( i=0; ${i} < ${#remotes[@]}; i++ )); do
+	remote="${remotes[${i}]}"
 	# Register this tool on a remote host
 	label=${labels_A[${remote}]}
 	if [[ -z "${label}" ]]; then

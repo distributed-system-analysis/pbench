@@ -11,6 +11,6 @@ vmstat tool is now registered in group default
 --interval=42
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: --interval=42
+/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42"
 /var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] vmstat tool is now registered in group default
 --- pbench.log file contents
