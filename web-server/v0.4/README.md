@@ -127,6 +127,15 @@ $ yarn test
 
 This will run test cases for all files referenced with a `*.test.js` or `*.e2e.js` naming schema. 
 
+In order to run the E2E tests you must have `google-chrome-stable` installed:
+
+On Fedora do:
+```
+$ dnf install fedora-workstation-repositories
+$ dnf config-manager --set-enabled google-chrome
+$ dnf install google-chrome-stable
+```
+
 ## Installing private packages with yarn and npm
 
 If you are using npm packages to distribute common utilities across projects, the dashboard can be configured to pull private packages from an internal npm server. 

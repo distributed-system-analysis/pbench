@@ -64,7 +64,8 @@ jobs:
       before_install:
         # Enable user namespace cloning
         - "sysctl kernel.unprivileged_userns_clone=1"
-        # Remove /usr/local/bin/yarn to avoid conflicts with installed version
+        # Remove /usr/local/bin/yarn to avoid conflicts with the "old" version
+        # provided by the TravisCI language "node_js".
         - "sudo rm /usr/local/bin/yarn"
       install:
         - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
