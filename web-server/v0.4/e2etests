@@ -1,6 +1,11 @@
 #!/bin/bash
 
-cd $(dirname $0)
+# We change our working directory to the same location as this script is
+# found so that yarn can work with the package.json file found in the same
+# directory.
+cd $(dirname ${0})
+
+# Setup the mock'd data store configuration.
 cat > mock/datastoreConfig.js <<EOF
 export default {
   '/dev/datastoreConfig': {
@@ -12,19 +17,26 @@ export default {
   },
 };
 EOF
-yarn --network-timeout 1000000
-if [[ $? -ne 0 ]]; then
-  echo "yarn failed!" >&2
+# Make sure the yarn environment is all up-to-date, or perform the
+# install ahead of actually running the tests.
+printf -- "Running \"yarn install\" command ...\n" 
+yarn install --network-timeout 1000000
+if [[ ${?} -ne 0 ]]; then
+  echo "yarn install failed!" >&2
   exit 1
 fi
+printf -- "... done running \"yarn install\" command.\n" 
 printf -- "NODE_ENV=%s\n" "${NODE_ENV}"
+printf -- "Running \"yarn start\" command in the background...\n" 
 yarn start &
-if [[ $? -ne 0 ]]; then
-  echo "yarn failed!" >&2
-  exit 1
+yarn_start_pid=${!}
+if [[ -z "${yarn_start_pid}" ]]; then
+    printf -- "yarn e2e tests failed! (could not execute \"yarn start\" in background)\n" >&2
+    exit 1
 fi
-# Wait checking once a second for the web-server to show up on port
-# 8000 at the expected URL.
+# Wait checking once a second for the web server to show up on port
+# 8000 at the expected URL because the E2E tests can't start running
+# until the web server is up and running.
 curl_cmd="curl --output /dev/null --head --silent --fail"
 while true; do
   sleep 1
@@ -32,13 +44,26 @@ while true; do
     break
   fi
 done
+# Use curl to fetch the contents of the dashboard and display it to
+# stdout to debugging when something goes wrong with the E2E tests.
 curl -X GET http://localhost:8000/dashboard/
 res=${?}
+if [[ ${res} -eq 0 ]]; then
+    printf -- "... \"yarn start\" web server up and running.\n" 
 
-# Now that the web server is running in the background, we can run
-# the E2E tests which drive a headless browser against our server.
-yarn test:e2e
-res=${?}
+    # Now that the web server is running in the background, we can run
+    # the E2E tests which drive a headless browser against our server.
+    printf -- "Running E2E tests ...\n"
+    yarn test:e2e
+    res=${?}
+    printf -- "... E2E tests finished (%s).\n" ${res}
+else
+    printf -- "... \"yarn start\" failed to start web server (%s).\n" ${res} 
+fi
+# The yarn start process leaves many processes lying around unless we
+# explicitly kill them.
+kill -s TERM -- ${yarn_start_pid}
+wait
 if [[ ${res} -ne 0 ]]; then
   echo "yarn e2e tests failed!" >&2
 fi
