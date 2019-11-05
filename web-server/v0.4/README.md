@@ -98,6 +98,15 @@ const persistConfig = {
 };
 ```
 
+## Requirements
+
+Install yarn
+
+```
+curl -sL https://dl.yarnpkg.com/rpm/yarn.repo -o /etc/yum.repos.d/yarn.repo
+dnf/yum install yarn
+```
+
 ## Build
 
 Build Application
