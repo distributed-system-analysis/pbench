@@ -123,9 +123,9 @@ EOF
             error_log "Unable to create $tmpdir/$remote directory while gathering remote tool metadata"
             continue
         fi
-        scp $ssh_options -r $remote:$pbench_run/tools-$group $tmpdir/$remote > /dev/null 2>&1
+        scp -r ${scp_opts} ${remote}:${pbench_run}/tools-${group} ${tmpdir}/${remote} > /dev/null 2>&1
         if [[ $? -ne 0 ]]; then
-            error_log "Unable to fetch remote tool group directory, $remote:$pbench_run/tools-$group"
+            error_log "Unable to fetch remote tool group directory, ${remote}:${pbench_run}/tools-${group}"
             continue
         fi
         cat >> $log <<EOF

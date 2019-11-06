@@ -281,17 +281,6 @@ tar --create --force-local "pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33
 /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33/user-benchmark-summary-debug.json
 /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33/user-benchmark-summary.json
 /var/tmp/pbench-test-utils/pbench/pbench.log
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo/bar
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo/bar/iostat
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo/bar/mpstat
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo/bar/perf
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo/bar/pidstat
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo/bar/proc-interrupts
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo/bar/proc-vmstat
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo/bar/sar
-/var/tmp/pbench-test-utils/pbench/pbench@server.com:/foo/bar/turbostat
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
@@ -303,15 +292,7 @@ tar --create --force-local "pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum info installed pbench-agent
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/curl -s -A pbench-agent-unknown-unknown:agent.example.com:nobody:pbench-copy-results -L http://pbench.example.com/pbench-results-host-info.versioned/pbench-results-host-info.URL002
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -q -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa -o StrictHostKeyChecking=no pbench@server.com exit
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/scp -r -o StrictHostKeyChecking=no -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa -o StrictHostKeyChecking=no /var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/testhost.example.com pbench@server.com:/foo/bar
-/var/tmp/pbench-test-utils/test-execution.log:pbench@server.com:/foo/bar/iostat:foo
-/var/tmp/pbench-test-utils/test-execution.log:pbench@server.com:/foo/bar/mpstat:bar
-/var/tmp/pbench-test-utils/test-execution.log:pbench@server.com:/foo/bar/perf:baz
-/var/tmp/pbench-test-utils/test-execution.log:pbench@server.com:/foo/bar/pidstat:hunoz
-/var/tmp/pbench-test-utils/test-execution.log:pbench@server.com:/foo/bar/proc-interrupts:hukerz
-/var/tmp/pbench-test-utils/test-execution.log:pbench@server.com:/foo/bar/proc-vmstat:foobar
-/var/tmp/pbench-test-utils/test-execution.log:pbench@server.com:/foo/bar/sar:foo
-/var/tmp/pbench-test-utils/test-execution.log:pbench@server.com:/foo/bar/turbostat:bar
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/scp -r -o StrictHostKeyChecking=no -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa /var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/testhost.example.com pbench@server.com:/foo/bar
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa -o StrictHostKeyChecking=no pbench@server.com cd /foo/bar/testhost.example.com; md5sum --check pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz.md5.check && mv pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz.md5.check pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz.md5
 --- test-execution.log file contents
 +++ metadata.log file contents

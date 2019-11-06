@@ -65,7 +65,7 @@ fi
 # foo.tar.xz.md5.check file to foo.tar.xz.md5. That's the signal that the
 # agent has finished with this tarball.
 
-scp -r ${scp_opts} -i ${pbench_bin}/id_rsa ${ssh_opts} ${controller_dir} ${results_repo}:${results_path_prefix}
+scp -r ${scp_opts} -i ${pbench_bin}/id_rsa ${controller_dir} ${results_repo}:${results_path_prefix}
 if [[ ${?} -ne 0 ]]; then
     error_log "ERROR: unable to copy results tarball, ${tarball}, to ${results_repo}:${results_path_prefix}"
     exit 1
