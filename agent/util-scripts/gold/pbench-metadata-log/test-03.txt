@@ -68,33 +68,47 @@ turbostat: --interval=3
 
 [tools/dhcp31-174]
 hostname-s = dhcp31-174
-sar:
+iostat: foo
+mpstat: bar
+perf: baz
+pidstat: hunoz
+proc-interrupts: hukerz
+proc-vmstat: foobar
+sar: foo
+turbostat: bar
 
 [tools/perf104]
 hostname-s = perf104
-iostat:
+iostat: foo
+mpstat: bar
+perf: baz
+pidstat: hunoz
+proc-interrupts: hukerz
+proc-vmstat: foobar
+sar: foo
+turbostat: bar
 
 --- pbench tree state
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum list installed pbench-agent
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/scp -r dhcp31-174:/var/tmp/pbench-test-utils/pbench/tools-default /var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/iostat:foo
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/mpstat:bar
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/perf:baz
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/pidstat:hunoz
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/proc-interrupts:hukerz
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/proc-vmstat:foobar
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/sar:foo
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/tools-default/sar:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/turbostat:bar
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/scp -r -o StrictHostKeyChecking=no dhcp31-174:/var/tmp/pbench-test-utils/pbench/tools-default /var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/tools-default/iostat:foo
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/tools-default/mpstat:bar
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/tools-default/perf:baz
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/tools-default/pidstat:hunoz
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/tools-default/proc-interrupts:hukerz
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/tools-default/proc-vmstat:foobar
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/tools-default/sar:foo
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/dhcp31-174/tools-default/turbostat:bar
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no -n dhcp31-174 hostname -s
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/scp -r perf104:/var/tmp/pbench-test-utils/pbench/tools-default /var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/iostat:foo
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/mpstat:bar
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/perf:baz
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/pidstat:hunoz
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/proc-interrupts:hukerz
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/proc-vmstat:foobar
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/sar:foo
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/tools-default/iostat:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/turbostat:bar
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/scp -r -o StrictHostKeyChecking=no perf104:/var/tmp/pbench-test-utils/pbench/tools-default /var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/tools-default/iostat:foo
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/tools-default/mpstat:bar
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/tools-default/perf:baz
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/tools-default/pidstat:hunoz
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/tools-default/proc-interrupts:hukerz
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/tools-default/proc-vmstat:foobar
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/tools-default/sar:foo
+/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/pbench/tmp/pmdlog/perf104/tools-default/turbostat:bar
 /var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no -n perf104 hostname -s
 --- test-execution.log file contents
