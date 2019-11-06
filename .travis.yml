@@ -1,64 +1,74 @@
 jobs:
   include:
-    - stage: "Unit Tests"
-      name: "Unit Tests"
-      dist: xenial
+    - stage: "Agent Unit Tests"
+      name: "agent-unit-tests"
+      dist: eoan
       language: perl
       perl:
         - "5.28"
-        - "5.26"
-        - "5.24"
-        - "5.22"
-        - "5.20"
-        - "5.18"
-        - "5.16"
-        - "5.10"
       before_install:
         - sudo apt-get update
       install:
         - sudo apt-get install python python-pip bc libjson-perl libswitch-perl realpath
-        - sudo pip install configtools elasticsearch
+        - sudo pip install configtools
         - sudo apt-get install python-software-properties
         - sudo add-apt-repository ppa:fkrull/deadsnakes -y
-        - sudo apt-get update
+        - sudo apt-get update -y -qq
         - sudo apt-get install python3.6 --force-yes -y
-        - sudo wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py
-        - sudo python3.6 /tmp/get-pip.py
-        - sudo pip install 'configtools<0.4.0' elasticsearch sh boto3
         - sudo ln -sf python3.6 /usr/bin/python3
-        - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
-        - sudo echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-        - sudo apt-get update -qq
-        - sudo apt-get install -y -qq yarn
+      script: ./agent/run-unittests
+
+    - stage: "Server Unit Tests"
+      name: "server-unit-tests"
+      dist: eoan
+      language: python
+      python:
+        - "3.6"
       env:
         - PBENCH_UNITTEST_SERVER_MODE=serial
-      script: ./run-unittests
-    - stage: "E2E Tests"
-      name: "E2E Tests"
+      install:
+        - sudo apt-get install realpath
+        - pip install 'configtools<0.4.0' elasticsearch sh boto3
+      script: ./server/bin/unittests
+
+    - stage: "Dashboard Unit Tests"
+      name: "dashboard-unit-tests"
+      dist: eoan
       language: node_js
       node_js:
-        - "12"
-      dist: trusty
+        - "13"
       sudo: required
-      addons:
-        chrome: stable
-        hostname: localhost
-        apt:
-          packages:
-            # This is required to run new chrome on old trusty
-            - libnss3
-      # allow headful tests
       before_install:
-        # Enable user namespace cloning
-        - "sysctl kernel.unprivileged_userns_clone=1"
-        # Launch XVFB
-        - "export DISPLAY=:99.0"
-        - "sh -e /etc/init.d/xvfb start"
-        - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
+        # Remove /usr/local/bin/yarn to avoid conflicts with installed version
+        - "sudo rm /usr/local/bin/yarn"
       install:
         - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
         - sudo echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-        - sudo apt-get update -qq
+        - sudo apt-get update -y -qq
         - sudo apt-get install -y -qq yarn
-      script: ./run-e2etests
-      
+      script: ./web-server/v0.4/unittests
+
+    - stage: "Dashboard E2E Tests"
+      name: "dashboard-e2e-tests"
+      dist: eoan
+      language: node_js
+      node_js:
+        - "13"
+      sudo: required
+      services:
+        # allow headless browser tests
+        - xvfb
+      addons:
+        chrome: stable
+        hostname: localhost
+      before_install:
+        # Enable user namespace cloning
+        - "sysctl kernel.unprivileged_userns_clone=1"
+        # Remove /usr/local/bin/yarn to avoid conflicts with installed version
+        - "sudo rm /usr/local/bin/yarn"
+      install:
+        - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
+        - sudo echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+        - sudo apt-get update -y -qq
+        - sudo apt-get install -y -qq yarn
+      script: ./web-server/v0.4/e2etests
