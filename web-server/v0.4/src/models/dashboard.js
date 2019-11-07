@@ -4,12 +4,10 @@ import {
   queryResults,
   queryResult,
   queryTocResult,
-  queryIterations,
   queryIterationSamples,
   queryTimeseriesData,
 } from '../services/dashboard';
 
-import { parseIterationData } from '../utils/parse';
 import { insertTocTreeData } from '../utils/utils';
 
 export default {
@@ -19,7 +17,6 @@ export default {
     result: [],
     results: {},
     iterationParams: {},
-    iterationPorts: [],
     iterations: [],
     controllers: [],
     tocResult: [],
@@ -164,7 +161,9 @@ export default {
     },
     *fetchIterationSamples({ payload }, { call, put }) {
       const response = yield call(queryIterationSamples, payload);
-      let filteredParams = {};
+      const runs = {};
+      const iterations = {};
+      let iterationParams = {};
       const paramBlacklist = [
         '@idx',
         'description',
@@ -179,40 +178,117 @@ export default {
         'uid_tmpl',
       ];
 
-      response.hits.hits.forEach(sample => {
-        // eslint-disable-next-line no-underscore-dangle
-        const source = sample._source;
-        const runParams = _.omit({ ...source.benchmark, ...source.sample }, paramBlacklist);
-        filteredParams = _.mergeWith(filteredParams, runParams, (objVal, srcVal) => {
-          if (objVal !== undefined) {
-            const uniqParams = _.uniq([...objVal, ...[srcVal]]);
-            return uniqParams;
+      response.forEach(run => {
+        const id = run.aggregations.id.buckets[0].key;
+        run.hits.hits.forEach(sample => {
+          // eslint-disable-next-line no-underscore-dangle
+          const source = sample._source;
+          if (source.iteration.name.includes('fail')) {
+            return;
           }
-          return [srcVal];
+          const sampleSource = _.omit({ ...source.benchmark, ...source.sample }, paramBlacklist);
+
+          // Aggregate iteration params
+          iterationParams = _.mergeWith(iterationParams, sampleSource, (objVal, srcVal) => {
+            if (objVal !== undefined) {
+              const uniqParams = _.uniq([...objVal, ...[srcVal]]);
+              return uniqParams;
+            }
+            return [srcVal];
+          });
+
+          // Aggregate iteration samples
+          const sampleData = {};
+          const sampleFields = source.sample;
+          const benchmarkFields = source.benchmark;
+          const runFields = source.run;
+          const iterationFields = source.iteration;
+
+          const samplePrefix = [
+            sampleFields.measurement_type,
+            sampleFields.measurement_title,
+            sampleFields.uid,
+          ]
+            .join('-')
+            .toLowerCase();
+          sampleData[`${samplePrefix}-closest_sample`] = sampleFields.closest_sample;
+          sampleData[`${samplePrefix}-mean`] = sampleFields.mean;
+          sampleData[`${samplePrefix}-stddevpct`] = sampleFields.stddevpct;
+          iterationFields.closest_sample = sampleFields.closest_sample;
+
+          iterations[source.iteration.name] = {
+            ...iterations[source.iteration.name],
+            ...iterationFields,
+            ...sampleData,
+            [sampleFields.name]: {
+              ...((iterations[source.iteration.name] || {})[sampleFields.name] || {}),
+              [sampleFields.uid]: {
+                ...sampleFields,
+                ...benchmarkFields,
+                ...runFields,
+              },
+            },
+          };
         });
+
+        run.aggregations.id.buckets.forEach(runId => {
+          const iterationColumnsData = [
+            {
+              title: 'Iteration Name',
+              dataIndex: 'name',
+              key: 'name',
+            },
+          ];
+          runId.type.buckets.forEach(type => {
+            iterationColumnsData.push({
+              title: type.key,
+              children: type.title.buckets.map(title => {
+                return {
+                  title: title.key,
+                  children: title.uid.buckets.map(uid => {
+                    return {
+                      title: `${type.key}-${title.key}-${uid.key}`,
+                      children: [
+                        {
+                          title: 'mean',
+                          dataIndex: `${type.key}-${title.key}-${uid.key}-mean`,
+                          key: `${type.key}-${title.key}-${uid.key}-mean`,
+                        },
+                        {
+                          title: 'stddevpct',
+                          dataIndex: `${type.key}-${title.key}-${uid.key}-stddevpct`,
+                          key: `${type.key}-${title.key}-${uid.key}-stddevpct`,
+                        },
+                        {
+                          title: 'closest_sample',
+                          dataIndex: `${type.key}-${title.key}-${uid.key}-closest_sample`,
+                          key: `${type.key}-${title.key}-${uid.key}-closest_sample`,
+                        },
+                      ],
+                    };
+                  }),
+                };
+              }),
+            });
+          });
+          runs[runId.key] = { columns: iterationColumnsData };
+        });
+        runs[id] = {
+          ...runs[id],
+          run_name: run.aggregations.name.buckets[0].key,
+          run_controller: run.aggregations.controller.buckets[0].key,
+          iterations,
+          id,
+        };
       });
 
       yield put({
-        type: 'dashboard/modifyConfigCategories',
-        payload: filteredParams,
+        type: 'modifyConfigCategories',
+        payload: iterationParams,
       });
-    },
-    *fetchIterations({ payload }, { call, put }) {
-      const response = yield call(queryIterations, payload);
-      const parsedIterationData = parseIterationData(response);
-      const { iterations, iterationParams, iterationPorts } = parsedIterationData;
-
       yield put({
         type: 'getIterations',
-        payload: {
-          iterations,
-          iterationParams,
-          iterationPorts,
-        },
-      });
-      yield put({
-        type: 'global/modifySelectedIterations',
-        payload: parsedIterationData.selectedIterationKeys,
+        payload: runs,
       });
     },
     *fetchTimeseriesData({ payload }, { call }) {
@@ -262,7 +338,7 @@ export default {
     getIterations(state, { payload }) {
       return {
         ...state,
-        ...payload,
+        iterations: payload,
       };
     },
     modifySelectedControllers(state, { payload }) {

@@ -2,11 +2,15 @@ import _ from 'lodash';
 import request from '../utils/request';
 import { renameProp } from '../utils/utils';
 
-function parseMonths(datastoreConfig, selectedIndices) {
+function parseMonths(datastoreConfig, index, selectedIndices) {
   let indices = '';
 
   selectedIndices.forEach(value => {
-    indices += `${datastoreConfig.prefix + datastoreConfig.run_index + value},`;
+    if (index === datastoreConfig.result_index) {
+      indices += `${datastoreConfig.prefix + index + value}-*,`;
+    } else {
+      indices += `${datastoreConfig.prefix + index + value},`;
+    }
   });
 
   return indices;
@@ -17,6 +21,7 @@ export async function queryControllers(params) {
 
   const endpoint = `${datastoreConfig.elasticsearch}/${parseMonths(
     datastoreConfig,
+    datastoreConfig.run_index,
     selectedIndices
   )}/_search`;
 
@@ -52,6 +57,7 @@ export async function queryResults(params) {
 
   const endpoint = `${datastoreConfig.elasticsearch}/${parseMonths(
     datastoreConfig,
+    datastoreConfig.run_index,
     selectedIndices
   )}/_search`;
 
@@ -91,6 +97,7 @@ export async function queryResult(params) {
 
   const endpoint = `${datastoreConfig.elasticsearch}/${parseMonths(
     datastoreConfig,
+    datastoreConfig.run_index,
     selectedIndices
   )}/_search?source=`;
 
@@ -111,6 +118,7 @@ export async function queryTocResult(params) {
 
   const endpoint = `${datastoreConfig.elasticsearch}/${parseMonths(
     datastoreConfig,
+    datastoreConfig.run_index,
     selectedIndices
   )}/_search?q=_parent:"${id}"`;
 
@@ -118,39 +126,88 @@ export async function queryTocResult(params) {
 }
 
 export async function queryIterationSamples(params) {
-  const { datastoreConfig, selectedResults } = params;
+  const { datastoreConfig, selectedIndices, selectedResults } = params;
 
-  const endpoint = `${
-    datastoreConfig.elasticsearch
-  }/staging-pbench.v3.result-data.2019-06-*/_search?scroll=1m`;
+  const endpoint = `${datastoreConfig.elasticsearch}/${parseMonths(
+    datastoreConfig,
+    datastoreConfig.result_index,
+    selectedIndices
+  )}/_search?scroll=1m`;
 
-  return request.post(endpoint, {
-    data: {
-      query: {
-        filtered: {
+  const iterationSampleRequests = [];
+  selectedResults.forEach(run => {
+    iterationSampleRequests.push(
+      request.post(endpoint, {
+        data: {
           query: {
-            multi_match: {
-              query: selectedResults.map(result => result.id).join(' AND '),
-              fields: ['run.id'],
+            filtered: {
+              query: {
+                multi_match: {
+                  query: run.id,
+                  fields: ['run.id'],
+                },
+              },
+              filter: {
+                term: {
+                  _type: 'pbench-result-data-sample',
+                },
+              },
             },
           },
-          filter: {
-            term: {
-              _type: 'pbench-result-data-sample',
+          aggs: {
+            id: {
+              terms: {
+                field: 'run.id',
+              },
+              aggs: {
+                type: {
+                  terms: {
+                    field: 'sample.measurement_type',
+                  },
+                  aggs: {
+                    title: {
+                      terms: {
+                        field: 'sample.measurement_title',
+                      },
+                      aggs: {
+                        uid: {
+                          terms: {
+                            field: 'sample.uid',
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            name: {
+              terms: {
+                field: 'run.name',
+              },
+            },
+            controller: {
+              terms: {
+                field: 'run.controller',
+              },
             },
           },
+          size: 10000,
+          sort: [
+            {
+              'iteration.number': {
+                order: 'asc',
+                unmapped_type: 'boolean',
+              },
+            },
+          ],
         },
-      },
-      size: 1000,
-      sort: [
-        {
-          '@timestamp': {
-            order: 'desc',
-            unmapped_type: 'boolean',
-          },
-        },
-      ],
-    },
+      })
+    );
+  });
+
+  return Promise.all(iterationSampleRequests).then(iterations => {
+    return iterations;
   });
 }
 

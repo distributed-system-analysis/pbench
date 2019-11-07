@@ -12,7 +12,6 @@ import Table from '@/components/Table';
 @connect(({ datastore, global, dashboard, loading }) => ({
   iterations: dashboard.iterations,
   iterationParams: dashboard.iterationParams,
-  iterationPorts: dashboard.iterationPorts,
   results: dashboard.results,
   controllers: dashboard.controllers,
   datastoreConfig: datastore.datastoreConfig,
@@ -20,7 +19,7 @@ import Table from '@/components/Table';
   selectedResults: global.selectedResults,
   selectedIndices: global.selectedIndices,
   selectedIterationKeys: global.selectedIterationKeys,
-  loading: loading.effects['dashboard/fetchIterations'],
+  loading: loading.effects['dashboard/fetchIterationSamples'],
 }))
 class ComparisonSelect extends React.Component {
   constructor(props) {
@@ -36,12 +35,6 @@ class ComparisonSelect extends React.Component {
   componentDidMount() {
     const { selectedResults, selectedIndices, datastoreConfig, dispatch } = this.props;
 
-    dispatch({
-      type: 'dashboard/fetchIterations',
-      payload: { selectedResults, selectedIndices, datastoreConfig },
-    }).catch(() => {
-      this.openNetworkErrorNotification('error');
-    });
     dispatch({
       type: 'dashboard/fetchIterationSamples',
       payload: { selectedResults, selectedIndices, datastoreConfig },
@@ -110,7 +103,7 @@ class ComparisonSelect extends React.Component {
 
   render() {
     const { resultIterations } = this.state;
-    const { iterationParams, iterationPorts, selectedControllers, loading } = this.props;
+    const { iterationParams, selectedControllers, loading } = this.props;
     return (
       <PageHeaderLayout
         title={selectedControllers.join(', ')}
@@ -124,30 +117,26 @@ class ComparisonSelect extends React.Component {
               name="Compare Iterations"
               onClick={this.onCompareIterations}
             />
-            <TableFilterSelection
-              onFilterTable={this.onFilterTable}
-              filters={iterationParams}
-              ports={iterationPorts}
-            />
-            {resultIterations.map((iteration, result) => {
+            <TableFilterSelection onFilterTable={this.onFilterTable} filters={iterationParams} />
+            {Object.values(resultIterations).map((iteration, result) => {
               const rowSelection = {
                 onSelect: (record, selected, selectedRows) =>
                   this.onSelectChange(selectedRows, result),
                 onSelectAll: (selected, selectedRows) => this.onSelectChange(selectedRows, result),
               };
               return (
-                <div key={iteration.resultName} style={{ marginTop: 32 }}>
+                <div key={iteration.run_name} style={{ marginTop: 32 }}>
                   <div style={{ display: 'flex' }}>
-                    <h1>{iteration.resultName}</h1>
+                    <h1>{iteration.run_name}</h1>
                     <span style={{ marginLeft: 8 }}>
-                      <Tag color="blue">{iteration.controllerName}</Tag>
+                      <Tag color="blue">{iteration.run_controller}</Tag>
                     </span>
                   </div>
 
                   <Table
                     rowSelection={rowSelection}
                     columns={iteration.columns}
-                    dataSource={iteration.iterations}
+                    dataSource={Object.values(iteration.iterations)}
                     hideDefaultSelections
                     bordered
                   />

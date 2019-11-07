@@ -17,34 +17,15 @@ export default class TableFilterSelection extends Component {
 
     this.state = {
       selectedFilters: {},
-      selectedPorts: [],
       updateFiltersDisabled: true,
     };
   }
 
-  componentDidUpdate = prevProps => {
-    const { ports } = this.props;
-
-    if (ports !== prevProps.ports) {
-      this.filterDefaultPort();
-    }
-  };
-
-  filterDefaultPort = () => {
-    const { ports } = this.props;
-
-    Promise.resolve(this.onPortChange([ports[ports.findIndex(port => port.includes('all'))]])).then(
-      () => {
-        this.onFilterTable();
-      }
-    );
-  };
-
   onFilterTable = () => {
-    const { selectedFilters, selectedPorts } = this.state;
+    const { selectedFilters } = this.state;
     const { onFilterTable } = this.props;
 
-    onFilterTable(selectedFilters, selectedPorts);
+    onFilterTable(selectedFilters);
     this.setState({ updateFiltersDisabled: true });
   };
 
@@ -61,26 +42,15 @@ export default class TableFilterSelection extends Component {
     this.setState({ updateFiltersDisabled: false });
   };
 
-  onPortChange = value => {
-    this.setState({ selectedPorts: value });
-    this.setState({ updateFiltersDisabled: false });
-  };
-
   onClearFilters = () => {
-    this.setState(
-      {
-        selectedFilters: [],
-        selectedPorts: [],
-      },
-      () => {
-        this.filterDefaultPort();
-      }
-    );
+    this.setState({
+      selectedFilters: [],
+    });
   };
 
   render() {
-    const { filters, ports } = this.props;
-    const { selectedFilters, selectedPorts, updateFiltersDisabled } = this.state;
+    const { filters } = this.props;
+    const { selectedFilters, updateFiltersDisabled } = this.state;
 
     return (
       <div>
@@ -113,27 +83,6 @@ export default class TableFilterSelection extends Component {
                 </Select>
               </div>
             ))}
-          </Row>
-          <Row style={{ display: 'flex', flexWrap: 'wrap' }}>
-            <div>
-              <p style={{ marginBottom: 4, fontSize: 12, fontWeight: 600 }}>hostname & port</p>
-              <Select
-                key="port"
-                mode="multiple"
-                allowClear
-                placeholder="port"
-                style={{ marginRight: 16, marginBottom: 16, width: 320 }}
-                dropdownMatchSelectWidth={false}
-                value={selectedPorts}
-                onChange={this.onPortChange}
-              >
-                {ports.map(port => (
-                  <Option key={port} value={port}>
-                    {port}
-                  </Option>
-                ))}
-              </Select>
-            </div>
           </Row>
           <Row>
             <div style={{ textAlign: 'right' }}>
