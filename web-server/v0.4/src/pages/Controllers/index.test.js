@@ -1,5 +1,6 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, configure } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import Controllers from './index';
 
 import Table from '@/components/Table';
@@ -13,6 +14,7 @@ const mockProps = {
 };
 
 const mockDispatch = jest.fn();
+configure({ adapter: new Adapter() });
 const wrapper = shallow(<Controllers.WrappedComponent dispatch={mockDispatch} {...mockProps} />, {
   disableLifecycleMethods: true,
 });

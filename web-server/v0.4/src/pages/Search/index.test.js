@@ -1,5 +1,6 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, configure } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 
 import Search from './index';
 
@@ -16,6 +17,7 @@ const mockProps = {
 };
 
 const mockDispatch = jest.fn();
+configure({ adapter: new Adapter() });
 const wrapper = shallow(<Search.WrappedComponent dispatch={mockDispatch} {...mockProps} />, {
   disableLifecycleMethods: true,
 });
