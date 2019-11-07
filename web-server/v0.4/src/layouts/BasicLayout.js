@@ -100,6 +100,8 @@ class BasicLayout extends React.PureComponent {
     super(props);
     this.getPageTitle = memoizeOne(this.getPageTitle);
     this.breadcrumbNameMap = getBreadcrumbNameMap(getMenuData());
+    // eslint-disable-next-line no-underscore-dangle
+    this.persistor = persistStore(window.g_app._store);
   }
 
   getChildContext() {
@@ -233,8 +235,7 @@ class BasicLayout extends React.PureComponent {
           </Header>
           <Content style={{ margin: '24px 24px 0', height: '100%' }}>
             <PersistGate
-              // eslint-disable-next-line no-underscore-dangle
-              persistor={persistStore(window.g_app._store)}
+              persistor={this.persistor}
               loading={
                 <Spin
                   style={{

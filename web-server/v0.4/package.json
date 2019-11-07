@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "precommit": "npm run lint-staged",
-    "start": "umi dev",
+    "start": "cross-env UMI_UI=none umi dev",
     "start:no-mock": "cross-env MOCK=none umi dev",
     "build": "umi build",
     "site": "umi-api-doc static && gh-pages -d dist",
@@ -52,7 +52,7 @@
     "redux": "3.x",
     "redux-persist": "^6.0.0",
     "setprototypeof": "^1.1.0",
-    "umi": "^2.6.16",
+    "umi": "2.11.1",
     "umi-request": "^1.0.7",
     "url-polyfill": "^1.0.10"
   },
@@ -82,7 +82,7 @@
     "stylelint": "^9.2.1",
     "stylelint-config-prettier": "^3.0.4",
     "stylelint-config-standard": "^18.0.0",
-    "umi-plugin-react": "^1.7.5"
+    "umi-plugin-react": "1.13.1"
   },
   "jest": {
     "setupFiles": [
