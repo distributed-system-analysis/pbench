@@ -9,12 +9,10 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 . "$pbench_bin"/base
 
 function usage() {
-    printf "usage:\n"
-    printf "${script_name} --result-dir=<pbench results dir> --target-dir=<where to put tar ball> [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded=<0|1>]\n"
+    printf -- "usage:\n%s --result-dir=<pbench results dir> --target-dir=<where to put tar ball> [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded=<0|1>]\n" "${script_name}"
 }
-
 function missing_arg() {
-    printf "\n${script_name}: ${1} is missing its argument\n\n" >&2
+    printf -- "\n%s: %s is missing its argument\n\n" "${script_name}" "${1}" >&2
     usage >&2
     exit 1
 }
@@ -23,7 +21,7 @@ function missing_arg() {
 opts=$(getopt -q -o h --longoptions "user:,prefix:,result-dir:,target-dir:,xz-single-threaded:,help" -n "getopt.sh" -- "${@}")
 sts=${?}
 if [[ ${sts} -ne 0 ]]; then
-    printf "\n${script_name}: you specified an invalid option or an unexpected argument\n\n" >&2
+    printf -- "\n%s: you specified an invalid option or an unexpected argument\n\n" "${script_name}" >&2
     usage >&2
     exit 1
 fi
@@ -86,7 +84,7 @@ while true; do
 	    break;
 	    ;;
 	*)
-	    printf "\n${script_name}: you specified an invalid option or an unexpected argument: \"${opt}\"\n\n" >&2
+ 	    printf "\n%s: you specified an invalid option or an unexpected argument: \"${opt}\"\n\n" "${script_name}" >&2    
 	    usage >&2
 	    exit 1
 	    ;;
@@ -150,17 +148,17 @@ fi
 
 # if -u|--user was specified, store the specified user in metadata.log
 if [[ ! -z "$user" ]] ;then
-    printf -- "$user" | pbench-add-metalog-option ${mdlog} run user
+    printf -- "%s" "$user" | pbench-add-metalog-option ${mdlog} run user
 fi
 
 # if -p|--prefix was specified, store the specified prefix in metadata.log
 if [[ ! -z "$prefix" ]] ;then
-    printf -- "$prefix" | pbench-add-metalog-option ${mdlog} run prefix
+    printf -- "%s" "$prefix" | pbench-add-metalog-option ${mdlog} run prefix
 fi
 
 result_size=$(du -sb ${pbench_run_name} | awk '{print $1}')
 debug_log "preparing to tar up ${result_size} bytes of data from ${full_result_dir}"
-printf -- "$result_size" | pbench-add-metalog-option ${mdlog} run raw_size
+printf -- "%s" "$result_size" | pbench-add-metalog-option ${mdlog} run raw_size
 
 ts=$(timestamp)
 printf -- "%s" "$ts" | pbench-add-metalog-option ${mdlog} pbench tar-ball-creation-timestamp
@@ -171,7 +169,7 @@ if [[ "${xz_single_threaded}" == "1" ]]; then
 else
     tar_cmd="tar --create --force-local \"${pbench_run_name}\" | xz -T0"
 fi
-printf -- "${tar_cmd} > \"${tarball}\"\n" >&2
+printf -- "%s > \"%s\"\n" "${tar_cmd}" "${tarball}" >&2
 eval ${tar_cmd} > "${tarball}"
 if [[ $? -ne 0 ]]; then
     error_log "ERROR: tar ball creation failed for ${result_dir}, skipping"
@@ -191,5 +189,5 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # We ran the gauntlet successfully!
-printf -- "${tarball}\n"
+printf -- "%s\n" "${tarball}"
 exit 0

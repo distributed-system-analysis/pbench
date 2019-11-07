@@ -260,6 +260,8 @@ declare -A tools=(
     [test-46]="pbench-register-tool"
     [test-47]="pbench-register-tool"
     [test-48]="test-add-metalog-%-option"
+    [test-49]="pbench-copy-results"
+    [test-50]="test-pbench-metadata-log"
 )
 
 declare -A options=(
@@ -327,6 +329,7 @@ declare -A options=(
     [test-45]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-46]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-47]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis --labels=labelOne,labelTwo"
+    [test-49]="--prefix=foo/bar3% --user=ndk20%"
 )
 
 declare -A expected_status=(
@@ -374,6 +377,7 @@ declare -A post_hooks=(
     [test-39]='(echo "+++ metadata.log file contents"; cat ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.09.27T14.21.31/metadata.log; echo "--- metadata.log file contents") >> ${_testout}'
     [test-40]='(echo "+++ metadata.log file contents"; cat ${_testdir}/pbench-user-benchmark_pap-test-1_2019.09.27T14.21.32/metadata.log; echo "--- metadata.log file contents") >> ${_testout}'
     [test-41]='(echo "+++ metadata.log file contents"; cat ${_testdir}/pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33/metadata.log; echo "--- metadata.log file contents") >> ${_testout}'
+    [test-49]='(echo "+++ metadata.log file contents"; cat ${_testdir}/pbench-user-benchmark_ndk-test30%-1_2018.05.23T03.21.32/metadata.log; echo "--- metadata.log file contents") >> ${_testout}'
 )
 
 tests="$*"

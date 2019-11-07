@@ -1,0 +1,31 @@
+[pbench]
+name = pbench-user-benchmark_ndk-test30%%-1_2018.05.23T03.21.32
+script = pbench-user-benchmark
+config = ndk-test30%%-1
+date = 2018-05-23T03:21:32
+rpm-version = 0.50-1g799ea025
+iterations = 1, 1
+
+[tools]
+hosts = alphaville
+group = default
+
+[tools/alphaville]
+hostname-s = alphaville
+iostat = --interval=3
+mpstat = --interval=3
+perf = --record-opts=record -a --freq=100
+pidstat = --interval=30
+proc-interrupts = --interval=3
+proc-vmstat = --interval=3
+sar = --interval=3
+turbostat = --interval=3
+
+[run]
+controller = alphaville.usersys.redhat.com
+start_run = 2018-05-23T03:21:32.387628370
+end_run = 2018-05-23T03:22:39.538437410
+
+[iterations/1]
+iteration_name = 1
+user_script = sleep
