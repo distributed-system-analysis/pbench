@@ -152,11 +152,14 @@ function metadata_log_start {
     local group=$2
     local ts=$3
     local log=$dir/metadata.log
+    TMPFILE=$tmpdir/metadata.log
+
+    mkdir -p $tmpdir
 
     if [ -z "$ts" ] ;then
         ts=$(timestamp)
     fi
-    cat > $log <<EOF
+    cat > $TMPFILE <<EOF
 [pbench]
 name: $(basename $dir)
 script: $benchmark
@@ -165,12 +168,13 @@ date: $date
 rpm-version: $(yum list installed pbench-agent 2>/dev/null | tail -n 1 | awk '{print $2}')
 
 EOF
-    cat >> $log <<EOF
+    cat >> $TMPFILE <<EOF
 [run]
 controller: $full_hostname
 start_run: $ts
 EOF
-    metadata_log_tools $log
+    metadata_log_tools $TMPFILE
+    sed 's/%/%%/g' $TMPFILE > $log
 }
 
 function metadata_log_end {
@@ -200,7 +204,7 @@ function metadata_log_end {
     fi
 }
 
-tmpdir=$pbench_tmp/pmdlog
+tmpdir=$pbench_tmp/pmdlog.$$
 
 trap "rm -rf $tmpdir" INT QUIT EXIT
 

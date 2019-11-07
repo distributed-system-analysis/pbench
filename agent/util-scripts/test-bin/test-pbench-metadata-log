@@ -1,0 +1,14 @@
+#! /bin/bash
+
+mkdir ${_testdir}/tools-default
+
+export config=foo30%-bar
+export benchmark=pbench-fake
+
+dir=${_testdir}/pbench-user-benchmark_${config}
+
+pbench-metadata-log --dir=$dir beg
+
+echo "+++ metadata.log file contents"
+cat $dir/metadata.log
+echo "--- metadata.log file contents"
