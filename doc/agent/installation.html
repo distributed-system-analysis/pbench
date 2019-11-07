@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-08-27 Tue 23:18 -->
+<!-- 2019-11-07 Thu 17:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench agent installation (WIP - HARD HAT AREA)</title>
@@ -323,15 +323,15 @@ the internal repo on every machine where you are planning to run
 If your system supports <code>dnf</code>, then you can copy the repo locally with:
 </p>
 <pre class="example">
-<code>dnf copr enable ndokos/pbench</code>
+dnf copr enable ndokos/pbench
 </pre>
 <p>
 If your system only supports <code>yum</code>, you may be able to install the COPR plugin
 and install similarly:
 </p>
 <pre class="example">
-<code>yum install yum-plugin-copr</code>
-<code>yum copr enable ndokos/pbench</code>
+yum install yum-plugin-copr
+yum copr enable ndokos/pbench
 </pre>
 <p>
 If all else fails, you can manually download the repo, by visiting
@@ -379,8 +379,8 @@ and source the startup file to initialize your PATH and CONFIG environment
 variables:
 </p>
 <pre class="example">
-<code>dnf install pbench-agent</code>
-<code>. /etc/profile.d/pbench-agent.sh</code>
+dnf install pbench-agent
+. /etc/profile.d/pbench-agent.sh
 </pre>
 <p>
 The <code>pbench-agent</code> RPM is <b>not</b> self-contained.  You will need to
@@ -394,10 +394,10 @@ administrator provides.
 You can install these two as follows:
 </p>
 <pre class="example">
-<code>configfile=/path/to/config/file/pbench-agent.cfg</code>
-<code>keyfile=/path/to/pbench/private/key/id_rsa</code>
-<code>pbench-agent-config-activate $configfile</code>
-<code>pbench-agent-config-ssh-key $configfile $keyfile</code>
+configfile=/path/to/config/file/pbench-agent.cfg
+keyfile=/path/to/pbench/private/key/id_rsa
+pbench-agent-config-activate $configfile
+pbench-agent-config-ssh-key $configfile $keyfile
 </pre>
 <p>
 You should be ready to roll.
@@ -426,7 +426,7 @@ are flagged with <code># CHANGE ME!</code> comments to reflect your setup.
 The ssh key pair can be generated with
 </p>
 <pre class="example">
-<code>ssh-keygen -t rsa</code>
+ssh-keygen -t rsa
 </pre>
 <p>
 and an empty passphrase. The private key has to be made available to users
@@ -438,7 +438,7 @@ user on the server where the results are copied.
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2019-08-27 Tue 23:18</p>
+<p class="date">Page updated: 2019-11-07 Thu 17:29</p>
 </div>
 </body>
 </html>

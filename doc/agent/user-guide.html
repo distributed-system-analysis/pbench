@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-08-27 Tue 23:18 -->
+<!-- 2019-11-07 Thu 17:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PBench User Guide</title>
@@ -371,10 +371,10 @@ the server is.</li>
 Run your benchmark with a default set of tools:
 </p>
 <pre class="example">
-<code>. /etc/profile.d/pbench-agent.sh                          # or log out and log back in</code>
-<code>pbench-register-tool-set</code>
-<code>pbench-user-benchmark -C test1 -- ./your_cmd.sh</code>
-<code>pbench-move-results</code>
+. /etc/profile.d/pbench-agent.sh                          # or log out and log back in
+pbench-register-tool-set
+pbench-user-benchmark -C test1 -- ./your_cmd.sh
+pbench-move-results
 </pre></li>
 <li>Visit the Results URL in your browser to see the results: the URL
 depends on who the server is; assuming that the server is
@@ -413,7 +413,7 @@ The default set of tools for data collection can be enabled with
 </p>
 
 <pre class="example">
-<code>pbench-register-tool-set</code>
+pbench-register-tool-set
 </pre>
 
 <p>
@@ -421,7 +421,7 @@ You can then run a built-in benchmark by invoking its pbench script -
 pbench will install the benchmark if necessary<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>:
 </p>
 <pre class="example">
-<code>pbench-fio</code>
+pbench-fio
 </pre>
 <p>
 When the benchmark finishes, the tools will be stopped as well. The
@@ -429,13 +429,13 @@ results can be collected and shipped to the standard storage location<sup><a id=
 with:
 </p>
 <pre class="example">
-<code>pbench-move-results</code>
+pbench-move-results
 </pre>
 <p>
 or
 </p>
 <pre class="example">
-<code>pbench-copy-results</code>
+pbench-copy-results
 </pre>
 </div>
 
@@ -449,9 +449,9 @@ starts the collection tools, invokes the command, stops the collection tools and
 postprocesses the results. So the workflow becomes:
 </p>
 <pre class="example">
-<code>pbench-register-tool-set</code>
-<code>pbench-user-benchmark --config=foo -- myscript.sh</code>
-<code>pbench-move-results</code>
+pbench-register-tool-set
+pbench-user-benchmark --config=foo -- myscript.sh
+pbench-move-results
 </pre>
 <p>
 See <a href="#org8650faa">What does <code>--config</code> do?</a> for more information on that.
@@ -468,11 +468,11 @@ but assuming you have a script that will execute your benchmark that can be
 used with <code>pbench-user-benchmark</code>, the workflow is not much different:
 </p>
 <pre class="example">
-<code>for host in $hosts ;do</code>
-<code>    pbench-register-tool-set --remote=$host</code>
-<code>done</code>
-<code>pbench-user-benchmark --config=foo -- myscript.sh</code>
-<code>pbench-move-results</code>
+for host in $hosts ;do
+    pbench-register-tool-set --remote=$host
+done
+pbench-user-benchmark --config=foo -- myscript.sh
+pbench-move-results
 </pre>
 <p>
 Apart from having to register the collection tools on <b>all</b> the hosts, the rest
@@ -505,13 +505,13 @@ which sets a bunch of defaults:
 </p>
 
 <pre class="example">
-<code>pbench_run=/var/lib/pbench-agent</code>
-<code>pbench_log=/var/lib/pbench-agent/pbench.log</code>
-<code>date=`date "+%F_%H:%M:%S"`</code>
-<code>hostname=`hostname -s`</code>
-<code>results_repo=pbench@pbench.example.com</code>
-<code>results_repo_dir=/pbench/public_html/incoming</code>
-<code>ssh_opts='-o StrictHostKeyChecking=no'</code>
+pbench_run=/var/lib/pbench-agent
+pbench_log=/var/lib/pbench-agent/pbench.log
+date=`date "+%F_%H:%M:%S"`
+hostname=`hostname -s`
+results_repo=pbench@pbench.example.com
+results_repo_dir=/pbench/public_html/incoming
+ssh_opts='-o StrictHostKeyChecking=no'
 </pre>
 
 <p>
@@ -552,13 +552,13 @@ using their <code>--group</code> option.
 Additional tools can be registered:
 </p>
 <pre class="example">
-<code>pbench-register-tool --name blktrace</code>
+pbench-register-tool --name blktrace
 </pre>
 <p>
 or unregistered (e.g. some people prefer to run without perf):
 </p>
 <pre class="example">
-<code>pbench-unregister-tool --name perf</code>
+pbench-unregister-tool --name perf
 </pre>
 <p>
 Note that perf is run in a "low overhead" mode with options "record -a
@@ -566,8 +566,8 @@ Note that perf is run in a "low overhead" mode with options "record -a
 unregister it and register it again with different options:
 </p>
 <pre class="example">
-<code>pbench-unregister-tool --name=perf</code>
-<code>pbench-register-tool --name=perf -- --record-opts="record -a --freq=200"</code>
+pbench-unregister-tool --name=perf
+pbench-register-tool --name=perf -- --record-opts="record -a --freq=200"
 </pre>
 <p>
 Tools can be also be registered, started and stopped on remote hosts
@@ -884,7 +884,7 @@ and a bunch of block sizes), with each iteration doing the following:
 The tools are started with an invocation of <code>pbench-start-tools</code> like this:
 </p>
 <pre class="example">
-<code>pbench-start-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir</code>
+pbench-start-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
 </pre>
 <p>
 where the group is usually "default" but can be changed to taste as
@@ -900,8 +900,8 @@ more detail on this).
 The stop invocation is exactly parallel, as is the postprocessing invocation:
 </p>
 <pre class="example">
-<code>pbench-stop-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir</code>
-<code>pbench-postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir</code>
+pbench-stop-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+pbench-postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
 </pre>
 </div>
 
@@ -930,7 +930,7 @@ an invalid option for many of them). Here is a list of gotcha's:
 blktrace: you need to pass <code>--devices=/dev/sda,/dev/sdb</code> when you register the tool:
 </p>
 <pre class="example">
-<code>pbench-register-tool --name=blktrace [--remote=foo] -- --devices=/dev/sda,/dev/sdb</code>
+pbench-register-tool --name=blktrace [--remote=foo] -- --devices=/dev/sda,/dev/sdb
 </pre>
 <p>
 There is no default and leaving it empty causes errors in
@@ -967,16 +967,16 @@ specify the run directory for all the collections tools. This argument
 are in known places:
 </p>
 <pre class="example">
-<code>pbench-start-tools --dir=/var/lib/pbench-agent/foo</code>
-<code>pbench-stop-tools  --dir=/var/lib/pbench-agent/foo</code>
-<code>pbench-postprocess-tools --dir=/var/lib/pbench-agent/foo</code>
+pbench-start-tools --dir=/var/lib/pbench-agent/foo
+pbench-stop-tools  --dir=/var/lib/pbench-agent/foo
+pbench-postprocess-tools --dir=/var/lib/pbench-agent/foo
 </pre></dd>
 <dt><code>--remote</code></dt><dd><p>
 specify a remote host on which a collection tools (or set of collection tools)
 is to be registered:
 </p>
 <pre class="example">
-<code>pbench-register-tool --name=&lt;tool&gt; --remote=&lt;host&gt;</code>
+pbench-register-tool --name=&lt;tool&gt; --remote=&lt;host&gt;
 </pre></dd>
 </dl>
 </div>
@@ -996,40 +996,40 @@ can be run separately and you can fit your benchmark into the
 appropriate slot:
 </p>
 <pre class="example">
-<code>group=default</code>
-<code>benchmark_tools_dir=TBD</code>
-<code></code>
-<code>pbench-register-tool-set --group=$group</code>
-<code>pbench-start-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir</code>
-<code>&lt;run your benchmark&gt;</code>
-<code>pbench-stop-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir</code>
-<code>pbench-postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir</code>
-<code>pbench-copy-results</code>
+group=default
+benchmark_tools_dir=TBD
+
+pbench-register-tool-set --group=$group
+pbench-start-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+&lt;run your benchmark&gt;
+pbench-stop-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+pbench-postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
+pbench-copy-results
 </pre>
 <p>
 Often, multiple experiments (or "iterations") are run as part of a single run. The modified
 flow then looks like this:
 </p>
 <pre class="example">
-<code>group=default</code>
-<code>experiments="exp1 exp2 exp3"</code>
-<code>benchmark_tools_dir=TBD</code>
-<code></code>
-<code>pbench-register-tool-set --group=$group</code>
-<code>for exp in $experiments ;do</code>
-<code>    pbench-start-tools --group=$group --iteration=$exp</code>
-<code>    &lt;run the experiment&gt;</code>
-<code>    pbench-stop-tools --group=$group --iteration=$exp</code>
-<code>    pbench-postprocess-tools --group=$group --iteration=$exp</code>
-<code>done</code>
-<code>pbench-copy-results</code>
+group=default
+experiments="exp1 exp2 exp3"
+benchmark_tools_dir=TBD
+
+pbench-register-tool-set --group=$group
+for exp in $experiments ;do
+    pbench-start-tools --group=$group --iteration=$exp
+    &lt;run the experiment&gt;
+    pbench-stop-tools --group=$group --iteration=$exp
+    pbench-postprocess-tools --group=$group --iteration=$exp
+done
+pbench-copy-results
 </pre>
 
 <p>
 Alternatively, you may be able to use the <code>pbench-user-benchmark</code> script as follows:
 </p>
 <pre class="example">
-<code>pbench-user-benchmark --config="specjbb2005-4-JVMs" -- my_benchmark.sh</code>
+pbench-user-benchmark --config="specjbb2005-4-JVMs" -- my_benchmark.sh
 </pre>
 <p>
 which is going to run <code>my_benchmark.sh</code> in the <code>&lt;run your benchmark&gt;</code>
@@ -1044,7 +1044,7 @@ system looks. The idea here is to use <code>pbench-user-benchmark</code> to run 
 of the appropriate duration in parallel with your benchmark:
 </p>
 <pre class="example">
-<code>pbench-user-benchmark --config="specjbb2005-4-JVMs" -- sleep 10</code>
+pbench-user-benchmark --config="specjbb2005-4-JVMs" -- sleep 10
 </pre>
 <p>
 will start data collection, sleep for 10 seconds, then stop data collection
@@ -1083,9 +1083,9 @@ The workflow in that case is:
 <li>Register the collection tools on <b>each</b> host in the set:</li>
 </ul>
 <pre class="example">
-<code>for host in $hosts ;do</code>
-<code>    pbench-register-tool-set --remote=$host</code>
-<code>done</code>
+for host in $hosts ;do
+    pbench-register-tool-set --remote=$host
+done
 </pre>
 <ul class="org-ul">
 <li>Invoke <code>pbench-user-benchmark</code> with your workload generator as argument: that will start the
@@ -1166,14 +1166,14 @@ is strongly recommended that you invoke <code>pbench-kill-tools</code> before yo
 run:
 </p>
 <pre class="example">
-<code>pbench-kill-tools --group=$group</code>
+pbench-kill-tools --group=$group
 </pre>
 <p>
 If you run pbench from your own script, you should add a signal handler to
 do this:
 </p>
 <pre class="example">
-<code>trap "pbench-kill-tools --group=$group" EXIT INT QUIT</code>
+trap "pbench-kill-tools --group=$group" EXIT INT QUIT
 </pre>
 </div>
 </div>
@@ -1213,7 +1213,7 @@ that labels required options. You can then register the tool by using
 an invocation similar to:
 </p>
 <pre class="example">
-<code>pbench-register-tool --name=blktrace -- --devices=/dev/sda,/dev/sdb</code>
+pbench-register-tool --name=blktrace -- --devices=/dev/sda,/dev/sdb
 </pre>
 </div>
 </div>
@@ -1233,7 +1233,7 @@ Make the <code>&lt;run-id&gt;</code> as detailed as possible to disambiguate res
 benchmark scripts use the following form: <code>&lt;benchmark&gt;_&lt;config&gt;-&lt;ts&gt;</code>, e.g
 </p>
 <pre class="example">
-<code>fio_bagl-16-4-ceph_2014-12-15_15:58:51</code>
+fio_bagl-16-4-ceph_2014-12-15_15:58:51
 </pre>
 <p>
 where the <code>&lt;config&gt;</code> part (<code>bagl-16-4-ceph</code>) comes from the <code>--config</code> option and
@@ -1338,9 +1338,9 @@ and cleanup. It registers these groups as triggers using
 </p>
 
 <pre class="example">
-<code>pbench-register-tool-trigger --group=warmup --start-trigger="warmup" --stop-trigger="execute"</code>
-<code>pbench-register-tool-trigger --group=measurement --start-trigger="execute" --stop-trigger="cleanup"</code>
-<code>pbench-register-tool-trigger --group=cleanup --start-trigger="cleanup" --stop-trigger="Operation"</code>
+pbench-register-tool-trigger --group=warmup --start-trigger="warmup" --stop-trigger="execute"
+pbench-register-tool-trigger --group=measurement --start-trigger="execute" --stop-trigger="cleanup"
+pbench-register-tool-trigger --group=cleanup --start-trigger="cleanup" --stop-trigger="Operation"
 </pre>
 
 <p>
@@ -1348,10 +1348,10 @@ It then pipes the output of the benchmark into <code>pbench-tool-trigger</code>:
 </p>
 
 <pre class="example">
-<code>$benchmark_bin --machine-readable --directory=$dir --timelimit=$runtime</code>
-<code>               --warmup=$warmup --loadfile $loadfile $client |</code>
-<code>  	         tee $benchmark_results_dir/result.txt |</code>
-<code>               pbench-tool-trigger "$iteration" "$benchmark_results_dir" no</code>
+$benchmark_bin --machine-readable --directory=$dir --timelimit=$runtime
+               --warmup=$warmup --loadfile $loadfile $client |
+  	         tee $benchmark_results_dir/result.txt |
+               pbench-tool-trigger "$iteration" "$benchmark_results_dir" no
 </pre>
 
 <p>
@@ -1396,7 +1396,7 @@ is constructed this way:
 </p>
 
 <pre class="example">
-<code>$pbench_run/${benchmark}_${config}_$date</code>
+$pbench_run/${benchmark}_${config}_$date
 </pre>
 
 <p>
@@ -1462,9 +1462,9 @@ is called on the controller with the <code>--remote</code> option, once for each
 remote host:
 </p>
 <pre class="example">
-<code>for remote in $remotes ;do</code>
-<code>    pbench-register-tool-set --remote=$remote --label=foo --group=$group</code>
-<code>done</code>
+for remote in $remotes ;do
+    pbench-register-tool-set --remote=$remote --label=foo --group=$group
+done
 </pre>
 <p>
 That has two effects: it adds a stanza for the tool to
@@ -1473,7 +1473,7 @@ a stanza like this to the controller <code>tools-$group</code> directory's file 
 remote host:
 </p>
 <pre class="example">
-<code>remote@&lt;host&gt;:&lt;label&gt;</code>
+remote@&lt;host&gt;:&lt;label&gt;
 </pre>
 <p>
 The label is optionally specified with <code>--label</code> and is empty by default.
@@ -1537,9 +1537,9 @@ script. The first interesting part is to set <code>tool_bin</code> to point to
 the binary:
 </p>
 <pre class="example">
-<code># Defaults</code>
-<code>tool=$script_name</code>
-<code>tool_bin=/usr/bin/$tool</code>
+# Defaults
+tool=$script_name
+tool_bin=/usr/bin/$tool
 </pre>
 <p>
 This only works if the script is named the same as the tool, which
@@ -1553,11 +1553,11 @@ datalog script to add timestamps (no need for that for vmstat e.g.)
 and use that as the tool command:
 </p>
 <pre class="example">
-<code>case "$script_name" in</code>
-<code>    turbostat)</code>
-<code>      tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"</code>
-<code>      ;;</code>
-<code>esac</code>
+case "$script_name" in
+    turbostat)
+      tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"
+      ;;
+esac
 </pre>
 <p>
 The <a href="https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/datalog/turbostat-datalog">datalog script</a> uses the <code>pbench-log-timestamp</code> pbench utility to timestamp the
@@ -1572,44 +1572,44 @@ and stashes away the pid, so that <code>--stop</code> can kill the command later
 calls the separate post-processing script (see below):
 </p>
 <pre class="example">
-<code>release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)</code>
-<code>case $release in</code>
-<code>    6)</code>
-<code>        pkg=cpupowerutils</code>
-<code>        ;;</code>
-<code>    7)</code>
-<code>        pkg=kernel-tools</code>
-<code>        ;;</code>
-<code>    *)</code>
-<code>        # better be installed already</code>
-<code>        ;;</code>
-<code>esac</code>
-<code></code>
-<code>case "$mode" in</code>
-<code>    install)</code>
-<code>      if [ ! -e $tool_bin ]; then</code>
-<code>            yum install $pkg</code>
-<code>  	      echo $script_name is installed</code>
-<code>      else</code>
-<code>  	      echo $script_name is installed</code>
-<code>      fi</code>
-<code>    start)</code>
-<code>      mkdir -p $tool_output_dir</code>
-<code>      echo "$tool_cmd" &gt;$tool_cmd_file</code>
-<code>      debug_log "$script_name: running $tool_cmd"</code>
-<code>      $tool_cmd &gt;&gt;"$tool_output_file" &amp; echo $! &gt;$tool_pid_file</code>
-<code>      wait</code>
-<code>      ;;</code>
-<code>    stop)</code>
-<code>      pid=`cat "$tool_pid_file"`</code>
-<code>      debug_log "stopping $script_name"</code>
-<code>      kill $pid &amp;&amp; /bin/rm "$tool_pid_file"</code>
-<code>      ;;</code>
-<code>    postprocess)</code>
-<code>      debug_log "postprocessing $script_name"</code>
-<code>      $script_path/postprocess/$script_name-postprocess $tool_output_dir</code>
-<code>      ;;</code>
-<code>esac</code>
+release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)
+case $release in
+    6)
+        pkg=cpupowerutils
+        ;;
+    7)
+        pkg=kernel-tools
+        ;;
+    *)
+        # better be installed already
+        ;;
+esac
+
+case "$mode" in
+    install)
+      if [ ! -e $tool_bin ]; then
+            yum install $pkg
+  	      echo $script_name is installed
+      else
+  	      echo $script_name is installed
+      fi
+    start)
+      mkdir -p $tool_output_dir
+      echo "$tool_cmd" &gt;$tool_cmd_file
+      debug_log "$script_name: running $tool_cmd"
+      $tool_cmd &gt;&gt;"$tool_output_file" &amp; echo $! &gt;$tool_pid_file
+      wait
+      ;;
+    stop)
+      pid=`cat "$tool_pid_file"`
+      debug_log "stopping $script_name"
+      kill $pid &amp;&amp; /bin/rm "$tool_pid_file"
+      ;;
+    postprocess)
+      debug_log "postprocessing $script_name"
+      $script_path/postprocess/$script_name-postprocess $tool_output_dir
+      ;;
+esac
 </pre>
 
 <p>
@@ -1638,7 +1638,7 @@ TBD
 Running
 </p>
 <pre class="example">
-<code>pbench-user-benchmark -- sleep 60</code>
+pbench-user-benchmark -- sleep 60
 </pre>
 <p>
 will start whatever data collections are specified in the default tool
@@ -1665,11 +1665,11 @@ If you can change your script so that it executes <b>one</b> experiment specifie
 then  the best way is to use the <code>pbench-user-benchmark</code> script:
 </p>
 <pre class="example">
-<code>pbench-register-tool-set</code>
-<code>for exp in experiment1 experiment2 experiment3 ;do</code>
-<code>    pbench-user-benchmark --config $exp -- my-script.sh $exp</code>
-<code>done</code>
-<code>pbench-move-results</code>
+pbench-register-tool-set
+for exp in experiment1 experiment2 experiment3 ;do
+    pbench-user-benchmark --config $exp -- my-script.sh $exp
+done
+pbench-move-results
 </pre>
 <p>
 The results are going to end up in directories named <code>/var/lib/pbench-agent/pbench-user-benchmark_$exp_$ts</code>
@@ -1682,18 +1682,18 @@ Alternatively, you can modify your script so that each experiment is wrapped wit
 and then call <code>pbench-move-results</code> at the end:
 </p>
 <pre class="example">
-<code>pbench-register-tool-set</code>
-<code>dir=/var/lib/pbench-agent</code>
-<code>tool_group=default</code>
-<code>typeset -i iter=1</code>
-<code>for exp in experiment1 experiment2 experiment3 ;do</code>
-<code>    pbench-start-tools --group=$tool_group --dir=$dir --iteration=$iter</code>
-<code>    &lt;run the experiment&gt;</code>
-<code>    pbench-stop-tools --group=$tool_group --dir=$dir --iteration=$iter</code>
-<code>    pbench-postprocess-tools --group=$tool_group --dir=$dir --iteration=$iter</code>
-<code>    iter=$iter+1</code>
-<code>done</code>
-<code>pbench-move-results</code>
+pbench-register-tool-set
+dir=/var/lib/pbench-agent
+tool_group=default
+typeset -i iter=1
+for exp in experiment1 experiment2 experiment3 ;do
+    pbench-start-tools --group=$tool_group --dir=$dir --iteration=$iter
+    &lt;run the experiment&gt;
+    pbench-stop-tools --group=$tool_group --dir=$dir --iteration=$iter
+    pbench-postprocess-tools --group=$tool_group --dir=$dir --iteration=$iter
+    iter=$iter+1
+done
+pbench-move-results
 </pre>
 <p>
 <b>N.B.</b> You need to invoke the <code>pbench-{start,stop,postprocess}-tools</code> scripts
@@ -1759,7 +1759,7 @@ all available tools - the current workaround is to check the contents of
 </div>
 </div></div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2019-08-27 Tue 23:18</p>
+<p class="date">Page updated: 2019-11-07 Thu 17:29</p>
 </div>
 </body>
 </html>

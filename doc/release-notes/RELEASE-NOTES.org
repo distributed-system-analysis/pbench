@@ -1,4 +1,4 @@
-# Created 2019-08-27 Tue 23:18
+# Created 2019-11-07 Thu 17:16
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -16,17 +16,239 @@
 #+infojs_opt: 
 #+latex_header: 
 
+* Version 0.66
+
+This release is an agent-only bug-fix release.
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.66-1g05d1b6d9
+of the pbench-agent RPM installed.
+
+** agent
+
+*** Bug fixes and enhancements
+There is a new trafficgen repo and pbench-trafficgen has been updated
+to use it.
+
+Trafficgen uses options with percentage values which, left untreated,
+cause problems to the config parser. % signs are now escaped when we
+add things to the metadata.log file, so trafficgen options that contain
+% signs should work properly. See PR #1390 for details.
+
+In adddition, % signs uses in e.g. =--config= options when running
+pbench benchmarks caused problems in two different ways: PR #1395
+deals with both problems and, together with PR #1390, allows % signs
+in user input in general.
+
+*** Incompatible changes
+The ability to edit prefixes on the server has been broken for a
+while: prefixes are now set once and for all, by using the =--prefix=
+option when invoking =pbench-{move/copy}-results=. The agent-side
+=pbench-edit-prefix= script has been a no-op for a while. In this
+release, it has been removed from the code base.
+
+** server
+Although we have not produced a new server RPM, there are several
+fixes to operational aspects of the server. We have also opened several
+issues on server operation improvements. These are in active
+development for v0.67.
+
+*** Bug Fixes and enhancements
+
+- Cleaned up the logging that is done by =pbench-sync-satellite-server=.
+- Speed improvements in =pbench-verify-backup-tarballs=, but there is more
+  work coming for this - see [[*Issues we are working on for v0.67][issues]].
+
+*** Issues we are working on for v0.67
+- [[https://github.com/distributed-system-analysis/pbench/issues/1398][Issue 1398]] :: Improve the handling of tar balls to avoid having small
+     ones get stuck behind large ones. See also [[https://github.com/distributed-system-analysis/pbench/pull/1400][PR 1400]].
+- [[https://github.com/distributed-system-analysis/pbench/issues/1397][Issue 1397]] :: Parallelize =pbench-verify-backup-tarballs=.
+- [[https://github.com/distributed-system-analysis/pbench/pull/1332][PR 1332]] :: Change pbench-server logging from files to a centralized rsyslog server.
+- [[https://github.com/distributed-system-analysis/pbench/pull/1381][PR 1381]] :: Speed up the indexer by changing the way we calculate source ids.
+- [[https://github.com/distributed-system-analysis/pbench/issues/1415][Issue 1415]] :: Fix the handling of large objects for S3 backup.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.66
+:END:
+
+There are no changes and no new web-server RPMs produced.
+
+** Pbench dashboard
+:PROPERTIES:
+:CUSTOM_ID: pbench-dashboard-0.6
+:END:
+
+The development of the dashboard is  not tracked in these
+release notes (other than the list of commits in the [[#changelog-v0.66][Changelog]].
+
+** Documentation
+
+A guide to potential contributors to pbench has been added.
+
+** Changelog
+:PROPERTIES:
+:CUSTOM_ID: changelog-v0.66
+:END:
+
+This is the list of visible commits since v0.65:
+
+- 05d1b6d95 (HEAD -> master, tag: v0.66, dsa/master) Version bump
+- 1fd4ee7ad Get UI unit tests working again w latest enzyme pkg
+- 1eea1389f Separate jobs for agent, server, and UI unit tests
+- f450a2077 Wait for server URL instead of sleeping
+- dd7d278ce Remove executable bit on a few files
+- b40203f93 Upgrade umi and umi plugins to latest version and reference redux persistor from constructor
+- c94d2252c Fix %-sign handling in pbench-make-result-tb and pbench-metadata-log
+- 3b2351432 Fix use of scp/ssh options and mock scp cleanly
+- 439c56ae3 Fix dashboard unit tests and update README.md
+- ca88c6dd1 Remove redundant fetch of MD5s from verify backup
+- a9a007ca6 Fix failing unit tests on some Fedora systems
+- 3b810bc7e Updates label information
+- df5264163 Creates CONTRIBUTION.md
+- 6f0728e75 rewrite-metalog-%-error-testcase
+- abf06f407 Update search e2e tests to reflect Search page component changes
+- 538476fe8 Preserve search state across multiple queries to enable multi-controller search by utilizing component state
+- 8abeede54 Revert "Remove redundant fetch of MD5s from verify backup"
+- 7328bc648 Remove redundant fetch of MD5s from verify backup
+- 122399101 add timestamp for tarball
+- 607fe8d89 metalog-%-error
+- 79b68870f cleanup-log-dir
+- acc44ef3a pbench-trafficgen: point to the updated trafficgen repository location/name
+- 5ab928dcf Reorganize results into maps with controller key for persisting data across selections
+- 5d6213aac Support for multiple hosts to pbench-register-tool
+- 81e1dabb4 Adds unit tests for RowSelection Component
+- 093ae3758 Removing pbench-edit-prefixes on Agent side
+- 595b221b6 Resolve eslinting errors
+- b7132e1cd Organize selected iteration data according to rendered result index on page to prevent overwriting
+- a943cad79 eliminated shims option in the [pbench-prep] section of pbench-server-default.cfg
+- 78a941751 Report which config file failed
+- 6da874ce6 Short-term fix for missing pb-m-r user/prefix args
+- bc187fab2 Utilize "selectedRows" from onSelect, onSelectAll callback using ant design Table API
+
+
+* Version 0.65
+
+This release covers both agent and server. The agent release is a
+bug-fix release. The server release involves many changes,
+particularly in speeding up the indexing of runs, results and
+table-of-contents data (tool data are still slow and still not
+available through the dashboard).
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.65-2g6da874ce
+of the pbench-agent RPM installed.
+
+** agent
+The agent includes two bug fixes:
+
+- a bug in benchmark postprocessing (see issue #1336 and PR #1346 on
+  Github).
+- a bug in the ~--user~ and ~--prefix~ handling in
+  =pbench-move-results= (see issue #1358 and PR #1369 on Github)
+
+The latter bug is only partially addressed and we plan major changes
+in this area to prevent mishaps in the future. For the time being:
+- we recommend that options that take arguments be specified using an
+  = sign, e.g. ~--user=ndk~.
+- in scripts, if an argument is determined by a shell variable, we
+  recommend that the value of the variable be quoted, e.g.
+  ~--user="$user"~.
+
+
+** server
+There is a new server RPM (pbench-server-0.65-1g35041ff4). If you are
+running an older pbench server, we recommend upgrading. The new server
+sports a faster indexer, which also handles trafficgen data.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.65
+:END:
+
+There are no new web-server RPMs produced.
+
+** Changelog
+This is the list of visible commits since v0.64:
+
+- 6da874ce6  Short-term fix for missing pb-m-r user/prefix args
+- bc187fab2 Utilize "selectedRows" from onSelect, onSelectAll callback using ant design Table API
+- 35041ff4d (tag: v0.65) Version bump
+- 704d9c2cd Fix audit server code to handle --* controller names
+- 8f99876b7 adds unit test for TimeseriesGraph component
+- afec9ee87 Adds unit test for TableFilterSelection component
+- f7458cecf Adds snapshot test for Table and Button component
+- e726277fa Enhance search page component e2e test verification with pattern matching against mocked data
+- 58655b243 Reference @metadata.controller_dir when querying result.json files from result server
+- e89fe49da Enhance puppeteer e2e tests to use request API for intercepting and mocking network requests
+- 126b65804 fixed stockpile cloning
+- 19c8b975a Don't assign "all" to timeseries array when creating aggregate -Aggregate metrics start with a dataset with many keys being  assigned to "all", but this should not be the case for 'timeseries',  which is used to reference an array.
+- 0b7f96b4e Specify the application history type to use hash history
+- 0b05ace2d Enhance ansible dashboard README
+- ba752fddd Map controller directory field to correct value '@metadata.controller_dir'
+- fac338c31 Enforce latest indexed month as default selected value for controller view
+- a10a66d9f Make s3 backup optional.
+- bc4b6ec3b Reference dashboard app path from utility function for use in redux models
+- af2f7f5c6 Reference first path item as persistConfig key and update selected month index within Redux model
+- 880454e9a Reference application data via static `appName` field in `app.js`
+- add635b33 Upgrade Prisma service to v1.34 to enable storage of large string values
+- 78aaa90c8 Further fixes for indexing
+- 46d73b21a Enhance TOC entries adding name and path elements
+- a0301e2d3 Add support for indexing trafficgen results
+- 3979307e6 Fixes for indexing
+- 42bcd1e30 Update README to detail option of downloading packages from private registry using npm and yarn config files.
+- c330ee7fb Fix two bugs in server ansible playbooks.
+- ed7eb8b72 Fix the creation of the reception area(s)
+- 712b689c6 adds unit test for checking fio data metric
+- affe21a73 fixes rendering of primary metric values' mean
+- ac202cab4 Update README for using dashboard playbooks
+- fb8d658f3 Fix mocking of python's time.time() method
+- f8051a5a7 Fix server-reports index names
+- acb2ef64b Add missing tool data indexing crontab entry
+- a5d6148d0 Fix permissions of `id_rsa` key file
+- d09c00b9d pbench-run-benchmark: bugfix for command logging
+- 733b2f15b Enhanced status reporting for tracking
+- dbe6f5fac Implement multi-upload API for objects size more than 5 GB
+- 2cb2c6718 Deprecate shim-001 from pbench hierarchy
+
+
 * Version 0.64
 
 This is an *agent-only* release. We are testing a new server RPM in the staging environment,
 but we are not quite ready to run it in production yet.
 
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.64-1g67eb14bb
+of the pbench-agent RPM installed.
+
 ** agent
 
-Most of the visible agent changes are to the ~pbench-run-benchmark~ script
-which is intended to eventually replace all the benchmark-specific scripts.
-Currently, ~fio~ and ~uperf~ are supported. The script supports both the
-current =results.json= output that we use for indexing *and* its eventual
+Most of the visible agent changes are to the ~pbench-run-benchmark~
+script which is intended to eventually replace all the
+benchmark-specific scripts.  Currently, ~fio~ is supported with
+~uperf~ coming in v0.65. The script supports both the current
+=results.json= output that we use for indexing *and* its eventual
 replacement: CDM (Common Data Model). We are planning to document this
 for v0.65 and ask for volunteers to start testing it. The goal is to
 eventually deprecate *all* existing benchmark scripts.
@@ -181,6 +403,7 @@ This is the list of visible commits since v0.62:
 - 1a31e31cf Create local storage key via window pathname to maintain unique dashboard deployments across one host
 - b0379a933 Render new pbench logo with SiderMenu component and replace favicon
 - d1b59d3f9 Add official pbench logs from Mary Shakshober
+
 
 * Version 0.62
 
