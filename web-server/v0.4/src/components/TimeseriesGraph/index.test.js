@@ -1,5 +1,6 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow, mount, configure } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import TimeseriesGraph from './index';
 
 const mockProps = {
@@ -22,6 +23,7 @@ jest.mock('jschart', () => ({
     return 'true';
   }),
 }));
+configure({ adapter: new Adapter() });
 const wrapper = shallow(<TimeseriesGraph dispatch={mockDispatch} {...mockProps} />, {
   lifecycleExperimental: true,
 });

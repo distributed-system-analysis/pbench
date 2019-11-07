@@ -1,5 +1,6 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, configure } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 import TableFilterSelection from './index';
 import Button from '../Button';
 
@@ -18,6 +19,7 @@ const mockProps = {
 };
 
 const mockDispatch = jest.fn();
+configure({ adapter: new Adapter() });
 const wrapper = shallow(<TableFilterSelection dispatch={mockDispatch} {...mockProps} />, {
   lifecycleExperimental: true,
 });
