@@ -1,4 +1,4 @@
-# Created 2019-11-07 Thu 17:16
+# Created 2019-11-08 Fri 09:23
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -40,11 +40,11 @@ to use it.
 Trafficgen uses options with percentage values which, left untreated,
 cause problems to the config parser. % signs are now escaped when we
 add things to the metadata.log file, so trafficgen options that contain
-% signs should work properly. See PR #1390 for details.
+% signs should work properly. See [[https://github.com/distributed-system-analysis/pbench/pull/1390][PR #1390]] for details.
 
 In adddition, % signs uses in e.g. =--config= options when running
-pbench benchmarks caused problems in two different ways: PR #1395
-deals with both problems and, together with PR #1390, allows % signs
+pbench benchmarks caused problems in two different ways: [[https://github.com/distributed-system-analysis/pbench/pull/1395][PR #1395]]
+deals with both problems and, together with [[https://github.com/distributed-system-analysis/pbench/pull/1390][PR #1390]], allows % signs
 in user input in general.
 
 *** Incompatible changes
@@ -91,7 +91,7 @@ release notes (other than the list of commits in the [[#changelog-v0.66][Changel
 
 ** Documentation
 
-A guide to potential contributors to pbench has been added.
+A [[https://github.com/distributed-system-analysis/pbench/blob/master/CONTRIBUTION.md][guide to potential contributors]] to pbench has been added.
 
 ** Changelog
 :PROPERTIES:
