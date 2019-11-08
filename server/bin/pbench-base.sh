@@ -73,6 +73,7 @@ function mk_dirs {
             return 1
         fi
     done
+    return 0
 }
 
 function log_init {
