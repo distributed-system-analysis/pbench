@@ -7,7 +7,7 @@ pbench-sync-satellite: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config
 +++ Running pbench-dispatch
 pbench-dispatch: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-dispatch (status=1)
-+++ Running pbench-unpack-tarballs
++++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-copy-sosreports

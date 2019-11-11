@@ -7,7 +7,7 @@ pbench-sync-satellite: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/arc
 +++ Running pbench-dispatch
 pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-dispatch (status=1)
-+++ Running pbench-unpack-tarballs
++++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-copy-sosreports
