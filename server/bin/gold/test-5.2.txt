@@ -348,6 +348,7 @@ lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/UNPACKED/tarball-s
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/WONT-INDEX.4
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerA/WONT-INDEX.4/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/WONT-UNPACK
 -rw-rw-r--        224 archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz
 -rw-rw-r--         77 archive/fs-version-001/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB
@@ -377,6 +378,7 @@ lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/UNPACKED/tarball-s
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/WONT-INDEX.4
 lrwxrwxrwx        126 archive/fs-version-001/ONE::controllerB/WONT-INDEX.4/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/WONT-UNPACK
 -rw-rw-r--        220 archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz
 -rw-rw-r--         77 archive/fs-version-001/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC
@@ -408,6 +410,7 @@ lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/UNPACKED/tarball-s
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/WONT-INDEX.4
 lrwxrwxrwx        133 archive/fs-version-001/ONE::controllerC/WONT-INDEX.4/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/WONT-UNPACK
 -rw-rw-r--        228 archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
 -rw-rw-r--         84 archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes
@@ -444,6 +447,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/WONT-IND
 lrwxrwxrwx        130 archive/fs-version-001/controller-b-with-prefixes/WONT-INDEX.4/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
 lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/WONT-INDEX.4/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
 lrwxrwxrwx        141 archive/fs-version-001/controller-b-with-prefixes/WONT-INDEX.4/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/WONT-UNPACK
 -rw-rw-r--        212 archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         71 archive/fs-version-001/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
 -rw-rw-r--        224 archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz
@@ -507,6 +511,7 @@ lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/UNPACKED/tarbal
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/WONT-INDEX.4
 lrwxrwxrwx        128 archive/fs-version-001/controller-g-normal/WONT-INDEX.4/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz -> /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller-g-normal/WONT-UNPACK
 -rw-rw-r--        216 archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz
 -rw-rw-r--         76 archive/fs-version-001/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5
@@ -530,6 +535,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TODO
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/UNPACKED
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/WONT-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/_QUARANTINED
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/_QUARANTINED/BAD-MD5
 -rw-rw-r--        220 archive/fs-version-001/controller-h-bad-md5/_QUARANTINED/BAD-MD5/tarball-bad-md5_YYYY.MM.DDTHH.MM.SS.tar.xz
@@ -956,20 +962,20 @@ len(actions) = 1
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 run-1970-01-01T00:00:00-UTC
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS
-run-1970-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 212
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS
-run-1970-01-01T00:00:00-UTC: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 216
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerC/prefix0/prefix1/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss
+run-1970-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 228
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss
 run-1970-01-01T00:00:00-UTC: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 220
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss
 run-1970-01-01T00:00:00-UTC: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS
-run-1970-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS
+run-1970-01-01T00:00:00-UTC: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 216
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS
 run-1970-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerC/prefix0/prefix1/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss
-run-1970-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 228
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS
+run-1970-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS
+run-1970-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 212
 run-1970-01-01T00:00:00-UTC: Processed 7 tarballs
 1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs-small.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs-small.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)

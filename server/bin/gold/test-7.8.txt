@@ -8503,6 +8503,7 @@ drwxrwxr-x          - archive/fs-version-001/master_40gb/TODO
 drwxrwxr-x          - archive/fs-version-001/master_40gb/UNPACKED
 lrwxrwxrwx         36 archive/fs-version-001/master_40gb/UNPACKED/uperf__2016-10-06_16:34:03.tar.xz -> ../uperf__2016-10-06_16:34:03.tar.xz
 drwxrwxr-x          - archive/fs-version-001/master_40gb/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/master_40gb/WONT-UNPACK
 -rw-rw-r--    5472928 archive/fs-version-001/master_40gb/uperf__2016-10-06_16:34:03.tar.xz
 -rw-r--r--         68 archive/fs-version-001/master_40gb/uperf__2016-10-06_16:34:03.tar.xz.md5
 drwxrwxr-x          - public_html

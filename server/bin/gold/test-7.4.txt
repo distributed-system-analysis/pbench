@@ -198,6 +198,7 @@ lrwxrwxrwx         18 archive/fs-version-001/alphaville/UNPACKED/test-7.4.tar.xz
 drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX.10
 lrwxrwxrwx         93 archive/fs-version-001/alphaville/WONT-INDEX.10/test-7.4.tar.xz -> /var/tmp/pbench-test-server/test-7.4/pbench/archive/fs-version-001/alphaville/test-7.4.tar.xz
+drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-UNPACK
 -rw-rw-r--       1484 archive/fs-version-001/alphaville/test-7.4.tar.xz
 -rw-rw-r--         50 archive/fs-version-001/alphaville/test-7.4.tar.xz.md5
 drwxrwxr-x          - public_html

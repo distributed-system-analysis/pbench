@@ -85,6 +85,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controller/TODO
 lrwxrwxrwx        113 archive/fs-version-001/ONE::controller/TODO/fio__2016-08-16_22:03:11.tar.xz -> /var/tmp/pbench-test-server/test-11/pbench/archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/UNPACKED
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/WONT-UNPACK
 -rw-r--r--    1558168 archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz
 -rw-r--r--         66 archive/fs-version-001/ONE::controller/fio__2016-08-16_22:03:11.tar.xz.md5
 -rw-r--r--       7028 archive/fs-version-001/ONE::controller/pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz

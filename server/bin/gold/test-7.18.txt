@@ -190,6 +190,7 @@ lrwxrwxrwx         19 archive/fs-version-001/bad-controller/UNPACKED/test-7.18.t
 drwxrwxr-x          - archive/fs-version-001/bad-controller/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/bad-controller/WONT-INDEX.7
 lrwxrwxrwx         99 archive/fs-version-001/bad-controller/WONT-INDEX.7/test-7.18.tar.xz -> /var/tmp/pbench-test-server/test-7.18/pbench/archive/fs-version-001/bad-controller/test-7.18.tar.xz
+drwxrwxr-x          - archive/fs-version-001/bad-controller/WONT-UNPACK
 -rw-rw-r--        232 archive/fs-version-001/bad-controller/pbench-user-benchmark__2018.02.05T20.35.36.tar.xz
 -rw-rw-r--       1496 archive/fs-version-001/bad-controller/test-7.18.tar.xz
 -rw-rw-r--         51 archive/fs-version-001/bad-controller/test-7.18.tar.xz.md5
