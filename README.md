@@ -55,7 +55,7 @@ https://github.com/distributed-system-analysis/pbench.
 Yes, we use [Google Groups](https://groups.google.com/forum/#!forum/pbench)
 
 ## Is there a place to track current and future work items?
-Yes, we are using GitHub [Projects](https://waffle.io/distributed-system-analysis/pbench/projects).
+Yes, we are using GitHub [Projects](https://github.com/distributed-system-analysis/pbench/projects).
 Please find projects covering the [Agent](https://github.com/distributed-system-analysis/pbench/projects/2),
 [Server](https://github.com/distributed-system-analysis/pbench/projects/3),
 [Dashboard](https://github.com/distributed-system-analysis/pbench/projects/1), and a project that is named
