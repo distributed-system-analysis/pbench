@@ -7,7 +7,7 @@ pbench-sync-satellite: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-l
 +++ Running pbench-dispatch
 pbench-dispatch: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-dispatch (status=1)
-+++ Running pbench-unpack-tarballs
++++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs: Bad LOGSDIR=/var/tmp/pbench-test-server/test-0.1/pbench-local/logs (config file /var/tmp/pbench-test-server/test-0.1/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-copy-sosreports

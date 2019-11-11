@@ -93,7 +93,7 @@ function _run_allscripts {
     _run pbench-sync-satellite satellite-one
     # These next five are related and would flow in this order
     _run pbench-dispatch
-    _run pbench-unpack-tarballs
+    _run pbench-unpack-tarballs small
     _run pbench-copy-sosreports
     _run pbench-index
     _run pbench-index --tool-data
@@ -659,8 +659,8 @@ declare -A cmds=(
     [test-15]="_run pbench-server-prep-shim-002"
 
     # pbench-unpack-tarballs unpacking to the incoming directory
-    [test-16]="_run pbench-unpack-tarballs"
-    [test-17]="_run pbench-unpack-tarballs"
+    [test-16]="_run pbench-unpack-tarballs small"
+    [test-17]="_run pbench-unpack-tarballs small"
 
     [test-20]="_run echo audit archive hierarchy"
 

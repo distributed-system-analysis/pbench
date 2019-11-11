@@ -10,7 +10,10 @@ MAILFROM=pbench@pbench.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-server-prep-shim-002
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-prep-003.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-server-prep-shim-003
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-dispatch.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-dispatch
-* * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-unpack-tarballs.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-unpack-tarballs
+* * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-unpack-tarballs-small.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-unpack-tarballs small
+* * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-unpack-tarballs-medium.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-unpack-tarballs medium
+* * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-unpack-tarballs-large.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-unpack-tarballs large
+* * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-unpack-tarballs-huge.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-unpack-tarballs huge
 41 * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-copy-sosreports.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-copy-sosreports
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-edit-prefixes.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-edit-prefixes
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-index.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-index

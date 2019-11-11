@@ -60,7 +60,7 @@ len(actions) = 1
     }
 ]
 --- Finished pbench-dispatch (status=0)
-+++ Running pbench-unpack-tarballs
++++ Running pbench-unpack-tarballs small
 pbench-unpack-tarballs: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-copy-sosreports
