@@ -188,6 +188,7 @@ lrwxrwxrwx         18 archive/fs-version-001/controller/UNPACKED/test-7.2.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX.4
 lrwxrwxrwx         95 archive/fs-version-001/controller/WONT-INDEX.4/test-7.2.tar.xz -> /var/tmp/pbench-test-server/test-7.2.0/pbench/archive/fs-version-001/controller/test-7.2.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller/WONT-UNPACK
 -rw-rw-r--       1204 archive/fs-version-001/controller/test-7.2.tar.xz
 -rw-rw-r--         50 archive/fs-version-001/controller/test-7.2.tar.xz.md5
 drwxrwxr-x          - public_html

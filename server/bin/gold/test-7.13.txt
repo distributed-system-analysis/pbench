@@ -10846,6 +10846,7 @@ drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TODO
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/UNPACKED
 lrwxrwxrwx         66 archive/fs-version-001/b03-h01-1029p/UNPACKED/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz -> ../pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/WONT-UNPACK
 -rw-rw-r--    3323572 archive/fs-version-001/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz
 -rw-rw-r--         98 archive/fs-version-001/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz.md5
 drwxrwxr-x          - public_html

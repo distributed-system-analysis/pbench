@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Make sure all the tar balls are ordered by modification time so we
+# have consistent and expected results from the unit tests.
+
+function _dotouch() {
+    #           CCYYMMDDhhmm.ss
+    touch    -t 201901011242.${1} ${2}
+    return ${?}
+}
+
+_dotouch 04 pbench/archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz || exit ${?}
+_dotouch 03 pbench/archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz || exit ${?}
+_dotouch 02 pbench/archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz || exit ${?}
+
+exit 0

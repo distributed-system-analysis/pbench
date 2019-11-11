@@ -188,6 +188,7 @@ lrwxrwxrwx         36 archive/fs-version-001/controller/UNPACKED/uperf__2016-10-
 drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller/WONT-INDEX.4
 lrwxrwxrwx        113 archive/fs-version-001/controller/WONT-INDEX.4/uperf__2016-10-06_16:34:03.tar.xz -> /var/tmp/pbench-test-server/test-7.2.1/pbench/archive/fs-version-001/controller/uperf__2016-10-06_16:34:03.tar.xz
+drwxrwxr-x          - archive/fs-version-001/controller/WONT-UNPACK
 -rw-rw-r--    5809020 archive/fs-version-001/controller/uperf__2016-10-06_16:34:03.tar.xz
 -rw-r--r--         68 archive/fs-version-001/controller/uperf__2016-10-06_16:34:03.tar.xz.md5
 drwxrwxr-x          - public_html
