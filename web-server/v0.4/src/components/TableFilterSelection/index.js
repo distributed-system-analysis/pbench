@@ -46,6 +46,7 @@ export default class TableFilterSelection extends Component {
     this.setState({
       selectedFilters: [],
     });
+    this.setState({ updateFiltersDisabled: false });
   };
 
   render() {
