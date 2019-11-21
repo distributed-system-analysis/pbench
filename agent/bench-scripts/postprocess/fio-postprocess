@@ -257,16 +257,47 @@ foreach $client_hostname_dir (@client_hostname_dirs) {
 					my $timestamp_ms = $1;
 					my $value = $2;
 					my $rwtype = $3;
-					my %sample = (get_label('date_label') => int $timestamp_ms, get_label('value_label') => int $value, get_label('rw_label') => int $rwtype);
+					my %sample;
 					my $index = value_exists(get_label('date_label'), $timestamp_ms, \@samples);
-					# duplicate timestamp *AND* duplicate rwtype
-					if ($index >= 0 && $samples[$index]{get_label('rw_label')} == $rwtype) {
-						printf "warning: timestamp already exists with this RW type, skipping this sample (file = %s timestamp = %d, value = %d, rwtype = %d)\n",
-						    "$dir/clients/$client_hostname_dir/$log_file", $timestamp_ms, $value, $rwtype;
+					if ($index == -1) {
+					    %sample = ( get_label('date_label') => int $timestamp_ms,
+							'data' => { $rwtype => { 'values' => [ int $value ] } },
+							'type' => $log_type );
+					    push(@samples, \%sample);
 					} else {
-						push(@samples, \%sample);
+					    if (exists($samples[$index]{'data'}{$rwtype})) {
+						push(@{$samples[$index]{'data'}{$rwtype}{'values'}}, int $value);
+					    } else {
+						$samples[$index]{'data'}{$rwtype} = { 'values' => [ int $value ] };
+					    }
 					}
 				}
+			}
+			for (my $i=0; $i < scalar @samples; $i++) {
+			    $samples[$i]{get_label('value_label')} = 0;
+
+			    foreach my $key (keys %{$samples[$i]{'data'}}) {
+				$samples[$i]{'data'}{$key}{'mean'} = 0;
+
+				if (scalar @{$samples[$i]{'data'}{$key}{'values'}} > 1) {
+				    printf "[WARNING] %s: timestamp %s for rwtype %d found multiple times, values [%s] will be averaged\n", $log_file, $samples[$i]{get_label('date_label')}, $key, join(', ', @{$samples[$i]{'data'}{$key}{'values'}});
+				}
+
+				for (my $x=0; $x < scalar @{$samples[$i]{'data'}{$key}{'values'}}; $x++) {
+				    $samples[$i]{'data'}{$key}{'mean'} += $samples[$i]{'data'}{$key}{'values'}[$x];
+				}
+
+				$samples[$i]{'data'}{$key}{'mean'} /= scalar @{$samples[$i]{'data'}{$key}{'values'}};
+
+				$samples[$i]{get_label('value_label')} += $samples[$i]{'data'}{$key}{'mean'};
+			    }
+
+			    if ($samples[$i]{'type'} =~ /lat$/) {
+				$samples[$i]{get_label('value_label')} /= scalar(keys(%{$samples[$i]{'data'}}));
+			    }
+
+			    delete $samples[$i]{'type'};
+			    delete $samples[$i]{'data'};
 			}
 			$nr_log_files++;
 			close(IN_FILE);
