@@ -181,7 +181,7 @@ my $run_id = get_uuid;
 my %last_run_doc;
 print "Generating all benchmark iterations\n";
 # We don't want these params passed to gen-iterations because they are not benchmark-native options
-remove_params(\@ARGV, qw(postprocess-only user-desc user-tags user-name user-email pre-sample-cmd postprocess-mode));
+remove_params(\@ARGV, qw(postprocess-only user-desc user-tags user-name user-email pre-sample-cmd postprocess-mode postprocess-dir));
 # First call pbench-gen-iterations and only resolve any --defaults=, so that the run
 # doc has the full set of params
 my $get_defs_cmd = "pbench-gen-iterations " . $benchmark . " --defaults-only " . join(" ", @ARGV);
@@ -334,7 +334,15 @@ while (scalar @param_sets > 0) {
                                 " " .  $last_sample . " " . $params{"postprocess-mode"} .
                                 " " . $pp_only;
             if ($pp_only) {
-                print BULK_FH "$benchmark_cmd  &\n";
+		if ($params{'postprocess-mode'} eq 'html') {
+		    # cannot run in parallel when using the old
+		    # postprocessing because it expects to run the
+		    # last sample after all other samples are
+		    # processed
+		    print BULK_FH "$benchmark_cmd\n";
+		} else {
+		    print BULK_FH "$benchmark_cmd &\n";
+		}
                 $nr_pp_jobs++;
             } else {
                 open(CMD_FH, ">" . $iteration_sample_dir . "/benchmark-sample.cmd");
