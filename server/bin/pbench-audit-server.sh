@@ -711,6 +711,34 @@ function verify_archive {
     return $cnt
 }
 
+function verify_reception {
+    receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+    if [ -z "$receive_dir_prefix" ] ;then
+            echo "Failed: \"getconf.py pbench-receive-dir-prefix pbench-server\"" >> $errlog
+        exit 2
+    fi
+    receive_dir=${receive_dir_prefix}-002
+    if [ ! -d "$receive_dir" ] ;then
+        echo "Failed: $receive_dir does not exist, or is not a directory" >> $errlog
+        exit 2
+    fi
+    if [ $(find $receive_dir -mindepth 2 -maxdepth 2 ! -name '*.tar.xz' ! -name '*.tar.xz.md5') ] ;then
+        echo "There are files except tar and md5 files"
+    fi
+    find $receive_dir -name "*.tar.xz" | while read fname; do
+        if [ ! -f  ${fname}.md5 ] ;then
+                echo "md5 file doesn't exist for $(basename $fname)"
+        fi
+    done
+    find $receive_dir -name "*.tar.xz.md5" | while read fname; do
+        echo "Name of the file : ${fname}"
+        cd $(dirname ${fname})
+        echo "$(md5sum --check /${fname})"
+        cd | cd -
+    done
+}
+verify_reception
+
 log_init $PROG
 
 # Initialize index mail content
