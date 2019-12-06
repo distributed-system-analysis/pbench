@@ -1,4 +1,4 @@
-import { querySharedSessions, updateDescription } from '../services/explore';
+import { querySharedSessions, updateDescription, deleteSharedSessions } from '../services/explore';
 
 export default {
   namespace: 'explore',
@@ -20,6 +20,14 @@ export default {
     *editDescription({ payload }, { call }) {
       const response = yield call(updateDescription, payload);
       return response;
+    },
+    *deleteSharedSessions({ payload }, { call, put }) {
+      const response = yield call(deleteSharedSessions, payload);
+
+      yield put({
+        type: 'getSharedSessions',
+        payload: response.data.urls,
+      });
     },
   },
 

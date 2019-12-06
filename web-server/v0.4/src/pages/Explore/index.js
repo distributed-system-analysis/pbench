@@ -99,6 +99,17 @@ class Explore extends Component {
     });
   };
 
+  deleteSharedSession = record => {
+    const { dispatch, datastoreConfig } = this.props;
+    const { id } = record;
+    dispatch({
+      type: 'explore/deleteSharedSessions',
+      payload: { datastoreConfig, id },
+    }).then(() => {
+      this.fetchSharedSessions();
+    });
+  };
+
   render() {
     const { sharedSessions, visible } = this.state;
     const { loadingSharedSessions } = this.props;
@@ -139,16 +150,38 @@ class Explore extends Component {
         title: 'Action',
         dataIndex: '',
         key: 'action',
-        render: (text, record) => (
-          <Popconfirm
-            title="Start a new dashboard session?"
-            cancelText="No"
-            okText="Yes"
-            onConfirm={() => this.startSharedSession(record)}
-          >
-            <Button type="link">Start Session</Button>
-          </Popconfirm>
-        ),
+        children: [
+          {
+            title: 'Start Session',
+            dataIndex: '',
+            key: 'start',
+            render: (text, record) => (
+              <Popconfirm
+                title="Start a new dashboard session?"
+                cancelText="No"
+                okText="Yes"
+                onConfirm={() => this.startSharedSession(record)}
+              >
+                <Button type="link">Start Session</Button>
+              </Popconfirm>
+            ),
+          },
+          {
+            title: 'Delete Session',
+            dataIndex: '',
+            key: 'delete',
+            render: (text, record) => (
+              <Popconfirm
+                title="Delete the dashboard session?"
+                cancelText="No"
+                okText="Yes"
+                onConfirm={() => this.deleteSharedSession(record)}
+              >
+                <Icon type="delete" theme="twoTone" style={{ textAlign: 'right' }} />
+              </Popconfirm>
+            ),
+          },
+        ],
       },
     ];
 
