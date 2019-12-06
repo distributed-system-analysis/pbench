@@ -47,3 +47,27 @@ export async function updateDescription(params) {
     },
   });
 }
+
+// Deletes a shared session.
+export async function deleteSharedSessions(params) {
+  const { datastoreConfig, id } = params;
+
+  const endpoint = `${datastoreConfig.graphql}`;
+
+  return request.post(endpoint, {
+    data: {
+      query: `
+      mutation($id: ID!) {
+        deleteUrl(where: {id: $id})
+          {
+            id
+            description
+            config
+          }
+        }`,
+      variables: {
+        id,
+      },
+    },
+  });
+}
