@@ -64,7 +64,7 @@ if [ "$SOSREPORTDEST" == "" ]; then
     SOSREPORTDEST=$_sosrpt_user@$_sosrpt_host:$_sosrpt_dir/
 fi
 
-echo "$TS: starting at $(timestamp)"
+log_info "$TS: starting at $(timestamp)"
 
 # get the list of files we'll be operating on
 list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
@@ -81,7 +81,7 @@ index_content=$TMPDIR/index_mail_contents
 for result in $list ;do
     link=$(readlink -e $result)
     if [ ! -f $link ] ;then
-        echo "$TS: $link does not exist" >&4
+        log_error "$TS: $link does not exist"
         nerrs=$nerrs+1
         continue
     fi
@@ -113,7 +113,7 @@ for result in $list ;do
         # sosreport should be RO
         chmod 444 $x
         if [ ! -f $x.md5 ] ;then
-            echo "$TS: FAILED: no MD5 file found for $x" >&4
+            log_error "$TS: FAILED: no MD5 file found for $x"
             nerrs=$nerrs+1
             continue
         fi
@@ -121,7 +121,7 @@ for result in $list ;do
         md5=$(md5sum $x)
         md5=${md5%% *}
         if [ "$md5" != $(cat $x.md5) ] ;then
-            echo "$TS: FAILED: MD5 does not match for  $x" >&4
+            log_error "$TS: FAILED: MD5 does not match for  $x"
             nerrs=$nerrs+1
             continue
         fi
@@ -129,7 +129,7 @@ for result in $list ;do
         cp "$x" "$x".md5 $TMPDIR/
         sts=$?
         if [[ $sts -ne 0 ]] ;then
-            echo "$TS: FAILED: cp "$x" "$x".md5 $TMPDIR/ - code $sts" >&4
+            log_error "$TS: FAILED: cp "$x" "$x".md5 $TMPDIR/ - code $sts"
             nerrs=$nerrs+1
             continue
         fi
@@ -137,15 +137,15 @@ for result in $list ;do
     done
 
     if [[  $nsr == 0 ]] ;then
-        echo "$TS: No sosreports found for $result"
+        log_info "$TS: No sosreports found for $result"
     else
         pushd $incoming > /dev/null 2>&4
         cmd="/usr/bin/rsync -av $TMPDIR/ $SOSREPORTDEST"
-        echo "$TS: $cmd"
+        log_info "$TS: $cmd"
         $cmd
         sts=$?
         if [[ $sts -ne 0 ]] ;then
-            echo "$TS: FAILED: $cmd - code $sts" >&4
+            log_error "$TS: FAILED: $cmd - code $sts"
             nerrs=$nerrs+1
             continue
         fi
@@ -156,18 +156,18 @@ for result in $list ;do
     mv $result $(echo $result | sed "s/$linksrc/$linkdest/")
     sts=$?
     if [[ $sts -ne 0 ]] ;then
-        echo "$TS: Cannot move $result link from $linksrc to $linkdest: code $sts" >&4
+        log_error "$TS: Cannot move $result link from $linksrc to $linkdest: code $sts"
         nerrs=$nerrs+1
         continue
     fi
 
     # log the success
-    echo "$TS: $hostname/$resultname: processed $nsr sosreports for $result"
+    log_info "$TS: $hostname/$resultname: processed $nsr sosreports for $result"
     ntotal=$ntotal+$nsr
     nresults=$nresults+1
 done
 
-echo "$TS: ending at $(timestamp), processed $ntotal sosreports for $nresults results directories with $nerrs errors"
+log_info "$TS: ending at $(timestamp), processed $ntotal sosreports for $nresults results directories with $nerrs errors"
 
 log_finish
 

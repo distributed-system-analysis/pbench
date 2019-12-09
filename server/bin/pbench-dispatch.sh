@@ -58,7 +58,7 @@ index_content=$tmp/index_mail_contents
 > $mail_content
 
 if [ -z "$linkdestlist" ]; then
-    echo "$TS: config file error: either no dispach-states defined or a typo" >&4
+    log_error "$TS: config file error: either no dispach-states defined or a typo"
     subj="$PROG.$TS($PBENCH_ENV) - Config file error"
     cat << EOF > $index_content
 $subj
@@ -69,7 +69,7 @@ EOF
     exit 1
 fi
 
-echo $TS
+log_info $TS
 
 # Find all the links in all the $ARCHIVE/<controller>/$linksrc
 # directories, emitting a list of their full paths with the size
@@ -116,7 +116,7 @@ while read tarball ;do
 
     link=$(readlink -e $tarball)
     if [ -z "$link" ] ;then
-        echo "$TS: symlink target for $tarball does not exist" | tee -a $mail_content >&4
+        log_error "$TS: symlink target for $tarball does not exist" "${mail_content}"
         let nerrs+=1
         quarantine ${controller_path}/_QUARANTINED/BAD-LINK ${tarball}
         continue
@@ -133,7 +133,7 @@ while read tarball ;do
         rm -f ${tarball}
         status=$?
         if [ $status -ne 0 ] ;then
-            echo "$TS: Cannot remove $tarball link: code $status" | tee -a $mail_content >&4
+            log_error "$TS: Cannot remove $tarball link: code $status" "${mail_content}"
         fi
         continue
     fi
@@ -142,7 +142,7 @@ while read tarball ;do
     mk_dirs $controller
     status=$?
     if [ $status -ne 0 ] ;then
-        echo "$TS: Creation of $controller processing directories failed for $tarball: code $status" | tee -a $mail_content >&4
+        log_error "$TS: Creation of $controller processing directories failed for $tarball: code $status" "${mail_content}"
         let nerrs+=1
         continue
     fi
@@ -152,12 +152,12 @@ while read tarball ;do
     sts=$?
     popd >/dev/null 2>&4
     if [ $sts -ne 0 ] ;then
-        echo "$TS: MD5 check of ${link} failed for ${tarball}" | tee -a $mail_content >&4
+        log_error "$TS: MD5 check of ${link} failed for ${tarball}" "${mail_content}"
         quarantine ${controller_path}/_QUARANTINED/BAD-MD5 ${link} ${link}.md5 ${controller_path}/.prefix/${resultname}.prefix
         rm -f ${tarball}
         status=$?
         if [ $status -ne 0 ] ;then
-            echo "$TS: Cannot remove $tarball link: code $status" | tee -a $mail_content >&4
+            log_error "$TS: Cannot remove $tarball link: code $status" "${mail_content}"
         fi
         let nerrs+=1
         continue
@@ -173,7 +173,7 @@ while read tarball ;do
         if [ $status -eq 0 ] ;then
             let totsuc+=1
         else
-            echo "$TS: Cannot create $tarball link to $state: code $status" | tee -a $mail_content >&4
+            log_error "$TS: Cannot create $tarball link to $state: code $status" "${mail_content}"
             let toterr+=1
         fi
     done
@@ -189,7 +189,7 @@ while read tarball ;do
         rm -f $tarball
         status=$?
         if [ $status -ne 0 ] ;then
-            echo "$TS: Cannot remove $tarball link: code $status" | tee -a $mail_content >&4
+            log_error "$TS: Cannot remove $tarball link: code $status" "${mail_content}"
             if [ $toterr -eq 0 ]; then
                 # We had other errors already counted against the total
                 # so don't bother counting this error
@@ -200,17 +200,17 @@ while read tarball ;do
         if [ $toterr -gt 0 ]; then
             # We have had some errors while processing this tar ball, so
             # count this as a partial success.
-            echo "$TS: $controller/$resultname: success (partial)"
+            log_info "$TS: $controller/$resultname: success (partial)"
             let npartialsucc+=1
         else
-            echo "$TS: $controller/$resultname: success"
+            log_info "$TS: $controller/$resultname: success"
         fi
     fi
 done < $list
 
 summary_text="Processed $ntotal result tar balls, $ntb successfully ($npartialsucc partial), with $nerrs errors, and $ndups duplicates"
 
-echo "$TS: $summary_text"
+log_info "$TS: $summary_text"
 
 log_finish
 

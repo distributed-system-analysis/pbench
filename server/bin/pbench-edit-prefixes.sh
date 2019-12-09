@@ -35,7 +35,7 @@ log_init $PROG
 # the link source for this script
 linksrc=TO-LINK
 
-echo $TS
+log_info "$TS"
 
 # get the list of files we'll be operating on
 list=$(ls $ARCHIVE/*/$linksrc/*.tar.xz 2>/dev/null)
@@ -45,7 +45,7 @@ typeset -i nep=0
 for result in $list ;do
     link=$(readlink -e $result)
     if [ ! -f $link ] ;then
-        echo "$TS: $link does not exist" >&4
+        log_error "$TS: $link does not exist" 
         continue
     fi
 
@@ -62,14 +62,14 @@ for result in $list ;do
 
     # find the prefix file and execute it - all the checking was done on the client
     prefix=$ARCHIVE/$hostname/.prefix/prefix.${resultname%.tar.xz}
-    echo $prefix
+    log_info $prefix
     cmds=$(cat $prefix)
-    echo $cmds
+    log_info $cmds
     pushd $RESULTS/$hostname > /dev/null 2>&4
     eval "$cmds"
     status=$?
     if [ $status -ne 0 ] ;then
-        echo "$TS: eval $cmds failed - code $status" >&4
+        log_error "$TS: eval $cmds failed - code $status" 
         continue
     fi
     popd > /dev/null 2>&4
@@ -78,16 +78,16 @@ for result in $list ;do
     rm $result
     status=$?
     if [ $status -ne 0 ] ;then
-        echo "$TS: Cannot remove $result link from $linksrc: code $status" >&4
+        log_error "$TS: Cannot remove $result link from $linksrc: code $status" 
         continue
     fi
 
     # log the success
-    echo "$TS: $hostname/$resultname: success - processed $result"
+    log_info "$TS: $hostname/$resultname: success - processed $result"
     nep=$nep+1
 done
 
-echo "$TS: Processed $nep edit-prefix requests"
+log_info "$TS: Processed $nep edit-prefix requests"
 
 log_finish
 exit 0

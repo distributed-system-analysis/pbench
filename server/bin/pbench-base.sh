@@ -138,3 +138,19 @@ function quarantine () {
         fi
     done
 }
+
+function log_info {
+    if [[ -z "${2}" ]]; then
+        printf -- "%b\n" "${1}"
+    else
+        printf -- "%b\n" "${1}" | tee -a "${2}"
+    fi
+}
+
+function log_error {
+    if [[ -z "${2}" ]]; then
+        printf -- "%b\n" "${1}" >&4
+    else
+        printf -- "%b\n" "${1}" | tee -a "${2}" >&4
+    fi
+}

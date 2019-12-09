@@ -19,10 +19,10 @@ for x in $(find . -type l) ; do
         hostname=$(basename $(dirname $y))
         pbench_run_name=$(basename $y)
         if [ -f $ARCHIVE/$hostname/$pbench_run_name.tar.xz ] ;then
-            echo "$x -> $y dangling and $hostname/$pbench_run_name.tar.xz exists - cleaning up the link"
+            log_info "$x -> $y dangling and $hostname/$pbench_run_name.tar.xz exists - cleaning up the link"
             rm -f $x
         else
-            echo "$x -> $y dangling and $hostname/$pbench_run_name.tar.xz does *NOT* exist" >&4
+            log_error "$x -> $y dangling and $hostname/$pbench_run_name.tar.xz does *NOT* exist"
         fi
      fi
 done

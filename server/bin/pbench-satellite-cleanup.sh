@@ -13,7 +13,7 @@ trap "rm -rf $tmp" EXIT
 
 log_init $PROG
 
-echo "$TS: $PROG starting"
+log_info "$TS: $PROG starting"
 
 tarballs=$(cd $ARCHIVE > /dev/null; find . -path '*/TO-DELETE/*.tar.xz' -printf '%P\n' | sort)
 hosts="$(for host in $tarballs ;do echo "${host%%/*}" ;done | sort -u )"
@@ -61,8 +61,7 @@ for host in $hosts; do
                 # Note that if we do remove the tarball but fail to change the
                 # state, this error will persist until the state is changed
                 # manually.
-                echo "$TS: Failed to remove $ARCHIVE/$host/$x, code: $rc" |
-                        tee -a $mail_content >&4
+                log_error "$TS: Failed to remove $ARCHIVE/$host/$x, code: $rc" "${mail_content}"
                 ntberrs=$ntberrs+1
                 popd > /dev/null 2>&4
                 continue
@@ -73,8 +72,7 @@ for host in $hosts; do
             rm $x.md5
             rc=$?
             if [ $rc != 0 ]; then
-                echo "$TS: Failed to remove $ARCHIVE/$host/$x.md5, code: $rc" |
-                        tee -a $mail_content >&4
+                log_error "$TS: Failed to remove $ARCHIVE/$host/$x.md5, code: $rc" "${mail_content}"
                 nmd5errs=$nmd5errs+1
             fi
         fi
@@ -83,13 +81,11 @@ for host in $hosts; do
             mv -n TO-DELETE/$x SATELLITE-DONE/
             rc=$?
             if [ $rc != 0 ]; then
-                echo "$TS: Failed to move $ARCHIVE/$host/TO-DELETE/$x to SATELLITE-DONE, code: $rc" |
-                        tee -a $mail_content >&4
+                log_error "$TS: Failed to move $ARCHIVE/$host/TO-DELETE/$x to SATELLITE-DONE, code: $rc" "${mail_content}"
                 nstateerrs=$nstateerrs+1
             else
                 if [ -e TO-DELETE/$x ]; then
-                    echo "$TS: Failed to move $ARCHIVE/$host/TO-DELETE/$x: still exists after successful move to SATELLITE-DONE" |
-                            tee -a $mail_content >&4
+                    log_error "$TS: Failed to move $ARCHIVE/$host/TO-DELETE/$x: still exists after successful move to SATELLITE-DONE" "${mail_content}"
                     nstateerrs=$nstateerrs+1
                 fi
             fi
@@ -99,8 +95,7 @@ for host in $hosts; do
             rm -rf $INCOMING/$host/${x%%.tar.xz}
             rc=$?
             if [ $rc != 0 ]; then
-                echo "$TS: Failed to remove the tarball from incoming directory: $INCOMING/$host/${x%%.tar.xz}, code: $rc" |
-                        tee -a $mail_content >&4
+                log_error "$TS: Failed to remove the tarball from incoming directory: $INCOMING/$host/${x%%.tar.xz}, code: $rc" "${mail_content}"
                 nincomingerrs=$nincomingerrs+1
             fi
         fi
@@ -120,8 +115,7 @@ for host in $hosts; do
             rm $sym_link
             rc=$?
             if [ $rc != 0 ]; then
-                echo "$TS: Failed to remove results symlink: $sym_link, code: $rc" |
-                        tee -a $mail_content >&4
+                log_error "$TS: Failed to remove results symlink: $sym_link, code: $rc" "${mail_content}"
                 nresultserrs=$nresultserrs+1
             fi
         fi
@@ -130,8 +124,7 @@ for host in $hosts; do
             rm $prefix
             rc=$?
             if [ $rc != 0 ]; then
-                echo "$TS: Failed to remove prefix file: $prefix, code: $rc" |
-                        tee -a $mail_content >&4
+                log_error "$TS: Failed to remove prefix file: $prefix, code: $rc" "${mail_content}"
                 nprefixerrs=$nprefixerrs+1
             fi
         fi
@@ -143,7 +136,7 @@ summary="Total $ntb tarballs cleaned up, with $ntberrs tarball removal errors, $
 remove errors, $nstateerrs state change errors, $nincomingerrs incoming removal errors, $nresultserrs \
 result removal errors and $nprefixerrs prefix removal errors."
 
-echo "$TS: $PROG ends: $summary"
+log_info "$TS: $PROG ends: $summary"
 
 log_finish
 

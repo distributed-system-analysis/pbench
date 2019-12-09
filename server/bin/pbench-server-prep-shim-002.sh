@@ -126,7 +126,7 @@ while read tbmd5 ;do
     dest=${ARCHIVE}/${controller}
 
     if [ -f ${dest}/${resultname}.tar.xz -o -f ${dest}/${resultname}.tar.xz.md5 ] ;then
-        echo "$TS: Duplicate: ${tb} duplicate name" >&4
+        log_error "$TS: Duplicate: ${tb} duplicate name"
         quarantine ${duplicates}/${controller} ${tb} ${tbmd5}
         ndups=$ndups+1
         continue
@@ -137,7 +137,7 @@ while read tbmd5 ;do
     sts=$?
     popd > /dev/null 2>&4
     if [ $sts -ne 0 ] ;then
-        echo "$TS: Quarantined: ${tb} failed MD5 check" >&4
+        log_error "$TS: Quarantined: ${tb} failed MD5 check"
         quarantine ${quarantine}/${controller} ${tb} ${tb}.md5
         nquarantined=$nquarantined+1
         continue
@@ -147,8 +147,7 @@ while read tbmd5 ;do
     mkdir -p ${dest}/TODO
     sts=$?
     if [ $sts -ne 0 ] ;then
-        echo "$TS: Error: \"mkdir -p ${dest}/TODO\", status $sts" |
-            tee -a $status >&4
+        log_error "$TS: Error: \"mkdir -p ${dest}/TODO\", status $sts" "$status"
         quarantine ${errors}/${controller} ${tb} ${tb}.md5
         nerrs=$nerrs+1
         continue
@@ -157,13 +156,11 @@ while read tbmd5 ;do
     cp ${tb} ${tb}.md5 ${dest}/
     sts=$?
     if [ $sts -ne 0 ] ;then
-        echo "$TS: Error: \"cp ${tb} ${tb}.md5 ${dest}/\", status $sts" |
-            tee -a $status >&4
+        log_error "$TS: Error: \"cp ${tb} ${tb}.md5 ${dest}/\", status $sts" "$status"
         rm -f ${dest}/${resultname}.tar.xz ${dest}/${resultname}.tar.xz.md5
         sts=$?
         if [ $sts -ne 0]; then
-            echo "$TS: Warning: cleanup of copy failure failed itself: \"rm -f ${dest}/${resultname}.tar.xz ${dest}/${resultname}.tar.xz.md5\", status $sts" |
-                tee -a $status >&4
+            log_error "$TS: Warning: cleanup of copy failure failed itself: \"rm -f ${dest}/${resultname}.tar.xz ${dest}/${resultname}.tar.xz.md5\", status $sts" "$status"
         fi
         quarantine ${errors}/${controller} ${tb} ${tb}.md5
         nerrs=$nerrs+1
@@ -172,15 +169,13 @@ while read tbmd5 ;do
     rm -f ${tb} ${tb}.md5
     sts=$?
     if [ $sts -ne 0 ] ;then
-        echo "$TS: Warning: cleanup of successful copy operation failed: \"rm -f ${tb} ${tb}.md5\", status $sts" |
-            tee -a $status >&4
+        log_error "$TS: Warning: cleanup of successful copy operation failed: \"rm -f ${tb} ${tb}.md5\", status $sts" "$status"
     fi
 
     ln -s ${dest}/${resultname}.tar.xz ${dest}/TODO/
     sts=$?
     if [ $sts -ne 0 ] ;then
-        echo "$TS: Error: \"ln -s ${dest}/${resultname}.tar.xz ${dest}/TODO/\", status $sts" |
-            tee -a $status >&4
+        log_error "$TS: Error: \"ln -s ${dest}/${resultname}.tar.xz ${dest}/TODO/\", status $sts" "$status"
         # if we fail to make the link, we quarantine the (already moved)
         # tarball and .md5.
         quarantine ${errors}/${controller} ${dest}/${tb} ${dest}/${tb}.md5
