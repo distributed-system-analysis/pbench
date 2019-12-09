@@ -91,7 +91,7 @@ index_content=$tmp/index_mail_contents
 > $index_content
 
 let start_time=$(timestamp-seconds-since-epoch)
-echo "$TS: start - $(timestamp)" | tee -a $mail_content
+log_info "$TS: start - $(timestamp)" "${mail_content}"
 
 # NOTE: the log file for tracking which tarballs have to be updated on
 # the remote satellite server is shared between runs, so it is not in
@@ -102,13 +102,13 @@ state_change_log=$logdir_for_remote/change_state.log
 # we try to process any new tar balls on the satellite server.  If it
 # fails again then exit without going further.
 if [ -s ${state_change_log} ] ;then
-    echo "$PROG: completing previous satellite state changes ... (${state_change_log})" | tee -a $mail_content >&4
+    log_error "$PROG: completing previous satellite state changes ... (${state_change_log})" "${mail_content}"
     do_remote_sat_state_change
     status=$?
     if [[ $status != 0 ]]; then
         log_exit "$PROG: unable to complete previous satellite state changes (${state_change_log})"
     fi
-    echo "$PROG: completed previous satellite state changes" | tee -a $mail_content >&4
+    log_error "$PROG: completed previous satellite state changes" "${mail_content}"
 else
     # initialize state change log
     > ${state_change_log}
@@ -126,7 +126,7 @@ if [[ $rc != 0 ]] ;then
 fi
 
 if [ -s $tmp/satellite.$remote_prefix.tar ]; then
-    echo "$TS: remote tarballs fetched, unpacking ... - $(timestamp)" | tee -a $mail_content
+    log_info "$TS: remote tarballs fetched, unpacking ... - $(timestamp)" "${mail_content}"
 
     # unpack the tarball into tmp directory
     tar -xf $tmp/satellite.$remote_prefix.tar -C $unpack
@@ -136,7 +136,7 @@ if [ -s $tmp/satellite.$remote_prefix.tar ]; then
     files=$(find $unpack -path '*.tar.xz' -printf '%P\n')
     hosts="$(for host in $files;do echo ${host%%/*};done | sort -u )"
 
-    echo "$TS: remote tarballs unpacked - $(timestamp)" | tee -a $mail_content
+    log_info "$TS: remote tarballs unpacked - $(timestamp)" "${mail_content}"
 else
     hosts=""
 fi
@@ -155,14 +155,14 @@ for host in $hosts ;do
         rc=$?
         if [ $rc -ne 0 ]; then
             nerrs=$nerrs+1
-            echo "$PROG: failed to create remote controller in archive, $localdir" | tee -a $mail_content >&4
+            log_error "$PROG: failed to create remote controller in archive, $localdir" "${mail_content}"
             continue
         else
             pushd $localdir > /dev/null
             rc=$?
             if [ $rc -ne 0 ]; then
                 nerrs=$nerrs+1
-                echo "$PROG: failed to pushd to remote controller in archive, $localdir" | tee -a $mail_content >&4
+                log_error "$PROG: failed to pushd to remote controller in archive, $localdir" "${mail_content}"
                 continue
             fi
         fi
@@ -172,7 +172,7 @@ for host in $hosts ;do
     rc=$?
     if [ $rc -ne 0 ]; then
         nerrs=$nerrs+1
-        echo "$PROG: failed to create $logdir/$host" | tee -a $mail_content >&4
+        log_error "$PROG: failed to create $logdir/$host" "${mail_content}"
         continue
     fi
 
@@ -206,8 +206,7 @@ for host in $hosts ;do
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
-                echo "Failed to create the symlink for md5 check passed tarballs: ln -sf $PWD/$x SATELLITE-MD5-PASSED/$x" |
-                    tee -a $mail_content >&4
+                log_error "Failed to create the symlink for md5 check passed tarballs: ln -sf $PWD/$x SATELLITE-MD5-PASSED/$x" "${mail_content}"
                 continue
             fi
         done
@@ -223,8 +222,7 @@ for host in $hosts ;do
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
-                echo "Failed to create the symlink for md5 check failed tarballs: ln -sf $PWD/$x SATELLITE-MD5-FAILED/$x" |
-                    tee -a $mail_content >&4
+                log_error "Failed to create the symlink for md5 check failed tarballs: ln -sf $PWD/$x SATELLITE-MD5-FAILED/$x" "${mail_content}"
                 continue
             fi
         done
@@ -236,8 +234,7 @@ for host in $hosts ;do
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1
-                echo "Failed to create the symlink for TODO state directory: ln -sf $PWD/$x TODO/$x" |
-                    tee -a $mail_content >&4
+                log_error "Failed to create the symlink for TODO state directory: ln -sf $PWD/$x TODO/$x" "${mail_content}"
                 continue
             fi
         done
@@ -266,21 +263,21 @@ done
 
 # change the state of the tarballs on remote
 if [ -s ${state_change_log} ] ;then
-    echo "$PROG: completing satellite state changes ... (${state_change_log})" | tee -a $mail_content >&4
+    log_error "$PROG: completing satellite state changes ... (${state_change_log})" "${mail_content}"
     do_remote_sat_state_change
     status=$?
     if [[ $status != 0 ]]; then
-        echo "$PROG: unable to complete satellite state changes (${state_change_log})" | tee -a $mail_content >&4
+        log_error "$PROG: unable to complete satellite state changes (${state_change_log})" "${mail_content}"
     else
-        echo "$PROG: completed satellite state changes" | tee -a $mail_content >&4
+        log_error "$PROG: completed satellite state changes" "${mail_content}"
     fi
 fi
 
 let end_time=$(timestamp-seconds-since-epoch)
 let duration=end_time-start_time
-echo "$TS: end - $(timestamp)" | tee -a $mail_content
-echo "$TS: duration (secs): $duration" | tee -a $mail_content
-echo "$TS: Total $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors" | tee -a $mail_content
+log_info "$TS: end - $(timestamp)" "${mail_content}"
+log_info "$TS: duration (secs): $duration" "${mail_content}"
+log_info "$TS: Total $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors" "${mail_content}"
 
 log_finish
 
