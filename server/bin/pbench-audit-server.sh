@@ -723,7 +723,7 @@ function verify_reception {
         printf "File without valid extension: $fname \n"
     done
     find $reception_dir -name "*.tar.xz" | while read fname; do
-        if [ ! -f  ${fname}.md5 ] ;then
+        if [[ ! -f  ${fname}.md5 ]] ;then
                 printf "File without md5 file: $(basename $fname)\n"
         fi
     done
