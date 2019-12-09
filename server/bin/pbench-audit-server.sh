@@ -65,6 +65,7 @@ archive_report=$workdir/archive_report
 incoming_report=$workdir/incoming_report
 results_report=$workdir/results_report
 users_report=$workdir/users_report
+reception_report=$workdir/reception_report
 index_content=$workdir/index_content
 bad_controllers=$workdir/badcontrollers
 controllers=$workdir/controllers
@@ -78,6 +79,12 @@ tarballs=$workdir/tarballs
 linkdirs=$workdir/linkdirs
 empty=$workdir/empty
 users=$workdir/users
+reception_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+if [ -z "$reception_dir_prefix" ] ;then
+    echo "Failed: \"getconf.py pbench-receive-dir-prefix pbench-server\"" 
+    exit 2
+fi
+reception_dir=${reception_dir_prefix}-002
 
 # Make sure the directory exists
 mkdir -p $workdir
@@ -712,32 +719,21 @@ function verify_archive {
 }
 
 function verify_reception {
-    receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
-    if [ -z "$receive_dir_prefix" ] ;then
-            echo "Failed: \"getconf.py pbench-receive-dir-prefix pbench-server\"" >> $errlog
-        exit 2
-    fi
-    receive_dir=${receive_dir_prefix}-002
-    if [ ! -d "$receive_dir" ] ;then
-        echo "Failed: $receive_dir does not exist, or is not a directory" >> $errlog
-        exit 2
-    fi
-    if [ $(find $receive_dir -mindepth 2 -maxdepth 2 ! -name '*.tar.xz' ! -name '*.tar.xz.md5') ] ;then
-        echo "There are files except tar and md5 files"
-    fi
-    find $receive_dir -name "*.tar.xz" | while read fname; do
+    find $reception_dir -mindepth 2 -maxdepth 2 ! -name '*.tar.xz' ! -name '*.tar.xz.md5' | while read fname; do
+        printf "File without valid extension: $fname \n"
+    done
+    find $reception_dir -name "*.tar.xz" | while read fname; do
         if [ ! -f  ${fname}.md5 ] ;then
-                echo "md5 file doesn't exist for $(basename $fname)"
+                printf "File without md5 file: $(basename $fname)\n"
         fi
     done
-    find $receive_dir -name "*.tar.xz.md5" | while read fname; do
-        echo "Name of the file : ${fname}"
+    find $reception_dir -name "*.tar.xz.md5" | while read fname; do
         cd $(dirname ${fname})
-        echo "$(md5sum --check /${fname})"
+        printf "$(md5sum --check /${fname})\n"
         cd | cd -
     done
+
 }
-verify_reception
 
 log_init $PROG
 
@@ -748,6 +744,19 @@ log_init $PROG
 let ret=0
 
 # Construct the report file
+sTS=$(timestamp)
+verify_reception > ${reception_report} 2>&1
+if [[ $? -ne 0 ]]; then
+    let ret=ret+1
+fi
+eTS=$(timestamp)
+if [[ -s ${reception_report} ]]; then
+    printf "\nstart-${sTS}: reception hierarchy: $reception_dir\n" | tee -a ${report}
+    cat ${reception_report} | tee -a ${report}
+    printf "\nend-${eTS}: reception hierarchy: $reception_dir\n" | tee -a ${report}
+fi
+
+
 sTS=$(timestamp)
 verify_archive > ${archive_report} 2>&1
 if [[ $? -ne 0 ]]; then
