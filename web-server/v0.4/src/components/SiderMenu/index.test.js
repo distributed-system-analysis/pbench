@@ -6,7 +6,7 @@ import SiderMenu from './SiderMenu';
 
 const mockProps = {
   isMobile: true,
-  collapsed: false,
+  collapsed: true,
 };
 
 const mockDispatch = jest.fn();
@@ -40,5 +40,16 @@ describe('test rendering of Button component', () => {
   it('test the Sider Menu functions', () => {
     wrapper.setProps({ isMobile: true });
     expect(wrapper.find(DrawerMenu).find(SiderMenu)).toHaveLength(1);
+  });
+  it('test the Sider Menu collapsing', () => {
+    wrapper.setProps({ isMobile: true });
+    expect(
+      wrapper
+        .find(DrawerMenu)
+        .find(SiderMenu)
+        .prop('collapsed')
+    ).toBe(false);
+    wrapper.setProps({ isMobile: false });
+    expect(wrapper.find(SiderMenu).prop('collapsed')).toBe(true);
   });
 });
