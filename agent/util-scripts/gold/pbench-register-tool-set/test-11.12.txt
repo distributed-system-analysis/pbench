@@ -15,12 +15,12 @@ perf tool is now registered in group other
 /var/tmp/pbench-test-utils/pbench/tools-other/vmstat
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] mpstat tool is now registered in group other
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] vmstat tool is now registered in group other
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] iostat tool is now registered in group other
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts=record -a --freq=100"
-/var/tmp/pbench-test-utils/pbench/pbench.log:[info][1900-01-01T00:00:00.000000] perf tool is now registered in group other
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] mpstat tool is now registered in group other
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] vmstat tool is now registered in group other
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
+[info][1900-01-01T00:00:00.000000] iostat tool is now registered in group other
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts=record -a --freq=100"
+[info][1900-01-01T00:00:00.000000] perf tool is now registered in group other
 --- pbench.log file contents

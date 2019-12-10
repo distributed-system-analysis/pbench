@@ -1,9 +1,10 @@
-+++ Running test-22 pbench-metadata-log --dir=/var/tmp/pbench-test-utils/pbench end
++++ Running test-22 pbench-metadata-log --dir=/var/tmp/pbench-test-utils/pbench/mock-run end
 --- Finished test-22 pbench-metadata-log (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
-/var/tmp/pbench-test-utils/pbench/.iterations
-/var/tmp/pbench-test-utils/pbench/metadata.log
+/var/tmp/pbench-test-utils/pbench/mock-run
+/var/tmp/pbench-test-utils/pbench/mock-run/.iterations
+/var/tmp/pbench-test-utils/pbench/mock-run/metadata.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/iostat
@@ -35,36 +36,36 @@
 /var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
 --interval=3
 --- pbench tree state
-+++ metadata.log file contents
-/var/tmp/pbench-test-utils/pbench/metadata.log:[pbench]
-/var/tmp/pbench-test-utils/pbench/metadata.log:name = pbench
-/var/tmp/pbench-test-utils/pbench/metadata.log:script = fake-bm
-/var/tmp/pbench-test-utils/pbench/metadata.log:config = 
-/var/tmp/pbench-test-utils/pbench/metadata.log:date = 1900-01-01T00:00:00
-/var/tmp/pbench-test-utils/pbench/metadata.log:rpm-version = 
-/var/tmp/pbench-test-utils/pbench/metadata.log:iterations = iter1, iter2, iter3
-/var/tmp/pbench-test-utils/pbench/metadata.log:
-/var/tmp/pbench-test-utils/pbench/metadata.log:[run]
-/var/tmp/pbench-test-utils/pbench/metadata.log:controller = testhost.example.com
-/var/tmp/pbench-test-utils/pbench/metadata.log:start_run = 1900-01-01T00:00:00.000000
-/var/tmp/pbench-test-utils/pbench/metadata.log:end_run = 1900-01-01T00:00:00.000000
-/var/tmp/pbench-test-utils/pbench/metadata.log:
-/var/tmp/pbench-test-utils/pbench/metadata.log:[tools]
-/var/tmp/pbench-test-utils/pbench/metadata.log:hosts = testhost
-/var/tmp/pbench-test-utils/pbench/metadata.log:group = default
-/var/tmp/pbench-test-utils/pbench/metadata.log:
-/var/tmp/pbench-test-utils/pbench/metadata.log:[tools/testhost]
-/var/tmp/pbench-test-utils/pbench/metadata.log:hostname-s = testhost
-/var/tmp/pbench-test-utils/pbench/metadata.log:iostat = --interval=3
-/var/tmp/pbench-test-utils/pbench/metadata.log:mpstat = --interval=3
-/var/tmp/pbench-test-utils/pbench/metadata.log:perf = --record-opts=-a -freq=100 --record-opts=--call-graph --record-opts=--event=branch-misses --record-opts=--event=cache-misses --record-opts=--event=instructions
-/var/tmp/pbench-test-utils/pbench/metadata.log:pidstat = --interval=3
-/var/tmp/pbench-test-utils/pbench/metadata.log:proc-interrupts = --interval=3
-/var/tmp/pbench-test-utils/pbench/metadata.log:proc-vmstat = --interval=3
-/var/tmp/pbench-test-utils/pbench/metadata.log:sar = --interval=3
-/var/tmp/pbench-test-utils/pbench/metadata.log:turbostat = --interval=3
-/var/tmp/pbench-test-utils/pbench/metadata.log:
---- metadata.log file contents
++++ mock-run/metadata.log file contents
+[pbench]
+name = mock-run
+script = fake-bm
+config = 
+date = 1900-01-01T00:00:00
+rpm-version = 
+iterations = iter1, iter2, iter3
+
+[run]
+controller = testhost.example.com
+start_run = 1900-01-01T00:00:00.000000
+end_run = 1900-01-01T00:00:00.000000
+
+[tools]
+hosts = testhost
+group = default
+
+[tools/testhost]
+hostname-s = testhost
+iostat = --interval=3
+mpstat = --interval=3
+perf = --record-opts=-a -freq=100 --record-opts=--call-graph --record-opts=--event=branch-misses --record-opts=--event=cache-misses --record-opts=--event=instructions
+pidstat = --interval=3
+proc-interrupts = --interval=3
+proc-vmstat = --interval=3
+sar = --interval=3
+turbostat = --interval=3
+
+--- mock-run/metadata.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum list installed pbench-agent
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum list installed pbench-agent
 --- test-execution.log file contents

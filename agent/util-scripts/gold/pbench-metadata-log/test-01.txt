@@ -1,12 +1,13 @@
-+++ Running test-01 pbench-metadata-log --dir=/var/tmp/pbench-test-utils/pbench/tmp beg
++++ Running test-01 pbench-metadata-log --dir=/var/tmp/pbench-test-utils/pbench/mock-run beg
 [error][1900-01-01T00:00:00.000000] Tool group directory, /var/tmp/pbench-test-utils/pbench/tools-default, does not exist
 --- Finished test-01 pbench-metadata-log (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/mock-run
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools.default
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] Tool group directory, /var/tmp/pbench-test-utils/pbench/tools-default, does not exist
+[error][1900-01-01T00:00:00.000000] Tool group directory, /var/tmp/pbench-test-utils/pbench/tools-default, does not exist
 --- pbench.log file contents

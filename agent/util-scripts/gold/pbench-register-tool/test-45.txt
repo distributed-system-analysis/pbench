@@ -21,13 +21,13 @@ two.example.com,labelTwo
 three.example.com
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] tool_opts: ""
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=mpstat --group=default --no-install --label=labelTwo -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
+[debug][1900-01-01T00:00:00.000000] tool_opts: ""
+[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
+[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=mpstat --group=default --no-install --label=labelTwo -- "${tool_opts[@]}" 2>&1
+[debug][1900-01-01T00:00:00.000000]  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no one.example.com  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no two.example.com  pbench-register-tool --name=mpstat --group=default --no-install --label=labelTwo -- "${tool_opts[@]}" 2>&1
-/var/tmp/pbench-test-utils/test-execution.log:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no three.example.com  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no one.example.com  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no two.example.com  pbench-register-tool --name=mpstat --group=default --no-install --label=labelTwo -- "${tool_opts[@]}" 2>&1
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no three.example.com  pbench-register-tool --name=mpstat --group=default --no-install -- "${tool_opts[@]}" 2>&1
 --- test-execution.log file contents

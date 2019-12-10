@@ -6,5 +6,5 @@
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to none
+[debug][1900-01-01T00:00:00.000000] [pbench-collect-sysinfo]: sysinfo option is set to none
 --- pbench.log file contents

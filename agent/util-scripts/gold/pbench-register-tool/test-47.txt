@@ -71,5 +71,5 @@ two.example.com
 three.example.com
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] --labels=labelOne,labelTwo not allowed with remotes file (@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis)
+[error][1900-01-01T00:00:00.000000] --labels=labelOne,labelTwo not allowed with remotes file (@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis)
 --- pbench.log file contents

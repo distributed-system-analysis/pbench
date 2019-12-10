@@ -72,5 +72,5 @@ two.example.com,labelTwo
 three.example.com,labelThree,junk
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis contains an invalid file format, expected lines with "<hostname>[,<label>]" at line #4
+[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis contains an invalid file format, expected lines with "<hostname>[,<label>]" at line #4
 --- pbench.log file contents
