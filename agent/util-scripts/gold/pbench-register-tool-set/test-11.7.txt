@@ -23,5 +23,5 @@ Available tool sets from /var/tmp/pbench-test-utils/opt/pbench-agent/config/pben
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] The number of labels given, " --labels=labelG,labelB", does not match the number of remotes given, "(default) --remotes=testhost.example.com"
+[error][1900-01-01T00:00:00.000000] The number of labels given, " --labels=labelG,labelB", does not match the number of remotes given, "(default) --remotes=testhost.example.com"
 --- pbench.log file contents

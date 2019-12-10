@@ -65,5 +65,5 @@ For a list of tool specific options, run:
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
-/var/tmp/pbench-test-utils/pbench/pbench.log:[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/doesntexist.lis specifies a file that does not exist
+[error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/doesntexist.lis specifies a file that does not exist
 --- pbench.log file contents
