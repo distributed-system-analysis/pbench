@@ -136,7 +136,7 @@ else
 fi
 case "$mode" in
 	install)
-	which go &>/dev/null
+	command -v go &>/dev/null
 	if [[ $? != 0 ]]; then
 		yum -y install go &>/dev/null
 		if [[ $? != 0 ]]; then

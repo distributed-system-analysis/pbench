@@ -89,7 +89,7 @@ chown ${user}.${group} ${archive_dir}/* \
         ${pbench_incoming_dir}/* ${pbench_results_dir}/* \
         ${pbench_users_dir}/* ${pbench_static_dir}/* 2>/dev/null
 
-if which selinuxenabled > /dev/null 2>&1 && selinuxenabled ;then
+if command -v selinuxenabled > /dev/null 2>&1 && selinuxenabled ;then
     # cannot yum install here because this script is executed as a postinstall action
     # from yum: trying to run yum again runs afoul of the yum lock. We will require
     # the packages in the spec file of the pbench-server RPM instead.

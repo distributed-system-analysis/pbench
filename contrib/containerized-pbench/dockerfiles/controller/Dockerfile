@@ -6,7 +6,7 @@ MAINTAINER Naga Ravi Chaitanya Elluri <nelluri@redhat.com>
 RUN rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     curl -s https://copr.fedorainfracloud.org/coprs/ndokos/pbench-interim/repo/epel-7/ndokos-pbench-interim-epel-7.repo > /etc/yum.repos.d/copr-pbench.repo && \
     yum --enablerepo=ndokos-pbench-interim install -y configtools openssh-clients pbench-agent \
-    iproute sysvinit-tools openssh-server git ansible which  bind-utils blktrace ethtool findutils \
+    iproute sysvinit-tools openssh-server git ansible bind-utils blktrace ethtool findutils \
     gnuplot golang httpd-tools hwloc iotop iptables-services kernel ltrace mailx maven netsniff-ng \
     net-tools ntp ntpdate numactl pciutils perf python-docker-py python-flask python-pip python-rbd \
     python2-boto3 powertop psmisc rpm-build screen sos strace tar tcpdump tmux vim-enhanced xauth wget \
