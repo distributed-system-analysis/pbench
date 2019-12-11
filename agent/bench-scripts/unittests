@@ -248,7 +248,7 @@ declare -A cmds=(
     [test-25]="pbench-user-benchmark --no-stderr-capture -- user-benchmark-script no-file"
     [test-26]="pbench-fio --client-file=${_testtmp}/test-26_clients.file --clients=bar,zab"
     [test-27]="pbench-fio --clients=foo,bar --client-file=${_testtmp}/test-27_clients.file"
-    [test-28]="pbench-fio --pre-iteration-script=$(which fio-preint) --samples=1 --test-type=read --block-sizes=8"
+    [test-28]="pbench-fio --pre-iteration-script=$(command -v fio-preint) --samples=1 --test-type=read --block-sizes=8"
     [test-29]="pbench-fio --client-file=${_testtmp}/test-29_clients.file"
     [test-30]="pbench-fio --targets=/tmp --job-file=${_testopt}/bench-scripts/templates/fio.job --block-sizes=4 --samples=1 --test-types=read --runtime=30 --file-size=256M --clients=nodeA,nodeB --numjobs=4"
     [test-31]="pbench-fio --targets=/tmp --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --block-sizes=4 --samples=1 --test-types=read --runtime=30 --file-size=256M --clients=nodeA,nodeB --numjobs=4"

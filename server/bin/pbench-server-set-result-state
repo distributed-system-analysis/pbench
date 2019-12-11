@@ -5,8 +5,8 @@
 opts=$SHELLOPTS
 case $opts in
     *xtrace*)
-        dir=$(dirname $(which $0))
-        PROG=$(basename $(which $0))
+        dir=$(dirname $(command -v $0))
+        PROG=$(basename $(command -v $0))
         ;;
     *)
         dir=$(dirname $0)
