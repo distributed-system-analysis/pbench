@@ -148,40 +148,41 @@ class Explore extends Component {
       },
       {
         title: 'Action',
+        colSpan: 2,
         dataIndex: '',
         key: 'action',
-        children: [
-          {
-            title: 'Start Session',
-            dataIndex: '',
-            key: 'start',
-            render: (text, record) => (
-              <Popconfirm
-                title="Start a new dashboard session?"
-                cancelText="No"
-                okText="Yes"
-                onConfirm={() => this.startSharedSession(record)}
-              >
-                <Button type="link">Start Session</Button>
-              </Popconfirm>
-            ),
-          },
-          {
-            title: 'Delete Session',
-            dataIndex: '',
-            key: 'delete',
-            render: (text, record) => (
-              <Popconfirm
-                title="Delete the dashboard session?"
-                cancelText="No"
-                okText="Yes"
-                onConfirm={() => this.deleteSharedSession(record)}
-              >
-                <Icon type="delete" theme="twoTone" style={{ textAlign: 'right' }} />
-              </Popconfirm>
-            ),
-          },
-        ],
+        render: (text, record) => (
+          <Popconfirm
+            title="Start a new dashboard session?"
+            cancelText="No"
+            okText="Yes"
+            onConfirm={() => this.startSharedSession(record)}
+          >
+            <Button type="link">Start Session</Button>
+          </Popconfirm>
+        ),
+      },
+      {
+        title: 'Delete',
+        colSpan: 0,
+        dataIndex: '',
+        key: 'delete',
+        render: record => {
+          const value = (
+            <Popconfirm
+              title="Delete the dashboard session?"
+              cancelText="No"
+              okText="Yes"
+              onConfirm={() => this.deleteSharedSession(record)}
+            >
+              <Icon type="delete" theme="twoTone" style={{ textAlign: 'right' }} />
+            </Popconfirm>
+          );
+          const obj = {
+            children: value,
+          };
+          return obj;
+        },
       },
     ];
 
