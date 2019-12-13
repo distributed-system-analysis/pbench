@@ -10,7 +10,7 @@ jobs:
         - sudo apt-get update
       install:
         - sudo apt-get install python python-pip bc libjson-perl libswitch-perl realpath
-        - sudo pip install configtools
+        - sudo pip install configparser configtools
         - sudo apt-get install python-software-properties
         - sudo add-apt-repository ppa:fkrull/deadsnakes -y
         - sudo apt-get update -y -qq
