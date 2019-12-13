@@ -9,9 +9,9 @@ The remote host fubar2 no longer has tools registered for default group, so the 
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/mpstat
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar
-/var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
 --interval: 34
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar:
 --- pbench tree state
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no -o ConnectTimeout=1 -n fubar2 . /var/tmp/pbench-test-utils/opt/pbench-agent/profile; pbench-clear-tools --group default 

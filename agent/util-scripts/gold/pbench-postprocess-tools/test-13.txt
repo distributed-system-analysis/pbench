@@ -11,7 +11,7 @@ tar: Exiting with failure status due to previous errors
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@fubar:
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration --group=default --iteration=1

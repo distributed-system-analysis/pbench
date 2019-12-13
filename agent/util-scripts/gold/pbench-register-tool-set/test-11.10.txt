@@ -9,9 +9,9 @@ sar tool is now registered in group default
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/pidstat
 /var/tmp/pbench-test-utils/pbench/tools-default/sar
-/var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tools-default/sar:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/sar:
 --interval=3
 --- pbench tree state
 +++ pbench.log file contents

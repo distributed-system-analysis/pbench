@@ -17,11 +17,11 @@
 /var/tmp/pbench-test-utils/pbench/tools-default/foo
 /var/tmp/pbench-test-utils/pbench/tools-default/iostat
 /var/tmp/pbench-test-utils/pbench/tools-default/label
-/var/tmp/pbench-test-utils/pbench/tools-default/foo:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/foo:
 --interval=10
-/var/tmp/pbench-test-utils/pbench/tools-default/iostat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/iostat:
 --interval=10
-/var/tmp/pbench-test-utils/pbench/tools-default/label:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/label:
 bar
 --- pbench tree state
 +++ pbench.log file contents

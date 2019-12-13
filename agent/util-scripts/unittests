@@ -124,18 +124,16 @@ function _run {
 function _save_tree {
     # Save state of the tree
     echo "+++ pbench tree state" >> ${_testout}
-    find ${_testdir} | sort >> ${_testout}
-    if [[ -d "${_testdir}/tools-default" ]]; then
-        pushd "${_testdir}/tools-default" >/dev/null
-        for x in $(ls); do
-            echo "${_testdir}/tools-default/${x}:"
-            cat ${x}
-        done
-        popd >/dev/null
-    fi >> ${_testout}
-    for x in $(find ${_testdir}/tmp -type f); do
-        echo ${x}:
-        sed '/start_run/d' ${x}
+    find ${_testdir} 2> /dev/null | sort >> ${_testout}
+
+    for x in $(find "${_testdir}/tools"-* -type f 2> /dev/null | sort); do
+        echo "=== ${x}:"
+        cat ${x}
+    done >> ${_testout}
+
+    for x in $(find "${_testdir}/tmp" -type f 2> /dev/null | sort); do
+        echo "=== ${x}:"
+        cat ${x}
     done >> ${_testout}
     echo "--- pbench tree state" >> ${_testout}
 }

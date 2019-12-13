@@ -9,7 +9,7 @@
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/sar
-/var/tmp/pbench-test-utils/pbench/tools-default/sar:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/sar:
 --interval=40
 
 --- pbench tree state

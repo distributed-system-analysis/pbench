@@ -64,7 +64,7 @@ For a list of tool specific options, run:
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tmp/remotes.lis
-/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis:
+=== /var/tmp/pbench-test-utils/pbench/tmp/remotes.lis:
 # bad list
 one.example.com
 two.example.com,labelTwo

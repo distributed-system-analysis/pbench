@@ -9,9 +9,9 @@ turbostat tool is now registered in group default
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@one.example.com
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@two.example.com
 /var/tmp/pbench-test-utils/pbench/tools-default/turbostat
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@one.example.com:
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@two.example.com:
-/var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@one.example.com:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@two.example.com:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] tool_opts: ""

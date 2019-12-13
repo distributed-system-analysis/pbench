@@ -9,7 +9,7 @@
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/numastat
-/var/tmp/pbench-test-utils/pbench/tools-default/numastat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/numastat:
 --interval=50
 --- pbench tree state
 +++ pbench.log file contents

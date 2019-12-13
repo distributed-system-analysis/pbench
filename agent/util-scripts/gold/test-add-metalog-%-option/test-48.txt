@@ -6,7 +6,7 @@
 /var/tmp/pbench-test-utils/pbench/mock-run/metadata.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tmp/foo.txt
-/var/tmp/pbench-test-utils/pbench/tmp/foo.txt:
+=== /var/tmp/pbench-test-utils/pbench/tmp/foo.txt:
 30%
 --- pbench tree state
 +++ mock-run/metadata.log file contents
