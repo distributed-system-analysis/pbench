@@ -1,22 +1,22 @@
 import config from './datastoreConfig';
+import constants from '../config/constants';
 
-export const mockControllerAggregation = {
+// Generate controllers as per max page size options
+const maxTableSize = parseInt(constants.tableSizeOptions.pop(), 10);
+let generatedBuckets = new Array(maxTableSize).fill({});
+generatedBuckets = generatedBuckets.map((val, index) => {
+  const key = index + 1;
+  return {
+    key: `controller_${key}`,
+    doc_count: key,
+    runs_prev1: { value: null },
+    runs: { value: key, value_as_string: key.toString() },
+  };
+});
+export const generateMockControllerAggregation = {
   aggregations: {
     controllers: {
-      buckets: [
-        {
-          key: 'a_test_controller',
-          doc_count: 1,
-          runs_preV1: { value: null },
-          runs: { value: 1, value_as_string: '1111-11-11' },
-        },
-        {
-          key: 'b_test_controller',
-          doc_count: 2,
-          runs_preV1: { value: null },
-          runs: { value: 2, value_as_string: '2222-22-22' },
-        },
-      ],
+      buckets: generatedBuckets,
     },
   },
 };

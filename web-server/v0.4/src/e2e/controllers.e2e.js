@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { mockControllerAggregation, mockIndices } from '../../mock/api';
+import { generateMockControllerAggregation, mockIndices } from '../../mock/api';
 
 let browser;
 let page;
@@ -18,7 +18,7 @@ beforeAll(async () => {
         status: 200,
         contentType: 'application/json',
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify(mockControllerAggregation),
+        body: JSON.stringify(generateMockControllerAggregation),
       });
     } else if (request.method() === 'GET' && request.url().includes('indices')) {
       request.respond({
@@ -45,7 +45,7 @@ describe('controller page component', () => {
       const testController = await page.$eval('.ant-table-row', elem =>
         elem.getAttribute('data-row-key')
       );
-      expect(testController).toBe('a_test_controller');
+      expect(testController).toBe('controller_1');
       done();
     },
     30000
@@ -59,7 +59,7 @@ describe('controller page component', () => {
     await page.type('.ant-input', testController);
     await page.click('.ant-input-search-button');
     testController = await page.$eval('.ant-table-row', elem => elem.getAttribute('data-row-key'));
-    expect(testController).toBe('a_test_controller');
+    expect(testController).toBe('controller_1');
   });
 
   test('should reset search results', async () => {
@@ -72,7 +72,7 @@ describe('controller page component', () => {
     const testController = await page.$eval('.ant-table-row', elem =>
       elem.getAttribute('data-row-key')
     );
-    expect(testController).toBe('a_test_controller');
+    expect(testController).toBe('controller_1');
   });
 
   test('should sort controllers column alphabetically ascending', async () => {
@@ -86,7 +86,7 @@ describe('controller page component', () => {
     const testController = await page.$eval('.ant-table-row', elem =>
       elem.getAttribute('data-row-key')
     );
-    expect(testController).toBe('a_test_controller');
+    expect(testController).toBe('controller_1');
   });
 
   test('should sort controllers column alphabetically descending', async () => {
@@ -99,7 +99,7 @@ describe('controller page component', () => {
     const testController = await page.$eval('.ant-table-row', elem =>
       elem.getAttribute('data-row-key')
     );
-    expect(testController).toBe('b_test_controller');
+    expect(testController).toBe('controller_99');
   });
 
   test('should sort last modified column chronologically ascending', async () => {
@@ -112,7 +112,7 @@ describe('controller page component', () => {
     const testController = await page.$eval('.ant-table-row', elem =>
       elem.getAttribute('data-row-key')
     );
-    expect(testController).toBe('a_test_controller');
+    expect(testController).toBe('controller_1');
   });
 
   test('should sort last modified column chronologically descending', async () => {
@@ -125,7 +125,7 @@ describe('controller page component', () => {
     const testController = await page.$eval('.ant-table-row', elem =>
       elem.getAttribute('data-row-key')
     );
-    expect(testController).toBe('b_test_controller');
+    expect(testController).toBe('controller_100');
   });
 
   test('should sort results column numerically ascending', async () => {
@@ -138,7 +138,7 @@ describe('controller page component', () => {
     const testController = await page.$eval('.ant-table-row', elem =>
       elem.getAttribute('data-row-key')
     );
-    expect(testController).toBe('a_test_controller');
+    expect(testController).toBe('controller_1');
   });
 
   test('should sort results column numerically descending', async () => {
@@ -151,7 +151,7 @@ describe('controller page component', () => {
     const testController = await page.$eval('.ant-table-row', elem =>
       elem.getAttribute('data-row-key')
     );
-    expect(testController).toBe('b_test_controller');
+    expect(testController).toBe('controller_100');
   });
 
   test('should select month index', async () => {
@@ -169,4 +169,30 @@ describe('controller page component', () => {
     },
     30000
   );
+
+  test('should display 10 controllers in the table by default', async () => {
+    const rows = await page.$$('.ant-table-row');
+    expect(rows.length).toBe(10);
+  });
+
+  test('should display 20 controllers on preference', async () => {
+    await page.click('.ant-select-selection.ant-select-selection--single');
+    await page.click('.ant-select-dropdown-menu-item:nth-child(2)');
+    const rows = await page.$$('.ant-table-row');
+    expect(rows.length).toBe(20);
+  });
+
+  test('should display 50 controllers on preference', async () => {
+    await page.click('.ant-select-selection.ant-select-selection--single');
+    await page.click('.ant-select-dropdown-menu-item:nth-child(3)');
+    const rows = await page.$$('.ant-table-row');
+    expect(rows.length).toBe(50);
+  });
+
+  test('should display 100 controllers on preference', async () => {
+    await page.click('.ant-select-selection.ant-select-selection--single');
+    await page.click('.ant-select-dropdown-menu-item:nth-child(4)');
+    const rows = await page.$$('.ant-table-row');
+    expect(rows.length).toBe(100);
+  });
 });
