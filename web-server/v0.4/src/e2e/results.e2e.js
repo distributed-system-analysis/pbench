@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { mockControllerAggregation, mockIndices, mockResults } from '../../mock/api';
+import { generateMockControllerAggregation, mockIndices, mockResults } from '../../mock/api';
 
 let browser;
 let page;
@@ -18,7 +18,7 @@ beforeAll(async () => {
         status: 200,
         contentType: 'application/json',
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify(mockControllerAggregation),
+        body: JSON.stringify(generateMockControllerAggregation),
       });
     } else if (request.method() === 'GET' && request.url().includes('indices')) {
       request.respond({
@@ -52,7 +52,7 @@ describe('results page component', () => {
       const testController = await page.$eval('.ant-table-row', elem =>
         elem.getAttribute('data-row-key')
       );
-      expect(testController).toBe('a_test_controller');
+      expect(testController).toBe('controller_1');
       done();
     },
     30000
