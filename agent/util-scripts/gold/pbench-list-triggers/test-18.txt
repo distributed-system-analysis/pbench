@@ -12,12 +12,13 @@ foo:START FOO:STOP FOO
 /var/tmp/pbench-test-utils/pbench/tools-default/turbostat
 /var/tmp/pbench-test-utils/pbench/tools-foo
 /var/tmp/pbench-test-utils/pbench/tools-foo/iostat
-/var/tmp/pbench-test-utils/pbench/tools-default/perf:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/perf:
 --record-opts=record -a --freq=100
-/var/tmp/pbench-test-utils/pbench/tools-default/proc-interrupts:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/proc-interrupts:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tools-default/proc-vmstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/proc-vmstat:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
 --interval=3
+=== /var/tmp/pbench-test-utils/pbench/tools-foo/iostat:
 --- pbench tree state

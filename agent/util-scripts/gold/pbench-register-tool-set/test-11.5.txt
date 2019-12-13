@@ -8,9 +8,9 @@
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@a.example.com
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@b.example.com
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@c.example.com
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@a.example.com:
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@b.example.com:
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@c.example.com:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@a.example.com:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@b.example.com:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@c.example.com:
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"

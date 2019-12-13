@@ -17,27 +17,27 @@
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@perf104
 /var/tmp/pbench-test-utils/pbench/tools-default/sar
 /var/tmp/pbench-test-utils/pbench/tools-default/turbostat
-/var/tmp/pbench-test-utils/pbench/tools-default/iostat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/iostat:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tools-default/label:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/label:
 packet-generator
-/var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tools-default/perf:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/perf:
 --record-opts=record -a --freq=100
-/var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tools-default/proc-interrupts:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/proc-interrupts:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tools-default/proc-vmstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/proc-vmstat:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@dhcp31-174:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@dhcp31-174:
 kvmguest
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@perf104:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@perf104:
 kvmhost
-/var/tmp/pbench-test-utils/pbench/tools-default/sar:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/sar:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/turbostat:
 --interval=3
 --- pbench tree state
 +++ mock-run/metadata.log file contents

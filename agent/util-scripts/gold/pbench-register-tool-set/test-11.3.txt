@@ -15,15 +15,15 @@ perf tool is now registered in group default
 /var/tmp/pbench-test-utils/pbench/tools-default/perf
 /var/tmp/pbench-test-utils/pbench/tools-default/pidstat
 /var/tmp/pbench-test-utils/pbench/tools-default/sar
-/var/tmp/pbench-test-utils/pbench/tools-default/iostat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/iostat:
 --interval=10
-/var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
 --interval=10
-/var/tmp/pbench-test-utils/pbench/tools-default/perf:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/perf:
 --record-opts=record -a --freq=100
-/var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
 --interval=30
-/var/tmp/pbench-test-utils/pbench/tools-default/sar:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/sar:
 --interval=10
 --- pbench tree state
 +++ pbench.log file contents

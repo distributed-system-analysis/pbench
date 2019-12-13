@@ -33,9 +33,9 @@ baz
 /var/tmp/pbench-test-utils/pbench/tool-triggers
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/sar
-/var/tmp/pbench-test-utils/pbench/tools-default/sar:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/sar:
 --interval=3
-/var/tmp/pbench-test-utils/pbench/tmp/.empty:
+=== /var/tmp/pbench-test-utils/pbench/tmp/.empty:
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] [pbench-start-tools]started: --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1

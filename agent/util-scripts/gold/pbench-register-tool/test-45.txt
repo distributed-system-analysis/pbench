@@ -9,11 +9,11 @@
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@one.example.com
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@three.example.com
 /var/tmp/pbench-test-utils/pbench/tools-default/remote@two.example.com
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@one.example.com:
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@three.example.com:
-/var/tmp/pbench-test-utils/pbench/tools-default/remote@two.example.com:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@one.example.com:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@three.example.com:
+=== /var/tmp/pbench-test-utils/pbench/tools-default/remote@two.example.com:
 labelTwo
-/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis:
+=== /var/tmp/pbench-test-utils/pbench/tmp/remotes.lis:
 # good list
 one.example.com
 two.example.com,labelTwo
