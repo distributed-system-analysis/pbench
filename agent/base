@@ -120,13 +120,21 @@ if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     fi
     # don't use colons and dashes in the date suffix
     export date_suffix=$(date --date ${date} --utc +"%Y.%m.%dT%H.%M.%S")
-    hostname=`hostname -s`
-    full_hostname=`hostname`
+    if [[ -z "${hostname}" ]]; then
+        export hostname=$(hostname -s)
+    fi
+    if [[ -z "${full_hostname}" ]]; then
+        export full_hostname=$(hostname)
+    fi
 else
     export date="1900-01-01T00:00:00"
     export date_suffix="1900.01.01T00.00.00"
-    hostname="testhost"
-    full_hostname="testhost.example.com"
+    if [[ -z "${hostname}" ]]; then
+        export hostname="testhost"
+    fi
+    if [[ -z "${full_hostname}" ]]; then
+        export full_hostname="testhost.example.com"
+    fi
 fi
 
 if [[ -z "$ssh_opts" ]]; then
@@ -260,11 +268,11 @@ function verify_collect_sysinfo {
 }
 
 function verify_common_bench_script_options {
-    verify_tool_group $1
-    local ret_tg=$?
-    verify_collect_sysinfo $2
-    local ret_cs=$?
-    if [[ $ret_tg -ne 0 || $ret_cs -ne 0 ]]; then
+    verify_tool_group "${1}"
+    local ret_tg=${?}
+    verify_collect_sysinfo "${2}"
+    local ret_cs=${?}
+    if [[ ${ret_tg} -ne 0 || ${ret_cs} -ne 0 ]]; then
         printf -- "\n"
         usage
         exit 1
