@@ -29,10 +29,35 @@ cp -rL ${_tdir}/../config/* ${_testopt}/config/
 let res=res+${?}
 scripts="${_tdir}/pbench-*"
 for script in ${scripts}; do
+    if [[ -d "${script}" ]]; then
+        echo "ERROR: unexpected pbench-* directory found, \"${script}\"" >&2
+        exit 1
+    fi
     cp -L ${script} ${_testopt}/util-scripts/
     let res=res+${?}
 done
-cp -rL ${_tdir}/../tool-scripts/* ${_testopt}/tool-scripts/
+scripts="${_tdir}/../tool-scripts/*"
+for script in ${scripts}; do
+    if [[ "${script}" == *README ]]; then
+        # Ignore all README files
+        continue
+    fi
+    if [[ -d "${script}" ]]; then
+        # Ignore any sub-directories
+        continue
+    fi
+    cp -L ${script} ${_testopt}/tool-scripts/
+    let res=res+${?}
+done
+mkdir ${_testopt}/tool-scripts/datalog ${_testopt}/tool-scripts/postprocess
+let res=res+${?}
+cp -L ${_tdir}/../tool-scripts/datalog/*-datalog ${_testopt}/tool-scripts/datalog/ 
+let res=res+${?}
+cp -L ${_tdir}/../tool-scripts/postprocess/*-convert ${_testopt}/tool-scripts/postprocess/ 
+let res=res+${?}
+cp -L ${_tdir}/../tool-scripts/postprocess/*-postprocess ${_testopt}/tool-scripts/postprocess/ 
+let res=res+${?}
+cp ${_tdir}/../tool-scripts/postprocess/*-postprocess-cdm ${_testopt}/tool-scripts/postprocess/ 
 let res=res+${?}
 cp -rL ${_tdir}/../lib/* ${_testopt}/lib/
 let res=res+${?}
