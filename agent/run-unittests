@@ -29,23 +29,23 @@ function tail_and_wait {
 
 trap "kill -KILL -$$ > /dev/null 2>&1" INT TERM QUIT
 
-> /var/tmp/agent.bench-scripts.out
-$dir/bench-scripts/unittests > /var/tmp/agent.bench-scripts.out 2>&1 < /dev/null &
-bpid=$!
+> /var/tmp/agent.tool-scripts.dl.out
+$dir/tool-scripts/datalog/unittests > /var/tmp/agent.tool-scripts.dl.out 2>&1 < /dev/null &
+tdpid=$!
 
 > /var/tmp/agent.tool-scripts.pp.out
 $dir/tool-scripts/postprocess/unittests > /var/tmp/agent.tool-scripts.pp.out 2>&1 < /dev/null &
 tppid=$!
 
-> /var/tmp/agent.tool-scripts.dl.out
-$dir/tool-scripts/datalog/unittests > /var/tmp/agent.tool-scripts.dl.out 2>&1 < /dev/null &
-tdpid=$!
-
 > /var/tmp/agent.util-scripts.out
 $dir/util-scripts/unittests > /var/tmp/agent.util-scripts.out 2>&1 < /dev/null &
 upid=$!
 
-tail_and_wait $bpid 'Agent bench-scripts' /var/tmp/agent.bench-scripts.out
+> /var/tmp/agent.bench-scripts.out
+$dir/bench-scripts/unittests > /var/tmp/agent.bench-scripts.out 2>&1 < /dev/null &
+bpid=$!
+
+tail_and_wait $tdpid 'Agent tool-scripts/datalog' /var/tmp/agent.tool-scripts.dl.out
 let sts=sts+$?
 
 printf -- "\n\n\n"
@@ -55,12 +55,12 @@ let sts=sts+$?
 
 printf -- "\n\n\n"
 
-tail_and_wait $tdpid 'Agent tool-scripts/datalog' /var/tmp/agent.tool-scripts.dl.out
+tail_and_wait $upid 'Agent util-scripts' /var/tmp/agent.util-scripts.out
 let sts=sts+$?
 
 printf -- "\n\n\n"
 
-tail_and_wait $upid 'Agent util-scripts' /var/tmp/agent.util-scripts.out
+tail_and_wait $bpid 'Agent bench-scripts' /var/tmp/agent.bench-scripts.out
 let sts=sts+$?
 
 if [ $sts -gt 0 ]; then
