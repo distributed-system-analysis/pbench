@@ -1,0 +1,1745 @@
++++ Running test-CL test-benchmark-clis
+
+Bench Script: pbench-cyclictest --help 
+------------
+	The following options are available:
+
+		-c str --config=str name of the test config
+		-r --runtime[s] int[s|m|h][,int[s|m|h] one or more test measurement periods. s=seconds, m=minutes, h=hours (default is 1m)
+		-C --cpu int                                  cpu to bind to
+		-s --stress                                   run stress process on the same cpu as --cpu
+		--tool-group=str
+		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
+		                                                   available: 
+
+Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
+------------
+	pbench-cyclictest: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+	The following options are available:
+
+		-c str --config=str name of the test config
+		-r --runtime[s] int[s|m|h][,int[s|m|h] one or more test measurement periods. s=seconds, m=minutes, h=hours (default is 1m)
+		-C --cpu int                                  cpu to bind to
+		-s --stress                                   run stress process on the same cpu as --cpu
+		--tool-group=str
+		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
+		                                                   available: 
+
+Bench Script: pbench-cyclictest --bad-to-the-bone 
+------------
+pbench-cyclictest --bad-to-the-bone
+
+	unrecognized option specified
+
+	The following options are available:
+
+		-c str --config=str name of the test config
+		-r --runtime[s] int[s|m|h][,int[s|m|h] one or more test measurement periods. s=seconds, m=minutes, h=hours (default is 1m)
+		-C --cpu int                                  cpu to bind to
+		-s --stress                                   run stress process on the same cpu as --cpu
+		--tool-group=str
+		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
+		                                                   available: 
+
+Bench Script: pbench-dbench --help 
+------------
+	The following options are available:
+
+		             --tool-group=str
+		-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)
+		-r int       --runtime=int              test measurement period in seconds (default is 60)
+		-t int[,int] --threads=int[,int]        a list of the number of dbench threads to run (default is )
+		-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the
+		                                        dbench client (drive the test).
+		                                        If this is omitted, the local system is the client
+		             --client-node[s]=str[,str] An ordered list of client NUMA nodes which should be used for CPU binding
+		                                        The order must correspond with the --clients list
+		                                        To omit a specific client from binding, use a value of -1
+		             --samples=int              the number of times each different test is run (to compute average &
+		                                        standard deviations)
+		             --max-failures=int         the maximm number of failures to get below stddev
+		             --max-stddev=int           the maximm percent stddev allowed to pass
+		             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test
+		             --run-dir=str              optionally specify what directory should be used (usually only used
+		                                        if postprocess-only=y)
+		             --start-iteration-num=int  optionally skip the first (n-1) tests
+		             --tool-label-pattern=str   dbench will provide CPU and efficiency information for any tool directory
+		                                        with a "^<pattern>" in the name, provided "sar" is one of the
+		                                        registered tools.
+		                                        a default pattern, "dbench-" is used if none is provided.
+		                                        simply register your tools with "--label=dbench-$X", and this script
+		                                        will genrate CPU_dbench-$X and MBps/CPU_dbench-$X
+		                                        for all tools which have that pattern as a
+		                                        prefix.  if you don't want to register your tools with "dbench-" as
+		                                        part of the label, just use --tool-label-pattern= to tell this script
+		                                        the prefix pattern to use for CPU information.
+		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
+		                                             available: 
+
+Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
+------------
+	pbench-dbench: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+	The following options are available:
+
+		             --tool-group=str
+		-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)
+		-r int       --runtime=int              test measurement period in seconds (default is 60)
+		-t int[,int] --threads=int[,int]        a list of the number of dbench threads to run (default is )
+		-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the
+		                                        dbench client (drive the test).
+		                                        If this is omitted, the local system is the client
+		             --client-node[s]=str[,str] An ordered list of client NUMA nodes which should be used for CPU binding
+		                                        The order must correspond with the --clients list
+		                                        To omit a specific client from binding, use a value of -1
+		             --samples=int              the number of times each different test is run (to compute average &
+		                                        standard deviations)
+		             --max-failures=int         the maximm number of failures to get below stddev
+		             --max-stddev=int           the maximm percent stddev allowed to pass
+		             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test
+		             --run-dir=str              optionally specify what directory should be used (usually only used
+		                                        if postprocess-only=y)
+		             --start-iteration-num=int  optionally skip the first (n-1) tests
+		             --tool-label-pattern=str   dbench will provide CPU and efficiency information for any tool directory
+		                                        with a "^<pattern>" in the name, provided "sar" is one of the
+		                                        registered tools.
+		                                        a default pattern, "dbench-" is used if none is provided.
+		                                        simply register your tools with "--label=dbench-$X", and this script
+		                                        will genrate CPU_dbench-$X and MBps/CPU_dbench-$X
+		                                        for all tools which have that pattern as a
+		                                        prefix.  if you don't want to register your tools with "dbench-" as
+		                                        part of the label, just use --tool-label-pattern= to tell this script
+		                                        the prefix pattern to use for CPU information.
+		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
+		                                             available: 
+
+Bench Script: pbench-dbench --bad-to-the-bone 
+------------
+pbench-dbench --bad-to-the-bone
+
+	unrecognized option specified
+
+	The following options are available:
+
+		             --tool-group=str
+		-c str       --config=str               name of the test config (i.e. jumbo_frames_and_network_throughput)
+		-r int       --runtime=int              test measurement period in seconds (default is 60)
+		-t int[,int] --threads=int[,int]        a list of the number of dbench threads to run (default is )
+		-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the
+		                                        dbench client (drive the test).
+		                                        If this is omitted, the local system is the client
+		             --client-node[s]=str[,str] An ordered list of client NUMA nodes which should be used for CPU binding
+		                                        The order must correspond with the --clients list
+		                                        To omit a specific client from binding, use a value of -1
+		             --samples=int              the number of times each different test is run (to compute average &
+		                                        standard deviations)
+		             --max-failures=int         the maximm number of failures to get below stddev
+		             --max-stddev=int           the maximm percent stddev allowed to pass
+		             --postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test
+		             --run-dir=str              optionally specify what directory should be used (usually only used
+		                                        if postprocess-only=y)
+		             --start-iteration-num=int  optionally skip the first (n-1) tests
+		             --tool-label-pattern=str   dbench will provide CPU and efficiency information for any tool directory
+		                                        with a "^<pattern>" in the name, provided "sar" is one of the
+		                                        registered tools.
+		                                        a default pattern, "dbench-" is used if none is provided.
+		                                        simply register your tools with "--label=dbench-$X", and this script
+		                                        will genrate CPU_dbench-$X and MBps/CPU_dbench-$X
+		                                        for all tools which have that pattern as a
+		                                        prefix.  if you don't want to register your tools with "dbench-" as
+		                                        part of the label, just use --tool-label-pattern= to tell this script
+		                                        the prefix pattern to use for CPU information.
+		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
+		                                             available: 
+
+Bench Script: pbench-fio --help 
+------------
+The following options are available:
+
+	-t str[,str] --test-types=str[,str]
+		one or more of read,write,rw,randread,randwrite,randrw
+
+	--direct=[0/1]
+		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
+
+	--sync=[0/1]
+		1 = O_SYNC enabled, 0 = O_SYNC disabled (default)
+
+	--rate-iops=int
+		do not exceeed this IOP rate (per job, per client)
+
+	-r int --runtime=int
+		runtime in seconds (default is )
+
+	--ramptime=int
+		time in seconds to warm up test before taking measurements (default is )
+
+	-b int[,int] --block-sizes=str[,str] (default is 4,64,1024)
+		one or more block sizes in KiB
+
+	-s int[,int] --file-size=str[,str] (no default)
+		file sizes in MiB
+
+	-d str[,str] --targets=str[,str]
+		one or more directories or block devices (default is /tmp/fio)
+		(persistent names for devices highly recommended)
+
+	-j str --job-mode=str    str=[serial|concurrent]  (default is 'concurrent')
+		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
+		of fio job parameters are run against each target one at a time, while with 'concurrent'
+		mode all target devices are used at the same time.
+
+	--ioengine=str           str= any ioengine fio supports (default is )
+
+	--iodepth=<int>		Set the iodepth config variable in the fio job file
+
+	-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run
+		If no clients are specified, fio is run locally
+		Note: the pbench-agent must be installed on each of the client systems already.
+
+	--client-file=str        str= file (with absolute path) which contains 1 client per line
+
+	--config=str
+		name of the test configuration
+
+	--tool-group=str
+
+	--postprocess-only=[y|n]
+		use this only if you want to postprocess an existing result again
+		you must use --run-dir option with this
+
+	--run-dir=<path>
+		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench-agent
+
+	--numjobs=<int>
+		number of jobs to run, if not given then fio default of numjobs=1 will be used
+
+	--job-file=<path>
+		provide the path of a fio job config file, (default is /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/templates/fio.job)
+
+	--pre-iteration-script=str
+		use executable script/program to prepare the system for test iteration
+		example: --pre-iteration-script=$HOME/drop-cache.sh
+
+	--samples=<int>
+		number of samples to use per test iteration (default is 5)
+
+	--max-stddev=<int>
+		the maximum percent stddev allowed to pass
+
+	--max-failures=<int>
+		the maximum number of failures to get below stddev
+
+	--install
+		install only (default is False)
+
+	--histogram-interval-sec=<int>
+		set the histogram logging interval in seconds (default 10)
+
+	--sysinfo=str            str= comma separated values of sysinfo to be collected
+		available: 
+
+Bench Script: pbench-fio --tool-group=bad --sysinfo=bad
+------------
+	pbench-fio: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+The following options are available:
+
+	-t str[,str] --test-types=str[,str]
+		one or more of read,write,rw,randread,randwrite,randrw
+
+	--direct=[0/1]
+		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
+
+	--sync=[0/1]
+		1 = O_SYNC enabled, 0 = O_SYNC disabled (default)
+
+	--rate-iops=int
+		do not exceeed this IOP rate (per job, per client)
+
+	-r int --runtime=int
+		runtime in seconds (default is )
+
+	--ramptime=int
+		time in seconds to warm up test before taking measurements (default is )
+
+	-b int[,int] --block-sizes=str[,str] (default is 4,64,1024)
+		one or more block sizes in KiB
+
+	-s int[,int] --file-size=str[,str] (no default)
+		file sizes in MiB
+
+	-d str[,str] --targets=str[,str]
+		one or more directories or block devices (default is /tmp/fio)
+		(persistent names for devices highly recommended)
+
+	-j str --job-mode=str    str=[serial|concurrent]  (default is 'concurrent')
+		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
+		of fio job parameters are run against each target one at a time, while with 'concurrent'
+		mode all target devices are used at the same time.
+
+	--ioengine=str           str= any ioengine fio supports (default is )
+
+	--iodepth=<int>		Set the iodepth config variable in the fio job file
+
+	-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run
+		If no clients are specified, fio is run locally
+		Note: the pbench-agent must be installed on each of the client systems already.
+
+	--client-file=str        str= file (with absolute path) which contains 1 client per line
+
+	--config=str
+		name of the test configuration
+
+	--tool-group=str
+
+	--postprocess-only=[y|n]
+		use this only if you want to postprocess an existing result again
+		you must use --run-dir option with this
+
+	--run-dir=<path>
+		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench-agent
+
+	--numjobs=<int>
+		number of jobs to run, if not given then fio default of numjobs=1 will be used
+
+	--job-file=<path>
+		provide the path of a fio job config file, (default is /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/templates/fio.job)
+
+	--pre-iteration-script=str
+		use executable script/program to prepare the system for test iteration
+		example: --pre-iteration-script=$HOME/drop-cache.sh
+
+	--samples=<int>
+		number of samples to use per test iteration (default is 5)
+
+	--max-stddev=<int>
+		the maximum percent stddev allowed to pass
+
+	--max-failures=<int>
+		the maximum number of failures to get below stddev
+
+	--install
+		install only (default is False)
+
+	--histogram-interval-sec=<int>
+		set the histogram logging interval in seconds (default 10)
+
+	--sysinfo=str            str= comma separated values of sysinfo to be collected
+		available: 
+
+Bench Script: pbench-fio --bad-to-the-bone 
+------------
+pbench-fio --bad-to-the-bone
+
+	unrecognized option specified
+
+The following options are available:
+
+	-t str[,str] --test-types=str[,str]
+		one or more of read,write,rw,randread,randwrite,randrw
+
+	--direct=[0/1]
+		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
+
+	--sync=[0/1]
+		1 = O_SYNC enabled, 0 = O_SYNC disabled (default)
+
+	--rate-iops=int
+		do not exceeed this IOP rate (per job, per client)
+
+	-r int --runtime=int
+		runtime in seconds (default is )
+
+	--ramptime=int
+		time in seconds to warm up test before taking measurements (default is )
+
+	-b int[,int] --block-sizes=str[,str] (default is 4,64,1024)
+		one or more block sizes in KiB
+
+	-s int[,int] --file-size=str[,str] (no default)
+		file sizes in MiB
+
+	-d str[,str] --targets=str[,str]
+		one or more directories or block devices (default is /tmp/fio)
+		(persistent names for devices highly recommended)
+
+	-j str --job-mode=str    str=[serial|concurrent]  (default is 'concurrent')
+		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
+		of fio job parameters are run against each target one at a time, while with 'concurrent'
+		mode all target devices are used at the same time.
+
+	--ioengine=str           str= any ioengine fio supports (default is )
+
+	--iodepth=<int>		Set the iodepth config variable in the fio job file
+
+	-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run
+		If no clients are specified, fio is run locally
+		Note: the pbench-agent must be installed on each of the client systems already.
+
+	--client-file=str        str= file (with absolute path) which contains 1 client per line
+
+	--config=str
+		name of the test configuration
+
+	--tool-group=str
+
+	--postprocess-only=[y|n]
+		use this only if you want to postprocess an existing result again
+		you must use --run-dir option with this
+
+	--run-dir=<path>
+		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench-agent
+
+	--numjobs=<int>
+		number of jobs to run, if not given then fio default of numjobs=1 will be used
+
+	--job-file=<path>
+		provide the path of a fio job config file, (default is /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/templates/fio.job)
+
+	--pre-iteration-script=str
+		use executable script/program to prepare the system for test iteration
+		example: --pre-iteration-script=$HOME/drop-cache.sh
+
+	--samples=<int>
+		number of samples to use per test iteration (default is 5)
+
+	--max-stddev=<int>
+		the maximum percent stddev allowed to pass
+
+	--max-failures=<int>
+		the maximum number of failures to get below stddev
+
+	--install
+		install only (default is False)
+
+	--histogram-interval-sec=<int>
+		set the histogram logging interval in seconds (default 10)
+
+	--sysinfo=str            str= comma separated values of sysinfo to be collected
+		available: 
+
+Bench Script: pbench-iozone --help 
+------------
+	The following options are available:
+
+		-C str --config=str name of the test config
+		-d str[,str] --targets=str[,str]
+			file to use for iozone test in format /dir/file - this is iozone : -f option
+		-s str[,str] --file_sizes=str[,str]
+			one or more file_sizes sizes to use
+		-r str[,str] --record_sizes=str[,str]
+			one or more record_sizes sizes to use
+		-n str[,str] --number_of_runs=str[,str]
+			number of iozone runs - default is 10 runs
+		--tool-group=str
+		--sysinfo=str, str= comma separated values of sysinfo to be collected
+		                    available: 
+
+Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
+------------
+	pbench-iozone: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+	The following options are available:
+
+		-C str --config=str name of the test config
+		-d str[,str] --targets=str[,str]
+			file to use for iozone test in format /dir/file - this is iozone : -f option
+		-s str[,str] --file_sizes=str[,str]
+			one or more file_sizes sizes to use
+		-r str[,str] --record_sizes=str[,str]
+			one or more record_sizes sizes to use
+		-n str[,str] --number_of_runs=str[,str]
+			number of iozone runs - default is 10 runs
+		--tool-group=str
+		--sysinfo=str, str= comma separated values of sysinfo to be collected
+		                    available: 
+
+Bench Script: pbench-iozone --bad-to-the-bone 
+------------
+pbench-iozone --bad-to-the-bone
+
+	unrecognized option specified
+
+	The following options are available:
+
+		-C str --config=str name of the test config
+		-d str[,str] --targets=str[,str]
+			file to use for iozone test in format /dir/file - this is iozone : -f option
+		-s str[,str] --file_sizes=str[,str]
+			one or more file_sizes sizes to use
+		-r str[,str] --record_sizes=str[,str]
+			one or more record_sizes sizes to use
+		-n str[,str] --number_of_runs=str[,str]
+			number of iozone runs - default is 10 runs
+		--tool-group=str
+		--sysinfo=str, str= comma separated values of sysinfo to be collected
+		                    available: 
+
+Bench Script: pbench-linpack --help 
+------------
+	The following options are available:
+
+	-C str --config=str         name of the test config
+	       --threads=int[,int]  number of threads to use (default is num_cpus)
+	       --tool-group=str
+	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
+	                                available: 
+
+Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
+------------
+	pbench-linpack: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+	The following options are available:
+
+	-C str --config=str         name of the test config
+	       --threads=int[,int]  number of threads to use (default is num_cpus)
+	       --tool-group=str
+	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
+	                                available: 
+
+Bench Script: pbench-linpack --bad-to-the-bone 
+------------
+pbench-linpack --bad-to-the-bone
+
+	unrecognized option specified
+
+	The following options are available:
+
+	-C str --config=str         name of the test config
+	       --threads=int[,int]  number of threads to use (default is num_cpus)
+	       --tool-group=str
+	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
+	                                available: 
+
+Bench Script: pbench-migrate --help 
+------------
+	The following options are available:
+
+		--tool-group=str
+		--vm=str                                name of vm to migrate
+		--src-host=str                          host to migrate from
+		--dest-host=str                         host to migrate to
+		--src-ipaddr=str                        optional IP address to migrate from
+		--dest-ipaddr=str                       optional IP address to migrate to
+		--timeout=int                           optional timeout in seconds
+		--postprocess=str                       skip = don't postprocess, only = only postprocess existing test, yes (default) = postprocess after test
+		--seconds-before-migrate=int            wait this many seconds before starting the migration
+		--seconds-before-postprocess=int        wait this many seconds before postprocessing the data
+		--max-downtime                          maximum downtime in milliseconds
+		--compache-size                         maximum size in bytes of cache used for compression
+		--speed                                 maximum network speed in MiB/sec
+		--round-trips=int                       the number of times to live-migrate back & forth (default is 0)
+		--use-libvirt=y/n                       iif this is n, then migration is done with qemu directly
+		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
+		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
+		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
+		                                             available: 
+
+Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
+------------
+	pbench-migrate: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+	The following options are available:
+
+		--tool-group=str
+		--vm=str                                name of vm to migrate
+		--src-host=str                          host to migrate from
+		--dest-host=str                         host to migrate to
+		--src-ipaddr=str                        optional IP address to migrate from
+		--dest-ipaddr=str                       optional IP address to migrate to
+		--timeout=int                           optional timeout in seconds
+		--postprocess=str                       skip = don't postprocess, only = only postprocess existing test, yes (default) = postprocess after test
+		--seconds-before-migrate=int            wait this many seconds before starting the migration
+		--seconds-before-postprocess=int        wait this many seconds before postprocessing the data
+		--max-downtime                          maximum downtime in milliseconds
+		--compache-size                         maximum size in bytes of cache used for compression
+		--speed                                 maximum network speed in MiB/sec
+		--round-trips=int                       the number of times to live-migrate back & forth (default is 0)
+		--use-libvirt=y/n                       iif this is n, then migration is done with qemu directly
+		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
+		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
+		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
+		                                             available: 
+
+Bench Script: pbench-migrate --bad-to-the-bone 
+------------
+pbench-migrate --bad-to-the-bone
+
+	unrecognized option specified
+
+	The following options are available:
+
+		--tool-group=str
+		--vm=str                                name of vm to migrate
+		--src-host=str                          host to migrate from
+		--dest-host=str                         host to migrate to
+		--src-ipaddr=str                        optional IP address to migrate from
+		--dest-ipaddr=str                       optional IP address to migrate to
+		--timeout=int                           optional timeout in seconds
+		--postprocess=str                       skip = don't postprocess, only = only postprocess existing test, yes (default) = postprocess after test
+		--seconds-before-migrate=int            wait this many seconds before starting the migration
+		--seconds-before-postprocess=int        wait this many seconds before postprocessing the data
+		--max-downtime                          maximum downtime in milliseconds
+		--compache-size                         maximum size in bytes of cache used for compression
+		--speed                                 maximum network speed in MiB/sec
+		--round-trips=int                       the number of times to live-migrate back & forth (default is 0)
+		--use-libvirt=y/n                       iif this is n, then migration is done with qemu directly
+		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
+		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
+		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
+		                                             available: 
+
+Bench Script: pbench-netperf --help 
+------------
+	The following options are available:
+
+		             --tool-group=str
+		-c str       --config=str                   name of the test config (i.e. jumbo_frames_and_network_throughput)
+		-t str[,str] --test-types=str[,str]         can be stream, maerts, bidirect, and/or rr (default stream,maerts,bidirec,rr)
+		-r int       --runtime=int                  test measurement period in seconds (default is 60)
+		-m int[,int] --message-sizes=str[,str]      list of message sizes in bytes (default is 1,64,1024,16384)
+		-p str[,str] --protocols=str[,str]          tcp and/or udp (default is tcp,udp)
+		-i int[,int] --instances=int[,int]          list of number of netperf instances to run (default is 1,8,64)
+		-C str[,str] --client[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the
+		                                            netperf client (drive the test).
+		                                            If this is omitted, the local system is the client
+		                                            Note: the number of clients and server must be the same!
+		                                            Clients and servers are paired according the order in the list (first
+		                                            client pairs with firest server, etc)
+		-S str[,str] --server[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the netperf
+		                                            server (listening for connections)
+		                                            If this is omitted, the server will listen on the local system
+		                                            loopback interface
+		             --samples=int                  the number of times each different test is run (to compute average &
+		                                            standard deviations)
+		             --max-failures=int             the maximm number of failures to get below stddev
+		             --max-stddev=int               the maximm percent stddev allowed to pass
+		             --postprocess-only=y|n         don't run the benchmark, but postprocess data from previous test
+		             --run-dir=str                  optionally specify what directory should be used (usually only used
+		                                            if postprocess-only=y)
+		             --start-iteration-num=int      optionally skip the first (n-1) tests
+		             --log-response-times=y|n       record the response time of every single operation
+		             --client-label=str             provide the pbench netperf-client tool label and postprocessing will
+		                                            compute a netperf-client result/CPU metric
+		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
+		                                            compute a netperf-server result/CPU metric
+		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
+		                                                 available: 
+
+Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
+------------
+	pbench-netperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+	The following options are available:
+
+		             --tool-group=str
+		-c str       --config=str                   name of the test config (i.e. jumbo_frames_and_network_throughput)
+		-t str[,str] --test-types=str[,str]         can be stream, maerts, bidirect, and/or rr (default stream,maerts,bidirec,rr)
+		-r int       --runtime=int                  test measurement period in seconds (default is 60)
+		-m int[,int] --message-sizes=str[,str]      list of message sizes in bytes (default is 1,64,1024,16384)
+		-p str[,str] --protocols=str[,str]          tcp and/or udp (default is tcp,udp)
+		-i int[,int] --instances=int[,int]          list of number of netperf instances to run (default is 1,8,64)
+		-C str[,str] --client[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the
+		                                            netperf client (drive the test).
+		                                            If this is omitted, the local system is the client
+		                                            Note: the number of clients and server must be the same!
+		                                            Clients and servers are paired according the order in the list (first
+		                                            client pairs with firest server, etc)
+		-S str[,str] --server[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the netperf
+		                                            server (listening for connections)
+		                                            If this is omitted, the server will listen on the local system
+		                                            loopback interface
+		             --samples=int                  the number of times each different test is run (to compute average &
+		                                            standard deviations)
+		             --max-failures=int             the maximm number of failures to get below stddev
+		             --max-stddev=int               the maximm percent stddev allowed to pass
+		             --postprocess-only=y|n         don't run the benchmark, but postprocess data from previous test
+		             --run-dir=str                  optionally specify what directory should be used (usually only used
+		                                            if postprocess-only=y)
+		             --start-iteration-num=int      optionally skip the first (n-1) tests
+		             --log-response-times=y|n       record the response time of every single operation
+		             --client-label=str             provide the pbench netperf-client tool label and postprocessing will
+		                                            compute a netperf-client result/CPU metric
+		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
+		                                            compute a netperf-server result/CPU metric
+		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
+		                                                 available: 
+
+Bench Script: pbench-netperf --bad-to-the-bone 
+------------
+pbench-netperf --bad-to-the-bone
+
+	unrecognized option specified
+
+	The following options are available:
+
+		             --tool-group=str
+		-c str       --config=str                   name of the test config (i.e. jumbo_frames_and_network_throughput)
+		-t str[,str] --test-types=str[,str]         can be stream, maerts, bidirect, and/or rr (default stream,maerts,bidirec,rr)
+		-r int       --runtime=int                  test measurement period in seconds (default is 60)
+		-m int[,int] --message-sizes=str[,str]      list of message sizes in bytes (default is 1,64,1024,16384)
+		-p str[,str] --protocols=str[,str]          tcp and/or udp (default is tcp,udp)
+		-i int[,int] --instances=int[,int]          list of number of netperf instances to run (default is 1,8,64)
+		-C str[,str] --client[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the
+		                                            netperf client (drive the test).
+		                                            If this is omitted, the local system is the client
+		                                            Note: the number of clients and server must be the same!
+		                                            Clients and servers are paired according the order in the list (first
+		                                            client pairs with firest server, etc)
+		-S str[,str] --server[s]=str[,str]          a list of one or more hostnames/IPs.  These systems will run the netperf
+		                                            server (listening for connections)
+		                                            If this is omitted, the server will listen on the local system
+		                                            loopback interface
+		             --samples=int                  the number of times each different test is run (to compute average &
+		                                            standard deviations)
+		             --max-failures=int             the maximm number of failures to get below stddev
+		             --max-stddev=int               the maximm percent stddev allowed to pass
+		             --postprocess-only=y|n         don't run the benchmark, but postprocess data from previous test
+		             --run-dir=str                  optionally specify what directory should be used (usually only used
+		                                            if postprocess-only=y)
+		             --start-iteration-num=int      optionally skip the first (n-1) tests
+		             --log-response-times=y|n       record the response time of every single operation
+		             --client-label=str             provide the pbench netperf-client tool label and postprocessing will
+		                                            compute a netperf-client result/CPU metric
+		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
+		                                            compute a netperf-server result/CPU metric
+		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
+		                                                 available: 
+
+Bench Script: pbench-specjbb2005 --help 
+------------
+	The following options are available:
+
+		-C str --config=<str>            name of the test config
+		-j str --java_opts=<str>         options passed directly to the JVM
+		       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes
+		       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
+		       --start-warehouses=<int>  number of warehouses to start with (default is 1)
+		       --inc-warehouses=<int>    number of warehouses to increment by (default is 1)
+		       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
+		       --heap-size=<str>         size of the heap, java size spec (default is 4096m)
+		       --runtime=<int>           measurement period in seconds (default is 30)
+		-d str --dir=<str>               directory to run the test
+		       --tool-group=<str>        tool group to use during test
+		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
+		                                      available: 
+		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
+		                                      (default is /usr/local/share/specjbb2005)
+
+Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
+------------
+	pbench-specjbb2005: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+	The following options are available:
+
+		-C str --config=<str>            name of the test config
+		-j str --java_opts=<str>         options passed directly to the JVM
+		       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes
+		       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
+		       --start-warehouses=<int>  number of warehouses to start with (default is 1)
+		       --inc-warehouses=<int>    number of warehouses to increment by (default is 1)
+		       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
+		       --heap-size=<str>         size of the heap, java size spec (default is 4096m)
+		       --runtime=<int>           measurement period in seconds (default is 30)
+		-d str --dir=<str>               directory to run the test
+		       --tool-group=<str>        tool group to use during test
+		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
+		                                      available: 
+		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
+		                                      (default is /usr/local/share/specjbb2005)
+
+Bench Script: pbench-specjbb2005 --bad-to-the-bone 
+------------
+pbench-specjbb2005 --bad-to-the-bone
+
+	unrecognized option specified
+
+	The following options are available:
+
+		-C str --config=<str>            name of the test config
+		-j str --java_opts=<str>         options passed directly to the JVM
+		       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes
+		       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
+		       --start-warehouses=<int>  number of warehouses to start with (default is 1)
+		       --inc-warehouses=<int>    number of warehouses to increment by (default is 1)
+		       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
+		       --heap-size=<str>         size of the heap, java size spec (default is 4096m)
+		       --runtime=<int>           measurement period in seconds (default is 30)
+		-d str --dir=<str>               directory to run the test
+		       --tool-group=<str>        tool group to use during test
+		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
+		                                      available: 
+		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
+		                                      (default is /usr/local/share/specjbb2005)
+
+Bench Script: pbench-trafficgen --help 
+------------
+	The following options are available:
+
+
+trafficgen general test options
+-------------------------------
+
+--traffic-generator=str
+  The traffic generation engine to use (trex-txrx or trex-txrx-profile or moongen-txrx)
+  Default is trex-txrx
+
+--devices=str,str
+  List of 2 (or more) DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)
+  This script will attempt to bind the device to vfio-pci kernel module.
+  You must ensure your system has IOMMU enabled.  Devices must be listed in increments of 2.
+
+--active-devices=str,str
+  List of 2 (ore more) DPDK devices to use as active participants in the test.  These devices
+  must be a subset of what is supplied for --devices.  Devices must be listed in increments of 2.
+
+--one-shot
+  Run one test for throughput at specified rate
+
+--sniff-runtime=int
+  Measurement period in seconds for a "sniff" trial, right before the search trial
+  if the sniff test fails, the search trial is skipped and moves on to the next trial
+  Default is 
+
+--search-runtime=int
+  Measurement period in seconds when searching for max throughput
+  Default is 
+
+--validation-runtime=int
+  Measurement period in seconds when running final validation or a latency test
+  Default is 
+
+
+      The follwoing options can take 1 or more values and will control how many
+      tests will be conducted.  For example, the following options:
+
+        --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
+        --frame-sizes=64,256 --nr-flows=1024,65536
+
+      would produce 32 different test permutations
+
+--traffic-profile[s]=FILE[,FILE]
+  A list of traffic profiles to load when --traffic-generator=trex-txrx-profile.  The
+  profile contains a list of streams, each with fine grained options defined on a per
+  stream basis.  See README-trex-txrx-profile.md in the trafficgen distribution for
+  documentation on the file format.
+
+--rate[s]=value[,value]]
+  A list of packet rates, in millions of packets per second (mpps), unless
+  --rate-unit=% is used, where the rate value is interpreted as a percentage
+  of line rate for the trasmitting device.
+
+  Only use this option when:
+    1) Using the --one-shot option (skip binary search) and only 1 frame size
+      For example, you may want to use this when measuring latency for
+      10%, 50%, 90% of line rate with 64-byte frames:
+      --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
+    2) Performing a binary search, but you want the search to start with a rate
+       lower than 100%.  Wen doing this, it is recommended that only 1 frame
+       size is used:
+       --rate=50% --rate-unit=% --frame-size=64
+
+--traffic-direction[s]=str[,str]
+  A list of one or more: unidirectional, revunidirectional, or bidirectional
+  (default bidirectional)
+  unidirectional: packets will Tx out the 1st device and Rx in the 2nd device
+  revunidirectional: packets will Tx out the 2nd device and RX in the 1st device
+  bidirectional: packets will Tx out the both devices and Rx in both devices
+
+--max-loss-pct[s]=fl,[fl]
+  A list of maximum allowed percentage of dropped frames, used for binary search
+  Default is 0.002
+
+--frame-sizes=str[,str]
+  A list of Ethernet frame sizes (including CRC) in bytes
+  Default is 64
+
+--num-flows=int
+  Number of packet flows to run. Default is 1024
+
+
+trafficgen options that control packet contents
+-----------------------------------------------
+
+    The values provided for the following options correspond to the devices
+    device list (--devices).  For example
+
+      --devices=0000:04:00.0,0000:04:00.1 --src-ips=10.0.0.1,8.0.0.1
+
+    In the example above, device 0000:04:00.0 would use source IP address 10.0.0.1
+    and device 0000:04:00.1 would use source IP adress 8.0.0.1
+
+--src-ports=PORT,PORT
+  A list of source ports
+
+--dst-ports=PORT,PORT
+  A list of destination ports
+
+--src-macs=MAC,MAC
+  A list of two source MAC addresses
+
+--src-ips=IP,IP
+  A list of two source IP addresses
+
+--dst-macs=MAC,MAC
+  A list of two destination MAC addresses
+
+--dst-ips=IP,IP
+  A list of two destination IP addresses
+
+--encap-src-macs=MAC,MAC
+  A list of two source MAC addresses for the encapsulated network. Only used in
+  conjuction with an overlay network like VxLAN
+
+--encap-src-ips=IP,IP
+  A list of two source IP addresses for the encapsulated network.  Only used in
+  conjuction with an overlay network like VxLAN.
+
+--encap-dst-macs=MAC,MAC
+  A list of two destination MAC addresses for the encapsulated network.  Only
+  used on conjuction with an overlay network like VxLAN.
+
+--encap-dst-ips=IP,IP
+  A list of two destination IP addresses for the encapsulated network.  Only
+  used on conjuction with an overlay network like VxLAN.
+
+--vlan-ids=[int][,int]
+  If a value is provided, the corresponding device will use a VLAN tag when
+  transmitting and expect received packets to also have the VLAN tag
+
+--overlay-ids=[int][,int]
+  If a value is provided, the corresponding device will encapsulate the packet
+  and use VNI = value provided when transmitting packets.  Received packets
+  for the this device are expected to be encapsulated and use same VNI.  This
+  option must be used with --overlay-type option
+
+--overlay-types
+  Per device specification of overlay network type, can be "none", or skipped,
+  or "VxLAN".  If "VxLAN" is used, --overlay-ids must also be used as well
+  as --encap-[src|dst]-[macs|ips] options.  When using an overlay, the
+  device-under-test must have the matching configuration.  For example, if
+  --overlay-types=none,vxlan is used, the device-under-test would receive
+  non-overlay packets on its first device, encapsulate the packets, and send
+  the packet out the second device.  Packets received by the second device are
+  expected to already be encapsulated, and the device-under-test would
+  decapsulate them and send them out the first device.
+
+--flow-mods=str[,str] (default is src-ip,dst-ip,src-mac,dst-mac)
+  A list of IP packet header fields which are used to implement unique flows.
+  All fields listed here are changed in unison, for example if "src-ip,src-mac"
+  are used, the first packet will have a source IP of 192.168.0.X and source MAC
+  of 01:02:03:04:X:06.  The second packet will have a source IP of
+  192.168.0.(X+1) and source MAC of 01:02:03:04:(X+1):06. The list of available
+  flow mods are:
+
+    src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-mac,encap-dst-mac,
+    encap-src-ip,encap-dst-ip,protocol,none
+
+  Note that none is a special flow mod option.  It's presence will override and
+  disable all other specified flow mods
+  Note that the encap-* flow mods are only viable for overlay network tests like
+  VxLAN, and alter the inner packet header.
+  The maximum number of unique flows may be limited by the traffic-generator used.
+  For trex-txrx, it is 16.7 million.  Trex-txrx modifies the 2nd, 3rd, and 4th
+  octet in the IP addresses and the 3rd, 4th, and 5th octet in the MAC addresses
+  When using source or destination ports numbers, the range is limited to 1-32768
+  and higher flow counts will "roll" over back to 1
+
+--packet-protocol=str (default is UDP)
+  The protocol to use when generating IP packets.  Available options are TCP or
+  UDP.
+
+--trex-use-ht
+  Should TRex be allowed to use Hyperthreading siblings.  Defaults to disabled.
+--trex-use-l2
+  Should TRex be configured in L2 mode instead of L3.  Defaults to disabled.
+
+
+trafficgen debug options
+-----------------------------------------------
+
+--skip-trex-install
+  Do no install TRex server process (assumes you have one) installed already
+
+--skip-trex-server
+  Do no kill existing or start a new TRex server process (assumes you have one)
+  running already)
+
+--skip-git-pull
+  Do not call git pull on the trafficgen repo if it already exists
+
+
+options common in most pbench benchmark scripts
+-----------------------------------------------
+
+--config=str
+  Name of the test config (i.e. jumbo_frames_and_network_throughput)
+
+--samples=int
+  The number of times each different test is run (to compute average)
+
+--max-failures=int
+  The maximm number of failures to get below stddev
+
+--max-stddev=int
+  The maximm percent stddev allowed to pass
+
+--postprocess-only=y|n
+  Don't run the benchmark, but postprocess data from previous test
+
+--run-dir=str
+  Optionally specify what directory should be used (usually only used if
+  postprocess-only=y)
+
+--start-iteration-num=int
+  Optionally skip the first (n-1) tests
+
+--tool-group=str
+  Start/stop/post-process tools using this group
+
+--pre-sample-cmd=str
+  run this command before executing each test sample
+
+--sysinfo=str,
+  comma separated values of sysinfo to be collected, default="none"
+    available: 
+
+--tool-period=str
+  str = [binary-search|repeat-final-validation]
+  binary-search (default): tools are collected during binary-search
+  repeat-final-validation: tools are collected during a repeat-run of the final validation trial
+
+Bench Script: pbench-trafficgen --tool-group=bad --sysinfo=bad
+------------
+	pbench-trafficgen: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+	The following options are available:
+
+
+trafficgen general test options
+-------------------------------
+
+--traffic-generator=str
+  The traffic generation engine to use (trex-txrx or trex-txrx-profile or moongen-txrx)
+  Default is trex-txrx
+
+--devices=str,str
+  List of 2 (or more) DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)
+  This script will attempt to bind the device to vfio-pci kernel module.
+  You must ensure your system has IOMMU enabled.  Devices must be listed in increments of 2.
+
+--active-devices=str,str
+  List of 2 (ore more) DPDK devices to use as active participants in the test.  These devices
+  must be a subset of what is supplied for --devices.  Devices must be listed in increments of 2.
+
+--one-shot
+  Run one test for throughput at specified rate
+
+--sniff-runtime=int
+  Measurement period in seconds for a "sniff" trial, right before the search trial
+  if the sniff test fails, the search trial is skipped and moves on to the next trial
+  Default is 
+
+--search-runtime=int
+  Measurement period in seconds when searching for max throughput
+  Default is 
+
+--validation-runtime=int
+  Measurement period in seconds when running final validation or a latency test
+  Default is 
+
+
+      The follwoing options can take 1 or more values and will control how many
+      tests will be conducted.  For example, the following options:
+
+        --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
+        --frame-sizes=64,256 --nr-flows=1024,65536
+
+      would produce 32 different test permutations
+
+--traffic-profile[s]=FILE[,FILE]
+  A list of traffic profiles to load when --traffic-generator=trex-txrx-profile.  The
+  profile contains a list of streams, each with fine grained options defined on a per
+  stream basis.  See README-trex-txrx-profile.md in the trafficgen distribution for
+  documentation on the file format.
+
+--rate[s]=value[,value]]
+  A list of packet rates, in millions of packets per second (mpps), unless
+  --rate-unit=% is used, where the rate value is interpreted as a percentage
+  of line rate for the trasmitting device.
+
+  Only use this option when:
+    1) Using the --one-shot option (skip binary search) and only 1 frame size
+      For example, you may want to use this when measuring latency for
+      10%, 50%, 90% of line rate with 64-byte frames:
+      --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
+    2) Performing a binary search, but you want the search to start with a rate
+       lower than 100%.  Wen doing this, it is recommended that only 1 frame
+       size is used:
+       --rate=50% --rate-unit=% --frame-size=64
+
+--traffic-direction[s]=str[,str]
+  A list of one or more: unidirectional, revunidirectional, or bidirectional
+  (default bidirectional)
+  unidirectional: packets will Tx out the 1st device and Rx in the 2nd device
+  revunidirectional: packets will Tx out the 2nd device and RX in the 1st device
+  bidirectional: packets will Tx out the both devices and Rx in both devices
+
+--max-loss-pct[s]=fl,[fl]
+  A list of maximum allowed percentage of dropped frames, used for binary search
+  Default is 0.002
+
+--frame-sizes=str[,str]
+  A list of Ethernet frame sizes (including CRC) in bytes
+  Default is 64
+
+--num-flows=int
+  Number of packet flows to run. Default is 1024
+
+
+trafficgen options that control packet contents
+-----------------------------------------------
+
+    The values provided for the following options correspond to the devices
+    device list (--devices).  For example
+
+      --devices=0000:04:00.0,0000:04:00.1 --src-ips=10.0.0.1,8.0.0.1
+
+    In the example above, device 0000:04:00.0 would use source IP address 10.0.0.1
+    and device 0000:04:00.1 would use source IP adress 8.0.0.1
+
+--src-ports=PORT,PORT
+  A list of source ports
+
+--dst-ports=PORT,PORT
+  A list of destination ports
+
+--src-macs=MAC,MAC
+  A list of two source MAC addresses
+
+--src-ips=IP,IP
+  A list of two source IP addresses
+
+--dst-macs=MAC,MAC
+  A list of two destination MAC addresses
+
+--dst-ips=IP,IP
+  A list of two destination IP addresses
+
+--encap-src-macs=MAC,MAC
+  A list of two source MAC addresses for the encapsulated network. Only used in
+  conjuction with an overlay network like VxLAN
+
+--encap-src-ips=IP,IP
+  A list of two source IP addresses for the encapsulated network.  Only used in
+  conjuction with an overlay network like VxLAN.
+
+--encap-dst-macs=MAC,MAC
+  A list of two destination MAC addresses for the encapsulated network.  Only
+  used on conjuction with an overlay network like VxLAN.
+
+--encap-dst-ips=IP,IP
+  A list of two destination IP addresses for the encapsulated network.  Only
+  used on conjuction with an overlay network like VxLAN.
+
+--vlan-ids=[int][,int]
+  If a value is provided, the corresponding device will use a VLAN tag when
+  transmitting and expect received packets to also have the VLAN tag
+
+--overlay-ids=[int][,int]
+  If a value is provided, the corresponding device will encapsulate the packet
+  and use VNI = value provided when transmitting packets.  Received packets
+  for the this device are expected to be encapsulated and use same VNI.  This
+  option must be used with --overlay-type option
+
+--overlay-types
+  Per device specification of overlay network type, can be "none", or skipped,
+  or "VxLAN".  If "VxLAN" is used, --overlay-ids must also be used as well
+  as --encap-[src|dst]-[macs|ips] options.  When using an overlay, the
+  device-under-test must have the matching configuration.  For example, if
+  --overlay-types=none,vxlan is used, the device-under-test would receive
+  non-overlay packets on its first device, encapsulate the packets, and send
+  the packet out the second device.  Packets received by the second device are
+  expected to already be encapsulated, and the device-under-test would
+  decapsulate them and send them out the first device.
+
+--flow-mods=str[,str] (default is src-ip,dst-ip,src-mac,dst-mac)
+  A list of IP packet header fields which are used to implement unique flows.
+  All fields listed here are changed in unison, for example if "src-ip,src-mac"
+  are used, the first packet will have a source IP of 192.168.0.X and source MAC
+  of 01:02:03:04:X:06.  The second packet will have a source IP of
+  192.168.0.(X+1) and source MAC of 01:02:03:04:(X+1):06. The list of available
+  flow mods are:
+
+    src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-mac,encap-dst-mac,
+    encap-src-ip,encap-dst-ip,protocol,none
+
+  Note that none is a special flow mod option.  It's presence will override and
+  disable all other specified flow mods
+  Note that the encap-* flow mods are only viable for overlay network tests like
+  VxLAN, and alter the inner packet header.
+  The maximum number of unique flows may be limited by the traffic-generator used.
+  For trex-txrx, it is 16.7 million.  Trex-txrx modifies the 2nd, 3rd, and 4th
+  octet in the IP addresses and the 3rd, 4th, and 5th octet in the MAC addresses
+  When using source or destination ports numbers, the range is limited to 1-32768
+  and higher flow counts will "roll" over back to 1
+
+--packet-protocol=str (default is UDP)
+  The protocol to use when generating IP packets.  Available options are TCP or
+  UDP.
+
+--trex-use-ht
+  Should TRex be allowed to use Hyperthreading siblings.  Defaults to disabled.
+--trex-use-l2
+  Should TRex be configured in L2 mode instead of L3.  Defaults to disabled.
+
+
+trafficgen debug options
+-----------------------------------------------
+
+--skip-trex-install
+  Do no install TRex server process (assumes you have one) installed already
+
+--skip-trex-server
+  Do no kill existing or start a new TRex server process (assumes you have one)
+  running already)
+
+--skip-git-pull
+  Do not call git pull on the trafficgen repo if it already exists
+
+
+options common in most pbench benchmark scripts
+-----------------------------------------------
+
+--config=str
+  Name of the test config (i.e. jumbo_frames_and_network_throughput)
+
+--samples=int
+  The number of times each different test is run (to compute average)
+
+--max-failures=int
+  The maximm number of failures to get below stddev
+
+--max-stddev=int
+  The maximm percent stddev allowed to pass
+
+--postprocess-only=y|n
+  Don't run the benchmark, but postprocess data from previous test
+
+--run-dir=str
+  Optionally specify what directory should be used (usually only used if
+  postprocess-only=y)
+
+--start-iteration-num=int
+  Optionally skip the first (n-1) tests
+
+--tool-group=str
+  Start/stop/post-process tools using this group
+
+--pre-sample-cmd=str
+  run this command before executing each test sample
+
+--sysinfo=str,
+  comma separated values of sysinfo to be collected, default="none"
+    available: 
+
+--tool-period=str
+  str = [binary-search|repeat-final-validation]
+  binary-search (default): tools are collected during binary-search
+  repeat-final-validation: tools are collected during a repeat-run of the final validation trial
+
+Bench Script: pbench-trafficgen --bad-to-the-bone 
+------------
+pbench-trafficgen --bad-to-the-bone
+
+	unrecognized option specified
+
+	The following options are available:
+
+
+trafficgen general test options
+-------------------------------
+
+--traffic-generator=str
+  The traffic generation engine to use (trex-txrx or trex-txrx-profile or moongen-txrx)
+  Default is trex-txrx
+
+--devices=str,str
+  List of 2 (or more) DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)
+  This script will attempt to bind the device to vfio-pci kernel module.
+  You must ensure your system has IOMMU enabled.  Devices must be listed in increments of 2.
+
+--active-devices=str,str
+  List of 2 (ore more) DPDK devices to use as active participants in the test.  These devices
+  must be a subset of what is supplied for --devices.  Devices must be listed in increments of 2.
+
+--one-shot
+  Run one test for throughput at specified rate
+
+--sniff-runtime=int
+  Measurement period in seconds for a "sniff" trial, right before the search trial
+  if the sniff test fails, the search trial is skipped and moves on to the next trial
+  Default is 
+
+--search-runtime=int
+  Measurement period in seconds when searching for max throughput
+  Default is 
+
+--validation-runtime=int
+  Measurement period in seconds when running final validation or a latency test
+  Default is 
+
+
+      The follwoing options can take 1 or more values and will control how many
+      tests will be conducted.  For example, the following options:
+
+        --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
+        --frame-sizes=64,256 --nr-flows=1024,65536
+
+      would produce 32 different test permutations
+
+--traffic-profile[s]=FILE[,FILE]
+  A list of traffic profiles to load when --traffic-generator=trex-txrx-profile.  The
+  profile contains a list of streams, each with fine grained options defined on a per
+  stream basis.  See README-trex-txrx-profile.md in the trafficgen distribution for
+  documentation on the file format.
+
+--rate[s]=value[,value]]
+  A list of packet rates, in millions of packets per second (mpps), unless
+  --rate-unit=% is used, where the rate value is interpreted as a percentage
+  of line rate for the trasmitting device.
+
+  Only use this option when:
+    1) Using the --one-shot option (skip binary search) and only 1 frame size
+      For example, you may want to use this when measuring latency for
+      10%, 50%, 90% of line rate with 64-byte frames:
+      --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
+    2) Performing a binary search, but you want the search to start with a rate
+       lower than 100%.  Wen doing this, it is recommended that only 1 frame
+       size is used:
+       --rate=50% --rate-unit=% --frame-size=64
+
+--traffic-direction[s]=str[,str]
+  A list of one or more: unidirectional, revunidirectional, or bidirectional
+  (default bidirectional)
+  unidirectional: packets will Tx out the 1st device and Rx in the 2nd device
+  revunidirectional: packets will Tx out the 2nd device and RX in the 1st device
+  bidirectional: packets will Tx out the both devices and Rx in both devices
+
+--max-loss-pct[s]=fl,[fl]
+  A list of maximum allowed percentage of dropped frames, used for binary search
+  Default is 0.002
+
+--frame-sizes=str[,str]
+  A list of Ethernet frame sizes (including CRC) in bytes
+  Default is 64
+
+--num-flows=int
+  Number of packet flows to run. Default is 1024
+
+
+trafficgen options that control packet contents
+-----------------------------------------------
+
+    The values provided for the following options correspond to the devices
+    device list (--devices).  For example
+
+      --devices=0000:04:00.0,0000:04:00.1 --src-ips=10.0.0.1,8.0.0.1
+
+    In the example above, device 0000:04:00.0 would use source IP address 10.0.0.1
+    and device 0000:04:00.1 would use source IP adress 8.0.0.1
+
+--src-ports=PORT,PORT
+  A list of source ports
+
+--dst-ports=PORT,PORT
+  A list of destination ports
+
+--src-macs=MAC,MAC
+  A list of two source MAC addresses
+
+--src-ips=IP,IP
+  A list of two source IP addresses
+
+--dst-macs=MAC,MAC
+  A list of two destination MAC addresses
+
+--dst-ips=IP,IP
+  A list of two destination IP addresses
+
+--encap-src-macs=MAC,MAC
+  A list of two source MAC addresses for the encapsulated network. Only used in
+  conjuction with an overlay network like VxLAN
+
+--encap-src-ips=IP,IP
+  A list of two source IP addresses for the encapsulated network.  Only used in
+  conjuction with an overlay network like VxLAN.
+
+--encap-dst-macs=MAC,MAC
+  A list of two destination MAC addresses for the encapsulated network.  Only
+  used on conjuction with an overlay network like VxLAN.
+
+--encap-dst-ips=IP,IP
+  A list of two destination IP addresses for the encapsulated network.  Only
+  used on conjuction with an overlay network like VxLAN.
+
+--vlan-ids=[int][,int]
+  If a value is provided, the corresponding device will use a VLAN tag when
+  transmitting and expect received packets to also have the VLAN tag
+
+--overlay-ids=[int][,int]
+  If a value is provided, the corresponding device will encapsulate the packet
+  and use VNI = value provided when transmitting packets.  Received packets
+  for the this device are expected to be encapsulated and use same VNI.  This
+  option must be used with --overlay-type option
+
+--overlay-types
+  Per device specification of overlay network type, can be "none", or skipped,
+  or "VxLAN".  If "VxLAN" is used, --overlay-ids must also be used as well
+  as --encap-[src|dst]-[macs|ips] options.  When using an overlay, the
+  device-under-test must have the matching configuration.  For example, if
+  --overlay-types=none,vxlan is used, the device-under-test would receive
+  non-overlay packets on its first device, encapsulate the packets, and send
+  the packet out the second device.  Packets received by the second device are
+  expected to already be encapsulated, and the device-under-test would
+  decapsulate them and send them out the first device.
+
+--flow-mods=str[,str] (default is src-ip,dst-ip,src-mac,dst-mac)
+  A list of IP packet header fields which are used to implement unique flows.
+  All fields listed here are changed in unison, for example if "src-ip,src-mac"
+  are used, the first packet will have a source IP of 192.168.0.X and source MAC
+  of 01:02:03:04:X:06.  The second packet will have a source IP of
+  192.168.0.(X+1) and source MAC of 01:02:03:04:(X+1):06. The list of available
+  flow mods are:
+
+    src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-mac,encap-dst-mac,
+    encap-src-ip,encap-dst-ip,protocol,none
+
+  Note that none is a special flow mod option.  It's presence will override and
+  disable all other specified flow mods
+  Note that the encap-* flow mods are only viable for overlay network tests like
+  VxLAN, and alter the inner packet header.
+  The maximum number of unique flows may be limited by the traffic-generator used.
+  For trex-txrx, it is 16.7 million.  Trex-txrx modifies the 2nd, 3rd, and 4th
+  octet in the IP addresses and the 3rd, 4th, and 5th octet in the MAC addresses
+  When using source or destination ports numbers, the range is limited to 1-32768
+  and higher flow counts will "roll" over back to 1
+
+--packet-protocol=str (default is UDP)
+  The protocol to use when generating IP packets.  Available options are TCP or
+  UDP.
+
+--trex-use-ht
+  Should TRex be allowed to use Hyperthreading siblings.  Defaults to disabled.
+--trex-use-l2
+  Should TRex be configured in L2 mode instead of L3.  Defaults to disabled.
+
+
+trafficgen debug options
+-----------------------------------------------
+
+--skip-trex-install
+  Do no install TRex server process (assumes you have one) installed already
+
+--skip-trex-server
+  Do no kill existing or start a new TRex server process (assumes you have one)
+  running already)
+
+--skip-git-pull
+  Do not call git pull on the trafficgen repo if it already exists
+
+
+options common in most pbench benchmark scripts
+-----------------------------------------------
+
+--config=str
+  Name of the test config (i.e. jumbo_frames_and_network_throughput)
+
+--samples=int
+  The number of times each different test is run (to compute average)
+
+--max-failures=int
+  The maximm number of failures to get below stddev
+
+--max-stddev=int
+  The maximm percent stddev allowed to pass
+
+--postprocess-only=y|n
+  Don't run the benchmark, but postprocess data from previous test
+
+--run-dir=str
+  Optionally specify what directory should be used (usually only used if
+  postprocess-only=y)
+
+--start-iteration-num=int
+  Optionally skip the first (n-1) tests
+
+--tool-group=str
+  Start/stop/post-process tools using this group
+
+--pre-sample-cmd=str
+  run this command before executing each test sample
+
+--sysinfo=str,
+  comma separated values of sysinfo to be collected, default="none"
+    available: 
+
+--tool-period=str
+  str = [binary-search|repeat-final-validation]
+  binary-search (default): tools are collected during binary-search
+  repeat-final-validation: tools are collected during a repeat-run of the final validation trial
+
+Bench Script: pbench-uperf --help 
+------------
+	The following options are available:
+
+	--tool-group=str
+	-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)
+	-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default stream,maerts,bidirec,rr)
+	-r int       --runtime=int              test measurement period in seconds (default is 60)
+	-m int[,int] --message-sizes=str[,str]  list of message sizes in bytes (default is 1,64,1024,16384)
+	-p str[,str] --protocols=str[,str]      tcp and/or udp (default is tcp,udp)
+	-i int[,int] --instances=int[,int]      list of number of uperf instances to run (default is 1,8,64)
+	-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the
+				   uperf client (drive the test).
+				   If this is omitted, the local system is the client.
+				   Note: the number of clients and servers must be the same!
+				   Clients and servers are paired according to the order in the list (first
+				   client pairs with first server, etc)
+	-S str[,str] --server[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the uperf
+				   server (listening for connections).
+				   If this is omitted, the server will listen on the local system
+				   loopback interface.
+	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
+	--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding
+				   For both options above, the order must correspond with the --clients/--servers list
+				   To omit a specific client/server from binding, use a value of -1.
+	--samples=int              the number of times each different test is run (to compute average &
+				   standard deviations).
+	--max-failures=int         the maximum number of failures to get below stddev.
+	--max-stddev=int           the maximum percent stddev allowed to pass.
+	--postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test.
+	--run-dir=str              optionally specify what directory should be used (usually only used
+				   if postprocess-only=y).
+	--start-iteration-num=int  optionally skip the first (n-1) tests.
+	--log-response-times=y|n   record the response time of every single operation.
+	--tool-label-pattern=str   uperf will provide CPU and efficiency information for any tool directory
+				   with a "^<pattern>" in the name, provided "sar" is one of the
+				   registered tools.
+				   a default pattern, "uperf-" is used if none is provided.
+				   simply register your tools with "--label=uperf-$X", and this script
+				   will generate CPU_uperf-$X and Gbps/CPU_uperf-$X or
+				   trans_sec/CPU-uperf-$X for all tools which have that pattern as a
+				   prefix.  If you don't want to register your tools with "uperf-" as
+				   part of the label, just use --tool-label-pattern= to tell this script
+				   the prefix pattern to use for CPU information.
+	--sysinfo=str,             str= comma separated values of sysinfo to be collected
+	                                available: 
+
+Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
+------------
+	pbench-uperf: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+	The following options are available:
+
+	--tool-group=str
+	-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)
+	-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default stream,maerts,bidirec,rr)
+	-r int       --runtime=int              test measurement period in seconds (default is 60)
+	-m int[,int] --message-sizes=str[,str]  list of message sizes in bytes (default is 1,64,1024,16384)
+	-p str[,str] --protocols=str[,str]      tcp and/or udp (default is tcp,udp)
+	-i int[,int] --instances=int[,int]      list of number of uperf instances to run (default is 1,8,64)
+	-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the
+				   uperf client (drive the test).
+				   If this is omitted, the local system is the client.
+				   Note: the number of clients and servers must be the same!
+				   Clients and servers are paired according to the order in the list (first
+				   client pairs with first server, etc)
+	-S str[,str] --server[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the uperf
+				   server (listening for connections).
+				   If this is omitted, the server will listen on the local system
+				   loopback interface.
+	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
+	--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding
+				   For both options above, the order must correspond with the --clients/--servers list
+				   To omit a specific client/server from binding, use a value of -1.
+	--samples=int              the number of times each different test is run (to compute average &
+				   standard deviations).
+	--max-failures=int         the maximum number of failures to get below stddev.
+	--max-stddev=int           the maximum percent stddev allowed to pass.
+	--postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test.
+	--run-dir=str              optionally specify what directory should be used (usually only used
+				   if postprocess-only=y).
+	--start-iteration-num=int  optionally skip the first (n-1) tests.
+	--log-response-times=y|n   record the response time of every single operation.
+	--tool-label-pattern=str   uperf will provide CPU and efficiency information for any tool directory
+				   with a "^<pattern>" in the name, provided "sar" is one of the
+				   registered tools.
+				   a default pattern, "uperf-" is used if none is provided.
+				   simply register your tools with "--label=uperf-$X", and this script
+				   will generate CPU_uperf-$X and Gbps/CPU_uperf-$X or
+				   trans_sec/CPU-uperf-$X for all tools which have that pattern as a
+				   prefix.  If you don't want to register your tools with "uperf-" as
+				   part of the label, just use --tool-label-pattern= to tell this script
+				   the prefix pattern to use for CPU information.
+	--sysinfo=str,             str= comma separated values of sysinfo to be collected
+	                                available: 
+
+Bench Script: pbench-uperf --bad-to-the-bone 
+------------
+pbench-uperf --bad-to-the-bone
+
+	unrecognized option specified
+
+	The following options are available:
+
+	--tool-group=str
+	-c str       --config=str               name of the test config (e.g. jumbo_frames_and_network_throughput)
+	-t str[,str] --test-types=str[,str]     can be stream, maerts, bidirec, and/or rr (default stream,maerts,bidirec,rr)
+	-r int       --runtime=int              test measurement period in seconds (default is 60)
+	-m int[,int] --message-sizes=str[,str]  list of message sizes in bytes (default is 1,64,1024,16384)
+	-p str[,str] --protocols=str[,str]      tcp and/or udp (default is tcp,udp)
+	-i int[,int] --instances=int[,int]      list of number of uperf instances to run (default is 1,8,64)
+	-C str[,str] --client[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the
+				   uperf client (drive the test).
+				   If this is omitted, the local system is the client.
+				   Note: the number of clients and servers must be the same!
+				   Clients and servers are paired according to the order in the list (first
+				   client pairs with first server, etc)
+	-S str[,str] --server[s]=str[,str]      a list of one or more hostnames/IPs.  These systems will run the uperf
+				   server (listening for connections).
+				   If this is omitted, the server will listen on the local system
+				   loopback interface.
+	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
+	--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding
+				   For both options above, the order must correspond with the --clients/--servers list
+				   To omit a specific client/server from binding, use a value of -1.
+	--samples=int              the number of times each different test is run (to compute average &
+				   standard deviations).
+	--max-failures=int         the maximum number of failures to get below stddev.
+	--max-stddev=int           the maximum percent stddev allowed to pass.
+	--postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test.
+	--run-dir=str              optionally specify what directory should be used (usually only used
+				   if postprocess-only=y).
+	--start-iteration-num=int  optionally skip the first (n-1) tests.
+	--log-response-times=y|n   record the response time of every single operation.
+	--tool-label-pattern=str   uperf will provide CPU and efficiency information for any tool directory
+				   with a "^<pattern>" in the name, provided "sar" is one of the
+				   registered tools.
+				   a default pattern, "uperf-" is used if none is provided.
+				   simply register your tools with "--label=uperf-$X", and this script
+				   will generate CPU_uperf-$X and Gbps/CPU_uperf-$X or
+				   trans_sec/CPU-uperf-$X for all tools which have that pattern as a
+				   prefix.  If you don't want to register your tools with "uperf-" as
+				   part of the label, just use --tool-label-pattern= to tell this script
+				   the prefix pattern to use for CPU information.
+	--sysinfo=str,             str= comma separated values of sysinfo to be collected
+	                                available: 
+
+Bench Script: pbench-user-benchmark --help 
+------------
+Usage: pbench-user-benchmark [options] -- <script to run>
+
+	The following options are available:
+
+		-C str --config=str            name of the test config
+		       --tool-group=str
+		       --sysinfo=str,          str = comma separated values of system information to be collected
+		                                     available: 
+		       --pbench-pre=str        path to the script which will be executed before tools are started
+		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
+		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
+		       --no-stderr-capture     do not capture stderr of the script to the result.txt file
+
+Bench Script: pbench-user-benchmark --tool-group=bad --sysinfo=bad
+------------
+	pbench-user-benchmark: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-bad
+
+Usage: pbench-user-benchmark [options] -- <script to run>
+
+	The following options are available:
+
+		-C str --config=str            name of the test config
+		       --tool-group=str
+		       --sysinfo=str,          str = comma separated values of system information to be collected
+		                                     available: 
+		       --pbench-pre=str        path to the script which will be executed before tools are started
+		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
+		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
+		       --no-stderr-capture     do not capture stderr of the script to the result.txt file
+
+Bench Script: pbench-user-benchmark --bad-to-the-bone 
+------------
+pbench-user-benchmark --bad-to-the-bone
+
+	unrecognized option specified
+
+Usage: pbench-user-benchmark [options] -- <script to run>
+
+	The following options are available:
+
+		-C str --config=str            name of the test config
+		       --tool-group=str
+		       --sysinfo=str,          str = comma separated values of system information to be collected
+		                                     available: 
+		       --pbench-pre=str        path to the script which will be executed before tools are started
+		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
+		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
+		       --no-stderr-capture     do not capture stderr of the script to the result.txt file
+--- Finished test-CL test-benchmark-clis (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+/var/tmp/pbench-test-bench/pbench-agent/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+--- pbench tree state
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=bad --check
+--- test-execution.log file contents

@@ -1,0 +1,1 @@
+-c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio.job --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read

@@ -1,0 +1,1 @@
+--test-type=rw --samples=1 --block-sizes=42 --clients=hist.foo,hist.bar

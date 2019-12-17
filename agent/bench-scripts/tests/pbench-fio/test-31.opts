@@ -1,0 +1,1 @@
+--targets=/tmp --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --block-sizes=4 --samples=1 --test-types=read --runtime=30 --file-size=256M --clients=nodeA,nodeB --numjobs=4

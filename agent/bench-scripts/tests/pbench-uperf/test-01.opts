@@ -1,0 +1,1 @@
+--test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2 --servers=s1,s2,s3 --clients=c1,c2,c3 --server-node=0,-1,2 --client-node=1,-1,3

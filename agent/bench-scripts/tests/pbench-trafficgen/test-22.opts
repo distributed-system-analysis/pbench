@@ -1,0 +1,1 @@
+--traffic-generator=trex-txrx-profile --max-loss-pct=0.0 --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --postprocess-only=y --run-dir=$_testdir
