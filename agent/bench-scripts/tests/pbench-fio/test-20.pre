@@ -1,0 +1,4 @@
+#!/bin/bash
+
+prog=$(basename ${0})
+echo abc def ghi | tr ' ' '\n' > ${_testtmp}/${prog%%.*}_clients.file

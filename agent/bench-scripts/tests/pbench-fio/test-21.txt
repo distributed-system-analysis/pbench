@@ -1,0 +1,101 @@
++++ Running test-21 pbench-fio
+pbench-fio --
+
+	--install not compatible with specified "--postprocess-only yes" option
+
+The following options are available:
+
+	-t str[,str] --test-types=str[,str]
+		one or more of read,write,rw,randread,randwrite,randrw
+
+	--direct=[0/1]
+		1 = O_DIRECT enabled (default), 0 = O_DIRECT disabled
+
+	--sync=[0/1]
+		1 = O_SYNC enabled, 0 = O_SYNC disabled (default)
+
+	--rate-iops=int
+		do not exceeed this IOP rate (per job, per client)
+
+	-r int --runtime=int
+		runtime in seconds (default is )
+
+	--ramptime=int
+		time in seconds to warm up test before taking measurements (default is )
+
+	-b int[,int] --block-sizes=str[,str] (default is 4,64,1024)
+		one or more block sizes in KiB
+
+	-s int[,int] --file-size=str[,str] (no default)
+		file sizes in MiB
+
+	-d str[,str] --targets=str[,str]
+		one or more directories or block devices (default is /tmp/fio)
+		(persistent names for devices highly recommended)
+
+	-j str --job-mode=str    str=[serial|concurrent]  (default is 'concurrent')
+		directs how --targets parameter(s) is/are used; with 'serial' mode all combinations
+		of fio job parameters are run against each target one at a time, while with 'concurrent'
+		mode all target devices are used at the same time.
+
+	--ioengine=str           str= any ioengine fio supports (default is )
+
+	--iodepth=<int>		Set the iodepth config variable in the fio job file
+
+	-c str[,str] --clients=str[,str]      str= a list of one or more host names (hosta,hostb,hostc) where you want fio to run
+		If no clients are specified, fio is run locally
+		Note: the pbench-agent must be installed on each of the client systems already.
+
+	--client-file=str        str= file (with absolute path) which contains 1 client per line
+
+	--config=str
+		name of the test configuration
+
+	--tool-group=str
+
+	--postprocess-only=[y|n]
+		use this only if you want to postprocess an existing result again
+		you must use --run-dir option with this
+
+	--run-dir=<path>
+		provide the path of an existig result (typically somewhere in /var/tmp/pbench-test-bench/pbench-agent
+
+	--numjobs=<int>
+		number of jobs to run, if not given then fio default of numjobs=1 will be used
+
+	--job-file=<path>
+		provide the path of a fio job config file, (default is /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/templates/fio.job)
+
+	--pre-iteration-script=str
+		use executable script/program to prepare the system for test iteration
+		example: --pre-iteration-script=$HOME/drop-cache.sh
+
+	--samples=<int>
+		number of samples to use per test iteration (default is 5)
+
+	--max-stddev=<int>
+		the maximum percent stddev allowed to pass
+
+	--max-failures=<int>
+		the maximum number of failures to get below stddev
+
+	--install
+		install only (default is False)
+
+	--histogram-interval-sec=<int>
+		set the histogram logging interval in seconds (default 10)
+
+	--sysinfo=str            str= comma separated values of sysinfo to be collected
+		available: 
+--- Finished test-21 pbench-fio (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+/var/tmp/pbench-test-bench/pbench-agent/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+--- pbench tree state
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+--- test-execution.log file contents

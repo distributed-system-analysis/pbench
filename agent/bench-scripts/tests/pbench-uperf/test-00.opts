@@ -1,0 +1,1 @@
+--test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2

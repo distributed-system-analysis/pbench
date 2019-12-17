@@ -1,0 +1,1 @@
+--clients=foo,bar --client-file=${_testtmp}/test-27_clients.file

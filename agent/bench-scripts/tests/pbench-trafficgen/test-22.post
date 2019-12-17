@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cat ${_testdir}/result.json >> ${_testout}

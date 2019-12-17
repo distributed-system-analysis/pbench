@@ -1,0 +1,1 @@
+--test-types=rw,randwrite,read,randrw,write,randread --samples=1 --block-sizes=42

@@ -1,0 +1,1 @@
+--test-type=rw --samples=1 --client-file=${_testtmp}/test-06_clients.file

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+prog=$(basename ${0})
+echo foo bar baz | tr ' ' '\n' > ${_testtmp}/${prog%%.*}_clients.file

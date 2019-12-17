@@ -1,0 +1,321 @@
++++ Running test-07 pbench-fio
+verifying clients have fio installed
+Created the following job file (/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job):
+[global]
+bs=4k
+runtime=30
+ioengine=libaio
+iodepth=32
+direct=1
+sync=0
+time_based=1
+clocksource=gettimeofday
+ramp_time=5
+write_bw_log=fio
+write_iops_log=fio
+write_lat_log=fio
+log_avg_msec=1000
+write_hist_log=fio
+log_hist_msec=10000
+
+[job-/dev/rbd0]
+filename=/dev/rbd0
+rw=read
+size=4096M
+numjobs=1
+
+[job-/dev/rbd1]
+filename=/dev/rbd1
+rw=read
+size=4096M
+numjobs=1
+
+running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job (sample1)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+fio job complete
+running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job (sample2)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+fio job complete
+running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job (sample3)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+fio job complete
+running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job (sample4)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+fio job complete
+running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job (sample5)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+fio job complete
+--- Finished test-07 pbench-fio (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/.iterations
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1/clients
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1/clients/192.168.121.112
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1/clients/192.168.121.158
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1/clients/192.168.121.64
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1/fio-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1/fio-result.txt
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1/fio.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2/clients
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2/clients/192.168.121.112
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2/clients/192.168.121.158
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2/clients/192.168.121.64
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2/fio-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2/fio-result.txt
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2/fio.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3/clients
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3/clients/192.168.121.112
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3/clients/192.168.121.158
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3/clients/192.168.121.64
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3/fio-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3/fio-result.txt
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3/fio.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4/clients
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4/clients/192.168.121.112
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4/clients/192.168.121.158
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4/clients/192.168.121.64
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4/fio-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4/fio-result.txt
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4/fio.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5/clients
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5/clients/192.168.121.112
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5/clients/192.168.121.158
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5/clients/192.168.121.64
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5/fio-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5/fio-result.txt
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5/fio.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/generate-benchmark-summary.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/metadata.log
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+/var/tmp/pbench-test-bench/pbench-agent/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-fio-3.3
+[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
+[debug][1900-01-01T00:00:00.000000] verifying clients have fio installed
+[debug][1900-01-01T00:00:00.000000] fio_device_check() /dev/rbd0,/dev/rbd1 192.168.121.64,192.168.121.112,192.168.121.158
+[debug][1900-01-01T00:00:00.000000] checking to see if /dev/rbd0 exists on client 192.168.121.64
+[debug][1900-01-01T00:00:00.000000] checking to see if /dev/rbd0 exists on client 192.168.121.112
+[debug][1900-01-01T00:00:00.000000] checking to see if /dev/rbd0 exists on client 192.168.121.158
+[debug][1900-01-01T00:00:00.000000] checking to see if /dev/rbd1 exists on client 192.168.121.64
+[debug][1900-01-01T00:00:00.000000] checking to see if /dev/rbd1 exists on client 192.168.121.112
+[debug][1900-01-01T00:00:00.000000] checking to see if /dev/rbd1 exists on client 192.168.121.158
+[debug][1900-01-01T00:00:00.000000] creating directories on the clients
+[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
+[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
+[debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+[debug][1900-01-01T00:00:00.000000] post-processing fio result
+[debug][1900-01-01T00:00:00.000000] creating directories on the clients
+[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
+[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
+[debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+[debug][1900-01-01T00:00:00.000000] post-processing fio result
+[debug][1900-01-01T00:00:00.000000] creating directories on the clients
+[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
+[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
+[debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+[debug][1900-01-01T00:00:00.000000] post-processing fio result
+[debug][1900-01-01T00:00:00.000000] creating directories on the clients
+[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
+[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
+[debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+[debug][1900-01-01T00:00:00.000000] post-processing fio result
+[debug][1900-01-01T00:00:00.000000] creating directories on the clients
+[debug][1900-01-01T00:00:00.000000] opening port 8765 on firewall on the clients
+[debug][1900-01-01T00:00:00.000000] killing any old fio process on the clients
+[debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
+[debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
+[debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.64/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.112/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/192.168.121.158/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
+[debug][1900-01-01T00:00:00.000000] post-processing fio result
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1 fio- default
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2 fio- default
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3 fio- default
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4 fio- default
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5 fio- default
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio --config=test-07 -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/templates/fio.job --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB readwrite_IOPS 5 0 6 y y
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/fio-client.file --max-jobs=6 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/fio.job
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00 --sysinfo=default beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00 --sysinfo=default end
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00 end
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 if [ -L /dev/rbd0 ]; then dev=/dev/; fi; test -b /dev/rbd0
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 if [ -L /dev/rbd1 ]; then dev=/dev/; fi; test -b /dev/rbd1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.112 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 if [ -L /dev/rbd0 ]; then dev=/dev/; fi; test -b /dev/rbd0
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 if [ -L /dev/rbd1 ]; then dev=/dev/; fi; test -b /dev/rbd1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.158 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 if [ -L /dev/rbd0 ]; then dev=/dev/; fi; test -b /dev/rbd0
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 if [ -L /dev/rbd1 ]; then dev=/dev/; fi; test -b /dev/rbd1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample2 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample3 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample4 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.121.64 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-07_1900.01.01T00.00.00/1-read-4KiB/sample5 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.112 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.112 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.112 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.112 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.112 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.158 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.158 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.158 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.158 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.158 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.64 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.64 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.64 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.64 8765
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.121.64 8765
+--- test-execution.log file contents
++++ fio_test-07_1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+
+[iterations/1-read-4KiB]
+iteration_number = 1
+test_type = read
+block_size_kib = 4
+dev = /dev/rbd0,/dev/rbd1
+iteration_name = 1-read-4KiB
+
+--- fio_test-07_1900.01.01T00.00.00/metadata.log file contents

@@ -1,0 +1,1 @@
+--pre-iteration-script=$(command -v fio-preint) --samples=1 --test-type=read --block-sizes=8

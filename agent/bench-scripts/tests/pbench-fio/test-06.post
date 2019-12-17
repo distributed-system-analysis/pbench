@@ -1,0 +1,4 @@
+#!/bin/bash
+
+prog=$(basename "${0}")
+diff -c ${_testtmp}/${prog%%.*}_clients.file ${_testdir}/fio_${prog%%.*}_${date}/fio-client.file >> $_testout 2>&1; rm -f ${_testtmp}/${prog%%.*}_clients.file

@@ -1,78 +1,78 @@
 #!/bin/bash
 export LANG=C
 export LC_ALL=C
-_tdir=$(dirname $(readlink -f $0))
+export _tdir=$(dirname $(readlink -f ${0}))
 
 _testroot=/var/tmp/pbench-test-bench
-mkdir -p $_testroot
-if [[ ! -d $_testroot ]]; then
-    echo "ERROR: failed to create test root directory, \"$_testroot\"" >&2
+mkdir -p ${_testroot}
+if [[ ! -d ${_testroot} ]]; then
+    echo "ERROR: failed to create test root directory, \"${_testroot}\"" >&2
     exit 1
 fi
-rm -rf $_testroot/*
-if [[ $? -gt 0 ]]; then
-    echo "ERROR: failed to empty test root directory, \"$_testroot\"" >&2
+rm -rf ${_testroot}/*
+if [[ ${?} -gt 0 ]]; then
+    echo "ERROR: failed to empty test root directory, \"${_testroot}\"" >&2
     exit 1
 fi
-export _testtmp=$_testroot/tmp
-export _testout=$_testroot/output.txt
-export _testlog=$_testroot/test-execution.log
+export _testtmp=${_testroot}/tmp
+export _testout=${_testroot}/output.txt
+export _testlog=${_testroot}/test-execution.log
 # This directory location is equivalent to the $pbench_run (or
 # /var/lib/pbench-agent).
-_testdir=$_testroot/pbench-agent
+export _testdir=${_testroot}/pbench-agent
 
 # Copy bench-scripts execution environment to _testroot
-_testopt=$_testroot/opt/pbench-agent
+export _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p $_testopt/bench-scripts/postprocess $_testopt/bench-scripts/templates $_testopt/util-scripts $_testopt/lib $_testopt/unittest-scripts
-let res=res+$?
-cp $_tdir/../base $_testopt/
-let res=res+$?
-cp -rH $_tdir/../lib/* $_testopt/lib/
-let res=res+$?
-for script in $_tdir/pbench-* ; do
-    cp $script $_testopt/bench-scripts/
-    let res=res+$?
+mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts
+let res=res+${?}
+cp ${_tdir}/../base ${_testopt}/
+let res=res+${?}
+cp -rH ${_tdir}/../lib/* ${_testopt}/lib/
+let res=res+${?}
+for script in ${_tdir}/pbench-* ; do
+    cp $script ${_testopt}/bench-scripts/
+    let res=res+${?}
 done
-cp $_tdir/postprocess/* $_testopt/bench-scripts/postprocess
-let res=res+$?
-cp $_tdir/templates/* $_testopt/bench-scripts/templates
-let res=res+$?
-for script in $_tdir/../util-scripts/pbench-* ; do
-    cp $script $_testopt/util-scripts/
-    let res=res+$?
+cp ${_tdir}/postprocess/* ${_testopt}/bench-scripts/postprocess
+let res=res+${?}
+cp ${_tdir}/templates/* ${_testopt}/bench-scripts/templates
+let res=res+${?}
+for script in ${_tdir}/../util-scripts/pbench-* ; do
+    cp ${script} ${_testopt}/util-scripts/
+    let res=res+${?}
 done
-cp -rH $_tdir/test-bin/* $_testopt/unittest-scripts/
-let res=res+$?
+cp -rH ${_tdir}/test-bin/* ${_testopt}/unittest-scripts/
+let res=res+${?}
 # replace real post-processing scripts with mocked ones
-mv $_testopt/unittest-scripts/mock-postprocess/* $_testopt/bench-scripts/postprocess
-let res=res+$?
-rmdir $_testopt/unittest-scripts/mock-postprocess
-let res=res+$?
+mv ${_testopt}/unittest-scripts/mock-postprocess/* ${_testopt}/bench-scripts/postprocess
+let res=res+${?}
+rmdir ${_testopt}/unittest-scripts/mock-postprocess
+let res=res+${?}
 
-if [[ $res -ne 0 ]]; then
+if [[ ${res} -ne 0 ]]; then
     echo "ERROR: failed to construct unittest execution directory hierarchy" \
-         "under, \"$_testroot\"" >&2
+         "under, \"${_testroot}\"" >&2
     exit 1
 fi
 
 function remove_path {
-    # PATH ($2) => /bin:/opt/a dir/bin:/sbin
-    WORK=:$2:
+    # PATH (${2}) => /bin:/opt/a dir/bin:/sbin
+    WORK=:${2}:
     # WORK => :/bin:/opt/a dir/bin:/sbin:
-    REMOVE=$1
-    WORK=${WORK/:$REMOVE:/:}
+    REMOVE=${1}
+    WORK=${WORK/:${REMOVE}:/:}
     # WORK => :/bin:/sbin:
     WORK=${WORK%:}
     WORK=${WORK#:}
-    #PATH=$WORK
+    #PATH=${WORK}
     # PATH => /bin:/sbin
-    echo $WORK
+    echo ${WORK}
 }
-PATH=$(remove_path /opt/pbench-agent/bench-scripts $PATH)
-PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
+PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
+PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 # Allows us to intercept scp, ssh, rsync, etc.
-export PATH=$_testopt/unittest-scripts:$_testopt/util-scripts:$_testopt/bench-scripts:$PATH
+export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/bench-scripts:${PATH}
 
 # Fixed timestamp output
 export _PBENCH_BENCH_TESTS=1
@@ -80,52 +80,65 @@ export _PBENCH_BENCH_TESTS=1
 res=0
 
 function _run {
-    tname=$1
+    local tname="${1}"
     shift
-    tscrpt=$1
+    local tscrpt="${1}"
     shift
-    echo "$tname $tscrpt $@"
-    echo "+++ Running $tname $tscrpt" >> $_testout
-    #echo PWD: $(pwd) _TDIR: $_tdir >> $_testout
+    local opts_file="${1}"
+    local opts
+    if [[ -f "${opts_file}" ]]; then
+        opts=" $(cat ${opts_file})"
+    else
+        opts=""
+    fi
+
+    echo "${tname} ${tscrpt}${opts}"
+    echo "+++ Running ${tname} ${tscrpt}" >> $_testout
+
     _tst_benchmark=${tscrpt%% *} \
-    CONFIG=$_testopt/config/pbench-agent.cfg \
-    pbench_install_dir=$_testopt \
-    pbench_bspp_dir=$_testopt/bench-scripts/postprocess \
-    pbench_lib_dir=$_testopt/lib \
-    pbench_run=$_testdir \
-    pbench_log=$_testdir/pbench.log \
-    benchmark_bin=$_testopt/unittest-scripts/bm \
-            $tscrpt --config=${tname} $@ >> $_testout 2>&1
-    sts=$?
-    echo "--- Finished $tname $tscrpt (status=$sts)" >> $_testout
-    return $sts
+    CONFIG=${_testopt}/config/pbench-agent.cfg \
+    pbench_install_dir=${_testopt} \
+    pbench_bspp_dir=${_testopt}/bench-scripts/postprocess \
+    pbench_lib_dir=${_testopt}/lib \
+    pbench_run=${_testdir} \
+    pbench_log=${_testdir}/pbench.log \
+    benchmark_bin=${_testopt}/unittest-scripts/bm \
+            eval ${tscrpt} --config=${tname} ${opts} >> ${_testout} 2>&1
+    sts=${?}
+
+    echo "--- Finished ${tname} ${tscrpt} (status=${sts})" >> ${_testout}
+    return ${sts}
 }
 
 function _save_tree {
     # Save state of the tree
-    echo "+++ pbench tree state" >> $_testout
-    find $_testdir 2> /dev/null | sort >> $_testout
-    echo "--- pbench tree state" >> $_testout
+    echo "+++ pbench tree state" >> ${_testout}
+    find ${_testdir} 2> /dev/null | sort >> ${_testout}
+    echo "--- pbench tree state" >> ${_testout}
 }
 
 function _dump_file {
-    if [[ ! -f "${_testdir}/${1}/${2}" ]] ;then
+    if [[ ! -f "${_testdir}/${1}/${2}" ]]; then
         return
     fi
-    echo "+++ ${1}/${2} file contents" >> $_testout
-    cat $_testdir/${1}/${2} >> $_testout 2>&1
-    echo "--- ${1}/${2} file contents" >> $_testout
+    echo "+++ ${1}/${2} file contents" >> ${_testout}
+    cat ${_testdir}/${1}/${2} >> ${_testout} 2>&1
+    echo "--- ${1}/${2} file contents" >> ${_testout}
 }
 
 function _dump_logs {
     # Dump the state of any generated script logs
-    echo "+++ pbench.log file contents" >> ${_testout}
-    grep -HvF "\-\-should-n0t-ex1st--" ${_testdir}/pbench.log >> ${_testout} 2>&1
-    echo "--- pbench.log file contents" >> ${_testout}
-    echo "+++ test-execution.log file contents" >> ${_testout}
-    grep -sHvF "\-\-should-n0t-ex1st--" ${_testroot}/test-execution.log | sort >> ${_testout} 2>&1
-    echo "--- test-execution.log file contents" >> ${_testout}
-    rm -f ${_testroot}/test-execution.log
+    if [[ -s "${_testdir}/pbench.log" ]]; then
+        echo "+++ pbench.log file contents" >> ${_testout}
+        cat ${_testdir}/pbench.log >> ${_testout} 2>&1
+        echo "--- pbench.log file contents" >> ${_testout}
+    fi
+    if [[ -s "${_testroot}/test-execution.log" ]]; then
+        echo "+++ test-execution.log file contents" >> ${_testout}
+        sort ${_testroot}/test-execution.log >> ${_testout} 2>&1
+        echo "--- test-execution.log file contents" >> ${_testout}
+        rm -f ${_testroot}/test-execution.log
+    fi
     _dump_file ${1} metadata.log
     _dump_file ${1} user-benchmark-summary.json
     _dump_file ${1} user-benchmark.cmd
@@ -140,164 +153,141 @@ function _dump_logs {
 
 function _verify_output {
     local sts tname tscrpt expected_status
-    sts=$1
-    tname=$2
-    tscrpt=$3
+    sts=${1}
+    tname=${2}
+    tscrpt=${3}
     expected_status=${4:-0}
     # fix up Ubuntu stupidities:
     # backtick to single quote
     # UTF-8 left single quote to ASCII apostrophe
     # UTF-8 right single quote to ASCII apostrophe
     sed 's/\xe2\x80\x98/\x27/g
-         s/\xe2\x80\x99/\x27/g' $_testout |
-         tr '\140' '\047' > $_testout.1
-    if [[ ! -e $_tdir/gold/${tscrpt}/${tname}.txt ]]; then
-        mkdir -p $_tdir/gold/${tscrpt} > /dev/null 2>&1
-        touch $_tdir/gold/${tscrpt}/${tname}.txt > /dev/null 2>&1
+         s/\xe2\x80\x99/\x27/g' ${_testout} |
+         tr '\140' '\047' > ${_testout}.1
+    if [[ ! -e ${_tdir}/tests/${tscrpt}/${tname}.txt ]]; then
+        mkdir -p ${_tdir}/tests/${tscrpt} > /dev/null 2>&1
+        touch ${_tdir}/tests/${tscrpt}/${tname}.txt > /dev/null 2>&1
     fi
-    diff -c $_tdir/gold/${tscrpt}/${tname}.txt $_testout.1
-    if [[ $? -gt 0 ]]; then
-        echo "FAIL - $tname"
-        rm $_testout
-        mv $_testout.1 $_testroot/${tname}_output.txt
+    diff -c ${_tdir}/tests/${tscrpt}/${tname}.txt ${_testout}.1
+    if [[ ${?} -gt 0 ]]; then
+        echo "FAIL - ${tname}"
+        rm ${_testout}
+        mv ${_testout}.1 ${_testroot}/${tname}_output.txt
         sts=1
     else
-        if [[ $sts -eq 0 ]]; then
-            echo "PASS - $tname"
-            rm $_testout $_testout.1
+        if [[ ${sts} -eq 0 ]]; then
+            echo "PASS - ${tname}"
+            rm ${_testout} ${_testout}.1
         else
-            if [[ $sts -eq $expected_status ]]; then
-                echo "PASS - $tname exited with expected status: $sts"
-                rm $_testout $_testout.1
+            if [[ ${sts} -eq ${expected_status} ]]; then
+                echo "PASS - ${tname} exited with expected status: ${sts}"
+                rm ${_testout} ${_testout}.1
                 sts=0
             else
-                echo "FAIL - $tname: PASS output but execution returned non-zero exit status"
-                rm $_testout
-                mv $_testout.1 $_testroot/${tname}_output.txt
+                echo "FAIL - ${tname}: PASS output but execution returned non-zero exit status"
+                rm ${_testout}
+                mv ${_testout}.1 ${_testroot}/${tname}_output.txt
             fi
         fi
     fi
-    return $sts
+    return ${sts}
 }
 
 function _setup_state {
-    mkdir -p $_testopt/config
-    if [[ $? -ne 0 ]]; then
-        echo "ERROR: failed to create test pbench config directory, \"$_testopt/config\"" >&2
+    mkdir -p ${_testopt}/config
+    if [[ ${?} -ne 0 ]]; then
+        echo "ERROR: failed to create test pbench config directory, \"${_testopt}/config\"" >&2
         exit 1
     fi
-    cp $_tdir/samples/pbench-agent.cfg $_testopt/config/
-    if [[ $? -ne 0 ]]; then
-        echo "ERROR: failed to create pbench-agent config file, \"$_testopt/config/pbench-agent.cfg\"" >&2
+    cp ${_tdir}/tests/Defaults/pbench-agent.cfg ${_testopt}/config/
+    if [[ ${?} -ne 0 ]]; then
+        echo "ERROR: failed to create pbench-agent config file, \"${_testopt}/config/pbench-agent.cfg\"" >&2
         exit 1
     fi
-    mkdir -p $_testdir
-    if [[ $? -ne 0 ]]; then
-        echo "ERROR: failed to create test pbench directory, \"$_testdir\"" >&2
+    mkdir -p ${_testdir}
+    if [[ ${?} -ne 0 ]]; then
+        echo "ERROR: failed to create test pbench directory, \"${_testdir}\"" >&2
         exit 1
     fi
-    cp -a $_tdir/sample-tools/tools-default $_testdir/
+    cp -a ${_tdir}/tests/Defaults/tools-default ${_tdir}/tests/Defaults/tool-triggers  ${_testdir}/
     mkdir ${_testtmp}
-    if [[ $? -gt 0 ]]; then
-        echo "ERROR: failed to create tmp directory, \"$_testtmp\"" >&2
+    if [[ ${?} -gt 0 ]]; then
+        echo "ERROR: failed to create tmp directory, \"${_testtmp}\"" >&2
         exit 1
     fi
 }
 
 function _reset_state {
-    rm -rf $_testdir
-    if [[ -d $_testdir ]]; then
+    rm -rf ${_testdir}
+    if [[ -d ${_testdir} ]]; then
         echo "ERROR: unable to remove pbench hierarchy, ${_testdir}" >&2
         exit 1
     fi
-    rm -rf $_testtmp
-    if [[ -d $_testtmp ]]; then
+    rm -rf ${_testtmp}
+    if [[ -d ${_testtmp} ]]; then
         echo "ERROR: unable to remove tmp directory, ${_testtmp}" >&2
         exit 1
     fi
 }
 
-date="1900.01.01T00.00.00"
-
-declare -A cmds=(
-    [test-CL]="test-benchmark-clis"
-    [test-00]="pbench-uperf --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2"
-    [test-01]="pbench-uperf --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2 --servers=s1,s2,s3 --clients=c1,c2,c3 --server-node=0,-1,2 --client-node=1,-1,3"
-    [test-02]="pbench-dbench --threads=24,48 --client-nodes=0,1 --clients=127.0.0.1,127.0.0.1 --max-stddev=10"
-    [test-04]="pbench-fio --test-types=rw,randrw"
-    [test-05]="pbench-fio --test-type=rw --samples=1 --clients=foo,bar"
-    [test-06]="pbench-fio --test-type=rw --samples=1 --client-file=${_testtmp}/test-06_clients.file"
-    [test-07]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio.job --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read"
-    [test-08]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --targets=/mnt/cephfs -b 4 -t read"
-    [test-09]="pbench-user-benchmark -- user-benchmark-script no-file"
-    [test-10]="pbench-user-benchmark -- user-benchmark-script no-duration"
-    [test-11]="pbench-user-benchmark -- user-benchmark-script with-duration"
-    [test-12]="pbench-user-benchmark -- user-benchmark-script bad-format"
-    [test-13]="pbench-fio -c 192.168.121.64,192.168.121.112,192.168.121.158 --job-file=${_testopt}/bench-scripts/templates/fio.job --job-mode=serial --targets=/dev/rbd0,/dev/rbd1 -b 4 -t read -s 64m"
-    [test-14]="pbench-fio --test-types=foo,bar"
-    [test-15]="pbench-fio --test-types=rw,randwrite,read,randrw,write,randread --samples=1 --block-sizes=42"
-    [test-16]="pbench-fio --job-mode=concurrent -c 192.168.1.1 --test-types=rw --samples=1 --block-sizes=42 --targets=/dev/sda0,/dev/sda1"
-    [test-17]="pbench-fio --job-mode=bad"
-    [test-18]="pbench-fio --install --postprocess-only=yes"
-    [test-19]="pbench-fio --pre-iteration-script=foo"
-    [test-20]="pbench-fio --targets=/dev/foo,/dev/bar --test-type=read --samples=1 --client-file=${_testtmp}/test-20_clients.file"
-    [test-21]="pbench-fio --postprocess-only=yes --install"
-    [test-22]="pbench-trafficgen --traffic-generator=trex-txrx-profile --max-loss-pct=0.0 --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --postprocess-only=y --run-dir=$_testdir"
-    [test-23]="pbench-user-benchmark --use-tool-triggers -- tool-trigger-example"
-    [test-24]="pbench-user-benchmark                     -- user-benchmark-script no-file"
-    [test-25]="pbench-user-benchmark --no-stderr-capture -- user-benchmark-script no-file"
-    [test-26]="pbench-fio --client-file=${_testtmp}/test-26_clients.file --clients=bar,zab"
-    [test-27]="pbench-fio --clients=foo,bar --client-file=${_testtmp}/test-27_clients.file"
-    [test-28]="pbench-fio --pre-iteration-script=$(command -v fio-preint) --samples=1 --test-type=read --block-sizes=8"
-    [test-29]="pbench-fio --client-file=${_testtmp}/test-29_clients.file"
-    [test-30]="pbench-fio --targets=/tmp --job-file=${_testopt}/bench-scripts/templates/fio.job --block-sizes=4 --samples=1 --test-types=read --runtime=30 --file-size=256M --clients=nodeA,nodeB --numjobs=4"
-    [test-31]="pbench-fio --targets=/tmp --job-file=${_testopt}/bench-scripts/templates/fio-shared-fs.job --block-sizes=4 --samples=1 --test-types=read --runtime=30 --file-size=256M --clients=nodeA,nodeB --numjobs=4"
-    [test-32]="pbench-fio --test-type=rw --samples=1 --block-sizes=42 --clients=hist.foo,hist.bar"
-)
-
-declare -A expected_status=(
-    [test-14]=1
-    [test-17]=1
-    [test-18]=1
-    [test-19]=1
-    [test-21]=1
-    [test-26]=1
-    [test-27]=1
-    [test-29]=1
-)
-
-declare -A pre=(
-    [test-06]="echo foo bar baz | tr ' ' '\n' > ${_testtmp}/test-06_clients.file"
-    [test-20]="echo abc def ghi | tr ' ' '\n' > ${_testtmp}/test-20_clients.file"
-    [test-22]="tar xf $_tdir/samples/test-22.tar.xz -C $_testdir/"
-    [test-23]="cp $_tdir/sample-tools/tool-triggers $_testdir/"
-    [test-26]="echo abc def ghi | tr ' ' '\n' > ${_testtmp}/test-26_clients.file"
-    [test-27]="echo abc def ghi | tr ' ' '\n' > ${_testtmp}/test-27_clients.file"
-)
-
-declare -A post=(
-    [test-06]="diff -c ${_testtmp}/test-06_clients.file ${_testdir}/fio_test-06_${date}/fio-client.file >> $_testout 2>&1; rm -f ${_testtmp}/test-06_clients.file"
-    [test-20]="diff -c ${_testtmp}/test-20_clients.file ${_testdir}/fio_test-20_${date}/fio-client.file >> $_testout 2>&1; rm -f ${_testtmp}/test-20_clients.file"
-    [test-22]="cat $_testdir/result.json >> $_testout"
-    [test-23]="rm $_testdir/tool-triggers"
-)
-
-tests="$*"
-if [ -z "$tests" ] ;then
-    typeset -i len=${#cmds[@]}
-    len=$len-1
-    tests=$(echo ${!cmds[*]} | tr ' ' '\n' | sort)
+test_args="${*}"
+tests=""
+> ${_testroot}/tests-unsorted.lis
+if [[ -z "${test_args}" ]]; then
+    # find them on disk: [pbench-<benchmark>]/[<test-##>].txt test-<name>/<test-##>.txt
+    for dir in $(ls -1 ${_tdir}/tests); do
+        if [[ "${dir}" == "Defaults" ]]; then
+            continue
+        fi
+        for _tst in $(ls -1 ${_tdir}/tests/${dir}/*.txt); do
+            tst=$(basename "${_tst}")
+            printf -- "%s %s\n" "${tst%%.*}" "${dir}" >> ${_testroot}/tests-unsorted.lis
+        done
+    done
+    sort ${_testroot}/tests-unsorted.lis > ${_testroot}/tests.lis
+    rm ${_testroot}/tests-unsorted.lis
+else
+    # For each given test name, find them on disk.
+    # NOTE: we run them in the order given.
+    for _tst_arg in ${test_args}; do
+        if [[ -d ${_tdir}/tests/${_tst_arg} ]]; then
+            if [[ "${_tst_arg}" == "Defaults" ]]; then
+                # Ignore somebody trying to run the "Defaults" data directory.
+                continue
+            fi
+            # All all the tests in that benchmark directory
+            for _tst in $(ls -1 ${_tdir}/tests/${_tst_arg}/*.txt); do
+                tst=$(basename "${_tst}")
+                printf -- "%s %s\n" "${tst%%.*}" "${_tst_arg}" >> ${_testroot}/tests-unsorted.lis
+            done
+        else
+            # Find that test among the benchmarks
+            for dir in $(ls -1 ${_tdir}/tests); do
+                if [[ "${dir}" == "Defaults" ]]; then
+                    continue
+                fi
+                if [[ -f ${_tdir}/tests/${dir}/${_tst_arg}.txt ]]; then
+                    printf -- "%s %s\n" "${_tst_arg}" "${dir}" >> ${_testroot}/tests-unsorted.lis
+                fi
+            done
+        fi
+    done
+    mv ${_testroot}/tests-unsorted.lis ${_testroot}/tests.lis
 fi
 
+export date="1900.01.01T00.00.00"
 let errs=0
 
-for tst in $tests; do
-    cmd=${cmds[$tst]}
-    benchmark=${cmd%% *}
-    bm_postfix=${benchmark#*-}
-    tpre=${pre[$tst]}
-    tpost=${post[$tst]}
-    status=${expected_status[$tst]}
+while read tst benchmark; do
+    _tst="${benchmark}/${tst}"
+    bm_postfix="${benchmark#*-}"
+
+    if [[ -f "${_tdir}/tests/${_tst}.sts" ]]; then
+        status="$(cat ${_tdir}/tests/${_tst}.sts)"
+    else
+        status=""
+    fi
+
     if [[ ${benchmark} == "pbench-user-benchmark" ]]; then
         _rundir="${benchmark}_${tst}_${date}"
     elif [[ ${benchmark%%-*} == "pbench" ]]; then
@@ -305,31 +295,36 @@ for tst in $tests; do
     else
         _rundir=""
     fi
+
     _setup_state ${_rundir}
-    if [ ! -z "$tpre" ] ;then
-        eval "$tpre"
+
+    if [[ -x "${_tdir}/tests/${_tst}.pre" ]]; then
+        ${_tdir}/tests/${_tst}.pre
     fi
-    _run $tst $cmd
-    res=$?
-    if [ ! -z "$tpost" ] ;then
-        eval "$tpost"
+
+    _run ${tst} ${benchmark} ${_tdir}/tests/${_tst}.opts
+    res=${?}
+
+    if [[ -x "${_tdir}/tests/${_tst}.post" ]]; then
+        ${_tdir}/tests/${_tst}.post
     fi
+
     _save_tree
     _dump_logs ${_rundir}
-    _verify_output $res $tst $benchmark $status
-    res=$?
-    let errs=$errs+$res
+    _verify_output ${res} ${tst} ${benchmark} ${status}
+    res=${?}
+    let errs=${errs}+${res}
     _reset_state
-done
+done < ${_testroot}/tests.lis
 
 # Final clean up, if there are no failures, we'll be able to remove the
 # hierarchy entirely.
-rm -rf $_testroot/opt
-rmdir $_testroot > /dev/null 2>&1
+rm -rf ${_testroot}/opt ${_testroot}/tests.lis
+rmdir ${_testroot} > /dev/null 2>&1
 
-if [[ $errs -gt 0 ]]; then
+if [[ ${errs} -gt 0 ]]; then
     sts=1
 else
     sts=0
 fi
-exit $sts
+exit ${sts}
