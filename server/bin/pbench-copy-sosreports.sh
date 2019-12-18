@@ -138,6 +138,7 @@ for result in $list ;do
 
     if [[  $nsr == 0 ]] ;then
         echo "$TS: No sosreports found for $result"
+	res="${result}.Bad-Hostname"
     else
         pushd $incoming > /dev/null 2>&4
         cmd="/usr/bin/rsync -av $TMPDIR/ $SOSREPORTDEST"
