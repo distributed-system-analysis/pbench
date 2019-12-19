@@ -290,18 +290,21 @@ fio job complete
 iteration_number = 1
 test_type = read
 block_size_kib = 4
+dev = /dev/foo,/dev/bar
 iteration_name = 1-read-4KiB
 
 [iterations/2-read-64KiB]
 iteration_number = 2
 test_type = read
 block_size_kib = 64
+dev = /dev/foo,/dev/bar
 iteration_name = 2-read-64KiB
 
 [iterations/3-read-1024KiB]
 iteration_number = 3
 test_type = read
 block_size_kib = 1024
+dev = /dev/foo,/dev/bar
 iteration_name = 3-read-1024KiB
 
 --- fio_test-20_1900.01.01T00.00.00/metadata.log file contents

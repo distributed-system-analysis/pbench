@@ -104,6 +104,7 @@ fio job complete
 iteration_number = 1
 test_type = rw
 block_size_kib = 42
+dev = /dev/sda0,/dev/sda1
 iteration_name = 1-rw-42KiB
 
 --- fio_test-16_1900.01.01T00.00.00/metadata.log file contents

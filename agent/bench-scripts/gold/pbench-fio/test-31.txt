@@ -103,6 +103,7 @@ fio job complete
 iteration_number = 1
 test_type = read
 block_size_kib = 4
+dev = /tmp
 iteration_name = 1-read-4KiB
 
 --- fio_test-31_1900.01.01T00.00.00/metadata.log file contents

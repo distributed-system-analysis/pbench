@@ -296,36 +296,42 @@ fio job complete
 iteration_number = 1
 test_type = rw
 block_size_kib = 42
+dev = /tmp/fio
 iteration_name = 1-rw-42KiB
 
 [iterations/2-randwrite-42KiB]
 iteration_number = 2
 test_type = randwrite
 block_size_kib = 42
+dev = /tmp/fio
 iteration_name = 2-randwrite-42KiB
 
 [iterations/3-read-42KiB]
 iteration_number = 3
 test_type = read
 block_size_kib = 42
+dev = /tmp/fio
 iteration_name = 3-read-42KiB
 
 [iterations/4-randrw-42KiB]
 iteration_number = 4
 test_type = randrw
 block_size_kib = 42
+dev = /tmp/fio
 iteration_name = 4-randrw-42KiB
 
 [iterations/5-write-42KiB]
 iteration_number = 5
 test_type = write
 block_size_kib = 42
+dev = /tmp/fio
 iteration_name = 5-write-42KiB
 
 [iterations/6-randread-42KiB]
 iteration_number = 6
 test_type = randread
 block_size_kib = 42
+dev = /tmp/fio
 iteration_name = 6-randread-42KiB
 
 --- fio_test-15_1900.01.01T00.00.00/metadata.log file contents
