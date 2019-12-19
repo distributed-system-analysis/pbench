@@ -471,17 +471,19 @@ function fio_process_options() {
 }
 
 function record_iteration {
-	local count=$1
-	local test_type=$2
-	local block_size=$3
-	local iteration=$4
+	local count=${1}
+	local test_type=${2}
+	local block_size=${3}
+	local dev=${4}
+	local iteration=${5}
 
-	mdlog=${benchmark_run_dir}/metadata.log
+	local mdlog=${benchmark_run_dir}/metadata.log
 	echo ${iteration} >> ${benchmark_iterations}
-	echo $count | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
-	echo $test_type | pbench-add-metalog-option ${mdlog} iterations/${iteration} test_type
-	echo $block_size | pbench-add-metalog-option ${mdlog} iterations/${iteration} block_size_KiB
-	echo $iteration | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+	echo ${count} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
+	echo ${test_type} | pbench-add-metalog-option ${mdlog} iterations/${iteration} test_type
+	echo ${block_size} | pbench-add-metalog-option ${mdlog} iterations/${iteration} block_size_KiB
+	echo ${dev} | pbench-add-metalog-option ${mdlog} iterations/${iteration} dev
+	echo ${iteration} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
 }
 
 # Ensure the right version of the benchmark is installed
@@ -749,7 +751,12 @@ function fio_run_benchmark() {
 			for block_size in `echo $block_sizes | sed -e s/,/" "/g`; do
 				job_num=1
 				iteration="${count}-${test_type}-${block_size}KiB"
-				record_iteration ${count} ${test_type} ${block_size} ${iteration}
+				if [ "$job_mode" = "serial" ]; then
+					dev_short_name="`basename $dev`"
+					# easier to identify what job used what device when having 1 job per device
+					iteration="$iteration-${dev_short_name}"
+				fi
+				record_iteration ${count} ${test_type} ${block_size} ${dev} ${iteration}
 				iteration_dir=$benchmark_run_dir/$iteration
 				result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 				failures=0
@@ -785,11 +792,6 @@ function fio_run_benchmark() {
 						fio_job_file="$iteration_dir/fio.job"
 						#             ARG   1            2           3             4          5         6       7          8           9            10           11                         12     13              14
 						fio_create_jobfile "$test_type" "$ioengine" "$block_size" "$iodepth" "$direct" "$sync" "$runtime" "$ramptime" "$file_size" "$rate_iops" "$histogram_interval_msec" "$dev" "$fio_job_file" "$numjobs"
-						if [ "$job_mode" = "serial" ]; then
-							dev_short_name="`basename $dev`"
-							# easier to identify what job used what device when having 1 job per device
-							iteration="$iteration-${dev_short_name}"
-						fi
 						iteration_failed=0
 						sample_failed=0
 						for sample in `seq 1 $nr_samples`; do
