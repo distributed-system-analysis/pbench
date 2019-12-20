@@ -286,6 +286,8 @@ echo "$TS: end - $(timestamp)" | tee -a $mail_content
 echo "$TS: duration (secs): $duration" | tee -a $mail_content
 echo "$TS: Total $nprocessed files processed, with $nfailed_md5 md5 failures and $nerrs errors" | tee -a $mail_content
 
+log_finish
+
 subj="$PROG.$TS($PBENCH_ENV) - w/ $nerrs errors"
 cat << EOF > $index_content
 $subj
