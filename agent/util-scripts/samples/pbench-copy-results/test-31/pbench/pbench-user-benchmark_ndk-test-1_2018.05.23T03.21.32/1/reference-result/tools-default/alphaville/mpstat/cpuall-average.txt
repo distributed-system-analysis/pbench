@@ -1,9 +1,0 @@
-cpuall-guest=0.000000
-cpuall-idle=95.217500
-cpuall-iowait=0.012000
-cpuall-irq=0.218000
-cpuall-nice=0.000000
-cpuall-softirq=0.080000
-cpuall-steal=0.000000
-cpuall-sys=1.023000
-cpuall-usr=3.449000
