@@ -29,6 +29,34 @@ len(actions) = 1
 ]
 --- Finished pbench-server-prep-shim-002 (status=0)
 +++ Running pbench-sync-satellite satellite-one
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "2275a09f9d9e6774e1d3e7d3d9e3b1d5",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-sync-satellite",
+            "text": "pbench-sync-satellite.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 0 files, with 0 md5 failures and 0 errors.\n\nrun-1970-01-01T00:00:00-UTC: start - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: remote tarballs unpacked - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: end - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: duration (secs): 0\nrun-1970-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors\n",
+            "total_chunks": 1,
+            "total_size": 570
+        },
+        "_type": "pbench-server-reports"
+    }
+]
 --- Finished pbench-sync-satellite (status=0)
 +++ Running pbench-dispatch
 Template:  pbench-unittests.v3.server-reports
@@ -245,7 +273,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--          0 logs/pbench-sync-satellite/ONE/change_state.log
 -rw-rw-r--          0 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--       2217 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--        798 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
 -rw-rw-r--       2057 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
@@ -350,34 +378,6 @@ run-1970-01-01T00:00:00-UTC: end - 1970-01-01T00:00:00-UTC
 run-1970-01-01T00:00:00-UTC: duration (secs): 0
 run-1970-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
 1970-01-01T00:00:00.000000 INFO pbench-sync-satellite.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "2275a09f9d9e6774e1d3e7d3d9e3b1d5",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:00",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-sync-satellite",
-            "text": "pbench-sync-satellite.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 0 files, with 0 md5 failures and 0 errors.\n\nrun-1970-01-01T00:00:00-UTC: start - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: remote tarballs unpacked - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: end - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: duration (secs): 0\nrun-1970-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors\n",
-            "total_chunks": 1,
-            "total_size": 570
-        },
-        "_type": "pbench-server-reports"
-    }
-]
 1970-01-01T00:00:00.000000 INFO pbench-sync-satellite.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-sync-satellite/pbench-sync-satellite.log
 +++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
