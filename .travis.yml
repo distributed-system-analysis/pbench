@@ -1,40 +1,34 @@
+dist: bionic
 jobs:
   include:
     - stage: "Agent Unit Tests"
       name: "agent-unit-tests"
-      dist: eoan
-      language: perl
-      perl:
-        - "5.28"
+      language: python
+      python:
+        - "3.6"
       before_install:
         - sudo apt-get update
       install:
-        - sudo apt-get install coreutils
-        - sudo apt-get install python python-pip bc libjson-perl libswitch-perl
-        - sudo pip install configparser configtools
-        - sudo apt-get install python-software-properties
-        - sudo add-apt-repository ppa:fkrull/deadsnakes -y
-        - sudo apt-get update -y -qq
-        - sudo apt-get install python3.6 --force-yes -y
-        - sudo ln -sf python3.6 /usr/bin/python3
+        # Perl JSON and JSON-XS required
+        - sudo apt-get install libjson-perl libjson-xs-perl
+        - pip install 'configtools<0.4.0'
       script: ./agent/run-unittests
 
     - stage: "Server Unit Tests"
       name: "server-unit-tests"
-      dist: eoan
       language: python
       python:
         - "3.6"
       env:
         - PBENCH_UNITTEST_SERVER_MODE=serial
+      before_install:
+        - sudo apt-get update
       install:
-        - sudo apt-get install coreutils
         - pip install 'configtools<0.4.0' elasticsearch sh boto3
       script: ./server/bin/unittests
 
     - stage: "Dashboard Unit Tests"
       name: "dashboard-unit-tests"
-      dist: eoan
       language: node_js
       node_js:
         - "13"
@@ -51,7 +45,6 @@ jobs:
 
     - stage: "Dashboard E2E Tests"
       name: "dashboard-e2e-tests"
-      dist: eoan
       language: node_js
       node_js:
         - "13"
