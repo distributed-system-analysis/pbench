@@ -59,9 +59,7 @@ calculate_md5_prefix $tar_list > $tmp/files-to-sync
 tar cf - -T $tmp/files-to-sync >&100
 status=$?
 if [[ $status != 0 ]] ;then
-    echo "$TS: Failed: tar --create -T $tmp/files-to-sync" >&4
-    log_finish
-    exit 2
+    log_exit "$TS: Failed: tar --create -T $tmp/files-to-sync" 2
 fi
 
 log_finish
