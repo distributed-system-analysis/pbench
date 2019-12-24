@@ -106,9 +106,7 @@ if [ -s ${state_change_log} ] ;then
     do_remote_sat_state_change
     status=$?
     if [[ $status != 0 ]]; then
-        echo "$PROG: unable to complete previous satellite state changes (${state_change_log})" >&4
-        log_finish
-        exit 1
+        log_exit "$PROG: unable to complete previous satellite state changes (${state_change_log})"
     fi
     echo "$PROG: completed previous satellite state changes" | tee -a $mail_content >&4
 else
@@ -124,9 +122,7 @@ typeset -i nerrs=0
 pbench-remote-sync-package-tarballs ${satellite_config} ${tmp}/satellite.${remote_prefix}.tar
 rc=$?
 if [[ $rc != 0 ]] ;then
-    echo "$PROG: pbench-remote-sync-package-tarballs: failed." >&4
-    log_finish
-    exit 2
+    log_exit "$PROG: pbench-remote-sync-package-tarballs: failed."
 fi
 
 if [ -s $tmp/satellite.$remote_prefix.tar ]; then
