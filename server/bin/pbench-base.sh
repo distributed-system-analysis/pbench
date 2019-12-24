@@ -102,9 +102,13 @@ function log_finish {
 }
 
 function log_exit {
-    echo "$PROG: $1" >&4
+    echo "${PROG}: ${1}" >&4
     log_finish
-    exit 1
+    if [[ -z "${2}" ]]; then
+        exit 1
+    else
+        exit ${2}
+    fi
 }
 
 # Function used by the shims to quarantine problematic tarballs.  It
@@ -120,9 +124,7 @@ function quarantine () {
     sts=$?
     if [ $sts -ne 0 ] ;then
         # log error
-        echo "$TS: quarantine $dest $files: \"mkdir -p $dest/\" failed with status $sts" >&4
-        log_finish
-        exit 101
+        log_exit "$TS: quarantine $dest $files: \"mkdir -p $dest/\" failed with status $sts" 101
     fi
     for afile in ${files} ;do
         if [ ! -e $afile -a ! -L $afile ] ;then
@@ -132,9 +134,7 @@ function quarantine () {
         sts=$?
         if [ $sts -ne 0 ] ;then
             # log error
-            echo "$TS: quarantine $dest $files: \"mv $afile $dest/\" failed with status $sts" >&4
-            log_finish
-            exit 102
+            log_exit "$TS: quarantine $dest $files: \"mv $afile $dest/\" failed with status $sts" 102
         fi
     done
 }

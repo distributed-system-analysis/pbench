@@ -104,18 +104,14 @@ while read tarball ;do
     if [ "$linksrc" != "$tb_linksrc" ]; then
         # All is NOT well: we expect $linksrc as the parent directory name
         # of the symlink tarball name.
-        echo "$TS: FATAL - unexpected \$linksrc for $tarball" | tee -a $mail_content >&4
-        log_finish
-        exit 57
+        log_exit "$TS: FATAL - unexpected \$linksrc for $tarball" 57
     fi
 
     controller_path=$(dirname $linksrc_path)
     controller=$(basename $controller_path)
     if [ "$ARCHIVE" != "$(dirname $controller_path)" ]; then
         # The controller's parent is not $ARCHIVE!
-        echo "$TS: FATAL - unexpected archive directory for $tarball" | tee -a $mail_content >&4
-        log_finish
-        exit 57
+        log_exit "$TS: FATAL - unexpected archive directory for $tarball" 57
     fi
 
     link=$(readlink -e $tarball)

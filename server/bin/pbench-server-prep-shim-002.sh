@@ -80,9 +80,7 @@ trap 'rm -rf $tmp' EXIT INT QUIT
 mkdir -p $tmp
 sts=$?
 if [ $sts != 0 ]; then
-    echo "Failed: \"mkdir -p $tmp\", status $sts" >> $errlog
-    log_finish
-    exit 4
+    log_exit "Failed: \"mkdir -p $tmp\", status $sts" 4
 fi
 
 list=$tmp/list.check
@@ -96,16 +94,12 @@ echo $TS
 find ${receive_dir} -maxdepth 2 -name '*.tar.xz.md5' > ${list}.unsorted
 sts=$?
 if [ $sts != 0 ] ;then
-    echo "Failed: \"find ${receive_dir} -maxdepth 2 -name '*.tar.xz.md5'\", status $sts" >&4
-    log_finish
-    exit 5
+    log_exit "Failed: \"find ${receive_dir} -maxdepth 2 -name '*.tar.xz.md5'\", status $sts" 5
 fi
 sort ${list}.unsorted > ${list}
 sts=$?
 if [ $sts != 0 ] ;then
-    echo "Failed: \"sort ${list}.unsorted > ${list}\", status $sts" >&4
-    log_finish
-    exit 6
+    log_exit "Failed: \"sort ${list}.unsorted > ${list}\", status $sts" 6
 fi
 
 typeset -i ntotal=0
