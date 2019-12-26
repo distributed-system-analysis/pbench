@@ -20,10 +20,15 @@ case $# in
         :
         ;;
     *)
-        echo "Usage: $PROG <satellite-config> <output-tar-ball>"
+        echo "Usage: $PROG <satellite-config> <output-tar-ball>" >&2
         exit 1
         ;;
 esac
+
+if [[ -z "${dir}" || -z "${PROG}" ]]; then
+    echo "INTERNAL ERROR: bad environment encountered" >&2
+    exit 1
+fi
 
 satellite_config=$1
 output_tar_ball=$2
