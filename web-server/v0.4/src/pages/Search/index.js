@@ -297,7 +297,7 @@ class SearchList extends Component {
                       >
                         {mapping[field].map(item => {
                           return (
-                            <Select.Option value={item} label={item}>
+                            <Select.Option value={item} label={item} key={item}>
                               {item}
                             </Select.Option>
                           );
