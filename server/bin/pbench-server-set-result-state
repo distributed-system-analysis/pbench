@@ -13,6 +13,12 @@ case $opts in
         PROG=$(basename $0)
         ;;
 esac
+
+if [[ -z "${dir}" || -z "${PROG}" ]]; then
+    echo "INTERNAL ERROR: bad environment encountered" >&2
+    exit 1
+fi
+
 case $# in
     2)
         :
@@ -23,10 +29,6 @@ case $# in
         ;;
 esac
 
-if [[ -z "${dir}" || -z "${PROG}" ]]; then
-    echo "INTERNAL ERROR: bad environment encountered" >&2
-    exit 1
-fi
 
 export CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
 
