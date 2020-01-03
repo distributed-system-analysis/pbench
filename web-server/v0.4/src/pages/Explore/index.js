@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Card, Button, Popconfirm, Icon, Form, Modal, Input } from 'antd';
@@ -13,7 +13,7 @@ const { TextArea } = Input;
   datastoreConfig: datastore.datastoreConfig,
   loadingSharedSessions: loading.effects['explore/fetchSharedSessions'],
 }))
-class Explore extends Component {
+class Explore extends React.Component {
   constructor(props) {
     super(props);
 
@@ -167,6 +167,7 @@ class Explore extends Component {
         colSpan: 0,
         dataIndex: '',
         key: 'delete',
+        class: 'deleteSession',
         render: record => {
           const value = (
             <Popconfirm
@@ -175,7 +176,12 @@ class Explore extends Component {
               okText="Yes"
               onConfirm={() => this.deleteSharedSession(record)}
             >
-              <Icon type="delete" theme="twoTone" style={{ textAlign: 'right' }} />
+              <Icon
+                class="deleteIcon"
+                type="delete"
+                theme="twoTone"
+                style={{ textAlign: 'right' }}
+              />
             </Popconfirm>
           );
           const obj = {
