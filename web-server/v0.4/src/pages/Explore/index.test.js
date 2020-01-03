@@ -26,4 +26,8 @@ describe('test delete session feature', () => {
     expect(wrapper.find(Table).props().columns.length).toEqual(5);
     expect(wrapper.find(Table).props().columns[3].title).toEqual('Edit');
   });
+  it('render of the delete session columns', () => {
+    expect(wrapper.find(Table).props().columns.length).toEqual(5);
+    expect(wrapper.find(Table).props().columns[4].title).toEqual('Delete');
+  });
 });
