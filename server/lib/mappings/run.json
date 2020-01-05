@@ -167,6 +167,9 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
+		    "sosreport-error": {
+			"type": "string"
+		    },
                     "hostname-s": {
                         "type": "string",
                         "index": "not_analyzed"
