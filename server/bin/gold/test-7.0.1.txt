@@ -3284,6 +3284,9 @@ Template: pbench-unittests.v3.run
                         "name": {
                             "index": "not_analyzed",
                             "type": "string"
+                        },
+                        "sosreport-error": {
+                            "type": "string"
                         }
                     },
                     "type": "nested"

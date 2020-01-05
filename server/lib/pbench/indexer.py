@@ -3109,7 +3109,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
         try:
             hostname_f = str(sostb.extractfile(hostname_f_file[0]).read(), 'iso8859-1')[:-1]
         except IOError as e:
-            raise SosreportHostname("Failure to fetch a hostname-f from the sosreport")
+            return (1, "Failure to fetch a hostname-f from the sosreport")
         if hostname_f == 'hostname: Name or service not known':
             hostname_f = ""
     else:
@@ -3119,12 +3119,12 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
         try:
             hostname_s = str(sostb.extractfile(hostname_s_file[0]).read(), 'iso8859-1')[:-1]
         except IOError as e:
-            raise SosreportHostname("Failure to fetch a hostname from the sosreport")
+            return (1, "Failure to fetch a hostname from the sosreport")
     else:
         hostname_s = ""
 
     if not hostname_f and not hostname_s:
-        raise SosreportHostname("We do not have a hostname recorded in the sosreport")
+        return (1, "We do not have a hostname recorded in the sosreport")
 
     # import pdb; pdb.set_trace()
     if hostname_f and hostname_s:
@@ -3144,7 +3144,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
         elif hostname_s != "localhost":
             hostname_f = hostname_s
         else:
-            raise SosreportHostname("Can't reconcile short and full hostname")
+            return (1, "Can't reconcile short and full hostname")
 
     elif not hostname_f and hostname_s:
         # The sosreport did not include, or failed to properly collect, the
@@ -3157,7 +3157,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
         hostname_s = hostname_f.split('.')[0]
     else:
         # both undefined
-        raise SosreportHostname("Hostname undefined (both short and long)")
+        return (1, "Hostname undefined (both short and long)")
 
     if hostname_f == "localhost" and hostname_s != "localhost":
         hostname_f = hostname_s
@@ -3165,7 +3165,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
     elif hostname_f != "localhost" and hostname_s == "localhost":
         hostname_s = hostname_f.split('.')[0]
     elif hostname_f == "localhost" and hostname_s == "localhost":
-        raise SosreportHostname("The sosreport did not collect a hostname other than 'localhost'")
+        return (1, "The sosreport did not collect a hostname other than 'localhost'")
     else:
         pass
 
@@ -3184,7 +3184,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
         ip_files = [x for x in ipfiles if x.find('sos_commands/networking/ip_address') >= 0]
         if ip_files:
             d.update(if_ip_from_sosreport(sostb.extractfile(ip_files[0])))
-    return d
+    return (0, d)
 
 def mk_sosreports(tb, extracted_root, logger):
     logger.debug("start")
@@ -3203,14 +3203,16 @@ def mk_sosreports(tb, extracted_root, logger):
         except Exception as e:
             logger.warning("Failed to fetch .md5 of sosreport {}: {}", sos, e)
             continue
-        host_md = hostnames_if_ip_from_sosreport(os.path.join(extracted_root, sos))
+        ret_val = hostnames_if_ip_from_sosreport(os.path.join(extracted_root, sos))
         # get hostname (short and FQDN) from sosreport
         d = _dict_const()
         d['name'] = sos
         d['md5'] = md5_val
-        d.update(host_md)
+        if ret_val[0] == 0:
+            d.update(ret_val[1])
+        else:
+            d['sosreport-error'] = ret_val[1]
         sosreportlist.append(d)
-
     logger.debug("end [{:d} sosreports processed]", len(sosreportlist))
     return sosreportlist
 
