@@ -1,4 +1,4 @@
-import { querySharedSessions, queryEditDescription } from '../services/explore';
+import { querySharedSessions, updateDescription } from '../services/explore';
 
 export default {
   namespace: 'explore',
@@ -18,7 +18,7 @@ export default {
       });
     },
     *editDescription({ payload }, { call }) {
-      const response = yield call(queryEditDescription, payload);
+      const response = yield call(updateDescription, payload);
       return response;
     },
   },
