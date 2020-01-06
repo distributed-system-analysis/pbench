@@ -663,6 +663,36 @@ function verify_archive {
     fi
     rm -f ${bad_controllers}
 
+    for x in "${ARCHIVE}"/*; do
+        unpacked=${x}"/UNPACKED"
+        tounpack=${x}"/TO-UNPACK"
+        for y in "${unpacked}"/*; do
+            z=${tounpack}/$(basename ${y})
+            if [[ -e $z ]]; then
+                echo "Symlink exists in both UNPACKED and TO-UNPACK directories"
+            fi
+        done
+
+	synced=${x}"/SYNCED"
+        tosync=${x}"/TO-SYNC"
+        for y in "${synced}"/*; do
+            z=${tosync}/$(basename ${y})
+            if [[ -e $z ]]; then
+                echo "Symlink exists in both SYNCED and TO-SYNC directories"
+            fi
+        done
+
+	satellitedone=${x}"/SATELLITE-DONE"
+        todelete=${x}"/TO-DELETE"
+        for y in "${satellitedone}"/*; do
+            z=${todelete}/$(basename ${y})
+            if [[ -e $z ]]; then
+                echo "Symlink exists in both SATELLITE-DONE and TO-DELETE directories"
+            fi
+        done
+
+    done
+
     # Find all the normal controller directories, ignoring the "." (current)
     # directory (if the $ARCHIVE directory resolves to "."), and ignoring the
     # $ARCHIVE directory itself, while keeping them all in sorted order.
