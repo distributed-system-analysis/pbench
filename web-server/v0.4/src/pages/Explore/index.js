@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card, Button, Popconfirm } from 'antd';
+import { Card, Button, Popconfirm, Icon, Form, Modal, Input } from 'antd';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import Table from '@/components/Table';
+
+const { TextArea } = Input;
 
 @connect(({ datastore, explore, loading }) => ({
   sharedSessions: explore.sharedSessions,
@@ -17,6 +19,8 @@ class Explore extends Component {
 
     this.state = {
       sharedSessions: props.sharedSessions,
+      visible: false,
+      selectedID: '',
     };
   }
 
@@ -57,8 +61,40 @@ class Explore extends Component {
     dispatch(routerRedux.push(`/share/${record.id}`));
   };
 
+  editDescription = (id, value) => {
+    const { dispatch, datastoreConfig } = this.props;
+    dispatch({
+      type: 'explore/editDescription',
+      payload: { datastoreConfig, id, value },
+    }).then(() => {
+      this.fetchSharedSessions();
+    });
+  };
+
+  showModal = id => {
+    this.setState({
+      visible: true,
+      selectedID: id,
+    });
+  };
+
+  handleSave = () => {
+    const { selectedID } = this.state;
+    const { value } = document.getElementById('editedInput');
+    this.editDescription(selectedID, value);
+    this.setState({
+      visible: false,
+    });
+  };
+
+  handleCancel = () => {
+    this.setState({
+      visible: false,
+    });
+  };
+
   render() {
-    const { sharedSessions } = this.state;
+    const { sharedSessions, visible } = this.state;
     const { loadingSharedSessions } = this.props;
     const sharedSessionColumns = [
       {
@@ -75,8 +111,23 @@ class Explore extends Component {
       },
       {
         title: 'Description',
+        colSpan: 2,
         dataIndex: 'description',
         key: 'description',
+      },
+      {
+        title: 'Edit',
+        colSpan: 0,
+        dataIndex: '',
+        key: 'edit',
+        class: 'editDescription',
+        render: record => {
+          const value = <Icon type="edit" onClick={() => this.showModal(record.id)} />;
+          const obj = {
+            children: value,
+          };
+          return obj;
+        },
       },
       {
         title: 'Action',
@@ -104,6 +155,24 @@ class Explore extends Component {
             loading={loadingSharedSessions}
           />
         </Card>
+        <Modal
+          title="Edit the description"
+          visible={visible}
+          footer={[
+            <Button key="back" onClick={this.handleCancel}>
+              Cancel
+            </Button>,
+            <Button key="submit" type="primary" onClick={this.handleSave}>
+              Save
+            </Button>,
+          ]}
+        >
+          <Form layout="vertical">
+            <Form.Item label="Description">
+              <TextArea id="editedInput" rows={2} />
+            </Form.Item>
+          </Form>
+        </Modal>
       </PageHeaderLayout>
     );
   }
