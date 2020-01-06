@@ -1,5 +1,4 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { createContext } from 'react';
 import { Layout, Icon, Spin, message } from 'antd';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
@@ -21,6 +20,13 @@ import logo from '../assets/pbench_logo.png';
 
 const { Content, Header, Footer } = Layout;
 const { check } = Authorized;
+
+// Create a context object with default values
+// for location and breadcrumbNameMap
+export const BreadcrumbContext = createContext({
+  location: {},
+  breadcrumbNameMap: {},
+});
 
 const redirectData = [];
 const getRedirect = item => {
@@ -87,11 +93,6 @@ enquireScreen(b => {
   collapsed: global.collapsed,
 }))
 class BasicLayout extends React.PureComponent {
-  static childContextTypes = {
-    location: PropTypes.object,
-    breadcrumbNameMap: PropTypes.object,
-  };
-
   state = {
     isMobile,
   };
@@ -102,14 +103,6 @@ class BasicLayout extends React.PureComponent {
     this.breadcrumbNameMap = getBreadcrumbNameMap(getMenuData());
     // eslint-disable-next-line no-underscore-dangle
     this.persistor = persistStore(window.g_app._store);
-  }
-
-  getChildContext() {
-    const { location } = this.props;
-    return {
-      location,
-      breadcrumbNameMap: this.breadcrumbNameMap,
-    };
   }
 
   componentDidMount() {
@@ -204,6 +197,11 @@ class BasicLayout extends React.PureComponent {
       children,
       location: { pathname },
     } = this.props;
+    // Assign context values
+    const breadcrumbContextValues = {
+      location: this.props,
+      breadcrumbNameMap: this.breadcrumbNameMap,
+    };
     const { isMobile: mb } = this.state;
     // const baseRedirect = this.getBaseRedirect();
     const layout = (
@@ -279,11 +277,14 @@ class BasicLayout extends React.PureComponent {
     );
 
     return (
-      <DocumentTitle title={this.getPageTitle(pathname)}>
-        <ContainerQuery query={query}>
-          {params => <div className={classNames(params)}>{layout}</div>}
-        </ContainerQuery>
-      </DocumentTitle>
+      // Wrapper to pass context values on to the child components
+      <BreadcrumbContext.Provider value={breadcrumbContextValues}>
+        <DocumentTitle title={this.getPageTitle(pathname)}>
+          <ContainerQuery query={query}>
+            {params => <div className={classNames(params)}>{layout}</div>}
+          </ContainerQuery>
+        </DocumentTitle>
+      </BreadcrumbContext.Provider>
     );
   }
 }

@@ -1,8 +1,8 @@
 import React, { PureComponent, createElement } from 'react';
-import PropTypes from 'prop-types';
 import pathToRegexp from 'path-to-regexp';
 import { Breadcrumb, Tabs, Tag } from 'antd';
 import classNames from 'classnames';
+import { BreadcrumbContext } from '@/layouts/BasicLayout';
 import styles from './index.less';
 import urlToList from '@/components/_utils/pathTools';
 
@@ -20,13 +20,6 @@ export function getBreadcrumb(breadcrumbNameMap, url) {
 }
 
 export default class PageHeader extends PureComponent {
-  static contextTypes = {
-    routes: PropTypes.array,
-    params: PropTypes.object,
-    location: PropTypes.object,
-    breadcrumbNameMap: PropTypes.object,
-  };
-
   state = {
     breadcrumb: null,
   };
@@ -255,3 +248,6 @@ export default class PageHeader extends PureComponent {
     );
   }
 }
+// Lets you consume the nearest current value of
+// BreadcrumbContext type using `this.context`
+PageHeader.contextType = BreadcrumbContext;
