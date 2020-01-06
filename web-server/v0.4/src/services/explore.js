@@ -1,5 +1,6 @@
 import request from '../utils/request';
 
+// queies all the available shared sessions from the database to display
 export async function querySharedSessions(params) {
   const { datastoreConfig } = params;
 
@@ -20,7 +21,8 @@ export async function querySharedSessions(params) {
   });
 }
 
-export async function queryEditDescription(params) {
+// Updates the description of shared session, provided by the user in the database.
+export async function updateDescription(params) {
   const { datastoreConfig, id, value } = params;
 
   const endpoint = `${datastoreConfig.graphql}`;
