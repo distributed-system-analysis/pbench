@@ -11,7 +11,6 @@ export default {
   effects: {
     *fetchSharedSessions({ payload }, { call, put }) {
       const response = yield call(querySharedSessions, payload);
-
       yield put({
         type: 'getSharedSessions',
         payload: response.data.urls,
@@ -21,13 +20,9 @@ export default {
       const response = yield call(updateDescription, payload);
       return response;
     },
-    *deleteSharedSessions({ payload }, { call, put }) {
+    *deleteSharedSessions({ payload }, { call }) {
       const response = yield call(deleteSharedSessions, payload);
-
-      yield put({
-        type: 'getSharedSessions',
-        payload: response.data.urls,
-      });
+      return response;
     },
   },
 
