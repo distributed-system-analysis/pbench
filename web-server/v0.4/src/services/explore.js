@@ -1,6 +1,6 @@
 import request from '../utils/request';
 
-// queies all the available shared sessions from the database to display
+// queries all the available shared sessions from the database to display
 export async function querySharedSessions(params) {
   const { datastoreConfig } = params;
 

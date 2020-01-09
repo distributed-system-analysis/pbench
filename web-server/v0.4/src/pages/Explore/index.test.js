@@ -12,7 +12,7 @@ const wrapper = shallow(<Explore.WrappedComponent dispatch={mockDispatch} {...mo
   disableLifecycleMethods: true,
 });
 
-describe('test Summary page component', () => {
+describe('test Explore page component', () => {
   it('render with empty props', () => {
     expect(wrapper).toMatchSnapshot();
   });

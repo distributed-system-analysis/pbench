@@ -21,6 +21,7 @@ class Explore extends Component {
       sharedSessions: props.sharedSessions,
       visible: false,
       selectedID: '',
+      editedDesc: '',
     };
   }
 
@@ -74,6 +75,12 @@ class Explore extends Component {
     });
   };
 
+  getEditedDesc = value => {
+    this.setState({
+      editedDesc: value,
+    });
+  };
+
   showModal = id => {
     this.setState({
       visible: true,
@@ -82,9 +89,8 @@ class Explore extends Component {
   };
 
   handleSave = () => {
-    const { selectedID } = this.state;
-    const { value } = document.getElementById('editedInput');
-    this.editDescription(selectedID, value);
+    const { selectedID, editedDesc } = this.state;
+    this.editDescription(selectedID, editedDesc);
     this.setState({
       visible: false,
     });
@@ -165,7 +171,11 @@ class Explore extends Component {
             <Button key="back" onClick={this.handleCancel}>
               Cancel
             </Button>,
-            <Button key="submit" type="primary" onClick={this.handleSave}>
+            <Button
+              key="submit"
+              type="primary"
+              onClick={this.getEditedDesc(document.getElementById('editedInput'))}
+            >
               Save
             </Button>,
           ]}
