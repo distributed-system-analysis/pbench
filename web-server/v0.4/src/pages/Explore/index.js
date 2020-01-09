@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Card, Button, Popconfirm, Icon, Form, Modal, Input } from 'antd';
@@ -13,7 +13,7 @@ const { TextArea } = Input;
   datastoreConfig: datastore.datastoreConfig,
   loadingSharedSessions: loading.effects['explore/fetchSharedSessions'],
 }))
-class Explore extends React.Component {
+class Explore extends Component {
   constructor(props) {
     super(props);
 
