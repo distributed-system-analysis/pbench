@@ -11,7 +11,6 @@ jobs:
       install:
         # Perl JSON and JSON-XS required
         - sudo apt-get install libjson-perl libjson-xs-perl
-        - pip install 'configtools<0.4.0'
       script: ./agent/run-unittests
 
     - stage: "Server Unit Tests"
@@ -24,7 +23,7 @@ jobs:
       before_install:
         - sudo apt-get update
       install:
-        - pip install 'configtools<0.4.0' elasticsearch sh boto3
+        - pip install elasticsearch sh boto3
       script: ./server/bin/unittests
 
     - stage: "Dashboard Unit Tests"
