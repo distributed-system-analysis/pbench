@@ -96,6 +96,25 @@ sts=$?
 if [ $sts != 0 ] ;then
     log_exit "Failed: \"find ${receive_dir} -maxdepth 2 -name '*.tar.xz.md5'\", status $sts" 5
 fi
+find ${receive_dir} -mindepth 2 -maxdepth 2 ! -name '*.tar.xz' ! -name '*.tar.xz.md5' | while read fname; do
+    echo "File without md5 file: $(basename $fname)" >&4
+    log_finish
+    exit 5
+done
+find ${receive_dir} -name "*.tar.xz" | while read fname; do
+    if [[ ! -f  ${fname}.md5 ]] ;then
+        echo "File without md5 file: $(basename $fname)" >&4
+        log_finish
+        exit 5
+    fi
+done
+find ${receive_dir} -name "*.tar.xz.md5" | while read fname; do
+    cd $(dirname ${fname})
+    echo "$(md5sum --check /${fname})" >&4
+    log_finish
+    cd | cd -
+    exit 5
+done
 sort ${list}.unsorted > ${list}
 sts=$?
 if [ $sts != 0 ] ;then
