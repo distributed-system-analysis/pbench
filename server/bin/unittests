@@ -241,6 +241,10 @@ function _setup_state {
     let res=res+$?
     mkdir -p $_testopt_sat/bin
     let res=res+$?
+    mkdir -p $_testopt/common/lib
+    let res=res+$?
+    mkdir -p $_testopt/common/bin
+    let res=res+$?
     cp -a $_tdir/{job_pool.sh,unittests,pbench*} $_testopt/bin
     let res=res+$?
     mkdir -p $_testopt/html/static/{js,css}/v0.{2,3}
@@ -254,6 +258,10 @@ function _setup_state {
     cp -a $_tdir/../../web-server/v0.3/css/ $_testopt/html/static/css/v0.3
     let res=res+$?
     cp -a $_tdir/{job_pool.sh,unittests,pbench*} $_testopt_sat/bin
+    let res=res+$?
+    cp -a $_tdir/../../lib/* $_testopt/common/lib
+    let res=res+$?
+    cp -a $_tdir/../../bin/* $_testopt/common/bin
     let res=res+$?
     cp -a $_tdir/../lib $_testopt
     let res=res+$?
@@ -299,7 +307,8 @@ function _setup_state {
     # All the "real" scripts are found at $_testopt/bin, the mock scripts
     # are found in $_testopt/unittest-scripts.
     _orig_PATH=$PATH
-    export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
+    export PATH=$_testopt/unittest-scripts:$_testopt/bin:$_testopt/common/bin:$PATH
+    export PYTHONPATH=$_testopt/common/lib:$PYTHONPATH
 
     # Expected location of the final configuration files
     export CONFIG=$_testopt/lib/config/pbench-server.cfg
