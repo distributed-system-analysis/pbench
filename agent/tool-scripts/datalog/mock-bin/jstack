@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "$(basename ${0}) ${@}" >> ${_testlog}
+
+printf -- "BLOCK 1\nBLOCK 2\nRUNN 1\nRUNN 2\nRUNN 3\nWAITING 1\nWAITING 2\nWAITING 3\nWAITING 4\n"
+exit 0

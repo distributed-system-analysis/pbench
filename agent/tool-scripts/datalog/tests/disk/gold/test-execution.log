@@ -1,0 +1,2 @@
+df --output=source,target,fstype,itotal,iused,iavail,size,used,avail,file
+sleep 42

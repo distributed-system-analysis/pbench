@@ -1,0 +1,1 @@
+blktrace /dev/sda /dev/sdb /dev/sdc

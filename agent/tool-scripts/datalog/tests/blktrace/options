@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "/dev/sda /dev/sdb /dev/sdc"
+exit 0

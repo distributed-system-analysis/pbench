@@ -1,0 +1,5 @@
+iostat: pbench-sysstat-12.0.3 is installed
+iostat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/iostat-datalog 10 "
+iostat: stopping
+iostat: no post-processing available following stop
+iostat: post-processing data

@@ -160,10 +160,10 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-fio-3.3
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-fio-3.3 is installed
 [debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
 [debug][1900-01-01T00:00:00.000000] verifying clients have fio installed
-[debug][1900-01-01T00:00:00.000000] fio_device_check() /dev/foo,/dev/bar abc,def,ghi
+[debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/dev/foo,/dev/bar", clients="abc,def,ghi")
 [debug][1900-01-01T00:00:00.000000] checking to see if /dev/foo exists on client abc
 [debug][1900-01-01T00:00:00.000000] checking to see if /dev/foo exists on client def
 [debug][1900-01-01T00:00:00.000000] checking to see if /dev/foo exists on client ghi
@@ -220,15 +220,15 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00 beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00 end
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/1-read-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-read-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/2-read-64KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-read-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/3-read-1024KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/1-read-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-read-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/2-read-64KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-read-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/3-read-1024KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-read-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/1-read-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-read-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/2-read-64KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-read-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/3-read-1024KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/2-read-64KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/3-read-1024KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/2-read-64KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/3-read-1024KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/2-read-64KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/3-read-1024KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no abc /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no abc firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no abc firewall-cmd --add-port=8765/tcp >/dev/null

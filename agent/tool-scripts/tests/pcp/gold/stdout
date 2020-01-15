@@ -1,0 +1,5 @@
+pcp: pcp is installed
+pcp: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/pcp-datalog /var/tmp/pbench-test-tool-scripts/pcp/tools-group/pcp 10"
+pcp: stopping
+pcp: no post-processing available following stop
+pcp: post-processing data

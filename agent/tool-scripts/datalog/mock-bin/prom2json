@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cmd="$(basename $0) $@"
-echo "$cmd" >> $_testlog
+cmd="$(basename ${0}) ${@}"
+echo "${cmd}" >> ${_testlog}
 
 echo '[{ "help": "text", "metrics": [ { "value": 42 } ], "name": "made-up", "type": "GAUGE" }, { "help": "text", "metrics": [ { "value": 43 } ], "name": "made-up-also", "type": "COUNT" }]'
 exit 0

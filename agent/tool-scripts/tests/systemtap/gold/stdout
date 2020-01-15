@@ -1,0 +1,8 @@
+systemtap: systemtap-client is installed
+systemtap: systemtap-devel is installed
+systemtap: kernel-devel-mock-kernel.version is installed
+systemtap: kernel-debuginfo-mock-kernel.version is installed
+systemtap: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/systemtap-datalog my-systemtap-script-42"
+systemtap: stopping
+systemtap: no post-processing available following stop
+systemtap: no data post-processing available

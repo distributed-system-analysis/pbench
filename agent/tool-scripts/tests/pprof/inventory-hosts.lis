@@ -1,0 +1,17 @@
+# ignore
+
+# ignore
+
+[pprof]
+pprofA.example.com
+pprofB.example.com
+
+[masters]
+masterA.example.com
+masterB.example.com
+masterC.example.com
+
+# ignore
+[other]
+foo
+bar

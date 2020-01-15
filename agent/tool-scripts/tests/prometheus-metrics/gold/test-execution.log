@@ -1,0 +1,2 @@
+prometheus-metrics-datalog /var/tmp/pbench-test-tool-scripts/prometheus-metrics/tools-group/prometheus-metrics 42 tests/prometheus-metrics/inventory-hosts.lis
+prometheus-metrics-postprocess /var/tmp/pbench-test-tool-scripts/prometheus-metrics/tools-group/prometheus-metrics

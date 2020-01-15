@@ -1,0 +1,4 @@
+numastat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/numastat-datalog 10 "pig42""
+numastat: stopping
+numastat: no post-processing available following stop
+numastat: post-processing data

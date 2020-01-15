@@ -1,0 +1,1 @@
+example.host.com port=9042 cert=certA key=keyA selfsigned=false

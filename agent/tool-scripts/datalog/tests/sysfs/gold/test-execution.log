@@ -1,0 +1,3 @@
+cat /sys/kernel/vmcoreinfo
+date +%s.%N
+sleep 42
