@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] openvswitch: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/openvswitch-datalog /var/tmp/pbench-test-tool-scripts/openvswitch/tools-group/openvswitch 10"
+[debug][1900-01-01T00:00:00.000000] stopping openvswitch
+[debug][1900-01-01T00:00:00.000000] no post-processing available for openvswitch following stop
+[debug][1900-01-01T00:00:00.000000] post-processing openvswitch data

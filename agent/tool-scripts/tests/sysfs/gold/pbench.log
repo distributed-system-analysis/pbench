@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] sysfs: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/sysfs-datalog 10 "kernel" "4" "*""
+[debug][1900-01-01T00:00:00.000000] stopping sysfs
+[debug][1900-01-01T00:00:00.000000] no post-processing available for sysfs following stop
+[debug][1900-01-01T00:00:00.000000] post-processing sysfs data

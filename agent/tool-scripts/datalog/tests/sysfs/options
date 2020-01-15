@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "42 kernel 3 vmcoreinfo"
+exit 0

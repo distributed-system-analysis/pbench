@@ -1,0 +1,21 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+# NOTE: this datalog requires a pre-compiled systemtap script. You can compile
+# it using: "stap -v -m ${compiled-script} -p4 ${source-script}".
+
+PROG="$(basename ${0})"
+
+script="${1}"
+if [[ -z "${script}" ]]; then
+	printf -- "%s: missing required 'script' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
+command -v staprun > /dev/null
+if [[ ${?} -ne 0 ]]; then
+	printf -- "%s: missing required 'staprun' command\n" "${PROG}" >&2
+	exit 1
+fi
+
+staprun "${script}"

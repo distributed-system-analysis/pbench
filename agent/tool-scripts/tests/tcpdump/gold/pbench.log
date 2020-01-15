@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] tcpdump: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/tcpdump-datalog 42 en42"
+[debug][1900-01-01T00:00:00.000000] stopping tcpdump
+[debug][1900-01-01T00:00:00.000000] no post-processing available for tcpdump following stop
+[debug][1900-01-01T00:00:00.000000] no data post-processing available for tcpdump

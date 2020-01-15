@@ -1,61 +1,77 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-interval=$1
-dir=$2
-bridges_file=$dir/bridges.txt
-stats_file=$dir/ovs-stats.txt
-rxq_mapping_file=$dir/pmd-rxq-show.txt
+PROG="$(basename ${0})"
 
-version_file=$dir/ovs-version.txt
-ovs-vsctl --version >$version_file
-echo >> $version_file
-rpm -qif `readlink -e /proc/$(pidof ovs-vswitchd)/exe` >>$version_file 2>/dev/null
-
-info_file=$dir/ovs-info.txt
-ovs-vsctl show >$info_file
-
-cfg_file=$dir/ovs-cfg.txt
-ovs-vsctl get Open_vSwitch . other_config >$cfg_file
-
-bridge=`ovs-vsctl list-br | head -n 1`
-protocol_string=""
-ovs-ofctl show ${bridge} > /dev/null 2>&1
-ret_val=$?
-if [ ${ret_val} != 0 ]; then
-    protocols_string="--protocols OpenFlow13"
-    protocols_file=$dir/ovs-protocols.txt
-    echo "OpenFlow13" >$protocols_file
+tool_output_dir="${1}"
+if [[ ! -d "${tool_output_dir}" ]]; then
+	printf -- "%s: invalid tool output directory, '%s'\n" "${PROG}" "${tool_output_dir}" >&2
+	exit 1
 fi
 
-bridges=`ovs-vsctl list-br`
-echo "$bridges" >$bridges_file
-# mapping below used in postprocess
-for b in $bridges; do
-	ports_file=$dir/$b-port-mappings.txt
-	ovs-ofctl show $b ${protocols_string} >$ports_file
-done
-ovs-appctl dpif-netdev/pmd-rxq-show >$rxq_mapping_file
+interval="${2}"
+if [[ -z "${interval}" ]]; then
+	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
+	exit 1
+fi
 
-cat /dev/null >$stats_file
-if [ ! -z "$bridges" ]; then
+command -v ovs-vsctl > /dev/null
+if [[ ${?} -ne 0 ]]; then
+	printf -- "%s: missing required 'ovs-vsctl' command\n" "${PROG}" >&2
+	exit 1
+fi
+
+version_file=${tool_output_dir}/ovs-version.txt
+echo "$(ovs-vsctl --version)" >> ${version_file}
+rpm -qif $(readlink -e /proc/$(pidof ovs-vswitchd)/exe) >> ${version_file}
+
+info_file=${tool_output_dir}/ovs-info.txt
+ovs-vsctl show > ${info_file}
+
+cfg_file=${tool_output_dir}/ovs-cfg.txt
+ovs-vsctl get Open_vSwitch . other_config > ${cfg_file}
+
+bridge=$(ovs-vsctl list-br | head -n 1)
+protocol_string=""
+ovs-ofctl show ${bridge} > /dev/null 2>&1
+ret_val=${?}
+if [[ ${ret_val} != 0 ]]; then
+    protocols_string="--protocols OpenFlow13"
+    protocols_file=${tool_output_dir}/ovs-protocols.txt
+    echo "OpenFlow13" > ${protocols_file}
+fi
+
+bridges_file=${tool_output_dir}/bridges.txt
+bridges="$(ovs-vsctl list-br | tee ${bridges_file})"
+# mapping below used in postprocess
+for b in ${bridges}; do
+	ports_file=${tool_output_dir}/${b}-port-mappings.txt
+	ovs-ofctl show ${b} ${protocols_string} > ${ports_file}
+done
+rxq_mapping_file=${tool_output_dir}/pmd-rxq-show.txt
+ovs-appctl dpif-netdev/pmd-rxq-show > ${rxq_mapping_file}
+
+stats_file=${tool_output_dir}/ovs-stats.txt
+> ${stats_file}
+if [[ ! -z "${bridges}" ]]; then
 	while true; do
-		printf "\ntimestamp: `date +%s.%N`\n" >>$stats_file
-		for bridge in $bridges; do
+		printf "\ntimestamp: $(date +%s.%N)\n" >> ${stats_file}
+		for bridge in ${bridges}; do
 			# ovs-ofctl
 			for cmd in dump-ports dump-flows; do
-				echo "bridge: $bridge stats: $cmd" >>$stats_file
-				ovs-ofctl $cmd $bridge ${protocols_string} >>$stats_file
+				echo "bridge: ${bridge} stats: ${cmd}" >> ${stats_file}
+				ovs-ofctl ${cmd} ${bridge} ${protocols_string} >> ${stats_file}
 			done
 			# ovs-appctl
 			for cmd in fdb/show; do
-				echo "bridge: $bridge stats: $cmd" >>$stats_file
-				ovs-appctl $cmd $bridge | awk 'BEGIN { } { if ($0 !~ /port/) { ports[$1]++; } } END { for (p in ports) { printf(" port=%s count=%d\n", p, ports[p]); } }' >>$stats_file
+				echo "bridge: ${bridge} stats: ${cmd}" >> ${stats_file}
+				ovs-appctl ${cmd} ${bridge} | awk 'BEGIN { } { if ($0 !~ /port/) { ports[$1]++; } } END { for (p in ports) { printf(" port=%s count=%d\n", p, ports[p]); } }' >> ${stats_file}
 			done
 		done
 		# DPDK stats
-		echo "dpdk-stats: pmd-stats-show" >>$stats_file
-		ovs-appctl dpif-netdev/pmd-stats-show >>$stats_file
+		echo "dpdk-stats: pmd-stats-show" >> ${stats_file}
+		ovs-appctl dpif-netdev/pmd-stats-show >> ${stats_file}
 		ovs-appctl dpif-netdev/pmd-stats-clear
-		sleep $interval
+		sleep ${interval}
 	done
 fi

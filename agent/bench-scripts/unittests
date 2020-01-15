@@ -75,7 +75,7 @@ PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/bench-scripts:${PATH}
 
 # Fixed timestamp output
-export _PBENCH_BENCH_TESTS=1
+export _PBENCH_UNIT_TESTS=1
 
 res=0
 

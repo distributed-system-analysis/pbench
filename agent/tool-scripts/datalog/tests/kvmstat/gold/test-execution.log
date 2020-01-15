@@ -1,0 +1,3 @@
+perf list
+perf stat -e kvm:* -a sleep 42
+date +%s.%N

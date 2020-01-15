@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] rabbit: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/rabbit-datalog 10 guest guest"
+[debug][1900-01-01T00:00:00.000000] stopping rabbit
+[debug][1900-01-01T00:00:00.000000] no post-processing available for rabbit following stop
+[debug][1900-01-01T00:00:00.000000] post-processing rabbit data

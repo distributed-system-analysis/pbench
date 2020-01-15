@@ -1,0 +1,5 @@
+date +%s.%N
+cat /sys/kernel/debug/kvm/spinlocks/fileA
+cat /sys/kernel/debug/kvm/spinlocks/fileB
+cat /sys/kernel/debug/kvm/spinlocks/fileC
+sleep 42
