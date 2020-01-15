@@ -1,0 +1,12 @@
+sar: Error, one of the following options is required, --install|--start|--stop|--postprocess
+
+The following options are available:
+
+	--install                 verify this perf tool will work
+
+	--start|stop|postprocess  start/stop/postprocess the data collection
+	-d str|--dir=str          directory to store data collection (required)
+	--interval=int            number of seconds between each data collection (optional, default is 10 seconds)
+	--options=str             options passed directly to the tool (optional)
+
+	-h|--help                 display this help message

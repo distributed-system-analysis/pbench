@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo ${_execdir} ep pods pv
+exit 0

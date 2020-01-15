@@ -1,11 +1,17 @@
 +++ Running test-11.14 pbench-register-tool-set 
+sar: pbench-sysstat-12.0.3 is installed
 sar tool is now registered in group default
+iostat: pbench-sysstat-12.0.3 is installed
 iostat tool is now registered in group default
+mpstat: pbench-sysstat-12.0.3 is installed
 mpstat tool is now registered in group default
+pidstat: pbench-sysstat-12.0.3 is installed
 pidstat tool is now registered in group default
 proc-vmstat tool is now registered in group default
 proc-interrupts tool is now registered in group default
+turbostat: kernel-tools is installed
 turbostat tool is now registered in group default
+perf: perf is installed
 perf tool is now registered in group default
 --- Finished test-11.14 pbench-register-tool-set (status=0)
 +++ pbench tree state
@@ -41,19 +47,15 @@ perf tool is now registered in group default
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
 [info][1900-01-01T00:00:00.000000] sar tool is now registered in group default
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
 [info][1900-01-01T00:00:00.000000] iostat tool is now registered in group default
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
 [info][1900-01-01T00:00:00.000000] mpstat tool is now registered in group default
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=30"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
 [info][1900-01-01T00:00:00.000000] pidstat tool is now registered in group default
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
@@ -63,10 +65,8 @@ perf tool is now registered in group default
 [info][1900-01-01T00:00:00.000000] proc-interrupts tool is now registered in group default
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install kernel-tools
 [info][1900-01-01T00:00:00.000000] turbostat tool is now registered in group default
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts=record -a --freq=100"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install perf
 [info][1900-01-01T00:00:00.000000] perf tool is now registered in group default
 --- pbench.log file contents

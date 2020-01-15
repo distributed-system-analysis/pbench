@@ -1,0 +1,5 @@
+mpstat: pbench-sysstat-12.0.3 is installed
+mpstat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/mpstat-datalog 10 "
+mpstat: stopping
+mpstat: post-processing following stop
+mpstat: post-processing data

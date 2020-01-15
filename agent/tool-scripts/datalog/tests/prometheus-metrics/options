@@ -1,0 +1,4 @@
+#!/bin/bash
+
+printf -- "${_execdir} 3 tests/prometheus-metrics/inventory-hosts.lis\n"
+exit 0

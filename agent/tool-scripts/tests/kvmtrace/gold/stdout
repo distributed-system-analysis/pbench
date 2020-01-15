@@ -1,0 +1,5 @@
+kvmtrace: trace-cmd is installed
+kvmtrace: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/kvmtrace-datalog 42 43"
+kvmtrace: stopping
+kvmtrace: post-processing following stop
+kvmtrace: no data post-processing available

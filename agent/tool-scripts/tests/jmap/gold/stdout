@@ -1,0 +1,4 @@
+jmap: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/jmap-datalog /var/tmp/pbench-test-tool-scripts/jmap/tools-group/jmap 10 42 "jmap-pat-42""
+jmap: stopping
+jmap: no post-processing available following stop
+jmap: post-processing data

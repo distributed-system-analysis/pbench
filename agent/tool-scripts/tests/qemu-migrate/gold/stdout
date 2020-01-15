@@ -1,0 +1,4 @@
+qemu-migrate: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/qemu-migrate-datalog 10 qemu-vm-42"
+qemu-migrate: stopping
+qemu-migrate: no post-processing available following stop
+qemu-migrate: post-processing data

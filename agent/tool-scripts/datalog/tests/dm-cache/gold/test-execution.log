@@ -1,0 +1,3 @@
+date +%s.%N
+dmsetup status --target=cache
+sleep 42

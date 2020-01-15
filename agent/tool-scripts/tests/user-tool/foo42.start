@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "${0} ${@}"
+if [[ "foo42.start" == "$(basename ${0})" ]]; then
+    sleep 0.1
+fi
+exit 0

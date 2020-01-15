@@ -1,0 +1,3 @@
+pmcd_wait -v -t 10
+pmlogconf -c -r /var/tmp/pbench-test-tools-datalog/pcp/pmlogger.conf
+pmlogger -c /var/tmp/pbench-test-tools-datalog/pcp/pmlogger.conf -t 42 archive

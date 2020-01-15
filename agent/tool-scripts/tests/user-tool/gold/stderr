@@ -1,0 +1,18 @@
+user-tool: Error, one of the following options is required, --install|--start|--stop|--postprocess
+
+The following options are available:
+
+	--install                 verify this perf tool will work
+
+	--start|stop|postprocess  start/stop/postprocess the data collection
+	-d str|--dir=str          directory to store data collection (required)
+	--interval=int            number of seconds between each data collection (optional, default is 10 seconds)
+	--tool-name=str            you must provide a unique name for this user tool
+	--start-script=str         run this user-provided script when starting this tool
+	--stop-script=str          run this user-provided script when stopping this tool
+	--postproceess-script=str  run this user-provided script when postprocessing this tool
+	--file-to-capture=str      capture the contents of this file at each interval
+	                           you can use this option, or the start/stop/postprocess-script,
+	                           but not both at the same time
+
+	-h|--help                 display this help message
