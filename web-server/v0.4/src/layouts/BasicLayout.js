@@ -95,6 +95,8 @@ class BasicLayout extends React.PureComponent {
   static childContextTypes = {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
+    routes: PropTypes.array,
+    params: PropTypes.object,
   };
 
   state = {
@@ -111,9 +113,11 @@ class BasicLayout extends React.PureComponent {
 
   getChildContext() {
     const { location } = this.props;
+    const { route } = this.props;
     return {
       location,
       breadcrumbNameMap: this.breadcrumbNameMap,
+      routes: route.routes,
     };
   }
 
