@@ -42,8 +42,8 @@ const getBreadcrumbNameMap = memoizeOne(menu => {
   const routerMap = {};
   const mergeMeunAndRouter = menuData => {
     menuData.forEach(menuItem => {
-      if (menuItem.children) {
-        mergeMeunAndRouter(menuItem.children);
+      if (menuItem.routes) {
+        mergeMeunAndRouter(menuItem.routes);
       }
       // Reduce memory usage
       routerMap[menuItem.path] = menuItem;

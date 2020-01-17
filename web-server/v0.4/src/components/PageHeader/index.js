@@ -1,23 +1,29 @@
 import React, { PureComponent, createElement } from 'react';
 import PropTypes from 'prop-types';
-import pathToRegexp from 'path-to-regexp';
 import { Breadcrumb, Tabs, Tag } from 'antd';
 import classNames from 'classnames';
-import urlToList from '@/components/_utils/pathTools';
+import urlToList, { breadcrumbLinkFromUrl } from '@/components/_utils/pathTools';
 import styles from './index.less';
 
 const { TabPane } = Tabs;
-export function getBreadcrumb(breadcrumbNameMap, url) {
-  let breadcrumb = breadcrumbNameMap[url];
-  if (!breadcrumb) {
+export const getBreadcrumb = (breadcrumbNameMap, url) => {
+  let breadcrumb = {};
+  if (breadcrumbNameMap[url]) {
+    breadcrumb = breadcrumbNameMap[url];
+  } else {
     Object.keys(breadcrumbNameMap).forEach(item => {
-      if (pathToRegexp(item).test(url)) {
-        breadcrumb = breadcrumbNameMap[item];
+      if (item.includes(url)) {
+        // Returns the route if final path correlates with current path
+        const itemComps = item.split('/');
+        const urlComps = url.split('/');
+        if (itemComps[item.split('/').length - 1] === urlComps[url.split('/').length - 1]) {
+          breadcrumb = breadcrumbNameMap[item];
+        }
       }
     });
   }
-  return breadcrumb || {};
-}
+  return breadcrumb;
+};
 
 export default class PageHeader extends PureComponent {
   static contextTypes = {
@@ -96,17 +102,24 @@ export default class PageHeader extends PureComponent {
 
   conversionFromLocation = (routerLocation, breadcrumbNameMap) => {
     const { breadcrumbSeparator, linkElement = 'a' } = this.props;
-    // Convert the url to an array
-    const pathSnippets = urlToList(routerLocation.pathname);
+    const pathKeyFromRoutes = getBreadcrumb(breadcrumbNameMap, routerLocation.pathname).path;
+    // Null check in case the current router location
+    // is not listed in menu.js
+    if (!pathKeyFromRoutes) {
+      return null;
+    }
+    // PathSnippets store the user navigation history
+    const pathSnippets = urlToList(pathKeyFromRoutes);
     // Loop data mosaic routing
     const extraBreadcrumbItems = pathSnippets.map((url, index) => {
       const currentBreadcrumb = getBreadcrumb(breadcrumbNameMap, url);
-      const isLinkable = index !== pathSnippets.length - 1 && currentBreadcrumb.component;
+      // All url's except current location should be linkable
+      const isLinkable = index !== currentBreadcrumb.component;
       return currentBreadcrumb.name && !currentBreadcrumb.hideInBreadcrumb ? (
         <Breadcrumb.Item key={url}>
           {createElement(
             isLinkable ? linkElement : 'span',
-            { [linkElement === 'a' ? 'href' : 'to']: url },
+            { [linkElement === 'a' ? 'href' : 'to']: breadcrumbLinkFromUrl(url) },
             currentBreadcrumb.name
           )}
         </Breadcrumb.Item>
