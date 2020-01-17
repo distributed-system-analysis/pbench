@@ -19,13 +19,13 @@ const mockProps = {
   tabList: ['tab1', 'tab2'],
   routes: ['/1', '/2'],
   params: 'params',
-  location: { pathname: 'location' },
+  location: { pathname: 'url' },
   breadcrumbNameMap: 'breadcrumbNameMap',
   onTabChange: jest.fn(),
   title: 'Titel',
 };
 const mockDispatch = jest.fn();
-const breadcrumbNameMap = { url: { url: 'urlItem' } };
+const breadcrumbNameMap = { url: { path: 'urlItem' } };
 const wrapper = shallow(<PageHeader dispatch={mockDispatch} {...mockProps} />, {
   lifecycleExperimental: true,
 });

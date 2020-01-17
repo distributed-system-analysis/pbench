@@ -5,6 +5,28 @@ const menuData = [
     name: 'Dashboard',
     icon: 'dashboard',
     path: '/',
+    routes: [
+      {
+        name: 'Results',
+        path: '/results',
+        routes: [
+          {
+            name: 'Summary',
+            path: '/summary',
+          },
+          {
+            name: 'Comparison Select',
+            path: '/comparison-select',
+            routes: [
+              {
+                name: 'Comparison',
+                path: '/comparison',
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     name: 'Search',
@@ -18,7 +40,7 @@ const menuData = [
   },
 ];
 
-function formatter(data, parentPath = '/', parentAuthority) {
+function formatter(data, parentPath = '', parentAuthority) {
   return data.map(item => {
     let { path } = item;
     if (!isUrl(path)) {
@@ -29,8 +51,8 @@ function formatter(data, parentPath = '/', parentAuthority) {
       path,
       authority: item.authority || parentAuthority,
     };
-    if (item.children) {
-      result.children = formatter(item.children, `${parentPath}${item.path}/`, item.authority);
+    if (item.routes) {
+      result.routes = formatter(item.routes, `${parentPath}${item.path}`, item.authority);
     }
     return result;
   });
