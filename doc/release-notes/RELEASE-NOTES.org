@@ -1,4 +1,4 @@
-# Created 2019-11-08 Fri 09:23
+# Created 2020-01-17 Fri 23:11
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,120 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+* Version 0.67
+
+This release is an agent-only bug-fix release.
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.67-1g3fb4270c
+of the pbench-agent RPM installed.
+
+** agent
+
+Since we cannot cound on the various distros to provide them, we are
+now building perl-JSON-XS RPMs (and some of its dependencies) in COPR
+in an effort to speed up the post-processing. Installing or updating
+pbench-agent will now install these RPMs as well. Please test and let
+us know if there are problems.
+
+We are slowly moving away from providing an RPM for configtools and
+towards bundling it as part of pbench. This release is in an interim
+stage: configtools is still a separate entity but it is installed from
+PyPi, rather than as an RPM. That allows us to deal with the python3
+environments of various distros a bit more easily. On RHEL8 and the
+Fedoras, we set python3 as a dependency. On RHEL7, we depend on
+Software Collections to provide a python3 environment.
+
+The unit tests have been modified extensively, with many fixes added,
+in order to facilitate the introduction of the Tool Meister code (which
+is *not* part of this release).
+
+Postprocessing of perf data can now produce flamegraphs, if the =call-graph=
+option is given to =perf-record=.
+
+*** Bug fixes
+- pbench-fio handling of iterations has been fixed.
+- the benchmark_run_dir variable is set properly for all benchmarks.
+
+** server                                                          :external:
+This is an agent-only release. There are several changes to server
+code, however we are not ready to make a release yet.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.67
+:END:
+
+There are no changes and no new web-server RPMs have been produced.
+
+** Pbench dashboard
+:PROPERTIES:
+:CUSTOM_ID: pbench-dashboard-0.67
+:END:
+
+The development of the dashboard is  not tracked in these
+release notes (other than the list of commits in the [[#changelog-v0.67][Changelog]]).
+
+** Changelog
+:PROPERTIES:
+:CUSTOM_ID: changelog-v0.67
+:END:
+
+This is the list of visible commits since v0.65:
+
+- 3c421fd38 Version bump.
+- 43addcd15 Log messages using logging functions in bash scripts.
+- 08ffe357a minor fixes
+- 05c74aa05 updates the naming of the function and adds comments for the same
+- 53776818e adds unit test for the changes
+- 2c689fdce Implements feature to edit session description
+- 9e7cc4524 User session implementation for handling storage and retrieval of dashboard config data with the internal graphql server
+- f16c78f4c Feat: fixes 'each child should have a unique key error' in search page
+- 3c0e5c2b0 Fixes #1446
+- a603542aa Move to Python 3.6 language envi in Travis CI
+- 238ac897f Remove unnecessary agent util-scripts sample data
+- b37b2cad0 Allow override of agent [full_]hostname envs
+- 32255720c Expose tmp and tools-* tree state properly
+- e9be19249 Don't copy gold and samples files for util tests
+- 9b82b6f64 Refactor bench-scripts unit-test methodology
+- 9faddc122 Re-order agent unit tests from lowest to highest level
+- b2d1f8dbc Move pbench-mpt to contrib area
+- 42867f06a Move drop cache example script to contrib area
+- 2bcbe5a17 Fix handling of pbench-fio iteration name
+- c8c7431f7 Small fix to correct sed command in util-scripts/unittests
+- 3362af4cb Missing log_finish in pbench-sync-satellite.sh
+- 63fb7fbac Moved vars checking before it is being referenced
+- 4c292f4ed Assert dir and PROG vars - Add usage case
+- 025d7a830 Replace `which` cmd with `command -v` - Removed installation of which from Dockerfiles
+- 270d1aab2 Use coreutils for Ubuntu Eoan release in Travis-CI
+- 55e15a77c Fixes #310
+- 43d5f251a Install configparser in Travis CI
+- b5799da73 Properly set the benchmark_run_dir for all tests
+- 9093bb620 code coverage enhancement
+- d76a8bef2 Adds unittest for PageHeader component
+- b5882b8ef pbench-run-benchmark: fixes for postprocess-only mode
+- 630aed49f fio-postprocess: bug fix for mixed i/o data handling
+- cf9ac62f8 Ignore requirement for file extensions within the import path and utilize umi component references
+- 40b5afc64 Implement restart of unpack tar balls
+- a4b7a2487 Break pbench unpack tar balls up into four sizes
+- e1cfd434a Refactor code base on operational review
+- a713141e9 Add a pseudo test to verify 'find' behavior
+- 4c0ede937 creates flamegraph for perf data
+- 45168c591 Audit now ignores incoming `*.unpack` dirs
+- bef872709 Replace use of single square bracket tests with double square brackets
+- a4313001e Refine e2e tests to clean up background web server
+- a84357375 Small fix to replace last lingering waffle.io ref
+- ee42b2b7b Update main README.md to remove Waffle.io reference
+- dde5e8297 Adds unit test for MonthSelect component
+
 
 * Version 0.66
 
@@ -132,7 +246,6 @@ This is the list of visible commits since v0.65:
 - 78a941751 Report which config file failed
 - 6da874ce6 Short-term fix for missing pb-m-r user/prefix args
 - bc187fab2 Utilize "selectedRows" from onSelect, onSelectAll callback using ant design Table API
-
 
 * Version 0.65
 
