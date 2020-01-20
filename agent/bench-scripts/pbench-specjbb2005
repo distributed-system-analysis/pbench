@@ -68,7 +68,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:d:hj: --longoptions "dir:,nr-jvms:,heap-size:,java-opts:,start-warehouses:,inc-warehouses:,stop-warehouses:,runtime:,tool-group:,sysinfo:,specjbb2005-dir:,help" -n "getopt.sh" -- "$@");
+opts=$(getopt -q -o C:c:d:hj: --longoptions "config:,dir:,nr-jvms:,heap-size:,java-opts:,start-warehouses:,inc-warehouses:,stop-warehouses:,runtime:,tool-group:,sysinfo:,specjbb2005-dir:,help" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
@@ -284,11 +284,11 @@ trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT 
 
 # edit the jbb properties file to match user's options
 > ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.jvm_instances=.\*/input.jvm_instances=$nr_jvms/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.measurement_seconds=.\*/input.measurement_seconds=$runtime/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.starting_number_warehouses=.\*/input.starting_number_warehouses=$start_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.increment_number_warehouses=.\*/input.increment_number_warehouses=$inc_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
-printf "s/input.ending_number_warehouses=.\*/input.ending_number_warehouses=$stop_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
+printf "s/input.jvm_instances=.*/input.jvm_instances=$nr_jvms/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
+printf "s/input.measurement_seconds=.*/input.measurement_seconds=$runtime/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
+printf "s/input.starting_number_warehouses=.*/input.starting_number_warehouses=$start_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
+printf "s/input.increment_number_warehouses=.*/input.increment_number_warehouses=$inc_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
+printf "s/input.ending_number_warehouses=.*/input.ending_number_warehouses=$stop_warehouses/\n" >> ${benchmark_run_dir}/SPECjbb.props.sed
 sed -f ${benchmark_run_dir}/SPECjbb.props.sed ${specjbb2005_dir}/SPECjbb.props > ${benchmark_run_dir}/SPECjbb.props
 if [ $? -ne 0 ]; then
 	printf "\t${benchmark}: unable to create the SPECjbb.props file (\"${benchmark_run_dir}/SPECjbb.props\")\n\n"
