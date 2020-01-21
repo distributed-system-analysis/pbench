@@ -1,4 +1,4 @@
-# Created 2020-01-17 Fri 23:11
+# Created 2020-01-21 Tue 16:26
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -33,7 +33,7 @@ of the pbench-agent RPM installed.
 
 ** agent
 
-Since we cannot cound on the various distros to provide them, we are
+Since we cannot count on the various distros to provide them, we are
 now building perl-JSON-XS RPMs (and some of its dependencies) in COPR
 in an effort to speed up the post-processing. Installing or updating
 pbench-agent will now install these RPMs as well. Please test and let
@@ -246,6 +246,7 @@ This is the list of visible commits since v0.65:
 - 78a941751 Report which config file failed
 - 6da874ce6 Short-term fix for missing pb-m-r user/prefix args
 - bc187fab2 Utilize "selectedRows" from onSelect, onSelectAll callback using ant design Table API
+
 
 * Version 0.65
 
