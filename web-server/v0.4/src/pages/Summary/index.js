@@ -27,25 +27,25 @@ const tabList = [
   },
 ];
 
-const tocColumns = [
-  {
-    title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
-    width: '60%',
-  },
-  {
-    title: 'Size',
-    dataIndex: 'size',
-    key: 'size',
-    width: '20%',
-  },
-  {
-    title: 'Mode',
-    dataIndex: 'mode',
-    key: 'mode',
-  },
-];
+// const tocColumns = [
+//   {
+//     title: 'Name',
+//     dataIndex: 'name',
+//     key: 'name',
+//     width: '60%',
+//   },
+//   {
+//     title: 'Size',
+//     dataIndex: 'size',
+//     key: 'size',
+//     width: '20%',
+//   },
+//   {
+//     title: 'Mode',
+//     dataIndex: 'mode',
+//     key: 'mode',
+//   },
+// ];
 
 @connect(({ global, datastore, dashboard, loading }) => ({
   iterations: dashboard.iterations,
@@ -53,7 +53,7 @@ const tocColumns = [
   iterationPorts: dashboard.iterationPorts,
   result: dashboard.result,
   summaryTocResult: dashboard.summaryTocResult,
-  datastoreConfig: global.datastoreConfig,
+  datastoreConfig: datastore.datastoreConfig,
   selectedControllers: global.selectedControllers,
   selectedResults: global.selectedResults,
   selectedIndices: global.selectedIndices,

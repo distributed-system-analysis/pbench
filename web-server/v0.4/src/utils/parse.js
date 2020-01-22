@@ -36,7 +36,7 @@ export const parseIterationData = results => {
     selectedIterationKeys.push([]);
 
     result.iterationData.forEach(iteration => {
-      let iterationMetadata = {
+      const iterationMetadata = {
         iteration_name: iteration.iteration_name,
         iteration_number: iteration.iteration_number,
         result_name: result.resultName,

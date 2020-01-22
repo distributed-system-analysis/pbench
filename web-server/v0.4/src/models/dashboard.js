@@ -156,7 +156,7 @@ export default {
             if (!extension.includes(ext[ext.length - 1])) {
               extension.push(ext[ext.length - 1]);
             }
-            const url = source.directory + path.name;
+            const url = `${source.directory}/${path.name}`;
             tocResult[url] = [path.size, path.mode, url];
             return tocResult;
           });
