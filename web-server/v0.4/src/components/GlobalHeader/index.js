@@ -1,5 +1,5 @@
 import { PureComponent } from 'react';
-import { routerRedux } from 'dva/router';
+import { routerRedux, Link } from 'dva/router';
 import { Icon, Divider, Tooltip, Alert, Badge } from 'antd';
 import Debounce from 'lodash-decorators/debounce';
 import { connect } from 'dva';
