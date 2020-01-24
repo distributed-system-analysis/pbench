@@ -211,7 +211,7 @@ class Explore extends Component {
             <Button
               key="submit"
               type="primary"
-              onClick={this.getEditedDesc(document.getElementById('editedInput'))}
+              onClick={() => this.getEditedDesc(document.getElementById('editedInput'))}
             >
               Save
             </Button>,
