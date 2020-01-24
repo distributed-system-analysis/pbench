@@ -9,7 +9,6 @@ const SiderMenuWrapper = props => {
     <DrawerMenu
       getContainer={null}
       level={null}
-      handleChild={<i className="drawer-handle-icon" />}
       onHandleClick={() => {
         props.onCollapse(!collapsed);
       }}

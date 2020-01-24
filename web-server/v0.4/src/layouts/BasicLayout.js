@@ -224,7 +224,7 @@ class BasicLayout extends React.PureComponent {
           // you will be forced to jump to the 403 interface without permission
           Authorized={Authorized}
           menuData={getMenuData()}
-          collapsed={collapsed !== true}
+          collapsed={collapsed}
           // eslint-disable-next-line no-restricted-globals
           location={location}
           isMobile={mb}
@@ -235,7 +235,7 @@ class BasicLayout extends React.PureComponent {
             <GlobalHeader
               logo={logo}
               fetchingNotices={fetchingNotices}
-              collapsed={collapsed}
+              collapsed={collapsed !== true}
               datastoreConfig={datastoreConfig}
               savingSession={savingSession}
               sessionBannerVisible={sessionBannerVisible}
