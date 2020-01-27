@@ -33,7 +33,7 @@ The playbooks can then be found under ~./pbench/server/ansible~.
 
 You will also need to install a third-party role from Ansible Galaxy:
 #+begin_src shell
-ansible-galaxy install geerlinguy:apache
+ansible-galaxy install geerlingguy.apache
 #+end_src
 
 Eventually, we plan to put all the roles in Ansible Galaxy.
