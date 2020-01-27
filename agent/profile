@@ -27,7 +27,7 @@ else
     pathins ${prefix}/common/bin
 
     export PYTHONPATH=${prefix}/common/lib:${PYTHONPATH}
-    export CONFIG=${prefix}/config/pbench-agent.cfg
+    export _PBENCH_AGENT_CONFIG=${prefix}/config/pbench-agent.cfg
 
     pathins ${prefix}/bench-scripts
     pathins ${prefix}/util-scripts

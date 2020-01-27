@@ -16,7 +16,7 @@ parser = ArgumentParser(_prog)
 parser.add_argument(
     "-C", "--config", dest="cfg_name",
     help="Specify config file")
-parser.set_defaults(cfg_name = os.environ.get("CONFIG"))
+parser.set_defaults(cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG"))
 parser.add_argument(
     "-n", "--name", dest="name", required=True,
     help="Specify name of program reporting its status")

@@ -3,8 +3,8 @@
 prog=$(basename $0)
 usage="Usage: $prog"
 
-if [ ! -f $CONFIG ] ;then
-    echo "$prog: $CONFIG does not exist" >&2
+if [ ! -f $_PBENCH_SERVER_CONFIG ] ;then
+    echo "$prog: $_PBENCH_SERVER_CONFIG does not exist" >&2
     exit 2
 fi
 

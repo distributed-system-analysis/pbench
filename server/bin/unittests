@@ -4,10 +4,10 @@
 # platforms (well, mostly matches on all platforms).
 umask 0002
 
-# Don't allow an external CONFIG environment variable to affect the operation
+# Don't allow an external _PBENCH_SERVER_CONFIG environment variable to affect the operation
 # of the unit tests since the unit tests themselves use getconf.py which looks
 # for that envinronment variable as input.
-unset CONFIG
+unset _PBENCH_SERVER_CONFIG
 
 # Ensure we always use the same locale for the unit tests.
 export LANG=C
@@ -105,7 +105,7 @@ function _run_allscripts {
     _run pbench-backup-tarballs
     _run pbench-verify-backup-tarballs
     # Invoke pbench-satellite-cleanup in the context of the satellite
-    PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} CONFIG=${SATCONFIG} _run pbench-satellite-cleanup
+    PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} _PBENCH_SERVER_CONFIG=${SATCONFIG} _run pbench-satellite-cleanup
 }
 
 function _local_find {
@@ -243,9 +243,7 @@ function _setup_state {
     let res=res+$?
     mkdir -p $_testopt/common/lib
     let res=res+$?
-    mkdir -p $_testopt/common/bin
-    let res=res+$?
-    cp -a $_tdir/{job_pool.sh,unittests,pbench*} $_testopt/bin
+    cp -a $_tdir/{job_pool.sh,unittests,getconf.py,pbench*} $_testopt/bin
     let res=res+$?
     mkdir -p $_testopt/html/static/{js,css}/v0.{2,3}
     let res=res+$?
@@ -257,11 +255,9 @@ function _setup_state {
     let res=res+$?
     cp -a $_tdir/../../web-server/v0.3/css/ $_testopt/html/static/css/v0.3
     let res=res+$?
-    cp -a $_tdir/{job_pool.sh,unittests,pbench*} $_testopt_sat/bin
+    cp -a $_tdir/{job_pool.sh,unittests,getconf.py,pbench*} $_testopt_sat/bin
     let res=res+$?
     cp -a $_tdir/../../lib/* $_testopt/common/lib
-    let res=res+$?
-    cp -a $_tdir/../../bin/* $_testopt/common/bin
     let res=res+$?
     cp -a $_tdir/../lib $_testopt
     let res=res+$?
@@ -307,16 +303,16 @@ function _setup_state {
     # All the "real" scripts are found at $_testopt/bin, the mock scripts
     # are found in $_testopt/unittest-scripts.
     _orig_PATH=$PATH
-    export PATH=$_testopt/unittest-scripts:$_testopt/bin:$_testopt/common/bin:$PATH
+    export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
     export PYTHONPATH=$_testopt/common/lib:$PYTHONPATH
 
-    # Expected location of the final configuration files
-    export CONFIG=$_testopt/lib/config/pbench-server.cfg
+    # Expected location of the final configuration files 
+    export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg
     export LOGSDIR=$_testdir_local/logs
     export SATCONFIG=$_testopt_sat/lib/config/pbench-server.cfg
 
-    # The activate invocations are supposed to work without CONFIG being set,
-    # so they do *not* use the global CONFIG file that the rest of the tests
+    # The activate invocations are supposed to work without _PBENCH_SERVER_CONFIG being set,
+    # so they do *not* use the global _PBENCH_SERVER_CONFIG file that the rest of the tests
     # use.  We copy the server and index configuration files to a special
     # directory outside of the source tree to isolate any possible changes to
     # the original source.  The activate script copies it to its "final"
@@ -344,8 +340,8 @@ function _setup_state {
     rm ${_testtmp}/pbench-server.cfg
     if [ $rc == 0 ] ;then
         # This script uses the copied config file to do the rest.
-        echo "$_testopt/bin/pbench-server-activate ${CONFIG}" >> $_testactout
-        $_testopt/bin/pbench-server-activate ${CONFIG} >> $_testactout
+        echo "$_testopt/bin/pbench-server-activate ${_PBENCH_SERVER_CONFIG}" >> $_testactout
+        $_testopt/bin/pbench-server-activate ${_PBENCH_SERVER_CONFIG} >> $_testactout
         rc=$?
     fi
     if [ $rc -ne 0 ]; then
@@ -484,7 +480,7 @@ function _reset_state {
     fi
 
     export PATH=${_orig_PATH}
-    unset CONFIG
+    unset _PBENCH_SERVER_CONFIG
     unset LOGSDIR
     unset SATCONFIG
 

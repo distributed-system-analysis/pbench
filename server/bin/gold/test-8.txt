@@ -4,7 +4,7 @@
 /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-config-activate /var/tmp/pbench-test-server/test-8/tmp/pbench-server.cfg
 /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-activate /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config/pbench-server.cfg
 ++++ /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
-CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/config/pbench-server.cfg
+_PBENCH_SERVER_CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/config/pbench-server.cfg
 MAILTO=unit-test-user@example.com
 MAILFROM=pbench@pbench.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-server-prep-shim-002
@@ -22,7 +22,7 @@ MAILFROM=pbench@pbench.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-sync-satellite-ONE.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-sync-satellite satellite-one
 ---- /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
 ++++ /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/crontab/crontab
-CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config/pbench-server.cfg
+_PBENCH_SERVER_CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config/pbench-server.cfg
 MAILTO=unit-test-user@example.com
 MAILFROM=pbench@pbench-satellite.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-prep-shim-002

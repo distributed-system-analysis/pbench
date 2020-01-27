@@ -13,7 +13,7 @@ parser = ArgumentParser(_NAME_)
 parser.add_argument(
     "-C", "--config", dest="cfg_name",
     help="Specify config file")
-parser.set_defaults(cfg_name = os.environ.get("CONFIG"))
+parser.set_defaults(cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG"))
 parser.add_argument('prog', metavar='PROG', type=str, nargs=1,
     help='the program name of the caller')
 parser.add_argument('args', metavar='args', type=str, nargs='*',
@@ -24,14 +24,14 @@ _prog = os.path.basename(parsed.prog[0])
 _dir = os.path.dirname(parsed.prog[0])
 
 if not parsed.cfg_name:
-    # pbench-base.py is not always invoked with -C or --config or the CONFIG
+    # pbench-base.py is not always invoked with -C or --config or the _PBENCH_SERVER_CONFIG
     # environment variable set.  Since we really need access to the config
     # file to operate, and we know the relative location of that config file,
     # we check to see if that exists before declaring a problem.
     config_name = os.path.join(os.path.dirname(_dir), "lib", "config",
             "pbench-server.cfg")
     if not os.path.exists(config_name):
-        print("{}: No config file specified: set CONFIG env variable or use"
+        print("{}: No config file specified: set _PBENCH_SERVER_CONFIG env variable or use"
                 " --config <file> on the command line".format(_prog),
                 file=sys.stderr)
         sys.exit(1)

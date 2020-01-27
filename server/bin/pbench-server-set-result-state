@@ -30,7 +30,7 @@ case $# in
 esac
 
 
-export CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
+export _PBENCH_SERVER_CONFIG=/opt/pbench-server/lib/config/pbench-server.cfg
 
 . $dir/pbench-base.sh
 ###########################################################################

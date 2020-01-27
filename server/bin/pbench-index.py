@@ -87,7 +87,7 @@ def main(options, name):
              instance
     """
     if not options.cfg_name:
-        print("{}: ERROR: No config file specified; set CONFIG env variable or"
+        print("{}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
                 " use --config <file> on the command line".format(name),
                 file=sys.stderr)
         return 2
@@ -469,7 +469,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "-C", "--config", dest="cfg_name",
         help="Specify config file")
-    parser.set_defaults(cfg_name = os.environ.get("CONFIG"))
+    parser.set_defaults(cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG"))
     parser.add_argument(
         "-I", "--dump-index-patterns", action="store_true",
         dest="dump_index_patterns", help="Emit a list of index patterns used")

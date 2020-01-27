@@ -73,7 +73,7 @@ yum install pbench-agent
 will install the =pbench= agent in =/opt/pbench-agent=. Before you do
 anything else, you need to source the file
 =/etc/profile.d/pbench-agent.sh=. It sets PATH appropriately and
-defines an env variable CONFIG to point to the default pbench
+defines an env variable _PBENCH_AGENT_CONFIG to point to the default pbench
 configuration file (see [[*Customizing][Customizing]] below). Alternatively, logging out
 and logging back in will source the script automatically.
 

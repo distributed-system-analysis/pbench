@@ -247,9 +247,9 @@ def sanity_check(s3_obj, logger):
 
 
 def main():
-    cfg_name = os.environ.get("CONFIG")
+    cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
     if not cfg_name:
-        print("{}: ERROR: No config file specified; set CONFIG env variable or"
+        print("{}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
                 " use --config <file> on the command line".format(_NAME_),
                 file=sys.stderr)
         return 2

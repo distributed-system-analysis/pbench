@@ -9,7 +9,7 @@ if [ ! -f $config ] ;then
     exit 127
 fi
 
-export CONFIG=$config
+export _PBENCH_SERVER_CONFIG=$config
 crontabdir=$(getconf.py crontab-dir pbench-server)
 crontabdir=${crontabdir:-/opt/pbench-server/lib/crontab}
 
