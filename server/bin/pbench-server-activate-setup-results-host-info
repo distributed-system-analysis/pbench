@@ -15,9 +15,9 @@ prog=$(basename $0)
 
 usage="Usage: $prog"
 
-if [ ! -f $CONFIG ]
+if [ ! -f $_PBENCH_SERVER_CONFIG ]
 then
-    echo "Config file $CONFIG does not exist"
+    echo "Config file $_PBENCH_SERVER_CONFIG does not exist"
     exit 2
 fi
 

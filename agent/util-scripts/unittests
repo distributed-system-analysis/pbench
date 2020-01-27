@@ -21,25 +21,16 @@ export _testdir=${_testroot}/pbench
 # Copy util-scripts execution environment to _testroot
 _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p ${_testopt}/config ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/bin ${_testopt}/common/lib
+mkdir -p ${_testopt}/config ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
 let res=res+${?}
 cp -L ${_tdir}/../base ${_testopt}/
 let res=res+${?}
 cp -rL ${_tdir}/../config/* ${_testopt}/config/
 let res=res+${?}
-cp -a $_tdir/../../bin/* $_testopt/common/bin
-let res=res+${?}
 cp -a $_tdir/../../lib/* $_testopt/common/lib/
 let res=res+${?}
-scripts="${_tdir}/pbench-*"
-for script in ${scripts}; do
-    if [[ -d "${script}" ]]; then
-        echo "ERROR: unexpected pbench-* directory found, \"${script}\"" >&2
-        exit 1
-    fi
-    cp -L ${script} ${_testopt}/util-scripts/
-    let res=res+${?}
-done
+cp -a ${_tdir}/{getconf.py,pbench-*} ${_testopt}/util-scripts/
+let res=res+${?}
 scripts="${_tdir}/../tool-scripts/*"
 for script in ${scripts}; do
     if [[ "${script}" == *README ]]; then
@@ -90,7 +81,7 @@ function remove_path {
 PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
 PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 # Allows us to intercept scp, ssh, rsync, etc.
-export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/tool-scripts:${_testopt}/common/bin:${PATH}
+export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/tool-scripts:${PATH}
 export PYTHONPATH=${_testopt}/common/lib:${PYTHONPATH}
 
 # Fixed timestamp output
@@ -210,7 +201,7 @@ function _setup_state {
         echo "ERROR: failed to create default pbench-agent.cfg" >&2
         exit 1
     fi
-    export CONFIG=${_testopt}/config/pbench-agent.cfg
+    export _PBENCH_AGENT_CONFIG=${_testopt}/config/pbench-agent.cfg
 
     mkdir ${_testdir}
     if [[ ${?} -ne 0 ]]; then
@@ -241,7 +232,7 @@ function _setup_state {
 
 function _reset_state {
     rm ${_testopt}/config/pbench-agent.cfg
-    unset CONFIG
+    unset _PBENCH_AGENT_CONFIG
 
     rm -rf ${_testdir}
     if [[ -d ${_testdir} ]]; then

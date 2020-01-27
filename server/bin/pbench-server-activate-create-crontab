@@ -17,21 +17,21 @@ crontab=$crontabpath/crontab
 
 > $crontab
 
-if [ ! -f "$CONFIG" ] ;then
-    echo "Config file $CONFIG does not exist"
+if [ ! -f "$_PBENCH_SERVER_CONFIG" ] ;then
+    echo "Config file $_PBENCH_SERVER_CONFIG does not exist"
     exit 2
 fi
 
 bindir=$(getconf.py script-dir pbench-server)
 if [ -z "$bindir" ] ;then
-    echo "No 'script-dir' setting in [pbench-server] section of config file $CONFIG"
+    echo "No 'script-dir' setting in [pbench-server] section of config file $_PBENCH_SERVER_CONFIG"
     exit 3
 fi
 
 # what roles does this server play?
 roles=$(getconf.py -l roles pbench-server)
 if [ -z "$roles" ] ;then
-    echo "No 'roles' setting in [pbench-server] section of config file $CONFIG"
+    echo "No 'roles' setting in [pbench-server] section of config file $_PBENCH_SERVER_CONFIG"
     exit 3
 fi
 
@@ -50,17 +50,17 @@ realhost=$(getconf.py realhost pbench-server)
 function crontab_header() {
     local mailfrom mailto
 
-    echo "CONFIG=$CONFIG" >> $crontab
+    echo "_PBENCH_SERVER_CONFIG=$_PBENCH_SERVER_CONFIG" >> $crontab
 
     mailto=$(getconf.py mailto pbench-server)
     if [ -z "$mailto" ] ;then
-        echo "No 'mailto' specified in [pbench-server] section of the config file $CONFIG"
+        echo "No 'mailto' specified in [pbench-server] section of the config file $_PBENCH_SERVER_CONFIG"
     else
         echo "MAILTO=$mailto" >> $crontab
     fi
     mailfrom=$(getconf.py mailfrom pbench-server)
     if [ -z "$mailfrom" ] ;then
-        echo "No 'mailfrom' specified in [pbench-server] section of the config file $CONFIG"
+        echo "No 'mailfrom' specified in [pbench-server] section of the config file $_PBENCH_SERVER_CONFIG"
     else
         echo "MAILFROM=$mailfrom" >> $crontab
     fi
@@ -71,12 +71,12 @@ function crontab_normal() {
 
     tasks=$(getconf.py -l tasks $role)
     if [ -z "$tasks" ] ;then
-        echo "No 'tasks' specified in [$role] section of the config file $CONFIG"
+        echo "No 'tasks' specified in [$role] section of the config file $_PBENCH_SERVER_CONFIG"
     else
         for task in $tasks ;do
             crontabline=$(getconf.py crontab $task)
             if [ -z "$tasks" ] ;then
-                echo "No 'crontab' specified in [$task] section of the config file $CONFIG"
+                echo "No 'crontab' specified in [$task] section of the config file $_PBENCH_SERVER_CONFIG"
             else
                 echo "$crontabline" >> $crontab
             fi
@@ -111,7 +111,7 @@ function crontab_with_substitutions() {
 
     crontabline=$(getconf.py crontab $task)
     if [ -z "$crontabline" ] ;then
-        echo "No 'crontab' specified in [$task] section of the config file $CONFIG"
+        echo "No 'crontab' specified in [$task] section of the config file $_PBENCH_SERVER_CONFIG"
     else
         echo "$crontabline" |
                 sed "s;\$SATELLITE_CONFIG;$section;g" |

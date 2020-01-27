@@ -24,10 +24,10 @@ else
 
     # create a config file that just points to the local config files, necessary
     # for making the doc.
-    export CONFIG=$TOP/doc/doc.conf
-    cat > $CONFIG <<EOF
+    export _PBENCH_AGENT_CONFIG=$TOP/doc/doc.conf
+    cat > $_PBENCH_AGENT_CONFIG <<EOF
 [config]
-path = $TOP/agent/config, $TOP/rpm/misc-scripts/CONFIG
+path = $TOP/agent/config, $TOP/rpm/misc-scripts/_PBENCH_AGENT_CONFIG
 files = pbench.conf, misc-scripts.conf
 EOF
 fi

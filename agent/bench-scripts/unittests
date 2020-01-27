@@ -24,7 +24,7 @@ export _testdir=${_testroot}/pbench-agent
 # Copy bench-scripts execution environment to _testroot
 export _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/bin ${_testopt}/common/lib
+mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
 let res=res+${?}
 cp ${_tdir}/../base ${_testopt}/
 let res=res+${?}
@@ -38,12 +38,8 @@ cp ${_tdir}/postprocess/* ${_testopt}/bench-scripts/postprocess
 let res=res+${?}
 cp ${_tdir}/templates/* ${_testopt}/bench-scripts/templates
 let res=res+${?}
-for script in ${_tdir}/../util-scripts/pbench-* ; do
-    cp ${script} ${_testopt}/util-scripts/
-    let res=res+${?}
-done
-cp -a $_tdir/../../bin/* $_testopt/common/bin/
-let res=res+${?}
+cp -a $_tdir/../util-scripts/{getconf.py,pbench-*} $_testopt/util-scripts/
+let res=res+$?
 cp -a $_tdir/../../lib/* $_testopt/common/lib/
 let res=res+${?}
 cp -rH ${_tdir}/test-bin/* ${_testopt}/unittest-scripts/
@@ -76,7 +72,7 @@ function remove_path {
 PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
 PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 # Allows us to intercept scp, ssh, rsync, etc.
-export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/bench-scripts:${_testopt}/common/bin:${PATH}
+export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/bench-scripts:${PATH}
 export PYTHONPATH=${_testopt}/common/lib:${PYTHONPATH}
 
 # Fixed timestamp output
@@ -101,7 +97,7 @@ function _run {
     echo "+++ Running ${tname} ${tscrpt}" >> $_testout
 
     _tst_benchmark=${tscrpt%% *} \
-    CONFIG=${_testopt}/config/pbench-agent.cfg \
+    _PBENCH_AGENT_CONFIG=${_testopt}/config/pbench-agent.cfg \
     pbench_install_dir=${_testopt} \
     pbench_bspp_dir=${_testopt}/bench-scripts/postprocess \
     pbench_lib_dir=${_testopt}/lib \

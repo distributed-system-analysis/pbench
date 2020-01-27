@@ -6,7 +6,7 @@ import os, sys
 # python3
 from configparser import ConfigParser
 
-from optparse import OptionParser
+from optparse import OptionParser, make_option
 
 import logging
 
@@ -49,14 +49,14 @@ def file_list(root):
                 flist += fnmlist
     return uniq(flist)
 
-def init(opts):
+def init(opts, env_config):
     """init"""
     # config file
     conf = ConfigParser()
     if opts.filename:
         conf_file = opts.filename
-    elif 'CONFIG' in os.environ:
-        conf_file= os.environ['CONFIG']
+    elif env_config in os.environ:
+        conf_file= os.environ[env_config]
     else:
         return (None, [])
 
@@ -107,3 +107,47 @@ def get(conf, option, sections):
 
 def print_list(l, sep):
     print(sep.join([str(x) for x in l]))
+
+options = [
+    make_option("-a", "--all", action="store_true", dest="all", help="print all items in section"),
+    make_option("-d", "--dump", action="store_true", dest="dump", help="print everything and exit"),
+    make_option("-l", "--list", action="store_true", dest="list", help="print it as a shell list, translating commas to spaces"),
+    make_option("-L", "--listfiles", action="store_true", dest="listfiles", help="print the list of config files and exit"),
+]
+
+def main(conf, args, opts, files):
+    if not conf:
+        status = 1
+    elif opts.dump:
+        conf.write(sys.stdout)
+        status = 0
+    elif opts.listfiles:
+        files.reverse()
+        print(files)
+        status = 0
+    elif args:
+        if opts.all:
+            for sec in args:
+                if conf.has_section(sec):
+                    print("[%s]" % (sec))
+                    items = conf.items(sec)
+                    items.sort()
+                    for (n, v) in items:
+                        print("%s = %s" % (n, v))
+                    print()
+            return 0
+
+        sep = ','
+        if opts.list:
+            sep = ' '
+
+        option = args[0]
+        for sec in args[1:]:
+            if conf.has_section(sec):
+                if conf.has_option(sec, option):
+                    print_list(get_list(conf.get(sec, option)), sep)
+                    return 0
+        status = 1
+    else:
+        status = 1
+    return status

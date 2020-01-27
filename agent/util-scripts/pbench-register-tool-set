@@ -44,7 +44,7 @@ function usage() {
 	printf -- "\tof the file should contain a host name, optionally followed by a label\n"
 	printf -- "\tseparated by a comma (\",\"); empty lines are ignored, and comments are\n"
 	printf -- "\tdenoted by a leading hash, or pound (\"#\"), character.\n"
-	printf -- "\nAvailable tool sets from ${CONFIG}:\n"
+	printf -- "\nAvailable tool sets from ${_PBENCH_AGENT_CONFIG}:\n"
 	toolsets_raw=$(getconf.py -a pbench/tools | grep tool-set | awk '{print $1}')
 	for toolset_raw in ${toolsets_raw}; do
 		printf -- "\t${toolset_raw%%-*}\n"

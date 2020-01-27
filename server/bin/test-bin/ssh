@@ -5,9 +5,9 @@ echo "${0##*/} $*" >> $_testlog
 remote_host=$1
 shift 1
 if [ "${remote_host}" = "pbench-satellite.example.com" ] ;then
-    # Unset the CONFIG environment variable to prevent the "local" server
+    # Unset the _PBENCH_SERVER_CONFIG environment variable to prevent the "local" server
     # environment from leaking into the "remote" server environment.
-    unset CONFIG
+    unset _PBENCH_SERVER_CONFIG
     $*
 fi
 exit 0

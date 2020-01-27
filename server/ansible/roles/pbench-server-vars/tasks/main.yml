@@ -8,7 +8,7 @@
   shell: getconf.py install-dir pbench-server
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -22,7 +22,7 @@
   shell: getconf.py pbench-top-dir pbench-server
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -36,7 +36,7 @@
   shell: getconf.py pbench-logs-dir pbench-server
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_logs_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -50,7 +50,7 @@
   shell: getconf.py pbench-tmp-dir pbench-server
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_tmp_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -64,7 +64,7 @@
   shell: getconf.py pbench-quarantine-dir pbench-server
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_quarantine_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -79,7 +79,7 @@
   register: cmd_output
   ignore_errors: yes
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_host_info_prefix: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -94,7 +94,7 @@
   register: cmd_output
   ignore_errors: yes
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_reception_dir_prefix: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -108,7 +108,7 @@
   shell: getconf.py documentroot apache
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     httpd_document_root_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -122,7 +122,7 @@
   shell: getconf.py user pbench-server
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_user: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -136,7 +136,7 @@
   shell: getconf.py group pbench-server
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_group: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -150,7 +150,7 @@
   shell: getconf.py host pbench-server
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     pbench_host: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -164,7 +164,7 @@
   shell: getconf.py admin-email pbench-server
   register: cmd_output
   environment:
-    CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
 
 - set_fact:
     mailaddr: "{{ cmd_output.stdout_lines[0].strip() }}"
