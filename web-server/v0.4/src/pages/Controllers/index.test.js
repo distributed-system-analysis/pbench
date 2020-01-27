@@ -25,7 +25,7 @@ describe('test Controllers page component', () => {
   });
 
   it('render Table component', () => {
-    expect(wrapper.find(Table).length).toBe(1);
+    expect(wrapper.find(Table).length).toBe(2);
   });
 
   it('render SearchBar component', () => {
