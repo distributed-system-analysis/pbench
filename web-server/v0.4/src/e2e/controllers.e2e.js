@@ -176,21 +176,21 @@ describe('controller page component', () => {
   });
 
   test('should display 20 controllers on preference', async () => {
-    await page.click('.ant-select-selection.ant-select-selection--single');
+    await page.click('.ant-select-selection-selected-value');
     await page.click('.ant-select-dropdown-menu-item:nth-child(2)');
     const rows = await page.$$('.ant-table-row');
     expect(rows.length).toBe(20);
   });
 
   test('should display 50 controllers on preference', async () => {
-    await page.click('.ant-select-selection.ant-select-selection--single');
+    await page.click('.ant-select-selection-selected-value');
     await page.click('.ant-select-dropdown-menu-item:nth-child(3)');
     const rows = await page.$$('.ant-table-row');
     expect(rows.length).toBe(50);
   });
 
   test('should display 100 controllers on preference', async () => {
-    await page.click('.ant-select-selection.ant-select-selection--single');
+    await page.click('.ant-select-selection-selected-value');
     await page.click('.ant-select-dropdown-menu-item:nth-child(4)');
     const rows = await page.$$('.ant-table-row');
     expect(rows.length).toBe(100);
