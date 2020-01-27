@@ -1,20 +1,23 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card, Form } from 'antd';
+import { Card, Form, Icon, Tabs } from 'antd';
 
 import SearchBar from '@/components/SearchBar';
 import RowSelection from '@/components/RowSelection';
 import Table from '@/components/Table';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
-@connect(({ datastore, global, dashboard, loading }) => ({
+const { TabPane } = Tabs;
+
+@connect(({ datastore, global, dashboard, loading, user }) => ({
   selectedIndices: global.selectedIndices,
   results: dashboard.results[global.selectedControllers[0]]
     ? dashboard.results[global.selectedControllers[0]]
     : [],
   selectedControllers: global.selectedControllers,
   datastoreConfig: datastore.datastoreConfig,
+  favoriteResults: user.favoriteResults,
   loading: loading.effects['dashboard/fetchResults'],
 }))
 class Results extends Component {
@@ -121,9 +124,20 @@ class Results extends Component {
     );
   };
 
+  favoriteRecord = (event, value, result) => {
+    // Stop propagation from going to the next page
+    event.stopPropagation();
+    const { dispatch } = this.props;
+    // dispatch an action to favorite result
+    dispatch({
+      type: 'user/favoriteResult',
+      payload: result,
+    });
+  };
+
   render() {
     const { results, selectedRows } = this.state;
-    const { selectedControllers, loading } = this.props;
+    const { selectedControllers, loading, favoriteResults } = this.props;
     const rowSelection = {
       // eslint-disable-next-line no-shadow
       onSelect: (record, selected, selectedRows) => this.onSelectChange(selectedRows),
@@ -152,6 +166,29 @@ class Results extends Component {
         dataIndex: 'run.end',
         key: 'run.end',
       },
+      {
+        title: 'Actions',
+        dataIndex: 'actions',
+        key: 'actions',
+        render: (value, row) => {
+          // if already favorited return a filled star,
+          // else allow user to favorite a record
+          let isFavorite = false;
+          favoriteResults.forEach(item => {
+            if (item.key === row.key) {
+              isFavorite = true;
+            }
+          });
+          if (isFavorite) {
+            return <Icon type="star" theme="filled" />;
+          }
+          return (
+            <a onClick={e => this.favoriteRecord(e, null, row)}>
+              <Icon type="star" />
+            </a>
+          );
+        },
+      },
     ];
 
     return (
@@ -169,19 +206,36 @@ class Results extends Component {
               onCompare={this.compareResults}
             />
           </Form>
-          <Table
-            style={{ marginTop: 16 }}
-            rowSelection={rowSelection}
-            columns={columns}
-            dataSource={results}
-            onRow={record => ({
-              onClick: () => {
-                this.retrieveResults([record]);
-              },
-            })}
-            loading={loading}
-            bordered
-          />
+          <Tabs type="card" style={{ marginTop: 16 }}>
+            <TabPane tab="Results" key="results">
+              <Table
+                rowSelection={rowSelection}
+                columns={columns}
+                dataSource={results}
+                onRow={record => ({
+                  onClick: () => {
+                    this.retrieveResults([record]);
+                  },
+                })}
+                loading={loading}
+                bordered
+              />
+            </TabPane>
+            <TabPane tab="Favorites" key="favorites">
+              <Table
+                rowSelection={rowSelection}
+                columns={columns}
+                dataSource={favoriteResults}
+                onRow={record => ({
+                  onClick: () => {
+                    this.retrieveResults([record]);
+                  },
+                })}
+                loading={loading}
+                bordered
+              />
+            </TabPane>
+          </Tabs>
         </Card>
       </PageHeaderLayout>
     );

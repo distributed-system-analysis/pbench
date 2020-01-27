@@ -1,18 +1,21 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Card, Form } from 'antd';
+import { Card, Form, Icon, Tabs } from 'antd';
 
 import SearchBar from '@/components/SearchBar';
 import MonthSelect from '@/components/MonthSelect';
 import Table from '@/components/Table';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
-@connect(({ datastore, global, dashboard, loading }) => ({
+const { TabPane } = Tabs;
+
+@connect(({ datastore, global, dashboard, loading, user }) => ({
   controllers: dashboard.controllers,
   indices: datastore.indices,
   selectedIndices: global.selectedIndices,
   datastoreConfig: datastore.datastoreConfig,
+  favoriteControllers: user.favoriteControllers,
   loadingControllers:
     loading.effects['dashboard/fetchControllers'] ||
     loading.effects['datastore/fetchMonthIndices'] ||
@@ -133,9 +136,20 @@ class Controllers extends Component {
     });
   };
 
+  favoriteRecord = (event, value, controller) => {
+    // Stop propagation from going to the next page
+    event.stopPropagation();
+    const { dispatch } = this.props;
+    // dispatch an action to favorite controller
+    dispatch({
+      type: 'user/favoriteController',
+      payload: controller,
+    });
+  };
+
   render() {
     const { controllers } = this.state;
-    const { loadingControllers, selectedIndices, indices } = this.props;
+    const { loadingControllers, selectedIndices, indices, favoriteControllers } = this.props;
     const columns = [
       {
         title: 'Controller',
@@ -155,6 +169,29 @@ class Controllers extends Component {
         key: 'results',
         sorter: (a, b) => a.results - b.results,
       },
+      {
+        title: 'Actions',
+        dataIndex: 'actions',
+        key: 'actions',
+        render: (value, row) => {
+          // if already favorited return a filled star,
+          // else allow user to favorite a record
+          let isFavorite = false;
+          favoriteControllers.forEach(item => {
+            if (item.key === row.key) {
+              isFavorite = true;
+            }
+          });
+          if (isFavorite) {
+            return <Icon type="star" theme="filled" />;
+          }
+          return (
+            <a onClick={e => this.favoriteRecord(e, null, row)}>
+              <Icon type="star" />
+            </a>
+          );
+        },
+      },
     ];
 
     return (
@@ -173,17 +210,34 @@ class Controllers extends Component {
               value={selectedIndices}
             />
           </Form>
-          <Table
-            style={{ marginTop: 20 }}
-            columns={columns}
-            dataSource={controllers}
-            onRow={record => ({
-              onClick: () => {
-                this.retrieveResults(record);
-              },
-            })}
-            loading={loadingControllers}
-          />
+          <Tabs type="card">
+            <TabPane tab="Controllers" key="controllers">
+              <Table
+                style={{ marginTop: 20 }}
+                columns={columns}
+                dataSource={controllers}
+                onRow={record => ({
+                  onClick: () => {
+                    this.retrieveResults(record);
+                  },
+                })}
+                loading={loadingControllers}
+              />
+            </TabPane>
+            <TabPane tab="Favorites" key="favorites">
+              <Table
+                style={{ marginTop: 20 }}
+                columns={columns}
+                dataSource={favoriteControllers}
+                onRow={record => ({
+                  onClick: () => {
+                    this.retrieveResults(record);
+                  },
+                })}
+                loading={loadingControllers}
+              />
+            </TabPane>
+          </Tabs>
         </Card>
       </PageHeaderLayout>
     );
