@@ -713,9 +713,8 @@ Bench Script: pbench-specjbb2005 --help
 	The following options are available:
 
 		-C str --config=<str>            name of the test config
-		-j str --java_opts=<str>         options passed directly to the JVM
+		-j str --java-opts=<str>         options passed directly to the JVM
 		       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes
-		       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
 		       --start-warehouses=<int>  number of warehouses to start with (default is 1)
 		       --inc-warehouses=<int>    number of warehouses to increment by (default is 1)
 		       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
@@ -735,9 +734,8 @@ Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
 	The following options are available:
 
 		-C str --config=<str>            name of the test config
-		-j str --java_opts=<str>         options passed directly to the JVM
+		-j str --java-opts=<str>         options passed directly to the JVM
 		       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes
-		       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
 		       --start-warehouses=<int>  number of warehouses to start with (default is 1)
 		       --inc-warehouses=<int>    number of warehouses to increment by (default is 1)
 		       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
@@ -759,9 +757,8 @@ pbench-specjbb2005 --bad-to-the-bone
 	The following options are available:
 
 		-C str --config=<str>            name of the test config
-		-j str --java_opts=<str>         options passed directly to the JVM
+		-j str --java-opts=<str>         options passed directly to the JVM
 		       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes
-		       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)
 		       --start-warehouses=<int>  number of warehouses to start with (default is 1)
 		       --inc-warehouses=<int>    number of warehouses to increment by (default is 1)
 		       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)
