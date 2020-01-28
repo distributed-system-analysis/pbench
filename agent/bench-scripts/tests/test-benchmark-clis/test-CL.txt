@@ -1,6 +1,6 @@
 +++ Running test-CL test-benchmark-clis
 
-Bench Script: pbench-cyclictest --help 
+Bench Script: pbench-cyclictest --help
 ------------
 	The following options are available:
 
@@ -10,7 +10,7 @@ Bench Script: pbench-cyclictest --help
 		-s --stress                                   run stress process on the same cpu as --cpu
 		--tool-group=str
 		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
-		                                                   available: 
+		                                                   available: default collect sysinfo options
 
 Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 ------------
@@ -24,9 +24,9 @@ Bench Script: pbench-cyclictest --tool-group=bad --sysinfo=bad
 		-s --stress                                   run stress process on the same cpu as --cpu
 		--tool-group=str
 		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
-		                                                   available: 
+		                                                   available: default collect sysinfo options
 
-Bench Script: pbench-cyclictest --bad-to-the-bone 
+Bench Script: pbench-cyclictest --bad-to-the-bone
 ------------
 pbench-cyclictest --bad-to-the-bone
 
@@ -40,9 +40,9 @@ pbench-cyclictest --bad-to-the-bone
 		-s --stress                                   run stress process on the same cpu as --cpu
 		--tool-group=str
 		--sysinfo=str,                                str= comma separated values of sysinfo to be collected
-		                                                   available: 
+		                                                   available: default collect sysinfo options
 
-Bench Script: pbench-dbench --help 
+Bench Script: pbench-dbench --help
 ------------
 	The following options are available:
 
@@ -75,7 +75,7 @@ Bench Script: pbench-dbench --help
 		                                        part of the label, just use --tool-label-pattern= to tell this script
 		                                        the prefix pattern to use for CPU information.
 		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
-		                                             available: 
+		                                             available: default collect sysinfo options
 
 Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 ------------
@@ -112,9 +112,9 @@ Bench Script: pbench-dbench --tool-group=bad --sysinfo=bad
 		                                        part of the label, just use --tool-label-pattern= to tell this script
 		                                        the prefix pattern to use for CPU information.
 		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
-		                                             available: 
+		                                             available: default collect sysinfo options
 
-Bench Script: pbench-dbench --bad-to-the-bone 
+Bench Script: pbench-dbench --bad-to-the-bone
 ------------
 pbench-dbench --bad-to-the-bone
 
@@ -151,9 +151,9 @@ pbench-dbench --bad-to-the-bone
 		                                        part of the label, just use --tool-label-pattern= to tell this script
 		                                        the prefix pattern to use for CPU information.
 		             --sysinfo=str,             str= comma separated values of sysinfo to be collected
-		                                             available: 
+		                                             available: default collect sysinfo options
 
-Bench Script: pbench-fio --help 
+Bench Script: pbench-fio --help
 ------------
 The following options are available:
 
@@ -238,7 +238,7 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: 
+		available: default collect sysinfo options
 
 Bench Script: pbench-fio --tool-group=bad --sysinfo=bad
 ------------
@@ -327,9 +327,9 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: 
+		available: default collect sysinfo options
 
-Bench Script: pbench-fio --bad-to-the-bone 
+Bench Script: pbench-fio --bad-to-the-bone
 ------------
 pbench-fio --bad-to-the-bone
 
@@ -418,9 +418,9 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: 
+		available: default collect sysinfo options
 
-Bench Script: pbench-iozone --help 
+Bench Script: pbench-iozone --help
 ------------
 	The following options are available:
 
@@ -435,7 +435,7 @@ Bench Script: pbench-iozone --help
 			number of iozone runs - default is 10 runs
 		--tool-group=str
 		--sysinfo=str, str= comma separated values of sysinfo to be collected
-		                    available: 
+		                    available: default collect sysinfo options
 
 Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 ------------
@@ -454,9 +454,9 @@ Bench Script: pbench-iozone --tool-group=bad --sysinfo=bad
 			number of iozone runs - default is 10 runs
 		--tool-group=str
 		--sysinfo=str, str= comma separated values of sysinfo to be collected
-		                    available: 
+		                    available: default collect sysinfo options
 
-Bench Script: pbench-iozone --bad-to-the-bone 
+Bench Script: pbench-iozone --bad-to-the-bone
 ------------
 pbench-iozone --bad-to-the-bone
 
@@ -475,9 +475,9 @@ pbench-iozone --bad-to-the-bone
 			number of iozone runs - default is 10 runs
 		--tool-group=str
 		--sysinfo=str, str= comma separated values of sysinfo to be collected
-		                    available: 
+		                    available: default collect sysinfo options
 
-Bench Script: pbench-linpack --help 
+Bench Script: pbench-linpack --help
 ------------
 	The following options are available:
 
@@ -485,7 +485,7 @@ Bench Script: pbench-linpack --help
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
-	                                available: 
+	                                available: default collect sysinfo options
 
 Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 ------------
@@ -497,9 +497,9 @@ Bench Script: pbench-linpack --tool-group=bad --sysinfo=bad
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
-	                                available: 
+	                                available: default collect sysinfo options
 
-Bench Script: pbench-linpack --bad-to-the-bone 
+Bench Script: pbench-linpack --bad-to-the-bone
 ------------
 pbench-linpack --bad-to-the-bone
 
@@ -511,9 +511,9 @@ pbench-linpack --bad-to-the-bone
 	       --threads=int[,int]  number of threads to use (default is num_cpus)
 	       --tool-group=str
 	       --sysinfo=str,       str= comma separated values of sysinfo to be collected
-	                                available: 
+	                                available: default collect sysinfo options
 
-Bench Script: pbench-migrate --help 
+Bench Script: pbench-migrate --help
 ------------
 	The following options are available:
 
@@ -535,7 +535,7 @@ Bench Script: pbench-migrate --help
 		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
 		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
 		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
-		                                             available: 
+		                                             available: default collect sysinfo options
 
 Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 ------------
@@ -561,9 +561,9 @@ Bench Script: pbench-migrate --tool-group=bad --sysinfo=bad
 		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
 		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
 		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
-		                                             available: 
+		                                             available: default collect sysinfo options
 
-Bench Script: pbench-migrate --bad-to-the-bone 
+Bench Script: pbench-migrate --bad-to-the-bone
 ------------
 pbench-migrate --bad-to-the-bone
 
@@ -589,9 +589,9 @@ pbench-migrate --bad-to-the-bone
 		                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).
 		                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host
 		--sysinfo=str,                          str= comma separated values of sysinfo to be collected
-		                                             available: 
+		                                             available: default collect sysinfo options
 
-Bench Script: pbench-netperf --help 
+Bench Script: pbench-netperf --help
 ------------
 	The following options are available:
 
@@ -626,7 +626,7 @@ Bench Script: pbench-netperf --help
 		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
 		                                            compute a netperf-server result/CPU metric
 		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
-		                                                 available: 
+		                                                 available: default collect sysinfo options
 
 Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 ------------
@@ -665,9 +665,9 @@ Bench Script: pbench-netperf --tool-group=bad --sysinfo=bad
 		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
 		                                            compute a netperf-server result/CPU metric
 		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
-		                                                 available: 
+		                                                 available: default collect sysinfo options
 
-Bench Script: pbench-netperf --bad-to-the-bone 
+Bench Script: pbench-netperf --bad-to-the-bone
 ------------
 pbench-netperf --bad-to-the-bone
 
@@ -706,9 +706,9 @@ pbench-netperf --bad-to-the-bone
 		             --server-label=str             provide the pbench netperf-server tool label and postprocessing will
 		                                            compute a netperf-server result/CPU metric
 		             --sysinfo=str,                 str= comma separated values of sysinfo to be collected
-		                                                 available: 
+		                                                 available: default collect sysinfo options
 
-Bench Script: pbench-specjbb2005 --help 
+Bench Script: pbench-specjbb2005 --help
 ------------
 	The following options are available:
 
@@ -723,7 +723,7 @@ Bench Script: pbench-specjbb2005 --help
 		-d str --dir=<str>               directory to run the test
 		       --tool-group=<str>        tool group to use during test
 		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
-		                                      available: 
+		                                      available: default collect sysinfo options
 		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
 		                                      (default is /usr/local/share/specjbb2005)
 
@@ -744,11 +744,11 @@ Bench Script: pbench-specjbb2005 --tool-group=bad --sysinfo=bad
 		-d str --dir=<str>               directory to run the test
 		       --tool-group=<str>        tool group to use during test
 		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
-		                                      available: 
+		                                      available: default collect sysinfo options
 		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
 		                                      (default is /usr/local/share/specjbb2005)
 
-Bench Script: pbench-specjbb2005 --bad-to-the-bone 
+Bench Script: pbench-specjbb2005 --bad-to-the-bone
 ------------
 pbench-specjbb2005 --bad-to-the-bone
 
@@ -767,11 +767,11 @@ pbench-specjbb2005 --bad-to-the-bone
 		-d str --dir=<str>               directory to run the test
 		       --tool-group=<str>        tool group to use during test
 		       --sysinfo=<str,>          comma separated values of sysinfo to be collected
-		                                      available: 
+		                                      available: default collect sysinfo options
 		       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005
 		                                      (default is /usr/local/share/specjbb2005)
 
-Bench Script: pbench-trafficgen --help 
+Bench Script: pbench-trafficgen --help
 ------------
 	The following options are available:
 
@@ -798,15 +798,15 @@ trafficgen general test options
 --sniff-runtime=int
   Measurement period in seconds for a "sniff" trial, right before the search trial
   if the sniff test fails, the search trial is skipped and moves on to the next trial
-  Default is 
+  Default is 30
 
 --search-runtime=int
   Measurement period in seconds when searching for max throughput
-  Default is 
+  Default is 120
 
 --validation-runtime=int
   Measurement period in seconds when running final validation or a latency test
-  Default is 
+  Default is 300
 
 
       The follwoing options can take 1 or more values and will control how many
@@ -1001,7 +1001,7 @@ options common in most pbench benchmark scripts
 
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
-    available: 
+    available: default collect sysinfo options
 
 --tool-period=str
   str = [binary-search|repeat-final-validation]
@@ -1037,15 +1037,15 @@ trafficgen general test options
 --sniff-runtime=int
   Measurement period in seconds for a "sniff" trial, right before the search trial
   if the sniff test fails, the search trial is skipped and moves on to the next trial
-  Default is 
+  Default is 30
 
 --search-runtime=int
   Measurement period in seconds when searching for max throughput
-  Default is 
+  Default is 120
 
 --validation-runtime=int
   Measurement period in seconds when running final validation or a latency test
-  Default is 
+  Default is 300
 
 
       The follwoing options can take 1 or more values and will control how many
@@ -1240,14 +1240,14 @@ options common in most pbench benchmark scripts
 
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
-    available: 
+    available: default collect sysinfo options
 
 --tool-period=str
   str = [binary-search|repeat-final-validation]
   binary-search (default): tools are collected during binary-search
   repeat-final-validation: tools are collected during a repeat-run of the final validation trial
 
-Bench Script: pbench-trafficgen --bad-to-the-bone 
+Bench Script: pbench-trafficgen --bad-to-the-bone
 ------------
 pbench-trafficgen --bad-to-the-bone
 
@@ -1278,15 +1278,15 @@ trafficgen general test options
 --sniff-runtime=int
   Measurement period in seconds for a "sniff" trial, right before the search trial
   if the sniff test fails, the search trial is skipped and moves on to the next trial
-  Default is 
+  Default is 30
 
 --search-runtime=int
   Measurement period in seconds when searching for max throughput
-  Default is 
+  Default is 120
 
 --validation-runtime=int
   Measurement period in seconds when running final validation or a latency test
-  Default is 
+  Default is 300
 
 
       The follwoing options can take 1 or more values and will control how many
@@ -1481,14 +1481,14 @@ options common in most pbench benchmark scripts
 
 --sysinfo=str,
   comma separated values of sysinfo to be collected, default="none"
-    available: 
+    available: default collect sysinfo options
 
 --tool-period=str
   str = [binary-search|repeat-final-validation]
   binary-search (default): tools are collected during binary-search
   repeat-final-validation: tools are collected during a repeat-run of the final validation trial
 
-Bench Script: pbench-uperf --help 
+Bench Script: pbench-uperf --help
 ------------
 	The following options are available:
 
@@ -1533,7 +1533,7 @@ Bench Script: pbench-uperf --help
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
 	--sysinfo=str,             str= comma separated values of sysinfo to be collected
-	                                available: 
+	                                available: default collect sysinfo options
 
 Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 ------------
@@ -1582,9 +1582,9 @@ Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
 	--sysinfo=str,             str= comma separated values of sysinfo to be collected
-	                                available: 
+	                                available: default collect sysinfo options
 
-Bench Script: pbench-uperf --bad-to-the-bone 
+Bench Script: pbench-uperf --bad-to-the-bone
 ------------
 pbench-uperf --bad-to-the-bone
 
@@ -1633,9 +1633,9 @@ pbench-uperf --bad-to-the-bone
 				   part of the label, just use --tool-label-pattern= to tell this script
 				   the prefix pattern to use for CPU information.
 	--sysinfo=str,             str= comma separated values of sysinfo to be collected
-	                                available: 
+	                                available: default collect sysinfo options
 
-Bench Script: pbench-user-benchmark --help 
+Bench Script: pbench-user-benchmark --help
 ------------
 Usage: pbench-user-benchmark [options] -- <script to run>
 
@@ -1644,7 +1644,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		-C str --config=str            name of the test config
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
-		                                     available: 
+		                                     available: default collect sysinfo options
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
 		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
@@ -1661,13 +1661,13 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		-C str --config=str            name of the test config
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
-		                                     available: 
+		                                     available: default collect sysinfo options
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
 		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
 		       --no-stderr-capture     do not capture stderr of the script to the result.txt file
 
-Bench Script: pbench-user-benchmark --bad-to-the-bone 
+Bench Script: pbench-user-benchmark --bad-to-the-bone
 ------------
 pbench-user-benchmark --bad-to-the-bone
 
@@ -1680,7 +1680,7 @@ Usage: pbench-user-benchmark [options] -- <script to run>
 		-C str --config=str            name of the test config
 		       --tool-group=str
 		       --sysinfo=str,          str = comma separated values of system information to be collected
-		                                     available: 
+		                                     available: default collect sysinfo options
 		       --pbench-pre=str        path to the script which will be executed before tools are started
 		       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete
 		       --use-tool-triggers     use tool triggers instead of normal start/stop around script
