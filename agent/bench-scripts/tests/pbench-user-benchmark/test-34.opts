@@ -1,0 +1,1 @@
+--use-tool-triggers --pbench-pre=script -- bm

@@ -1,0 +1,92 @@
++++ Running test-38 pbench-user-benchmark
+Running bm arg1 arg2 arg3 for iteration 1-iter-one
+Running bm arg1 for iteration 2-iter-two
+Running bm arg1 arg2 for iteration 3-iter-three
+--- Finished test-38 pbench-user-benchmark (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/.iterations
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one/reference-result
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one/sample1
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one/sample1/user-benchmark.cmd
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two/reference-result
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two/sample1
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two/sample1/user-benchmark.cmd
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three/reference-result
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three/sample1
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three/sample1/user-benchmark.cmd
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/iteration.lis
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/metadata.log
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/user-benchmark-summary-debug.json
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/user-benchmark-summary.json
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+/var/tmp/pbench-test-bench/pbench-agent/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+--- pbench tree state
++++ pbench.log file contents
+[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running bm arg1 arg2 arg3 for iteration 1-iter-one
+[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running bm arg1 for iteration 2-iter-two
+[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running bm arg1 arg2 for iteration 3-iter-three
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm arg1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm arg1 arg2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm arg1 arg2 arg3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00 --sysinfo=default end
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00 end
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three/sample1
+--- test-execution.log file contents
++++ pbench-user-benchmark_test-38_1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+
+[iterations/1]
+iteration_name = 1-iter-one
+user_script = bm, arg1, arg2, arg3
+
+[iterations/2]
+iteration_name = 2-iter-two
+user_script = bm, arg1
+
+[iterations/3]
+iteration_name = 3-iter-three
+user_script = bm, arg1, arg2
+
+--- pbench-user-benchmark_test-38_1900.01.01T00.00.00/metadata.log file contents
++++ pbench-user-benchmark_test-38_1900.01.01T00.00.00/user-benchmark-summary.json file contents
+{
+    "duration":0,
+    "duration_units":"sec"
+}
+--- pbench-user-benchmark_test-38_1900.01.01T00.00.00/user-benchmark-summary.json file contents
++++ pbench-user-benchmark_test-38_1900.01.01T00.00.00/./1-iter-one/sample1/user-benchmark.cmd file contents
+bm arg1 arg2 arg3 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/1-iter-one/sample1/result.txt
+--- pbench-user-benchmark_test-38_1900.01.01T00.00.00/./1-iter-one/sample1/user-benchmark.cmd file contents
++++ pbench-user-benchmark_test-38_1900.01.01T00.00.00/./2-iter-two/sample1/user-benchmark.cmd file contents
+bm arg1 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/2-iter-two/sample1/result.txt
+--- pbench-user-benchmark_test-38_1900.01.01T00.00.00/./2-iter-two/sample1/user-benchmark.cmd file contents
++++ pbench-user-benchmark_test-38_1900.01.01T00.00.00/./3-iter-three/sample1/user-benchmark.cmd file contents
+bm arg1 arg2 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-38_1900.01.01T00.00.00/3-iter-three/sample1/result.txt
+--- pbench-user-benchmark_test-38_1900.01.01T00.00.00/./3-iter-three/sample1/user-benchmark.cmd file contents

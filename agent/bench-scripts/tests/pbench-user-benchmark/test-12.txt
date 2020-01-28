@@ -1,20 +1,21 @@
 +++ Running test-12 pbench-user-benchmark
-Running user-benchmark-script bad-format
+Running user-benchmark-script bad-format for iteration 1-default
 WARNING:root:Unable to load JSON data from /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/user-benchmark-summary.json, "Expecting ',' delimiter: line 4 column 1 (char 51)", current position in file: 51; ignoring bad summary data...
 --- Finished test-12 pbench-user-benchmark (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/.iterations
-/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1
-/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1/reference-result
-/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1/sample1
-/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1/sample1/result.txt
-/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default/reference-result
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default/sample1/user-benchmark.cmd
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/iteration.lis
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/metadata.log
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/user-benchmark-summary-debug.json
 /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/user-benchmark-summary.json
-/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/user-benchmark.cmd
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/tmp
 /var/tmp/pbench-test-bench/pbench-agent/tool-triggers
@@ -23,23 +24,23 @@ WARNING:root:Unable to load JSON data from /var/tmp/pbench-test-bench/pbench-age
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running user-benchmark-script bad-format
+[info][1900-01-01T00:00:00.000000] [pbench-user-benchmark] Running user-benchmark-script bad-format for iteration 1-default
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00 --sysinfo=default end
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00 beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00 end
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default/sample1
 --- test-execution.log file contents
 +++ pbench-user-benchmark_test-12_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
 
 [iterations/1]
-iteration_name = 1
-user_script = user-benchmark-script
+iteration_name = 1-default
+user_script = user-benchmark-script, bad-format
 
 --- pbench-user-benchmark_test-12_1900.01.01T00.00.00/metadata.log file contents
 +++ pbench-user-benchmark_test-12_1900.01.01T00.00.00/user-benchmark-summary.json file contents
@@ -48,6 +49,6 @@ user_script = user-benchmark-script
     "duration_units":"sec"
 }
 --- pbench-user-benchmark_test-12_1900.01.01T00.00.00/user-benchmark-summary.json file contents
-+++ pbench-user-benchmark_test-12_1900.01.01T00.00.00/user-benchmark.cmd file contents
-user-benchmark-script bad-format 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1/sample1/result.txt
---- pbench-user-benchmark_test-12_1900.01.01T00.00.00/user-benchmark.cmd file contents
++++ pbench-user-benchmark_test-12_1900.01.01T00.00.00/./1-default/sample1/user-benchmark.cmd file contents
+user-benchmark-script bad-format 2>&1 | tee /var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-12_1900.01.01T00.00.00/1-default/sample1/result.txt
+--- pbench-user-benchmark_test-12_1900.01.01T00.00.00/./1-default/sample1/user-benchmark.cmd file contents

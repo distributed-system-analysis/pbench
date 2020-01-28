@@ -1,0 +1,3 @@
+#!/bin/bash
+
+printf -- "# no iterations\n" > ${_testtmp}/no-iterations.lis

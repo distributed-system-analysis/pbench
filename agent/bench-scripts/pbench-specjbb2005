@@ -355,20 +355,20 @@ function record_iteration {
 > ${benchmark_iterations}
 iteration=1
 for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
-	if [ ! -d ${iteration}/sample1 ]; then
-		error_log "missing iteration directory ${benchmark_run_dir}/${iteration}/sample1"
+	if [ ! -d ${iteration}-default/sample1 ]; then
+		error_log "missing iteration directory ${benchmark_run_dir}/${iteration}-default/sample1"
 		let iteration=$iteration+1
 		continue
 	fi
 	# for each of the test iterations (each test with a specific number of warehouses), copy the raw result data for that iteration in the iteration directory
-	grep "test${i}" ${specjbb_results}/SPECjbb.001.raw > ${iteration}/sample1/SPECjbb.raw
+	grep "test${i}" ${specjbb_results}/SPECjbb.001.raw > ${iteration}-default/sample1/SPECjbb.raw
 	if [ $? -ne 0 ]; then
 		error_log "missing test${i} raw results in ${specjbb_results}/SPECjbb.raw"
 	fi
 	new_iteration_name="${iteration}-warehouses:${i}"
-	mv ${iteration} ${new_iteration_name}
+	mv ${iteration}-default ${new_iteration_name}
 	if [ $? -ne 0 ]; then
-		error_log "unable to move ${iteration} directory hierarchy to ${new_iteration_name}, skipping post-processing"
+		error_log "unable to move ${iteration}-default directory hierarchy to ${new_iteration_name}, skipping post-processing"
 	else
 		record_iteration ${iteration} ${new_iteration_name} ${benchmark}
 		pbench-postprocess-tools --group=${tool_group} --iteration=${new_iteration_name} --dir=${benchmark_run_dir}/${new_iteration_name}/sample1

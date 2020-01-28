@@ -142,9 +142,11 @@ function _dump_logs {
     fi
     _dump_file ${1} metadata.log
     _dump_file ${1} user-benchmark-summary.json
-    _dump_file ${1} user-benchmark.cmd
     (
     if cd ${_testdir}/${1} > /dev/null 2>&1 ;then
+        for f in $(find . -name user-benchmark.cmd 2> /dev/null | sort); do
+            _dump_file ${1} ${f}
+        done
         for f in $(find . -name results.html 2> /dev/null | sort); do
             _dump_file ${1} ${f}
         done

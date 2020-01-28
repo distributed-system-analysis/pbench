@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
 # This is a script to run a benchmark provided by the user.  Note that this is different from most pbench
 # benchmark scripts in that only 1 "iteration" is done, whatever the user provided script does.
@@ -20,7 +21,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-benchmark="pbench-user-benchmark"
+export benchmark="pbench-user-benchmark"
 
 # This bench-script does the following:
 # 1) process pbench script arguments (--config)
@@ -30,209 +31,324 @@ benchmark="pbench-user-benchmark"
 # post-processing of benchmark specific data is the responibility of the user supplied benchmark
 
 # Defaults
-config=""
+export config=""
 tool_group=default
 sysinfo=default
 use_tool_triggers=0
 capture_stderr=" 2>&1"
+pbench_pre=""
+pbench_post=""
 
 function usage {
 	printf "Usage: $script_name [options] -- <script to run>\n\n"
 	printf "\tThe following options are available:\n\n"
-	printf -- "\t\t-C str --config=str            name of the test config\n"
-	printf -- "\t\t       --tool-group=str\n"
-	printf -- "\t\t       --sysinfo=str,          str = comma separated values of system information to be collected\n"
-	printf -- "\t\t                                     available: $(pbench-collect-sysinfo --options)\n"
-	printf -- "\t\t       --pbench-pre=str        path to the script which will be executed before tools are started\n"
-	printf -- "\t\t       --pbench-post=str       path to the script which will be executed after tools are stopped and postprocessing is complete\n"
-	printf -- "\t\t       --use-tool-triggers     use tool triggers instead of normal start/stop around script\n"
-	printf -- "\t\t       --no-stderr-capture     do not capture stderr of the script to the result.txt file\n"
+	printf -- "\t\t-C str --config=str   name of the test config\n"
+	printf -- "\t\t--tool-group=str      The tool group to use for the list of tools\n"
+	printf -- "\t\t--iteration-list=str  A file containing a list of iterations to run for the provided script;\n"
+	printf -- "\t\t                      the file should contain one iteration per line, with a leading\n"
+	printf -- "\t\t                      '#' (hash) character used for comments, blank lines are ignored;\n"
+	printf -- "\t\t                      each iteration line should use alpha-numeric characters before\n"
+	printf -- "\t\t                      the first space to name the iteration, with the rest of the line\n"
+	printf -- "\t\t                      provided as arguments to the script;\n"
+	printf -- "\t\t                        NOTE: --iteration-list is not compatible with --use-tool-triggers\n"
+	printf -- "\t\t--sysinfo=str,[str]   comma separated values of system information to be collected;\n"
+	printf -- "\t\t                        available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t--pbench-pre=str      path to the script which will be executed before tools are started\n"
+	printf -- "\t\t                        NOTE: --pbench-pre is not compatible with --use-tool-triggers\n"
+	printf -- "\t\t--pbench-post=str     path to the script which will be executed after tools are stopped and postprocessing is complete\n"
+	printf -- "\t\t                        NOTE: --pbench-post is not compatible with --use-tool-triggers\n"
+	printf -- "\t\t--use-tool-triggers   use tool triggers instead of normal start/stop around script;\n"
+	printf -- "\t\t                        NOTE: --use-tool-triggers is not compatible with --iteration-list,\n"
+	printf -- "\t\t                              --pbench-pre, or --pbench-post\n"
+	printf -- "\t\t--no-stderr-capture   do not capture stderr of the script to the result.txt file\n"
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:h --longoptions "config:,help,tool-group:,sysinfo:,pbench-post:,pbench-pre:,use-tool-triggers,no-stderr-capture" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf -- "${script_name} $*\n"
-	printf -- "\n"
-	printf -- "\tunrecognized option specified\n\n"
-	usage
+opts="$(getopt -q -o C:h --longoptions "config:,help,tool-group:,iteration-list:,sysinfo:,pbench-post:,pbench-pre:,use-tool-triggers,no-stderr-capture" -n "getopt.sh" -- "$@")"
+if [[ ${?} -ne 0 ]]; then
+	printf -- "%s %s\n\n\tunrecognized option specified\n\n" "${script_name}" "${*}" >&2
+	usage >&2
 	exit 1
 fi
-eval set -- "$opts";
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		-C|--config)
-		shift
-		if [ -n "$1" ]; then
-			config="$1"
+	opt="${1}"
+	shift
+	case "${opt}" in
+	-C|--config)
+		if [[ -n "${1}" ]]; then
+			config="${1}"
 			shift
 		fi
 		;;
-		--tool-group)
-		shift
-		if [ -n "$1" ]; then
-			tool_group="$1"
+	--tool-group)
+		if [[ -n "${1}" ]]; then
+			tool_group="${1}"
 			shift
 		fi
 		;;
-		--sysinfo)
-		shift
-		if [ -n "$1" ]; then
-			sysinfo="$1"
+	--iteration-list)
+		if [[ -n "${1}" ]]; then
+			iteration_list="${1}"
 			shift
 		fi
 		;;
-		--pbench-post)
-		shift
-		if [ -n "$1" ]; then
-			pbench_post="$1"
+	--sysinfo)
+		if [[ -n "${1}" ]]; then
+			sysinfo="${1}"
 			shift
 		fi
 		;;
-		--pbench-pre)
-		shift
-		if [ -n "$1" ]; then
-			pbench_pre="$1"
+	--pbench-post)
+		if [[ -n "${1}" ]]; then
+			pbench_post="${1}"
 			shift
 		fi
 		;;
-		--use-tool-triggers)
-		shift
+	--pbench-pre)
+		if [[ -n "${1}" ]]; then
+			pbench_pre="${1}"
+			shift
+		fi
+		;;
+	--use-tool-triggers)
 		use_tool_triggers=1
 		;;
-		--no-stderr-capture)
-		shift
+	--no-stderr-capture)
 		capture_stderr=""
 		;;
-		-h|--help)
+	-h|--help)
 		usage
 		exit 0
 		;;
-		--)
-		shift
+	--)
 		break
 		;;
-		*)
-		echo "what happened? [$1]"
-		break
+	*)
+		printf -- "Unrecognized parameter, '${opt}'\n\n" >&2
+		usage >&2
+		exit 1
 		;;
 	esac
 done
-verify_common_bench_script_options $tool_group $sysinfo
+verify_common_bench_script_options ${tool_group} ${sysinfo}
 
-iteration="1" # there can be only 1 iteration for user-benchmark
-iteration_name="1"
-benchmark_bin="$@"
+# By default, unless the --iteration-list parameter is given, there is only
+# one iteration for user-benchmark.
+iteration="1"
+iteration_name="default"
+sample_name="sample1"
+benchmark_bin="${@}"
 benchmark_fullname="${benchmark}_${config}_${date_suffix}"
-benchmark_run_dir="$pbench_run/${benchmark_fullname}"
+# Make the run dir available to the user script
+export benchmark_run_dir="${pbench_run}/${benchmark_fullname}"
+mkdir ${benchmark_run_dir}
+if [[ ${?} -ne 0 ]]; then
+	printf -- "%s: failed to create the benchmark run directory, '%s'\n" "${script_name}" "${benchmark_run_dir}" >&2
+	exit 1
+fi
 
-# we'll record the iterations in this file
+if [[ -z "${iteration_list}" ]]; then
+	# Use a default iteration list file since one was not specified.
+	printf -- "# Default single iteration - auto-generated iteration list\n%s\n" "${iteration_name}" > ${benchmark_run_dir}/iteration.lis
+elif [[ ${use_tool_triggers} -ne 0 ]]; then
+	printf -- "%s: you cannot use tool triggers with an iteration list\n" "${script_name}" >&2
+	usage >&2
+	exit 1
+elif [[ -f "${iteration_list}" ]]; then
+	cp ${iteration_list} ${benchmark_run_dir}/iteration.lis
+	if [[ ${?} -ne 0 ]]; then
+		printf -- "%s: copied failed for the provided iteration list file, '%s'" "${script_name}" "${iteration_list}" >&2
+		exit 1
+	fi
+else
+	printf -- "%s: the provided iteration list does not appear to exist, '%s'\n" "${script_name}" "${iteration_list}" >&2
+	usage >&2
+	exit 1
+fi
+
+if [[ ${use_tool_triggers} -ne 0 ]]; then
+	if [[ ! -z "${pbench_pre}" ]]; then
+		printf -- "%s: you cannot use tool triggers with a pbench 'pre' script\n" "${script_name}" >&2
+		usage >&2
+		exit 1
+	fi
+	if [[ ! -z "${pbench_post}" ]]; then
+		printf -- "%s: you cannot use tool triggers with a pbench 'post' script\n" "${script_name}" >&2
+		usage >&2
+		exit 1
+	fi
+fi
+
+# We'll record the iterations in this file
 benchmark_iterations="${benchmark_run_dir}/.iterations"
-
-mdlog=${benchmark_run_dir}/metadata.log
-
-# make the run dir available to the user script
-export benchmark_run_dir
-benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
-mkdir -p $benchmark_results_dir/.running
-export benchmark_results_dir=$benchmark_results_dir
-
-# now that the benchmark_run_dir directory exists, we can initialize the iterations file
 > ${benchmark_iterations}
+
+# Place marker indicating at this point we are now running.
+mkdir ${benchmark_run_dir}/.running
 
 # For now, since we usually only ever run one iteration here, don't bother
 # collecting sysinfo data before and after, just do it after.
-# pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir beg
+# pbench-collect-sysinfo --group=${tool_group} --dir=${benchmark_run_dir} beg
 
-# gather up metadata for the run - this is usually called from
-# pbench-collect-sysinfo (both at the beginning and end of the run)
-# but since we don't call pbench-collect-sysinfo here, we need to call
-# metadata-log explicitly
-export benchmark config
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+# Gather up metadata for the run - this is usually called from
+# pbench-collect-sysinfo (both at the beginning and end of the run) but since
+# we don't call pbench-collect-sysinfo here, we need to call metadata-log
+# explicitly.
+pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} beg
+# On abnormal exit, make sure that the metadata log exists and is complete.
+trap "pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} int" INT QUIT
 
 # Add data to metadata.log
+mdlog=${benchmark_run_dir}/metadata.log
 function record_iteration {
-	local iteration=$1
-	local iteration_name=$2
-	local benchmark_bin=$3
+	local iteration="${1}"
+	local iteration_name="${2}"
+	local benchmark_bin="${3}"
 
-	echo ${iteration} >> ${benchmark_iterations}
-	echo $iteration_name | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
-	echo $benchmark_bin | pbench-add-metalog-option ${mdlog} iterations/${iteration} user_script
+	echo "${iteration}" >> ${benchmark_iterations}
+	echo "${iteration_name}" | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
+	echo "${benchmark_bin}" | pbench-add-metalog-option ${mdlog} iterations/${iteration} user_script
 }
-record_iteration ${iteration} ${iteration_name} ${benchmark_bin}
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
-if [[ ! -z $pbench_pre ]]; then
-	log "[$script_name]: Running $pbench_pre"
-	eval $pbench_pre
-	if [[ $? != 0 ]]; then
-		error_log "[$script_name]: the script executed using --pbench-pre flag failed"
+function run_benchmark {
+	local iteration="${1}"
+	local iteration_name="${2}"
+	local iter_benchmark_bin="${benchmark_bin}"
+	if [[ ! -z "${3}" ]]; then
+		iter_benchmark_bin="${iter_benchmark_bin} ${3}"
+	fi
+
+	export benchmark_results_dir="${benchmark_run_dir}/${iteration_name}/${sample_name}"
+	mkdir -p ${benchmark_results_dir}
+	if [[ ! -d ${benchmark_results_dir} ]]; then
+		printf -- "%s: failed to create the benchmark results directory, '%s'\n" "${script_name}" "${benchmark_results_dir}" >&2
 		exit 1
 	fi
-fi
 
-benchmark_run_cmd="${benchmark_run_dir}/user-benchmark.cmd"
-if [ $use_tool_triggers -eq 0 ]; then
-	# We are not using tool triggers, so we'll only have one iteration,
-	# "1/sample1/", so for compatibility we'll place the results
-	# output file there.
-	_final_results_dir="${benchmark_results_dir}"
-else
-	# We are using tool triggers, so we'll potentially have more than
-	# one iteration, so just place the results output file in the run
-	# directory.
-	_final_results_dir="${benchmark_run_dir}"
-fi
-printf "%s%s | tee %s/result.txt" "${benchmark_bin}" "${capture_stderr}" "${_final_results_dir}" > $benchmark_run_cmd
-if [ $use_tool_triggers -ne 0 ]; then
-	printf " | pbench-tool-trigger ${iteration} ${benchmark_run_dir} ${tool_group}" >> $benchmark_run_cmd
-fi
-printf "\n" >> $benchmark_run_cmd
-chmod +x $benchmark_run_cmd
-
-if [ $use_tool_triggers -eq 0 ]; then
-	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-fi
-
-echo "Running $benchmark_bin"
-log "[$script_name] Running $benchmark_bin"
-
-SECONDS=0
-$benchmark_run_cmd
-benchmark_duration=$SECONDS
-# make it predictable in the unittest environment
-if [[ $_PBENCH_BENCH_TESTS == 1 ]]; then
-	benchmark_duration=0
-fi
-
-if [ $use_tool_triggers -eq 0 ]; then
-	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-	ln -s $(basename ${benchmark_results_dir}) $(dirname ${benchmark_results_dir})/reference-result
-else
-	result_dirs=$(ls -1d ${benchmark_run_dir}/*/sample1)
-	for rdir in $result_dirs; do
-		iteration_dir=$(basename $(dirname ${rdir}))
-		pbench-postprocess-tools --group=${tool_group} --iteration=${iteration_dir} --dir=${rdir}
-		ln -s $(basename ${rdir}) $(dirname ${rdir})/reference-result
-	done
-fi
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-
-if [[ ! -z $pbench_post ]]; then
-	log "[$script_name]: Running $pbench_post"
-	eval $pbench_post
-	if [[ $? != 0 ]]; then
-		error_log "[$script_name]: the script executed using pbench_post flag failed"
-		exit 1
+	if [[ $use_tool_triggers -eq 0 ]]; then
+		# We record each iteration here when not use tool triggers.
+		record_iteration "${iteration}" "${iteration_name}" "${iter_benchmark_bin}"
 	fi
+
+	benchmark_run_cmd="${benchmark_results_dir}/user-benchmark.cmd"
+	if [[ ${use_tool_triggers} -eq 0 ]]; then
+		# We are not using tool triggers, so we'll only have one
+		# iteration, "1-default/${sample_name}/", so for compatibility
+		# we'll place the results output file there.
+		_final_results_dir="${benchmark_results_dir}"
+	else
+		# We are using tool triggers, so we'll potentially have more
+		# than one iteration, so just place the results output file in
+		# the run directory.
+		_final_results_dir="${benchmark_run_dir}"
+	fi
+	printf -- "%s%s | tee %s/result.txt" "${iter_benchmark_bin}" "${capture_stderr}" "${_final_results_dir}" > ${benchmark_run_cmd}
+	if [[ ${use_tool_triggers} -ne 0 ]]; then
+		printf -- " | pbench-tool-trigger ${iteration} ${benchmark_run_dir} ${tool_group}" >> ${benchmark_run_cmd}
+	fi
+	printf -- "\n" >> ${benchmark_run_cmd}
+	chmod +x ${benchmark_run_cmd}
+
+	if [[ ${use_tool_triggers} -eq 0 ]]; then
+		if [[ ! -z "${pbench_pre}" ]]; then
+			log "[${script_name}]: Running ${pbench_pre} for iteration ${iteration_name}"
+			eval ${pbench_pre}
+			if [[ ${?} != 0 ]]; then
+				error_log "[${script_name}]: the --pbench-pre script, '${pbench_pre}', failed"
+				exit 1
+			fi
+		fi
+		pbench-start-tools --group=${tool_group} --iteration=${iteration} --dir=${benchmark_results_dir}
+	fi
+
+	_msg="Running ${iter_benchmark_bin} for iteration ${iteration_name}"
+	echo "${_msg}"
+	log "[${script_name}] ${_msg}"
+
+	SECONDS=0
+	${benchmark_run_cmd}
+	benchmark_duration=${SECONDS}
+	# make it predictable in the unittest environment
+	if [[ ${_PBENCH_BENCH_TESTS} == 1 ]]; then
+		benchmark_duration=0
+	fi
+
+	if [[ $use_tool_triggers -eq 0 ]]; then
+		pbench-stop-tools --group="${tool_group}" --iteration="${iteration}" --dir="${benchmark_results_dir}"
+		pbench-postprocess-tools --group="${tool_group}" --iteration="${iteration}" --dir="${benchmark_results_dir}"
+		if [[ ! -z ${pbench_post} ]]; then
+			log "[${script_name}]: Running ${pbench_post} for iteration ${iteration_name}"
+			eval ${pbench_post}
+			if [[ ${?} != 0 ]]; then
+				error_log "[${script_name}]: the --pbench-post script, '${pbench_post}', failed"
+				exit 1
+			fi
+		fi
+	fi
+	return ${benchmark_duration}
+}
+
+iter_num=${iteration}
+lineno=0
+total_duration=0
+declare -a parts
+# NOTE: the following "while" loop reads from FD 3 for the input file so that
+# the while loop sub-shell does not share FD 0 (stdin) with the executed
+# benchmark script. Otherwise, benchmarks messing around with FD 0 can lead to
+# problems.
+while read -u 3 line; do
+	# Current line number, starting from 1 (not zero)
+	(( lineno++ ))
+	iteration=${iter_num}
+	if [[ ${line::1} == "#" ]]; then
+		# Ignore comments
+		continue
+	fi
+	IFS=' ' read -ra parts <<< "${line}"
+	if [[ ${#parts[@]} == 0 ]]; then
+		# Ignore empty lines
+		continue
+	fi
+	iteration_name="${iter_num}-${parts[0]}"
+	if [[ ${#parts[@]} == 1 ]]; then
+		# Assume the only part is the iteration name.
+		l_args=""
+	else
+		l_args="${parts[@]:1:${#parts[@]}}"
+	fi
+	# Setup the *next* iteration number
+	(( iter_num++ ))
+
+	run_benchmark "${iteration}" "${iteration_name}" "${l_args}"
+	duration=${?}
+	total_duration=$(( total_duration + duration ))
+done 3< ${benchmark_run_dir}/iteration.lis
+
+if [[ ${iter_num} -eq 1 ]]; then
+	warn_log "[${script_name}]: iteration file did not contain any iterations!"
 fi
 
-$script_path/postprocess/user-benchmark-wrapper "$benchmark_run_dir" "$benchmark_duration"
+# Now that we have finished running all the iterations, create the
+# reference-result symlinks.
+result_dirs="$(ls -1d ${benchmark_run_dir}/*/${sample_name} 2> /dev/null)"
+for rdir in ${result_dirs}; do
+	iteration_name="$(basename "$(dirname "${rdir}")")"
+	iteration="${iteration_name%%-*}"
+	if [ ${use_tool_triggers} -ne 0 ]; then
+		# Tool triggers were in use, so we have to run the
+		# post-processing now.
+		pbench-postprocess-tools --group="${tool_group}" --iteration="${iteration}" --dir="${rdir}"
+		record_iteration "${iteration}" "${iteration_name}" "${benchmark_bin}"
+	fi
+	ln -s "$(basename "${rdir}")" "$(dirname "${rdir}")/reference-result"
+done
 
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
+pbench-metadata-log --group="${tool_group}" --dir="${benchmark_run_dir}" end
 
-rmdir $benchmark_results_dir/.running
+${script_path}/postprocess/user-benchmark-wrapper "${benchmark_run_dir}" "${total_duration}"
+
+pbench-collect-sysinfo --group="${tool_group}" --dir="${benchmark_run_dir}" --sysinfo="${sysinfo}" end
+
+rmdir ${benchmark_run_dir}/.running
+exit 0
