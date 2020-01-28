@@ -1,0 +1,39 @@
++++ Running test-36 pbench-user-benchmark
+pbench-user-benchmark: the provided iteration list does not appear to exist, 'does-not-exist.lis'
+Usage: pbench-user-benchmark [options] -- <script to run>
+
+	The following options are available:
+
+		-C str --config=str   name of the test config
+		--tool-group=str      The tool group to use for the list of tools
+		--iteration-list=str  A file containing a list of iterations to run for the provided script;
+		                      the file should contain one iteration per line, with a leading
+		                      '#' (hash) character used for comments, blank lines are ignored;
+		                      each iteration line should use alpha-numeric characters before
+		                      the first space to name the iteration, with the rest of the line
+		                      provided as arguments to the script;
+		                        NOTE: --iteration-list is not compatible with --use-tool-triggers
+		--sysinfo=str,[str]   comma separated values of system information to be collected;
+		                        available: default collect sysinfo options
+		--pbench-pre=str      path to the script which will be executed before tools are started
+		                        NOTE: --pbench-pre is not compatible with --use-tool-triggers
+		--pbench-post=str     path to the script which will be executed after tools are stopped and postprocessing is complete
+		                        NOTE: --pbench-post is not compatible with --use-tool-triggers
+		--use-tool-triggers   use tool triggers instead of normal start/stop around script;
+		                        NOTE: --use-tool-triggers is not compatible with --iteration-list,
+		                              --pbench-pre, or --pbench-post
+		--no-stderr-capture   do not capture stderr of the script to the result.txt file
+--- Finished test-36 pbench-user-benchmark (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-36_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+/var/tmp/pbench-test-bench/pbench-agent/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+--- pbench tree state
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
+--- test-execution.log file contents

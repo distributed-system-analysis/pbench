@@ -17,7 +17,7 @@
 # trigger are easily managed.
 #
 # The tools are given a unique results directory for each iteration by using
-# the pattern "$benchmark_run_dir/$iteration/sample1".
+# the pattern "$benchmark_run_dir/${iteration}-default/sample1".
 
 my $script="pbench-tool-trigger";
 
@@ -65,7 +65,7 @@ while (<TRIG>) {
 close(TRIG);
 
 # Initial reference result directory for tools
-my $benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/sample' . $sample_num;
+my $benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '-default/sample' . $sample_num;
 
 while (<STDIN>) {
 	# Echo the line we read
@@ -80,7 +80,7 @@ while (<STDIN>) {
 		# Increment the iteration and adjust the benchmark results
 		# directory now that this iteration is done.
 		$iteration++;
-		$benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '/sample' . $sample_num;
+		$benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '-default/sample' . $sample_num;
 	}
 	if ((/$start_t/) && !$started) {
 		$cmd="pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir\n";

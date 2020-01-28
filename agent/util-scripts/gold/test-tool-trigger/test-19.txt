@@ -4,29 +4,29 @@
 [pbench-tool-trigger]found trigger: tool-group:default start-trigger:"START DEFAULT" stop-trigger:"STOP DEFAULT"
 foo
 START DEFAULT
-[pbench-tool-trigger]pbench-start-tools --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1
+[pbench-tool-trigger]pbench-start-tools --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1
 bar
 STOP DEFAULT
-[pbench-tool-trigger]pbench-stop-tools --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1
+[pbench-tool-trigger]pbench-stop-tools --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1
 [warn][1900-01-01T00:00:00.000000] [sar]: tool is not running, nothing to kill
 rab
 START DEFAULT
-[pbench-tool-trigger]pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1
+[pbench-tool-trigger]pbench-start-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1
 bir
 STOP DEFAULT
-[pbench-tool-trigger]pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1
+[pbench-tool-trigger]pbench-stop-tools --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1
 [warn][1900-01-01T00:00:00.000000] [sar]: tool is not running, nothing to kill
 baz
 --- Finished test-19 test-tool-trigger (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/mock-run
-/var/tmp/pbench-test-utils/pbench/mock-run/0
-/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1
-/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1/tools-default
-/var/tmp/pbench-test-utils/pbench/mock-run/1
-/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1
-/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1/tools-default
+/var/tmp/pbench-test-utils/pbench/mock-run/0-default
+/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1
+/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1/tools-default
+/var/tmp/pbench-test-utils/pbench/mock-run/1-default
+/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1
+/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1/tools-default
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tmp/.empty
@@ -38,32 +38,32 @@ baz
 === /var/tmp/pbench-test-utils/pbench/tmp/.empty:
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]started: --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]started: --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1
 [debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]started: --group default
 [debug][1900-01-01T00:00:00.000000] [pbench-kill-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --kill --iteration=1 --group=default --dir=/tmp --interval=3
 [debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]completed: 
-[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1 --interval=3
-[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1 --interval=3
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1 --interval=3
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1 --interval=3
 [debug][1900-01-01T00:00:00.000000] [pbench-start-tools]completed: 
-[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1
-[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --stop --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1 --interval=3
+[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --group=default --iteration=0 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1
+[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --stop --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1 --interval=3
 [warn][1900-01-01T00:00:00.000000] [sar]: tool is not running, nothing to kill
 [debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
-[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]started: --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]started: --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1
 [debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]started: --group default
 [debug][1900-01-01T00:00:00.000000] [pbench-kill-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --kill --iteration=1 --group=default --dir=/tmp --interval=3
 [debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]completed: 
-[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1 --interval=3
-[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1 --interval=3
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1 --interval=3
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1 --interval=3
 [debug][1900-01-01T00:00:00.000000] [pbench-start-tools]completed: 
-[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1
-[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --stop --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1 --interval=3
+[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --group=default --iteration=1 --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1
+[debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --stop --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1 --interval=3
 [warn][1900-01-01T00:00:00.000000] [sar]: tool is not running, nothing to kill
 [debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -ls
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0/sample1 --interval=3
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=0 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1 --interval=3
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -ls
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1/sample1 --interval=3
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dmS pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --iteration=1 --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1 --interval=3
 --- test-execution.log file contents
