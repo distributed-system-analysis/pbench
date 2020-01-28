@@ -51,9 +51,8 @@ dir=""
 function usage {
 	printf "\tThe following options are available:\n\n"
 	printf -- "\t\t-C str --config=<str>            name of the test config\n"
-	printf -- "\t\t-j str --java_opts=<str>         options passed directly to the JVM\n"
+	printf -- "\t\t-j str --java-opts=<str>         options passed directly to the JVM\n"
 	printf -- "\t\t       --nr-jvms=<int>|node      number of JVMs. if = node, number of JVMs = number of NUMA nodes\n"
-	printf -- "\t\t       --node-pinning=y/n        if y, this script will use numactl to pin JVM to a node (1 per node round-robin)\n"
 	printf -- "\t\t       --start-warehouses=<int>  number of warehouses to start with (default is $start_warehouses)\n"
 	printf -- "\t\t       --inc-warehouses=<int>    number of warehouses to increment by (default is $inc_warehouses)\n"
 	printf -- "\t\t       --stop-warehouses=<int>   number of warehouses to stop with (default is nr_cpus * 2 / nr_jvms)\n"
@@ -104,13 +103,6 @@ while true; do
 		shift;
 		if [ -n "$1" ]; then
 			heap_size="$1"
-			shift;
-		fi
-		;;
-		--node-pinning)
-		shift;
-		if [ -n "$1" ]; then
-			node_pinning="$1"
 			shift;
 		fi
 		;;
