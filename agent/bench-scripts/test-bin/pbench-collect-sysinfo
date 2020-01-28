@@ -1,1 +1,8 @@
-mock-cmd
+#!/bin/bash
+
+echo "${0} ${*}" >> ${_testlog}
+
+if [[ "${1}" == "--options" ]]; then
+    printf -- "default collect sysinfo options\n"
+fi
+exit 0

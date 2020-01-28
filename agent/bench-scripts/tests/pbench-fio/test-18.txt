@@ -86,7 +86,7 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: 
+		available: default collect sysinfo options
 --- Finished test-18 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
