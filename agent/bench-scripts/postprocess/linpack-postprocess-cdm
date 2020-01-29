@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+## -*- mode: perl; indent-tabs-mode: t; perl-indent-level: 4 -*-
+## vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=perl
+
+use strict;
+use warnings;
+use File::Basename;
+use lib $ENV{'pbench_lib_dir'};
+
+printf "\@ARGV: %s\n", join(" ", @ARGV);
+
+if (scalar @ARGV < 4) {
+    print "You must supply 4 arguments to fio-postprocess-cdm:\n";
+    print "(1) The run directory\n";
+    print "(2) The sample directory\n";
+    print "(3) The tool group\n";
+    print "(4) 0 or 1 indicating this is the last sample\n";
+    exit 1;
+}
+
+my $script_name = basename($0);
+my $rundir = shift(@ARGV);
+my $base_bench_dir = shift(@ARGV);
+my $tool_group = shift(@ARGV);
+my $last_sample = shift(@ARGV);
+my $pp_mode = shift(@ARGV);
+
+if ($pp_mode eq 'cdm') {
+    # CDM processing is TODO
+    my $foo = 0;
+} else { # $pp_mode = html
+    # Call the legacy post-process script, so we can build the static html reports later
+    system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/linpack-postprocess `/bin/pwd` linpack default");
+    if (defined $last_sample and $last_sample eq "1") {
+        system($ENV{'pbench_install_dir'} . "/bench-scripts/postprocess/process-iteration-samples `/bin/pwd`/.. gflops 100 0 1 n n");
+    }
+}

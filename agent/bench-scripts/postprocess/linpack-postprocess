@@ -1,0 +1,165 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use lib $ENV{'pbench_lib_dir'};
+use lib $ENV{'pbench_bspp_dir'};
+no lib ".";
+use GenData qw(gen_data);
+use BenchPostprocess qw(value_exists trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash get_json);
+use File::Basename;
+use Data::Dumper;
+use List::Util('sum');
+use JSON;
+
+my $script = basename($0);
+my $dir = $ARGV[0];
+my $tool_label_pattern = $ARGV[1];
+my $tool_group = $ARGV[2];
+
+my $benchmark_name = 'linpack';
+my $primary_metric = 'gflops';
+
+my %workload;
+my %parameters;
+my @benchmark;
+my %benchmark_params;
+my %throughput;
+my @gflops;
+
+my @client_hostname_dirs;
+
+if (opendir(my $clients_dh, "$dir/clients")) {
+    @client_hostname_dirs = grep(!/^\./, (sort  readdir($clients_dh)));
+    closedir($clients_dh);
+} else {
+    printf STDERR "ERROR: Could not open clients directory!\n";
+    exit 1;
+}
+
+my %client_data;
+
+foreach my $client_hostname_dir (@client_hostname_dirs) {
+    $client_data{$client_hostname_dir} = {};
+
+    my @client_data_files;
+    if (opendir(my $clients_dh, "$dir/clients/$client_hostname_dir")) {
+	@client_data_files = grep(/^linpack\..+$/, (sort readdir($clients_dh)));
+	closedir($clients_dh);
+    } else {
+	printf STDERR "ERROR: Could not open client %s results directory!\n", $client_hostname_dir;
+	exit 2;
+    }
+
+    foreach my $client_data_file (@client_data_files) {
+	if ($client_data_file =~ /^linpack\.(out|meta)$/) {
+	    if (open(CLIENT_OUTPUT, "$dir/clients/$client_hostname_dir/$client_data_file")) {
+		while(<CLIENT_OUTPUT>) {
+		    if ($client_data_file =~ /meta$/) {
+			if ($_ =~ /^(binary|problem_sizes|leading_dimensions|alignment_values|numactl_cmd|use_omp|kmp_affinity|threads)/) {
+			    chomp($_);
+			    my @fields = split(/=/, $_, 2);
+			    $client_data{$client_hostname_dir}{$fields[0]} = $fields[1];
+			}
+		    } elsif ($client_data_file =~ /out$/) {
+			if ($_ =~ /^[0-9]+/) {
+			    chomp($_);
+			    my @fields = split(/\s+/, $_);
+			    if (@fields == 5) {
+				$client_data{$client_hostname_dir}{'bw'} = $fields[3];
+			    }
+			} elsif ($_ =~ /^Performance Summary/) {
+			    $_ =~ m/\((.+)\)$/;
+			    $client_data{$client_hostname_dir}{'bw_units'} = $1;
+			}
+		    }
+		}
+	    } else {
+		printf STDERR "ERROR: Could not open client %s result file %s!\n", $client_hostname_dir, $client_data_file;
+		exit 3;
+	    }
+	}
+    }
+}
+
+print Dumper \%client_data;
+
+foreach my $client (sort (keys %client_data)) {
+    for my $param (keys %{$client_data{$client}}) {
+	if ($param !~ /^bw/) {
+	    if (exists $benchmark_params{$param}) {
+		$benchmark_params{$param} .= ";" . $client_data{$client}{$param};
+	    } else {
+		$benchmark_params{$param} = $client_data{$client}{$param};
+	    }
+	}
+    }
+
+    if (exists $benchmark_params{'clients'}) {
+	$benchmark_params{'clients'} .= ";" . $client;
+    } else {
+	$benchmark_params{'clients'} = $client;
+    }
+}
+
+$benchmark_params{get_label('benchmark_name_label')} = $benchmark_name;
+$benchmark_params{get_label('primary_metric_label')} = $primary_metric;
+$benchmark_params{get_label('uid_label')} = create_uid('benchmark_name_label', 'controller_host_label');
+
+#print Dumper \%benchmark_params;
+
+push(@benchmark, \%benchmark_params);
+
+#print Dumper \@benchmark;
+
+
+foreach my $client (sort (keys %client_data)) {
+    for my $param (keys %{$client_data{$client}}) {
+	if ($param =~ /^bw$/) {
+	    my %this_dataset = ( get_label('role_label') => 'client',
+				 get_label('client_hostname_label') => $client,
+				 get_label('value_label') => $client_data{$client}{$param},
+				 get_label('uid_label') => create_uid('client_hostname_label'),
+				 get_label('description_label') => 'Billions of floating point operations per second' );
+	    push(@gflops, \%this_dataset);
+	}
+    }
+}
+
+
+if (@gflops) {
+    $throughput{'gflops'} = \@gflops;
+}
+
+if (@benchmark) {
+    $parameters{'benchmark'} = \@benchmark;
+}
+
+if (%throughput) {
+    $workload{'throughput'} = \%throughput;
+}
+
+if (%parameters) {
+    $workload{'parameters'} = \%parameters;
+}
+
+print Dumper \%workload;
+
+calc_aggregate_metrics(\%workload);
+
+my %graph;
+create_graph_hash(\%graph, \%workload);
+my %graph_threshold;
+my %graph_type;
+gen_data(\%graph, \%graph_type, \%graph_threshold, $dir, 1);
+
+my $json_file = $dir . "/result.json";
+my $json_text = to_json(\%workload, { ascii => 1, pretty => 1, canonical => 1 } );
+if (open(JSON, ">$json_file")) {
+    print JSON $json_text;
+    close(JSON);
+} else {
+    print STDERR "ERROR: Could not open json file '$json_file' for writing!\n";
+    exit 4;
+}
