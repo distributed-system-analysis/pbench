@@ -1,0 +1,223 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+
+# This is a helper script to run the linpack benchmark using pbench-run-benchmark
+
+linpack_input_file="linpack.input"
+linpack_binary_file="linpack.bin"
+linpack_script_file="linpack.sh"
+linpack_output_file="linpack.out"
+linpack_metadata_file="linpack.meta"
+
+problem_sizes=20000
+leading_dimensions=20016
+run_samples=1
+alignment_values=4
+kmp_affinity="nowarnings,compact,1,0,granularity=fine"
+use_omp="y"
+numactl_args=""
+threads=""
+linpack_binary=""
+lininput_header="LINPACK Benchmark data file (${linpack_input_file})"
+lininput_subheader="LINPACK Benchmark data"
+
+output_dir="/var/lib/pbench-agent/tmp/"
+
+function usage() {
+	echo "how to use $0"
+}
+
+# Process options and arguments
+opts=$(getopt -q -o C:h --longoptions "threads:,problem-sizes:,leading-dimensions:,alignment-values:,run-samples:,use-omp:,kmp-affinity:,numactl-args:,linpack-binary:,help" -n "getopt.sh" -- "$@");
+#if [ $? -ne 0 ]; then
+#	printf -- "${script_name} $*\n"
+#	printf -- "\n"
+#	printf -- "\tunrecognized option specified\n\n"
+#	usage
+#	exit 1
+#fi
+eval set -- "${opts}";
+while true; do
+	case "${1}" in
+		--threads)
+		shift;
+		if [ -n "${1}" ]; then
+			threads="${1}"
+			shift;
+		fi
+		;;
+		--problem-sizes)
+		shift;
+		if [ -n "${1}" ]; then
+			problem_sizes=$(echo "${1}" | sed -e 's/,/ /g')
+			shift;
+		fi
+		;;
+		--leading-dimensions)
+		shift;
+		if [ -n "${1}" ]; then
+			leading_dimensions=$(echo "${1}" | sed -e 's/,/ /g')
+			shift;
+		fi
+		;;
+		--alignment-values)
+		shift;
+		if [ -n "${1}" ]; then
+			alignment_values=$(echo "${1}" | sed -e 's/,/ /g')
+			shift;
+		fi
+		;;
+		--run-samples)
+		shift;
+		if [ -n "${1}" ]; then
+			run_samples=$(echo "${1}" | sed -e 's/,/ /g')
+			shift;
+		fi
+		;;
+		--use-omp)
+		shift;
+		if [ -n "${1}" ]; then
+			use_omp="${1}"
+			shift;
+		fi
+		;;
+		--kmp-affinity)
+		shift;
+		if [ -n "${1}" ]; then
+			kmp_affinity="${1}"
+			shift;
+		fi
+		;;
+		--numactl-args)
+		shift;
+		if [ -n "${1}" ]; then
+			numactl_args="${1}"
+			shift;
+		fi
+		;;
+		--lininput-header)
+		shift;
+		if [ -n "${1}" ]; then
+			lininput_header="${1}"
+			shift;
+		fi
+		;;
+		--lininput-subheader)
+		shift;
+		if [ -n "${1}" ]; then
+			lininput_subheader="${1}"
+			shift;
+		fi
+		;;
+		--linpack-binary)
+		shift;
+		if [ -n "${1}" ]; then
+			linpack_binary="${1}"
+			shift;
+		fi
+		;;
+		-h|--help)
+		usage
+		exit 1
+		;;
+		--)
+		shift;
+		break;
+		;;
+		*)
+		echo "what happened? [${1}]"
+		exit 2
+		break;
+		;;
+	esac
+done
+
+if [ -z "${linpack_binary}" ]; then
+	echo "ERROR: You must specify --linpack-binary!"
+	exit 3
+elif [ ! -e "${linpack_binary}" -o ! -x "${linpack_binary}" ]; then
+	echo "ERROR: The --linpack-binary must exist and be executable!"
+	exit 4
+fi
+cp -v ${linpack_binary} ${output_dir}${linpack_binary_file}
+echo
+file ${output_dir}${linpack_binary_file}
+echo
+echo "binary=${linpack_binary}" > ${output_dir}${linpack_metadata_file}
+
+
+if [ "${use_omp}" != "y" -a "${use_omp}" != "n" ]; then
+	echo "ERROR: --use-omp must either by 'y' or 'n'!"
+	exit 5
+fi
+echo "use_omp=${use_omp}" >> ${output_dir}${linpack_metadata_file}
+
+num_problem_sizes=$(echo "${problem_sizes}" | wc -w)
+num_leading_dimensions=$(echo "${leading_dimensions}" | wc -w)
+num_run_samples=$(echo "${run_samples}" | wc -w)
+num_alignment_values=$(echo "${alignment_values}" | wc -w)
+
+if [ "${num_problem_sizes}" != "${num_leading_dimensions}" -o "${num_leading_dimensions}" != "${num_run_samples}" -o "${num_run_samples}" != "${num_alignment_values}" ]; then
+	echo "ERROR: You must have the same number of elements for --problem-sizes, --leading-dimensions, --run-samples, and --alignment-values!"
+	exit 6
+else
+	number_of_tests=${num_problem_sizes}
+fi
+echo "problem_sizes=${problem_sizes}" >> ${output_dir}${linpack_metadata_file}
+echo "leading_dimensions=${leading_dimensions}" >> ${output_dir}${linpack_metadata_file}
+echo "run_samples=${run_samples}" >> ${output_dir}${linpack_metadata_file}
+echo "alignment_values=${alignment_values}" >> ${output_dir}${linpack_metadata_file}
+
+numactl_cmd=""
+if [ -n "${numactl_args}" ]; then
+	numactl_cmd="numactl ${numactl_args}"
+fi
+echo "numactl_cmd=${numactl_cmd}" >> ${output_dir}${linpack_metadata_file}
+
+echo "lininput_header=${lininput_header}" >> ${output_dir}${linpack_metadata_file}
+echo "lininput_subheader=${lininput_subheader}" >> ${output_dir}${linpack_metadata_file}
+
+echo "${lininput_header}" > ${output_dir}${linpack_input_file}
+echo "${lininput_subheader}" >> ${output_dir}${linpack_input_file}
+echo "${number_of_tests} # number of tests" >> ${output_dir}${linpack_input_file}
+echo "${problem_sizes} # problem sizes" >> ${output_dir}${linpack_input_file}
+echo "${leading_dimensions} # leading dimensions" >> ${output_dir}${linpack_input_file}
+echo "${run_samples} # times to run a test" >> ${output_dir}${linpack_input_file}
+echo "${alignment_values} # alingment values (in KBytes)" >> ${output_dir}${linpack_input_file}
+
+echo "Linpack input file:"
+cat ${output_dir}${linpack_input_file}
+echo
+
+echo "Creating linpack script file"
+echo
+echo "#!/bin/bash" > ${output_dir}${linpack_script_file}
+
+if [ "${use_omp}" == "y" ]; then
+	echo "Enabling OMP..."
+	if [ -z "${threads}" ]; then
+		echo "threads=\`cat /proc/cpuinfo | grep processor | wc -l\`" >> ${output_dir}${linpack_script_file}
+	else
+		echo "threads=${threads}" >> ${output_dir}${linpack_script_file}
+	fi
+	echo "echo \"threads=\${threads}\" >> ${linpack_metadata_file}" >> ${output_dir}${linpack_script_file}
+
+	echo "export OMP_NUM_THREADS=\${threads}" >> ${output_dir}${linpack_script_file}
+	echo "KMP_AFFINITY=${kmp_affinity}"
+	echo "export KMP_AFFINITY=${kmp_affinity}" >> ${output_dir}${linpack_script_file}
+	echo
+
+	echo "kmp_affinity=${kmp_affinity}" >> ${output_dir}${linpack_metadata_file}
+else
+	echo "kmp_affinity=" >> ${output_dir}${linpack_metadata_file}
+	echo "threads=" >> ${output_dir}${linpack_metadata_file}
+fi
+
+cmd="${numactl_cmd} ./${linpack_binary_file} ${linpack_input_file}"
+echo "linpack cmd: ${cmd}"
+echo
+
+echo "exec ${cmd} | stdbuf --input=0 tee -i ${linpack_output_file}" >> ${output_dir}${linpack_script_file}
+chmod +x ${output_dir}${linpack_script_file}
+
+exit 0

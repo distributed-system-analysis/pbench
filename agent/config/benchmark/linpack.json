@@ -1,0 +1,53 @@
+{
+    "controller": {
+	"pre-script": "/opt/pbench-agent/bench-scripts/postprocess/linpack-prepare-input-file",
+	"post-script": "/opt/pbench-agent/bench-scripts/postprocess/linpack-postprocess-cdm",
+	"parameters": {
+	    "defaults": {
+		"default": [],
+		"mandatory": []
+	    },
+	    "specs": {
+		"integer": {
+		    "description": "Numeric whole number values",
+		    "arguments": [ "threads",
+				   "problem-sizes",
+				   "leading-dimensions",
+				   "alignment-values",
+				   "run-samples"
+				 ],
+		    "value_regex": "[0-9]+"
+		},
+		"yes_no": {
+		    "description": "Boolean like variables that should be set to either 'y' (yes) or 'n' (no)",
+		    "arguments": [ "use-omp"
+				 ],
+		    "value_regex": "[y,n]"
+		},
+		"generic_string": {
+		    "description": "all types of strings",
+		    "arguments": [ "kmp-affinity",
+				   "numactl-args",
+				   "linpack-binary",
+				   "lininput-header",
+				   "lininput-subheader"
+				 ],
+		    "value_regex": ".+"
+		}
+	    }
+	}
+    },
+    "client": {
+	"packages": [],
+	"pre-script": "",
+	"post-script": "",
+	"copy-to": [ "/var/lib/pbench-agent/tmp/linpack.input",
+		     "/var/lib/pbench-agent/tmp/linpack.bin",
+		     "/var/lib/pbench-agent/tmp/linpack.sh",
+		     "/var/lib/pbench-agent/tmp/linpack.meta"
+		   ],
+	"bin": "./linpack.sh",
+	"param_regex": [ "s/(.*\\.\\/linpack\\.sh).*/$1/"
+		       ]
+    }
+}
