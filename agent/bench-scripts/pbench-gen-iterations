@@ -434,6 +434,7 @@ while ( scalar @params > 0 ) {
             }
             $cmd =~ s/\s$//;
             push(@cmds, $cmd);
+            %processed_bench_params = ();
         } else {
             # Output the processed params with expanding into multiple iterations
             @cmds = (@cmds, build_iteration_cmds("", \%processed_bench_params, \%processed_pbench_params));
