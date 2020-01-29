@@ -337,11 +337,17 @@ while (scalar @param_sets > 0) {
                                 " " . $pp_only;
             if ($pp_only) {
 		if ($params{'postprocess-mode'} eq 'html') {
-		    # cannot run in parallel when using the old
-		    # postprocessing because it expects to run the
-		    # last sample after all other samples are
-		    # processed
-		    print BULK_FH "$benchmark_cmd\n";
+		    # the last sample must be run by itself after all
+		    # other samples are processed; other samples can
+		    # be run in parallel
+		    if ($last_sample eq "0") {
+			print BULK_FH "$benchmark_cmd &\n";
+		    } elsif ($last_sample eq "1") {
+			print BULK_FH "echo Waiting for $nr_pp_jobs post-processing jobs to finish\n";
+			print BULK_FH "wait\n";
+			print BULK_FH "echo Post-processing last sample\n";
+			print BULK_FH "$benchmark_cmd\n";
+		    }
 		} else {
 		    print BULK_FH "$benchmark_cmd &\n";
 		}
@@ -362,8 +368,11 @@ while (scalar @param_sets > 0) {
         $iteration_id++;
     }
     if ($pp_only) {
-        print BULK_FH "echo Waiting for $nr_pp_jobs post-processing jobs to finish\n";
-        print BULK_FH "wait\n";
+	if ($params{'postprocess-mode'} eq 'cdm') {
+	    print BULK_FH "echo Waiting for $nr_pp_jobs post-processing jobs to finish\n";
+	    print BULK_FH "wait\n";
+	}
+	print BULK_FH "echo Sample processing complete!\n";
         close(BULK_FH);
         system(". ./bulk-sample.sh");
     }
@@ -376,9 +385,11 @@ metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $params{
 close $fh;
 if ($params{'postprocess-mode'} eq 'html') {
     # Generate the result.html (to go away once CDM/Elastic UI is available)
+    print "Running generate-benchmark-summary...";
     system(". " . $pbench_install_dir . "/base; " . $pbench_install_dir .
         "/bench-scripts/postprocess/generate-benchmark-summary " . $benchmark .
         " " . $benchmark . " " . $base_bench_dir);
+    print "finished\n";
 }
 
 # Convert the stockpile data with scribe, then create CDM docs in ./es/config
