@@ -188,9 +188,10 @@ my $get_defs_cmd = "pbench-gen-iterations " . $benchmark . " --defaults-only " .
 # Escape any quotes so they don't get lost before calling pbench-gen-iterations
 $get_defs_cmd =~ s/\"/\\\"/g;
 print "resolving default first with $get_defs_cmd\n";
-my @param_sets = `$get_defs_cmd`;
-if ($? != 0) {
-    printf "%s\nCalling pbench-gen-iterations failed, exiting\n", join(" ", @param_sets);
+my @param_sets = `$get_defs_cmd 2>&1`;
+my $rc = $? >> 8;
+if ($rc != 0) {
+    printf "%s\nCalling pbench-gen-iterations failed, exiting [rc=%d]\n", join(" ", @param_sets), $rc;
     exit 1;
 }
 my @iteration_names;
@@ -224,9 +225,10 @@ while (scalar @param_sets > 0) {
     # We don't escape the quotes when writing to the run document (with $param_set)
     # because the conversion to JSON will do it for us.
     $get_iters_cmd =~ s/\"/\\\"/g;
-    my @iterations = `$get_iters_cmd`;
-    if ($? != 0) {
-        printf "%s\nCalling pbench-gen-iterations failed, exiting\n", $get_iters_cmd;
+    my @iterations = `$get_iters_cmd 2>&1`;
+    $rc = $? >> 8;
+    if ($rc != 0) {
+        printf "%s\nCalling pbench-gen-iterations failed, exiting [rc=%d]\n", $get_iters_cmd, $rc;
         exit 1;
     }
     my %run_doc = create_run_doc($benchmark, $param_set, $params{"clients"}, $params{"servers"},
@@ -310,8 +312,8 @@ while (scalar @param_sets > 0) {
         }
         while (scalar @sample_dirs > 0) {
 	    if (exists $params{'pre-sample-cmd'}) {
-                my $pre_sample_cmd_output = `$params{'pre-sample-cmd'}`;
-                my $exit_code = $?;
+                my $pre_sample_cmd_output = `$params{'pre-sample-cmd'} 2>&1`;
+                my $exit_code = $? >> 8;
                 print "pre-sample-cmd output:\n$pre_sample_cmd_output";
                 if ($exit_code != 0) {
                     printf "Stopping because of pre-sample-cmd exit code: %d\n", $exit_code;
