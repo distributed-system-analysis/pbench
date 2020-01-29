@@ -106,11 +106,15 @@ if (! $pp_only) {
     if (exists $specs{"controller"}{"pre-script"} and $specs{"controller"}{"pre-script"} ne "") {
         # pre-script gets same params as benchmark.
         my $preprocess_cmd = $specs{"controller"}{"pre-script"} . " " . $iteration{'iteration'}{'params'};
-        my $preprocess_output = `$preprocess_cmd`;
-        my $rc = $?;
-        open(my $fh, ">" . $sample_dir . "/preprocess-output.txt");
+        my $preprocess_output = `$preprocess_cmd 2>&1`;
+        my $rc = $? >> 8;
+        if (open(my $fh, ">" . $sample_dir . "/preprocess-output.txt")) {
+	    printf { $fh } "%s\n\n", $preprocess_output;
+	    printf { $fh } "rc=%d\n", $rc;
+	    close($fh);
+	}
         if ($rc != 0) {
-            printf "Controller pre-script failed, exiting\n";
+            printf "Controller pre-script failed, exiting [rc=$rc]\n";
             exit 1;
         }
     }
@@ -216,12 +220,15 @@ if (exists $specs{"controller"}{"post-script"} and $specs{"controller"}{"post-sc
     open(my $fh_cmd, ">" . $pp_cmd_file);
     printf { $fh_cmd } "%s\n", $postprocess_cmd;
     close($fh_cmd);
-    my $postprocess_output = `. $pp_cmd_file`;
-    my $rc = $?;
-    open(my $fh_output, ">" . $sample_dir . "/postprocess-output.txt");
-    printf { $fh_output } "%s\n", $postprocess_output;
+    my $postprocess_output = `. $pp_cmd_file 2>&1`;
+    my $rc = $? >> 8;
+    if (open(my $fh_output, ">" . $sample_dir . "/postprocess-output.txt")) {
+	printf { $fh_output } "%s\n\n", $postprocess_output;
+	printf { $fh_output } "rc=%d\n", $rc;
+	close($fh_output);
+    }
     if ($rc != 0) {
-        printf "Controller post-script failed, exiting\n";
+        printf "Controller post-script failed, exiting [rc=$rc]\n";
         exit 1;
     }
 } else {
