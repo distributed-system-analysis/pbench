@@ -176,22 +176,37 @@ describe('controller page component', () => {
   });
 
   test('should display 20 controllers on preference', async () => {
+    await page.waitForSelector(
+      '.ant-pagination-options > .ant-pagination-options-size-changer > .ant-select-selection > .ant-select-selection__rendered > .ant-select-selection-selected-value'
+    );
     await page.click('.ant-select-selection-selected-value');
-    await page.click('.ant-select-dropdown-menu-item:nth-child(2)');
+    await page.waitForSelector('.ant-select-dropdown-menu-item:nth-child(2)');
+    const elementToClick = await page.$('.ant-select-dropdown-menu-item:nth-child(2)');
+    await page.evaluate(el => el.click(), elementToClick);
     const rows = await page.$$('.ant-table-row');
     expect(rows.length).toBe(20);
   });
 
   test('should display 50 controllers on preference', async () => {
+    await page.waitForSelector(
+      '.ant-pagination-options > .ant-pagination-options-size-changer > .ant-select-selection > .ant-select-selection__rendered > .ant-select-selection-selected-value'
+    );
     await page.click('.ant-select-selection-selected-value');
-    await page.click('.ant-select-dropdown-menu-item:nth-child(3)');
+    await page.waitForSelector('.ant-select-dropdown-menu-item:nth-child(3)');
+    const elementToClickHandle = await page.$('.ant-select-dropdown-menu-item:nth-child(3)');
+    await page.evaluate(el => el.click(), elementToClickHandle);
     const rows = await page.$$('.ant-table-row');
     expect(rows.length).toBe(50);
   });
 
   test('should display 100 controllers on preference', async () => {
+    await page.waitForSelector(
+      '.ant-pagination-options > .ant-pagination-options-size-changer > .ant-select-selection > .ant-select-selection__rendered > .ant-select-selection-selected-value'
+    );
     await page.click('.ant-select-selection-selected-value');
-    await page.click('.ant-select-dropdown-menu-item:nth-child(4)');
+    await page.waitForSelector('.ant-select-dropdown-menu-item:nth-child(4)');
+    const elementToClickHandle = await page.$('.ant-select-dropdown-menu-item:nth-child(4)');
+    await page.evaluate(el => el.click(), elementToClickHandle);
     const rows = await page.$$('.ant-table-row');
     expect(rows.length).toBe(100);
   });
