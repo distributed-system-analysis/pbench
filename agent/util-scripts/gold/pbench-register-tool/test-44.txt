@@ -44,6 +44,7 @@ Available tools:
 	proc-sched_debug
 	proc-vmstat
 	prometheus-metrics
+	psi
 	qemu-migrate
 	rabbit
 	sar

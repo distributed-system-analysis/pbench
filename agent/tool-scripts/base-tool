@@ -523,6 +523,9 @@ start)
 	tcpdump)
 		tool_cmd="${datalog_path}/${tool}-datalog ${packets} ${interface}"
 		;;
+	psi)
+		tool_cmd="${datalog_path}/${tool}-datalog ${interval} /proc/pressure"
+		;;	
 	*)
 		error_log "INTERNAL ERROR: unsupported tool, ${tool}"
 		exit 1
