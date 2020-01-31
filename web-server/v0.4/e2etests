@@ -61,8 +61,8 @@ else
     printf -- "... \"yarn start\" failed to start web server (%s).\n" ${res} 
 fi
 # The yarn start process leaves many processes lying around unless we
-# explicitly kill them.
-kill -s TERM -- ${yarn_start_pid}
+# explicitly kill them. Kill all processes in our process group except for the current process.
+kill -s TERM -- $(pgrep -g 0 | grep -v ^"$$"$) 2>/dev/null
 wait
 if [[ ${res} -ne 0 ]]; then
   echo "yarn e2e tests failed!" >&2
