@@ -1,0 +1,5 @@
+find -mindepth 1 -type d
+date +%s.%N
+cat /sys/fs/cgroup/cpuacct/dir0/cpuacct.usage_percpu
+cat /sys/fs/cgroup/cpuacct/dir1/cpuacct.usage_percpu
+sleep 42

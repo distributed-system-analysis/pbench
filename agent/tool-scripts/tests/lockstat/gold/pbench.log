@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] lockstat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/lockstat-datalog /var/tmp/pbench-test-tool-scripts/lockstat/tools-group/lockstat"
+[debug][1900-01-01T00:00:00.000000] stopping lockstat
+[debug][1900-01-01T00:00:00.000000] no post-processing available for lockstat following stop
+[debug][1900-01-01T00:00:00.000000] no data post-processing available for lockstat

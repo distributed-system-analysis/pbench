@@ -53,7 +53,7 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/uperf_test-00_1900.01.01T00.00.00/pbench-uperf.cmd
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-uperf-1.0.4
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-uperf-1.0.4 is installed
 [debug][1900-01-01T00:00:00.000000] [pbench-uperf]pbench-uperf is installed
 [debug][1900-01-01T00:00:00.000000] checking for uperf on server 127.0.0.1
 [info][1900-01-01T00:00:00.000000] Starting iteration  (1 of 2)

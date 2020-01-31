@@ -1,0 +1,232 @@
+#!/bin/bash
+export LANG=C
+export LC_ALL=C
+
+_tdir="$(dirname $(readlink -f ${0}))"
+cd ${_tdir}
+
+if [[ ! -z "${1}" ]]; then
+    if [[ -d ./tests/${1} ]]; then
+        testname="${1}"
+    elif [[ -d ./tests/${1%-*} ]]; then
+        testname="${1%-*}"
+    else
+        printf -- "Ignoring '%s', ./tests/%s does not exist as a directory\n" "${1}" "${1}" >&2
+        testname=""
+    fi
+fi
+
+export _testroot=/var/tmp/pbench-test-tool-scripts
+mkdir -p ${_testroot}
+if [[ ${?} -ne 0 ]]; then
+    printf -- "ERROR - unable to create %s directory\n" "${_testroot}" >&2
+    exit 1
+fi
+rm -rf ${_testroot}/*
+
+function remove_path {
+    # PATH (${2}) => /bin:/opt/a dir/bin:/sbin
+    WORK=:${2}:
+    # WORK => :/bin:/opt/a dir/bin:/sbin:
+    REMOVE=${1}
+    WORK=${WORK/:${REMOVE}:/:}
+    # WORK => :/bin:/sbin:
+    WORK=${WORK%:}
+    WORK=${WORK#:}
+    #PATH=${WORK}
+    # PATH => /bin:/sbin
+    printf -- "${WORK}\n"
+}
+PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
+PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
+
+# the timestamps in the data are (or should be) in UTC
+# make sure that we test in that environment, else the
+# timestamps will show a constant offset.
+export TZ=UTC
+
+export _PBENCH_UNIT_TESTS=1
+
+if command -v python3 > /dev/null 2>&1 ;then
+    # All python programs/scripts have headers using "python3" by default.
+    :
+elif command -v scl > /dev/null 2>&1 ;then
+    # If we don't have python3, but we do have SCL, we only support
+    # Python 3.6.
+    source scl_source enable rh-python36
+else
+    printf -- "python3 required, either directly or through SCL\n" >&2
+    exit 1
+fi
+
+export _optdir=${_testroot}/opt/pbench-agent
+mkdir -p ${_optdir}/config
+if [[ ${?} -ne 0 ]]; then
+    echo "ERROR: failed to create test pbench config directory, \"${_optdir}/config\"" >&2
+    exit 1
+fi
+cp ${_tdir}/tests/Defaults/pbench-agent.cfg ${_optdir}/config/
+if [[ ${?} -ne 0 ]]; then
+    echo "ERROR: failed to create pbench-agent config file, \"${_optdir}/config/pbench-agent.cfg\"" >&2
+    exit 1
+fi
+cp -d ${_tdir}/../base ${_optdir}/ 2> /dev/null
+if [[ ${?} -ne 0 ]]; then
+    echo "ERROR: failed to create pbench-agent/base file, \"${_optdir}/base\"" >&2
+    exit 1
+fi
+mkdir -p ${_optdir}/tool-scripts/datalog ${_optdir}/tool-scripts/postprocess
+if [[ ${?} -ne 0 ]]; then
+    echo "ERROR: failed to create test bin directories, \"${_optdir}/tool-scripts/...\"" >&2
+    exit 1
+fi
+cp -d ${_tdir}/* ${_optdir}/tool-scripts/ 2> /dev/null
+rm ${_optdir}/tool-scripts/unittests
+
+_ts=${_optdir}/tool-scripts
+printf -- "#!/bin/bash\n\necho \"\$(basename \${0}) \${@}\" >> \${_testlog}\nsleep 0.1\nexit 0\n" > ${_ts}/datalog/mock-cmd
+chmod 775 ${_ts}/datalog/mock-cmd
+if [[ ${?} -ne 0 ]]; then
+    echo "ERROR: failed to create ${_ts}/datalog/mock-cmd" >&2
+    exit 1
+fi
+printf -- "#!/bin/bash\n\necho \"\$(basename \${0}) \${@}\" >> \${_testlog}\nexit 0\n" > ${_ts}/postprocess/mock-cmd
+chmod 775 ${_ts}/postprocess/mock-cmd
+if [[ ${?} -ne 0 ]]; then
+    echo "ERROR: failed to create ${_ts}/postprocess/mock-cmd" >&2
+    exit 1
+fi
+
+function create_mock {
+    local _ts=${_optdir}/tool-scripts
+    if [[ -e ${_tdir}/datalog/${1}-datalog ]]; then
+        ln -s mock-cmd ${_ts}/datalog/${1}-datalog
+        if [[ ${?} -ne 0 ]]; then
+            echo "ERROR: failed to create mock for ${1}-datalog" >&2
+            exit 1
+        fi
+    elif [[ "${1}" == "proc-interrupts" ]]; then
+        ln -s mock-cmd ${_ts}/datalog/File-Capture-datalog
+        if [[ ${?} -ne 0 ]]; then
+            echo "ERROR: failed to create mock for File-Capture-datalog" >&2
+            exit 1
+        fi
+    elif [[ "${1}" == "proc-sched_debug" || "${1}" == "proc-vmstat" ]]; then
+        # Already handled by the proc-interrupts case.
+        :
+    fi
+    if [[ -e ${_tdir}/postprocess/${1}-postprocess ]]; then
+        ln -s mock-cmd ${_ts}/postprocess/${1}-postprocess
+        if [[ ${?} -ne 0 ]]; then
+            echo "ERROR: failed to create mock for ${1}-postprocess" >&2
+            exit 1
+        fi
+    fi
+    if [[ -e ${_tdir}/postprocess/${1}-stop-postprocess ]]; then
+        ln -s mock-cmd ${_ts}/postprocess/${1}-stop-postprocess
+        if [[ ${?} -ne 0 ]]; then
+            echo "ERROR: failed to create mock for ${1}-stop-postprocess" >&2
+            exit 1
+        fi
+    fi
+}
+
+# Special mock just for systemstap
+printf -- "#!/bin/bash\n\necho \"mock-kernel.version\"\nexit 0\n" > ${_ts}/uname
+chmod 775 ${_ts}/uname
+if [[ ${?} -ne 0 ]]; then
+    echo "ERROR: failed to create mock ${_ts}/uname" >&2
+    exit 1
+fi
+
+for tool in $(find -L ${_ts} -maxdepth 1 -perm 775); do
+    toolname="$(basename ${tool})"
+    if [[ "${toolname}" == "base-tool" ]]; then
+        continue
+    fi
+    create_mock "${toolname}"
+done
+
+function invokit {
+    local name="${1}"
+
+    local args=""
+    if [[ ! -z "${2}" ]]; then
+        args="${2} --dir=${_execdir}"
+        if [[ "${2}" == "--start" ]]; then
+            args="${args}"
+        fi
+    else
+        args=""
+    fi
+    args="${args} $(tests/${name}/options 2> /dev/null)"
+
+    PYTHONUNBUFFERED=True \
+    _testlog=${_rundir}/test-execution.log \
+    CONFIG=${_optdir}/config/pbench-agent.cfg \
+    pbench_install_dir=${_optdir} \
+    pbench_bspp_dir=${_optdir}/bench-scripts/postprocess \
+    pbench_lib_dir=${_optdir}/lib \
+    pbench_run=${_rundir} \
+    pbench_log=${_rundir}/pbench.log \
+    PATH=${_optdir}/tool-scripts:${PATH} \
+    ${_optdir}/tool-scripts/${name} ${args}
+}
+
+function testit {
+    printf -- "Testing ${2} tool-script under setup ${1} ...\n"
+
+    export _rundir="${_testroot}/${1}"
+
+    export _execdir="${_rundir}/tools-group"
+    mkdir -p ${_execdir}
+    if [[ ${?} -ne 0 ]]; then
+        echo "ERROR: failed to create test hierarcy, ${_execdir}" >&2
+        exit 1
+    fi
+
+    > ${_rundir}/stdout
+    > ${_rundir}/stderr
+    invokit ${2}               >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
+    invokit ${2} --install     >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
+    invokit ${2} --start       >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
+    invokit ${2} --stop        >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
+    invokit ${2} --postprocess >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
+
+    rmdir ${_rundir}/tmp 2> /dev/null
+
+    diff -cr tests/${1}/gold/ ${_rundir}
+    sts=${?}
+    if [ ${sts} -eq 0 ]; then
+        rm -rf ${_rundir}
+    fi
+    return ${sts}
+}
+
+res=0
+
+for i in $(ls -1 tests/) ; do
+    if [[ "${i}" == "Defaults" ]]; then
+        continue
+    fi
+    if [[ ! -z "${testname}" ]]; then
+        if [[ "${testname}" != "${i}" ]]; then
+            continue
+        fi
+    fi
+    testit ${i} ${i%-[0-9]}
+    sts=${?}
+    if [[ ${sts} -eq 0 ]]; then
+        printf -- "PASS - ${i}\n"
+    else
+        printf -- "FAIL - ${i}\n"
+    fi
+    let res=${res}+${sts}
+done
+
+rm -rf ${_testroot}/opt
+# Attempt to remove the test directory; if it fails we ignore the failure
+# as it indicates failed test output left for review.
+rmdir ${_testroot} > /dev/null 2>&1
+
+exit ${res}

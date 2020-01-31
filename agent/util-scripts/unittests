@@ -55,13 +55,13 @@ for script in ${scripts}; do
 done
 mkdir ${_testopt}/tool-scripts/datalog ${_testopt}/tool-scripts/postprocess
 let res=res+${?}
-cp -L ${_tdir}/../tool-scripts/datalog/*-datalog ${_testopt}/tool-scripts/datalog/ 
+cp -L ${_tdir}/../tool-scripts/datalog/*-datalog ${_testopt}/tool-scripts/datalog/
 let res=res+${?}
-cp -L ${_tdir}/../tool-scripts/postprocess/*-convert ${_testopt}/tool-scripts/postprocess/ 
+cp -L ${_tdir}/../tool-scripts/datalog/*-convert ${_testopt}/tool-scripts/datalog/
 let res=res+${?}
-cp -L ${_tdir}/../tool-scripts/postprocess/*-postprocess ${_testopt}/tool-scripts/postprocess/ 
+cp -L ${_tdir}/../tool-scripts/postprocess/*-postprocess ${_testopt}/tool-scripts/postprocess/
 let res=res+${?}
-cp ${_tdir}/../tool-scripts/postprocess/*-postprocess-cdm ${_testopt}/tool-scripts/postprocess/ 
+cp ${_tdir}/../tool-scripts/postprocess/*-postprocess-cdm ${_testopt}/tool-scripts/postprocess/
 let res=res+${?}
 cp -rL ${_tdir}/../lib/* ${_testopt}/lib/
 let res=res+${?}
@@ -94,7 +94,7 @@ export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/to
 export PYTHONPATH=${_testopt}/common/lib:${PYTHONPATH}
 
 # Fixed timestamp output
-export _PBENCH_BENCH_TESTS=1
+export _PBENCH_UNIT_TESTS=1
 
 res=0
 
@@ -334,12 +334,12 @@ declare -A options=(
     [test-02]="--dir=${_testdir}/mock-run beg"
     [test-03]="--dir=${_testdir}/mock-run beg"
     [test-04]="--dir=${_testdir}/mock-run beg"
-    [test-05]="--dir=${_testdir}/mock-run/mock-iteration"
-    [test-06]="--dir=${_testdir}/mock-run/mock-iteration"
-    [test-07]="--dir=${_testdir}/mock-run/mock-iteration"
-    [test-08]="--dir=${_testdir}/mock-run/mock-iteration"
-    [test-09]="--dir=${_testdir}/mock-run/mock-iteration"
-    [test-10]="--dir=${_testdir}/mock-run/mock-iteration"
+    [test-05]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
+    [test-06]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
+    [test-07]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
+    [test-08]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
+    [test-09]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
+    [test-10]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample"
     # fubar is assumed to *NOT* exist
     [test-11]="--remote=fubar"
     [test-11.2]="--interval=10"
@@ -362,12 +362,12 @@ declare -A options=(
     # verify --group option works along side --no-install
     [test-11.12]="--group=other --no-install"
     [test-11.13]="--help"
-    [test-13]="--dir=${_testdir}/mock-run/mock-iteration --group=default --iteration=1"
+    [test-13]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample --group=default"
     [test-14]="${_testdir}/tmp/pbench-agent.cfg"
     [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     [test-17]="--group=default"
     [test-18]="--group=foo"
-    [test-20]="--dir=${_testdir}/mock-run/mock-iteration --group=default --iteration=1"
+    [test-20]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample --group=default"
     [test-21]="--remote=fubar2"
     [test-22]="--dir=${_testdir}/mock-run end"
     [test-23]="--help"
@@ -418,7 +418,7 @@ declare -A expected_status=(
 
 declare -A pre_hooks=(
     [test-14]='rm ${_testopt}/config/pbench-agent.cfg; sed -i "s;_REPLACE_ME_;${_testopt};g" ${_testdir}/tmp/pbench-agent.cfg'
-    [test-20]='mkdir -p ${_testdir}/mock-run/mock-iteration/tools-default/iostat; touch ${_testdir}/mock-run/mock-iteration/tools-default/iostat/iostat-stdout.txt'
+    [test-20]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/iostat; touch ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/iostat/iostat-stdout.txt'
     [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> ${_testout}'
     [test-45]='mkdir ${_testdir}/tmp; printf -- "# good list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
     [test-46]='mkdir ${_testdir}/tmp; printf -- "# bad list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com,labelThree,junk\n" > ${_testdir}/tmp/remotes.lis'

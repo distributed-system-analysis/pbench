@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] qemu-migrate: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/qemu-migrate-datalog 10 qemu-vm-42"
+[debug][1900-01-01T00:00:00.000000] stopping qemu-migrate
+[debug][1900-01-01T00:00:00.000000] no post-processing available for qemu-migrate following stop
+[debug][1900-01-01T00:00:00.000000] post-processing qemu-migrate data

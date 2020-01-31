@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cmd="$(basename ${0}) ${@}"
+echo "${cmd}" >> ${_testlog}
+
+if [[ "${1}" == "list" ]]; then
+    printf -- "non-event: foo\nnon-event: bar\nkvm: one\nkvm: two\n"
+elif [[ "${1}" == "stat" ]]; then
+    printf -- "kvm stats on stdout\n"
+    printf -- "kvm stats on stderr\n" >&2
+fi
+exit 1

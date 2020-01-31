@@ -80,7 +80,7 @@ export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/be
 export PYTHONPATH=${_testopt}/common/lib:${PYTHONPATH}
 
 # Fixed timestamp output
-export _PBENCH_BENCH_TESTS=1
+export _PBENCH_UNIT_TESTS=1
 
 res=0
 

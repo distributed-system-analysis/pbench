@@ -42,7 +42,7 @@ function usage() {
 	printf -- "\tseparated by a comma (\",\"); empty lines are ignored, and comments are\n"
 	printf -- "\tdenoted by a leading hash, or pound (\"#\"), character.\n"
 	printf -- "\nAvailable tools:\n"
-	for tool in $(find ${pbench_bin}/tool-scripts -maxdepth 1 ! -type d ! -name '*README*' -printf "%P\n" 2> /dev/null | sort); do
+	for tool in $(find ${pbench_bin}/tool-scripts -maxdepth 1 ! -type d ! -name '*README*' ! -name base-tool ! -name unittests -printf "%P\n" 2> /dev/null | sort); do
 		printf -- "\t${tool}\n"
 	done
 	#                     1         2         3         4         5         6         7         8

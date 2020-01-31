@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] cpuacct: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/cpuacct-datalog 10"
+[debug][1900-01-01T00:00:00.000000] stopping cpuacct
+[debug][1900-01-01T00:00:00.000000] post-processing cpuacct following stop
+[debug][1900-01-01T00:00:00.000000] post-processing cpuacct data

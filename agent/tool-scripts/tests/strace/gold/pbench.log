@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] strace: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/strace-datalog /var/tmp/pbench-test-tool-scripts/strace/tools-group/strace 42 "forty-two""
+[debug][1900-01-01T00:00:00.000000] stopping strace
+[debug][1900-01-01T00:00:00.000000] no post-processing available for strace following stop
+[debug][1900-01-01T00:00:00.000000] no data post-processing available for strace

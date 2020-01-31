@@ -38,18 +38,28 @@ my $node_id;
 
 # Build up a hash mapping CPU ID number to the physical package ID.
 my %cpu_node_map;
-my $sysdevsyscpu = "/sys/devices/system/cpu";
-if (-d $sysdevsyscpu && not defined $ENV{_TEST_SKIP_CPU_MAP}) {
-	opendir(D, $sysdevsyscpu) || die "Can't open directory $sysdevsyscpu: $!\n";
-	my @dirlist = readdir(D);
-	closedir(D);
-	foreach my $f (@dirlist) {
-		my $tgt = "$sysdevsyscpu/$f/topology/physical_package_id";
-		if (-f $tgt) {
-			$node_id = `cat $tgt`;
-			chomp $node_id;
-			$cpu_node_map{$f} = $node_id;
+sub cpu_node {
+	my $cpu = shift;
+	if (exists $cpu_node_map{$cpu}) {
+		return $cpu_node_map{$cpu};
+	} elsif (-e $dir . "/cpu-node-map.txt" and open(FH, $dir . "/cpu-node-map.txt")) {
+		# Try a saved file of the mapping from CPU ID to Node ID for this
+		# cpuacct (this relies on this file being generated at some point
+		# before post-processing, likely at stop-tools phase). This may not
+		# exist depending on what version of pbench was used to get the data.
+		while (my $line = <FH>) {
+			# Take the opportunity to read all the CPUs and populate
+			# our hash
+			if ($line =~ /^(.*):\s*(.*)$/) {
+				$cpu_node_map{$1} = $2;
+			}
 		}
+		close(FH);
+		return $cpu_node_map{$cpu};
+	} else {
+		# If nothing can be found, just assume the cpu is on node 0.
+		$cpu_node_map{$cpu} = 0;
+		return $cpu_node_map{$cpu};
 	}
 }
 
@@ -82,11 +92,7 @@ while (my $line = <CPUACCT_TXT>) {
 		#$group_cpu_usage_per_node{$group_name}{$node_id}{$timestamp_ms} = 0;
 		for $this_cpu_usage (@cpu_usage) {
 			my $tgt = "cpu$cpu_id";
-			if (defined $cpu_node_map{$tgt}) {
-				$node_id = $cpu_node_map{$tgt};
-			} else {
-				$node_id = "0";
-			}
+            $node_id = cpu_node($tgt);
 			$group_cpu_usage_per_node{$group_name}{$node_id}{$timestamp_ms} += $this_cpu_usage;
 			$cpu_id++;
 		}

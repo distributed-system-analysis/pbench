@@ -204,7 +204,7 @@ SECONDS=0
 $benchmark_run_cmd
 benchmark_duration=$SECONDS
 # make it predictable in the unittest environment
-if [[ $_PBENCH_BENCH_TESTS == 1 ]]; then
+if [[ $_PBENCH_UNIT_TESTS == 1 ]]; then
 	benchmark_duration=0
 fi
 

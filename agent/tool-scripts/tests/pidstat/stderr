@@ -1,0 +1,17 @@
+pidstat: Error, one of the following options is required, --install|--start|--stop|--postprocess
+
+The following options are available:
+
+	--install                 verify this perf tool will work
+
+	--start|stop|postprocess  start/stop/postprocess the data collection
+	-d str|--dir=str          directory to store data collection (required)
+	--interval=int            number of seconds between each data collection (optional, default is 10 seconds)
+	--options=str             options passed directly to the tool
+	--patterns=str[,str]      only collect information on process names
+	                          which match this pattern (complicated
+	                          patterns with special charaters may not
+	                          work) for kvm, use --patterns=qemu,vhost
+	--threads                 collect per-thread statistics
+
+	-h|--help                 display this help message

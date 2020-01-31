@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] numastat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/numastat-datalog 10 "pig42""
+[debug][1900-01-01T00:00:00.000000] stopping numastat
+[debug][1900-01-01T00:00:00.000000] no post-processing available for numastat following stop
+[debug][1900-01-01T00:00:00.000000] post-processing numastat data
