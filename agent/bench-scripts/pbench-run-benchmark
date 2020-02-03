@@ -272,6 +272,7 @@ while (scalar @param_sets > 0) {
 	$iteration_label =~ s/\s+$//;
 	$iteration_label =~ s/^\s+//;
 	$iteration_label =~ s/\s/_/g;
+	$iteration_label =~ s/\//:/g;
 
 	# if the logic for determining a label for the iteration has
 	# yielded an empty string just use the benchmark name -- this
