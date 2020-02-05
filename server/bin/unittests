@@ -579,19 +579,19 @@ declare -A cmds=(
     [test-6.9]="_run pbench-backup-tarballs"
     # Upload successful since s3 already contains the result with same md5sum
     [test-6.10]="_run pbench-backup-tarballs"
-    # Upload successfull
+    # Upload successful
     [test-6.11]="_run pbench-backup-tarballs"
-    # Upload successful of tar which is more than 5 GB in size, using
-    # multi-upload API
+    # Upload successful of large tar ball, using multi-upload API
     [test-6.12]="_run pbench-backup-tarballs"
+
     # Upload fail since md5 corrupt
-    # TBD: right now, it is quite complicated to test this from the unit
-    # test. Because in the initial check we evaluate whether the md5sum
-    # of a tarball is matching with its md5 file or not. To test this
-    # case, we need to inject the change in the md5 sum of the tarball
-    # after it passes the initial check: only then can we check for a
-    # failure because of a mismatched md5 sum when we try to upload to
-    # the (mock) s3 service.
+    # TBD: right now, it is quite complicated to test this from the
+    # unit test, because we check whether the md5sum of a tarball is
+    # matching with its md5 file or not. To test this case, we need to
+    # inject the change in the md5 sum of the tarball after it passes
+    # the initial check: only then can we check for a failure because
+    # of a mismatched md5 sum when we try to upload to the (mock) s3
+    # service.
 
     # check for successful local backup if S3 is disabled
     [test-6.13]="_run pbench-backup-tarballs"

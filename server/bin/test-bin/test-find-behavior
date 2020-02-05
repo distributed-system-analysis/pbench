@@ -62,4 +62,5 @@ declare -A ub=(
 for bucket in small medium large huge; do
     printf "\nBucket: %s -- %s <= size < %s\n" "${bucket}" "${lb[${bucket}]}" "${ub[${bucket}]}"
     sort ${bucket}.lis
+    rm -f ${bucket}.lis
 done

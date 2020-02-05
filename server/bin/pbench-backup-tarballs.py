@@ -120,6 +120,7 @@ def sanity_check(lb_obj, s3_obj, config, logger):
 
 def backup_to_local(lb_obj, logger, controller_path, controller, tb,
                     tar, resultname, archive_md5, archive_md5_hex_value):
+    logger.debug("Start local backup of {}.".format(tar))
     if lb_obj is None:
         # Short-circuit operation when we don't have an lb object. This can
         # happen when the expected result of sanity check does not exist, or
@@ -212,9 +213,11 @@ def backup_to_local(lb_obj, logger, controller_path, controller, tb,
             else:
                 tar_done = True
 
+        logger.debug("End local backup of {}.".format(tar))
         if md5_done and tar_done:
             logger.info(
-                "Locally backed-up sucessfully: {tarball}".format(tarball=os.path.join(controller, resultname)))
+                "Local backup of {tarball} successful".format(
+                    tarball=os.path.join(controller, resultname)))
             return Status.SUCCESS
         else:
             return Status.FAIL
@@ -227,6 +230,7 @@ def backup_to_s3(s3_obj, logger, controller_path, controller, tb, tar, resultnam
         # exist, or for other errors where we still want to backup locally.
         return Status.FAIL
 
+    logger.debug("Start S3 backup of {}.".format(tar))
     s3_resultname = os.path.join(controller, resultname)
 
     # Check if the result already present in s3 or not
@@ -257,6 +261,8 @@ def backup_to_s3(s3_obj, logger, controller_path, controller, tb, tar, resultnam
                                  ContentMD5=archive_md5_hex_value,
                                  Bucket=s3_obj.bucket_name,
                                  Key=s3_resultname)
+    logger.debug("End S3 backup of {}.".format(tar))
+
     return sts
 
 
@@ -272,6 +278,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         # resolve the link
         tar = os.path.realpath(tb)
 
+        logger.debug("Start backup of {}.".format(tar))
         # check tarball exist and it is a regular file
         if os.path.exists(tar) and os.path.isfile(tar):
             pass
@@ -365,6 +372,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             # Do nothing when the backup fails, allowing us to retry on a
             # future pass.
             pass
+        logger.debug("End backup of {}.".format(tar))
 
     return Results(ntotal=ntotal,
                    nbackup_success=nbackup_success,
