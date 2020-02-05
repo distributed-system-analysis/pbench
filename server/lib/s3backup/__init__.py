@@ -101,15 +101,15 @@ class S3Config(object):
                     break
                 md5s.append(hashlib.md5(data))
 
-            if len(md5s) > 1:
-                digests = b"".join(m.digest() for m in md5s)
-                new_md5 = hashlib.md5(digests)
-                new_etag = '%s-%s' % (new_md5.hexdigest(), len(md5s))
-            elif len(md5s) == 1:
-                # file smaller than chunk size
-                new_etag = '"%s"' % md5s[0].hexdigest()
-            else:
-                new_etag = ''
+        if len(md5s) > 1:
+            digests = b"".join(m.digest() for m in md5s)
+            new_md5 = hashlib.md5(digests)
+            new_etag = '{}-{}'.format(new_md5.hexdigest(), len(md5s))
+        elif len(md5s) == 1:
+            # file smaller than chunk size
+            new_etag = '{}'.format(md5s[0].hexdigest())
+        else:
+            new_etag = ''
 
         return new_etag
 
@@ -166,7 +166,9 @@ class S3Config(object):
                     self.logger.exception("get_object failed: {}".format(Key))
                     return Status.FAIL
                 else:
-                    s3_multipart_etag = obj['ETag']
+                    # The ETag value is wrapped in double quotes
+                    # so we get rid of them here.
+                    s3_multipart_etag = obj['ETag'].strip('"')
                     if s3_multipart_etag == etag:
                         self.logger.info("Multi-upload to s3 succeeded: "
                                          "{key}".format(key=Key))
@@ -178,6 +180,7 @@ class S3Config(object):
                             Bucket=self.bucket_name, Key=Key)
                         self.logger.error("Multi-upload to s3 failed:"
                                           " {key}, etag doesn't match".format(key=Key))
+                        self.logger.debug("object ETag = {}, calculated ETag = {}".format(s3_multipart_etag, etag))
                         return Status.FAIL
 
     # pass through to the corresponding connector
@@ -261,8 +264,8 @@ class S3Connector(Connector):
 
     def upload_fileobj(self, Body=None, Bucket=None, Key=None,
                        Config=None, ExtraArgs=None):
-        return self.s3client.upload_fileobj(Body=Body, Bucket=Bucket,
-                                            Key=Key, Config=Config,
+        return self.s3client.upload_fileobj(Body, Bucket, Key,
+                                            Config=Config,
                                             ExtraArgs=ExtraArgs)
 
     def delete_object(self, Bucket=None, Key=None):
@@ -361,8 +364,9 @@ class MockS3Connector(Connector):
             if "6.13" in Key:
                 pass
             else:
-                f.write('{} {}'.format(ExtraArgs['Metadata']['ETag'],
-                                       ExtraArgs['Metadata']['MD5']))
+                # N.B. the double quotes are intentional: they simulate
+                # what the real S3 service does with the ETag field.
+                f.write('"{}"\n'.format(ExtraArgs['Metadata']['ETag']))
 
     def head_bucket(self, Bucket=None):
         if os.path.exists(os.path.join(self.path, Bucket)):
@@ -388,8 +392,8 @@ class MockS3Connector(Connector):
                                                 Key)
         if os.path.exists(multi_etag_file):
             with open(multi_etag_file) as f:
-                multi_etag_value = f.read().split(" ")[0]
-            ob_dict['ETag'] = '"{}"'.format(multi_etag_value.strip("\""))
+                multi_etag_value = f.read()[:-1]
+            ob_dict['ETag'] = multi_etag_value
         else:
             ob_dict['ETag'] = '"{}"'.format(md5)
         return ob_dict

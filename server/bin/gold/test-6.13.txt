@@ -133,7 +133,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--       1332 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+-rw-rw-r--       3148 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -191,8 +191,16 @@ drwxrwxr-x          - tmp
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
 1970-01-01T00:00:00.000000 WARNING pbench-backup-tarballs.pbench-backup-tarballs sanity_check -- Bucket not defined in config file - S3 backup is disabled.
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-run-1970-01-01T00:00:00-UTC
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: foo/fio__2016-08-18_15:47:09.tar.xz
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Locally backed-up sucessfully: foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz
+1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-6.13/pbench/archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz.
+1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-6.13/pbench/archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz.
+1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-6.13/pbench/archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz.
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of foo/fio__2016-08-18_15:47:09.tar.xz successful
+1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-6.13/pbench/archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz.
+1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- Start backup of /var/tmp/pbench-test-server/test-6.13/pbench/archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.
+1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Start local backup of /var/tmp/pbench-test-server/test-6.13/pbench/archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.
+1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- End local backup of /var/tmp/pbench-test-server/test-6.13/pbench/archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Local backup of foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz successful
+1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-6.13/pbench/archive/fs-version-001/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 2, Local backup successes: 2, Local backup failures: 0, S3 upload successes: 0, S3 upload failures: 2, Quarantined: 0
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
