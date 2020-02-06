@@ -2,12 +2,12 @@ import React from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Card, Spin, notification, Tag } from 'antd';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { filterIterations } from '../../utils/parse';
 
 import TableFilterSelection from '@/components/TableFilterSelection';
 import Button from '@/components/Button';
 import Table from '@/components/Table';
+import { filterIterations } from '../../utils/parse';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 @connect(({ datastore, global, dashboard, loading }) => ({
   iterations: dashboard.iterations,

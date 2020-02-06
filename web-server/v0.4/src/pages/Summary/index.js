@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'dva';
 import { Spin, Tag, Card, List, Typography, Divider } from 'antd';
+import Table from '@/components/Table';
+import TableFilterSelection from '@/components/TableFilterSelection';
 import { filterIterations } from '../../utils/parse';
 
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import Table from '@/components/Table';
-import TableFilterSelection from '@/components/TableFilterSelection';
 
 const tabList = [
   {
