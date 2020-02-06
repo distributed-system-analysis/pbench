@@ -1,11 +1,11 @@
 import React from 'react';
 import { shallow, configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import Controllers from './index';
 
 import Table from '@/components/Table';
 import SearchBar from '@/components/SearchBar';
 import MonthSelect from '@/components/MonthSelect';
+import Controllers from './index';
 
 const mockProps = {
   controllers: [],

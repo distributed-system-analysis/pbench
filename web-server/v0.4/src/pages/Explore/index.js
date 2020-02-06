@@ -3,8 +3,8 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Card, Button, Popconfirm, Icon, Form, Modal, Input } from 'antd';
 
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import Table from '@/components/Table';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 const { TextArea } = Input;
 

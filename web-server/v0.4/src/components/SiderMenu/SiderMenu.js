@@ -2,8 +2,8 @@ import React, { PureComponent } from 'react';
 import { Layout, Menu, Icon } from 'antd';
 import pathToRegexp from 'path-to-regexp';
 import { Link } from 'dva/router';
-import styles from './index.less';
 import urlToList from '@/components/_utils/pathTools';
+import styles from './index.less';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;

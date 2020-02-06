@@ -1,10 +1,10 @@
 import React from 'react';
 import { shallow, configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import Results from './index';
 
 import Table from '@/components/Table';
 import RowSelection from '@/components/RowSelection';
+import Results from './index';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 const mockProps = {

@@ -23,9 +23,9 @@ import DescriptionList from 'ant-design-pro/lib/DescriptionList';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import moment from 'moment';
+import TimeseriesGraph from '@/components/TimeseriesGraph';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { generateIterationClusters, getComparisonColumn } from '../../utils/parse';
-import TimeseriesGraph from '@/components/TimeseriesGraph';
 
 const { Description } = DescriptionList;
 const { TabPane } = Tabs;

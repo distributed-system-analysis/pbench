@@ -3,10 +3,10 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Card, Form } from 'antd';
 
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import SearchBar from '@/components/SearchBar';
 import RowSelection from '@/components/RowSelection';
 import Table from '@/components/Table';
+import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 @connect(({ datastore, global, dashboard, loading }) => ({
   selectedIndices: global.selectedIndices,
