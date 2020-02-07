@@ -9,11 +9,11 @@ from configparser import ConfigParser
 from optparse import OptionParser, make_option
 
 
-def uniq(l):
+def uniq(_list):
     # uniquify the list without scrambling it
     seen = set()
     seen_add = seen.add
-    return [x for x in l if x not in seen and not seen_add(x)]
+    return [x for x in _list if x not in seen and not seen_add(x)]
 
 
 def file_list(root):
@@ -43,7 +43,6 @@ def file_list(root):
     # insert the directory of the root file at the beginning
     dirlist.insert(0, rootdir)
 
-    # import pdb; pdb.set_trace()
     for d in dirlist:
         for f in files:
             fnm = "%s/%s" % (d, f)
@@ -64,17 +63,19 @@ def init(opts, env_config):
     elif env_config in os.environ:
         conf_file = os.environ[env_config]
     else:
-        return (None, [])
+        return None, []
 
     conffiles = file_list(conf_file)
     conffiles.reverse()
     files = conf.read(conffiles)
 
-    return (conf, files)
+    return conf, files
 
 
-def parse_args(options=[], usage=None):
+def parse_args(_options=None, usage=None):
     """parse_args"""
+    if not _options:
+        _options = []
     if usage:
         parser = OptionParser(usage=usage)
     else:
@@ -91,8 +92,8 @@ def parse_args(options=[], usage=None):
         help="commands logged but not executed",
     )
     # specific options
-    for o in options:
-        parser.add_option(o)
+    for option in _options:
+        parser.add_option(option)
 
     return parser.parse_args()
 
@@ -115,7 +116,7 @@ def parse_range(s):
         prefix = s
         rng = suffix = ""
 
-    return (prefix, suffix, rng)
+    return prefix, suffix, rng
 
 
 def expand_range(s):
@@ -168,8 +169,8 @@ def get(conf, option, sections):
     return None
 
 
-def print_list(l, sep):
-    print(sep.join([str(x) for x in l]))
+def print_list(_list, sep):
+    print(sep.join([str(x) for x in _list]))
 
 
 options = [
@@ -218,7 +219,7 @@ def main(conf, args, opts, files):
         if opts.all:
             for sec in args:
                 if conf.has_section(sec):
-                    print("[%s]" % (sec))
+                    print("[%s]" % sec)
                     items = conf.items(sec)
                     items.sort()
                     for (n, v) in items:

@@ -12,3 +12,5 @@ dist
 .tox
 .eggs
 .venv
+.idea/
+.pytest_cache/
