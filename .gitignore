@@ -14,3 +14,5 @@ dist
 pip-wheel-metadata
 AUTHORS
 ChangeLog
+.idea/
+.pytest_cache/
