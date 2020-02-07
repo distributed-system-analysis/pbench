@@ -4,7 +4,7 @@ prog="$(basename "${0}")"
 progdir="$(realpath -e $(dirname "${0}"))"
 
 # List of tox environments to run.
-tox_envs="lint py3 agent server"
+tox_envs="lint py3 pytest_agent agent pytest_server server"
 
 for toxenv in ${tox_envs}; do
     if [[ -d ${progdir}/.tox/${toxenv} ]]; then

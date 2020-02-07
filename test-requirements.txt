@@ -1,5 +1,6 @@
 flake8
 pre-commit
+responses
 mock
 pytest-mock>=1.10.4, < 2
 pytest-sugar>=0.9.2, < 1
