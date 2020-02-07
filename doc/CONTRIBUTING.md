@@ -22,6 +22,8 @@ Once tox is installed you can run the unittests:
 
 tox -e agent (for pbench agent)
 tox -e server (for pbench server)
+tox -e pytest_agent (for pytest pbench agent)
+tox -e pytest_server (for pytest pbench server)
 
 # Python formatting
 
