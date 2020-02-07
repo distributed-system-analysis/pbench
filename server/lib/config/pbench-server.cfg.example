@@ -10,6 +10,16 @@ pbench-top-dir = /srv/pbench
 pbench-local-dir = /srv/pbench-local
 # Backup dir may be remote NFS mounted
 pbench-backup-dir = /mnt/pbench.archive.backup
+pbench-logs-dir = %(pbench-local-dir)s/logs
+
+
+# pbench-server rest api variables
+rest_port = 8001
+rest_version = 1
+rest_max_content_length = 100 * 1024 * 1024
+rest_uri = /api/v%(rest_version)s
+rest_log = %(pbench-logs-dir)s/pbench-server.log
+
 
 [Indexing]
 # CHANGE ME!
