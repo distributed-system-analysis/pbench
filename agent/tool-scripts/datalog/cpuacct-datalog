@@ -1,17 +1,29 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-interval=$1
-file=$2
+PROG="$(basename ${0})"
 
-cat /dev/null >$file
+interval="${1}"
+if [[ -z "${interval}" ]]; then
+	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
 pushd /sys/fs/cgroup/cpuacct >/dev/null
-dirs=`find -mindepth 1 -type d`
-while true; do
-	echo "timestamp: `date +%s.%N`" >>$file
-	for dir in $dirs; do
-		echo "$dir: `cat $dir/cpuacct.usage_percpu`" >>$file
+dirs="$(find -mindepth 1 -type d)"
+if [[ -z "${dirs}" ]]; then
+	printf -- "%s: CPU accounting appears disabled\n" "${PROG}" >&2
+	exit 1
+fi
+
+rc=0
+while [[ ${rc} -eq 0 ]]; do
+	echo "timestamp: $(date +%s.%N)"
+	for dir in ${dirs}; do
+		echo "${dir}: $(cat ${dir}/cpuacct.usage_percpu)"
 	done
-	echo >>$file
-	sleep $interval
+	echo ""
+	sleep ${interval}
+	rc=${?}
 done
 popd >/dev/null

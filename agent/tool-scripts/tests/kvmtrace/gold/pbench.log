@@ -1,0 +1,5 @@
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] trace-cmd is installed
+[debug][1900-01-01T00:00:00.000000] kvmtrace: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/kvmtrace-datalog 42 43"
+[debug][1900-01-01T00:00:00.000000] stopping kvmtrace
+[debug][1900-01-01T00:00:00.000000] post-processing kvmtrace following stop
+[debug][1900-01-01T00:00:00.000000] no data post-processing available for kvmtrace

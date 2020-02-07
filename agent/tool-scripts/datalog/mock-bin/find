@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [[ "${1}" == "-mindepth" ]]; then
+    echo "$(basename ${0}) ${@}" >> ${_testlog}
+
+    printf -- "/sys/fs/cgroup/cpuacct/dir0\n/sys/fs/cgroup/cpuacct/dir1\n"
+    exit 0
+else
+    /usr/bin/find ${@}
+fi

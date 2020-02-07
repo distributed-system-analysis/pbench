@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "--path=kernel"
+exit 0

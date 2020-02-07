@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] blktrace: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/blktrace-datalog /dev/sda42 /dev/sdb42 /dev/sdc42"
+[debug][1900-01-01T00:00:00.000000] stopping blktrace
+[debug][1900-01-01T00:00:00.000000] post-processing blktrace following stop
+[debug][1900-01-01T00:00:00.000000] no data post-processing available for blktrace

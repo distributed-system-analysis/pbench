@@ -1,0 +1,8 @@
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] systemtap-client is installed
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] systemtap-devel is installed
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] kernel-devel-mock-kernel.version is installed
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] kernel-debuginfo-mock-kernel.version is installed
+[debug][1900-01-01T00:00:00.000000] systemtap: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/systemtap-datalog my-systemtap-script-42"
+[debug][1900-01-01T00:00:00.000000] stopping systemtap
+[debug][1900-01-01T00:00:00.000000] no post-processing available for systemtap following stop
+[debug][1900-01-01T00:00:00.000000] no data post-processing available for systemtap

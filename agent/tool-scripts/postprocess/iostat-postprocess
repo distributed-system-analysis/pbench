@@ -6,7 +6,7 @@
 #
 #   CSV files and statically generated graphs
 #   with embedded javascript, using d3.js libraries
-# 
+#
 # or
 #
 #   CommonDataModel documents
@@ -40,6 +40,9 @@ BEGIN {
 use GenData qw(gen_data);
 
 my $dir = shift;
+
+die "Non-default options, skipping post-processing for iostat" if (-f $dir . "/iostat.options");
+
 my $dev;
 my %iostat; # For gen_data()
 my %iostat_cdm; # For log_cdm_metric_sample()

@@ -1,0 +1,4 @@
+pgrep java
+jmap -histo 43
+date +%s
+sleep 42

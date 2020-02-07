@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "42 43"
+exit 0

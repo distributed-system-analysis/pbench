@@ -1,0 +1,105 @@
+#!/usr/bin/perl
+
+# Author: Andrew Theurer
+#
+# usage: perf-postprocess <dir> [callgraph]
+#   dir = directory where perf.data and/or perf-report.txt can be found
+#
+# The purpose of this script is to generate a consolidated report per-symbol,
+# if not given the "callgraph" argument, and a "flame graph" SVG file if
+# "callgraph" is requested.
+
+use strict;
+use warnings;
+use File::Basename;
+
+my $PROG = basename(__FILE__);
+
+unless ( $#ARGV >= 0 ) {
+	die "$PROG: missing required tool output directory!\n";
+}
+my $tool_output_dir = $ARGV[0];
+
+die "perf-stop-postprocess - missing " . $tool_output_dir . "/perf.data file!\n" if (! -e $tool_output_dir . "/perf.data" );
+
+# Collect the archive of perf information so the perf data can be
+# processed off host.  We explicitly ignore any errors since we
+# have already stopped the tool.  Note we have to use push/popd
+# since the "perf archive" command always creates the tar ball in
+# the local directory.
+
+# Provide a README file to help users work with perf data locally.
+my $dirname = dirname(__FILE__);
+`cp $dirname/../perf.README $tool_output_dir/README`;
+
+chdir $tool_output_dir;
+`perf archive ./perf.data > ./perf-archive.log 2>&1`;
+
+my $callgraph = 0;
+my $report_opts = "";
+my $argnum = 0;
+foreach $argnum (1 .. $#ARGV) {
+	if ( $ARGV[$argnum] eq "-g" || $ARGV[$argnum] eq "--callgraph" ) {
+		$callgraph = 1;
+	}
+	$report_opts = $report_opts . " " . $ARGV[$argnum];
+}
+# Generate the initial report.
+`perf report $report_opts -i ./perf.data --stdio > ./perf-report.txt 2> ./perf-report.err`;
+
+if ($callgraph) {
+	my $flamegraph_pl=`rpm -qa flamegraph`;
+	my $stackcollapse_perf_pl=`rpm -qa flamegraph-stackcollapse-perf`;
+
+	if ($flamegraph_pl && $stackcollapse_perf_pl) {
+		`perf script -i ./perf.data > ./out.perf`;
+		`stackcollapse-perf.pl ./out.perf > ./out.folded`;
+		`flamegraph.pl ./out.folded > ./flamegraph.svg`;
+		unlink( "./out.perf", "./out.folded" );
+	} else {
+		die "WARNING: FlameGraph support is not present, please check installation\n";
+	}
+} else {
+	my $file="perf-report.txt";
+	my $pct;
+	my $samples;
+	my $bin;
+	my $object;
+	my $mode;
+	my $symbol;
+	my %symbol_samples;
+	my $total_samples = 0;
+
+	my $line;
+
+	open(TXT, "./$file") || die "ERROR: could not find ./$file\n";
+	while (my $line = <TXT>) {
+		chomp $line;
+		#    32.95%        928412         qemu-kvm  [kernel.kallsyms]             [k] _raw_spin_lock
+		#     5.50%        242887         qemu-kvm  [kernel.kallsyms]             [k] kvm_vcpu_on_spin
+		#     3.66%        261976         qemu-kvm  [kernel.kallsyms]             [k] update_cfs_rq_blocked_load
+
+		if ($line =~ /^\s*(\d+\.\d+)%\s+(\d+)\s+(\S+)\s+\[(\S+)\]\s+\[(\S+)\]\s+(\S+)/) {
+			$pct = $1;
+			$samples = $2;
+			$bin = $3;
+			$object = $4;
+			$mode = $5;
+			$symbol = $6;
+			# print "found pct: [$pct] samples: [$samples] bin: [$bin] object: [$object] mode: [$mode] symbol [$symbol]\n";
+			$symbol_samples{$symbol} += $samples;
+			$total_samples += $samples;
+		}
+	}
+	close(TXT);
+
+	$file = "perf-report-consolidated.txt";
+	open(TXT, ">./$file") || die "could not find ./$file\n";
+	foreach $symbol (sort { $symbol_samples{$b} <=> $symbol_samples{$a} } keys(%symbol_samples)) {
+		printf TXT "%10d %6.2f%% %s\n", $symbol_samples{$symbol}, (100 * $symbol_samples{$symbol}/$total_samples), $symbol;
+	}
+	close(TXT);
+}
+
+`xz --threads=0 ./perf.data`;
+`xz --threads=0 ./perf-report.txt`;

@@ -17,10 +17,10 @@ sar tool is now registered in group default
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-sysstat-12.0.3 is installed
 [info][1900-01-01T00:00:00.000000] pidstat tool is now registered in group default
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-sysstat-12.0.3
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-sysstat-12.0.3 is installed
 [info][1900-01-01T00:00:00.000000] sar tool is now registered in group default
 --- pbench.log file contents

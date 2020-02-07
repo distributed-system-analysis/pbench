@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] kvmstat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/kvmstat-datalog 10"
+[debug][1900-01-01T00:00:00.000000] stopping kvmstat
+[debug][1900-01-01T00:00:00.000000] no post-processing available for kvmstat following stop
+[debug][1900-01-01T00:00:00.000000] post-processing kvmstat data

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "42 en43"
+exit 0

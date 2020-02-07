@@ -1,0 +1,24 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+PROG="$(basename ${0})"
+
+interval="${1}"
+if [[ -z "${interval}" ]]; then
+	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
+file_to_capture="${2}"
+if [[ -z "${file_to_capture}" ]]; then
+	printf -- "%s: missing required 'file_to_capture' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
+rc=0
+while [[ ${rc} -eq 0 ]]; do
+	printf -- "\ntimestamp: $(date +%s.%N)\n"
+	cat ${file_to_capture}
+	sleep ${interval}
+	rc=${?}
+done

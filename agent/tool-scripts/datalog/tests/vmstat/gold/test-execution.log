@@ -1,0 +1,2 @@
+vmstat -V
+vmstat -a -t 42

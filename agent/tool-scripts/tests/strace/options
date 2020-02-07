@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "--pid=42 --pattern=forty-two"
+exit 0

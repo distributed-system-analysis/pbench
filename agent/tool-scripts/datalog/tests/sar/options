@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo "${_execdir} 42 -opt0"

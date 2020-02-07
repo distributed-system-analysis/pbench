@@ -1,0 +1,2 @@
+kvmtrace-datalog 42 43
+kvmtrace-stop-postprocess /var/tmp/pbench-test-tool-scripts/kvmtrace/tools-group/kvmtrace forty-two

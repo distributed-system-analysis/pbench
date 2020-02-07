@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "$(basename ${0}) ${@}" >> ${_testlog}
+
+printf -- "The Total 44040192\n"
+exit 0

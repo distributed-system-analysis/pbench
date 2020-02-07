@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "$(basename ${0}) ${@}" >> ${_testlog}
+
+printf -- "line 1 remove: qemu from this line\rline 2 remove trailing backslash 'r'\r"
+exit 0

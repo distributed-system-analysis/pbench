@@ -1,7 +1,19 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-interval=$1
-file=$2
+PROG="$(basename ${0})"
+
+interval="${1}"
+if [[ -z "${interval}" ]]; then
+	printf "%s: missing required 'interval' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
+command -v vmstat > /dev/null
+if [[ ${?} -ne 0 ]]; then
+	printf "%s: missing required 'vmstat' command\n" "${PROG}" >&2
+	exit 1
+fi
 
 # RHEL6.5 (procps version 3.2.8): -w -t combo does not work: the timestamp info is gone!
 #                                  Do not use -w: ugly text reports, but graphs work.
@@ -9,8 +21,8 @@ file=$2
 #                                  TBD
 # RHEL7   (procps version 3.3.9): works fine
 
-ver=$(vmstat -V | awk '{print $NF;}')
-case $ver in
+ver="$(vmstat -V | awk '{print $NF;}')"
+case "${ver}" in
     3.2.8)
         # RHEL6.6
         opts="-t"
@@ -38,4 +50,4 @@ case $ver in
         ;;
 esac
 
-/usr/bin/vmstat -a ${opts} $interval | tee $file
+vmstat -a ${opts} ${interval}

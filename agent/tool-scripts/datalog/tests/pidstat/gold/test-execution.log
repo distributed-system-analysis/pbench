@@ -1,0 +1,2 @@
+pidstat -l -H -w -u -h -d -r -t -p ALL -C a|b|c 42
+ulimit -n 102400

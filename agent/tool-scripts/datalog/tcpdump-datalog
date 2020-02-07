@@ -1,0 +1,24 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+PROG="$(basename ${0})"
+
+packets="${1}"
+if [[ -z "${packets}" ]]; then
+	printf "%s: missing required 'packets' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
+interface="${2}"
+if [[ -z "${interface}" ]]; then
+	printf "%s: missing required 'interface' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
+command -v tcpdump > /dev/null
+if [[ ${?} -ne 0 ]]; then
+	printf "%s: missing required 'tcpdump' command\n" "${PROG}" >&2
+	exit 1
+fi
+
+tcpdump -c ${packets} -ni ${interface}

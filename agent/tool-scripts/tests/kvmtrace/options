@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "--vm=forty-two --timeout=42 --start-delay=43"
+exit 0

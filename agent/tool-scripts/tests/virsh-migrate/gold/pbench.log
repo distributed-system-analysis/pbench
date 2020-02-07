@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] virsh-migrate: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/virsh-migrate-datalog 42 vm42"
+[debug][1900-01-01T00:00:00.000000] stopping virsh-migrate
+[debug][1900-01-01T00:00:00.000000] no post-processing available for virsh-migrate following stop
+[debug][1900-01-01T00:00:00.000000] post-processing virsh-migrate data

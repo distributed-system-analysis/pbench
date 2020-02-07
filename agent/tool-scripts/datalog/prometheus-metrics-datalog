@@ -4,14 +4,19 @@ import sys, os, json, math
 import subprocess, logging
 from time import time, sleep
 
-prog = os.path.basename(sys.argv[0])
-host = sys.argv[1]
-interval = int(sys.argv[2])
-tool_log = sys.argv[3]
-port = int(sys.argv[4])
-cert = sys.argv[5]
-selfsigned = sys.argv[6]
-key = sys.argv[7]
+PROG = os.path.basename(sys.argv[0])
+
+try:
+    host = sys.argv[1]
+    interval = int(sys.argv[2])
+    tool_log = sys.argv[3]
+    port = int(sys.argv[4])
+    cert = sys.argv[5]
+    selfsigned = sys.argv[6]
+    key = sys.argv[7]
+except IndexError:
+    print("{}: missing required arguments".format(PROG), file=sys.stderr)
+    sys.exit(1)
 
 if (cert == "None") or (key == "None"):
     command = "prom2json http://{}:{:d}/metrics".format(host, port)

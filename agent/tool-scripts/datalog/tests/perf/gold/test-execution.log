@@ -1,0 +1,1 @@
+perf record -a42 -b -c --output=/var/tmp/pbench-test-tools-datalog/perf/perf.data

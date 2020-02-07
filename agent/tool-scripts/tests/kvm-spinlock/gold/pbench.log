@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] kvm-spinlock: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/kvm-spinlock-datalog 10"
+[debug][1900-01-01T00:00:00.000000] stopping kvm-spinlock
+[debug][1900-01-01T00:00:00.000000] no post-processing available for kvm-spinlock following stop
+[debug][1900-01-01T00:00:00.000000] post-processing kvm-spinlock data

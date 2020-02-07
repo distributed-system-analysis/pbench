@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] jmap: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/jmap-datalog /var/tmp/pbench-test-tool-scripts/jmap/tools-group/jmap 10 42 "jmap-pat-42""
+[debug][1900-01-01T00:00:00.000000] stopping jmap
+[debug][1900-01-01T00:00:00.000000] no post-processing available for jmap following stop
+[debug][1900-01-01T00:00:00.000000] post-processing jmap data

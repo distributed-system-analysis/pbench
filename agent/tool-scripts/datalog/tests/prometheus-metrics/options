@@ -1,0 +1,4 @@
+#!/bin/bash
+
+printf -- "example.host.com 3 tool_log 9042 cert false key\n"
+exit 0

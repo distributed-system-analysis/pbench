@@ -1,0 +1,3 @@
+date +%s.%N
+virsh domjobinfo vm-43
+sleep 42

@@ -1,0 +1,4 @@
+pgrep java
+jstack 43
+date +%s.%N
+sleep 42

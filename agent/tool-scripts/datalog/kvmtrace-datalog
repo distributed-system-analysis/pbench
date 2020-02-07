@@ -1,0 +1,30 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+PROG="$(basename ${0})"
+
+command -v trace-cmd > /dev/null
+if [[ ${?} -ne 0 ]]; then
+	printf -- "%s: required KVM trace command, [/usr/bin/]trace-cmd, missing\n" "${PROG}" >&2
+	exit 1
+fi
+
+if ! grep -q debugfs /proc/mounts; then
+	printf -- "%s: required debugfs not mounted\n" "${PROG}" >&2
+	exit 1
+fi
+
+timeout="${1}"
+start_delay="${2}"
+
+if [[ ! -z "${timeout}" && ${timeout} > 0 ]]; then
+    sleep_cmd="sleep ${timeout}"
+else
+    sleep_cmd=""
+fi
+
+if [[ ! -z "${start_delay}" && ${start_delay} > 0 ]]; then
+    sleep ${start_delay}
+fi
+
+trace-cmd record -a -e kvm ${sleep_cmd}

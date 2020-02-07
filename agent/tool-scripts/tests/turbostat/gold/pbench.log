@@ -1,0 +1,5 @@
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] kernel-tools is installed
+[debug][1900-01-01T00:00:00.000000] turbostat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/turbostat-datalog 10"
+[debug][1900-01-01T00:00:00.000000] stopping turbostat
+[debug][1900-01-01T00:00:00.000000] no post-processing available for turbostat following stop
+[debug][1900-01-01T00:00:00.000000] no data post-processing available for turbostat

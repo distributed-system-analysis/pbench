@@ -1,183 +1,211 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
 # This provides the ability to either:
 # 1) run user-provided scripts to start/stop/postprocess a custom tool
 # or
-# 2) capture contents of a file at specified interval
-# 
+# 2) capture contents of a file at the specified interval
+#
 # If you use scripts, they must already be in installed
 # if you opt to capture a file, please make sure the file is not enormous
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path=$(dirname ${0})
+script_name=$(basename ${0})
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
 # Defaults
-tool=$script_name
-group=default
-dir=""
+tool=${script_name}
+tool_dir=""
 mode=""
-interval="10"
-iteration="1"
-options="none"
+def_interval="10"
+interval="${def_interval}"
+tool_name=""
+start_script=""
+stop_script=""
+postprocess_script=""
+file_to_capture=""
+
+function usage {
+	printf -- "The following options are available: \n\n"
+	printf -- "\t--install                  install this user perf tool will work\n\n"
+	printf -- "\t--start|stop|postprocess   start/stop/postprocess the data collection\n"
+	printf -- "\t--dir=str                  directory to store data collection (required)\n"
+	printf -- "\t--interval=int             number of seconds between each data collection (optional, default is %s seconds))\n" "${def_interval}"
+	printf -- "\t--tool-name=str            you must provide a unique name for this user tool\n"
+	printf -- "\t--start-script=str         run this user-provided script when starting this tool\n"
+	printf -- "\t--stop-script=str          run this user-provided script when stopping this tool\n"
+	printf -- "\t--postproceess-script=str  run this user-provided script when postprocessing this tool\n"
+	printf -- "\t--file-to-capture=str      capture the contents of this file at each interval\n"
+	printf -- "\t                           you can use this option, or the start/stop/postprocess-script, but not both at the same time\n"
+}
+
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess,tool-name:,file-to-capture:,start-script:,postprocess-script:" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following options are available: \n\n"
-	printf -- "\t--install,			install this perf tool\n"
-	printf "\n"
-	printf -- "\t--tool-name		you must provide a unique name for this user tool\n"
-	printf -- "\t--start|stop|postprocess	start/stop/postprocess the data collection\n"
-	printf -- "\t--start-script		run this user-provided script when starting this tool\n"
-	printf -- "\t--postproceess-script	run this user-provided script when postprocessing this tool\n"
-	printf -- "\t--file-to-capture		capture the contents of this file at each interval\n"
-	printf -- "\t				you can use this option, or the start/stop/postprocess-script, but not both at the same time\n"
-	printf -- "\t--iteration=int 		the iteration (required)\n"
-	printf -- "\t--group=str		the perftool group (required)\n"
-	printf -- "\t--dir=str			directory to store data collection (required)\n"
-	printf -- "\t--interval=int		number of seconds between each data collection\n"
+opts="$(getopt -q -o d: --longoptions "dir:,interval:,start,stop,install,postprocess,tool-name:,file-to-capture:,start-script:,stop-script:,postprocess-script:" -n "getopt.sh" -- "$@")"
+if [[ ${?} -ne 0 ]]; then
+	printf -- "\n%s: you specified an invalid option\n\n" "${tool}" >&2
+	usage >&2
 	exit 1
 fi
-eval set -- "$opts";
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		--install)
+	case "${1}" in
+	--install)
 		mode="install"
-		shift;
+		shift
 		;;
-		--start)
+	--start)
 		mode="start"
-		shift;
+		shift
 		;;
-		--stop)
+	--stop)
 		mode="stop"
-		shift;
+		shift
 		;;
-		--postprocess)
+	--postprocess)
 		mode="postprocess"
-		shift;
+		shift
 		;;
-		-d|--dir)
-		shift;
-		if [ -n "$1" ]; then
-			dir="$1"
+	-d|--dir)
+		shift
+		if [[ -n "${1}" ]]; then
+			tool_dir="${1}"
 			shift
 		fi
 		;;
-		-g|--group)
-		shift;
-		if [ -n "$1" ]; then
-			group="$1"
+	--interval)
+		shift
+		if [[ -n "${1}" ]]; then
+			interval="${1}"
 			shift
 		fi
 		;;
-		-i|--iteration)
-		shift;
-		if [ -n "$1" ]; then
-			iteration="$1"
+	--tool-name)
+		shift
+		if [[ -n "${1}" ]]; then
+			tool_name="${1}"
 			shift
 		fi
 		;;
-		--interval)
-		shift;
-		if [ -n "$1" ]; then
-			interval="$1"
+	--file-to-capture)
+		shift
+		if [[ -n "${1}" ]]; then
+			file_to_capture="${1}"
 			shift
 		fi
 		;;
-		--tool-name)
-		shift;
-		if [ -n "$1" ]; then
-			tool_name="$1"
+	--start-script)
+		shift
+		if [[ -n "${1}" ]]; then
+			start_script="${1}"
 			shift
 		fi
 		;;
-		--file-to-capture)
-		shift;
-		if [ -n "$1" ]; then
-			file_to_capture="$1"
+	--stop-script)
+		shift
+		if [[ -n "${1}" ]]; then
+			stop_script="${1}"
 			shift
 		fi
 		;;
-		--start-script)
-		shift;
-		if [ -n "$1" ]; then
-			start_script="$1"
+	--postprocess-script)
+		shift
+		if [[ -n "${1}" ]]; then
+			postprocess_script="${1}"
 			shift
 		fi
 		;;
-		--postprocess-script)
-		shift;
-		if [ -n "$1" ]; then
-			postprocess_script="$1"
-			shift
-		fi
+	--)
+		shift
+		break
 		;;
-		--)
-		shift;
-		break;
-		;;
+	*)
+		printf -- "" >&2
+		usage >&2
+		exit 1
 	esac
 done
 
-if [ -z "$tool_name" ]; then
-	error_log "[$script_name] You must provide --tool-name"
+if [[ -z "${mode}" ]]; then
+	printf -- "%s: Error, one of the following options is required, --install|--start|--stop|--postprocess\n\n" "${tool}" >&2
+	usage >&2
 	exit 1
 fi
 
-tool_dir="$dir/tools-$group"
-tool_output_dir=$tool_dir/$tool-$tool_name # all tools keep data in their tool specific dir
-tool_cmd_file="$tool_output_dir/$tool.cmd"
-tool_pid_file=$pbench_tmp/$group.$iteration.$tool-$tool_name.pid
-tool_stdout_file=$tool_output_dir/$tool-$tool_name-stdout.txt
-tool_stderr_file=$tool_output_dir/$tool-$tool_name-stderr.txt
-if [ ! -z "$file_to_capture" ]; then
-	tool_cmd="$script_path/datalog/$tool-datalog $interval $file_to_capture $tool_stdout_file"
-else
-	tool_cmd="$start_script"
+if [[ -z "${tool_name}" ]]; then
+	error_log "[${tool}] You must provide a value for --tool-name"
+	exit 1
 fi
-case "$mode" in
-	install)
-        ;;
-	start)
-	mkdir -p $tool_output_dir
-	pushd $tool_output_dir >/dev/null
-	echo '#!/bin/bash' >$tool_cmd_file
-	echo "trap '{ kill \${TOOL_PID}; }' SIGTERM" >>$tool_cmd_file
-	echo "${tool_cmd} &" >>$tool_cmd_file
-	echo 'TOOL_PID=$!' >>$tool_cmd_file
-	echo 'wait' >>$tool_cmd_file
-	echo 'wait' >>$tool_cmd_file
-	chmod +x $tool_cmd_file
-	debug_log "$script_name: running $tool_cmd"
-	$tool_cmd_file >"$tool_stdout_file" 2>"$tool_stderr_file" & echo $! >$tool_pid_file
+
+# At this point, we know the user's tool name, so we change the name of the
+# "tool" we'll using in our messaging and tracking to include that name.
+tool="${tool}-${tool_name}"
+
+if [[ "${mode}" != "install" ]]; then
+	if [[ -z "${tool_dir}" || ! -d "${tool_dir}" ]]; then
+		printf -- "${tool}: Error, --dir argument is required with a valid directory\n\n" >&2
+		usage >&2
+		exit 1
+	fi
+	tool_output_dir="${tool_dir}/${tool}" # all tools keep data in their tool specific dir
+	tool_pid_file="${tool_output_dir}/${tool}.pid"
+fi
+
+case "${mode}" in
+install)
+	;;
+start)
+	tool_cmd_file="${tool_output_dir}/${tool}.cmd"
+	tool_stdout_file="${tool_output_dir}/${tool}-stdout.txt"
+	tool_stderr_file="${tool_output_dir}/${tool}-stderr.txt"
+	if [[ ! -z "${file_to_capture}" ]]; then
+		tool_cmd="${script_path}/datalog/File-Capture-datalog ${interval} ${file_to_capture} ${tool_stdout_file}"
+	else
+		tool_cmd="${start_script}"
+	fi
+	mkdir -p ${tool_output_dir}
+	pushd ${tool_output_dir} >/dev/null
+	if [[ ${?} -ne 0 ]]; then
+		error_log "${tool}: failed to create tool output directory, ${tool_output_dir}" >&2
+		exit 1
+	fi
+	echo '#!/bin/bash' > ${tool_cmd_file}
+	echo "trap '{ kill \${TOOL_PID}; }' SIGTERM" >> ${tool_cmd_file}
+	echo "${tool_cmd} &" >> ${tool_cmd_file}
+	echo 'TOOL_PID=$!' >> ${tool_cmd_file}
+	echo 'wait' >> ${tool_cmd_file}
+	echo 'wait' >> ${tool_cmd_file}
+	chmod +x ${tool_cmd_file}
+	debug_log "${tool}: running ${tool_cmd}"
+	${tool_cmd_file} > "${tool_stdout_file}" 2> "${tool_stderr_file}" & echo ${!} > ${tool_pid_file}
 	popd >/dev/null
 	wait
 	;;
-	stop)
-	if [[ -s "$tool_pid_file" ]]; then
-		pid=`cat $tool_pid_file`
-		debug_log "stopping $script_name"
-		kill $pid && /bin/rm -f $tool_pid_file
+stop)
+	if [[ -s "${tool_pid_file}" ]]; then
+		pid="$(cat ${tool_pid_file})"
+		debug_log "stopping ${tool}"
+		kill ${pid} && /bin/rm -f ${tool_pid_file}
 	else
-		warn_log "[$script_name]: tool is not running, nothing to kill"
+		warn_log "[${tool}]: tool is not running, nothing to kill"
+	fi
+	if [[ -x "${stop_script}" ]]; then
+		pushd ${tool_output_dir} >/dev/null
+		${stop_script} > ${tool_output_dir}/${tool}-stop-script.out 2> ${tool_output_dir}/${tool}-stop-script.err
+		popd >/dev/null
 	fi
 	;;
-	postprocess)
-	debug_log "postprocessing $script_name"
-	pushd $tool_output_dir >/dev/null
-	if [ -z "$file_to_capture" ]; then
-		if [ -e "$postprocess_script" ]; then
-			chmod +x $postprocess_script
-			$postprocess_script 2>&1 >postprocess-output.txt
+postprocess)
+	debug_log "post-processing ${tool}"
+	if [[ -z "${file_to_capture}" ]]; then
+		if [[ -x "${postprocess_script}" ]]; then
+			pushd ${tool_output_dir} >/dev/null
+			${postprocess_script} > ${tool_output_dir}/${tool}-postprocess-output.txt 2>&1
+			popd >/dev/null
 		fi
 	fi
-	popd >/dev/null
 	;;
 esac

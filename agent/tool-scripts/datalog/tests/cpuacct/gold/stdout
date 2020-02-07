@@ -1,0 +1,4 @@
+timestamp: 9999999999.999999999
+/sys/fs/cgroup/cpuacct/dir0: 43
+/sys/fs/cgroup/cpuacct/dir1: 43
+

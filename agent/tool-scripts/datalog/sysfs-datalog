@@ -1,25 +1,55 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-interval=$1
-datalog_file=$2
-path=$3
-maxdepth=$4
-pattern=$5
+PROG="$(basename ${0})"
+
+interval="${1}"
+if [[ -z "${interval}" ]]; then
+	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
+path="${2}"
+if [[ -z "${path}" ]]; then
+	printf -- "%s: missing required 'path' argument\n" "${PROG}" >&2
+	exit 1
+fi
+if [[ ! -d "/sys/${path}" ]]; then
+	printf -- "%s: invalid sysfs path, '/sys/${path}'\n" "${PROG}" >&2
+	exit 1
+fi
+
+maxdepth="${3}"
+if [[ -z "${maxdepth}" ]]; then
+	printf -- "%s: missing required 'maxdepth' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
+pattern="${4}"
+if [[ -z "${pattern}" ]]; then
+	printf -- "%s: missing required 'pattern' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
 files=""
-
-for file in `find "/sys/$path" -maxdepth $maxdepth -name "$pattern" -type f -readable `; do
-	if file $file | grep -q text; then
-		files="$files $file"
+for file in $(find "/sys/${path}" -maxdepth ${maxdepth} -name "${pattern}" -type f -readable 2> /dev/null); do
+	if file ${file} | grep -q text; then
+		files="${files} ${file}"
 	fi
 done
-echo files are "[$files]"
+if [[ -z "${files}" ]]; then
+	printf -- "%s: No /sys/%s files matched pattern, '%s', with max find depth of '%s'\n" "${PROG}" "${path}" "${pattern}" "${maxdepth}" >&2
+	exit 1
+fi
 
-cat /dev/null >$datalog_file
-while true; do
-	echo "timestamp: `date +%s.%N`" >>$datalog_file
-	for file in $files; do
-		file_contents=`cat $file`
-		printf "%s: %s\n" "$file" "$file_contents" >>$datalog_file
+echo "files are [${files}]"
+
+rc=0
+while [[ ${rc} -eq 0 ]]; do
+	echo "timestamp: $(date +%s.%N)"
+	for file in ${files}; do
+		printf -- "%s: %s\n" "${file}" "$(cat ${file})"
 	done
-	sleep $interval
+	sleep ${interval}
+	rc=${?}
 done

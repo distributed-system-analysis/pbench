@@ -1,0 +1,4 @@
+[debug][1900-01-01T00:00:00.000000] docker: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/docker-datalog 10"
+[debug][1900-01-01T00:00:00.000000] stopping docker
+[debug][1900-01-01T00:00:00.000000] no post-processing available for docker following stop
+[debug][1900-01-01T00:00:00.000000] post-processing docker data

@@ -400,7 +400,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 						else # using remote clients
 							final_cmd_file="ssh $ssh_opts $client \"$benchmark_client_cmd_file\""
 						fi
-						if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
+						if [[ -z "$_PBENCH_UNIT_TESTS" ]]; then
 							$final_cmd_file >$result_file &
 						else
 							$final_cmd_file >$result_file
