@@ -12,3 +12,5 @@ dist
 .tox
 pip-wheel-metadata
 .eggs
+.idea/
+.pytest_cache/
