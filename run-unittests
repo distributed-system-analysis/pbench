@@ -2,3 +2,5 @@
 
 tox -e server
 tox -e agent
+tox -e pytest_server
+tox -e pytest_agent
