@@ -41,15 +41,15 @@ class Results(object):
 def sanity_check(lb_obj, s3_obj, config, logger):
     # make sure archive is present
     archive = config.ARCHIVE
+    archivepath= os.path.realpath(archive)
 
-    if not os.path.realpath(archive):
-        logger.error(
-            'The ARCHIVE directory {}, does not resolve to a real location'.format(archive))
+    if not archivepath:
+        logger.error('The ARCHIVE directory {}, does not resolve to a real location', archive)
         return None, None
 
     if not os.path.isdir(archive):
         logger.error(
-            'The ARCHIVE directory {}, does not resolve {} to a directory'.format(archive, os.path.realpath(archive)))
+            'The ARCHIVE directory {}, does not resolve {} to a directory', archive, archivepath)
         return None, None
 
     # make sure the local backup directory is present
@@ -64,18 +64,19 @@ def sanity_check(lb_obj, s3_obj, config, logger):
         os.mkdir(backup)
     except FileExistsError:
         # directory already exists, verify it
-        if not os.path.realpath(backup):
+        backuppath = os.path.realpath(backup)
+        if not backuppath:
             logger.error(
-                'The BACKUP directory {}, does not resolve to a real location'.format(backup))
+                'The BACKUP directory {}, does not resolve to a real location', backup)
             lb_obj = None
 
         if not os.path.isdir(backup):
             logger.error(
-                'The BACKUP directory {}, does not resolve {} to a directory'.format(backup, os.path.realpath(backup)))
+                'The BACKUP directory {}, does not resolve {} to a directory', backup, backuppath)
             lb_obj = None
     except Exception:
         logger.error(
-            "os.mkdir: Unable to create backup destination directory: {}".format(backup))
+            "os.mkdir: Unable to create backup destination directory: {}", backup)
         lb_obj = None
 
     # make sure the quarantine directory is present
@@ -86,15 +87,16 @@ def sanity_check(lb_obj, s3_obj, config, logger):
             'Unspecified quarantine directory, no pbench-quarantine-dir config in pbench-server section')
         lb_obj = None
 
-    if not os.path.realpath(qdir):
+    qdirpath = os.path.realpath(qdir)
+    if not qdirpath:
         logger.error(
-            'The QUARANTINE directory {}, does not resolve to a real location'.format(qdir))
+            'The QUARANTINE directory {}, does not resolve to a real location', qdir)
         lb_obj = None
 
     if not os.path.isdir(qdir):
         logger.error(
             'The QUARANTINE path {}, resolves to {}'
-            'which is not a directory'.format(qdir, os.path.realpath(qdir)))
+            'which is not a directory', qdir, qdirpath)
         lb_obj = None
 
     # make sure the S3 bucket is defined, exists and is accessible
@@ -107,7 +109,7 @@ def sanity_check(lb_obj, s3_obj, config, logger):
             s3_obj.head_bucket(s3_obj.bucket_name)
         except Exception:
             logger.warning(
-                "Bucket {} does not exist or is not accessible - S3 backup is disabled".format(s3_obj.bucket_name))
+                "Bucket {} does not exist or is not accessible - S3 backup is disabled", s3_obj.bucket_name)
             s3_obj = None
 
     return (lb_obj, s3_obj)
@@ -225,7 +227,7 @@ def backup_to_s3(s3_obj, logger, controller_path, controller, tb, tar, resultnam
         # exist, or for other errors where we still want to backup locally.
         return Status.FAIL
 
-    logger.debug("Start S3 backup of {}.".format(tar))
+    logger.debug("Start S3 backup of {}.", tar)
     s3_resultname = os.path.join(controller, resultname)
 
     # Check if the result already present in s3 or not
@@ -242,11 +244,11 @@ def backup_to_s3(s3_obj, logger, controller_path, controller, tb, tar, resultnam
         if archive_md5_hex_value == s3_md5:
             # declare success
             logger.info(
-                "The tarball {key} is already present in S3 bucket with same md5".format(key=s3_resultname))
+                "The tarball {} is already present in S3 bucket with same md5", s3_resultname)
             _status = Status.SUCCESS
         else:
             logger.error(
-                "The tarball {key} is already present in S3 bucket, but with different MD5".format(key=s3_resultname))
+                "The tarball {} is already present in S3 bucket, but with different MD5", s3_resultname)
             _status = Status.FAIL
         return _status
 
@@ -256,7 +258,7 @@ def backup_to_s3(s3_obj, logger, controller_path, controller, tb, tar, resultnam
                                  ContentMD5=archive_md5_hex_value,
                                  Bucket=s3_obj.bucket_name,
                                  Key=s3_resultname)
-    logger.debug("End S3 backup of {}.".format(tar))
+    logger.debug("End S3 backup of {}.", tar)
 
     return sts
 
@@ -273,7 +275,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         # resolve the link
         tar = os.path.realpath(tb)
 
-        logger.debug("Start backup of {}.".format(tar))
+        logger.debug("Start backup of {}.", tar)
         # check tarball exist and it is a regular file
         if os.path.exists(tar) and os.path.isfile(tar):
             pass
@@ -282,7 +284,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             quarantine(qdir, logger, tb)
             nquaran += 1
             logger.error(
-                "Quarantine: {}, {} does not exist or it is not a regular file".format(tb, tar))
+                "Quarantine: {}, {} does not exist or it is not a regular file", tb, tar)
             continue
 
         archive_md5 = ("{}.md5".format(tar))
@@ -295,7 +297,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             quarantine(qdir, logger, tb)
             nquaran += 1
             logger.error(
-                "Quarantine: {}, {} does not exist or it is not a regular file".format(tb, archive_md5))
+                "Quarantine: {}, {} does not exist or it is not a regular file", tb, archive_md5)
             continue
 
         # read the md5sum from md5 file
@@ -307,7 +309,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             quarantine(qdir, logger, tb)
             nquaran += 1
             logger.exception(
-                "Quarantine: {}, Could not read {}".format(tb, archive_md5))
+                "Quarantine: {}, Could not read {}", tb, archive_md5)
             continue
 
         # match md5sum of the tarball to its md5 file
@@ -318,14 +320,14 @@ def backup_data(lb_obj, s3_obj, config, logger):
             quarantine(qdir, logger, tb)
             nquaran += 1
             logger.exception(
-                "Quarantine: {}, Could not read {}".format(tb, tar))
+                "Quarantine: {}, Could not read {}", tb, tar)
             continue
 
         if archive_tar_hex_value != archive_md5_hex_value:
             quarantine(qdir, logger, tb)
             nquaran += 1
             logger.error(
-                "Quarantine: {}, md5sum of {} does not match with its md5 file {}".format(tb, tar, archive_md5))
+                "Quarantine: {}, md5sum of {} does not match with its md5 file {}", tb, tar, archive_md5)
             continue
 
         resultname = os.path.basename(tar)
@@ -367,7 +369,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             # Do nothing when the backup fails, allowing us to retry on a
             # future pass.
             pass
-        logger.debug("End backup of {}.".format(tar))
+        logger.debug("End backup of {}.", tar)
 
     return Results(ntotal=ntotal,
                    nbackup_success=nbackup_success,
@@ -409,7 +411,7 @@ def main():
     if lb_obj is None and s3_obj is None:
         return 3
 
-    logger.info('start-{}'.format(config.TS))
+    logger.info('start-{}', config.TS)
 
     # Initiate the backup
     counts = backup_data(lb_obj, s3_obj, config, logger)
@@ -444,7 +446,7 @@ def main():
         except Exception:
             pass
 
-    logger.info('end-{}'.format(config.TS))
+    logger.info('end-{}', config.TS)
 
     return 0
 

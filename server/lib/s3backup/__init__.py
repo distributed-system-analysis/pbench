@@ -119,18 +119,18 @@ class S3Config(object):
                 # This is a transient failure and will be retried at
                 # the next invocation of the backups.
                 self.logger.error("Upload to s3 failed, connection was reset"
-                                   " while transferring {key}".format(key=Key))
+                                   " while transferring {}", Key)
                 return Status.FAIL
             except Exception:
                 # What ever the reason is for this failure, the
                 # operation will be retried the next time backups
                 # are run.
                 self.logger.exception("Upload to S3 failed"
-                                      " while transferring {key}".format(key=Key))
+                                      " while transferring {}", Key)
                 return Status.FAIL
             else:
                 self.logger.info(
-                    "Upload to s3 succeeded: {key}".format(key=Key))
+                    "Upload to s3 succeeded: {}", Key)
                 return Status.SUCCESS
         else:
             # calculate multi etag value
@@ -149,7 +149,7 @@ class S3Config(object):
                     })
             except ClientError as e:
                 self.logger.error(
-                    "Multi-upload to s3 failed, client error: {}".format(e))
+                    "Multi-upload to s3 failed, client error: {}", e)
                 return Status.FAIL
             else:
                 # compare the multi etag value uploaded in metadata
@@ -158,24 +158,23 @@ class S3Config(object):
                     obj = self.connector.get_object(
                         Bucket=self.bucket_name, Key=Key)
                 except Exception:
-                    self.logger.exception("get_object failed: {}".format(Key))
+                    self.logger.exception("get_object failed: {}", Key)
                     return Status.FAIL
                 else:
                     # The ETag value is wrapped in double quotes
                     # so we get rid of them here.
                     s3_multipart_etag = obj['ETag'].strip('"')
                     if s3_multipart_etag == etag:
-                        self.logger.info("Multi-upload to s3 succeeded: "
-                                         "{key}".format(key=Key))
+                        self.logger.info("Multi-upload to s3 succeeded: {}", Key)
                         return Status.SUCCESS
                     else:
                         # delete object from s3 and move to specific
                         # state directory for retry
                         self.connector.delete_object(
                             Bucket=self.bucket_name, Key=Key)
-                        self.logger.error("Multi-upload to s3 failed:"
-                                          " {key}, etag doesn't match".format(key=Key))
-                        self.logger.debug("object ETag = {}, calculated ETag = {}".format(s3_multipart_etag, etag))
+                        self.logger.error("Multi-upload to s3 failed: {}, etag doesn't match", Key)
+                        self.logger.debug("object ETag = {}, calculated ETag = {}",
+                                          s3_multipart_etag, etag)
                         return Status.FAIL
 
     # pass through to the corresponding connector
