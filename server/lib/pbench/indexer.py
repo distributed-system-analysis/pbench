@@ -769,15 +769,13 @@ class PbenchData(object):
             orig_ts_float = float(orig_ts)
         except Exception as e:
             self.counters['ts_not_epoch_millis_float'] += 1
-            raise BadDate("{!r} is not a float in milliseconds since the"
-                    " epoch: {}".format(orig_ts, e))
+            return (1, 'BadDateError: TS is not a float in milliseconds')
         ts_float = orig_ts_float/1000
         try:
             ts = datetime.utcfromtimestamp(ts_float)
         except Exception as e:
             self.counters['ts_not_epoch_float'] += 1
-            raise BadDate("{:f} ({!r}) is not a proper float in seconds since"
-                    " the epoch: {}".format(ts_float, orig_ts, e))
+            return (1, 'BadDateError: TS is not a proper float in seconds')
         if ts < self.ptb.start_run_ts:
             # The calculated timestamp, `ts`, is earlier that the timestamp of
             # the start of the pbench run itself, `start_run_ts`.  That can
@@ -803,21 +801,17 @@ class PbenchData(object):
                 d = timedelta(0, 0, orig_ts_float * 1000)
             except Exception as e:
                 self.counters['ts_calc_not_epoch_millis_float'] += 1
-                raise BadDate("{:f} ({!r}) is not a proper float in"
-                        " milliseconds since the epoch: {}".format(
-                            orig_ts_float, orig_ts, e))
+                return (1, 'BadDateError: TS is not a proper float in milliseconds')
             newts = self.ptb.start_run_ts + d
             if newts > self.ptb.end_run_ts:
                 self.counters['ts_before_start_run_ts'] += 1
-                raise BadDate("{} ({!r}) is before the start of the"
-                        " run ({})".format(ts, orig_ts, self.ptb.start_run_ts))
+                return (1, 'BadDateError : TS is before the start of the')
             else:
                 ts = newts
         elif ts > self.ptb.end_run_ts:
             self.counters['ts_after_end_run_ts'] += 1
-            raise BadDate("{} ({!r}) is after the end of the"
-                    " run ({})".format(ts, orig_ts, self.ptb.end_run_ts))
-        return ts.strftime("%Y-%m-%dT%H:%M:%S.%f")
+            return (1, 'BadDateError: TS is after the end of the run')
+        return (0, ts.strftime("%Y-%m-%dT%H:%M:%S.%f"))
 
     def generate_index_name(self, template_name, source, toolname=None):
         """Return a fully formed index name given its template, prefix, source
@@ -1262,6 +1256,7 @@ class ResultData(PbenchData):
 
         This generator yields: source, parent_id, doc_type
         """
+        serror=eerror=''
         iteration_md_subset = _dict_const(
                 name=iteration['iteration']['name'],
                 number=iteration['iteration']['number'])
@@ -1298,8 +1293,18 @@ class ResultData(PbenchData):
                         start = tseries[0]
                         end = tseries[-1]
                         try:
-                            start_ts = cvt_ts(start['date'])
-                            end_ts = cvt_ts(end['date'])
+                            startd = cvt_ts(start['date'])
+                            if startd[0] == 0:
+                                start_ts = startd[1]
+                            else:
+                                start_ts = '1970-01-01T00:00:00.000000'
+                                serror = startd[1]
+                            endd = cvt_ts(end['date'])
+                            if endd[0] == 0:
+                                end_ts = endd[1]
+                            else:
+                                end_ts = '1970-01-01T00:00:00.000000'
+                                eerror = startd[1]
                         except KeyError:
                             obj.counters['timeseries_missing_date'] += 1
                             continue
@@ -1363,7 +1368,7 @@ class ResultData(PbenchData):
                             else:
                                 del res['read(0) or write(1)']
                             source = _dict_const([
-                                ( '@timestamp', ts ),
+                                ( '@timestamp', ts[1] ),
                                 ( '@timestamp_original', orig_ts ),
                                 ( 'run', run_md_subset),
                                 ( 'iteration', iteration_md_subset ),
@@ -2105,7 +2110,7 @@ class ToolData(PbenchData):
                 datum[identifier] = _dict_const([
                     # Since they are all the same, we use the first to
                     # generate the real timestamp.
-                    ('@timestamp', ts_val),
+                    ('@timestamp', ts_val[1]),
                     ('@timestamp_original', str(first)),
                     ('run', self.run_metadata),
                     ('iteration', self.iteration_metadata),
@@ -2199,7 +2204,7 @@ class ToolData(PbenchData):
                         ts_val = self.mk_abs_timestamp_millis(val)
                         prev_ts = val
                         datum = _dict_const()
-                        datum['@timestamp'] = ts_val
+                        datum['@timestamp'] = ts_val[1]
                         datum['@timestamp_original'] = val
                         datum['run'] = self.run_metadata
                         datum['iteration'] = self.iteration_metadata
@@ -2321,7 +2326,7 @@ class ToolData(PbenchData):
                     assert prev_ts_orig <= ts_orig, "prev_ts_orig %r > ts_orig %r" % (prev_ts_orig, ts_orig)
                 ts_str = self.mk_abs_timestamp_millis(ts_orig * 1000)
                 record = _dict_const()
-                record['@timestamp'] = ts_str
+                record['@timestamp'] = ts_str[1]
                 record['@timestamp_original'] = str(ts_orig)
                 record['run'] = self.run_metadata
                 record['iteration'] = self.iteration_metadata
@@ -2423,7 +2428,7 @@ class ToolData(PbenchData):
             int_id = parts[0][:-1]
             if int_id in ( 'ERR', 'MIS' ):
                 record = _dict_const()
-                record['@timestamp'] = ts_str
+                record['@timestamp'] = ts_str[1]
                 record['@timestamp_original'] = str(ts_orig)
                 record['run'] = self.run_metadata
                 record['iteration'] = self.iteration_metadata
@@ -2448,7 +2453,7 @@ class ToolData(PbenchData):
                     val = converter(parts[col])
                     col += 1
                     record = _dict_const()
-                    record['@timestamp'] = ts_str
+                    record['@timestamp'] = ts_str[1]
                     record['@timestamp_original'] = str(ts_orig)
                     record['run'] = self.run_metadata
                     record['iteration'] = self.iteration_metadata
