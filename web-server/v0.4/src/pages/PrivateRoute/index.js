@@ -10,6 +10,7 @@ import {
   DropdownToggle,
 } from '@patternfly/react-core';
 import { CaretDownIcon } from '@patternfly/react-icons';
+import LoginHandler from '../LoginHandler';
 
 class PrivateRoute extends Component {
   constructor(props) {
@@ -22,8 +23,9 @@ class PrivateRoute extends Component {
   }
 
   setLoggedIn = loggedIn => {
+    console.log('Setting loggedIn');
     this.setState({
-      isLoggedIn: !loggedIn,
+      isLoggedIn: loggedIn,
     });
   };
 
@@ -140,8 +142,18 @@ class PrivateRoute extends Component {
             <Fragment>Register</Fragment>
           ) : (
             <Fragment>
-              {!currPage ? loginMethods : <Fragment>Login</Fragment>}
-              {restLoginHandlers}
+              {!currPage ? (
+                loginMethods
+              ) : (
+                <Fragment>
+                  <LoginHandler
+                    setLoggedIn={this.setLoggedIn}
+                    pageToRender={currPage}
+                    navigateToHome={this.navigateToHome}
+                  />
+                </Fragment>
+              )}
+              {currPage === 'pbenchLogin' || !currPage ? restLoginHandlers : <Fragment />}
             </Fragment>
           )}
         </GridItem>
