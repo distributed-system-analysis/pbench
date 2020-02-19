@@ -1,8 +1,0 @@
-type Url {
-  id: ID! @id
-  createdAt: DateTime! @createdAt
-  updatedAt: DateTime! @updatedAt
-  config: String!
-  description: String
-}
-
