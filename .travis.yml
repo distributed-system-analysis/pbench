@@ -66,3 +66,21 @@ jobs:
         - sudo apt-get update -y -qq
         - sudo apt-get install -y -qq yarn
       script: ./web-server/v0.4/e2etests
+
+    - stage: "Agent python tests"
+      name: "python-agent tests"
+      langauge: python
+      python:
+          - "3.6"
+      env:
+        matrix:
+          - TOXENV=py3
+          - TOXENV=pep8
+        install:
+            - travis_retry pip install tox
+        script:
+            - tox
+            - test -d .tox/$TOXENV/log && cat .tox/$TOXENV/log/*.log || true
+        cache:
+          directories:
+              - $HOME/.cache/pip
