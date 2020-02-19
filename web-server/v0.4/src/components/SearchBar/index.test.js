@@ -1,6 +1,6 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import { Input, Icon } from 'antd';
+import { shallow } from 'enzyme';
+import { Input } from 'antd';
 import SearchBar from './index';
 
 const { Search } = Input;
@@ -48,11 +48,5 @@ describe('test interaction of SearchBar page component', () => {
   it('renders Icon if search value is not empty', () => {
     wrapper.setState({ searchValue: 'abc' });
     expect(wrapper.find(Search).props().suffix.props).not.toBe({});
-  });
-  it('click on empty icon', () => {
-    const emitEmpty = jest.spyOn(wrapper.instance(), 'emitEmpty');
-    const click = mount(<Icon type="close-circle" onClick={emitEmpty} label="test" />);
-    click.find(Icon).prop('onClick')();
-    expect(emitEmpty).toHaveBeenCalled();
   });
 });
