@@ -2,6 +2,7 @@ module.exports = [
   {
     path: '/',
     component: '../layouts/BasicLayout',
+    Routes: ['./src/pages/PrivateRoute/index.js'],
     routes: [
       {
         path: '/',
