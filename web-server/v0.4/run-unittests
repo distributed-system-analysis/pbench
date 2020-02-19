@@ -1,0 +1,60 @@
+#!/bin/bash
+
+dir=$(dirname $0)
+let sts=0
+
+function tail_and_wait {
+    pid=$1
+    name=$2
+    file=$3
+    printf -- "+++ ${name} Unit Tests +++\n\n"
+
+    tail -n 9999999 -f ${file} --pid ${pid}
+    if [[ $? -ne 0 ]]; then
+        printf -- "tail -f ${file} --pid ${pid} failed\n" >&2
+        return 1
+    fi
+    wait ${pid}
+    let tw_sts=$?
+    if [[ $tw_sts -ne 0 ]]; then
+	status="FAILED"
+    else
+	status="SUCCEEDED"
+    fi
+    rm -f ${file}
+
+    printf -- "\n--- ${name} Unit Tests ($status) ---\n"
+    return $tw_sts
+}
+
+trap "kill -KILL -$$ > /dev/null 2>&1" INT TERM QUIT
+
+> /var/tmp/agent.out
+$dir/agent/run-unittests > /var/tmp/agent.out 2>&1 < /dev/null &
+apid=$!
+
+> /var/tmp/server.out
+$dir/server/bin/unittests > /var/tmp/server.out 2>&1 < /dev/null &
+spid=$!
+
+> /var/tmp/dashboard.out
+$dir/web-server/v0.4/unittests > /var/tmp/dashboard.out 2>&1 < /dev/null &
+dpid=$!
+
+tail_and_wait $apid 'Agent' /var/tmp/agent.out
+let sts=sts+$?
+
+printf -- "\n\n\n"
+
+tail_and_wait $spid 'Server' /var/tmp/server.out
+let sts=sts+$?
+
+printf -- "\n\n\n"
+
+tail_and_wait $dpid 'Dashboard' /var/tmp/dashboard.out
+let sts=sts+$?
+
+if [ $sts -gt 0 ]; then
+    echo "Unit tests FAILED"
+fi
+exit $sts
