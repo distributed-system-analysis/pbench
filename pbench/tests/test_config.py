@@ -13,16 +13,23 @@ class TestPbenchConfig(base.BaseTestCase):
         super(TestPbenchConfig, self).setUp()
         self.testdir = tempfile.mkdtemp()
 
-    """
     def test_config_get(self):
-        self.config = config.PbenchConfig()
+        fake_content = """
+        [pbench-agent]
+        pbench_run = /var/lib/pbench-agent
+        """
+        pbench_config = os.path.join(self.testdir, 'pbench_agent.cfg_name')
+        with open(pbench_config, 'w+') as f:
+            f.write(fake_content)
+        os.environ['CONFIG'] = pbench_config
+
+        c = config.PbenchConfig()
         self.assertEqual('/var/lib/pbench-agent', 
-            self.config.get('pbench-agent', 'pbench_run'))
+            c.get('pbench-agent', 'pbench_run'))
 
     def test_missing_config(self):
         with pytest.raises(exceptions.PbenchMissingConfig):
             config.PbenchConfig(cfg_name='/fake/pbench-agent.cfg')
-    """
 
     def test_show_config(self):
         fake_content = """
