@@ -64,14 +64,14 @@ def main(ctx):
     cfg = parse_config(ctx.job_file)
 
     _delta = {
-        'bs' : ctx.bs,
-        'rw' : ctx.rw,
+        'bs': ctx.bs,
+        'rw': ctx.rw,
     }
 
     # Expand targets for each job file section with '$target' in the name:
     jobfile = OrderedDict()
     for target in ctx.targets:
-        for k,v in cfg.items():
+        for k, v in cfg.items():
             if '$target' in k:
                 key = k.replace('$target', target)
             else:
@@ -85,7 +85,7 @@ def main(ctx):
         val = ctx.__dict__[a]
         if not (val is None or val is ""):
             for k in jobfile.keys():
-                if a in jobfile[k]: # has_key(a)
+                if a in jobfile[k]:  # has_key(a)
                     jobfile[k][a] = val
 
     write_config(jobfile)

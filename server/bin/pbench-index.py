@@ -192,7 +192,7 @@ def main(options, name):
                 # Audit should pick up missing .md5 file in ARCHIVE directory.
                 continue
             else:
-                tarballs.append( (size, controller, tb) )
+                tarballs.append((size, controller, tb))
     except Exception:
         idxctx.logger.exception("Unexpected error encountered generating list"
                                 " of tar balls to process")
@@ -257,7 +257,7 @@ def main(options, name):
 
             indexed = os.path.join(tmpdir, "{}.{}.indexed".format(
                 name, idxctx.TS))
-            erred   = os.path.join(tmpdir, "{}.{}.erred"  .format(
+            erred = os.path.join(tmpdir, "{}.{}.erred"  .format(
                 name, idxctx.TS))
             skipped = os.path.join(tmpdir, "{}.{}.skipped".format(
                 name, idxctx.TS))
@@ -469,14 +469,14 @@ if __name__ == '__main__':
     parser.add_argument(
         "-C", "--config", dest="cfg_name",
         help="Specify config file")
-    parser.set_defaults(cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG"))
+    parser.set_defaults(cfg_name=os.environ.get("_PBENCH_SERVER_CONFIG"))
     parser.add_argument(
         "-I", "--dump-index-patterns", action="store_true",
         dest="dump_index_patterns", help="Emit a list of index patterns used")
     parser.add_argument(
         "-Q", "--dump-templates", action="store_true", dest="dump_templates",
         help="Emit the full JSON document for each index template used")
-    parser.set_defaults(index_tool_data = False)
+    parser.set_defaults(index_tool_data=False)
     parser.add_argument(
         "-T", "--tool-data", action="store_true", dest="index_tool_data",
         help="Only index tool data, assumes run data already exists")

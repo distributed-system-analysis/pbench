@@ -56,7 +56,7 @@ def init(opts, env_config):
     if opts.filename:
         conf_file = opts.filename
     elif env_config in os.environ:
-        conf_file= os.environ[env_config]
+        conf_file = os.environ[env_config]
     else:
         return (None, [])
 

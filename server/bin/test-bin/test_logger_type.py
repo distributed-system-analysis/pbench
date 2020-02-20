@@ -31,7 +31,7 @@ def mock_the_handler(logger, logger_type, fname):
     # logger.logger is used: the first logger is used to format 
     # the logs with the help of _styleAdapter and the second is 
     # used to log the messages
-    fh = logging.FileHandler(os.path.join(logdir,fname))
+    fh = logging.FileHandler(os.path.join(logdir, fname))
     fh.setLevel(logging.DEBUG)
     logger.logger.addHandler(fh)
 
@@ -47,8 +47,8 @@ def test_pbench_logger():
     logger = mock_the_handler(logger, logger_type, log_files[logger_type])
     logger.debug(log_msgs[logger_type])
 
-    if os.path.isfile(os.path.join(logdir,log_files[logger_type])):
-        with open(os.path.join(logdir,log_files[logger_type]), 'r') as f:
+    if os.path.isfile(os.path.join(logdir, log_files[logger_type])):
+        with open(os.path.join(logdir, log_files[logger_type]), 'r') as f:
             assert f.read()[:-1] == log_msgs[logger_type], "Mismatch: the file did not contain the expected message."
 
 if __name__ == "__main__":

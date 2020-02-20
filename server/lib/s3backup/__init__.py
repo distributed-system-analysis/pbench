@@ -87,7 +87,7 @@ class S3Config(object):
         return self.connector.getsize(tar)
 
     # pass through to the corresponding connector method
-    def get_tarball_header(self,  Bucket=None, Key=None):
+    def get_tarball_header(self, Bucket=None, Key=None):
         return self.connector.get_object(Bucket=Bucket, Key=Key)
 
     @staticmethod

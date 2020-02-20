@@ -42,8 +42,8 @@ class _MockPutTemplate(object):
         name = kwargs['name']
         mapping_name = "pbench-{}".format(name.split('.')[2])
         tmpl = {}
-        tmpl[name] = { 'mappings': {} }
-        tmpl[name]['mappings'][mapping_name] = { '_meta': { 'version': 0 } }
+        tmpl[name] = {'mappings': {}}
+        tmpl[name]['mappings'][mapping_name] = {'_meta': {'version': 0}}
         return tmpl
 
     def put_template(self, *args, **kwargs):
@@ -57,12 +57,12 @@ class _MockPutTemplate(object):
 
     def report(self):
         self.mock_mappings = {}
-        names = [ name for name in self.mock_collected_templates.keys() ]
+        names = [name for name in self.mock_collected_templates.keys()]
         names.sort()
         for name in names:
             print("Template: ", name)
             body = self.mock_collected_templates[name]
-            for name,mapping in body['mappings'].items():
+            for name, mapping in body['mappings'].items():
                 assert name not in self.mock_mappings, \
                     "Duplicate mapping name encountered:" \
                     " {} ({!r})".format(
@@ -107,7 +107,7 @@ class _MockStreamingBulk(object):
                 msb.actions_l.append(action)
                 msb.validate_type(action)
             resp = {}
-            resp[action['_op_type']] = { '_id': action['_id'] }
+            resp[action['_op_type']] = {'_id': action['_id']}
             if dcnt > 2:
                 # Report each duplicate
                 resp[action['_op_type']]['status'] = 409

@@ -343,7 +343,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             lb_obj, logger, controller_path, controller, tb, tar, resultname, archive_md5, archive_md5_hex_value)
 
         if local_backup_result == Status.SUCCESS:
-            nbackup_success  += 1
+            nbackup_success += 1
         elif local_backup_result == Status.FAIL:
             nbackup_fail += 1
         else:

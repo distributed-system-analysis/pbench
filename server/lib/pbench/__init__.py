@@ -160,7 +160,7 @@ def get_pbench_logger(caller, config):
             handler = logging.FileHandler(os.path.join(logdir, "{}.log".format(caller)))
         elif config.logger_type == "devlog":
             handler = handlers.SysLogHandler(address='/dev/log')
-        elif config.logger_type == "hostport":         #hostport logger type uses UDP-based logging
+        elif config.logger_type == "hostport":  # hostport logger type uses UDP-based logging
             handler = handlers.SysLogHandler(address=(config.logger_host, int(config.logger_port)))
         else:
             raise Exception("Unsupported logger type")
@@ -271,7 +271,7 @@ class PbenchConfig(object):
             " TO-DELETE SATELLITE-DONE"
         # List of the state directories which will be excluded during rsync.
         # Note that range(1,12) generates the sequence [1..11] inclusively.
-        self.EXCLUDE_DIRS = "_QUARANTINED " + self.LINKDIRS + " " + " ".join([ "WONT-INDEX.{:d}".format(i) for i in range(1,12) ])
+        self.EXCLUDE_DIRS = "_QUARANTINED " + self.LINKDIRS + " " + " ".join(["WONT-INDEX.{:d}".format(i) for i in range(1, 12)])
 
     def get(self, *args, **kwargs):
         return self.conf.get(*args, **kwargs)

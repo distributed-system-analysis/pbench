@@ -13,7 +13,7 @@ parser = ArgumentParser(_NAME_)
 parser.add_argument(
     "-C", "--config", dest="cfg_name",
     help="Specify config file")
-parser.set_defaults(cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG"))
+parser.set_defaults(cfg_name=os.environ.get("_PBENCH_SERVER_CONFIG"))
 parser.add_argument('prog', metavar='PROG', type=str, nargs=1,
                     help='the program name of the caller')
 parser.add_argument('args', metavar='args', type=str, nargs='*',
@@ -50,8 +50,8 @@ except BadConfig as e:
     sys.exit(1)
 
 # Exclude the "files" and "conf" attributes from being exported
-vars = sorted([ key for key in config.__dict__.keys() \
-                if key not in ('files', 'conf', 'timestamp', '_unittests', 'get') ])
+vars = sorted([key for key in config.__dict__.keys() \
+               if key not in ('files', 'conf', 'timestamp', '_unittests', 'get')])
 for att in vars:
     try:
         os.environ[att] = getattr(config, att)
@@ -64,5 +64,5 @@ if config._unittests:
     os.environ['_PBENCH_SERVER_TEST'] = "1"
 
 cmd = "{}.sh".format(sys.argv[1])
-args = [ cmd ] + sys.argv[2:]
+args = [cmd] + sys.argv[2:]
 os.execv(cmd, args)
