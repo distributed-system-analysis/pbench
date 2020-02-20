@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-import os, sys
+from argparse import ArgumentParser
+import os
+import sys
+
+from pbench import PbenchConfig, BadConfig
+
 if __name__ != '__main__':
     sys.exit(1)
 
-from argparse import ArgumentParser
 
 _NAME_ = "pbench-base.py"
 
@@ -42,7 +46,6 @@ else:
 # existing shell scripts.  This maintains the single-source-of-
 # truth for those definitions in the PbenchConfig class, but
 # still accessible to all pbench bash shell scripts.
-from pbench import PbenchConfig, BadConfig
 try:
     config = PbenchConfig(config_name)
 except BadConfig as e:

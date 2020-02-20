@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
+from argparse import ArgumentParser
+import os
+from socket import gethostname
 import sys
+
+from pbench.report import Report
+from pbench import PbenchConfig, BadConfig
+
 if __name__ != '__main__':
     sys.exit(1)
 
-import os
 _prog = os.path.basename(sys.argv[0])
 if _prog.endswith('.py'):
     _prog = _prog[:-3]
 
-from argparse import ArgumentParser
 
 parser = ArgumentParser(_prog)
 parser.add_argument(
@@ -41,7 +46,6 @@ parser.add_argument(
     help="The file containing the report to index")
 parsed = parser.parse_args()
 
-from pbench import PbenchConfig, BadConfig
 
 try:
     config = PbenchConfig(parsed.cfg_name)
@@ -49,8 +53,6 @@ except BadConfig as e:
     print("{}: {}".format(_prog, e), file=sys.stderr)
     sys.exit(1)
 
-from pbench.report import Report
-from socket import gethostname
 hostname = gethostname()
 pid = parsed.pid
 group_id = parsed.group_id
