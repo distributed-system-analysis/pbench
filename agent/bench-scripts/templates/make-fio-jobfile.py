@@ -107,4 +107,3 @@ if __name__ == '__main__':
     for a in other_args:
         arg('-%s' % a, required=(a in ['bs', 'rw']), default=None, help=a)
     main(p.parse_args())
-
