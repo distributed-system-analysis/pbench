@@ -114,15 +114,25 @@ class BackupObject(object):
         self.content_list = []
         kwargs = {'Bucket': self.s3_config_obj.bucket_name}
         try:
-            while True:
+            # We loop because the objects are returned a "page" at a
+            # time and all the pages except the last return a
+            # continuation token.
+            done = False
+            while not done:
                 resp = self.s3_config_obj.list_objects(**kwargs)
                 for obj in resp['Contents']:
-                    md5_returned = obj['ETag'].strip("\"")
+                    md5_returned = self.s3_config_obj.header_md5(obj)
                     self.content_list.append(Entry(obj['Key'], md5_returned))
                 try:
                     kwargs['ContinuationToken'] = resp['NextContinuationToken']
                 except KeyError:
-                    break
+                    # that was the last page
+                    done = True
+                self.logger.debug('list_objects: got {} objects{}',
+                                  len(resp['Contents']),
+                                  " - continuing..." if not done else ""
+                                  )
+
         except Exception:
             self.logger.exception(
                     "ERROR fetching list of objects from S3")
@@ -178,7 +188,7 @@ class BackupObject(object):
                     "ERROR - {}\n".format(msg))
 
 
-def compare_entry_lists(list_one_obj, list_two_obj, report):
+def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
     # Compare the two lists and report the differences.
     sorted_list_one_content = sorted(list_one_obj.content_list, key=lambda k: k.name)
     sorted_list_two_content = sorted(list_two_obj.content_list, key=lambda k: k.name)
@@ -190,10 +200,11 @@ def compare_entry_lists(list_one_obj, list_two_obj, report):
             i += 1
             j += 1
         elif sorted_list_one_content[i].name == sorted_list_two_content[j].name:
-            # the md5s are different even though the names are the same
+            # The md5s are different even though the names are the same.
             report_text = "MD5 values don't match for: {}\n".format(
                 sorted_list_one_content[i].name)
             report.write(report_text)
+            logger.debug(report_text)
             i += 1
             j += 1
         elif sorted_list_one_content[i].name < sorted_list_two_content[j].name:
@@ -202,6 +213,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report):
                                         list_one_obj.description,
                                         list_two_obj.description)
             report.write(report_text)
+            logger.debug(report_text)
             i += 1
         else:
             assert sorted_list_one_content[i].name > sorted_list_two_content[j].name, "Logic bomb!"
@@ -210,6 +222,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report):
                                         list_two_obj.description,
                                         list_one_obj.description)
             report.write(report_text)
+            logger.debug(report_text)
             j += 1
     assert (i == len_list_one_content) or (j == len_list_two_content), "Logic bomb!"
 
@@ -220,6 +233,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report):
                                                     list_two_obj.description,
                                                     list_one_obj.description)
             report.write(report_text)
+            logger.debug(report_text)
     elif i < len_list_one_content and j == len_list_two_content:
         for entry in sorted_list_one_content[i:len_list_one_content]:
             report_text = "{}: present in {} but not in {}\n".format(
@@ -227,6 +241,7 @@ def compare_entry_lists(list_one_obj, list_two_obj, report):
                                                     list_one_obj.description,
                                                     list_two_obj.description)
             report.write(report_text)
+            logger.debug(report_text)
     else:
         assert (i == len_list_one_content) and (j == len_list_two_content), "Logic bomb!"
 
@@ -345,6 +360,7 @@ def main():
                     # Create a report for failed MD5 results from ARCHIVE (Question 1)
                     archive_obj.report_failed_md5(reportfp)
                     sts += 1
+                    logger.debug('Checking MD5 signature of archive: {} errors', md5_result_archive)
             logger.debug('Finished checking MD5 signatures of archive')
 
             logger.debug('Checking MD5 signatures of local backup')
@@ -361,22 +377,27 @@ def main():
                     # Create a report for failed MD5 results from BACKUP (Question 2)
                     local_backup_obj.report_failed_md5(reportfp)
                     sts += 1
+                    logger.debug('Checking MD5 signature of local backup: {} errors', md5_result_backup)
             logger.debug('Finished checking MD5 signatures of local backup')
 
             # Compare ARCHIVE with BACKUP (Questions 3 and 3a).
             msg = "Comparing ARCHIVE with BACKUP"
             reportfp.write("\n{}\n{}\n".format(msg, "-" * len(msg)))
+            logger.debug("{}: start", msg)
             compare_entry_lists(archive_obj,
                                 local_backup_obj,
-                                reportfp)
+                                reportfp, logger)
+            logger.debug("{}: end", msg)
 
             if s3_config_obj is not None:
                 # Compare ARCHIVE with S3 (Questions 4, 4a, and 4b).
                 msg = "Comparing ARCHIVE with S3"
                 reportfp.write("\n{}\n{}\n".format(msg, "-" * len(msg)))
+                logger.debug("{}: start", msg)
                 compare_entry_lists(archive_obj,
                                     s3_backup_obj,
-                                    reportfp)
+                                    reportfp, logger)
+                logger.debug("{}: end", msg)
 
             if s3_config_obj is None:
                 s3_start = "<skipped>"
@@ -394,12 +415,14 @@ def main():
             # Rewind to the beginning.
             reportfp.seek(0)
 
+            logger.debug('Sending report: start')
             report = Report(config, _NAME_)
             report.init_report_template()
             try:
                 report.post_status(config.timestamp(), "status", reportfp.name)
             except Exception:
                 pass
+            logger.debug('Sending report: end')
 
     logger.info('end-{}', config.TS)
 

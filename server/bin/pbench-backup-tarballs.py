@@ -6,7 +6,7 @@ import sys
 import glob
 import shutil
 import tempfile
-from s3backup import S3Config, Status
+from s3backup import S3Config, Status, NoSuchKey
 
 from pbench import PbenchConfig, BadConfig, get_pbench_logger, quarantine, \
         rename_tb_link, md5sum
@@ -232,12 +232,15 @@ def backup_to_s3(s3_obj, logger, controller_path, controller, tb, tar, resultnam
 
     # Check if the result already present in s3 or not
     try:
-        obj = s3_obj.get_tarball_header(Bucket=s3_obj.bucket_name,
-                                        Key='{}'.format(s3_resultname))
-    except Exception:
+        tbh = s3_obj.get_tarball_header(Bucket=s3_obj.bucket_name,
+                                        Key=s3_resultname)
+    except NoSuchKey:
         s3_md5 = None
+    except Exception as e:
+        logger.error("Exception raised by get_tarball_header(): {}", e)
+        return Status.FAIL
     else:
-        s3_md5 = obj['ETag'].strip("\"")
+        s3_md5 = s3_obj.s3_md5(tbh)
 
     if s3_md5 is not None:
         # compare md5 which we already have so no need to recalculate
@@ -253,6 +256,7 @@ def backup_to_s3(s3_obj, logger, controller_path, controller, tb, tar, resultnam
         return _status
 
     size = s3_obj.getsize(tar)
+    logger.debug("tarball: {}, size = {}", tar, size)
     with open(tar, 'rb') as f:
         sts = s3_obj.put_tarball(Name=tar, Body=f, Size=size,
                                  ContentMD5=archive_md5_hex_value,
@@ -334,7 +338,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         controller_path = os.path.dirname(tar)
         controller = os.path.basename(controller_path)
 
-        # This function call will handle all the local backup related
+        # This will handle all the local backup related
         # operations and count the number of successes and failures.
         local_backup_result = backup_to_local(
             lb_obj, logger, controller_path, controller, tb, tar, resultname, archive_md5, archive_md5_hex_value)
@@ -347,7 +351,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             assert False, "Impossible situation, local_backup_result = {!r}".format(
                 local_backup_result)
 
-        # This function call will handle all the S3 bucket related operations
+        # This will handle all the S3 bucket related operations
         # and count the number of successes and failures.
         s3_backup_result = backup_to_s3(
             s3_obj, logger, controller_path, controller, tb, tar, resultname, archive_md5_hex_value)
