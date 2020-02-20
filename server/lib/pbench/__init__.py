@@ -150,7 +150,7 @@ def get_pbench_logger(caller, config):
 
     We also return a logger that supports "brace" style message formatting,
     e.g. logger.warning("that = {}", that)
-    """ 
+    """
 
     pbench_logger = logging.getLogger(caller)
     if caller not in _handlers:

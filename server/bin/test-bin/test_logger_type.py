@@ -30,8 +30,8 @@ def mock_the_handler(logger, logger_type, fname):
     hdlr = logger.logger.handlers[0]
     logger.logger.removeHandler(hdlr)
 
-    # logger.logger is used: the first logger is used to format 
-    # the logs with the help of _styleAdapter and the second is 
+    # logger.logger is used: the first logger is used to format
+    # the logs with the help of _styleAdapter and the second is
     # used to log the messages
     fh = logging.FileHandler(os.path.join(logdir, fname))
     fh.setLevel(logging.DEBUG)
