@@ -1,0 +1,30 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+PROG="$(basename ${0})"
+
+tool_output_dir="${1}"
+if [[ ! -d "${tool_output_dir}" ]]; then
+    printf -- "%s: invalid tool output directory, '%s'\n" "${PROG}" "${tool_output_dir}" >&2
+    exit 1
+fi
+shift
+
+command -v perf > /dev/null
+if [[ ${?} -ne 0 ]]; then
+	printf -- "%s: missing required 'perf' command\n" "${PROG}" >&2
+	exit 1
+fi
+
+if ! grep -q debugfs /proc/mounts; then
+        printf -- "%s: required debugfs not mounted\n" "${PROG}" >&2
+        exit 1
+fi
+
+if [[ "${1}" == "record" ]]; then
+	# Eat the provided "record" verb.
+	shift
+fi
+
+echo "${@}" > ${tool_output_dir}/record_opts
+perf record ${@} --output=${tool_output_dir}/perf.data

@@ -1,0 +1,3 @@
+cat /tmp/_does_not_exist_.file
+date +%s.%N
+sleep 42

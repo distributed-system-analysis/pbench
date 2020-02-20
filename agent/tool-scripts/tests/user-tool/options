@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cp ${_testsrc}/foo42.* ${_rundir}/tmp/ > /dev/null 2>&1
+if [[ ${?} -ne 0 ]]; then
+    echo "option setup failed"
+    exit 1
+fi
+
+echo "--tool-name=foo42 --start-script=${_rundir}/tmp/foo42.start --stop-script=${_rundir}/tmp/foo42.stop --postprocess-script=${_rundir}/tmp/foo42.post"
+exit 0

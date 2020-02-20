@@ -1,115 +1,108 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
-
-# source the base script
-. "$pbench_bin"/base
-
-# Perftool scripts must provide the following functions
+# Pbench tool scripts must provide the following functions
 # 1) Install the tool
 # 2) Start data collection
 # 3) Stop data collection
-# 4) post-process the data
+# 4) Post-process the data
+
+# The "external-data-source" tool does not actually get executed, but is here
+# so that the tool verification process work.
 
 # Defaults
-tool=$script_name
-tool_bin=/usr/local/bin/$tool
-group=default
+tool="$(basename ${0})"
 mode=""
+source=""
+type=""
+
+function usage {
+    printf -- "The following options are available:\n"
+    printf -- "\t--install                 install this perf tool\n\n"
+    printf -- "\t--start|stop|postprocess  start/stop/post-process the data collection\n"
+    printf -- "\t--dir=str                 directory to store data collection (required)\n"
+    printf -- "\t--type=str                the type of the external data source (required, currently only \"url\" is supported)\n"
+    printf -- "\t--source=str              the only supported \"type\" of external data source currently is \"url\", to which one\n"
+    printf -- "\t                          provides the URL for the data source via \"--source\" parameter (required)\n"
+}
 
 # Process options and arguments
-opts=$(getopt -q -o idp --longoptions "type:,source:,group:,options:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
-if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following options are available: \n\n"
-	printf -- "\t--install,			install this perf tool\n"
-	printf "\n"
-	printf -- "\n\t--start|stop|postprocess	start/stop/post-process the data collection\n"
-        printf -- "\n\t--type=str 		the type of the external data source (required, currently only "url" is supported)\n"
-        printf -- "\n\t--source=str 		the only supported "type" of external data source currently is "url", to which one \n\t\t\t\tprovides the URL for the data source via "--source" parameter(required)\n"
-        printf -- "\n\t--group=str		the perftool group (required)\n"
-	exit 1
+opts="$(getopt -q -o d --longoptions "install,postprocess,start,stop,dir:,source:,type:" -n "getopt.sh" -- "${@}")"
+if [[ ${?} -ne 0 ]]; then
+    printf -- "\n%s: you specified an invalid option\n\n" "${tool}" >&2
+    usage >&2
+    exit 1
 fi
-eval set -- "$opts";
+eval set -- "${opts}"
 while true; do
-	case "$1" in
-		--install)
-		mode="install"
-		shift;
-		;;
-		--start)
-		mode="start"
-		shift;
-		;;
-		--stop)
-		mode="stop"
-		shift;
-		;;
-		--postprocess)
-		mode="postprocess"
-		shift;
-		;;
-		-g|--group)
-		shift;
-		if [ -n "$1" ]; then
-			group="$1"
-			shift
-		fi
-		;;
-                --type)
-                shift;
-		if [[ -z `echo "$1" | tr -d "[:alnum:]_-"` ]] && [[ "$1" =~ ^[a-zA-Z] ]]; then 
-			type="$1"
-			shift
-		else
-			echo "Error: type must be alphanumeric and should contains only -,_"
-			exit 1
-		fi
-		;;
-		--source)
-                shift;
-                if [ -n "$1" ]; then
-                        source="$1"
-                        shift
-                fi
-                ;;
-		-o|--options)
-		shift;
-		if [ -n "$1" ]; then
-			options="$1"
-			shift
-		fi
-		;;
-		--)
-		shift;
-		break;
-		;;
-	esac
+    case "${1}" in
+	--install)
+	    mode="install"
+	    shift
+	    ;;
+	--postprocess)
+	    mode="postprocess"
+	    shift
+	    ;;
+	--start)
+	    mode="start"
+	    shift
+	    ;;
+	--stop)
+	    mode="stop"
+	    shift
+	    ;;
+	-d|--dir)
+	    shift
+	    if [[ -n "${1}" ]]; then
+		tool_dir="${1}"
+		shift
+	    fi
+	    ;;
+	--source)
+            shift
+            if [[ -n "${1}" ]]; then
+		source="${1}"
+		shift
+            fi
+            ;;
+	--type)
+	    shift
+	    if [[ -n "${1}" ]]; then
+		type="${1}"
+		shift
+	    fi
+	    ;;
+	--)
+	    shift
+	    break
+	    ;;
+    esac
 done
 
-if [ -z "$source" -o -z "$type" ]; then
-    echo "Error: type and source parameters are mandatory"
+if [[ -z "${mode}" ]]; then
+    printf -- "%s: Error, one of the following options is required, --install|--start|--stop|--postprocess\n\n" "${tool}" >&2
+    usage >&2
     exit 1
 fi
 
-tool_dir="$dir/tools-$group"
-tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
-tool_cmd_file="$tool_output_dir/$tool.cmd"
-tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
-tool_stdout_file=$tool_output_dir/$tool-stdout.txt
-tool_stderr_file=$tool_output_dir/$tool-stderr.txt
-case "$mode" in
-        install)
-        ;;
-        start)
-        ;;
-        stop)
-        ;;
-	postprocess)
-	;;
-esac
+if [[ -z "${source}" || -z "${type}" ]]; then
+    printf -- "%s: Error, --type and --source parameters are mandatory\n\n" "${tool}" >&2
+    usage >&2
+    exit 1
+fi
 
+if [[ "${mode}" == "start" ]]; then
+    if [[ -z "${tool_dir}" || ! -d "${tool_dir}" ]]; then
+       	printf -- "%s: Error, --dir argument is required with a valid directory\n\n" "${tool}" >&2
+	usage >&2
+	exit 1
+    fi
+    tool_output_dir=${tool_dir}/${tool}
+    mkdir -p ${tool_output_dir}
+    if [[ $? -ne 0 ]]; then
+	printf -- "%s: failed to create tool output directory, '%s'\n" "${tool}" "${tool_output_dir}" >&2
+        exit 1
+    fi
+    printf -- "{ \"type\": \"%s\", \"source\": \"%s\" }\n" "${type}" "${source}" > ${tool_output_dir}/data-source.json
+fi

@@ -376,7 +376,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 
 						((client_nr++))
 					done
-					pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+					pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
 					# start the dbench clients
 					echo "test sample $sample of $nr_samples"
@@ -400,7 +400,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 						else # using remote clients
 							final_cmd_file="ssh $ssh_opts $client \"$benchmark_client_cmd_file\""
 						fi
-						if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
+						if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
 							$final_cmd_file >$result_file &
 						else
 							$final_cmd_file >$result_file
@@ -410,8 +410,8 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 					wait
 
 					# stop tools and clean up
-					pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-					pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+					pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
+					pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
 				else
 					if [[ ! -d $benchmark_results_dir ]]; then
 						error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"

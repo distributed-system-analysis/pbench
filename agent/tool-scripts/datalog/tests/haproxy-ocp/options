@@ -1,0 +1,4 @@
+#!/bin/bash
+
+printf -- "${_execdir} 3 True\n"
+exit 0
