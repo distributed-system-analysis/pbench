@@ -2911,10 +2911,10 @@ def search_by_ip(sos_d_list, ip):
     # import pdb; pdb.set_trace()
     for sos_d in sos_d_list:
         for l in sos_d.values():
-            if type(l) != type([]):
+            if not isintance(l, list):
                 continue
             for d in l:
-                if type(d) != type({}):
+                if not isinstance(d, dict):
                     continue
                 if ip in d.values():
                     return sos_d['hostname-f']
