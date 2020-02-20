@@ -1,0 +1,242 @@
+# -*- mode: org -*-
+* Mocking out S3
+
+S3 client interfaces used:
+
+- list_objects_v2(**kwargs)
+- head_bucket(Bucket=bucket)
+- get_object(Bucket=bucket, Key=key)
+- put_object(Bucket=bucket, Key=key, Body=body, ContentMD5=md5)
+- upload_fileobj(body, bucket, key, Config=config, ExtraArgs=extra)
+- delete_object(Bucket=bucket, Key=key)
+
+** API usage by pbench-backup-tarballs
+Through S3Config.head_bucket (direct pass-through):
+- head_bucket
+
+Through put_tarball:
+- put_object
+- upload_fileobj
+- get_object
+- delete_object
+
+** API usage by pbench-verify-backup-tarballs
+Through S3Config.list_objects:
+- list_objects_v2
+
+
+** =get_object= response
+=get_object= returns a response =obj= with =obj['ETag']= containing
+the contents of the ETag file (including the double quotes wrapping):
+no distinction is named here between large and small objects.  The
+distinction is provided by the =Metadata= field in the response: in the
+case of a small object, the =Metadata= field is an empty dictionary; in the
+case of a large object, the =Metadata= field is a dictionary with two entries:
+'ETag' and 'MD5', where the 'ETag' field here is the same string as in =obj['ETag']=
+*except* that it is not wrapped in double quotes; the MD5 field is the md5 string that
+was sent to S3 in the =upload_fileobj()= call - S3 does not store it anywhere, so we
+pass it in through =ExtraArgs=.
+
+Here's an example of a large object and a small object:
+#+begin_example
+{'AcceptRanges': 'bytes',
+ 'Body': <botocore.response.StreamingBody object at 0x7f02f2ef9d68>,
+ 'ContentLength': 5964680588,
+ 'ContentType': 'binary/octet-stream',
+ 'ETag': '"e1083f9a54b8911df1d4d7bb9a461799-23"',
+ 'LastModified': datetime.datetime(2020, 2, 12, 22, 23, 3, tzinfo=tzutc()),
+ 'Metadata': {'etag': 'e1083f9a54b8911df1d4d7bb9a461799-23',
+              'md5': 'd94d40b1146a2cfcd6c68f4855ef9d25'},
+ 'ResponseMetadata': {'HTTPHeaders': {'accept-ranges': 'bytes',
+                                      'content-length': '5964680588',
+                                      'content-type': 'binary/octet-stream',
+                                      'date': 'Tue, 18 Feb 2020 18:45:09 GMT',
+                                      'etag': '"e1083f9a54b8911df1d4d7bb9a461799-23"',
+                                      'last-modified': 'Wed, 12 Feb 2020 '
+                                                       '22:23:03 GMT',
+                                      'strict-transport-security': 'max-age=31536000; '
+                                                                   'includeSubDomains; '
+                                                                   'preload',
+                                      'x-amz-meta-etag': 'e1083f9a54b8911df1d4d7bb9a461799-23',
+                                      'x-amz-meta-md5': 'd94d40b1146a2cfcd6c68f4855ef9d25',
+                                      'x-amz-request-id': 'tx0000000000000057261d2-005e4c30b5-32273f16-default'},
+                      'HTTPStatusCode': 200,
+                      'HostId': '',
+                      'RequestId': 'tx0000000000000057261d2-005e4c30b5-32273f16-default',
+                      'RetryAttempts': 0}}
+
+{'AcceptRanges': 'bytes',
+ 'Body': <botocore.response.StreamingBody object at 0x7f02f2f18278>,
+ 'ContentLength': 2578162908,
+ 'ContentType': 'binary/octet-stream',
+ 'ETag': '"5a9330b830d229ebe10805d0346be276"',
+ 'LastModified': datetime.datetime(2020, 2, 12, 22, 24, 31, tzinfo=tzutc()),
+ 'Metadata': {},
+ 'ResponseMetadata': {'HTTPHeaders': {'accept-ranges': 'bytes',
+                                      'content-length': '2578162908',
+                                      'content-type': 'binary/octet-stream',
+                                      'date': 'Tue, 18 Feb 2020 18:45:09 GMT',
+                                      'etag': '"5a9330b830d229ebe10805d0346be276"',
+                                      'last-modified': 'Wed, 12 Feb 2020 '
+                                                       '22:24:31 GMT',
+                                      'strict-transport-security': 'max-age=31536000; '
+                                                                   'includeSubDomains; '
+                                                                   'preload',
+                                      'x-amz-request-id': 'tx0000000000000049c1292-005e4c30b5-33508bd5-default'},
+                      'HTTPStatusCode': 200,
+                      'HostId': '',
+                      'RequestId': 'tx0000000000000049c1292-005e4c30b5-33508bd5-default',
+                      'RetryAttempts': 0}}
+
+
+#+end_example
+
+** list_objects() response
+Here's an example (elided):
+
+#+begin_example
+{'Contents': [{'ETag': '"d677552b97b5401bfb9b8d863a7d55d1"',
+               'Key': 'EC2::frival-accnet-rhel8-vm-h1/uperf_D64s_v3_rhel8_accel_2019.04.11T01.25.05.tar.xz',
+               'LastModified': datetime.datetime(2020, 2, 12, 21, 15, 3, 898000, tzinfo=tzlocal()),
+               'Owner': {'DisplayName': 'Dathub Dev User', 'ID': 'datahub-dev'},
+               'Size': 783996780,
+               'StorageClass': 'STANDARD'},
+              {'ETag': '"bc7df55e7974739514765d9f63a88e12"',
+               'Key': 'EC2::frival-ultrassd-vm/fio_1disk_1tb_ultrassd_1job_iodepth1_2019.01.07T20.46.33.tar.xz',
+               'LastModified': datetime.datetime(2020, 2, 12, 21, 15, 8, 229000, tzinfo=tzlocal()),
+               'Owner': {'DisplayName': 'Dathub Dev User', 'ID': 'datahub-dev'},
+               'Size': 48589488,
+               'StorageClass': 'STANDARD'},
+              {'ETag': '"1e8f1d89c22364ba37dc99e640b156ac"',
+               'Key': 'EC2::frival-ultrassd-vm/fio_1disk_1tb_ultrassd_2job_iodepth1_2019.01.08T19.01.49.tar.xz',
+               'LastModified': datetime.datetime(2020, 2, 12, 21, 15, 12, 875000, tzinfo=tzlocal()),
+               'Owner': {'DisplayName': 'Dathub Dev User', 'ID': 'datahub-dev'},
+               'Size': 52650732,
+               'StorageClass': 'STANDARD'},
+              ...
+              {'ETag': '"6b3f63b2517862ba1a705e179cc704da"',
+               'Key': 'virtlab506/fio__2019.01.10T13.33.57.tar.xz',
+               'LastModified': datetime.datetime(2020, 2, 13, 7, 24, 21, 28000, tzinfo=tzlocal()),
+               'Owner': {'DisplayName': 'Dathub Dev User', 'ID': 'datahub-dev'},
+               'Size': 22997128,
+               'StorageClass': 'STANDARD'}],
+ 'EncodingType': 'url',
+ 'IsTruncated': False,
+ 'MaxKeys': 1000,
+ 'Name': 'ndk',
+ 'Prefix': '',
+ 'ResponseMetadata': {'HTTPHeaders': {'content-length': '348202',
+                                      'content-type': 'application/xml',
+                                      'date': 'Wed, 19 Feb 2020 19:17:36 GMT',
+                                      'strict-transport-security': 'max-age=31536000; '
+                                                                   'includeSubDomains; '
+                                                                   'preload',
+                                      'x-amz-request-id': 'tx000000000000004f854cb-005e4d89d0-2e700e1f-default'},
+                      'HTTPStatusCode': 200,
+                      'HostId': '',
+                      'RequestId': 'tx000000000000004f854cb-005e4d89d0-2e700e1f-default',
+                      'RetryAttempts': 0}}
+
+#+end_example
+
+** =put_object()= ContentMD5 argument
+The ContentMD5 argument that the S3 =put_object()= method expects is the base64-encoded
+version of the MD5 hexdigest of the tarball. That is only used over the wire: the
+ETag that is stored in the metadata is *not* base64 encoded: it is either the MD5 hexdigest
+for small objects or the more complicated ETag that the =calculate-multipart-etag= connector
+method calculates.
+
+ =pbench-backup-tarballs.py= passes the hexdigest to =put_tarball()= which then
+does the (messy) conversion to the form that =put_object()= expects (in the utility
+function =s3_contentMD5()=).
+
+This also affects the mocked =put_object()= which has to compare the calculated MD5
+of the tar ball with the value passed in. It does this by using the same utility
+function to base64-encode the calculated value, so that it is in the same format
+as the value passed in.
+
+** Mock implementation of S3 object storage
+We use the filesystem, and store
+
+- the tarball in file =<name>.tar.xz=
+- an "ETag" in file =<name>.ETag= - this is either the md5 sum or an
+  arbitrary string "1234567890abcde-2" depending on the (mocked) size
+  of the tarball. The string is stored (and eventually returned on
+  inquiry) wrapped in double quotes followed by a newline.
+- an MD5 in file =<name>.MD5= (for "large" objects only) with no double
+  quote wrapping, followed by a newline.
+
+
+*** Mock implementation of getsize
+Mock =getsize()= treats the tarballs in a few selected tests as "large"
+and returns a size of 6 Gib for them. Otherwise, it returns the actual
+size of the tarball.
+
+*** Mock implementation of =put_object=
+We read the file object that is passed in and store it in a byte array
+(otherwise, we would read the file twice, which is arguably better, but
+for the small tarballs we use in unit tests, it does not seem worth it
+to change the implementation).
+
+We calculate the md5 hexdigest from the byte array, base64-encode it
+and compare it with the passed in ContentMD5 (see above).
+
+If the test passes, we store the tarball in
+
+   <prefix>/<bucket>/<controller>/<tarball>.tar.xz 
+
+and the MD5 hexdigest (double-quote wrapped) in
+
+   <prefix>/<bucket>/<controller>/<tarball>.tar.xz.ETag
+
+per our convention.
+
+*** Mock implementation of get_object
+
+=get_object()= returns a response that contains a small subset of the
+fields of the real response: the =ResponseMetadata= is a dict with one
+field, =HTTPStatusCode= with value 200, the =ETag= field contains the
+contents of the ETag file above (including double quotes, but no
+newline), and the =Metadata= field is either an empty dict ("small" objects)
+or contains two fields, =ETag= and =MD5= whose values are the contents
+of the corresponding file above ("large" objects).
+
+*** Mock implementation of list_objects
+=list_objects()= returns a response that contains two fields:
+=ResponseMetadata= (with =HTTPStatusCode= equal to 200) and =Contents=
+which is a list of entries, each of which contains a subset of the
+fields that the real =list_objects_v2()= returns: just =ETag=, =Size=
+and =Key=.  The =ETag= field contains the contents of the ETag file as
+above; the =Key= is basically "<controller>/<tb>.tar.xz"; the =Size=
+is set to 6GB for a "Large" object (one that has an MD5 file
+associated with it in the S3 "store") and the actual size of the
+tarball otherwise.
+
+One additional detail: if the bucket is large (i.e. it contains more
+than 1000 entries), the API returns only the first 1000, together with
+an indication that the result is truncated (=resp['IsTruncated']= is
+=True=) and a continuation token =resp[NextContinuationToken']=.
+=pbench-verify-backup-tarballs.py= calls =list_objects()= in a loop,
+setting its =ContinuationToken= to =resp['NextContinuationToken']=,
+indicating to the API that it wants the next 1000. The loop exits when
+the response does not contain a =NextContinuationToken= field (and the
+=IsTruncated= field is =False=, but we don't use that to determine
+when to exit: we assume that that is the case).
+
+ =list_objects()= implements a very simplified version of this
+behavior if the bucket name is ~SPECIAL_BUCKET~: that drives the mock
+=list_objects()= to treat the bucket as a large bucket, so the first
+time it gets called (without a =ContinuationToken=), it returns the
+first entry of however many it finds in the S3 "store", and sets the
+=IsTruncated= and =NextContinuationToken= fields in the response. The
+second time it is called (with a =ContinuationToken=), it returns the
+rest of the entries without a =NextContinuationToken=. It does not
+check for the "proper" continuation token (and it recalculates things
+inefficiently, but we don't worry about that).
+
+
+
+
+
+
+

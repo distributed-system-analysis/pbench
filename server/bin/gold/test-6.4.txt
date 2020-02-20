@@ -144,9 +144,9 @@ drwxrwxr-x          - s3-backup
 drwxrwxr-x          - s3-backup/testbucket
 drwxrwxr-x          - s3-backup/testbucket/foo
 -rw-r--r--    3242068 s3-backup/testbucket/foo/fio__2016-08-18_15:47:09.tar.xz
--rw-r--r--         66 s3-backup/testbucket/foo/fio__2016-08-18_15:47:09.tar.xz.md5
+-rw-r--r--         35 s3-backup/testbucket/foo/fio__2016-08-18_15:47:09.tar.xz.ETag
 -rw-r--r--    1610896 s3-backup/testbucket/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz
--rw-r--r--         84 s3-backup/testbucket/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.md5
+-rw-r--r--         35 s3-backup/testbucket/foo/pbench-user-benchmark__2016-08-24_21:32:01.tar.xz.ETag
 drwxrwxr-x          - tmp
 --- pbench-local tree state
 +++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-6.4/pbench-satellite)
