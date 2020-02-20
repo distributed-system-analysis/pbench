@@ -202,15 +202,20 @@ class PbenchConfig(object):
         # Now fetch some default common pbench settings that are required.
         try:
             self.TOP = self.conf.get("pbench-server", "pbench-top-dir")
-            if not os.path.isdir(self.TOP): raise BadConfig("Bad TOP={}".format(self.TOP))
+            if not os.path.isdir(self.TOP):
+                raise BadConfig("Bad TOP={}".format(self.TOP))
             self.TMP = self.conf.get("pbench-server", "pbench-tmp-dir")
-            if not os.path.isdir(self.TMP): raise BadConfig("Bad TMP={}".format(self.TMP))
+            if not os.path.isdir(self.TMP):
+                raise BadConfig("Bad TMP={}".format(self.TMP))
             self.LOGSDIR = self.conf.get("pbench-server", "pbench-logs-dir")
-            if not os.path.isdir(self.LOGSDIR): raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))
+            if not os.path.isdir(self.LOGSDIR):
+                raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))
             self.BINDIR = self.conf.get("pbench-server", "script-dir")
-            if not os.path.isdir(self.BINDIR): raise BadConfig("Bad BINDIR={}".format(self.BINDIR))
+            if not os.path.isdir(self.BINDIR):
+                raise BadConfig("Bad BINDIR={}".format(self.BINDIR))
             self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
-            if not os.path.isdir(self.LIBDIR): raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))
+            if not os.path.isdir(self.LIBDIR):
+                raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))
             # the scripts may use this to send status messages
             self.mail_recipients = self.conf.get("pbench-server", "mailto")
         except (NoOptionError, NoSectionError) as exc:
