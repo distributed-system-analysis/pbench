@@ -110,7 +110,7 @@ class BackupObject(object):
                 continue
             else:
                 self.content_list.append(
-                        Entry(os.path.join(controller, result_name), md5))
+                    Entry(os.path.join(controller, result_name), md5))
         return Status.SUCCESS
 
     def s3_entry_list_creation(self):
@@ -128,7 +128,7 @@ class BackupObject(object):
                     break
         except Exception:
             self.logger.exception(
-                    "ERROR fetching list of objects from S3")
+                "ERROR fetching list of objects from S3")
             return Status.FAIL
         else:
             return Status.SUCCESS
@@ -169,8 +169,8 @@ class BackupObject(object):
         fail_f = self.indicator_file_fail
         if os.path.exists(fail_f) and os.path.getsize(fail_f) > 0:
             report.write(
-                    "\nMD5 Errors ({}): the calculated MD5 values of the following entries "
-                    "failed to match the stored MD5:\n".format(self.name))
+                "\nMD5 Errors ({}): the calculated MD5 values of the following entries "
+                "failed to match the stored MD5:\n".format(self.name))
             try:
                 with open(fail_f) as f:
                     report.write(f.readline())
@@ -202,17 +202,17 @@ def compare_entry_lists(list_one_obj, list_two_obj, report):
             j += 1
         elif sorted_list_one_content[i].name < sorted_list_two_content[j].name:
             report_text = "{}: present in {} but not in {}\n".format(
-                                        sorted_list_one_content[i].name,
-                                        list_one_obj.description,
-                                        list_two_obj.description)
+                sorted_list_one_content[i].name,
+                list_one_obj.description,
+                list_two_obj.description)
             report.write(report_text)
             i += 1
         else:
             assert sorted_list_one_content[i].name > sorted_list_two_content[j].name, "Logic bomb!"
             report_text = "{}: present in {} but not in {}\n".format(
-                                        sorted_list_two_content[j].name,
-                                        list_two_obj.description,
-                                        list_one_obj.description)
+                sorted_list_two_content[j].name,
+                list_two_obj.description,
+                list_one_obj.description)
             report.write(report_text)
             j += 1
     assert (i == len_list_one_content) or (j == len_list_two_content), "Logic bomb!"
@@ -220,16 +220,16 @@ def compare_entry_lists(list_one_obj, list_two_obj, report):
     if i == len_list_one_content and j < len_list_two_content:
         for entry in sorted_list_two_content[j:len_list_two_content]:
             report_text = "{}: present in {} but not in {}\n".format(
-                                                    entry.name,
-                                                    list_two_obj.description,
-                                                    list_one_obj.description)
+                entry.name,
+                list_two_obj.description,
+                list_one_obj.description)
             report.write(report_text)
     elif i < len_list_one_content and j == len_list_two_content:
         for entry in sorted_list_one_content[i:len_list_one_content]:
             report_text = "{}: present in {} but not in {}\n".format(
-                                                    entry.name,
-                                                    list_one_obj.description,
-                                                    list_two_obj.description)
+                entry.name,
+                list_one_obj.description,
+                list_two_obj.description)
             report.write(report_text)
     else:
         assert (i == len_list_one_content) and (j == len_list_two_content), "Logic bomb!"
@@ -250,8 +250,8 @@ def main():
     cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
     if not cfg_name:
         print("{}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
-                " use --config <file> on the command line".format(_NAME_),
-                file=sys.stderr)
+              " use --config <file> on the command line".format(_NAME_),
+              file=sys.stderr)
         return 2
 
     try:
@@ -265,21 +265,21 @@ def main():
     archive = config.ARCHIVE
     if not os.path.isdir(archive):
         logger.error(
-                "The setting for ARCHIVE in the config file is {}, but that is"
-                " not a directory", archive)
+            "The setting for ARCHIVE in the config file is {}, but that is"
+            " not a directory", archive)
         return 1
 
     # add a BACKUP field to the config object
     config.BACKUP = backup = config.conf.get("pbench-server", "pbench-backup-dir")
     if len(backup) == 0:
         logger.error(
-                "Unspecified backup directory, no pbench-backup-dir config in"
-                " pbench-server section")
+            "Unspecified backup directory, no pbench-backup-dir config in"
+            " pbench-server section")
         return 1
     if not os.path.isdir(backup):
         logger.error(
-                "The setting for BACKUP in the config file is {}, but that is"
-                " not a directory", backup)
+            "The setting for BACKUP in the config file is {}, but that is"
+            " not a directory", backup)
         return 1
 
     # instantiate the s3config class
@@ -301,11 +301,11 @@ def main():
 
         with tempfile.NamedTemporaryFile(mode='w+t', dir=tmpdir) as reportfp:
             reportfp.write("{}.{} ({}) started at {}\n".format(
-                    prog, config.TS, config.PBENCH_ENV, start))
+                prog, config.TS, config.PBENCH_ENV, start))
             if s3_config_obj is None:
                 reportfp.write(
-                        "\nNOTICE: S3 backup service is inaccessible; skipping"
-                        " ARCHIVE to S3 comparison\n\n")
+                    "\nNOTICE: S3 backup service is inaccessible; skipping"
+                    " ARCHIVE to S3 comparison\n\n")
 
             # FIXME: Parallelize these three ...
 
@@ -390,7 +390,7 @@ def main():
                            "S3 List Creation:            {}\n"
                            "Archive MD5 Checks:          {}\n"
                            "Local Backup MD5 Checks:     {}\n".format(
-                    ar_start, lb_start, s3_start, ar_md5_start, lb_md5_start))
+                               ar_start, lb_start, s3_start, ar_md5_start, lb_md5_start))
 
             end = config.timestamp()
             reportfp.write("\n{}.{} ({}) finished at {}\n".format(prog, config.TS, config.PBENCH_ENV, end))

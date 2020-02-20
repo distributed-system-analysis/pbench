@@ -164,7 +164,7 @@ def get_pbench_logger(caller, config):
             handler = handlers.SysLogHandler(address=(config.logger_host, int(config.logger_port)))
         else:
             raise Exception("Unsupported logger type")
-        
+
         handler.setLevel(logging.DEBUG)
         if not config._unittests:
             logfmt = "{asctime} {levelname} {process} {thread} {name}.{module} {funcName} {lineno} -- {message}"
@@ -225,7 +225,7 @@ class PbenchConfig(object):
             self.COMMIT_ID = self.conf.get("pbench-server", "commit_id")
         except NoOptionError:
             self.COMMIT_ID = "(unknown)"
-        
+
         try:
             self.logger_type = self.conf.get("logging", "logger_type")
         except (NoOptionError, NoSectionError):
@@ -261,14 +261,14 @@ class PbenchConfig(object):
         # needed.  Every related state directories are paired together with
         # their final state at the end.
         self.LINKDIRS = "TODO BAD-MD5" \
-                " TO-UNPACK UNPACKED WONT-UNPACK" \
-                " TO-SYNC SYNCED" \
-                " TO-LINK" \
-                " TO-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX" \
-                " TO-COPY-SOS COPIED-SOS" \
-                " TO-BACKUP BACKED-UP BACKUP-FAILED" \
-                " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED" \
-                " TO-DELETE SATELLITE-DONE"
+            " TO-UNPACK UNPACKED WONT-UNPACK" \
+            " TO-SYNC SYNCED" \
+            " TO-LINK" \
+            " TO-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX" \
+            " TO-COPY-SOS COPIED-SOS" \
+            " TO-BACKUP BACKED-UP BACKUP-FAILED" \
+            " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED" \
+            " TO-DELETE SATELLITE-DONE"
         # List of the state directories which will be excluded during rsync.
         # Note that range(1,12) generates the sequence [1..11] inclusively.
         self.EXCLUDE_DIRS = "_QUARANTINED " + self.LINKDIRS + " " + " ".join([ "WONT-INDEX.{:d}".format(i) for i in range(1,12) ])

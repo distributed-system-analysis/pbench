@@ -38,7 +38,7 @@ class _MockPutTemplate(object):
 
     def get_template(self, *args, **kwargs):
         assert 'name' in kwargs, \
-                "Mock'd get_template missing 'name' in kwargs"
+            "Mock'd get_template missing 'name' in kwargs"
         name = kwargs['name']
         mapping_name = "pbench-{}".format(name.split('.')[2])
         tmpl = {}
@@ -48,10 +48,10 @@ class _MockPutTemplate(object):
 
     def put_template(self, *args, **kwargs):
         assert 'name' in kwargs and 'body' in kwargs, \
-                "Mock'd put_template missing 'name' and/or 'body' in kwargs"
+            "Mock'd put_template missing 'name' and/or 'body' in kwargs"
         name = kwargs['name']
         assert name not in self.mock_collected_templates, \
-                "Duplicate template name, '{}'".format(name, self.name)
+            "Duplicate template name, '{}'".format(name, self.name)
         self.mock_collected_templates[name] = kwargs['body']
         return None
 
@@ -64,9 +64,9 @@ class _MockPutTemplate(object):
             body = self.mock_collected_templates[name]
             for name,mapping in body['mappings'].items():
                 assert name not in self.mock_mappings, \
-                        "Duplicate mapping name encountered:" \
-                        " {} ({!r})".format(
-                            name, self.mock_mappings.keys())
+                    "Duplicate mapping name encountered:" \
+                    " {} ({!r})".format(
+                        name, self.mock_mappings.keys())
                 self.mock_mappings[name] = mapping
         sys.stdout.flush()
 
@@ -93,7 +93,7 @@ class _MockStreamingBulk(object):
     @staticmethod
     def streaming_bulk(es, actions, **kwargs):
         assert isinstance(es, MockElasticsearch), \
-                "Unexpected es object: {!r}".format(es)
+            "Unexpected es object: {!r}".format(es)
         msb = es.msb
         # First dump the template report before we continue
         msb.mpt.report()
@@ -128,7 +128,7 @@ class _MockStreamingBulk(object):
             the_mapping = self.mpt.mock_mappings[the_type]
         except KeyError:
             print("Could not find document type '{}' in {!r}".format(the_type,
-                    list(self.mpt.mock_mappings.keys())))
+                                                                     list(self.mpt.mock_mappings.keys())))
             return False
 
         the_source = action['_source']
@@ -167,8 +167,8 @@ class _MockStreamingBulk(object):
                     for item in source:
                         if not isinstance(item, str):
                             print("List contains an element of type, {}, when"
-                                    " expecting only strings".format(
-                                        type(item)))
+                                  " expecting only strings".format(
+                                      type(item)))
                             return False
                     return True
                 elif mtype != 'nested':

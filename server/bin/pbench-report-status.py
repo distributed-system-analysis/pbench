@@ -23,7 +23,7 @@ parser.add_argument(
 parser.add_argument(
     "-t", "--timestamp", dest="timestamp", required=True,
     help="The timestamp that should be associated with the file to index,"
-        " takes the form run-<yyyy>-<mm>-<dd>T<HH>:<MM>:<SS>-<TZ>")
+    " takes the form run-<yyyy>-<mm>-<dd>T<HH>:<MM>:<SS>-<TZ>")
 parser.add_argument(
     "-p", "--pid", dest="pid", required=True,
     help="The caller's pid")
@@ -61,7 +61,7 @@ report = Report(config, parsed.name, pid=pid, group_id=group_id,
 report.init_report_template()
 try:
     report.post_status(parsed.timestamp, parsed.doctype,
-            parsed.file_to_index[0])
+                       parsed.file_to_index[0])
 except Exception:
     status = 1
 else:

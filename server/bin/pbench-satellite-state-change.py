@@ -8,12 +8,12 @@ _prog = os.path.basename(sys.argv[0])
 
 if len(sys.argv) < 2:
     print("{}: Missing working directory argument".format(_prog),
-        file=sys.stderr)
+          file=sys.stderr)
     sys.exit(1)
 
 if len(sys.argv) > 2:
     print("{}: Too many arguments ({!r})".format(_prog, sys.argv),
-        file=sys.stderr)
+          file=sys.stderr)
     sys.exit(1)
 
 try:

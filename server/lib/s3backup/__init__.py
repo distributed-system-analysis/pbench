@@ -124,7 +124,7 @@ class S3Config(object):
                 # This is a transient failure and will be retried at
                 # the next invocation of the backups.
                 self.logger.error("Upload to s3 failed, connection was reset"
-                                   " while transferring {key}".format(key=Key))
+                                  " while transferring {key}".format(key=Key))
                 return Status.FAIL
             except Exception:
                 # What ever the reason is for this failure, the
@@ -387,9 +387,9 @@ class MockS3Connector(Connector):
             md5 = hashlib.md5(data).hexdigest()
         ob_dict['ResponseMetadata'] = {'HTTPStatusCode': 200}
         multi_etag_file = '{}/{}/{}.multiEtag'.format(
-                                                self.path,
-                                                self.bucket_name,
-                                                Key)
+            self.path,
+            self.bucket_name,
+            Key)
         if os.path.exists(multi_etag_file):
             with open(multi_etag_file) as f:
                 multi_etag_value = f.read()[:-1]

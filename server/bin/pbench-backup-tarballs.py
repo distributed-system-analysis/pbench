@@ -14,7 +14,7 @@ from s3backup import S3Config, Status
 from botocore.exceptions import ConnectionClosedError, ClientError
 
 from pbench import PbenchConfig, BadConfig, get_pbench_logger, quarantine, \
-        rename_tb_link, md5sum
+    rename_tb_link, md5sum
 from pbench.report import Report
 
 

@@ -24,7 +24,7 @@ class Report(object):
     _CHUNK_SIZE = 50 * 1024 * 1024
 
     def __init__(self, config, name, es=None, pid=None, group_id=None,
-                user_id=None, hostname=None, version=None, templates=None):
+                 user_id=None, hostname=None, version=None, templates=None):
         self.config = config
         self.name = name
         self.logger = pbench.get_pbench_logger(name, config)
@@ -69,7 +69,7 @@ class Report(object):
                     self.es = get_es(config, self.logger)
                 except Exception:
                     self.logger.exception("Unexpected failure fetching"
-                            " Elasticsearch configuration")
+                                          " Elasticsearch configuration")
                     # If we don't have an Elasticsearch configuration just use
                     # None to indicate logging should be used instead.
                     self.es = None
@@ -79,7 +79,7 @@ class Report(object):
             self.templates = templates
         else:
             self.templates = PbenchTemplates(self.config.BINDIR,
-                    self.idx_prefix, self.logger)
+                                             self.idx_prefix, self.logger)
 
     def init_report_template(self):
         """Setup the Elasticsearch templates needed for properly indexing
@@ -149,7 +149,7 @@ class Report(object):
             }
             if file_to_index:
                 payload_gen = self._gen_json_payload(base_source,
-                        file_to_index)
+                                                     file_to_index)
             else:
                 payload_gen = self._gen_no_json_payload(base_source)
 
@@ -164,7 +164,7 @@ class Report(object):
                 if len(payload) > 4096:
                     # Compress the full message to a file.
                     fname = "report-status-payload.{}.{}.xz".format(self.name,
-                            timestamp_noutc)
+                                                                    timestamp_noutc)
                     fpath = os.path.join(self.config.LOGSDIR, self.name, fname)
                     with lzma.open(fpath, mode="w", preset=9) as fp:
                         f.write(the_bytes)
@@ -181,7 +181,7 @@ class Report(object):
                             # First generated document becomes the tracking ID.
                             self.tracking_id = source_id
                         idx_name = self.templates.generate_index_name(
-                                "server-reports", source)
+                            "server-reports", source)
                         action = {
                             "_op_type": _op_type,
                             "_index": idx_name,
@@ -191,17 +191,17 @@ class Report(object):
                         }
                         yield action
                 es_res = es_index(self.es, _es_payload_gen(payload_gen),
-                        sys.stderr, self.logger)
+                                  sys.stderr, self.logger)
                 beg, end, successes, duplicates, failures, retries = es_res
                 do_log = self.logger.info if successes == 1 \
-                        else self.logger.warning
+                    else self.logger.warning
                 do_log("posted status (end ts: {}, duration: {:.2f}s,"
-                        " successes: {:d}, duplicates: {:d}, failures: {:d},"
-                        " retries: {:d})", pbench.tstos(end), end - beg,
-                        successes, duplicates, failures, retries)
+                       " successes: {:d}, duplicates: {:d}, failures: {:d},"
+                       " retries: {:d})", pbench.tstos(end), end - beg,
+                       successes, duplicates, failures, retries)
         except Exception:
             self.logger.exception("Failed to post status, name = {},"
-                    " timestamp = {}, doctype = {}, file_to_index = {}",
-                    self.name, timestamp, doctype, file_to_index)
+                                  " timestamp = {}, doctype = {}, file_to_index = {}",
+                                  self.name, timestamp, doctype, file_to_index)
             raise
         return self.tracking_id

@@ -16,11 +16,11 @@ from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
 from pbench import tstos, BadConfig, get_pbench_logger, \
-        quarantine, rename_tb_link
+    quarantine, rename_tb_link
 from pbench.indexer import IdxContext, ConfigFileError, BadDate, \
-        UnsupportedTarballFormat, BadMDLogFormat, SosreportHostname, \
-        PbenchTarBall, make_all_actions, mk_tool_data_actions, es_index, \
-        JsonFileError, TemplateError, VERSION
+    UnsupportedTarballFormat, BadMDLogFormat, SosreportHostname, \
+    PbenchTarBall, make_all_actions, mk_tool_data_actions, es_index, \
+    JsonFileError, TemplateError, VERSION
 from pbench.report import Report
 
 
@@ -88,8 +88,8 @@ def main(options, name):
     """
     if not options.cfg_name:
         print("{}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
-                " use --config <file> on the command line".format(name),
-                file=sys.stderr)
+              " use --config <file> on the command line".format(name),
+              file=sys.stderr)
         return 2
 
     if options.index_tool_data:
@@ -135,17 +135,17 @@ def main(options, name):
         ARCHIVE_rp = os.path.realpath(idxctx.config.ARCHIVE)
         if not os.path.isdir(ARCHIVE_rp):
             idxctx.logger.error("{}: Bad ARCHIVE={}", name,
-                    idxctx.config.ARCHIVE)
+                                idxctx.config.ARCHIVE)
             res = 3
         INCOMING_rp = os.path.realpath(idxctx.config.INCOMING)
         if not os.path.isdir(INCOMING_rp):
             idxctx.logger.error("{}: Bad INCOMING={}", name,
-                    idxctx.config.INCOMING)
+                                idxctx.config.INCOMING)
             res = 3
         qdir = idxctx.config.get('pbench-server', 'pbench-quarantine-dir')
         if not os.path.isdir(qdir):
             idxctx.logger.error("{}: {} does not exist, or is not a directory",
-                    name, qdir)
+                                name, qdir)
             res = 3
     except Exception:
         idxctx.logger.exception("{}: Unexpected setup error", name)
@@ -173,8 +173,8 @@ def main(options, name):
             archive_path = os.path.dirname(controller_path)
             if archive_path != ARCHIVE_rp:
                 idxctx.logger.warning(
-                        "For tar ball {}, original home is not {}", tb,
-                        ARCHIVE_rp)
+                    "For tar ball {}, original home is not {}", tb,
+                    ARCHIVE_rp)
                 quarantine(qdir, idxctx.logger, tb)
                 continue
             if not os.path.isfile(rp + ".md5"):
@@ -187,7 +187,7 @@ def main(options, name):
                 size = os.path.getsize(rp)
             except OSError:
                 idxctx.logger.warning(
-                        "Could not fetch tar ball size for {}", tb)
+                    "Could not fetch tar ball size for {}", tb)
                 quarantine(qdir, idxctx.logger, tb)
                 # Audit should pick up missing .md5 file in ARCHIVE directory.
                 continue
@@ -195,7 +195,7 @@ def main(options, name):
                 tarballs.append( (size, controller, tb) )
     except Exception:
         idxctx.logger.exception("Unexpected error encountered generating list"
-                " of tar balls to process")
+                                " of tar balls to process")
         return 12
     else:
         if not tarballs:
@@ -219,7 +219,7 @@ def main(options, name):
         res = 9
     except Exception:
         idxctx.logger.exception("update_templates [end]: Unexpected template"
-                " processing error")
+                                " processing error")
         res = 12
     else:
         idxctx.logger.debug("update_templates [end]")
@@ -230,9 +230,9 @@ def main(options, name):
         return res
 
     report = Report(idxctx.config, name, es=idxctx.es, pid=idxctx.getpid(),
-            group_id=idxctx.getgid(), user_id=idxctx.getuid(),
-            hostname=idxctx.gethostname(), version=VERSION,
-            templates=idxctx.templates)
+                    group_id=idxctx.getgid(), user_id=idxctx.getuid(),
+                    hostname=idxctx.gethostname(), version=VERSION,
+                    templates=idxctx.templates)
     # We use the "start" report ID as the tracking ID for all indexed
     # documents.
     try:
@@ -244,7 +244,7 @@ def main(options, name):
         idxctx.set_tracking_id(tracking_id)
 
     with tempfile.TemporaryDirectory(prefix="{}.".format(name),
-                dir=idxctx.config.TMP) as tmpdir:
+                                     dir=idxctx.config.TMP) as tmpdir:
         idxctx.logger.debug("start processing list of tar balls")
         tb_list = os.path.join(tmpdir, "{}.{}.list".format(name, idxctx.TS))
         try:
@@ -253,23 +253,23 @@ def main(options, name):
                 # viewers can follow along from home.
                 for size, controller, tb in tarballs:
                     print("{:20d} {} {}".format(size, controller, tb),
-                            file=lfp)
+                          file=lfp)
 
             indexed = os.path.join(tmpdir, "{}.{}.indexed".format(
-                    name, idxctx.TS))
+                name, idxctx.TS))
             erred   = os.path.join(tmpdir, "{}.{}.erred"  .format(
-                    name, idxctx.TS))
+                name, idxctx.TS))
             skipped = os.path.join(tmpdir, "{}.{}.skipped".format(
-                    name, idxctx.TS))
+                name, idxctx.TS))
             ie_filename = os.path.join(tmpdir,
-                    "{}.{}.indexing-errors.json".format(name, idxctx.TS))
+                                       "{}.{}.indexing-errors.json".format(name, idxctx.TS))
 
             for size, controller, tb in tarballs:
                 # Sanity check source tar ball path
                 linksrc_dir = os.path.dirname(tb)
                 linksrc_dirname = os.path.basename(linksrc_dir)
                 assert linksrc_dirname == linksrc, "Logic bomb!  tar ball " \
-                        "path {} does not contain {}".format(tb, linksrc)
+                    "path {} does not contain {}".format(tb, linksrc)
 
                 idxctx.logger.info("Starting {} (size {:d})", tb, size)
 
@@ -278,7 +278,7 @@ def main(options, name):
                     # "Open" the tar ball represented by the tar ball object
                     idxctx.logger.debug("open tar ball")
                     ptb = PbenchTarBall(idxctx, os.path.realpath(tb), tmpdir,
-                            os.path.join(INCOMING_rp, controller))
+                                        os.path.join(INCOMING_rp, controller))
 
                     # Construct the generator for emitting all actions.  The
                     # `idxctx` dictionary is passed along to each generator so
@@ -295,7 +295,7 @@ def main(options, name):
                     with open(ie_filename, "w") as fp:
                         idxctx.logger.debug("begin indexing")
                         es_res = es_index(idxctx.es, actions, fp,
-                                idxctx.logger, idxctx._dbg)
+                                          idxctx.logger, idxctx._dbg)
                 except UnsupportedTarballFormat as e:
                     idxctx.logger.warning("Unsupported tar ball format: {}", e)
                     tb_res = 4
@@ -307,14 +307,14 @@ def main(options, name):
                     tb_res = 6
                 except BadMDLogFormat as e:
                     idxctx.logger.warning("The metadata.log file is curdled in"
-                            " tar ball: {}", e)
+                                          " tar ball: {}", e)
                     tb_res = 7
                 except SosreportHostname as e:
                     idxctx.logger.warning("Bad hostname in sosreport: {}", e)
                     tb_res = 10
                 except tarfile.TarError as e:
                     idxctx.logger.error("Can't unpack tar ball into {}: {}",
-                            ptb.extracted_root, e)
+                                        ptb.extracted_root, e)
                     tb_res = 11
                 except Exception as e:
                     idxctx.logger.exception("Other indexing error: {}", e)
@@ -322,10 +322,10 @@ def main(options, name):
                 else:
                     beg, end, successes, duplicates, failures, retries = es_res
                     idxctx.logger.info("done indexing (end ts: {}, duration:"
-                            " {:.2f}s, successes: {:d}, duplicates: {:d},"
-                            " failures: {:d}, retries: {:d})", tstos(end),
-                            end - beg, successes, duplicates, failures,
-                            retries)
+                                       " {:.2f}s, successes: {:d}, duplicates: {:d},"
+                                       " failures: {:d}, retries: {:d})", tstos(end),
+                                       end - beg, successes, duplicates, failures,
+                                       retries)
                     tb_res = 1 if failures > 0 else 0
                 try:
                     ie_len = os.path.getsize(ie_filename)
@@ -334,7 +334,7 @@ def main(options, name):
                     pass
                 except Exception:
                     idxctx.logger.exception("Unexpected error handling"
-                            " indexing errors file: {}", ie_filename)
+                                            " indexing errors file: {}", ie_filename)
                 else:
                     # Success fetching indexing error file size.
                     if ie_len > len(tb) + 1:
@@ -342,8 +342,8 @@ def main(options, name):
                             report.post_status(tstos(end), "errors", ie_filename)
                         except Exception:
                             idxctx.logger.exception("Unexpected error issuing"
-                                    " report status with errors: {}",
-                                     ie_filename)
+                                                    " report status with errors: {}",
+                                                    ie_filename)
                 finally:
                     # Unconditionally remove the indexing errors file.
                     try:
@@ -358,40 +358,40 @@ def main(options, name):
 
                 if tb_res == 0:
                     idxctx.logger.info("{}: {}/{}: success", idxctx.TS,
-                            os.path.basename(controller_path),
-                            os.path.basename(tb))
+                                       os.path.basename(controller_path),
+                                       os.path.basename(tb))
                     # Success
                     with open(indexed, "a") as fp:
                         print(tb, file=fp)
                     rename_tb_link(tb, os.path.join(controller_path, linkdest),
-                            idxctx.logger)
+                                   idxctx.logger)
                 elif tb_res == 1:
                     idxctx.logger.warning(
-                            "{}: index failures encountered on {}",
-                            idxctx.TS, tb)
+                        "{}: index failures encountered on {}",
+                        idxctx.TS, tb)
                     with open(erred, "a") as fp:
                         print(tb, file=fp)
                     rename_tb_link(tb, os.path.join(controller_path,
-                            "{}.1".format(linkerrdest)), idxctx.logger)
+                                                    "{}.1".format(linkerrdest)), idxctx.logger)
                 elif tb_res in (2, 3):
                     assert False, "Logic Bomb!  Unexpected tar ball handling " \
-                            "result status {:d} for tar ball {}".format(
+                        "result status {:d} for tar ball {}".format(
                             tb_res, tb)
                 elif tb_res >= 4 or res <= 11:
                     # # Quietly skip these errors
                     with open(skipped, "a") as fp:
                         print(tb, file=fp)
                     rename_tb_link(tb, os.path.join(controller_path,
-                            "{}.{:d}".format(linkerrdest, tb_res)),
-                            idxctx.logger)
+                                                    "{}.{:d}".format(linkerrdest, tb_res)),
+                                   idxctx.logger)
                 else:
                     idxctx.logger.error(
-                            "{}: index error {:d} encountered on {}",
-                            idxctx.TS, tb_res, tb)
+                        "{}: index error {:d} encountered on {}",
+                        idxctx.TS, tb_res, tb)
                     with open(erred, "a") as fp:
                         print(tb, file=fp)
                     rename_tb_link(tb, os.path.join(controller_path,
-                            linkerrdest), idxctx.logger)
+                                                    linkerrdest), idxctx.logger)
                 idxctx.logger.info("Finished {} (size {:d})", tb, size)
         except Exception as e:
             idxctx.logger.exception("Unexpected setup error")
@@ -409,26 +409,26 @@ def main(options, name):
             err = _count_lines(erred)
 
             idxctx.logger.info("{}.{}: indexed {:d} (skipped {:d}) results,"
-                    " {:d} errors", name, idxctx.TS, idx, skp, err)
+                               " {:d} errors", name, idxctx.TS, idx, skp, err)
 
             if err > 0:
                 if skp > 0:
                     subj = "{}.{} - Indexed {:d} results, skipped {:d}" \
-                            " results, w/ {:d} errors".format(name, idxctx.TS,
-                            idx, skp, err)
+                        " results, w/ {:d} errors".format(name, idxctx.TS,
+                                                          idx, skp, err)
                 else:
                     subj = "{}.{} - Indexed {:d} results, w/ {:d}" \
-                            " errors".format(name, idxctx.TS, idx, err)
+                        " errors".format(name, idxctx.TS, idx, err)
             else:
                 if skp > 0:
                     subj = "{}.{} - Indexed {:d} results, skipped {:d}" \
-                            " results".format(name, idxctx.TS, idx, skp)
+                        " results".format(name, idxctx.TS, idx, skp)
                 else:
                     subj = "{}.{} - Indexed {:d} results".format(name,
-                            idxctx.TS, idx)
+                                                                 idxctx.TS, idx)
 
             report_fname = os.path.join(tmpdir, "{}.{}.report".format(
-                    name, idxctx.TS))
+                name, idxctx.TS))
             with open(report_fname, "w") as fp:
                 print(subj, file=fp)
                 if idx > 0:
@@ -438,7 +438,7 @@ def main(options, name):
                             print(line, file=fp)
                 if err > 0:
                     print("\nResults producing errors"
-                              "\n========================", file=fp)
+                          "\n========================", file=fp)
                     with open(erred) as efp:
                         for line in efp:
                             print(line, file=fp)
@@ -461,7 +461,7 @@ if __name__ == '__main__':
     run_name = run_name if run_name[-3:] != '.py' else run_name[:-3]
     if run_name not in ('pbench-index',):
         print("unexpected command file name: {}".format(run_name),
-                file=sys.stderr)
+              file=sys.stderr)
         sys.exit(1)
     parser = ArgumentParser(
         "Usage: {} [--config <path-to-config-file>] [--dump-index-patterns]"

@@ -86,7 +86,7 @@ def main(ctx):
         if not (val is None or val is ""):
             for k in jobfile.keys():
                 if a in jobfile[k]: # has_key(a)
-                        jobfile[k][a] = val
+                    jobfile[k][a] = val
 
     write_config(jobfile)
 

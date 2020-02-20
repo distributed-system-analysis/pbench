@@ -74,7 +74,7 @@ def parse_args(options=[], usage=None):
         parser = OptionParser()
     # standard options
     parser.add_option("-C", "--config", dest="filename",
-                  help="config FILE", metavar="FILE")
+                      help="config FILE", metavar="FILE")
     parser.add_option("-D", "--debug", action="store_true", dest="debug",
                       help="commands logged but not executed")
     # specific options

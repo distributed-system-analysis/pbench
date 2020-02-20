@@ -21,7 +21,7 @@ from operator import itemgetter
 from datetime import datetime, timedelta
 from collections import Counter, deque
 from configparser import ConfigParser, Error as ConfigParserError, \
-        NoSectionError, NoOptionError
+    NoSectionError, NoOptionError
 from urllib3 import Timeout, exceptions as ul_excs
 try:
     from elasticsearch1 import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
@@ -153,7 +153,7 @@ class PbenchTemplates(object):
         return keys[0], mapping[keys[0]]
 
     def __init__(self, basepath, idx_prefix, logger, \
-                known_tool_handlers=None, _dbg=0):
+                 known_tool_handlers=None, _dbg=0):
         # Where to find the mappings
         MAPPING_DIR = os.path.join(
             os.path.dirname(basepath), 'lib', 'mappings')
@@ -179,7 +179,7 @@ class PbenchTemplates(object):
                 "{} mapping missing _meta field in {}".format(key, mfile))
         if self._dbg > 5:
             print("fetch_mapping: {} -- {}\n{}\n".format(mfile, key,
-                    json.dumps(mapping, indent=4, sort_keys=True)))
+                                                         json.dumps(mapping, indent=4, sort_keys=True)))
         server_reports_mappings[key] = mapping
         server_reports_settings = self._load_json(
             os.path.join(SETTING_DIR, "server-reports.json"))
@@ -190,7 +190,7 @@ class PbenchTemplates(object):
             prefix=self.idx_prefix, version=idxver, idxname=idxname)
         server_reports_template_body = dict(
             template=ip['template_pat'].format(prefix=self.idx_prefix,
-                version=idxver, idxname=idxname),
+                                               version=idxver, idxname=idxname),
             settings=server_reports_settings,
             mappings=server_reports_mappings)
         self.templates[server_reports_template_name] = server_reports_template_body
@@ -216,10 +216,10 @@ class PbenchTemplates(object):
                 else:
                     if idxver != idxver_val:
                         raise MappingFileError("{} mappings have mismatched"
-                            " version fields in {}".format(key, mapping_fn))
+                                               " version fields in {}".format(key, mapping_fn))
             if self._dbg > 5:
                 print("fetch_mapping: {} -- {}\n{}\n".format(mapping_fn, key,
-                        json.dumps(mapping, indent=4, sort_keys=True)))
+                                                             json.dumps(mapping, indent=4, sort_keys=True)))
             run_mappings[key] = mapping
         run_settings = self._load_json(os.path.join(SETTING_DIR, "run.json"))
 
@@ -228,10 +228,10 @@ class PbenchTemplates(object):
         # The API body for the template create() contains a dictionary with the
         # settings and the mappings.
         run_template_name = ip['template_name'].format(prefix=self.idx_prefix,
-            version=idxver, idxname=idxname)
+                                                       version=idxver, idxname=idxname)
         run_template_body = dict(
             template=ip['template_pat'].format(prefix=self.idx_prefix,
-                version=idxver, idxname=idxname),
+                                               version=idxver, idxname=idxname),
             settings=run_settings,
             mappings=run_mappings)
         self.templates[run_template_name] = run_template_body
@@ -252,7 +252,7 @@ class PbenchTemplates(object):
                 "{} mapping missing _meta field in {}".format(key, mfile))
         if self._dbg > 5:
             print("fetch_mapping: {} -- {}\n{}\n".format(mfile, key,
-                    json.dumps(mapping, indent=4, sort_keys=True)))
+                                                         json.dumps(mapping, indent=4, sort_keys=True)))
         result_mappings[key] = mapping
         mfile = os.path.join(MAPPING_DIR, "result-data-sample.json")
         key, mapping = self._fetch_mapping(mfile)
@@ -263,17 +263,17 @@ class PbenchTemplates(object):
                 "{} mapping missing _meta field in {}".format(key, mfile))
         if self._dbg > 5:
             print("fetch_mapping: {} -- {}\n{}\n".format(mfile, key,
-                    json.dumps(mapping, indent=4, sort_keys=True)))
+                                                         json.dumps(mapping, indent=4, sort_keys=True)))
         result_mappings[key] = mapping
         result_settings = self._load_json(os.path.join(SETTING_DIR, "result-data.json"))
 
         ip = self.index_patterns['result-data']
         idxname = ip['idxname']
         result_template_name = ip['template_name'].format(prefix=self.idx_prefix,
-                version=idxver, idxname=idxname)
+                                                          version=idxver, idxname=idxname)
         result_template_body = dict(
             template=ip['template_pat'].format(prefix=self.idx_prefix,
-                version=idxver, idxname=idxname),
+                                               version=idxver, idxname=idxname),
             settings=result_settings,
             mappings=result_mappings)
         self.templates[result_template_name] = result_template_body
@@ -302,7 +302,7 @@ class PbenchTemplates(object):
                     "{} mapping missing _meta field in {}".format(key, mapping_fn))
             if self._dbg > 5:
                 print("fetch_mapping: {} -- {}\n{}\n".format(mapping_fn, toolname,
-                        json.dumps(mapping, indent=4, sort_keys=True)))
+                                                             json.dumps(mapping, indent=4, sort_keys=True)))
             del mapping['_meta']
             tool_mapping_frags[toolname] = mapping
             self.versions[ip['idxname'].format(tool=toolname)] = idxver
@@ -316,10 +316,10 @@ class PbenchTemplates(object):
             tool_skel['properties'][toolname] = frag
             tool_mapping = dict([("pbench-{}".format(idxname), tool_skel)])
             tool_template_name = ip['template_name'].format(prefix=self.idx_prefix,
-                version=idxver, idxname=idxname)
+                                                            version=idxver, idxname=idxname)
             tool_template_body = dict(
                 template=ip['template_pat'].format(prefix=self.idx_prefix,
-                    version=self.versions[idxname], idxname=idxname),
+                                                   version=self.versions[idxname], idxname=idxname),
                 settings=tool_settings,
                 mappings=tool_mapping)
             self.templates[tool_template_name] = tool_template_body
@@ -333,8 +333,8 @@ class PbenchTemplates(object):
             'template_pat':  "{prefix}.v{version}.{idxname}.*",
             'template':      "{prefix}.v{version}.{idxname}.{year}-{month}-{day}",
             'desc':          "Daily result data (any data generated by the"
-                    " benchmark) for all pbench result tar balls;"
-                    " e.g prefix.v0.result-data.YYYY-MM-DD"
+            " benchmark) for all pbench result tar balls;"
+            " e.g prefix.v0.result-data.YYYY-MM-DD"
         },
         'run-data': {
             'idxname':       "run",
@@ -342,8 +342,8 @@ class PbenchTemplates(object):
             'template_pat':  "{prefix}.v{version}.{idxname}.*",
             'template':      "{prefix}.v{version}.{idxname}.{year}-{month}",
             'desc':          "Monthly pbench run metadata for index tar balls;"
-                    " contains directories, file names, and their size,"
-                    " permissions, etc.; e.g. prefix.v0.run.YYYY-MM"
+            " contains directories, file names, and their size,"
+            " permissions, etc.; e.g. prefix.v0.run.YYYY-MM"
         },
         'server-reports': {
             'idxname':       "server-reports",
@@ -351,7 +351,7 @@ class PbenchTemplates(object):
             'template_pat':  "{prefix}.v{version}.{idxname}.*",
             'template':      "{prefix}.v{version}.{idxname}.{year}-{month}",
             'desc':          "Monthly pbench server status reports for all"
-                    " cron jobs; e.g. prefix.v0.server-reports.YYYY-MM"
+            " cron jobs; e.g. prefix.v0.server-reports.YYYY-MM"
         },
         'toc-data': {
             'idxname':       "run",
@@ -359,8 +359,8 @@ class PbenchTemplates(object):
             'template_pat':  "{prefix}.v{version}.{idxname}.*",
             'template':      "{prefix}.v{version}.{idxname}.{year}-{month}",
             'desc':          "Monthly table of contents metadata for index tar"
-                    " balls; contains directories, file names, and their size,"
-                    " permissions, etc.; e.g. prefix.v0.run.YYYY-MM"
+            " balls; contains directories, file names, and their size,"
+            " permissions, etc.; e.g. prefix.v0.run.YYYY-MM"
         },
         'tool-data': {
             'idxname':       "tool-data-{tool}",
@@ -368,7 +368,7 @@ class PbenchTemplates(object):
             'template_pat':  "{prefix}.v{version}.{idxname}.*",
             'template':      "{prefix}.v{version}.{idxname}.{year}-{month}-{day}",
             'desc':          "Daily tool data for all tools land in indices"
-                    " named by tool; e.g. prefix.v0.tool-data-iostat.YYYY-MM-DD"
+            " named by tool; e.g. prefix.v0.tool-data-iostat.YYYY-MM-DD"
         }
     }
 
@@ -380,18 +380,18 @@ class PbenchTemplates(object):
             if idx != "tool-data":
                 idxname = patterns[idx]['idxname']
                 print(patterns[idx]['template'].format(prefix=self.idx_prefix,
-                        version=self.versions[idx], idxname=idxname,
-                        year="YYYY", month="MM", day="DD"))
+                                                       version=self.versions[idx], idxname=idxname,
+                                                       year="YYYY", month="MM", day="DD"))
             else:
                 tool_names = [tool for tool in self.known_tool_handlers \
-                        if self.known_tool_handlers[tool] is not None]
+                              if self.known_tool_handlers[tool] is not None]
                 tool_names.sort()
                 for tool_name in tool_names:
                     idxname = patterns[idx]['idxname'].format(tool=tool_name)
                     print(patterns[idx]['template'].format(
-                            prefix=self.idx_prefix,
-                            version=self.versions[idxname], idxname=idxname,
-                            year="YYYY", month="MM", day="DD"))
+                        prefix=self.idx_prefix,
+                        version=self.versions[idxname], idxname=idxname,
+                        year="YYYY", month="MM", day="DD"))
             print("{}\n".format(patterns[idx]['desc']))
         sys.stdout.flush()
 
@@ -400,7 +400,7 @@ class PbenchTemplates(object):
         template_names.sort()
         for name in template_names:
             print("\n\nTemplate: {}\n\n{}\n".format(name,
-                    json.dumps(self.templates[name], indent=4, sort_keys=True)))
+                                                    json.dumps(self.templates[name], indent=4, sort_keys=True)))
         sys.stdout.flush()
 
     def update_templates(self, es, target_name=None):
@@ -421,7 +421,7 @@ class PbenchTemplates(object):
                 continue
             try:
                 _beg, _end, _retries = es_put_template(es,
-                        name=name, body=self.templates[name])
+                                                       name=name, body=self.templates[name])
             except Exception as e:
                 self.counters['put_template_failures'] += 1
                 raise TemplateError(e)
@@ -432,8 +432,8 @@ class PbenchTemplates(object):
                 end = _end
                 retries += _retries
         self.logger.info("done templates (end ts: {}, duration: {:.2f}s,"
-                " successes: {:d}, retries: {:d})",
-                pbench.tstos(end), end - beg, successes, retries)
+                         " successes: {:d}, retries: {:d})",
+                         pbench.tstos(end), end - beg, successes, retries)
 
     def generate_index_name(self, template_name, source, toolname=None):
         """Return a fully formed index name given its template, prefix, source
@@ -452,7 +452,7 @@ class PbenchTemplates(object):
             except KeyError as e:
                 self.counters['invalid_tool_index_name'] += 1
                 raise Exception("Invalid tool index name for version, '{}':"
-                    " {}".format(idxname, e))
+                                " {}".format(idxname, e))
         else:
             idxname = idxname_tmpl
             try:
@@ -460,20 +460,20 @@ class PbenchTemplates(object):
             except KeyError as e:
                 self.counters['invalid_template_name'] += 1
                 raise Exception("Invalid index template name for version,"
-                    " '{}': {}".format(idxname, e))
+                                " '{}': {}".format(idxname, e))
         try:
             ts_val = source['@timestamp']
         except KeyError:
             self.counters['ts_missing_at_timestamp'] += 1
             raise BadDate("missing @timestamp in a source document:"
-                    " {!r}".format(source))
+                          " {!r}".format(source))
         except TypeError as e:
             self.counters['bad_source'] += 1
             raise Exception("Failed to generate index name, {!r}, source:"
-                    " {!r}".format(e, source))
+                            " {!r}".format(e, source))
         year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
         return template.format(prefix=self.idx_prefix, version=version,
-                idxname=idxname, year=year, month=month, day=day)
+                               idxname=idxname, year=year, month=month, day=day)
 
 
 def _get_es_hosts(config, logger):
@@ -484,7 +484,7 @@ def _get_es_hosts(config, logger):
         URL = config.get('Indexing', 'server')
     except NoSectionError:
         logger.warning("Need an [Indexing] section with host and port defined"
-                " in {} configuration file", " ".join(config.files))
+                       " in {} configuration file", " ".join(config.files))
         return None
     except NoOptionError:
         try:
@@ -604,10 +604,10 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
         for cl_action in cl_actions:
             for field in ('_id', '_index', '_type'):
                 assert field in cl_action, "Action missing '{}' field:" \
-                        " {!r}".format(field, cl_action)
+                    " {!r}".format(field, cl_action)
             assert _op_type == cl_action['_op_type'], "Unexpected _op_type" \
-                    " value '{}' in action {!r}".format(
-                    cl_action['_op_type'], cl_action)
+                " value '{}' in action {!r}".format(
+                cl_action['_op_type'], cl_action)
 
             actions_deque.append((0, cl_action))   # Append to the right side ...
             yield cl_action
@@ -640,8 +640,8 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
     generator = actions_tracking_closure(actions)
 
     streaming_bulk_generator = helpers.streaming_bulk(
-            es, generator, raise_on_error=False,
-            raise_on_exception=False, request_timeout=_request_timeout)
+        es, generator, raise_on_error=False,
+        raise_on_exception=False, request_timeout=_request_timeout)
 
     for ok, resp_payload in streaming_bulk_generator:
         retry_count, action = actions_deque.popleft()
@@ -725,9 +725,9 @@ class PbenchData(object):
     """
     def __init__(self, ptb, idxctx):
         self.year, self.month, self.day = (
-                "{:04d}".format(ptb.start_run_ts.year),
-                "{:02d}".format(ptb.start_run_ts.month),
-                "{:02d}".format(ptb.start_run_ts.day))
+            "{:04d}".format(ptb.start_run_ts.year),
+            "{:02d}".format(ptb.start_run_ts.month),
+            "{:02d}".format(ptb.start_run_ts.day))
         self.ptb = ptb
         self.logger = idxctx.logger
         self.idxctx = idxctx
@@ -770,14 +770,14 @@ class PbenchData(object):
         except Exception as e:
             self.counters['ts_not_epoch_millis_float'] += 1
             raise BadDate("{!r} is not a float in milliseconds since the"
-                    " epoch: {}".format(orig_ts, e))
+                          " epoch: {}".format(orig_ts, e))
         ts_float = orig_ts_float/1000
         try:
             ts = datetime.utcfromtimestamp(ts_float)
         except Exception as e:
             self.counters['ts_not_epoch_float'] += 1
             raise BadDate("{:f} ({!r}) is not a proper float in seconds since"
-                    " the epoch: {}".format(ts_float, orig_ts, e))
+                          " the epoch: {}".format(ts_float, orig_ts, e))
         if ts < self.ptb.start_run_ts:
             # The calculated timestamp, `ts`, is earlier that the timestamp of
             # the start of the pbench run itself, `start_run_ts`.  That can
@@ -804,19 +804,19 @@ class PbenchData(object):
             except Exception as e:
                 self.counters['ts_calc_not_epoch_millis_float'] += 1
                 raise BadDate("{:f} ({!r}) is not a proper float in"
-                        " milliseconds since the epoch: {}".format(
-                            orig_ts_float, orig_ts, e))
+                              " milliseconds since the epoch: {}".format(
+                                  orig_ts_float, orig_ts, e))
             newts = self.ptb.start_run_ts + d
             if newts > self.ptb.end_run_ts:
                 self.counters['ts_before_start_run_ts'] += 1
                 raise BadDate("{} ({!r}) is before the start of the"
-                        " run ({})".format(ts, orig_ts, self.ptb.start_run_ts))
+                              " run ({})".format(ts, orig_ts, self.ptb.start_run_ts))
             else:
                 ts = newts
         elif ts > self.ptb.end_run_ts:
             self.counters['ts_after_end_run_ts'] += 1
             raise BadDate("{} ({!r}) is after the end of the"
-                    " run ({})".format(ts, orig_ts, self.ptb.end_run_ts))
+                          " run ({})".format(ts, orig_ts, self.ptb.end_run_ts))
         return ts.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     def generate_index_name(self, template_name, source, toolname=None):
@@ -825,9 +825,9 @@ class PbenchData(object):
         year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
         if (year, month, day) < (self.year, self.month, self.day):
             raise BadDate("TS y/m/d, {!r}, earlier than pbench run, {!r}".format(
-                    (year, month, day), (self.year, self.month, self.day)))
+                (year, month, day), (self.year, self.month, self.day)))
         return self.idxctx.templates.generate_index_name(template_name,
-                source, toolname=toolname)
+                                                         source, toolname=toolname)
 
 
 ###########################################################################
@@ -853,9 +853,9 @@ class ResultData(PbenchData):
 
         self.idxctx.opctx.append(
             _dict_const(
-                    tbname=ptb.tbname,
-                    object="ResultData",
-                    counters=self.counters))
+                tbname=ptb.tbname,
+                object="ResultData",
+                counters=self.counters))
         self.json_dirs = None
         try:
             self.json_dirs = ResultData.get_result_json_dirs(ptb)
@@ -869,8 +869,8 @@ class ResultData(PbenchData):
         experiment; return a list directory path names.
         """
         paths = [x for x in ptb.tb.getnames()
-                if (os.path.basename(x) == "result.json")
-                    and ptb.tb.getmember(x).isfile()]
+                 if (os.path.basename(x) == "result.json")
+                 and ptb.tb.getmember(x).isfile()]
         dirnames = []
         for p in paths:
             dirnames.append(os.path.dirname(p))
@@ -990,14 +990,14 @@ class ResultData(PbenchData):
                 continue
 
             result_json = os.path.join(
-                    self.ptb.extracted_root, dirname, "result.json")
+                self.ptb.extracted_root, dirname, "result.json")
             try:
                 # Read the file and interpret it as a JSON document.
                 with open(result_json) as fp:
                     results = json.load(fp)
             except Exception as e:
                 self.logger.warning("result-data-indexing: encountered invalid"
-                        " JSON file, {}: {:r}", result_json, e)
+                                    " JSON file, {}: {:r}", result_json, e)
                 self.counters['not_valid_json_file'] += 1
                 continue
 
@@ -1005,7 +1005,7 @@ class ResultData(PbenchData):
             # to see if that is true.
             if not isinstance(results, list):
                 self.logger.warning("result-data-indexing: encountered unexpected"
-                        " JSON file format, %s" % (result_json,))
+                                    " JSON file format, %s" % (result_json,))
                 continue
 
             for iteration in results:
@@ -1015,21 +1015,21 @@ class ResultData(PbenchData):
                     iter_data = iteration['iteration_data']
                 except Exception:
                     self.logger.warning("result-data-indexing: could not find"
-                            " iteration data in JSON file, {}", result_json)
+                                        " iteration data in JSON file, {}", result_json)
                     self.counters['missing_iteration'] += 1
                     continue
                 # Validate the iteration name by looking for the iteration
                 # directory on disk.
                 iter_dir = os.path.join(
-                        self.ptb.extracted_root, dirname, iter_name)
+                    self.ptb.extracted_root, dirname, iter_name)
                 if not os.path.isdir(iter_dir):
                     iter_name = "{:d}-{}".format(iter_number, iter_name)
                     iter_dir = os.path.join(
-                            self.ptb.extracted_root, dirname, iter_name)
+                        self.ptb.extracted_root, dirname, iter_name)
                     if not os.path.isdir(iter_dir):
                         self.logger.warning("result-data-indexing: encountered bad"
-                                " iteration name '{}' in JSON file, {}",
-                                iteration['iteration_name'], result_json)
+                                            " iteration name '{}' in JSON file, {}",
+                                            iteration['iteration_name'], result_json)
                         self.counters['bad_iteration_name'] += 1
                         continue
                 # Generate JSON documents for each iteration using the
@@ -1050,14 +1050,14 @@ class ResultData(PbenchData):
             bm_data = iter_data['parameters']['benchmark']
         except Exception as e:
             self.logger.warning("result-data-indexing: bad result data in JSON"
-                    " file, {}: {!r}", result_json, e)
+                                " file, {}: {!r}", result_json, e)
             self.counters['bad_result_data_in_json_file'] += 1
             return
         else:
             if not isinstance(bm_data, (list,)):
                 self.logger.warning("result-data-indexing: bad result data in"
-                        " JSON file, {}: parameters.benchmark is not a list",
-                        result_json)
+                                    " JSON file, {}: parameters.benchmark is not a list",
+                                    result_json)
                 self.counters['bad_result_data_in_json_file_bm_not_a_list'] += 1
                 return
         bm_md = {}
@@ -1080,7 +1080,7 @@ class ResultData(PbenchData):
             benchmark = bm_md['benchmark_name']
         except KeyError:
             self.logger.warning("result-data-indexing: bad result data in JSON"
-                    " file, {}: missing 'benchmark_name' field", result_json)
+                                " file, {}: missing 'benchmark_name' field", result_json)
             self.counters['bad_result_data_in_json_file_missing_bm_name'] += 1
             return
         # Skip any results that we don't support.
@@ -1150,7 +1150,7 @@ class ResultData(PbenchData):
             # UID from the template using the existing metadata we have
             # collected.
             bm_md['uid'] = ResultData.expand_template(bm_md['uid_tmpl'],
-                    bm_md, run=self.run_metadata)
+                                                      bm_md, run=self.run_metadata)
 
         try:
             # Attempt to copy the `trafficgen_uid` field to a renamed field
@@ -1169,18 +1169,18 @@ class ResultData(PbenchData):
             # UID from the template using the existing metadata we have
             # collected.
             bm_md['trafficgen_uid'] = ResultData.expand_template(
-                    bm_md['trafficgen_uid_tmpl'], bm_md, run=self.run_metadata)
+                bm_md['trafficgen_uid_tmpl'], bm_md, run=self.run_metadata)
 
         iteration = _dict_const([
-                ( 'run', self.run_metadata ),
-                ( 'iteration', _dict_const([
-                        ( "name", iter_name ),
-                        ( "number", iter_number)
-                    ])
-                ),
-                # The iteration documents have all the benchmark metadata.
-                ( 'benchmark', bm_md )
+            ( 'run', self.run_metadata ),
+            ( 'iteration', _dict_const([
+                ( "name", iter_name ),
+                ( "number", iter_number)
             ])
+            ),
+            # The iteration documents have all the benchmark metadata.
+            ( 'benchmark', bm_md )
+        ])
 
         # Generate a sequence of JSON documents yielding each one.  The JSON
         # documents are one of two types: a sample document summarizing the
@@ -1190,9 +1190,9 @@ class ResultData(PbenchData):
         # N samples, so we yield N sample documents, each followed by M result
         # data documents.
         for source, _parent, _type in ResultData.gen_sources(self,
-                iter_data, iteration, self.mk_abs_timestamp_millis):
+                                                             iter_data, iteration, self.mk_abs_timestamp_millis):
             yield source, PbenchData.make_source_id(source, _parent=_parent), \
-                    _parent, _type
+                _parent, _type
 
     @staticmethod
     def expand_template(templ, d, run=None):
@@ -1263,12 +1263,12 @@ class ResultData(PbenchData):
         This generator yields: source, parent_id, doc_type
         """
         iteration_md_subset = _dict_const(
-                name=iteration['iteration']['name'],
-                number=iteration['iteration']['number'])
+            name=iteration['iteration']['name'],
+            number=iteration['iteration']['number'])
         run_md_subset = _dict_const([
             ( 'id', iteration['run']['id'] ),
             ( 'name', iteration['run']['name'] )
-            ])
+        ])
         for result_type in ['latency', 'resource', 'throughput']:
             try:
                 result_type_results = results[result_type]
@@ -1279,7 +1279,7 @@ class ResultData(PbenchData):
                     result_type_results.items()):
                 for result_el_idx, result_el in enumerate(results_list_for_title):
                     sample_md, samples = ResultData.make_sample_wrapper(
-                            result_type, title, result_el_idx, result_el)
+                        result_type, title, result_el_idx, result_el)
                     sample_idx = 0
                     for sample in samples:
                         # Reach into the timeseries data to get the first
@@ -1315,13 +1315,13 @@ class ResultData(PbenchData):
                         # Construct the same name (one based)
                         sample_md['name'] = "sample{:d}".format(sample_idx)
                         sample_md_subset = _dict_const([
-                                ( 'name', sample_md['name'] ),
-                                ( '@idx', sample_md['@idx'] ),
-                                ( 'uid', sample_md['uid'] ),
-                                ( 'measurement_type', sample_md['measurement_type'] ),
-                                ( 'measurement_idx', sample_md['measurement_idx'] ),
-                                ( 'measurement_title', sample_md['measurement_title'] )
-                            ])
+                            ( 'name', sample_md['name'] ),
+                            ( '@idx', sample_md['@idx'] ),
+                            ( 'uid', sample_md['uid'] ),
+                            ( 'measurement_type', sample_md['measurement_type'] ),
+                            ( 'measurement_idx', sample_md['measurement_idx'] ),
+                            ( 'measurement_title', sample_md['measurement_title'] )
+                        ])
                         sample_md['start'] = start_ts
                         sample_md['end'] = end_ts
                         # Now we can emit the sample document knowing the
@@ -1369,7 +1369,7 @@ class ResultData(PbenchData):
                                 ( 'iteration', iteration_md_subset ),
                                 ( 'sample', sample_md_subset ),
                                 ( 'result', res )
-                                ])
+                            ])
                             yield source, sample_id, 'res'
         return
 
@@ -1397,7 +1397,7 @@ def mk_result_data_actions(ptb, idxctx):
             pass
         else:
             assert doc_type in ( 'sample', 'res'), \
-                    "Invalid result data document type, {}".format(doc_type)
+                "Invalid result data document type, {}".format(doc_type)
             if doc_type == "res":
                 _type = "pbench-result-data"
             else:
@@ -1811,10 +1811,10 @@ class ToolData(PbenchData):
         super().__init__(ptb, idxctx)
         self.toolname = tool
         idxctx.opctx.append(_dict_const(
-                tbname=ptb.tbname,
-                object="ToolData-%s-%s-%s-%s" % (
-                    iteration, sample, host, tool),
-                counters=self.counters))
+            tbname=ptb.tbname,
+            object="ToolData-%s-%s-%s-%s" % (
+                iteration, sample, host, tool),
+            counters=self.counters))
         try:
             iterseqno = int(iteration.split('-', 1)[0])
         except ValueError:
@@ -1935,8 +1935,8 @@ class ToolData(PbenchData):
             header = csv['header']
             if header[0] != 'timestamp_ms':
                 self.logger.warning("tool-data-indexing: expected first column of"
-                        " .csv file ({}) to be 'timestamp_ms', found '{}'",
-                        csv['basename'], header[0])
+                                    " .csv file ({}) to be 'timestamp_ms', found '{}'",
+                                    csv['basename'], header[0])
                 self.counters['first_column_not_timestamp_ms'] += 1
                 continue
             handler_rec = csv['handler_rec']
@@ -1977,10 +1977,10 @@ class ToolData(PbenchData):
                     # "known handlers" table.
                     if subfield not in handler_rec['subfields']:
                         self.logger.warning("tool-data-indexing: column header,"
-                                " {:r}, has an unexpected subfield, {:r},"
-                                " expected {:r} subfields, for .csv {}",
-                                col, subfield, handler_rec['subfields'],
-                                csv['basename'])
+                                            " {:r}, has an unexpected subfield, {:r},"
+                                            " expected {:r} subfields, for .csv {}",
+                                            col, subfield, handler_rec['subfields'],
+                                            csv['basename'])
                         self.counters['column_subfields_do_not_match_handler'] += 1
                         subfield = None
                 # Record the association between the column number
@@ -2012,11 +2012,11 @@ class ToolData(PbenchData):
                                 val = m.group(md)
                             except IndexError:
                                 self.logger.warning("tool-data-indexing: handler"
-                                        " metadata, {:r}, not found in column"
-                                        " {:r} using pattern {:r}, for .csv"
-                                        " '{}'", handler_rec['metadata'], col,
-                                        handler_rec['metadata_pat'],
-                                        csv['basename'])
+                                                    " metadata, {:r}, not found in column"
+                                                    " {:r} using pattern {:r}, for .csv"
+                                                    " '{}'", handler_rec['metadata'], col,
+                                                    handler_rec['metadata_pat'],
+                                                    csv['basename'])
                                 self.counters['expected_column_metadata_not_found'] += 1
                             else:
                                 colmd[md] = val
@@ -2064,7 +2064,7 @@ class ToolData(PbenchData):
                     first = tstamp
                 elif first != tstamp:
                     self.logger.warning("tool-data-indexing: {} csv files have"
-                            " inconsistent timestamps per row", self.toolname)
+                                        " inconsistent timestamps per row", self.toolname)
                     self.counters['inconsistent_timestamps_across_csv_files'] += 1
                     break
             # We are now ready to create a base document per identifier to
@@ -2153,7 +2153,7 @@ class ToolData(PbenchData):
                 source_id = PbenchData.make_source_id(source)
                 yield source, source_id
         self.logger.info("tool-data-indexing: tool {}, end unified for {}",
-                self.toolname, self.basepath)
+                         self.toolname, self.basepath)
         return
 
     def _make_source_individual(self):
@@ -2161,8 +2161,8 @@ class ToolData(PbenchData):
         column coordinate."""
         for csv in self.files:
             assert csv['header'][0] == 'timestamp_ms', \
-                    "Unexpected time stamp header, '{}'".format(
-                        csv['header'][0])
+                "Unexpected time stamp header, '{}'".format(
+                csv['header'][0])
             header = csv['header']
             handler_rec = csv['handler_rec']
             klass = handler_rec['class']
@@ -2478,7 +2478,7 @@ class ToolData(PbenchData):
     _subformats = {
         'procint': _stdout_procint,
         'keyval': _stdout_keyval,
-        }
+    }
 
     def _make_source_stdout(self):
         """Read the given set of files one at a time, emitting a record for each data
@@ -2504,8 +2504,8 @@ class ToolData(PbenchData):
                 func = self._subformats[subformat]
             except KeyError:
                 self.logger.warning("tool-data-indexing: encountered unrecognized"
-                        " sub-format, '{}', not one of {!r}", subformat,
-                        [key for key in self._subformats.keys()])
+                                    " sub-format, '{}', not one of {!r}", subformat,
+                                    [key for key in self._subformats.keys()])
                 self.counters["unrecognized_subformat"] += 1
                 continue
             path = os.path.join(self.ptb.extracted_root, output_file['path'])
@@ -2533,7 +2533,7 @@ class ToolData(PbenchData):
                     payload = json.load(fp)
             except Exception as e:
                 self.logger.warning("tool-data-indexing: encountered bad JSON"
-                        " file, {}: {:r}", df['path'], e)
+                                    " file, {}: {:r}", df['path'], e)
                 self.counters["bad_json_file"] += 1
                 continue
 
@@ -2554,8 +2554,8 @@ class ToolData(PbenchData):
                         # indexing went.
                         missing_ts = True
                         self.logger.warning("tool-data-indexing: encountered JSON"
-                                " file, {}, with missing @timestamp fields",
-                                df['path'])
+                                            " file, {}, with missing @timestamp fields",
+                                            df['path'])
                     self.counters['json_doc_missing_timestamp'] += 1
                     idx += 1
                     continue
@@ -2577,8 +2577,8 @@ class ToolData(PbenchData):
                         if not invalid_ts:
                             invalid_ts = True
                             self.logger.warning("tool-data-indexing: encountered"
-                                    " JSON file, {}, with invalid @timestamp"
-                                    " fields ('{:r}')", df['path'], ts_val)
+                                                " JSON file, {}, with invalid @timestamp"
+                                                " fields ('{:r}')", df['path'], ts_val)
                         self.counters['json_doc_timestamp_not_valid'] += 1
                         idx += 1
                         continue
@@ -2586,9 +2586,9 @@ class ToolData(PbenchData):
                     if not badrange_ts:
                         badrange_ts = True
                         self.logger.warning("tool-data-indexing: encountered JSON"
-                                " file, {}, with @timestamp fields out side"
-                                " start/end run time range ({:r})",
-                                df['path'], ts_val)
+                                            " file, {}, with @timestamp fields out side"
+                                            " start/end run time range ({:r})",
+                                            df['path'], ts_val)
                     self.counters['json_doc_timestamp_out_of_range'] += 1
                     idx += 1
                     continue
@@ -2793,7 +2793,7 @@ def mk_tool_data(ptb, idxctx):
                 tool_names.sort()
                 for tool in tool_names:
                     yield ToolData(ptb, iteration, sample,
-                            hostname, tool, idxctx)
+                                   hostname, tool, idxctx)
     return
 
 def mk_tool_data_actions(ptb, idxctx):
@@ -2915,12 +2915,12 @@ def get_section_items(section, mdconf, logger):
         section_items = mdconf.items(section)
     except NoSectionError:
         logger.warning("No [{}] section in metadata.log: tool data will"
-                " *not* be indexed", section)
+                       " *not* be indexed", section)
         return []
     except ConfigParserError:
         logger.exception("ConfigParser error in get_section_items: tool data"
-                " will *not* be indexed -- this is most probably a bug: please"
-                " open an issue")
+                         " will *not* be indexed -- this is most probably a bug: please"
+                         " open an issue")
         return []
     section_items.sort()
     return section_items
@@ -2931,16 +2931,16 @@ def get_hosts(mdconf, logger):
         hosts = mdconf.get("tools", "hosts")
     except NoSectionError:
         logger.warning("No [tools] section in metadata.log: tool data will"
-                " *not* be indexed.")
+                       " *not* be indexed.")
         return []
     except NoOptionError:
         logger.warning("No \"hosts\" option in [tools] section in metadata"
-                " log: tool data will *NOT* be indexed.")
+                       " log: tool data will *NOT* be indexed.")
         return []
     except ConfigParserError:
         logger.exception("ConfigParser error in get_hosts: tool data will"
-                " *not* be indexed -- this is most probably a bug: please open"
-                " an issue")
+                         " *not* be indexed -- this is most probably a bug: please open"
+                         " an issue")
         return []
     hosts_set = set(hosts.split())
     hosts = list(hosts_set)
@@ -3055,7 +3055,7 @@ def ip_address_to_ip_o_addr(s):
             serial, ifname = l.split(':')[0:2]
         elif l.lstrip().startswith('inet'):
             assert(state != 0), \
-                    "Logic bomb! Unexpected state: {!r}".format(state)
+                "Logic bomb! Unexpected state: {!r}".format(state)
             if state == 1:
                 state = 2
             elif state == 2:
@@ -3314,10 +3314,10 @@ class PbenchTarBall(object):
         self.extracted_root = extracted_root
         if not os.path.isdir(os.path.join(self.extracted_root, self.dirname)):
             raise UnsupportedTarballFormat(
-                    "{} - extracted tar ball directory \"{}\" does not"
-                    " exist.".format(
-                        self.tbname,
-                        os.path.join(self.extracted_root, self.dirname)))
+                "{} - extracted tar ball directory \"{}\" does not"
+                " exist.".format(
+                    self.tbname,
+                    os.path.join(self.extracted_root, self.dirname)))
         # Open the MD5 file of the tar ball and read the MD5 sum from it.
         md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
         # Construct the @metadata and run metadata dictionaries from the
@@ -3332,8 +3332,8 @@ class PbenchTarBall(object):
                 raise Exception("empty run.controller")
             if not controller.startswith(self.controller_name):
                 raise Exception("run.controller (\"{}\") does not match"
-                        " controller_dir (\"{}\")".format(
-                        controller, self.controller_dir))
+                                " controller_dir (\"{}\")".format(
+                                    controller, self.controller_dir))
             name = self.mdconf.get('pbench', 'name')
             if not name:
                 raise Exception("empty pbench.name")
@@ -3359,7 +3359,7 @@ class PbenchTarBall(object):
                 raise Exception("empty pbench.date")
         except Exception as e:
             raise BadMDLogFormat("{} - error fetching required metadata.log"
-                    " fields, \"{}\"".format(self.tbname, e))
+                                 " fields, \"{}\"".format(self.tbname, e))
         # Normalize all the timestamps
         self.start_run_ts, self.start_run = PbenchTarBall.convert_to_dt(start_run_orig)
         self.end_run_ts, self.end_run = PbenchTarBall.convert_to_dt(end_run_orig)
@@ -3379,12 +3379,12 @@ class PbenchTarBall(object):
         # "pbench.rpm-version" field into the "@metadata" section, and then we
         # pull the "run.prefix" in as "@metadata.result-prefix".
         self.at_metadata = _dict_const([
-                ('file-date', mtime.isoformat()),
-                ('file-name', self.tbname),
-                ('file-size', tb_stat.st_size),
-                ('md5', md5sum),
-                ('toc-prefix', self.dirname)
-            ])
+            ('file-date', mtime.isoformat()),
+            ('file-name', self.tbname),
+            ('file-size', tb_stat.st_size),
+            ('md5', md5sum),
+            ('toc-prefix', self.dirname)
+        ])
         try:
             rpm_version = self.mdconf.get("pbench", "rpm-version")
         except NoOptionError:
@@ -3408,8 +3408,8 @@ class PbenchTarBall(object):
             self.run_metadata.update(self.mdconf.items('pbench'))
         except NoSectionError as e:
             raise BadMDLogFormat(
-                    "{} - missing section in metadata.log, \"{}\"".format(
-                        self.dirname, e))
+                "{} - missing section in metadata.log, \"{}\"".format(
+                    self.dirname, e))
         # Remove from run metadata as these fields are either kept in
         # @metadata or being renamed.
         for key in ( 'rpm-version', 'prefix', 'start_run', 'end_run' ):
@@ -3477,7 +3477,7 @@ class PbenchTarBall(object):
         (tarfile.CHRTYPE, "chr"),
         (tarfile.BLKTYPE, "blk"),
         (tarfile.GNUTYPE_SPARSE, "spr")
-        ])
+    ])
 
     def gen_toc(self):
         """Generate (t)able (o)f (c)ontents JSON documents for this tar ball.
@@ -3544,22 +3544,22 @@ class PbenchTarBall(object):
                     path_els = dpath.split(os.path.sep)[1:-1]
                 if dpath in toc_dirs:
                     raise Exception("Logic bomb! Found a directory entry that"
-                            " already exists!")
+                                    " already exists!")
                 toc_dirs[dpath] = _dict_const(
-                        directory=dpath,
-                        mtime=datetime.utcfromtimestamp(float(m.mtime)).isoformat(),
-                        mode=oct(m.mode)
-                    )
+                    directory=dpath,
+                    mtime=datetime.utcfromtimestamp(float(m.mtime)).isoformat(),
+                    mode=oct(m.mode)
+                )
                 if name:
                     toc_dirs[dpath]['name'] = name
                 if len(path_els) > 0:
                     toc_dirs[dpath]['ancestor_path_elements'] = path_els
             else:
                 fentry = _dict_const(
-                        name=os.path.basename(path),
-                        mtime=datetime.utcfromtimestamp(float(m.mtime)).isoformat(),
-                        size=m.size,
-                        mode=oct(m.mode)
+                    name=os.path.basename(path),
+                    mtime=datetime.utcfromtimestamp(float(m.mtime)).isoformat(),
+                    size=m.size,
+                    mode=oct(m.mode)
                 )
                 try:
                     ftype = self._mode_table[m.type]
@@ -3604,7 +3604,7 @@ class IdxContext(object):
         else:
             if '.' in self.idx_prefix:
                 raise ConfigFileError("Index prefix, '{}', not allowed to"
-                        " contain a period ('.')".format(self.idx_prefix))
+                                      " contain a period ('.')".format(self.idx_prefix))
 
         # We expose the pbench module's internal _time() method here for
         # convenience, allowing us to more easily mock out "time" for unit
@@ -3636,7 +3636,7 @@ class IdxContext(object):
         self.logger = pbench.get_pbench_logger(self.name, self.config)
         self.es = get_es(self.config, self.logger)
         self.templates = PbenchTemplates(self.config.BINDIR, self.idx_prefix,
-                self.logger, _known_tool_handlers, _dbg=_dbg)
+                                         self.logger, _known_tool_handlers, _dbg=_dbg)
         self.tracking_id = None
 
     def dump_opctx(self):
@@ -3646,7 +3646,7 @@ class IdxContext(object):
                 counters_list.append(ctx)
         if counters_list:
             self.logger.warning("** Errors encountered while indexing: {}",
-                    json.dumps(counters_list, sort_keys=True))
+                                json.dumps(counters_list, sort_keys=True))
 
     def set_tracking_id(self, tid):
         self.tracking_id = tid
