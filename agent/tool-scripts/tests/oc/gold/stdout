@@ -1,0 +1,5 @@
+oc: atomic-openshift-clients is installed
+oc: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/oc-datalog /var/tmp/pbench-test-tool-scripts/oc/tools-group/oc rc,ep,pods,pv,pvc,svc,cs"
+oc: stopping
+oc: no post-processing available following stop
+oc: no data post-processing available

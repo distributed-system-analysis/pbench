@@ -1,0 +1,4 @@
+disk: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/disk-datalog 10"
+disk: stopping
+disk: no post-processing available following stop
+disk: post-processing data

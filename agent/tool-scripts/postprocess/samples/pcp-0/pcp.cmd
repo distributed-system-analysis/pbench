@@ -1,1 +1,0 @@
-/usr/bin/pmlogger -c pmlogger.conf -t 3 archive >/var/lib/pbench-agent/pbench-user-benchmark_pcp_2016-03-08_18:05:18/1/reference-result/tools-default/pcp/pcp-stdout.txt 2>/var/lib/pbench-agent/pbench-user-benchmark_pcp_2016-03-08_18:05:18/1/reference-result/tools-default/pcp/pcp-stderr.txt & echo $! >/var/lib/pbench-agent/tmp/default.1.pcp.pid

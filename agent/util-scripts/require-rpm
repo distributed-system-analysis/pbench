@@ -1,0 +1,20 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
+
+_rpm="${1}"
+if [[ ! -z "${2}" ]]; then
+    _version="-${2}"
+else
+    _version=""
+fi
+if [[ ! -z "${_PBENCH_UNIT_TESTS}" ]]; then
+    # Package changes are always successful for unit tests.
+    exit 0
+fi
+
+_status=$(rpm --query ${_rpm}${_version})
+rc=0
+if echo ${_status} | grep -q "is not installed"; then
+    rc=1
+fi
+exit ${rc}

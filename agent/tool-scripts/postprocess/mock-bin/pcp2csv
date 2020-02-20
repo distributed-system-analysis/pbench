@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# mock out pmdumptext
+
+graph="${1}"
+if [[ -z "${graph}" ]]; then
+    exit 1
+fi
+
+printf -- "Time,\"col0\",\"col1\",\"col2\"\n"
+printf -- "12340,,,\n"
+printf -- "12345,6,7,8\n"

@@ -1,0 +1,4 @@
+cpuacct: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/cpuacct-datalog 10"
+cpuacct: stopping
+cpuacct: post-processing following stop
+cpuacct: post-processing data

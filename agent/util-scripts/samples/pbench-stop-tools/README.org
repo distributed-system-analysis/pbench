@@ -4,7 +4,7 @@ These unit tests test (mostly) the safe_kill) function in tool-scripts/kvm-spinl
 (and all the tools that link to that). The basic premise is that we fake the environment
 as if pbench-start-tools had been called, and then call pbench-stop-tools. pidof and kill
 are mocked in the test-bin directory). kill is a bash builtin, so I disabled it in the
-base file conditionally when _PBENCH_BENCH_TESTS is set to 1 (which is set in the unittests
+base file conditionally when _PBENCH_UNIT_TESTS is set to 1 (which is set in the unittests
 scripts). The base file is sourced by every other script, so the built-in kill is disabled
 everywhere and the mock version controls.
 

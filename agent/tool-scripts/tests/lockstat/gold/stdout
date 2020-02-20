@@ -1,0 +1,4 @@
+lockstat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/lockstat-datalog /var/tmp/pbench-test-tool-scripts/lockstat/tools-group/lockstat"
+lockstat: stopping
+lockstat: no post-processing available following stop
+lockstat: no data post-processing available

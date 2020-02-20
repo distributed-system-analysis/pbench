@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "--packets=42 --interface=en42"
+exit 0

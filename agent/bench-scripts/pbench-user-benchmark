@@ -259,7 +259,7 @@ function run_benchmark {
 				exit 1
 			fi
 		fi
-		pbench-start-tools --group=${tool_group} --iteration=${iteration} --dir=${benchmark_results_dir}
+		pbench-start-tools --group=${tool_group} --dir=${benchmark_results_dir}
 	fi
 
 	_msg="Running ${iter_benchmark_bin} for iteration ${iteration_name}"
@@ -270,13 +270,13 @@ function run_benchmark {
 	${benchmark_run_cmd}
 	benchmark_duration=${SECONDS}
 	# make it predictable in the unittest environment
-	if [[ ${_PBENCH_BENCH_TESTS} == 1 ]]; then
+	if [[ ${_PBENCH_UNIT_TESTS} == 1 ]]; then
 		benchmark_duration=0
 	fi
 
 	if [[ $use_tool_triggers -eq 0 ]]; then
-		pbench-stop-tools --group="${tool_group}" --iteration="${iteration}" --dir="${benchmark_results_dir}"
-		pbench-postprocess-tools --group="${tool_group}" --iteration="${iteration}" --dir="${benchmark_results_dir}"
+		pbench-stop-tools --group="${tool_group}" --dir="${benchmark_results_dir}"
+		pbench-postprocess-tools --group="${tool_group}" --dir="${benchmark_results_dir}"
 		if [[ ! -z ${pbench_post} ]]; then
 			log "[${script_name}]: Running ${pbench_post} for iteration ${iteration_name}"
 			eval ${pbench_post}
@@ -338,7 +338,7 @@ for rdir in ${result_dirs}; do
 	if [ ${use_tool_triggers} -ne 0 ]; then
 		# Tool triggers were in use, so we have to run the
 		# post-processing now.
-		pbench-postprocess-tools --group="${tool_group}" --iteration="${iteration}" --dir="${rdir}"
+		pbench-postprocess-tools --group="${tool_group}" --dir="${rdir}"
 		record_iteration "${iteration}" "${iteration_name}" "${benchmark_bin}"
 	fi
 	ln -s "$(basename "${rdir}")" "$(dirname "${rdir}")/reference-result"

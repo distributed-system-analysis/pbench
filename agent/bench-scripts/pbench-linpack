@@ -141,12 +141,12 @@ pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
 ## Run the benchmark and start/stop perf analysis tools
-pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
 OMP_NUM_THREADS=$threads ${linpack_dir}/${linpack_cmd} < ${linpack_dir}/${linpack_dat} | tee $result_file
 
-pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
+pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
 
 ln -s sample1 $benchmark_run_dir/$iteration/reference-result
 

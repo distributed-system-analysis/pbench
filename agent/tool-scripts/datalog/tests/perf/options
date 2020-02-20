@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "${_execdir} -a42 -b -c"
+exit 0

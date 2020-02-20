@@ -1,0 +1,4 @@
+kvm-spinlock: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/kvm-spinlock-datalog 10"
+kvm-spinlock: stopping
+kvm-spinlock: no post-processing available following stop
+kvm-spinlock: post-processing data

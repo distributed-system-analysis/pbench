@@ -13,6 +13,7 @@ jobs:
       install:
         # Perl JSON and JSON-XS required
         - sudo apt-get install libjson-perl libjson-xs-perl
+        - pip install ansible
       script: ./agent/run-unittests
 
     - stage: "Server Unit Tests"

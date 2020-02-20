@@ -1,0 +1,858 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+# NOTE: this script is used for many different tool names.  All are links to
+# the same file.
+
+tool="$(basename ${0})"
+script_path="$(dirname ${0})"
+script_path="$(realpath -e ${script_path})"
+script_bin="$(dirname ${script_path})"
+
+if [[ -z "${script_bin}" || "${script_bin}" == "/" ]]; then
+	printf -- "INTERNAL ERROR - seems like tools incorrectly installed!" >&2
+	exit 1
+fi
+
+datalog_path=${script_bin}/tool-scripts/datalog
+postprocess_path=${script_bin}/tool-scripts/postprocess
+
+# Pbench tool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) Post-process the data
+
+shortoptions="d:h"
+longoptions="dir:,help,install,postprocess,start,stop"
+
+# Defaults for all tools
+tool_dir=""
+mode=""
+
+# Defaults for all tools except a few
+case "${tool}" in
+blktrace|bpftrace|kvmtrace|lockstat|oc|perf|strace|systemtap|tcpdump)
+	:  # These tools don't use interval
+	;;
+*)
+	def_interval=10
+	interval=${def_interval}
+	longoptions="${longoptions},interval:"
+	;;
+esac
+
+# Defaults specific to certain tools
+case "${tool}" in
+blktrace)
+	devices=""
+	longoptions="${longoptions},devices:"
+	;;
+bpftrace)
+	script=""
+	longoptions="${longoptions},script:"
+	tool_package_name="bpftrace"
+	;;
+haproxy-ocp)
+	def_counters_clear_all="false"
+	counters_clear_all="${def_counters_clear_all}"
+	longoptions="${longoptions},counters-clear-all"
+	tool_package_name="atomic-openshift-clients"
+	;;
+iostat|mpstat|sar)
+	options=""
+	longoptions="${longoptions},options:"
+	tool_package_name="pbench-sysstat"
+	tool_package_ver="12.0.3"
+	;;
+jmap|jstack|strace)
+	pid="0"
+	pattern=""
+	longoptions="${longoptions},pid:,pattern:"
+	;;
+kvmtrace)
+	def_start_delay=0
+	start_delay=${def_start_delay}
+	def_timeout=1
+	timeout=${def_timeout}
+	vm=""
+	longoptions="${longoptions},start-delay:,timeout:,vm:"
+	tool_package_name="trace-cmd"
+	;;
+numastat)
+	pattern=""
+	longoptions="${longoptions},pattern:"
+	;;
+oc)
+	def_components="rc,ep,pods,pv,pvc,svc,cs"
+	components="${def_components}"
+	longoptions="${longoptions},components:"
+	tool_package_name="atomic-openshift-clients"
+	;;
+pcp)
+	tool_package_name="pcp-system-tools"
+	;;
+perf)
+	def_record_opts="-a --freq=100"
+	record_opts="${def_record_opts}"
+	def_report_opts="--show-nr-samples -I"
+	report_opts="${def_report_opts}"
+	callgraph_requested=""
+	shortoptions="${shortoptions}r:p:"
+	longoptions="${longoptions},callgraph,record-opts:,report-opts:"
+	tool_package_name="perf"
+	;;
+pidstat)
+	options=""
+	patterns=""
+	threads="false"
+	longoptions="${longoptions},options:,patterns:,threads"
+	tool_package_name="pbench-sysstat"
+	tool_package_ver="12.0.3"
+	;;
+pprof)
+	def_interval=60
+	interval="${def_interval}"
+	gopath=""
+	goroot=""
+	inventory=""
+	longoptions="${longoptions},gopath:,goroot:,inventory:"
+	tool_package_name="golang"
+	;;
+prometheus-metrics)
+	gopath=""
+	goroot=""
+	inventory=""
+	longoptions="${longoptions},gopath:,goroot:,inventory:"
+	tool_package_name="golang"
+	;;
+qemu-migrate|virsh-migrate)
+	vm=""
+	longoptions="${longoptions},vm:"
+	;;
+rabbit)
+	def_username="guest"
+	username="${def_username}"
+	def_password="guest"
+	password="${def_password}"
+	longoptions="${longoptions},username:,password:"
+	;;
+sysfs)
+	maxdepth=4
+	path=""
+	pattern='*'
+	longoptions="${longoptions},maxdepth:,path:,pattern:"
+	;;
+systemtap)
+	script=""
+	longoptions="${longoptions},script:"
+	;;
+tcpdump)
+	interface=""
+	packets=500
+	longoptions="${longoptions},interface:,packets:"
+	;;
+turbostat)
+	release="$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release 2> /dev/null)"
+	case "${release}" in
+	6)
+		tool_package_name="cpupowerutils"
+		;;
+	*)
+		tool_package_name="kernel-tools"
+		;;
+	esac
+	;;
+user-tool)
+	file_to_capture=""
+	postprocess_script=""
+	start_script=""
+	stop_script=""
+	tool_name=""
+	longoptions="${longoptions},file-to-capture:,postprocess-script:,start-script:,stop-script:,tool-name:"
+	;;
+esac
+
+function usage {
+	printf -- "The following options are available:\n\n"
+	printf -- "\t--install                 verify this perf tool will work\n\n"
+	printf -- "\t--start|stop|postprocess  start/stop/postprocess the data collection\n"
+	printf -- "\t-d str|--dir=str          directory to store data collection (required)\n"
+	case "${tool}" in
+	blktrace|bpftrace|kvmtrace|lockstat|oc|perf|strace|systemtap|tcpdump)
+		:  # These tools don't use interval
+		;;
+	*)
+		printf -- "\t--interval=int            number of seconds between each data collection (optional, default is %s seconds)\n" "${def_interval}"
+		;;
+	esac
+	case "${tool}" in
+	blktrace)
+		printf -- "\t--devices=str,[str]       the list of block devices to trace (required w/ --start)\n"
+		;;
+	bpftrace)
+		printf -- "\t--script=str              path to the bpftrace script (required w/ --start)\n"
+		;;
+	haproxy-ocp)
+		printf -- "\t--counters-clear-all      clear all HAProxy counters at tool start (optional, default: '%s')\n" "${def_counters_clear_all}"
+		;;
+	iostat|mpstat|sar)
+		printf -- "\t--options=str             options passed directly to the tool (optional)\n"
+		;;
+	jmap|jstack|strace)
+		printf -- "\t--pid=int                 a process ID to %s\n" "${tool}"
+		printf -- "\t--pattern=str             %s any PID which name matches this string (via pgrep)\n" "${tool}"
+		;;
+	kvmtrace)
+		printf -- "\t--vm=str                  the hostname of the vm running (to get kallsyms)\n"
+		printf -- "\t--timeout=int             how long the trace will run (default is %s second)\n" "${def_timeout}"
+		printf -- "\t                          If 0 is used, the trace will not stop until stop-tools is called\n"
+		printf -- "\t--start-delay=int         sleep this many seconds before starting the trace (default is %s seconds)\n" "${def_start_delay}"
+		;;
+	numastat)
+		printf -- "\t--pattern=str             a pattern for matching which processes for reporting per-node memory allocation\n"
+		;;
+	oc)
+		printf -- "\t--components=str[,str]    one or more OpenShift component names suitable for use with \"oc get\" (optional, default: '%s')\n" "${def_components}"
+		;;
+	perf)
+		printf -- "\t-r str|--record-opts=str  options one would use to record perf data (optional, default: '%s')\n" "${def_record_opts}"
+		printf -- "\t-p str|--report-opts=str  options one would use to report perf data (optional, default: '%s')\n" "${def_report_opts}"
+		printf -- "\t--callgraph               generate a call graph by adding '-g' to the record and report options\n"
+		;;
+	pidstat)
+		printf -- "\t--options=str             options passed directly to the tool\n"
+		printf -- "\t--patterns=str[,str]      only collect information on process names\n"
+		printf -- "\t                          which match this pattern (complicated\n"
+		printf -- "\t                          patterns with special charaters may not\n"
+		printf -- "\t                          work) for kvm, use --patterns=qemu,vhost\n"
+		printf -- "\t--threads                 collect per-thread statistics\n"
+		;;
+	pprof|prometheus-metrics)
+		printf -- "\t--gopath=str              path to the Go directory containing a 'bin' directory (required)\n"
+		printf -- "\t--goroot=str              path to the Go installation directory (optional)\n"
+		printf -- "\t--inventory=str           path to the inventory file (required)\n"
+		;;
+	qemu-migrate|virsh-migrate)
+		printf -- "\t--vm=str                  the name of the VM being migrated\n"
+		;;
+	rabbit)
+		printf -- "\t--username=str            rabbit user name (default is \"%s\")\n" "${def_username}"
+		printf -- "\t--password=str            rabbit password (default is \"%s\")\n" "${def_password}"
+		;;
+	sysfs)
+		printf -- "\t--path=str                a path (beyond the /sysfs prefix)\n"
+		printf -- "\t--pattern=str             a pattern passed to -name option of find command to filter files\n"
+		printf -- "\t--maxdepth=int            a maxdepth passed to the find command to limit recursion depth\n"
+		;;
+	systemtap)
+		printf -- "\t--script=str              path to the systemtap script (required w/ --install)\n"
+		;;
+	tcpdump)
+		printf -- "\t--interface=str           the network interface to monitor\n"
+		printf -- "\t--packets=int             the number of packets to monitor before exiting\n"
+		;;
+	user-tool)
+		printf -- "\t--tool-name=str            you must provide a unique name for this user tool\n"
+		printf -- "\t--start-script=str         run this user-provided script when starting this tool\n"
+		printf -- "\t--stop-script=str          run this user-provided script when stopping this tool\n"
+		printf -- "\t--postproceess-script=str  run this user-provided script when postprocessing this tool\n"
+		printf -- "\t--file-to-capture=str      capture the contents of this file at each interval\n"
+		printf -- "\t                           you can use this option, or the start/stop/postprocess-script,\n"
+		printf -- "\t                           but not both at the same time\n"
+		;;
+	esac
+	printf -- "\n\t-h|--help                 display this help message\n"
+}
+
+# Process options and arguments
+opts="$(getopt -q -o ${shortoptions} --longoptions "${longoptions}" -n "${tool}" -- "${@}")"
+if [[ ${?} -ne 0 ]]; then
+	printf -- "\n%s: encountered an invalid option, %s\n\n" "${tool}" "${*}" >&2
+	usage >&2
+	exit 1
+fi
+eval set -- "${opts}"
+while true; do
+	opt="${1}"
+	shift
+	case "${opt}" in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	--install)
+		mode="install"
+		;;
+	--start)
+		mode="start"
+		;;
+	--stop)
+		mode="stop"
+		;;
+	--postprocess)
+		mode="postprocess"
+		;;
+	-d|--dir)
+		if [[ -n "${1}" ]]; then
+			tool_dir="${1}"
+			shift
+		fi
+		;;
+	--interval)
+		if [[ -n "${1}" ]]; then
+			interval="${1}"
+			shift
+		fi
+		;;
+	--callgraph)
+		callgraph_requested="true"
+		;;
+	--components)
+		if [[ -n "${1}" ]]; then
+			components="${1//,/ }"
+			shift
+		fi
+		;;
+	--counters-clear-all)
+		counters_clear_all="true"
+		;;
+	--devices)
+		if [[ -n "${1}" ]]; then
+			devices="${1//,/ }"
+			shift
+		fi
+		;;
+	--file-to-capture)
+		if [[ -n "${1}" ]]; then
+			file_to_capture="${1}"
+			shift
+		fi
+		;;
+	--gopath)
+		if [[ -n "${1}" ]]; then
+			gopath="${1}"
+			shift
+		fi
+		;;
+	--goroot)
+		if [[ -n "${1}" ]]; then
+			goroot="${1}"
+			shift
+		fi
+		;;
+	--interface)
+		if [[ -n "${1}" ]]; then
+			interface="${1}"
+			shift
+		fi
+		;;
+	--inventory)
+		if [[ -n "${1}" ]]; then
+			inventory="${1}"
+			shift
+		fi
+		;;
+	--maxdepth)
+		if [[ -n "${1}" ]]; then
+			maxdepth="${1}"
+			shift
+		fi
+		;;
+	--options)
+		if [[ -n "${1}" ]]; then
+			options="${1}"
+			shift
+		fi
+		;;
+	--packets)
+		if [[ -n "${1}" ]]; then
+			packets="${1}"
+			shift
+		fi
+		;;
+	--path)
+		if [[ -n "${1}" ]]; then
+			path="${1}"
+			shift
+		fi
+		;;
+	--patterns)
+		if [[ -n "${1}" ]]; then
+			patterns="${1}"
+			shift
+		fi
+		;;
+	--pattern)
+		if [[ -n "${1}" ]]; then
+			pattern="${1}"
+			shift
+		fi
+		;;
+	--pid)
+		if [[ -n "${1}" ]]; then
+			pid="${1}"
+			shift
+		fi
+		;;
+	--postprocess-script)
+		if [[ -n "${1}" ]]; then
+			postprocess_script="${1}"
+			shift
+		fi
+		;;
+	-r|--record-opts)
+		if [[ -n "${1}" ]]; then
+			record_opts="${1}"
+			shift
+		fi
+		;;
+	-p|--report-opts)
+		if [[ -n "${1}" ]]; then
+			report_opts="${1}"
+			shift
+		fi
+		;;
+	--script)
+		if [[ -n "${1}" ]]; then
+			script="$(echo "${1}" | sed 's/^"\(.*\)"$/\1/')"
+			shift
+		fi
+		;;
+	--start-delay)
+		if [[ -n "${1}" ]]; then
+			start_delay="${1}"
+			shift
+		fi
+		;;
+	--start-script)
+		if [[ -n "${1}" ]]; then
+			start_script="${1}"
+			shift
+		fi
+		;;
+	--stop-script)
+		if [[ -n "${1}" ]]; then
+			stop_script="${1}"
+			shift
+		fi
+		;;
+	--threads)
+		threads="true"
+		;;
+	--timeout)
+		if [[ -n "${1}" ]]; then
+			timeout="${1}"
+			shift
+		fi
+		;;
+	--tool-name)
+		if [[ -n "${1}" ]]; then
+			tool_name="${1}"
+			shift
+		fi
+		;;
+	--vm)
+		if [[ -n "${1}" ]]; then
+			vm="${1}"
+			shift
+		fi
+		;;
+	--)
+		break
+		;;
+	*)
+		printf -- "${tool}: Error, invalid command line option, '${opt}'\n\n" >&2
+		usage >&2
+		exit 1
+	esac
+done
+
+if [[ -z "${mode}" ]]; then
+	printf -- "%s: Error, one of the following options is required, --install|--start|--stop|--postprocess\n\n" "${tool}" >&2
+	usage >&2
+	exit 1
+fi
+
+if [[ "${mode}" != "install" && ( -z "${tool_dir}" || ! -d "${tool_dir}" ) ]]; then
+	printf -- "%s: Error, --dir argument is required with a valid directory\n\n" "${tool}" >&2
+	usage >&2
+	exit 1
+fi
+
+if [[ "${tool}" == "user-tool" ]]; then
+	if [[ -z "${tool_name}" ]]; then
+		printf -- "%s: You must provide a value for --tool-name\n" "${tool}" >&2
+		usage >&2
+		exit 1
+	fi
+	if [[ ! -z "${file_to_capture}" && ! -z "${start_script}" ]]; then
+		printf -- "%s: You cannot use --file-to-capture with --start-script\n" "${tool}" >&2
+		usage >&2
+		exit 1
+	fi
+	tool_name="${tool}-${tool_name}"
+else
+	tool_name="${tool}"
+fi
+
+tool_output_dir="${tool_dir}/${tool_name}" # all tools keep data in their tool specific dir
+tool_pid_file="${tool_output_dir}/${tool_name}.pid"
+
+function safe_kill() {
+	# safe kill: check for strange situations and deal with them.  If
+	# there is a pid, try to kill it.  If the kill succeeds, return
+	# success, but if it fails, try to see if the pid is still running: if
+	# so, try to kill it with a KILL and return failure.  Eat any error
+	# message.
+	local tool="${1}"
+	local pid="${2}"
+	local signal="${3:-TERM}"
+	local pidlist p pid_to_kill len rc
+
+	if [[ -z "${pid}" ]]; then
+		# Should not happen
+		return 1
+	fi
+
+	# Check that the pid corresponds to the tool.
+	pidlist="$(pidof -x ${tool})"
+	for p in ${pidlist}; do
+		if [[ ${p} == ${pid} ]]; then
+			pid_to_kill="${pid}"
+			break
+		fi
+	done
+
+	local rc=0
+	if [[ ! -z "$pid_to_kill" ]]; then
+		kill -s ${signal} ${pid_to_kill} 2>/dev/null
+		rc=${?}
+	fi
+	[[ $rc == 0 ]] && return 0
+
+	# Check if the process is still running.
+	pid_to_kill=""
+	typeset -i len=0
+	pidlist="$(pidof -x ${tool})"
+	for p in ${pidlist}; do
+		len=${len}+1
+		if [[ ${p} == ${pid} ]]; then
+			# Why is the pid still there?
+			pid_to_kill="${pid}"
+		# else
+			# Why are there other tool processes running?
+			# Should we kill them?
+		fi
+	done
+
+	if [[ ! -z "${pid_to_kill}" ]]; then
+		kill -s KILL ${pid_to_kill} 2>/dev/null
+		return 2
+	fi
+
+	if [[ ${len} > 4 || (${len} > 3 && ${tool} != "turbostat") ]]; then
+		printf -- "%s: Too many pids: (%s) -- maybe old tools running? Use pbench-kill-tools.\n" "${tool}" "${pidlist}" >&2
+	fi
+	return 0
+}
+
+# return code
+rc=0
+case "${mode}" in
+install)
+	function require_rpm {
+		_tpn="${1}"
+		_tpv="${2}"
+		require-rpm ${_tpn} ${_tpv}
+		rc=${?}
+		if [[ ! -z "${_tpv}" ]]; then
+			_tpv="-${_tpv}"
+		fi
+		if [[ ${rc} != 0 ]]; then
+			printf -- "%s: %s is not installed\n" "${tool}" "${_tpn}${_tpv}" >&2
+		else
+			printf -- "%s: %s is installed\n" "${tool}" "${_tpn}${_tpv}"
+		fi
+		return ${rc}
+	}
+	case "${tool}" in
+	bpftrace|haproxy-ocp|iostat|kvmtrace|mpstat|oc|pcp|perf|pidstat|pprof|prometheus-metrics|sar|turbostat)
+		require_rpm ${tool_package_name} ${tool_package_ver}
+		rc=${?}
+		;;
+	systemtap)
+		# We need a number of systemtap and kernel packages for the
+		# systemtap tool to actually work.
+		require_rpm "systemtap-client"
+		rc=${?}
+		if [[ ${rc} == 0 ]]; then
+			require_rpm "systemtap-devel"
+			rc=${?}
+		fi
+		if [[ ${rc} == 0 ]]; then
+			require_rpm "kernel-devel" "$(uname -r)"
+			rc=${?}
+		fi
+		if [[ ${rc} == 0 ]]; then
+			require_rpm "kernel-debuginfo" "$(uname -r)"
+			rc=${?}
+		fi
+		;;
+	esac
+	;;
+start)
+	case "${tool}" in
+	blktrace)
+		tool_cmd="${datalog_path}/${tool}-datalog ${devices}"
+		;;
+	bpftrace|systemtap)
+		tool_cmd="${datalog_path}/${tool}-datalog ${script}"
+		;;
+	cpuacct|disk|dm-cache|docker|docker-info|kvm-spinlock|kvmstat|turbostat|vmstat)
+		tool_cmd="${datalog_path}/${tool}-datalog ${interval}"
+		;;
+	haproxy-ocp)
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${interval} ${counters_clear_all}"
+		;;
+	iostat|mpstat)
+		tool_cmd="${datalog_path}/${tool}-datalog ${interval} ${options}"
+		;;
+	jmap|jstack)
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${interval} ${pid} \"${pattern}\""
+		;;
+	kvmtrace)
+		tool_cmd="${datalog_path}/${tool}-datalog ${timeout} ${start_delay}"
+		;;
+	lockstat)
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir}"
+		;;
+	numastat)
+		tool_cmd="${datalog_path}/${tool}-datalog ${interval} \"${pattern}\""
+		;;
+	oc)
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${components}"
+		;;
+	openvswitch|pcp)
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${interval}"
+		;;
+	perf)
+		if [[ ! -z "${callgraph_requested}" ]]; then
+			record_opts="${record_opts} -g"
+		fi
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${record_opts}"
+		;;
+	pidstat)
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${interval} ${threads} p='${patterns}' ${options}"
+		;;
+	pprof|prometheus-metrics)
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${interval} ${inventory}"
+		;;
+	proc-interrupts)
+		tool_cmd="${datalog_path}/File-Capture-datalog ${interval} /proc/interrupts"
+		;;
+	proc-sched_debug)
+		tool_cmd="${datalog_path}/File-Capture-datalog ${interval} /proc/sched_debug"
+		;;
+	proc-vmstat)
+		tool_cmd="${datalog_path}/File-Capture-datalog ${interval} /proc/vmstat"
+		;;
+	qemu-migrate|virsh-migrate)
+		tool_cmd="${datalog_path}/${tool}-datalog ${interval} ${vm}"
+		;;
+	rabbit)
+		tool_cmd="${datalog_path}/${tool}-datalog ${interval} ${username} ${password}"
+		;;
+	sar)
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${interval} ${options}"
+		;;
+	strace)
+		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${pid} \"${pattern}\""
+		;;
+	sysfs)
+		tool_cmd="${datalog_path}/${tool}-datalog ${interval} \"${path}\" \"${maxdepth}\" \"${pattern}\""
+		;;
+	tcpdump)
+		tool_cmd="${datalog_path}/${tool}-datalog ${packets} ${interface}"
+		;;
+	user-tool)
+		if [[ ! -z "${file_to_capture}" ]]; then
+			tool_cmd="${datalog_path}/File-Capture-datalog ${interval} ${file_to_capture}"
+		else
+			tool_cmd="${start_script} ${tool_output_dir} ${interval}"
+		fi
+		;;
+	*)
+		printf -- "INTERNAL ERROR: unsupported tool, '%s'\n" "${tool}" >&2
+		exit 1
+		;;
+	esac
+	mkdir -p "${tool_output_dir}"
+	pushd "${tool_output_dir}" >/dev/null
+	if [[ ${?} -ne 0 ]]; then
+		printf -- "%s: failed to create tool output directory, %s\n" "${tool_name}" "${tool_output_dir}" >&2
+		exit 1
+	fi
+
+	if [[ ! -z "${options}" ]]; then
+		# Record any options for later post-processing use.
+		echo "${options}" > ${tool_output_dir}/${tool_name}.options
+	fi
+
+	tool_cmd_file="${tool_output_dir}/${tool_name}.cmd"
+	if [[ -z "${gopath}" ]]; then
+		if [[ "${tool_package_name}" == "golang" ]]; then
+			printf -- "%s: golang based tools require the --gopath option\n" "${tool_name}" >&2
+			exit 1
+		fi
+		_gopath=""
+	else
+		if [[ ! -d "${gopath}/bin" ]]; then
+			printf -- "%s: invalid GOPATH directory specified, '%s'\n" "${tool_name}" "${gopath}" >&2
+			exit 1
+		fi
+		# The leading space in the following two variables is REQUIRED!
+		_gopath=" GOPATH=${gopath}"
+	fi
+	if [[ -z "${goroot}" ]]; then
+		_goroot=""
+	else
+		if [[ ! -x "${goroot}/bin/go" ]]; then
+			printf -- "%s: invalid GOROOT directory specified, '%s'\n" "${tool_name}" "${goroot}" >&2
+			exit 1
+		fi
+		# The leading space in the following variable is REQUIRED!
+		_goroot=" GOROOT=${goroot}/bin"
+	fi
+	if [[ ! -z "${_goroot}" || ! -z "${_gopath}" ]]; then
+		_newpath=" PATH=\${PATH}"
+		if [[ ! -z "${_goroot}" ]]; then
+			_newpath="${_newpath}:\${GOROOT}/bin"
+		fi
+		if [[ ! -z "${_gopath}" ]]; then
+			_newpath="${_newpath}:\${GOPATH}/bin"
+		fi
+	else
+		_newpath=""
+	fi
+	# Force LANG=C for all tools
+	printf -- "#!/bin/bash\n# base-tool generated command file\n\nLANG=C PYTHONUNBUFFERED=True%s%s%s %s\n" "${_goroot}" "${_gopath}" "${_newpath}" "${tool_cmd}" > "${tool_cmd_file}"
+	chmod +x "${tool_cmd_file}"
+	printf -- "%s: running \"%s\"\n" "${tool_name}" "${tool_cmd}"
+	tool_stdout_file="${tool_output_dir}/${tool_name}-stdout.txt"
+	tool_stderr_file="${tool_output_dir}/${tool_name}-stderr.txt"
+	${tool_cmd_file} > "${tool_stdout_file}" 2> "${tool_stderr_file}" & echo ${!} > "${tool_pid_file}"
+	wait
+	rc=0
+	popd > /dev/null
+	;;
+stop)
+	enable -n kill
+	printf -- "%s: stopping\n" "${tool_name}"
+	if [[ -s "${tool_pid_file}" ]]; then
+		pid="$(cat ${tool_pid_file})"
+		if [[ ! -z "${pid}" ]] ;then
+			if [[ "${tool_name}" == "kvmtrace" ]]; then
+				if [[ -z "${sleep_cmd}" ]]; then
+					# kill the tool directly with an INT signal
+					safe_kill "${tool_name}" "${pid}" "INT"
+				else
+					# kill the sleep process if it still exists
+					sleep_pid="$(ps --ppid ${pid} | pgrep sleep)"
+					if [[ ! -z "${sleep_pid}" ]]; then
+						safe_kill "${tool_name}" "${sleep_pid}"
+					fi
+				fi
+				# wait for the trace-cmd pid to complete
+				while [[ -d /proc/${pid} ]]; do
+					printf -- "%s: waiting for PID '%s' to die\n" "${tool_name}" "${pid}"
+					sleep 0.5
+				done
+				rc=0
+			elif [[ "${tool_name}" == "perf" ]]; then
+				safe_kill "${tool_name}" "${pid}" "INT"
+				# Wait for perf to finish recording.  if you
+				# do not wait, 'perf report' will not be
+				# correct.  perf is not a child process, so we
+				# cannot use "wait".
+				pidcmd="$(ps -p ${pid} | tail -1 | awk '{print $4}')"
+				while [[ -d /proc/${pid} ]]; do
+					printf -- "%s: Waiting for PID '%s' (%s) to finish\n" "${tool_name}" "${pid}" "${pidcmd}"
+					sleep 0.5
+				done
+			else
+				safe_kill "${tool_name}" "${pid}"
+				rc=${?}
+			fi
+			if [[ ${rc} -eq 0 ]]; then
+				/bin/rm -f "${tool_pid_file}"
+			fi
+		else
+			printf -- "%s: tool is not running, nothing to kill\n" "${tool_name}" >&2
+		fi
+	else
+		printf -- "%s: tool is not running, nothing to kill\n" "${tool_name}" >&2
+	fi
+	if [[ ${rc} == 0 ]]; then
+		case ${tool} in
+		user-tool)
+			_script_path="${stop_script}"
+			;;
+		*)
+			_script_path="${postprocess_path}/${tool}-stop-postprocess"
+			;;
+		esac
+		# We only post-process if we were successfully able to stop the tool.
+		if [[ -x ${_script_path} ]]; then
+			printf -- "%s: post-processing following stop\n" "${tool_name}"
+			if [[ "${tool}" == "kvmtrace" ]]; then
+				args="${vm}"
+			elif [[ "${tool}" == "perf" ]]; then
+				if [[ ! -z "${callgraph_requested}" ]]; then
+					report_opts="${report_opts} -g"
+				fi
+				args="${report_opts}"
+			else
+				args=""
+			fi
+			pushd ${tool_output_dir} >/dev/null
+			${_script_path} "${tool_output_dir}" ${args} \
+					>  ${tool_output_dir}/${tool_name}-stop-postprocess.out \
+					2> ${tool_output_dir}/${tool_name}-stop-postprocess.err
+			rc=${?}
+			popd >/dev/null
+		else
+			printf -- "%s: no post-processing available following stop\n" "${tool_name}"
+			rc=0
+		fi
+	fi
+	;;
+postprocess)
+	case ${tool} in
+	user-tool)
+		_script_path="${postprocess_script}"
+		;;
+	*)
+		_script_path="${postprocess_path}/${tool}-postprocess"
+		;;
+	esac
+	if [[ -x ${_script_path} ]]; then
+		printf -- "%s: post-processing data\n" "${tool_name}"
+		pushd ${tool_output_dir} >/dev/null
+		${_script_path} "${tool_output_dir}" \
+				>  ${tool_output_dir}/${tool_name}-postprocess.out \
+				2> ${tool_output_dir}/${tool_name}-postprocess.err
+		rc=${?}
+		popd >/dev/null
+	else
+		printf -- "%s: no data post-processing available\n" "${tool_name}"
+		rc=0
+	fi
+	;;
+*)
+	printf -- "%s: unexpected mode: '%s', no action taken\n" "${tool_name}" "${mode}" >&2
+	rc=1
+	;;
+esac
+
+exit ${rc}

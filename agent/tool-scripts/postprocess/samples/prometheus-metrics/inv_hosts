@@ -1,0 +1,1 @@
+hostA.example.com port=4242 cert=hostA.cert key=hostA.key selfsigned=true

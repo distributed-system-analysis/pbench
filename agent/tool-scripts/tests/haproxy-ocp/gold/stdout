@@ -1,0 +1,5 @@
+haproxy-ocp: atomic-openshift-clients is installed
+haproxy-ocp: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/haproxy-ocp-datalog /var/tmp/pbench-test-tool-scripts/haproxy-ocp/tools-group/haproxy-ocp 10 false"
+haproxy-ocp: stopping
+haproxy-ocp: no post-processing available following stop
+haproxy-ocp: post-processing data
