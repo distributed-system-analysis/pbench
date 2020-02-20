@@ -22,8 +22,10 @@ from configparser import ConfigParser, NoSectionError, NoOptionError
 class simple_utc(tzinfo):
     def tzname(self, *args, **kwargs):
         return "UTC"
+
     def utcoffset(self, dt):
         return timedelta(0)
+
     def dst(self, dt):
         return timedelta(0)
 
@@ -46,6 +48,7 @@ class _Message(object):
 
     Taken from the Python Logging Cookbook, https://docs.python.org/3.6/howto/logging-cookbook.html#use-of-alternative-formatting-styles.
     """
+
     def __init__(self, fmt, args):
         self.fmt = fmt
         self.args = args
@@ -61,6 +64,7 @@ class _StyleAdapter(logging.LoggerAdapter):
 
     Taken from the Python Logging Cookbook, https://docs.python.org/3.6/howto/logging-cookbook.html#use-of-alternative-formatting-styles.
     """
+
     def __init__(self, logger, extra=None):
         super().__init__(logger, extra or {})
 
@@ -135,9 +139,11 @@ class _PbenchLogFormatter(logging.Formatter):
                 msg = msg[:approxhalf] + " ... " + msg[-approxhalf:]
         return msg
 
+
 # Used to track the individual FileHandler's created by callers of
 # get_pbench_logger().
 _handlers = {}
+
 
 def get_pbench_logger(caller, config):
     """Add a specific handler for the caller using the configured LOGSDIR.
@@ -295,6 +301,7 @@ def md5sum(filename):
             d.update(buf)
     return d.hexdigest()
 
+
 def rename_tb_link(tb, dest, logger):
     try:
         os.mkdir(dest)
@@ -313,6 +320,7 @@ def rename_tb_link(tb, dest, logger):
         logger.exception(
             "os.rename: Unable to move tar ball link {} to destination directory: {}".format(tb, dest))
         raise
+
 
 def quarantine(dest, logger, *files):
     """Quarantine problematic tarballs.

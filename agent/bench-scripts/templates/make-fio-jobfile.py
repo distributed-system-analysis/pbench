@@ -23,10 +23,12 @@ def parse_config(filename):
     cp.read(filename)
     return cp._sections
 
+
 def write_config(dictionary, out=sys.stdout):
     cp = ConfigParser(allow_no_value=True)
     cp.read_dict(dictionary)
     cp.write(out)
+
 
 def replace_all(dct, old, new):
     """ Replace all instances of string 'old' with string 'new' in
@@ -41,6 +43,7 @@ def replace_all(dct, old, new):
             k = k.replace(old, new)
             dct[k] = old_val.replace(old, new)
 
+
 def replace_val(dct, magic, delta):
     """ Replace all values of string 'magic' with the new value
         given by the same key in dict 'delta', in the possibly nested
@@ -53,11 +56,13 @@ def replace_val(dct, magic, delta):
             if (dct[k] is not None) and magic in dct[k]:
                 dct[k] = dct[k].replace(magic, delta[k])
 
+
 # Other arguments that can override those given in the job file:
 other_args = \
     ['bs', 'rw', 'ioengine', 'iodepth', 'direct', 'sync',
      'runtime', 'ramptime', 'size', 'rate_iops', 'log_hist_msec',
      'numjobs']
+
 
 def main(ctx):
 
@@ -89,6 +94,7 @@ def main(ctx):
                     jobfile[k][a] = val
 
     write_config(jobfile)
+
 
 if __name__ == '__main__':
     import argparse

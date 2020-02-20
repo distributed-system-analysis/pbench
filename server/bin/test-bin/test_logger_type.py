@@ -22,6 +22,7 @@ log_msgs = {
     "hostport": "logger_type=hostport in file hostport.log"
 }
 
+
 def mock_the_handler(logger, logger_type, fname):
 
     # Assumption: only one Handler is present.
@@ -37,6 +38,7 @@ def mock_the_handler(logger, logger_type, fname):
 
     return logger
 
+
 def test_pbench_logger():
 
     config = PbenchConfig(cfg_name)
@@ -50,6 +52,7 @@ def test_pbench_logger():
     if os.path.isfile(os.path.join(logdir, log_files[logger_type])):
         with open(os.path.join(logdir, log_files[logger_type]), 'r') as f:
             assert f.read()[:-1] == log_msgs[logger_type], "Mismatch: the file did not contain the expected message."
+
 
 if __name__ == "__main__":
     try:

@@ -32,6 +32,7 @@ _DEBUG = 0
 # python 3.2
 _filenotfounderror = getattr(__builtins__, 'FileNotFoundError', IOError)
 
+
 def _count_lines(fname):
     """Simple method to count the lines of a file.
     """
@@ -41,6 +42,7 @@ def _count_lines(fname):
     except _filenotfounderror:
         cnt = 0
     return cnt
+
 
 def main(options, name):
     """Main entry point to pbench-index.
@@ -453,6 +455,7 @@ def main(options, name):
                 pass
 
     return res
+
 
 ###########################################################################
 # Options handling

@@ -29,6 +29,7 @@ html = """<html>
 </html>
 """
 
+
 def main(ctx):
     columns = ["samples"]
     plot_files = ["samples.log"]
@@ -80,6 +81,7 @@ def main(ctx):
         concatenated_plot_file_quoted_strings = ", ".join(list_of_plot_file_quoted_strings[1:])
         fp.write(html.format(chart_type, concatenated_plot_file_quoted_strings))
     return 0
+
 
 if __name__ == '__main__':
     import argparse

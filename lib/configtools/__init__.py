@@ -10,11 +10,13 @@ from optparse import OptionParser, make_option
 
 import logging
 
+
 def uniq(l):
     # uniquify the list without scrambling it
     seen = set()
     seen_add = seen.add
     return [x for x in l if x not in seen and not seen_add(x)]
+
 
 def file_list(root):
     # read the root file, get its [config] section
@@ -49,6 +51,7 @@ def file_list(root):
                 flist += fnmlist
     return uniq(flist)
 
+
 def init(opts, env_config):
     """init"""
     # config file
@@ -65,6 +68,7 @@ def init(opts, env_config):
     files = conf.read(conffiles)
 
     return (conf, files)
+
 
 def parse_args(options=[], usage=None):
     """parse_args"""
@@ -83,6 +87,7 @@ def parse_args(options=[], usage=None):
 
     return parser.parse_args()
 
+
 def get_list(s):
     """get_list"""
     if not s:
@@ -96,6 +101,7 @@ def get_list(s):
     except Exception:
         return l
 
+
 def get(conf, option, sections):
     """get option from section list"""
     for s in sections:
@@ -105,8 +111,10 @@ def get(conf, option, sections):
             pass
     return None
 
+
 def print_list(l, sep):
     print(sep.join([str(x) for x in l]))
+
 
 options = [
     make_option("-a", "--all", action="store_true", dest="all", help="print all items in section"),
@@ -114,6 +122,7 @@ options = [
     make_option("-l", "--list", action="store_true", dest="list", help="print it as a shell list, translating commas to spaces"),
     make_option("-L", "--listfiles", action="store_true", dest="listfiles", help="print the list of config files and exit"),
 ]
+
 
 def main(conf, args, opts, files):
     if not conf:

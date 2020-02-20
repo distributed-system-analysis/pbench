@@ -272,6 +272,8 @@ class S3Connector(Connector):
         return self.s3client.delete_object(Bucket=Bucket, Key=Key)
 
 # Connector to the mock "S3" service for unit testing.
+
+
 class MockS3Connector(Connector):
     """
     The mock object is used for unit testing. It provides a "connector"

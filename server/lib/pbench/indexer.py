@@ -75,10 +75,12 @@ _dict_const = dict
 _r = SystemRandom()
 _MAX_SLEEP_TIME = 120
 
+
 def _calc_backoff_sleep(backoff):
     global _r
     b = math.pow(2, backoff)
     return _r.uniform(0, min(b, _MAX_SLEEP_TIME))
+
 
 def _sleep_w_backoff(backoff):
     _sleep(_calc_backoff_sleep(backoff))
@@ -497,6 +499,7 @@ def _get_es_hosts(config, logger):
     timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
     return [dict(host=host, port=port, timeout=timeoutobj), ]
 
+
 def get_es(config, logger):
     """Return an Elasticsearch() object derived from the given configuration.
     If the configuration does not provide the necessary data, we return None
@@ -518,6 +521,7 @@ def get_es(config, logger):
         logging.getLogger("elasticsearch1").setLevel(logging.FATAL)
         es = Elasticsearch(hosts, max_retries=0)
     return es
+
 
 def es_put_template(es, name=None, body=None):
     assert name is not None and body is not None
@@ -576,6 +580,7 @@ def es_put_template(es, name=None, body=None):
     end = pbench._time()
     return beg, end, retry_count
 
+
 # Always use "create" operations, as we also ensure each JSON document being
 # indexed has an "_id" field, so we can tell when we are indexing duplicate
 # data.
@@ -585,6 +590,7 @@ _op_type = "create"
 # can add undue burden to the Elasticsearch cluster.
 _read_timeout = 100000 * 60.0
 _request_timeout = 100000 * 60.0
+
 
 def es_index(es, actions, errorsfp, logger, _dbg=0):
     """
@@ -723,6 +729,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
 class PbenchData(object):
     """Pbench Data abstract class - ToolData and ResultData inherit from it.
     """
+
     def __init__(self, ptb, idxctx):
         self.year, self.month, self.day = (
             "{:04d}".format(ptb.start_run_ts.year),
@@ -848,6 +855,7 @@ class ResultData(PbenchData):
     result.json file recording all the iterations run, including all samples
     from all iterations.
     """
+
     def __init__(self, ptb, idxctx):
         super().__init__(ptb, idxctx)
 
@@ -1802,6 +1810,7 @@ _aliases = {
     'disk_Wait_Time.csv': 'disk_Wait_Time_msec.csv',
 }
 
+
 def _noop(arg):
     return arg
 
@@ -2027,6 +2036,7 @@ class ToolData(PbenchData):
         # At this point, we have processed all the data about csv files
         # and are ready to start reading the contents of all the csv
         # files and building the unified records.
+
         def rows_generator():
             # We use this generator to highlight the process of reading from
             # all the csv files, reading one row from each of the csv files,
@@ -2755,6 +2765,7 @@ def get_iterations(ptb):
     iterations.sort()
     return iterations
 
+
 def get_samples(ptb, iteration):
     samples = []
     for x in ptb.tb.getnames():
@@ -2772,6 +2783,7 @@ def get_samples(ptb, iteration):
     samples = list(samples_set)
     samples.sort()
     return samples
+
 
 def mk_tool_data(ptb, idxctx):
     # Process the sosreports to ensure we get all the information about the
@@ -2795,6 +2807,7 @@ def mk_tool_data(ptb, idxctx):
                     yield ToolData(ptb, iteration, sample,
                                    hostname, tool, idxctx)
     return
+
 
 def mk_tool_data_actions(ptb, idxctx):
     idxctx.logger.debug("start")
@@ -2833,6 +2846,7 @@ def mk_tool_data_actions(ptb, idxctx):
 ###########################################################################
 # Build tar ball table-of-contents (toc) source documents.
 
+
 def get_md5sum_of_dir(dir, parentid):
     """Calculate the md5 sum of all the names in the toc"""
     h = hashlib.md5()
@@ -2843,6 +2857,7 @@ def get_md5sum_of_dir(dir, parentid):
             for k in sorted(f.keys()):
                 h.update(repr(f[k]).encode('utf-8'))
     return h.hexdigest()
+
 
 def mk_toc_actions(ptb, idxctx):
     """Construct Table-of-Contents actions.
@@ -2875,6 +2890,8 @@ def mk_toc_actions(ptb, idxctx):
 # Build run source document
 
 # routines for handling sosreports, hostnames, and tools
+
+
 def valid_ip(address):
     try:
         socket.inet_aton(address)
@@ -2882,11 +2899,13 @@ def valid_ip(address):
     except Exception:
         return False
 
+
 def search_by_host(sos_d_list, host):
     for sos_d in sos_d_list:
         if host in sos_d.values():
             return sos_d['hostname-f']
     return None
+
 
 def search_by_ip(sos_d_list, ip):
     # import pdb; pdb.set_trace()
@@ -2901,6 +2920,7 @@ def search_by_ip(sos_d_list, ip):
                     return sos_d['hostname-f']
     return None
 
+
 def get_hostname_f_from_sos_d(sos_d, host=None, ip=None):
     if not host and not ip:
         return None
@@ -2909,6 +2929,7 @@ def get_hostname_f_from_sos_d(sos_d, host=None, ip=None):
         return search_by_host(sos_d, host)
     else:
         return search_by_ip(sos_d, ip)
+
 
 def get_section_items(section, mdconf, logger):
     try:
@@ -2924,6 +2945,7 @@ def get_section_items(section, mdconf, logger):
         return []
     section_items.sort()
     return section_items
+
 
 def get_hosts(mdconf, logger):
     try:
@@ -2946,6 +2968,7 @@ def get_hosts(mdconf, logger):
     hosts = list(hosts_set)
     hosts.sort()
     return hosts
+
 
 def mk_tool_info(sos_d, mdconf, logger):
     """Return a dict containing tool info (local and remote)"""
@@ -3011,6 +3034,7 @@ def mk_tool_info(sos_d, mdconf, logger):
     logger.debug("end [{:d} tools processed]", len(tools_array))
     return tools_array
 
+
 def ip_address_to_ip_o_addr(s):
     # This routine deals with the contents of either the ip_-o_addr
     # (preferred) or the ip_address file in the sosreport.
@@ -3067,6 +3091,7 @@ def ip_address_to_ip_o_addr(s):
         state = 3
     return ret
 
+
 def if_ip_from_sosreport(ip_addr_f):
     """Parse the ip_-o_addr file or ip_address file from the sosreport and
     get a dict associating the if name with the ip - separate entries
@@ -3090,11 +3115,13 @@ def if_ip_from_sosreport(ip_addr_f):
 
     return d
 
+
 def find_hostname(a_string):
     ret_val = a_string.find('sos_commands/host/hostname')
     if ret_val < 0:
         ret_val = a_string.find('sos_commands/general/hostname')
     return ret_val
+
 
 def hostnames_if_ip_from_sosreport(sos_file_name):
     """Return a dict with hostname info (both short and fqdn) and
@@ -3186,6 +3213,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
             d.update(if_ip_from_sosreport(sostb.extractfile(ip_files[0])))
     return (0, d)
 
+
 def mk_sosreports(tb, extracted_root, logger):
     logger.debug("start")
 
@@ -3215,6 +3243,7 @@ def mk_sosreports(tb, extracted_root, logger):
         sosreportlist.append(d)
     logger.debug("end [{:d} sosreports processed]", len(sosreportlist))
     return sosreportlist
+
 
 def mk_run_action(ptb, idxctx):
     """Extract metadata from the named tar ball and create an indexing
@@ -3250,6 +3279,7 @@ def mk_run_action(ptb, idxctx):
     )
     idxctx.logger.debug("end")
     return action
+
 
 def make_all_actions(ptb, idxctx):
     """Driver for generating all actions on source documents for indexing into
@@ -3591,6 +3621,7 @@ class IdxContext(object):
     The general indexing options, including configuration and other external
     state, provided as an object.
     """
+
     def __init__(self, options, name, _dbg=0):
         self.options = options
         self.name = name
@@ -3614,15 +3645,19 @@ class IdxContext(object):
             import collections
             global _dict_const
             _dict_const = collections.OrderedDict
+
             def _do_gethostname():
                 return "example.com"
             self.gethostname = _do_gethostname
+
             def _do_getpid():
                 return 42
             self.getpid = _do_getpid
+
             def _do_getgid():
                 return 43
             self.getgid = _do_getgid
+
             def _do_getuid():
                 return 44
             self.getuid = _do_getuid
