@@ -1,0 +1,60 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+PROG="$(basename ${0})"
+
+tool_output_dir="${1}"
+if [[ ! -d "${tool_output_dir}" ]]; then
+    printf -- "%s: invalid tool output directory, '%s'\n" "${PROG}" "${tool_output_dir}" >&2
+    exit 1
+fi
+
+interval="${2}"
+if [[ -z "${interval}" ]]; then
+	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
+	exit 1
+fi
+
+threads="${3}"
+if [[ -z "${threads}" ]]; then
+	printf -- "%s: missing required 'threads' argument\n" "${PROG}" >&2
+	exit 1
+fi
+if [[ "${threads}" == "true" ]]; then
+	threads_arg="-t"
+else
+	threads_arg=""
+fi
+
+patterns="${4}"
+if [[ -z "${patterns}" ]]; then
+	printf -- "%s: missing required 'patterns' argument\n" "${PROG}" >&2
+	exit 1
+elif [[ "${patterns:0:2}" != "p=" ]]; then
+	printf -- "%s: missing required 'patterns' prefix , 'p=', in argument\n" "${PROG}" >&2
+	exit 1
+elif [[ "${patterns}" == "p=" ]]; then
+	patterns_arg=""
+else
+	patterns_arg="${patterns:2}"  # Drop leading 'p=' prefix
+	patterns_arg="-C ${patterns_arg//,/|}"
+fi
+
+options="${5}"
+
+default_options="-l -H -w -u -h -d -r ${threads_arg} -p ALL ${patterns_arg}"
+
+if [[ -z "${_tool_bin}" ]]; then
+	_tool_bin="/usr/local/bin/mpstat"
+fi
+if [[ ! -x ${_tool_bin} ]]; then
+	printf -- "%s: missing required '${_tool_bin}' command\n" "${PROG}" >&2
+	exit 1
+fi
+
+if [[ "${_PBENCH_UNIT_TESTS}" != "" ]] ;then
+    # For unit tests, we use a mock ulimit; disable the built-in.
+    enable -n ulimit
+fi
+# ulimit is for all the files that might be opened by pidstat-convert
+${_tool_bin} ${default_options} ${options} ${interval} | (ulimit -n 102400; $(dirname ${0})/pidstat-convert ${tool_output_dir})

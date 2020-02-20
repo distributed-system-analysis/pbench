@@ -140,11 +140,11 @@ if (! $pp_only) {
         }
     }
     # - execute pre-benchmark scripts on clients and servers (todo)
-    
+
     # start the tools:
-    system("pbench-start-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
+    system("pbench-start-tools --group=" . $tool_group . " --dir=" . $sample_dir);
     print "starting tools\n";
-            
+
     # benchmark-execution:
     print "starting benchmark\n";
     for my $type (reverse sort keys %hosts) { # reverse so "server" is first
@@ -174,11 +174,11 @@ if (! $pp_only) {
 
     # stop the tools:
     print "stopping tools\n";
-    system("pbench-stop-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
+    system("pbench-stop-tools --group=" . $tool_group . " --dir=" . $sample_dir);
 
     # post-process the tools:
     print "copying tool data\n";
-    system("pbench-postprocess-tools --iteration=0 --group=" . $tool_group . " --dir=" . $sample_dir);
+    system("pbench-postprocess-tools --group=" . $tool_group . " --dir=" . $sample_dir);
 
     # post-benhcmark-execution:
     # - copy files back to controller

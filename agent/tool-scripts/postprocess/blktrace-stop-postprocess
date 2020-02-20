@@ -1,0 +1,28 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+PROG="$(basename ${0})"
+
+tool_output_dir="${1}"
+devices="${2}"
+
+pushd ${tool_output_dir} >/dev/null
+if [[ ${?} -ne 0 ]]; then
+	printf -- "%s: failed to create tool output directory, %s" "${PROG}" "${tool_output_dir}" >&2
+	exit 1
+fi
+
+devs=""
+for dev in ${devices}; do
+	devs="${devs} $(basename ${dev})"
+done
+
+blkparse ${devs} > blkparse-stdout.txt 2> blkparse-stderr.txt
+
+bzip2 blkparse-stdout.txt &
+for dev in ${devs}; do
+	bzip2 ${dev}.blktrace.* &
+done
+wait
+
+popd >/dev/null
