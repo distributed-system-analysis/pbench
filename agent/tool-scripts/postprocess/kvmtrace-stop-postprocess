@@ -2,7 +2,7 @@
 
 # Author: Andrew Theurer
 #
-# usage: kvmtrace-postprocess <dir>  dir = directory where kvmtrace.txt can be found
+# usage: kvmtrace-stop-postprocess <dir>  dir = directory where kvmtrace.txt can be found
 # This script requires that you first generate a file of exit_reasons, usually with
 # the following commmand:
 # grep rip kvmtrace-report.txt | awk -F"reason" '{print $2}' | sort | uniq -c | sort -rn >kvmtrace-exit-reasons.txt
@@ -18,6 +18,7 @@ use bigint;
 no warnings 'portable';
 
 my $dir=$ARGV[0];
+my $vm=$ARGV[1];
 my %exit_addrs;
 my %ext_int;
 my $nr_exits;
@@ -39,6 +40,14 @@ my $exit_latency;
 my $thread;
 my $event;
 my $timestamp;
+
+system("/usr/bin/trace-cmd report > $dir/kvmtrace-report-stdout.txt 2> $dir/kvmtrace-report-stderr.txt");
+
+my $zip_trace_pid = fork();
+die "Could not background bzip2 of trace.dat" if not defined $zip_trace_pid;
+if (not $zip_trace_pid) {
+	exec("bzip2 --fast trace.dat");
+}
 
 open(KVMTRACE_REPORT, "$dir/kvmtrace-report-stdout.txt") || die "Could not open $dir/kvmtrace-report-stdout.txt";
 open(KVMTRACE_MAX_LAT, ">$dir/kvmtrace-max-lat.txt") || die "Could not open $dir/kvmtrace-max-lat.txt";
@@ -82,6 +91,13 @@ for $thread (keys %vcpu_max_lat) {
 close(KVMTRACE_REPORT);
 close(KVMTRACE_MAX_LAT);
 
+system("grep rip $dir/kvmtrace-report-stdout.txt | awk -F\"reason\" '{print $2}' | sort | uniq -c | sort -rn > $dir/kvmtrace-exit-reasons.txt");
+my $zip_report_pid = fork();
+die "Could not background bzip2 of kvmtrace-report-stdout.txt" if not defined $zip_report_pid;
+if (not $zip_report_pid) {
+	exec("bzip2 --fast kvmtrace-report-stdout.txt");
+}
+
 # store all of the unique exit_reason-rips:
 open(KVMTRACE_EXIT_REASONS, "$dir/kvmtrace-exit-reasons.txt") || die "Could not open $dir/kvmtrace-exit-reasons.txt";
 while ($line = <KVMTRACE_EXIT_REASONS>) {
@@ -105,7 +121,14 @@ while ($line = <KVMTRACE_EXIT_REASONS>) {
 }
 close(KVMTRACE_EXIT_REASONS);
 
-open(KALLSYMS, "$dir/kallsyms-guest.txt") || die "Could not open $dir/kallsyms-guest.txt"; 
+if ($vm eq "") {
+	# if the vm hostname was not provided, try to find a running vm, and use its vm name as the host
+	$vm=`virsh list | grep running | head -1 | awk '{print $2}'`
+}
+system("ssh $vm cat /proc/kallsyms > $dir/kallsyms-guest.txt");
+
+# FIXME: why "die" here?  Why not still bzip
+open(KALLSYMS, "$dir/kallsyms-guest.txt") || die "Could not open $dir/kallsyms-guest.txt";
 my $sym_addr;
 my $sym;
 my $last_sym;
@@ -129,15 +152,19 @@ while ( defined($line = <KALLSYMS>) && defined($exit_addr) ) {
 	}
 }
 close(KALLSYMS);
+my $zip_kallsyms_pid = fork();
+die "Could not background bzip2 of kallsyms-guest.txt" if not defined $zip_kallsyms_pid;
+if (not $zip_kallsyms_pid) {
+	exec("bzip2 --fast kallsyms-guest.txt");
+}
 # print "addresses with symbol not found:\n";
 # while (@addr_sorted) {
 	# $exit_addr = shift(@addr_sorted);
 	# print "addr: $exit_addr  reason: $exit_reason_by_addr{$exit_addr} count: $nr_exits_by_addr{$exit_addr}\n";
 # }
 # print "\n";
-	
 
-open(KVMTRACE_EXIT_SOURCES, ">$dir/kvmtrace-exit-sources.txt") || die "Could not open $dir/kvmtrace-exit-sources.txt"; 
+open(KVMTRACE_EXIT_SOURCES, ">$dir/kvmtrace-exit-sources.txt") || die "Could not open $dir/kvmtrace-exit-sources.txt";
 printf KVMTRACE_EXIT_SOURCES "%-20s %-17s %-30s %s\n", "exit_reason", "guest_address", "symbol", "nr_exits";
 printf KVMTRACE_EXIT_SOURCES "%20s %17s %30s %s\n", "--------------------", "-----------------", "------------------------------", "------------";
 for $exit_addr (sort { $nr_exits_by_addr{$b} <=> $nr_exits_by_addr{$a} } keys(%nr_exits_by_addr)) {
@@ -151,3 +178,7 @@ close(KVMTRACE_EXIT_SOURCES);
 # for $info2 (sort { $ext_int{$b} <=> $ext_int{$a} } keys(%ext_int)) {
 #	 printf "%s: %d\n", $info2, $ext_int{$info2};
 #}
+
+waitpid($zip_kallsyms_pid, 0);
+waitpid($zip_report_pid, 0);
+waitpid($zip_trace_pid, );

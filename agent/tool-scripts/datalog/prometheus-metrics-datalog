@@ -1,30 +1,165 @@
 #!/usr/bin/env python3
 
-import sys, os, json, math
-import subprocess, logging
+import sys
+import os
+import logging
+
+PROG = os.path.basename(sys.argv[0])
+try:
+    tool_output_dir = sys.argv[1]
+except IndexError:
+    logging.error("[%s]: missing required tool output directory argument",
+            PROG)
+    sys.exit(1)
+else:
+    if not os.path.isdir(tool_output_dir):
+        logging.error("[%s]: the provided tool output directory, '%s', does"
+                " not appear to be a valid directory", PROG, tool_output_dir)
+        sys.exit(1)
+
+try:
+    interval_param = sys.argv[2]
+except IndexError:
+    logging.error("[%s]: missing required interval argument", PROG)
+    sys.exit(1)
+else:
+    try:
+        interval = int(interval_param)
+    except Exception:
+        logging.error("[%s]: invalid interval argument", PROG)
+        sys.exit(1)
+
+inv_file = os.path.join(tool_output_dir, "inv_hosts")
+
+try:
+    inv_file_param = sys.argv[3]
+except IndexError:
+    logging.error("[%s]: missing required host inventory file", PROG)
+    sys.exit(1)
+else:
+    # First, we copy the inventory file provided to our tool output directory
+    # for safe keeping.
+    import shutil
+    try:
+        shutil.copyfile(inv_file_param, inv_file, follow_symlinks=True)
+    except Exception as exc:
+        logging.error("[%s]: unable to copy provided inventory file, '%s': %s",
+                PROG, inv_file_param, exc)
+        sys.exit(1)
+
+def host_n_port(inv_file):
+    # Generator for reading and processing the inventory file.
+    with open(inv_file, "r") as invf:
+	# File format:
+	#   host port=<port> cert=<cert> key=<key> selfsigned=(true|false)
+        linenum = 0
+        for line in invf:
+            linenum += 1
+            try:
+                parts = line.split(" ")
+                host = parts[0]
+                for part in parts[1:]:
+                    if part.startswith("port="):
+                        port_val = part.split('=', 1)[1]
+                        try:
+                            port = int(port_val)
+                        except ValueError:
+                            logging.warning(
+                                "[%s]: invalid port in inventory file at line"
+                                " %d: '%s'", PROG, linenum, line)
+                            continue
+                    elif part.startswith("cert="):
+                        cert = part.split('=', 1)[1]
+                    elif part.startswith("key="):
+                        key = part.split('=', 1)[1]
+                    elif part.startswith("selfsigned="):
+                        selfsigned = part.split('=', 1)[1]
+                    else:
+                        logging.warning(
+                                "[%s]: invalid inventory file format at line"
+                                " %d: '%s'", PROG, linenum, line)
+                        continue
+                yield host, port, cert, key, selfsigned, linenum
+            except Exception as exc:
+                logging.error("[%s]: bad inventory file encountered (%s)",
+                        PROG, exc)
+                sys.exit(1)
+
+import json
+import math
+import subprocess
 from time import time, sleep
 
-prog = os.path.basename(sys.argv[0])
-host = sys.argv[1]
-interval = int(sys.argv[2])
-tool_log = sys.argv[3]
-port = int(sys.argv[4])
-cert = sys.argv[5]
-selfsigned = sys.argv[6]
-key = sys.argv[7]
+# We keep track of pids by "host" as that should be unique.
+parent = True
+pids = {}
+for host, port, cert, key, selfsigned, linenum in host_n_port(inv_file):
+    if host in pids:
+        logging.warning("[%s]: encountered duplicate host name, %s, line %d",
+                PROG, host, linenum)
+        continue
+    try:
+        pid = os.fork()
+    except OSError:
+        logging.exception("[%s]: os.fork() failed [host=%s, line=%d]",
+                PROG, host, linenum)
+        sys.exit(1)
+    else:
+        if pid is 0:
+            # Child continue below
+            parent = False
+            break
+        else:
+            pids[host] = pid
 
-if (cert == "None") or (key == "None"):
-    command = "prom2json http://{}:{:d}/metrics".format(host, port)
-else:
-    command = "prom2json{} --cert={} --key={} https://{}:{:d}/metrics".format(
-            " --accept-invalid-cert" if selfsigned == "true" else "", cert,
-            key, host, port)
+if parent:
+    # If we exited the loop above and parent is still True, we are the parent;
+    # just wait for the terminate signal, and pass it along to our children.
+    import errno
+    import signal
 
-_unit_test_iterations = os.environ.get('_PBENCH_UNIT_TEST')
+    try:
+        terminate = False
+
+        if os.environ.get('_PBENCH_UNIT_TESTS'):
+            def mock_pause():
+                for host, pid in pids.items():
+                    try:
+                        os.waitpid(pid, 0)
+                    except OSError:
+                        pass
+                global terminate
+                terminate = True
+            signal.pause = mock_pause
+        else:
+            def handler(signum, frame):
+                global terminate
+                terminate = True
+
+            signal.signal(signal.SIGTERM, handler)
+            signal.signal(signal.SIGQUIT, handler)
+            signal.signal(signal.SIGINT, handler)
+
+        while not terminate:
+            signal.pause()
+    finally:
+        for host, pid in pids.items():
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except OSError as exc:
+                if exc.errno != errno.ESRCH:
+                    logging.warning(
+                            "[%s]: os.kill(TERM, %d) [host=%s] failed: %s",
+                            PROG, pid, host, exc)
+    sys.exit(0)
+
+# We are in the child process from here on down ...
+
+_unit_test_iterations = os.environ.get('_PBENCH_UNIT_TESTS')
 if _unit_test_iterations is not None:
     # Mock "time.time" and "time.sleep" functions so that we ensure we only
     # execute as many iterations ("sleep" cycles) as specified by the unit
-    # test environment variable. 
+    # test environment variable.
     _unit_test_iterations = int(_unit_test_iterations)
     _sleep_iterations = 0
     _ts = 1234567890
@@ -56,12 +191,26 @@ if _unit_test_iterations is not None:
         _ts += int(length)
     sleep = _sleep
 
+if (cert == "None") or (key == "None"):
+    command = "prom2json http://{}:{:d}/metrics".format(host, port)
+else:
+    command = "prom2json{} --cert={} --key={} https://{}:{:d}/metrics".format(
+            " --accept-invalid-cert" if selfsigned == "true" else "", cert,
+            key, host, port)
+
 # Initial timestamp and next interval calcultion
 time_stamp = time()
 next_start = time_stamp + interval
 intervals = 0
 total_duration = 0
 drifted = 0
+
+of_name = os.path.join(tool_output_dir, f"{host}-{port}-stdout.txt")
+try:
+    ofp = open(of_name, "w")
+except Exception:
+    logging.error("[%s] failed to create output file, %s", PROG, of_name)
+    sys.exit(1)
 
 while True:
     with subprocess.Popen(command, shell=True, stdout=subprocess.PIPE) as proc:
@@ -74,16 +223,18 @@ while True:
     try:
         metrics_list = json.loads(prom2json_out)
     except Exception as e:
-        logging.warn("[%s] json.loads(prom2json_out) failed with %r", prog, e)
+        logging.warning("[%s] json.loads(prom2json_out) failed with %r",
+                PROG, e)
     else:
         if type(metrics_list) is list:
             for item in metrics_list:
                 del item['help']
                 item["@timestamp"] = time_stamp
-                print(json.dumps(item, sort_keys=True))
+                print(json.dumps(item, sort_keys=True), file=ofp)
+                ofp.flush()
         else:
-            logging.warn("[%s] json.loads(prom2json_out) did not return a"
-                    " list", prog)
+            logging.warning("[%s] json.loads(prom2json_out) did not return a"
+                    " list", PROG)
 
     # Record how long all the work took during this interval.
     endtime = time()
@@ -101,7 +252,7 @@ while True:
         logging.warn("[%s] interval exceeded now %d times: [interval: %d,"
                 " start: %d, duration: %d, prom2json: %d]; please consider"
                 " changing the interval to at least %d seconds",
-                prog, drifted, interval, time_stamp, duration,
+                PROG, drifted, interval, time_stamp, duration,
                 end_cmd_time_stamp - time_stamp, int(math.ceil(avg_duration * 1.5)))
         # The current time, endtime, is now the end of this interval.
         next_start = endtime

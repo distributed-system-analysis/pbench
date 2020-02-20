@@ -1,0 +1,56 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+PROG="$(basename ${0})"
+
+tool_output_dir="${1}"
+
+if [[ ! -d "${tool_output_dir}" ]]; then
+    printf -- "%s: invalid tool output directory, '%s'\n" "${PROG}" "${tool_output_dir}" >&2
+    exit 1
+fi
+
+if [[ ! -f "/proc/lock_stat" ]]; then
+    printf -- "%s: /proc/lock_stat does not exist as a file\n" "${PROG}" >&2
+    exit 1
+fi
+
+lockstat_saved_state_file="${tool_output_dir}/pbench-saved-lockstat-state"
+cp /proc/sys/kernel/lock_stat ${lockstat_saved_state_file}
+if [[ ${?} -ne 0 ]]; then
+    printf -- "%s: failed to save original lock_stat state\n" "${PROG}" >&2
+    exit 1
+fi
+
+function dump_lock_stat {
+    echo "timestamp: `date +%s.%N`"
+    cat /proc/lock_stat
+    return ${?}
+}
+
+# Enable collection of statistics
+echo 1 > /proc/sys/kernel/lock_stat
+
+# Dump the lock stat data when we fi
+dump_lock_stat
+if [[ ${?} -ne 0 ]]; then
+    printf -- "%s: failed to capture initial lock_stat data\n" "${PROG}" >&2
+    exit 1
+fi
+
+function _term {
+    # Ending capture of lock stat state
+    dump_lock_stat
+    if [[ ${?} -ne 0 ]]; then
+        printf -- "%s: failed to capture final lock_stat data\n" "${PROG}" >&2
+    fi
+    # Restore the original lock stat state.
+    cat ${lockstat_saved_state_file} > /proc/sys/kernel/lock_stat
+}
+
+trap _term SIGTERM
+
+# Infinite loop
+while true; do
+    sleep 60;
+done

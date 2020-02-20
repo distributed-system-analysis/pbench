@@ -513,7 +513,7 @@ function fio_device_check() {
 	local client=""
 	local rc=0
 
-	debug_log "fio_device_check() $devs $clients"
+	debug_log "fio_device_check(devs=\"${devs}\", clients=\"${clients}\")"
 	for dev in `echo $devs | sed -e s/,/" "/g`; do
 		if echo $dev | grep -q "^/dev/"; then
 			if [ ! -z "$clients" ]; then
@@ -655,7 +655,7 @@ function fio_run_job() {
 		printf "running pre-iteration-script command: $pre_iteration_script\n"
 		eval "$pre_iteration_script"
 	fi
-	pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
 	# create a command file and keep it with the results for debugging later, or user can run outside of pbench
 	echo "$benchmark_bin $client_opts $bench_opts" >$benchmark_results_dir/fio.cmd
@@ -665,8 +665,8 @@ function fio_run_job() {
 	$benchmark_results_dir/fio.cmd >$benchmark_results_dir/fio-result.txt
 	popd >/dev/null
 
-	pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
-	pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+	pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
+	pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
 
 	if [ ! -z "$clients" ]; then
 		histogram_params="--time-quantum ${histogram_interval_sec} --percentiles 0 50 90 95 99 100"
