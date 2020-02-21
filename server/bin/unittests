@@ -49,7 +49,6 @@ function _run {
     else
         echo "+++ Running ${tname} ${@}" >> ${_testout}
     fi
-    export PYTHONPATH=${_testopt}/lib:$PYTHONPATH
     ${tname} ${@} >> ${_testout} 2>&1
     echo "--- Finished ${tname} (status=${?})" >> ${_testout}
 }
@@ -304,7 +303,7 @@ function _setup_state {
     # are found in $_testopt/unittest-scripts.
     _orig_PATH=$PATH
     export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
-    export PYTHONPATH=$_testopt/common/lib:$PYTHONPATH
+    export PYTHONPATH="${_testopt}/lib:${_testopt}/common/lib:${PYTHONPATH}"
 
     # Expected location of the final configuration files 
     export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg
