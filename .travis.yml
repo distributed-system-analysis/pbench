@@ -8,6 +8,7 @@ jobs:
         - "3.6"
       before_install:
         - sudo apt-get update
+        - command -v sleep
       install:
         # Perl JSON and JSON-XS required
         - sudo apt-get install libjson-perl libjson-xs-perl
