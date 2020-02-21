@@ -18,9 +18,9 @@ export benchmark_run_dir=""
 if [[ -z "$benchmark_bin" ]]; then
 	benchmark_bin=/usr/local/bin/$benchmark
 fi
-ver=$(getconf.py version pbench-fio)
-if [ -z "$ver" ] ;then
-	echo "pbench-fio: package version is missing in config file" > /dev/tty
+ver="$(getconf.py version pbench-fio)"
+if [[ -z "${ver}" ]]; then
+	error_log "pbench-fio: package version is missing in config file"
 	exit 1
 fi
 
