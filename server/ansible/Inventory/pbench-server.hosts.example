@@ -8,11 +8,5 @@
 [servers]
 <pbench-server-host>
 
-# A pbench-server needs to have a pbench-server.cfg file installed
-# in a designated place. The configurl variable below specifies the
-# location of the config file that should be installed on the server
-# above and should be changed to reflect the local setup. This variable
-# is then used by the pbench-server-config role to install the designated
-# config file on the server.
-[servers:vars]
-configurl = http://pbench.example.com/server/config/pbench-server.cfg
+# Variables for this group are defined in ./group_vars/servers
+

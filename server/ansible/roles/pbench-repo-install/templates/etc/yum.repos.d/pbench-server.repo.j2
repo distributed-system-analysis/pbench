@@ -1,11 +1,13 @@
-###########################################################################
-# pbench "official" repo
-[copr-pbench-server]
-name=Copr repo for pbench-server
-baseurl={{ baseurl }}
+{% for repo in repos %}
+
+[copr-{{ repo.tag }}]
+name=Copr {{ repo.tag }} repo for pbench-server
+baseurl={{ repo.baseurl }}
 skip_if_unavailable=True
-gpgcheck= {{ gpgcheck }}
-gpgkey={{ gpgkey }}
-enabled=1
+gpgcheck= {{ repo.gpgcheck }}
+gpgkey={{ repo.gpgkey }}
+enabled={{ repo.enabled }}
 enabled_metadata=1
 skip_if_unavailable=1
+
+{% endfor %}

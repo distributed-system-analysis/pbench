@@ -6,9 +6,9 @@
 
 - name: install the config file
   get_url:
-    url: "{{ configurl }}"
+    url: "{{ configurl }}/{{ item }}"
     dest: "{{ pbench_server_config_dest }}"
     mode: 0444
     owner: "{{ pbench_owner }}"
     group: "{{ pbench_group }}"
-
+  with_items: "{{ configfiles }}"
