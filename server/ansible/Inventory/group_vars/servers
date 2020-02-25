@@ -1,0 +1,16 @@
+# change to taste
+configurl: http://pbench.example.com/server/config/{{ cenv }}
+
+configfiles:
+  - pbench-server.cfg
+  - pbench-server-backup.cfg
+
+# change to taste
+prefix: https://repos.example.com/repos
+
+repos:
+  - tag: pbench
+    baseurl: "{{ prefix }}/pbench/{{ distrodir }}"
+    gpgkey: "{{ prefix }}/pbench/pubkey.gpg"
+    gpgcheck: 1
+    enabled: 1
