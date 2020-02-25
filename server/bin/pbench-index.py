@@ -299,26 +299,29 @@ def main(options, name):
                 except UnsupportedTarballFormat as e:
                     idxctx.logger.warning("Unsupported tar ball format: {}", e)
                     tb_res = 4
+                    indexing_failure(os.path.realpath(tb),"UnsupportedTarballFormat", tb_res)
                 except BadDate as e:
                     idxctx.logger.warning("Bad Date: {!r}", e)
                     tb_res = 5
+                    indexing_failure(os.path.realpath(tb), "BadDate", tb_res)
                 except _filenotfounderror as e:
                     idxctx.logger.warning("No such file: {}", e)
                     tb_res = 6
+                    indexing_failure(os.path.realpath(tb), "_filenotfounderror", tb_res)
                 except BadMDLogFormat as e:
                     idxctx.logger.warning("The metadata.log file is curdled in"
                             " tar ball: {}", e)
                     tb_res = 7
-                except SosreportHostname as e:
-                    idxctx.logger.warning("Bad hostname in sosreport: {}", e)
-                    tb_res = 10
+                    indexing_failure(os.path.realpath(tb), "BadMDLogFormat", tb_res)
                 except tarfile.TarError as e:
                     idxctx.logger.error("Can't unpack tar ball into {}: {}",
                             ptb.extracted_root, e)
                     tb_res = 11
+                    indexing_failure(os.path.realpath(tb), "tarfile.TarError", tb_res)
                 except Exception as e:
                     idxctx.logger.exception("Other indexing error: {}", e)
                     tb_res = 12
+                    indexing_failure(os.path.realpath(tb), "Exception", tb_res)
                 else:
                     beg, end, successes, duplicates, failures, retries = es_res
                     idxctx.logger.info("done indexing (end ts: {}, duration:"
@@ -453,6 +456,9 @@ def main(options, name):
                 pass
 
     return res
+
+def indexing_failure(tb, error, tb_res):
+    return
 
 ###########################################################################
 # Options handling
