@@ -198,7 +198,7 @@ my @iteration_names;
 my %param_sets_common_params = find_common_parameters(@param_sets);
 mkdir($base_bench_dir);
 open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
-metadata_log_begin_run($base_bench_dir, $params{"tool-group"});
+metadata_log_begin_run($base_bench_dir, $benchmark, $params{"tool-group"});
 # There can be multiple parts of a run if the user generated multiple parameter-sets
 # (used a "--" in their cmdline).  Each part of the run has it's own run document,
 # but all of the run documents share the same run ID.
@@ -296,7 +296,7 @@ while (scalar @param_sets > 0) {
         }
         my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,);
         put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
-	my $iteration_name = metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params, $iteration_label);
+        my $iteration_name = metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params, $iteration_label);
         push(@iteration_names, $iteration_name);
         printf $fh "%d %s\n", $iteration_id, $iteration_params;
         printf "\n\n\niteration_ID: %d\niteration_params: %s\n", $iteration_id, $iteration_params;
