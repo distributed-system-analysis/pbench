@@ -1,2 +1,5 @@
 ---
 pbench_server_install_dir: "/opt/pbench-server"
+
+scl: "{{ 'scl enable rh-python36 -- ' if ansible_distribution == 'RedHat' and ansible_distribution_major_version == '7'
+         else '' }}"
