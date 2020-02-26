@@ -1,0 +1,1624 @@
++++ Running pbench-unpack-tarballs
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "b93953b18f6989015766c339934a6c8e",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-unpack-tarballs",
+            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 162
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-unpack-tarballs (status=0)
++++ Running pbench-index
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "8b0a858cc2900c40ad6a6f2789367e86",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "doctype": "start",
+            "name": "pbench-index"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.result-data.2020-02-27 44566
+Index:  pbench-unittests.v3.run.2020-02 24
+len(actions) = 30
+[
+    {
+        "_id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@metadata": {
+                "controller_dir": "ctlrA",
+                "file-date": "2020-02-28T20:19:19",
+                "file-name": "/var/tmp/pbench-test-server/test-7.20/pbench/archive/fs-version-001/ctlrA/fio_mock_2020.02.27T22.16.14.tar.xz",
+                "file-size": 828112,
+                "md5": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "pbench-agent-version": "0.67-1g3fb4270c",
+                "raw_size": 20778513,
+                "result-prefix": "prb-test-sync",
+                "tar-ball-creation-timestamp": "2020-02-27T22:27:36.615075",
+                "toc-prefix": "fio_mock_2020.02.27T22.16.14"
+            },
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "host_tools_info": [
+                {
+                    "hostname": "ctlrA",
+                    "tools": {
+                        "turbostat": "--interval=3"
+                    }
+                }
+            ],
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-02-27T22:16:14",
+                "end": "2020-02-27T22:27:31.566432",
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "iterations": "0__fio",
+                "name": "fio_mock_2020.02.27T22.16.14",
+                "script": "fio",
+                "start": "2020-02-27T22:16:14.663380",
+                "toolsgroup": "default",
+                "user": "janedoe@example.com"
+            }
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "fa032cbcf43ea9f3bddc80d120b3a71b",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:16:16",
+                    "name": "iteration-list.txt",
+                    "size": 330,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:18:47",
+                    "name": "metadata.log",
+                    "size": 864,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T17:43:56",
+                    "name": "pbench-run-benchmark.cmd",
+                    "size": 280,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:27:31",
+                    "name": "result.csv",
+                    "size": 5769,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:27:31",
+                    "name": "result.html",
+                    "size": 40929,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:27:31",
+                    "name": "result.json",
+                    "size": 7180044,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:27:31",
+                    "name": "result.txt",
+                    "size": 27403,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:18:47"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "b9feaca0eac2ae270bcb2e2bf129560b",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "directory": "/0__fio",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:27:31",
+                    "name": "result.json",
+                    "size": 6099001,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-27T22:27:31",
+            "name": "0__fio"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "eef56523989e047322e4d984843fc930",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio"
+            ],
+            "directory": "/0__fio/sample0",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "mtime": "2020-02-27T22:16:16",
+                    "name": "benchmark-sample.cmd",
+                    "size": 262,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:06",
+                    "name": "fio-average.txt",
+                    "size": 5851,
+                    "type": "reg"
+                },
+                {
+                    "linkpath": "clients/localhost/fio-result.json",
+                    "mode": "0o777",
+                    "mtime": "2020-02-27T22:20:04",
+                    "name": "fio-result.txt",
+                    "size": 0,
+                    "type": "sym"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:06",
+                    "name": "fio.html",
+                    "size": 1022,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:06",
+                    "name": "postprocess-output.txt",
+                    "size": 132,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:04",
+                    "name": "postprocess.cmd",
+                    "size": 287,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:16:29",
+                    "name": "preprocess-output.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:06",
+                    "name": "result.json",
+                    "size": 1687716,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T18:01:25",
+                    "name": "sample.json",
+                    "size": 1121,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T18:01:25",
+            "name": "sample0"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "b625f34d8d6ec0c79e4d1e998cd97734",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample0"
+            ],
+            "directory": "/0__fio/sample0/clients",
+            "mode": "0o755",
+            "mtime": "2020-02-27T22:20:00",
+            "name": "clients"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "6c02e9e72bac66b9fa14d7aedeb0e7ad",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample0",
+                "clients"
+            ],
+            "directory": "/0__fio/sample0/clients/localhost",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:18:48",
+                    "name": "fio-result.json",
+                    "size": 300257,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:16:33",
+                    "name": "fio.job",
+                    "size": 279,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:11:07",
+            "name": "localhost"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "aff6241b5482fd85be78e565dbb6125d",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample0"
+            ],
+            "directory": "/0__fio/sample0/csv",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:06",
+                    "name": "fio_clat.csv",
+                    "size": 106680,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:06",
+                    "name": "fio_iops_sec.csv",
+                    "size": 100868,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:06",
+                    "name": "fio_lat.csv",
+                    "size": 106826,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-27T22:20:06",
+            "name": "csv"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "36b85a7cc36dac5d1bf9801400c85c93",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample0"
+            ],
+            "directory": "/0__fio/sample0/tools-default",
+            "mode": "0o755",
+            "mtime": "2020-02-28T17:58:37",
+            "name": "tools-default"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "d7d987dc0059fcc0bce3f4c87cdf5ebf",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample0",
+                "tools-default"
+            ],
+            "directory": "/0__fio/sample0/tools-default/ctlrA",
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:18:21",
+            "name": "ctlrA"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "1c27dee2b9e67a6fe6ee3843df0af5e1",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample0",
+                "tools-default",
+                "ctlrA"
+            ],
+            "directory": "/0__fio/sample0/tools-default/ctlrA/turbostat",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:16:39",
+                    "name": "turbostat-stderr.txt",
+                    "size": 4034,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:18:48",
+                    "name": "turbostat-stdout.txt",
+                    "size": 208676,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2020-02-27T22:16:39",
+                    "name": "turbostat.cmd",
+                    "size": 166,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-27T22:16:39",
+            "name": "turbostat"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "fc80e546c457be85055baa7ac57e908c",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio"
+            ],
+            "directory": "/0__fio/sample1",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "mtime": "2020-02-27T22:20:06",
+                    "name": "benchmark-sample.cmd",
+                    "size": 262,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:23:49",
+                    "name": "fio-average.txt",
+                    "size": 5852,
+                    "type": "reg"
+                },
+                {
+                    "linkpath": "clients/localhost/fio-result.json",
+                    "mode": "0o777",
+                    "mtime": "2020-02-27T22:23:47",
+                    "name": "fio-result.txt",
+                    "size": 0,
+                    "type": "sym"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:23:49",
+                    "name": "fio.html",
+                    "size": 1022,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:23:49",
+                    "name": "postprocess-output.txt",
+                    "size": 132,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:23:47",
+                    "name": "postprocess.cmd",
+                    "size": 287,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:14",
+                    "name": "preprocess-output.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:23:49",
+                    "name": "result.json",
+                    "size": 1687608,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T18:01:25",
+                    "name": "sample.json",
+                    "size": 1121,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T18:01:25",
+            "name": "sample1"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "f64515175e535dd126314b973ae8d151",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample1"
+            ],
+            "directory": "/0__fio/sample1/clients",
+            "mode": "0o755",
+            "mtime": "2020-02-27T22:23:42",
+            "name": "clients"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "b665b1cc133a1970ddc6864ee363189c",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample1",
+                "clients"
+            ],
+            "directory": "/0__fio/sample1/clients/localhost",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:22:30",
+                    "name": "fio-result.json",
+                    "size": 299750,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:20:17",
+                    "name": "fio.job",
+                    "size": 279,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:11:07",
+            "name": "localhost"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "19ebb6b64a992466ea26de890cd5718d",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample1"
+            ],
+            "directory": "/0__fio/sample1/csv",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:23:49",
+                    "name": "fio_clat.csv",
+                    "size": 106577,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:23:49",
+                    "name": "fio_iops_sec.csv",
+                    "size": 101058,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-27T22:23:49",
+                    "name": "fio_lat.csv",
+                    "size": 106726,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-27T22:23:49",
+            "name": "csv"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "7d61878593d293e98929be6edc4f1b36",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "277a1c15ec04cdbc50efdadb0ed34bbd",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:14.663380",
+            "ancestor_path_elements": [
+                "0__fio",
+                "sample1"
+            ],
+            "directory": "/0__fio/sample1/tools-default",
+            "mode": "0o755",
+            "mtime": "2020-02-28T17:58:46",
+            "name": "tools-default"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@timestamp": "2020-02-27T22:16:49.572000",
+            "@timestamp_original": 1582841809572,
+            "benchmark": {
+                "bs": "4k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme0n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1,/dev/nvme1n1",
+                "iodepth_batch": "0",
+                "iodepth_batch_complete_min": "1",
+                "ioengine": "sync",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "log_unix_epoch": "1",
+                "max_stddevpct": 100,
+                "name": "fio",
+                "numjobs": "20",
+                "percentage_random": "100,80",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "120",
+                "rw": "randrw",
+                "rwmixread": "60",
+                "rwmixwrite": "40",
+                "size": "10g",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-02-27T22:16:14",
+                "end": "2020-02-27T22:27:31.566432",
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14",
+                "script": "fio",
+                "start": "2020-02-27T22:16:14.663380",
+                "user": "janedoe@example.com"
+            },
+            "sample": {
+                "@idx": 2,
+                "client_hostname": "localhost-9",
+                "closest_sample": 2,
+                "description": "Average completion latency per I/O operation",
+                "end": "2020-02-27T22:26:14.062000",
+                "mean": 38340,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample3",
+                "role": "client",
+                "start": "2020-02-27T22:24:15.062000",
+                "stddev": 1726,
+                "stddevpct": 4.503,
+                "uid": "client_hostname:localhost-9",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        },
+        "_type": "pbench-result-data-sample"
+    },
+    {
+        "_id": "644d178acc42bbb035f0a519ab32a075",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:49.572000",
+            "@timestamp_original": 1582841809572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 0,
+                "value": 63301.5
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "bf2ab16667609837b08d27e899e6c7a0",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:50.572000",
+            "@timestamp_original": 1582841810572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 1,
+                "value": 63118.5
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "9eb6eaa46c7c6123673cefc6652b7c35",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:51.572000",
+            "@timestamp_original": 1582841811572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 2,
+                "value": 61090
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "f38a0505bb95f47e0e5b35d342e9617d",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:52.572000",
+            "@timestamp_original": 1582841812572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 3,
+                "value": 60620
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "02e3a175adbd4a3858e52045c1aca85e",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:53.572000",
+            "@timestamp_original": 1582841813572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 4,
+                "value": 59141
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "b34c72e137d5d7e96c7def85c74527ad",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:54.572000",
+            "@timestamp_original": 1582841814572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 5,
+                "value": 58619.5
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "3d887d405c7b0c41c3511138d6915a9e",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:55.572000",
+            "@timestamp_original": 1582841815572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 6,
+                "value": 56591
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "388a87fe6acfe88f92ee2636c9abdec7",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:56.572000",
+            "@timestamp_original": 1582841816572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 7,
+                "value": 54688.5
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "c80d31b6d30b1df8877d84853727367f",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:57.572000",
+            "@timestamp_original": 1582841817572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 8,
+                "value": 53634.5
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "ebe3e5f39907ae9c7de93e786e59f4f7",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:58.572000",
+            "@timestamp_original": 1582841818572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 9,
+                "value": 53816
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "6fc01b31e88088b497a2eb27291352bf",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:16:59.572000",
+            "@timestamp_original": 1582841819572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 10,
+                "value": 53419
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "5e8a5dfcf6ae10d8f6d691ea7a684b76",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:17:00.572000",
+            "@timestamp_original": 1582841820572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 11,
+                "value": 51857.5
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "567c769229308c9bfd1c68f04bac3543",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:17:01.572000",
+            "@timestamp_original": 1582841821572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 12,
+                "value": 51953.5
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "c19ae8bec531f7e5a94410bbb176e0b9",
+        "_index": "pbench-unittests.v3.result-data.2020-02-27",
+        "_op_type": "create",
+        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_source": {
+            "@timestamp": "2020-02-27T22:17:02.572000",
+            "@timestamp_original": 1582841822572,
+            "iteration": {
+                "name": "0__fio",
+                "number": 0
+            },
+            "result": {
+                "@idx": 13,
+                "value": 51041.5
+            },
+            "run": {
+                "id": "277a1c15ec04cdbc50efdadb0ed34bbd",
+                "name": "fio_mock_2020.02.27T22.16.14"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:localhost-9"
+            }
+        },
+        "_type": "pbench-result-data"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "d149665c1e5ebb5a31ce46401511cc6d",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-index",
+            "text": "pbench-index.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.20/pbench/archive/fs-version-001/ctlrA/TO-INDEX/fio_mock_2020.02.27T22.16.14.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 214
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "a49255f14070b6824a0008c8b8f8fe2b",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "doctype": "start",
+            "name": "pbench-index-tool-data"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+len(actions) = 0
+[]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "d0032cf86ff3c4b6b12ce7374b8cf4f7",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-index-tool-data",
+            "text": "pbench-index-tool-data.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.20/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/fio_mock_2020.02.27T22.16.14.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 229
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-index (status=0)
++++ Running unit test audit
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "fb8eea157f633b56122a0db0334f1218",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished unit test audit (status=0)
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.20/var-www-html)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-7.20/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-7.20/pbench/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-7.20/pbench/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-7.20/pbench/public_html/users
+--- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.20/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.20/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.20/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.20/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.20/var-www-html-satellite)
+lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-7.20/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-7.20/pbench-satellite/public_html/results
+lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-7.20/pbench-satellite/public_html/static
+lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.20/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.20/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.20/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.20/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.20/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ pbench tree state (/var/tmp/pbench-test-server/test-7.20/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/ctlrA
+drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKUP-FAILED
+drwxrwxr-x          - archive/fs-version-001/ctlrA/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/ctlrA/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/ctlrA/INDEXED
+lrwxrwxrwx        109 archive/fs-version-001/ctlrA/INDEXED/fio_mock_2020.02.27T22.16.14.tar.xz -> /var/tmp/pbench-test-server/test-7.20/pbench/archive/fs-version-001/ctlrA/fio_mock_2020.02.27T22.16.14.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/ctlrA/SYNCED
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-COPY-SOS
+lrwxrwxrwx        109 archive/fs-version-001/ctlrA/TO-COPY-SOS/fio_mock_2020.02.27T22.16.14.tar.xz -> /var/tmp/pbench-test-server/test-7.20/pbench/archive/fs-version-001/ctlrA/fio_mock_2020.02.27T22.16.14.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX-TOOL
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TODO
+drwxrwxr-x          - archive/fs-version-001/ctlrA/UNPACKED
+lrwxrwxrwx         38 archive/fs-version-001/ctlrA/UNPACKED/fio_mock_2020.02.27T22.16.14.tar.xz -> ../fio_mock_2020.02.27T22.16.14.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-UNPACK
+-rw-rw-r--     828112 archive/fs-version-001/ctlrA/fio_mock_2020.02.27T22.16.14.tar.xz
+-rw-rw-r--         70 archive/fs-version-001/ctlrA/fio_mock_2020.02.27T22.16.14.tar.xz.md5
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/ctlrA
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio
+-rw-r--r--    6099001 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/result.json
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0
+-rwxr-xr-x        262 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/benchmark-sample.cmd
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/clients
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/clients/localhost
+-rw-r--r--     300257 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/clients/localhost/fio-result.json
+-rw-r--r--        279 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/clients/localhost/fio.job
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/csv
+-rw-r--r--     106680 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/csv/fio_clat.csv
+-rw-r--r--     100868 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/csv/fio_iops_sec.csv
+-rw-r--r--     106826 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/csv/fio_lat.csv
+-rw-r--r--       5851 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/fio-average.txt
+lrwxrwxrwx         33 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/fio-result.txt -> clients/localhost/fio-result.json
+-rw-r--r--       1022 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/fio.html
+-rw-r--r--        132 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/postprocess-output.txt
+-rw-r--r--        287 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/postprocess.cmd
+-rw-r--r--          0 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/preprocess-output.txt
+-rw-r--r--    1687716 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/result.json
+-rw-r--r--       1121 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/sample.json
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/tools-default
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/tools-default/ctlrA
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/tools-default/ctlrA/turbostat
+-rw-r--r--       4034 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/tools-default/ctlrA/turbostat/turbostat-stderr.txt
+-rw-r--r--     208676 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/tools-default/ctlrA/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        166 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample0/tools-default/ctlrA/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1
+-rwxr-xr-x        262 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/benchmark-sample.cmd
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/clients
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/clients/localhost
+-rw-r--r--     299750 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/clients/localhost/fio-result.json
+-rw-r--r--        279 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/clients/localhost/fio.job
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/csv
+-rw-r--r--     106577 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/csv/fio_clat.csv
+-rw-r--r--     101058 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/csv/fio_iops_sec.csv
+-rw-r--r--     106726 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/csv/fio_lat.csv
+-rw-r--r--       5852 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/fio-average.txt
+lrwxrwxrwx         33 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/fio-result.txt -> clients/localhost/fio-result.json
+-rw-r--r--       1022 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/fio.html
+-rw-r--r--        132 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/postprocess-output.txt
+-rw-r--r--        287 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/postprocess.cmd
+-rw-r--r--          0 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/preprocess-output.txt
+-rw-r--r--    1687608 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/result.json
+-rw-r--r--       1121 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/sample.json
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/tools-default
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/tools-default/ctlrA
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/tools-default/ctlrA/turbostat
+-rw-r--r--       4034 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/tools-default/ctlrA/turbostat/turbostat-stderr.txt
+-rw-r--r--     204465 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/tools-default/ctlrA/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        166 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample1/tools-default/ctlrA/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2
+-rwxr-xr-x        262 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/benchmark-sample.cmd
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/clients
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/clients/localhost
+-rw-r--r--     299721 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/clients/localhost/fio-result.json
+-rw-r--r--        279 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/clients/localhost/fio.job
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/csv
+-rw-r--r--      37531 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/csv/fio_clat.csv
+-rw-r--r--     100747 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/csv/fio_iops_sec.csv
+-rw-r--r--      37568 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/csv/fio_lat.csv
+-rw-r--r--       5852 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/fio-average.txt
+lrwxrwxrwx         33 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/fio-result.txt -> clients/localhost/fio-result.json
+-rw-r--r--       1022 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/fio.html
+-rw-r--r--        132 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/postprocess-output.txt
+-rw-r--r--        287 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/postprocess.cmd
+-rw-r--r--          0 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/preprocess-output.txt
+-rw-r--r--    1685347 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/result.json
+-rw-r--r--       1121 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/sample.json
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/tools-default
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/tools-default/ctlrA
+drwxr-xr-x          - public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/tools-default/ctlrA/turbostat
+-rw-r--r--       4016 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/tools-default/ctlrA/turbostat/turbostat-stderr.txt
+-rw-r--r--     204416 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/tools-default/ctlrA/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        166 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/0__fio/sample2/tools-default/ctlrA/turbostat/turbostat.cmd
+-rw-r--r--        330 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/iteration-list.txt
+-rw-r--r--        864 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/metadata.log
+-rw-r--r--        280 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/pbench-run-benchmark.cmd
+-rw-r--r--       5769 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/result.csv
+-rw-r--r--      40929 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/result.html
+-rw-r--r--    7180044 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/result.json
+-rw-r--r--      27403 public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14/result.txt
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/results/ctlrA
+drwxrwxr-x          - public_html/results/ctlrA/prb-test-sync
+lrwxrwxrwx        100 public_html/results/ctlrA/prb-test-sync/fio_mock_2020.02.27T22.16.14 -> /var/tmp/pbench-test-server/test-7.20/pbench/public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+drwxrwxr-x          - public_html/users/janedoe@example.com
+drwxrwxr-x          - public_html/users/janedoe@example.com/ctlrA
+drwxrwxr-x          - public_html/users/janedoe@example.com/ctlrA/prb-test-sync
+lrwxrwxrwx        100 public_html/users/janedoe@example.com/ctlrA/prb-test-sync/fio_mock_2020.02.27T22.16.14 -> /var/tmp/pbench-test-server/test-7.20/pbench/public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-7.20/pbench-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--       3079 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       3321 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-unpack-tarballs
+-rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+-rw-rw-r--       1030 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-7.20/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.20/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
++++ pbench log file contents
+++++ pbench-local/logs
++++++ pbench-audit-server/pbench-audit-server.error
+----- pbench-audit-server/pbench-audit-server.error
++++++ pbench-audit-server/pbench-audit-server.log
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.20/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/fio_mock_2020.02.27T22.16.14.tar.xz (size 828112)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [1 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/fio_mock_2020.02.27T22.16.14.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.20/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/fio_mock_2020.02.27T22.16.14.tar.xz (size 828112)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index-tool-data/pbench-index-tool-data.log
++++++ pbench-index/pbench-index.log
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
+1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.20/pbench/archive/fs-version-001/ctlrA/TO-INDEX/fio_mock_2020.02.27T22.16.14.tar.xz (size 828112)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [1 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [23 table-of-contents documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [0 result documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 44590, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/fio_mock_2020.02.27T22.16.14.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.20/pbench/archive/fs-version-001/ctlrA/TO-INDEX/fio_mock_2020.02.27T22.16.14.tar.xz (size 828112)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index/pbench-index.log
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
+run-1970-01-01T00:00:00-UTC
+ln -s /var/tmp/pbench-test-server/test-7.20/pbench/public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14 /var/tmp/pbench-test-server/test-7.20/pbench/public_html/results/ctlrA/prb-test-sync/fio_mock_2020.02.27T22.16.14
+ln -s /var/tmp/pbench-test-server/test-7.20/pbench/public_html/incoming/ctlrA/fio_mock_2020.02.27T22.16.14 /var/tmp/pbench-test-server/test-7.20/pbench/public_html/users/janedoe@example.com/ctlrA/prb-test-sync/fio_mock_2020.02.27T22.16.14
+run-1970-01-01T00:00:00-UTC: ctlrA/fio_mock_2020.02.27T22.16.14: success - elapsed time (secs): 0 - size (bytes): 828112
+run-1970-01-01T00:00:00-UTC: Processed 1 tarballs
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
+---- pbench-local/logs
+++++ pbench-satellite-local/logs
+---- pbench-satellite-local/logs
+--- pbench log file contents

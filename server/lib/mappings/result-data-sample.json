@@ -27,6 +27,10 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
+                    "user": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
                     "name": {
                         "type": "string",
                         "index": "not_analyzed"
@@ -201,6 +205,12 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
+                    "iodepth_batch": {
+                        "type": "string"
+                    },
+                    "iodepth_batch_complete_min": {
+                        "type": "string"
+                    },
                     "ioengine": {
                         "type": "string",
                         "index": "not_analyzed"
@@ -323,6 +333,9 @@
                     "log_hist_msec": {
                         "type": "string"
                     },
+                    "log_unix_epoch": {
+                        "type": "string"
+                    },
                     "loss_granularity": {
                         "type": "string",
                         "index": "not_analyzed"
@@ -442,6 +455,9 @@
                         "type": "string",
                         "analyzer": "path_analyzer"
                     },
+                    "percentage_random": {
+                        "type": "string"
+                    },
                     "port_primary_info_file": {
                         "type": "string"
                     },
@@ -487,6 +503,12 @@
                     "rw": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "rwmixread": {
+                        "type": "string"
+                    },
+                    "rwmixwrite": {
+                        "type": "string"
                     },
                     "search_granularity": {
                         "type": "double"
