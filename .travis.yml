@@ -25,3 +25,14 @@ jobs:
       install:
         - pip install elasticsearch sh boto3
       script: ./server/bin/unittests
+
+    - stage: "Python flake8 tests"
+      name: "flake8-tests"
+      language: python
+      python:
+        - "3.6"
+      before_install:
+        - sudo apt-get update
+      install:
+        - pip install flake8
+      script: flake8
