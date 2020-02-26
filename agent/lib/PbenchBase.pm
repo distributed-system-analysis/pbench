@@ -171,8 +171,9 @@ sub load_benchmark_config {
 
 sub metadata_log_begin_run {
     my $benchmark_run_dir = shift;
+    my $benchmark_name = shift;
     my $group = shift;
-    system("pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " beg");
+    system("benchmark=" . $benchmark_name . " pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " beg");
 }
 
 sub metadata_log_end_run {
