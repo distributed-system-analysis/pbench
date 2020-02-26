@@ -37,12 +37,18 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
+                    "raw_size": {
+                        "type": "long"
+                    },
                     "result-prefix": {
                         "type": "string"
                     },
                     "satellite": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "tar-ball-creation-timestamp": {
+                        "type": "date"
                     },
                     "toc-prefix": {
                         "type": "string"

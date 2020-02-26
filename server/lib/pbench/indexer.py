@@ -1013,25 +1013,53 @@ class ResultData(PbenchData):
                     iter_number = iteration['iteration_number']
                     iter_name = iteration['iteration_name']
                     iter_data = iteration['iteration_data']
-                except Exception:
+                except KeyError:
                     self.logger.warning("result-data-indexing: could not find"
                             " iteration data in JSON file, {}", result_json)
                     self.counters['missing_iteration'] += 1
                     continue
+                try:
+                    iter_name_fmt = iteration['iteration_name_format']
+                except KeyError:
+                    iter_name_fmt = None
                 # Validate the iteration name by looking for the iteration
                 # directory on disk.
-                iter_dir = os.path.join(
-                        self.ptb.extracted_root, dirname, iter_name)
-                if not os.path.isdir(iter_dir):
-                    iter_name = "{:d}-{}".format(iter_number, iter_name)
+                if iter_name_fmt:
+                    try:
+                        iter_name = iter_name_fmt % (int(iter_number), iter_name)
+                    except (ValueError, TypeError) as exc:
+                        self.logger.warning(
+                                "result-data-indexing: encountered bad"
+                                " iteration name format '{}' in JSON file,"
+                                " {}: {}", iteration['iteration_name_format'],
+                                result_json, exc)
+                        self.counters['bad_iteration_name_fmt'] += 1
+                        continue
                     iter_dir = os.path.join(
                             self.ptb.extracted_root, dirname, iter_name)
                     if not os.path.isdir(iter_dir):
-                        self.logger.warning("result-data-indexing: encountered bad"
-                                " iteration name '{}' in JSON file, {}",
-                                iteration['iteration_name'], result_json)
+                        self.logger.warning(
+                                "result-data-indexing: formatted iteration"
+                                " name '{}' in JSON file, {}, does not"
+                                " exist as a directory",
+                                iter_name, result_json)
                         self.counters['bad_iteration_name'] += 1
                         continue
+                else:
+                    iter_dir = os.path.join(
+                            self.ptb.extracted_root, dirname, iter_name)
+                    if not os.path.isdir(iter_dir):
+                        iter_name = "{:d}-{}".format(iter_number, iter_name)
+                        iter_dir = os.path.join(
+                                self.ptb.extracted_root, dirname, iter_name)
+                        if not os.path.isdir(iter_dir):
+                            self.logger.warning(
+                                    "result-data-indexing: encountered bad"
+                                    " iteration name '{}' in JSON file, {},"
+                                    " does not exist as a directory",
+                                    iteration['iteration_name'], result_json)
+                            self.counters['bad_iteration_name'] += 1
+                            continue
                 # Generate JSON documents for each iteration using the
                 # iteration metadata name and number.
                 for src, _id, _parent, _type in self._handle_iteration(
@@ -3400,6 +3428,23 @@ class PbenchTarBall(object):
         if self.satellite is not None:
             self.at_metadata['satellite'] = self.satellite
         self.at_metadata['controller_dir'] = self.controller_dir
+        try:
+            tb_ts_str = self.mdconf.get("pbench", "tar-ball-creation-timestamp")
+        except NoOptionError:
+            pass
+        else:
+            self.at_metadata['tar-ball-creation-timestamp'] = PbenchTarBall.convert_to_dt(tb_ts_str)[1]
+        try:
+            raw_size = self.mdconf.get("run", "raw_size")
+        except NoOptionError:
+            pass
+        else:
+            try:
+                self.at_metadata['raw_size'] = int(raw_size)
+            except ValueError as exc:
+                idxctx.logger.warn(
+                        "Invalid raw_size field encountered, '{}', for {}/{}",
+                        exc, self.controller_dir, self.tbname)
         # Merge the "pbench" and "run" sections of the metadata.log file into
         # the "run" metadata, removing the "rpm-version" previously pulled.
         self.run_metadata = _dict_const()
@@ -3412,7 +3457,7 @@ class PbenchTarBall(object):
                         self.dirname, e))
         # Remove from run metadata as these fields are either kept in
         # @metadata or being renamed.
-        for key in ( 'rpm-version', 'prefix', 'start_run', 'end_run' ):
+        for key in ( 'rpm-version', 'prefix', 'start_run', 'end_run', 'raw_size', 'tar-ball-creation-timestamp' ):
             try:
                 del self.run_metadata[key]
             except KeyError:

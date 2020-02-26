@@ -10,6 +10,7 @@
             "properties": {
                 "id": { "type": "string", "index": "not_analyzed" },
                 "controller": { "type": "string", "index": "not_analyzed" },
+                "user": { "type": "string", "index": "not_analyzed" },
                 "name": { "type": "string", "index": "not_analyzed" },
                 "script": { "type": "string", "index": "not_analyzed" },
                 "config": { "type": "string", "index": "not_analyzed" },
