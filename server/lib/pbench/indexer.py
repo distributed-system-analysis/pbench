@@ -1269,6 +1269,14 @@ class ResultData(PbenchData):
         else:
             del result_el['closest sample']
         try:
+            result_el['closest_sample'] = int(result_el['closest_sample'])
+        except ValueError:
+            # We can't ensure the closest_sample value is an integer, so move
+            # the value to the "raw" field to save it so it won't cause any
+            # indexing errors.
+            result_el['closest_sample_raw'] = str(result_el['closest_sample'])
+            del result_el['closest_sample']
+        try:
             result_el['read_or_write'] = result_el['read(0) or write(1)']
         except KeyError:
             pass
@@ -3368,9 +3376,6 @@ class PbenchTarBall(object):
             script = self.mdconf.get('pbench', 'script')
             if not script:
                 raise Exception("empty pbench.script")
-            toolsgroup = self.mdconf.get("tools", "group")
-            if not toolsgroup:
-                raise Exception("empty tools.group")
             # Fetch the original run date values from the metadata.log file.
             # The goal is to provide self.start_run and self.end_run fields
             # containing strings of the form, "YYYY-mm-ddTHH:MM:SS.ssssss",
@@ -3467,8 +3472,14 @@ class PbenchTarBall(object):
         for key in list(self.run_metadata.keys()):
             if len(self.run_metadata[key]) == 0:
                 del self.run_metadata[key]
-        # Add the tools group used as run metadata for indexing purposes.
-        self.run_metadata['toolsgroup'] = toolsgroup
+        try:
+            toolsgroup = self.mdconf.get("tools", "group")
+            if toolsgroup:
+                # Add the tools group used as run metadata for indexing purposes.
+                self.run_metadata['toolsgroup'] = toolsgroup
+        except NoSectionError:
+            # No tool data collected for this result.
+            pass
         # Update the start and end run times using the already updated values
         # in the tar ball object.
         self.run_metadata['start'] = self.start_run

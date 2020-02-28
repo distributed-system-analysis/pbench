@@ -2517,10 +2517,6 @@ Template: pbench-unittests.v3.result-data
                             "index": "not_analyzed",
                             "type": "string"
                         },
-                        "closest_sample": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
                         "device_pairs": {
                             "analyzer": "comma_analyzer",
                             "type": "string"
@@ -2531,6 +2527,9 @@ Template: pbench-unittests.v3.result-data
                         "duplicate_packet_failure_mode": {
                             "index": "not_analyzed",
                             "type": "string"
+                        },
+                        "enable_flow_cache": {
+                            "type": "boolean"
                         },
                         "enable_trex_profiler": {
                             "type": "boolean"
@@ -2681,7 +2680,7 @@ Template: pbench-unittests.v3.result-data
                             "type": "string"
                         },
                         "max_loss_pct": {
-                            "type": "long"
+                            "type": "double"
                         },
                         "max_port": {
                             "type": "long"
@@ -2811,6 +2810,9 @@ Template: pbench-unittests.v3.result-data
                         "primary_metric": {
                             "index": "not_analyzed",
                             "type": "string"
+                        },
+                        "process_all_profiler_data": {
+                            "type": "boolean"
                         },
                         "protocol": {
                             "index": "not_analyzed",
@@ -3026,6 +3028,10 @@ Template: pbench-unittests.v3.result-data
                         "@idx": {
                             "type": "long"
                         },
+                        "category": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
                         "client_hostname": {
                             "index": "not_analyzed",
                             "type": "string"
@@ -3033,11 +3039,22 @@ Template: pbench-unittests.v3.result-data
                         "closest_sample": {
                             "type": "long"
                         },
+                        "closest_sample_raw": {
+                            "type": "string"
+                        },
                         "description": {
                             "type": "string"
                         },
                         "end": {
                             "type": "date"
+                        },
+                        "field": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "group": {
+                            "index": "not_analyzed",
+                            "type": "string"
                         },
                         "mean": {
                             "type": "double"
@@ -3053,6 +3070,10 @@ Template: pbench-unittests.v3.result-data
                             "type": "string"
                         },
                         "name": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "pgid": {
                             "index": "not_analyzed",
                             "type": "string"
                         },

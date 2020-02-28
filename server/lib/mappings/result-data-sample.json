@@ -88,6 +88,10 @@
                     "measurement_title": {
                         "type": "string"
                     },
+                    "category": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
                     "client_hostname": {
                         "type": "string",
                         "index": "not_analyzed"
@@ -95,14 +99,29 @@
                     "closest_sample": {
                         "type": "long"
                     },
+                    "closest_sample_raw": {
+                        "type": "string"
+                    },
                     "description": {
                         "type": "string"
                     },
                     "end": {
                         "type": "date"
                     },
+                    "field": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
+                    "group": {
+                        "type": "string",
+                        "index": "not_analyzed"
+                    },
                     "mean": {
                         "type": "double"
+                    },
+                    "pgid": {
+                        "type": "string",
+                        "index": "not_analyzed"
                     },
                     "role": {
                         "type": "string"
@@ -177,10 +196,6 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
-                    "closest_sample": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
                     "device_pairs": {
                         "type": "string",
                         "analyzer": "comma_analyzer"
@@ -191,6 +206,9 @@
                     "duplicate_packet_failure_mode": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "enable_flow_cache": {
+                        "type": "boolean"
                     },
                     "enable_trex_profiler": {
                         "type": "boolean"
@@ -341,7 +359,7 @@
                         "index": "not_analyzed"
                     },
                     "max_loss_pct": {
-                        "type": "long"
+                        "type": "double"
                     },
                     "max_port": {
                         "type": "long"
@@ -467,6 +485,9 @@
                     "primary_metric": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "process_all_profiler_data": {
+                        "type": "boolean"
                     },
                     "protocol": {
                         "type": "string",

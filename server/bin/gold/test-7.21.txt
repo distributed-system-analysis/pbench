@@ -1,0 +1,3631 @@
++++ Running pbench-unpack-tarballs
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "f08564160439fb42773dc3a3316a65ae",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-unpack-tarballs",
+            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 2 result tar balls, 2 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 162
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-unpack-tarballs (status=0)
++++ Running pbench-index
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "8b0a858cc2900c40ad6a6f2789367e86",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "doctype": "start",
+            "name": "pbench-index"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.run.2020-02 8
+len(actions) = 8
+[
+    {
+        "_id": "ea6b84aa5a882a4e42ee11f7798fb40b",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@metadata": {
+                "controller_dir": "ctlrA",
+                "file-date": "2020-02-28T21:29:09",
+                "file-name": "/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz",
+                "file-size": 53736,
+                "md5": "ea6b84aa5a882a4e42ee11f7798fb40b",
+                "pbench-agent-version": "0.67-1g3fb4270c",
+                "raw_size": 1287979,
+                "result-prefix": "prb-trafficgen-testing",
+                "tar-ball-creation-timestamp": "2020-02-28T20:02:43.370195",
+                "toc-prefix": "trafficgen_mock_2020.02.28T19.49.39"
+            },
+            "@timestamp": "2020-02-28T19:49:39.887048",
+            "host_tools_info": [],
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA.example.com",
+                "date": "2020-02-28T19:48:42",
+                "end": "2020-02-28T20:00:16.914732",
+                "id": "ea6b84aa5a882a4e42ee11f7798fb40b",
+                "iterations": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "name": "trafficgen_mock_2020.02.28T19.49.39",
+                "script": "trafficgen",
+                "start": "2020-02-28T19:49:39.887048",
+                "user": "janedoe@example.com"
+            }
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "d94f638e37c8db6e7f02631166f62408",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "ea6b84aa5a882a4e42ee11f7798fb40b",
+        "_source": {
+            "@timestamp": "2020-02-28T19:49:39.887048",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:49:44",
+                    "name": "iteration-list.txt",
+                    "size": 160,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T21:26:29",
+                    "name": "metadata.log",
+                    "size": 744,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T21:20:32",
+                    "name": "pbench-run-benchmark.cmd",
+                    "size": 238,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:17",
+                    "name": "result.csv",
+                    "size": 1181,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:17",
+                    "name": "result.html",
+                    "size": 10553,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:17",
+                    "name": "result.json",
+                    "size": 21029,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:17",
+                    "name": "result.txt",
+                    "size": 5833,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T21:26:29"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "daa2cf72758b17c73bc35bf881760ad3",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "ea6b84aa5a882a4e42ee11f7798fb40b",
+        "_source": {
+            "@timestamp": "2020-02-28T19:49:39.887048",
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:16",
+                    "name": "result.json",
+                    "size": 17545,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:00:16",
+            "name": "0__device-pairs=0000:01:00.0,0000:01:00.1"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "76565ccc6f3f9a40542538ac064628e8",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "ea6b84aa5a882a4e42ee11f7798fb40b",
+        "_source": {
+            "@timestamp": "2020-02-28T19:49:39.887048",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "mtime": "2020-02-28T19:49:44",
+                    "name": "benchmark-sample.cmd",
+                    "size": 318,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:16",
+                    "name": "postprocess-output.txt",
+                    "size": 974,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:16",
+                    "name": "postprocess.cmd",
+                    "size": 385,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:16",
+                    "name": "result.json",
+                    "size": 11921,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T21:20:32",
+                    "name": "sample.json",
+                    "size": 793,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:16",
+                    "name": "trafficgen-average.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:00:16",
+                    "name": "trafficgen.html",
+                    "size": 468,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T21:20:32",
+            "name": "sample0"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "a760ff3923e5010797276b76e1b07aa6",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "ea6b84aa5a882a4e42ee11f7798fb40b",
+        "_source": {
+            "@timestamp": "2020-02-28T19:49:39.887048",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "sample0"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients",
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:00:10",
+            "name": "clients"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "970ef70966885d07f48ecbf1f89e0160",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "ea6b84aa5a882a4e42ee11f7798fb40b",
+        "_source": {
+            "@timestamp": "2020-02-28T19:49:39.887048",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "sample0",
+                "clients"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:59:58",
+                    "name": "binary-search.json",
+                    "size": 716886,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:51:35",
+                    "name": "binary-search.port-info.extra.txt",
+                    "size": 1639,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:51:35",
+                    "name": "binary-search.port-info.txt",
+                    "size": 3057,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:52:08",
+                    "name": "binary-search.trial-001.extra.txt",
+                    "size": 5254,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:51:36",
+                    "name": "binary-search.trial-001.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:52:08",
+                    "name": "binary-search.trial-001.txt",
+                    "size": 25236,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:52:41",
+                    "name": "binary-search.trial-002.extra.txt",
+                    "size": 5352,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:52:08",
+                    "name": "binary-search.trial-002.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:52:41",
+                    "name": "binary-search.trial-002.txt",
+                    "size": 25476,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:53:13",
+                    "name": "binary-search.trial-003.extra.txt",
+                    "size": 5332,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:52:41",
+                    "name": "binary-search.trial-003.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:53:13",
+                    "name": "binary-search.trial-003.txt",
+                    "size": 25488,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:53:46",
+                    "name": "binary-search.trial-004.extra.txt",
+                    "size": 5325,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:53:13",
+                    "name": "binary-search.trial-004.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:53:46",
+                    "name": "binary-search.trial-004.txt",
+                    "size": 25349,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:54:17",
+                    "name": "binary-search.trial-005.extra.txt",
+                    "size": 5144,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:53:46",
+                    "name": "binary-search.trial-005.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:54:17",
+                    "name": "binary-search.trial-005.txt",
+                    "size": 25105,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:54:49",
+                    "name": "binary-search.trial-006.extra.txt",
+                    "size": 5356,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:54:17",
+                    "name": "binary-search.trial-006.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:54:49",
+                    "name": "binary-search.trial-006.txt",
+                    "size": 25455,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:55:22",
+                    "name": "binary-search.trial-007.extra.txt",
+                    "size": 5301,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:54:49",
+                    "name": "binary-search.trial-007.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:55:22",
+                    "name": "binary-search.trial-007.txt",
+                    "size": 25326,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:55:53",
+                    "name": "binary-search.trial-008.extra.txt",
+                    "size": 5348,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:55:22",
+                    "name": "binary-search.trial-008.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:55:53",
+                    "name": "binary-search.trial-008.txt",
+                    "size": 25352,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:56:23",
+                    "name": "binary-search.trial-009.extra.txt",
+                    "size": 5399,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:55:53",
+                    "name": "binary-search.trial-009.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:56:23",
+                    "name": "binary-search.trial-009.txt",
+                    "size": 25582,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:56:54",
+                    "name": "binary-search.trial-010.extra.txt",
+                    "size": 5168,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:56:23",
+                    "name": "binary-search.trial-010.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:56:54",
+                    "name": "binary-search.trial-010.txt",
+                    "size": 25148,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:57:25",
+                    "name": "binary-search.trial-011.extra.txt",
+                    "size": 5249,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:56:54",
+                    "name": "binary-search.trial-011.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:57:25",
+                    "name": "binary-search.trial-011.txt",
+                    "size": 25469,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:57:55",
+                    "name": "binary-search.trial-012.extra.txt",
+                    "size": 5386,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:57:25",
+                    "name": "binary-search.trial-012.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:57:55",
+                    "name": "binary-search.trial-012.txt",
+                    "size": 25634,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:58:26",
+                    "name": "binary-search.trial-013.extra.txt",
+                    "size": 5131,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:57:55",
+                    "name": "binary-search.trial-013.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:58:26",
+                    "name": "binary-search.trial-013.txt",
+                    "size": 25046,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:58:57",
+                    "name": "binary-search.trial-014.extra.txt",
+                    "size": 5192,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:58:26",
+                    "name": "binary-search.trial-014.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:58:57",
+                    "name": "binary-search.trial-014.txt",
+                    "size": 25285,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:59:27",
+                    "name": "binary-search.trial-015.extra.txt",
+                    "size": 5149,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:58:57",
+                    "name": "binary-search.trial-015.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:59:27",
+                    "name": "binary-search.trial-015.txt",
+                    "size": 25107,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:59:58",
+                    "name": "binary-search.trial-016.extra.txt",
+                    "size": 5196,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:59:27",
+                    "name": "binary-search.trial-016.json-port-profiles.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T19:59:58",
+                    "name": "binary-search.trial-016.txt",
+                    "size": 25314,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T19:59:58",
+            "name": "perf116"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "6eb32a4482d367101b186dbbdf653364",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "ea6b84aa5a882a4e42ee11f7798fb40b",
+        "_source": {
+            "@timestamp": "2020-02-28T19:49:39.887048",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "sample0"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv",
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:00:16",
+            "name": "csv"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "98b69bc263a8623072e78c43f778c6f1",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "ea6b84aa5a882a4e42ee11f7798fb40b",
+        "_source": {
+            "@timestamp": "2020-02-28T19:49:39.887048",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "sample0"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default",
+            "mode": "0o755",
+            "mtime": "2020-02-28T19:50:20",
+            "name": "tools-default"
+        },
+        "_type": "pbench-run-toc-entry"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.result-data.2020-02-28 4598
+Index:  pbench-unittests.v3.run.2020-02 8
+len(actions) = 23
+[
+    {
+        "_id": "b683a7a6756abc8f9bff4bddb5679d2c",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@metadata": {
+                "controller_dir": "ctlrA",
+                "file-date": "2020-02-28T21:29:27",
+                "file-name": "/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz",
+                "file-size": 724228,
+                "md5": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "pbench-agent-version": "0.67-1g3fb4270c",
+                "raw_size": 18232117,
+                "result-prefix": "prb-trafficgen-testing",
+                "tar-ball-creation-timestamp": "2020-02-28T20:18:44.736583",
+                "toc-prefix": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "@timestamp": "2020-02-28T20:04:29.505587",
+            "host_tools_info": [],
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA.example.com",
+                "date": "2020-02-28T20:06:42",
+                "end": "2020-02-28T20:15:23.463388",
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "iterations": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "name": "trafficgen_mock_2020.02.28T20.04.29",
+                "script": "trafficgen",
+                "start": "2020-02-28T20:04:29.505587",
+                "user": "janedoe@example.com"
+            }
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "5997573d33167e1f57777e9267a8eb50",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "b683a7a6756abc8f9bff4bddb5679d2c",
+        "_source": {
+            "@timestamp": "2020-02-28T20:04:29.505587",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:04:33",
+                    "name": "iteration-list.txt",
+                    "size": 258,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T21:27:52",
+                    "name": "metadata.log",
+                    "size": 842,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T21:23:29",
+                    "name": "pbench-run-benchmark.cmd",
+                    "size": 335,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:18:44",
+                    "name": "pbench.log",
+                    "size": 1000,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:23",
+                    "name": "result.csv",
+                    "size": 36234,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:23",
+                    "name": "result.html",
+                    "size": 174497,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:23",
+                    "name": "result.json",
+                    "size": 1024252,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:23",
+                    "name": "result.txt",
+                    "size": 127075,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T21:27:52"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "78d6c16b08a0c7e3eda2a05db2006aa6",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "b683a7a6756abc8f9bff4bddb5679d2c",
+        "_source": {
+            "@timestamp": "2020-02-28T20:04:29.505587",
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:23",
+                    "name": "result.json",
+                    "size": 868590,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:15:23",
+            "name": "0__device-pairs=0000:01:00.0,0000:01:00.1"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "9adddd221a80a1c5004f0c17f84d6267",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "b683a7a6756abc8f9bff4bddb5679d2c",
+        "_source": {
+            "@timestamp": "2020-02-28T20:04:29.505587",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "mtime": "2020-02-28T20:04:33",
+                    "name": "benchmark-sample.cmd",
+                    "size": 318,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:23",
+                    "name": "postprocess-output.txt",
+                    "size": 5515203,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:21",
+                    "name": "postprocess.cmd",
+                    "size": 385,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "result.json",
+                    "size": 672650,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T21:23:29",
+                    "name": "sample.json",
+                    "size": 988,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen-average.txt",
+                    "size": 35471,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen.html",
+                    "size": 17362,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T21:23:29",
+            "name": "sample0"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "bae04ec8cff38432d0af42f035f4077b",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "b683a7a6756abc8f9bff4bddb5679d2c",
+        "_source": {
+            "@timestamp": "2020-02-28T20:04:29.505587",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "sample0"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients",
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:15:12",
+            "name": "clients"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "788ce98a18cd1228579067a780b0d76f",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "b683a7a6756abc8f9bff4bddb5679d2c",
+        "_source": {
+            "@timestamp": "2020-02-28T20:04:29.505587",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "sample0",
+                "clients"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:03",
+                    "name": "binary-search.json",
+                    "size": 5297355,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:06:15",
+                    "name": "binary-search.port-info.extra.txt",
+                    "size": 1639,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:06:15",
+                    "name": "binary-search.port-info.txt",
+                    "size": 3057,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:06:46",
+                    "name": "binary-search.trial-001.extra.txt",
+                    "size": 24137,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:06:46",
+                    "name": "binary-search.trial-001.json-port-profiles.txt",
+                    "size": 110676,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:06:46",
+                    "name": "binary-search.trial-001.profiler.txt.xz",
+                    "size": 20356,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:06:46",
+                    "name": "binary-search.trial-001.txt",
+                    "size": 117911,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:07:18",
+                    "name": "binary-search.trial-002.extra.txt",
+                    "size": 24062,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:07:18",
+                    "name": "binary-search.trial-002.json-port-profiles.txt",
+                    "size": 110676,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:07:18",
+                    "name": "binary-search.trial-002.profiler.txt.xz",
+                    "size": 20276,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:07:18",
+                    "name": "binary-search.trial-002.txt",
+                    "size": 117746,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:07:50",
+                    "name": "binary-search.trial-003.extra.txt",
+                    "size": 24052,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:07:50",
+                    "name": "binary-search.trial-003.json-port-profiles.txt",
+                    "size": 110680,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:07:50",
+                    "name": "binary-search.trial-003.profiler.txt.xz",
+                    "size": 20096,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:07:50",
+                    "name": "binary-search.trial-003.txt",
+                    "size": 117520,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:08:22",
+                    "name": "binary-search.trial-004.extra.txt",
+                    "size": 23636,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:08:22",
+                    "name": "binary-search.trial-004.json-port-profiles.txt",
+                    "size": 110680,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:08:22",
+                    "name": "binary-search.trial-004.profiler.txt.xz",
+                    "size": 20008,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:08:22",
+                    "name": "binary-search.trial-004.txt",
+                    "size": 116113,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:08:54",
+                    "name": "binary-search.trial-005.extra.txt",
+                    "size": 23887,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:08:54",
+                    "name": "binary-search.trial-005.json-port-profiles.txt",
+                    "size": 110692,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:08:54",
+                    "name": "binary-search.trial-005.profiler.txt.xz",
+                    "size": 21248,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:08:54",
+                    "name": "binary-search.trial-005.txt",
+                    "size": 117058,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:09:26",
+                    "name": "binary-search.trial-006.extra.txt",
+                    "size": 23702,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:09:26",
+                    "name": "binary-search.trial-006.json-port-profiles.txt",
+                    "size": 110692,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:09:25",
+                    "name": "binary-search.trial-006.profiler.txt.xz",
+                    "size": 19900,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:09:26",
+                    "name": "binary-search.trial-006.txt",
+                    "size": 116321,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:10:00",
+                    "name": "binary-search.trial-007.extra.txt",
+                    "size": 25133,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:10:00",
+                    "name": "binary-search.trial-007.json-port-profiles.txt",
+                    "size": 110696,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:09:59",
+                    "name": "binary-search.trial-007.profiler.txt.xz",
+                    "size": 23112,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:10:00",
+                    "name": "binary-search.trial-007.txt",
+                    "size": 121257,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:10:34",
+                    "name": "binary-search.trial-008.extra.txt",
+                    "size": 24104,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:10:34",
+                    "name": "binary-search.trial-008.json-port-profiles.txt",
+                    "size": 110696,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:10:33",
+                    "name": "binary-search.trial-008.profiler.txt.xz",
+                    "size": 22600,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:10:34",
+                    "name": "binary-search.trial-008.txt",
+                    "size": 117809,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:11:06",
+                    "name": "binary-search.trial-009.extra.txt",
+                    "size": 24046,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:11:06",
+                    "name": "binary-search.trial-009.json-port-profiles.txt",
+                    "size": 110692,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:11:05",
+                    "name": "binary-search.trial-009.profiler.txt.xz",
+                    "size": 20504,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:11:06",
+                    "name": "binary-search.trial-009.txt",
+                    "size": 117526,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:11:37",
+                    "name": "binary-search.trial-010.extra.txt",
+                    "size": 23777,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:11:37",
+                    "name": "binary-search.trial-010.json-port-profiles.txt",
+                    "size": 110692,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:11:37",
+                    "name": "binary-search.trial-010.profiler.txt.xz",
+                    "size": 21120,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:11:37",
+                    "name": "binary-search.trial-010.txt",
+                    "size": 116618,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:12:09",
+                    "name": "binary-search.trial-011.extra.txt",
+                    "size": 23595,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:12:09",
+                    "name": "binary-search.trial-011.json-port-profiles.txt",
+                    "size": 110696,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:12:09",
+                    "name": "binary-search.trial-011.profiler.txt.xz",
+                    "size": 19860,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:12:09",
+                    "name": "binary-search.trial-011.txt",
+                    "size": 115837,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:12:43",
+                    "name": "binary-search.trial-012.extra.txt",
+                    "size": 24208,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:12:43",
+                    "name": "binary-search.trial-012.json-port-profiles.txt",
+                    "size": 110704,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:12:42",
+                    "name": "binary-search.trial-012.profiler.txt.xz",
+                    "size": 22896,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:12:43",
+                    "name": "binary-search.trial-012.txt",
+                    "size": 118133,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:13:17",
+                    "name": "binary-search.trial-013.extra.txt",
+                    "size": 23949,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:13:17",
+                    "name": "binary-search.trial-013.json-port-profiles.txt",
+                    "size": 110712,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:13:17",
+                    "name": "binary-search.trial-013.profiler.txt.xz",
+                    "size": 23156,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:13:17",
+                    "name": "binary-search.trial-013.txt",
+                    "size": 117155,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:13:51",
+                    "name": "binary-search.trial-014.extra.txt",
+                    "size": 23613,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:13:51",
+                    "name": "binary-search.trial-014.json-port-profiles.txt",
+                    "size": 110712,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:13:51",
+                    "name": "binary-search.trial-014.profiler.txt.xz",
+                    "size": 23108,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:13:51",
+                    "name": "binary-search.trial-014.txt",
+                    "size": 115917,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:14:25",
+                    "name": "binary-search.trial-015.extra.txt",
+                    "size": 23941,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:14:25",
+                    "name": "binary-search.trial-015.json-port-profiles.txt",
+                    "size": 110724,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:14:24",
+                    "name": "binary-search.trial-015.profiler.txt.xz",
+                    "size": 23036,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:14:25",
+                    "name": "binary-search.trial-015.txt",
+                    "size": 117146,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:14:59",
+                    "name": "binary-search.trial-016.extra.txt",
+                    "size": 23674,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:14:59",
+                    "name": "binary-search.trial-016.json-port-profiles.txt",
+                    "size": 110724,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:14:58",
+                    "name": "binary-search.trial-016.profiler.txt.xz",
+                    "size": 23320,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:14:59",
+                    "name": "binary-search.trial-016.txt",
+                    "size": 116219,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:15:02",
+            "name": "perf116"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "c36f6a59ccd57ed630b88501080706df",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "b683a7a6756abc8f9bff4bddb5679d2c",
+        "_source": {
+            "@timestamp": "2020-02-28T20:04:29.505587",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "sample0"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Global BPS.csv",
+                    "size": 523,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Global CPU Utilization.csv",
+                    "size": 584,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Global PPS.csv",
+                    "size": 403,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Global Per Core Bandwidth.csv",
+                    "size": 368,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Global Queue Full.csv",
+                    "size": 287,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Interface BPS - Port 0.csv",
+                    "size": 803,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Interface BPS - Port 1.csv",
+                    "size": 803,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Interface BPS - Port total.csv",
+                    "size": 819,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Interface PPS - Port 0.csv",
+                    "size": 573,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Interface PPS - Port 1.csv",
+                    "size": 573,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Interface PPS - Port total.csv",
+                    "size": 582,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Interface Utilization - Port 0.csv",
+                    "size": 470,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Interface Utilization - Port 1.csv",
+                    "size": 475,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Interface Utilization - Port total.csv",
+                    "size": 492,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Profiler data sample collection latency.csv",
+                    "size": 331,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1063.csv",
+                    "size": 542,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1064.csv",
+                    "size": 543,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1065.csv",
+                    "size": 543,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1066.csv",
+                    "size": 543,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1067.csv",
+                    "size": 541,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1068.csv",
+                    "size": 543,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1190.csv",
+                    "size": 543,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1191.csv",
+                    "size": 543,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1192.csv",
+                    "size": 542,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1193.csv",
+                    "size": 542,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1194.csv",
+                    "size": 540,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency - PGID 1195.csv",
+                    "size": 542,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1063.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1064.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1065.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1066.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1067.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1068.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1190.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1191.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1192.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1193.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1194.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream Latency Errors - PGID 1195.csv",
+                    "size": 534,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1000.csv",
+                    "size": 1091,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1001.csv",
+                    "size": 1089,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1002.csv",
+                    "size": 1081,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1003.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1004.csv",
+                    "size": 1089,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1005.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1063.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1064.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1065.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1066.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1067.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1068.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1127.csv",
+                    "size": 1081,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1128.csv",
+                    "size": 1081,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1129.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1130.csv",
+                    "size": 1085,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1131.csv",
+                    "size": 1087,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1132.csv",
+                    "size": 1089,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1190.csv",
+                    "size": 1083,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1191.csv",
+                    "size": 1083,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1192.csv",
+                    "size": 1083,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1193.csv",
+                    "size": 1083,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1194.csv",
+                    "size": 1083,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - PGID 1195.csv",
+                    "size": 1083,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - Port 0 RX.csv",
+                    "size": 3317,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - Port 0 TX.csv",
+                    "size": 3323,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - Port 1 RX.csv",
+                    "size": 3320,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - Port 1 TX.csv",
+                    "size": 3307,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - Port total RX.csv",
+                    "size": 5020,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-02-28T20:15:22",
+                    "name": "trafficgen_Stream PPS - Port total TX.csv",
+                    "size": 5013,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:15:22",
+            "name": "csv"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "82f6f8b00ff9399369c14a6eda7ee4b9",
+        "_index": "pbench-unittests.v3.run.2020-02",
+        "_op_type": "create",
+        "_parent": "b683a7a6756abc8f9bff4bddb5679d2c",
+        "_source": {
+            "@timestamp": "2020-02-28T20:04:29.505587",
+            "ancestor_path_elements": [
+                "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "sample0"
+            ],
+            "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default",
+            "mode": "0o755",
+            "mtime": "2020-02-28T20:04:59",
+            "name": "tools-default"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "4306233856abd9598c259f01bc28944b",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@timestamp": "2020-02-28T20:14:29.591000",
+            "@timestamp_original": 1582920869591,
+            "benchmark": {
+                "active_device_pairs": "0:1",
+                "claimed_dev_pairs": [
+                    {
+                        "dev_pair": "0:1",
+                        "rx": 1,
+                        "tx": 0
+                    },
+                    {
+                        "dev_pair": "0:1",
+                        "rx": 0,
+                        "tx": 1
+                    }
+                ],
+                "device_pairs": "0:1",
+                "duplicate_packet_failure_mode": "quit",
+                "enable_flow_cache": true,
+                "enable_trex_profiler": true,
+                "latency_rate": 1000,
+                "loaded_traffic_profile": {
+                    "streams": [
+                        {
+                            "direction": "<-->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "protocol": false
+                            },
+                            "flow_offset": 0,
+                            "flows": 512,
+                            "frame_size": 40,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 0,
+                            "protocol": "UDP",
+                            "rate": 291666,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": null,
+                            "traffic_direction": "bidirectional"
+                        },
+                        {
+                            "direction": "<-->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "protocol": false
+                            },
+                            "flow_offset": 0,
+                            "flows": 512,
+                            "frame_size": 74,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 1,
+                            "protocol": "TCP",
+                            "rate": 291666,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": null,
+                            "traffic_direction": "bidirectional"
+                        },
+                        {
+                            "direction": "<-->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "protocol": true
+                            },
+                            "flow_offset": 0,
+                            "flows": 256,
+                            "frame_size": 576,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 2,
+                            "protocol": "UDP",
+                            "rate": 333333,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": null,
+                            "traffic_direction": "bidirectional"
+                        },
+                        {
+                            "direction": "<-->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "protocol": true
+                            },
+                            "flow_offset": 0,
+                            "flows": 256,
+                            "frame_size": 1500,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 3,
+                            "protocol": "UDP",
+                            "rate": 83333,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": null,
+                            "traffic_direction": "bidirectional"
+                        }
+                    ]
+                },
+                "loss_granularity": "direction",
+                "max_loss_pct": 0.002,
+                "max_port": 1,
+                "max_retries": 1,
+                "max_stddevpct": 100,
+                "measure_latency": 1,
+                "name": "trafficgen",
+                "negative_packet_loss_mode": "quit",
+                "null_stats": {
+                    "rx_active": false,
+                    "rx_l1_bps": 0,
+                    "rx_l2_bps": 0,
+                    "rx_latency_average": 0,
+                    "rx_latency_l1_bps": 0,
+                    "rx_latency_l2_bps": 0,
+                    "rx_latency_lost_packets": 0,
+                    "rx_latency_lost_packets_pct": 0,
+                    "rx_latency_lost_pps": 0,
+                    "rx_latency_maximum": 0,
+                    "rx_latency_packets": 0,
+                    "rx_latency_pps": 0,
+                    "rx_lost_packets": 0,
+                    "rx_lost_packets_pct": 0,
+                    "rx_lost_pps": 0,
+                    "rx_packets": 0,
+                    "rx_pps": 0,
+                    "tx_active": false,
+                    "tx_l1_bps": 0,
+                    "tx_l2_bps": 0,
+                    "tx_latency_l1_bps": 0,
+                    "tx_latency_l2_bps": 0,
+                    "tx_latency_packets": 0,
+                    "tx_latency_pps": 0,
+                    "tx_packets": 0,
+                    "tx_pps": 0,
+                    "tx_pps_target": 0
+                },
+                "output_dir": "./",
+                "port_primary_info_file": "binary-search.port-info.txt",
+                "port_secondary_info_file": "binary-search.port-info.extra.txt",
+                "primary_metric": "rx_mpps",
+                "process_all_profiler_data": true,
+                "random_seed": 0.551341523074583,
+                "rate": 762.5,
+                "rate_tolerance": 5,
+                "rate_tolerance_failure": "quit",
+                "rate_unit": "%",
+                "runtime": "30",
+                "runtime_tolerance": 5,
+                "search_granularity": 0.1,
+                "search_runtime": 30,
+                "teaching_measurement_interval": 10,
+                "teaching_measurement_packet_rate": 1000,
+                "teaching_warmup_packet_rate": 1000,
+                "test_dev_pairs": [
+                    {
+                        "dev_pair": "0:1",
+                        "direction": "->",
+                        "path": "0->1",
+                        "rx": "1",
+                        "tx": "0"
+                    },
+                    {
+                        "dev_pair": "0:1",
+                        "direction": "<-",
+                        "path": "0<-1",
+                        "rx": "0",
+                        "tx": "1"
+                    }
+                ],
+                "traffic_direction": "bidirectional",
+                "traffic_generator": "trex-txrx-profile",
+                "traffic_profile": "/opt/trafficgen/trex-profiles/workloads/5tuple-imix.json",
+                "trafficgen_uid": "trafficgen--traffic_generator:trex-txrx-profile-trial:16",
+                "trafficgen_uid_tmpl": "trafficgen--traffic_generator:%traffic_generator%-trial:%trial%",
+                "trex_profiler_interval": 3,
+                "trial": "16",
+                "trial_mode": "search",
+                "trial_primary_output_file": "binary-search.trial-016.txt",
+                "trial_profiler_file": "binary-search.trial-016.profiler.txt",
+                "trial_secondary_output_file": "binary-search.trial-016.extra.txt",
+                "uid": "benchmark_name:trafficgen-controller_host:ctlrA.example.com",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                "validation_runtime": 30,
+                "warmup_trial_runtime": 30
+            },
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA.example.com",
+                "date": "2020-02-28T20:06:42",
+                "end": "2020-02-28T20:15:23.463388",
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29",
+                "script": "trafficgen",
+                "start": "2020-02-28T20:04:29.505587",
+                "user": "janedoe@example.com"
+            },
+            "sample": {
+                "@idx": 0,
+                "closest_sample": 0,
+                "description": "Time (in milliseconds) to collect a profiler data sample",
+                "end": "2020-02-28T20:14:56.850000",
+                "mean": 26.6750812530518,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "skip_aggregate": 1,
+                "start": "2020-02-28T20:14:29.591000",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "tsdelta",
+                "uid_tmpl": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data-sample"
+    },
+    {
+        "_id": "38a2447a12c2849308d50ecad783dfaf",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:29.591000",
+            "@timestamp_original": 1582920869591,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 0,
+                "value": 27.3423194885254
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "22580b64ab12abb59da0a1a00f98bac1",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:32.620000",
+            "@timestamp_original": 1582920872620,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 1,
+                "value": 26.6978740692139
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "4a1ecd1ef836661da00b08268b0cb93d",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:35.649000",
+            "@timestamp_original": 1582920875649,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 2,
+                "value": 26.3633728027344
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "7ae73fab4584eff0530aaab21b6e213a",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:38.677000",
+            "@timestamp_original": 1582920878677,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 3,
+                "value": 26.0674953460693
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "db53caca51f89421af5ac70a7f6823a9",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:41.705000",
+            "@timestamp_original": 1582920881705,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 4,
+                "value": 26.2398719787598
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "74049661e3f44620aa4cd2198cef41a0",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:44.734000",
+            "@timestamp_original": 1582920884734,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 5,
+                "value": 26.2885093688965
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "a3a0d83a170602d9b493ad56f17db6e7",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:47.763000",
+            "@timestamp_original": 1582920887763,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 6,
+                "value": 26.4623165130615
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "aeed224205334b1b791206118a673b3c",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:50.791000",
+            "@timestamp_original": 1582920890791,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 7,
+                "value": 26.7729759216309
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "2a58e84fcd123cfcc4a3b71a76b42bf2",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:53.821000",
+            "@timestamp_original": 1582920893821,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 8,
+                "value": 27.2994041442871
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "936918d32291fc882e436a2ceab5c243",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "4306233856abd9598c259f01bc28944b",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:56.850000",
+            "@timestamp_original": 1582920896850,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 9,
+                "value": 27.2166728973389
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Profiler data sample collection latency",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "tsdelta"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "6061cf80069c0001c23c1a6ad74fcb66",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@timestamp": "2020-02-28T20:14:29.591000",
+            "@timestamp_original": 1582920869591,
+            "benchmark": {
+                "active_device_pairs": "0:1",
+                "claimed_dev_pairs": [
+                    {
+                        "dev_pair": "0:1",
+                        "rx": 1,
+                        "tx": 0
+                    },
+                    {
+                        "dev_pair": "0:1",
+                        "rx": 0,
+                        "tx": 1
+                    }
+                ],
+                "device_pairs": "0:1",
+                "duplicate_packet_failure_mode": "quit",
+                "enable_flow_cache": true,
+                "enable_trex_profiler": true,
+                "latency_rate": 1000,
+                "loaded_traffic_profile": {
+                    "streams": [
+                        {
+                            "direction": "<-->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "protocol": false
+                            },
+                            "flow_offset": 0,
+                            "flows": 512,
+                            "frame_size": 40,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 0,
+                            "protocol": "UDP",
+                            "rate": 291666,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": null,
+                            "traffic_direction": "bidirectional"
+                        },
+                        {
+                            "direction": "<-->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "protocol": false
+                            },
+                            "flow_offset": 0,
+                            "flows": 512,
+                            "frame_size": 74,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 1,
+                            "protocol": "TCP",
+                            "rate": 291666,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": null,
+                            "traffic_direction": "bidirectional"
+                        },
+                        {
+                            "direction": "<-->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "protocol": true
+                            },
+                            "flow_offset": 0,
+                            "flows": 256,
+                            "frame_size": 576,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 2,
+                            "protocol": "UDP",
+                            "rate": 333333,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": null,
+                            "traffic_direction": "bidirectional"
+                        },
+                        {
+                            "direction": "<-->",
+                            "duration": null,
+                            "enabled": true,
+                            "flow_mods": {
+                                "ip": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "mac": {
+                                    "dst": false,
+                                    "src": false
+                                },
+                                "port": {
+                                    "dst": true,
+                                    "src": true
+                                },
+                                "protocol": true
+                            },
+                            "flow_offset": 0,
+                            "flows": 256,
+                            "frame_size": 1500,
+                            "frame_type": "generic",
+                            "latency": true,
+                            "latency_only": false,
+                            "offset": 0,
+                            "profile_id": 3,
+                            "protocol": "UDP",
+                            "rate": 83333,
+                            "repeat": false,
+                            "repeat_delay": null,
+                            "repeat_flows": true,
+                            "stream_id": false,
+                            "stream_types": [
+                                "measurement"
+                            ],
+                            "the_packet": null,
+                            "traffic_direction": "bidirectional"
+                        }
+                    ]
+                },
+                "loss_granularity": "direction",
+                "max_loss_pct": 0.002,
+                "max_port": 1,
+                "max_retries": 1,
+                "max_stddevpct": 100,
+                "measure_latency": 1,
+                "name": "trafficgen",
+                "negative_packet_loss_mode": "quit",
+                "null_stats": {
+                    "rx_active": false,
+                    "rx_l1_bps": 0,
+                    "rx_l2_bps": 0,
+                    "rx_latency_average": 0,
+                    "rx_latency_l1_bps": 0,
+                    "rx_latency_l2_bps": 0,
+                    "rx_latency_lost_packets": 0,
+                    "rx_latency_lost_packets_pct": 0,
+                    "rx_latency_lost_pps": 0,
+                    "rx_latency_maximum": 0,
+                    "rx_latency_packets": 0,
+                    "rx_latency_pps": 0,
+                    "rx_lost_packets": 0,
+                    "rx_lost_packets_pct": 0,
+                    "rx_lost_pps": 0,
+                    "rx_packets": 0,
+                    "rx_pps": 0,
+                    "tx_active": false,
+                    "tx_l1_bps": 0,
+                    "tx_l2_bps": 0,
+                    "tx_latency_l1_bps": 0,
+                    "tx_latency_l2_bps": 0,
+                    "tx_latency_packets": 0,
+                    "tx_latency_pps": 0,
+                    "tx_packets": 0,
+                    "tx_pps": 0,
+                    "tx_pps_target": 0
+                },
+                "output_dir": "./",
+                "port_primary_info_file": "binary-search.port-info.txt",
+                "port_secondary_info_file": "binary-search.port-info.extra.txt",
+                "primary_metric": "rx_mpps",
+                "process_all_profiler_data": true,
+                "random_seed": 0.551341523074583,
+                "rate": 762.5,
+                "rate_tolerance": 5,
+                "rate_tolerance_failure": "quit",
+                "rate_unit": "%",
+                "runtime": "30",
+                "runtime_tolerance": 5,
+                "search_granularity": 0.1,
+                "search_runtime": 30,
+                "teaching_measurement_interval": 10,
+                "teaching_measurement_packet_rate": 1000,
+                "teaching_warmup_packet_rate": 1000,
+                "test_dev_pairs": [
+                    {
+                        "dev_pair": "0:1",
+                        "direction": "->",
+                        "path": "0->1",
+                        "rx": "1",
+                        "tx": "0"
+                    },
+                    {
+                        "dev_pair": "0:1",
+                        "direction": "<-",
+                        "path": "0<-1",
+                        "rx": "0",
+                        "tx": "1"
+                    }
+                ],
+                "traffic_direction": "bidirectional",
+                "traffic_generator": "trex-txrx-profile",
+                "traffic_profile": "/opt/trafficgen/trex-profiles/workloads/5tuple-imix.json",
+                "trafficgen_uid": "trafficgen--traffic_generator:trex-txrx-profile-trial:16",
+                "trafficgen_uid_tmpl": "trafficgen--traffic_generator:%traffic_generator%-trial:%trial%",
+                "trex_profiler_interval": 3,
+                "trial": "16",
+                "trial_mode": "search",
+                "trial_primary_output_file": "binary-search.trial-016.txt",
+                "trial_profiler_file": "binary-search.trial-016.profiler.txt",
+                "trial_secondary_output_file": "binary-search.trial-016.extra.txt",
+                "uid": "benchmark_name:trafficgen-controller_host:ctlrA.example.com",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                "validation_runtime": 30,
+                "warmup_trial_runtime": 30
+            },
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA.example.com",
+                "date": "2020-02-28T20:06:42",
+                "end": "2020-02-28T20:15:23.463388",
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29",
+                "script": "trafficgen",
+                "start": "2020-02-28T20:04:29.505587",
+                "user": "janedoe@example.com"
+            },
+            "sample": {
+                "@idx": 0,
+                "category": "pgids",
+                "closest_sample": 0,
+                "description": "Minimum time in microseconds between packet transmission and reception",
+                "end": "2020-02-28T20:14:56.850000",
+                "field": "total_min",
+                "group": "latency",
+                "mean": 9,
+                "measurement_idx": 0,
+                "measurement_title": "Stream Latency - PGID 1063",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "pgid": "1063",
+                "skip_aggregate": 1,
+                "start": "2020-02-28T20:14:29.591000",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "category:pgids-pgid:1063-group:latency-field:total_min",
+                "uid_tmpl": "category:%category%-pgid:%pgid%-group:%group%-field:%field%"
+            }
+        },
+        "_type": "pbench-result-data-sample"
+    },
+    {
+        "_id": "17ca1a887de0b89f07dc489892c7d7e1",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "6061cf80069c0001c23c1a6ad74fcb66",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:29.591000",
+            "@timestamp_original": 1582920869591,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 0,
+                "value": 0
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Stream Latency - PGID 1063",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "category:pgids-pgid:1063-group:latency-field:total_min"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "292cd59edef5f2893f78bfa1d4e5ae7c",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "6061cf80069c0001c23c1a6ad74fcb66",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:32.620000",
+            "@timestamp_original": 1582920872620,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 1,
+                "value": 10
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Stream Latency - PGID 1063",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "category:pgids-pgid:1063-group:latency-field:total_min"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "c2bba7350d060f9230146e5b26ea2d0b",
+        "_index": "pbench-unittests.v3.result-data.2020-02-28",
+        "_op_type": "create",
+        "_parent": "6061cf80069c0001c23c1a6ad74fcb66",
+        "_source": {
+            "@timestamp": "2020-02-28T20:14:35.649000",
+            "@timestamp_original": 1582920875649,
+            "iteration": {
+                "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+                "number": 0
+            },
+            "result": {
+                "@idx": 2,
+                "value": 10
+            },
+            "run": {
+                "id": "b683a7a6756abc8f9bff4bddb5679d2c",
+                "name": "trafficgen_mock_2020.02.28T20.04.29"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Stream Latency - PGID 1063",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "category:pgids-pgid:1063-group:latency-field:total_min"
+            }
+        },
+        "_type": "pbench-result-data"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "d2c49996b225157276bdaee7eff21181",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-index",
+            "text": "pbench-index.run-1970-01-01T00:00:00-UTC - Indexed 2 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T19.49.39.tar.xz\n\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T20.04.29.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 348
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "a49255f14070b6824a0008c8b8f8fe2b",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "doctype": "start",
+            "name": "pbench-index-tool-data"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+len(actions) = 0
+[]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+len(actions) = 0
+[]
+Template:  pbench-unittests.v2.tool-data-iostat
+Template:  pbench-unittests.v2.tool-data-mpstat
+Template:  pbench-unittests.v2.tool-data-pidstat
+Template:  pbench-unittests.v2.tool-data-proc-interrupts
+Template:  pbench-unittests.v2.tool-data-proc-vmstat
+Template:  pbench-unittests.v2.tool-data-prometheus-metrics
+Template:  pbench-unittests.v2.tool-data-vmstat
+Template:  pbench-unittests.v3.result-data
+Template:  pbench-unittests.v3.run
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "d7078f55b41753ff6394750820facf74",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "3.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-index-tool-data",
+            "text": "pbench-index-tool-data.run-1970-01-01T00:00:00-UTC - Indexed 2 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T19.49.39.tar.xz\n\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T20.04.29.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 368
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-index (status=0)
++++ Running unit test audit
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "fb8eea157f633b56122a0db0334f1218",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished unit test audit (status=0)
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.21/var-www-html)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-7.21/pbench/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-7.21/pbench/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-7.21/pbench/public_html/users
+--- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.21/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.21/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.21/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.21/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.21/var-www-html-satellite)
+lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-7.21/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-7.21/pbench-satellite/public_html/results
+lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-7.21/pbench-satellite/public_html/static
+lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.21/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.21/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.21/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.21/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.21/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ pbench tree state (/var/tmp/pbench-test-server/test-7.21/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/ctlrA
+drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKUP-FAILED
+drwxrwxr-x          - archive/fs-version-001/ctlrA/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/ctlrA/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/ctlrA/INDEXED
+lrwxrwxrwx        116 archive/fs-version-001/ctlrA/INDEXED/trafficgen_mock_2020.02.28T19.49.39.tar.xz -> /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz
+lrwxrwxrwx        116 archive/fs-version-001/ctlrA/INDEXED/trafficgen_mock_2020.02.28T20.04.29.tar.xz -> /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/ctlrA/SYNCED
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-COPY-SOS
+lrwxrwxrwx        116 archive/fs-version-001/ctlrA/TO-COPY-SOS/trafficgen_mock_2020.02.28T19.49.39.tar.xz -> /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz
+lrwxrwxrwx        116 archive/fs-version-001/ctlrA/TO-COPY-SOS/trafficgen_mock_2020.02.28T20.04.29.tar.xz -> /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX-TOOL
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TODO
+drwxrwxr-x          - archive/fs-version-001/ctlrA/UNPACKED
+lrwxrwxrwx         45 archive/fs-version-001/ctlrA/UNPACKED/trafficgen_mock_2020.02.28T19.49.39.tar.xz -> ../trafficgen_mock_2020.02.28T19.49.39.tar.xz
+lrwxrwxrwx         45 archive/fs-version-001/ctlrA/UNPACKED/trafficgen_mock_2020.02.28T20.04.29.tar.xz -> ../trafficgen_mock_2020.02.28T20.04.29.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-UNPACK
+-rw-rw-r--      53736 archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz
+-rw-rw-r--         77 archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz.md5
+-rw-rw-r--     724228 archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz
+-rw-rw-r--         77 archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz.md5
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/ctlrA
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1
+-rw-r--r--      17545 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/result.json
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0
+-rwxr-xr-x        318 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/benchmark-sample.cmd
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116
+-rw-r--r--     716886 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.json
+-rw-r--r--       1639 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.port-info.extra.txt
+-rw-r--r--       3057 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.port-info.txt
+-rw-r--r--       5254 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-001.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-001.json-port-profiles.txt
+-rw-r--r--      25236 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-001.txt
+-rw-r--r--       5352 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-002.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-002.json-port-profiles.txt
+-rw-r--r--      25476 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-002.txt
+-rw-r--r--       5332 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-003.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-003.json-port-profiles.txt
+-rw-r--r--      25488 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-003.txt
+-rw-r--r--       5325 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-004.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-004.json-port-profiles.txt
+-rw-r--r--      25349 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-004.txt
+-rw-r--r--       5144 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-005.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-005.json-port-profiles.txt
+-rw-r--r--      25105 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-005.txt
+-rw-r--r--       5356 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-006.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-006.json-port-profiles.txt
+-rw-r--r--      25455 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-006.txt
+-rw-r--r--       5301 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-007.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-007.json-port-profiles.txt
+-rw-r--r--      25326 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-007.txt
+-rw-r--r--       5348 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-008.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-008.json-port-profiles.txt
+-rw-r--r--      25352 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-008.txt
+-rw-r--r--       5399 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-009.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-009.json-port-profiles.txt
+-rw-r--r--      25582 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-009.txt
+-rw-r--r--       5168 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-010.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-010.json-port-profiles.txt
+-rw-r--r--      25148 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-010.txt
+-rw-r--r--       5249 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-011.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-011.json-port-profiles.txt
+-rw-r--r--      25469 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-011.txt
+-rw-r--r--       5386 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-012.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-012.json-port-profiles.txt
+-rw-r--r--      25634 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-012.txt
+-rw-r--r--       5131 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-013.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-013.json-port-profiles.txt
+-rw-r--r--      25046 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-013.txt
+-rw-r--r--       5192 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-014.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-014.json-port-profiles.txt
+-rw-r--r--      25285 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-014.txt
+-rw-r--r--       5149 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-015.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-015.json-port-profiles.txt
+-rw-r--r--      25107 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-015.txt
+-rw-r--r--       5196 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-016.extra.txt
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-016.json-port-profiles.txt
+-rw-r--r--      25314 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-016.txt
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv
+-rw-r--r--        974 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/postprocess-output.txt
+-rw-r--r--        385 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/postprocess.cmd
+-rw-r--r--      11921 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/result.json
+-rw-r--r--        793 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/sample.json
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default
+-rw-r--r--          0 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/trafficgen-average.txt
+-rw-r--r--        468 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/trafficgen.html
+-rw-r--r--        160 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/iteration-list.txt
+-rw-r--r--        744 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/metadata.log
+-rw-r--r--        238 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/pbench-run-benchmark.cmd
+-rw-r--r--       1181 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/result.csv
+-rw-r--r--      10553 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/result.html
+-rw-r--r--      21029 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/result.json
+-rw-r--r--       5833 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39/result.txt
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1
+-rw-r--r--     868590 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/result.json
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0
+-rwxr-xr-x        318 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/benchmark-sample.cmd
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116
+-rw-r--r--    5297355 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.json
+-rw-r--r--       1639 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.port-info.extra.txt
+-rw-r--r--       3057 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.port-info.txt
+-rw-r--r--      24137 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-001.extra.txt
+-rw-r--r--     110676 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-001.json-port-profiles.txt
+-rw-r--r--      20356 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-001.profiler.txt.xz
+-rw-r--r--     117911 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-001.txt
+-rw-r--r--      24062 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-002.extra.txt
+-rw-r--r--     110676 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-002.json-port-profiles.txt
+-rw-r--r--      20276 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-002.profiler.txt.xz
+-rw-r--r--     117746 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-002.txt
+-rw-r--r--      24052 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-003.extra.txt
+-rw-r--r--     110680 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-003.json-port-profiles.txt
+-rw-r--r--      20096 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-003.profiler.txt.xz
+-rw-r--r--     117520 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-003.txt
+-rw-r--r--      23636 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-004.extra.txt
+-rw-r--r--     110680 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-004.json-port-profiles.txt
+-rw-r--r--      20008 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-004.profiler.txt.xz
+-rw-r--r--     116113 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-004.txt
+-rw-r--r--      23887 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-005.extra.txt
+-rw-r--r--     110692 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-005.json-port-profiles.txt
+-rw-r--r--      21248 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-005.profiler.txt.xz
+-rw-r--r--     117058 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-005.txt
+-rw-r--r--      23702 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-006.extra.txt
+-rw-r--r--     110692 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-006.json-port-profiles.txt
+-rw-r--r--      19900 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-006.profiler.txt.xz
+-rw-r--r--     116321 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-006.txt
+-rw-r--r--      25133 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-007.extra.txt
+-rw-r--r--     110696 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-007.json-port-profiles.txt
+-rw-r--r--      23112 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-007.profiler.txt.xz
+-rw-r--r--     121257 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-007.txt
+-rw-r--r--      24104 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-008.extra.txt
+-rw-r--r--     110696 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-008.json-port-profiles.txt
+-rw-r--r--      22600 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-008.profiler.txt.xz
+-rw-r--r--     117809 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-008.txt
+-rw-r--r--      24046 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-009.extra.txt
+-rw-r--r--     110692 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-009.json-port-profiles.txt
+-rw-r--r--      20504 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-009.profiler.txt.xz
+-rw-r--r--     117526 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-009.txt
+-rw-r--r--      23777 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-010.extra.txt
+-rw-r--r--     110692 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-010.json-port-profiles.txt
+-rw-r--r--      21120 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-010.profiler.txt.xz
+-rw-r--r--     116618 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-010.txt
+-rw-r--r--      23595 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-011.extra.txt
+-rw-r--r--     110696 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-011.json-port-profiles.txt
+-rw-r--r--      19860 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-011.profiler.txt.xz
+-rw-r--r--     115837 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-011.txt
+-rw-r--r--      24208 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-012.extra.txt
+-rw-r--r--     110704 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-012.json-port-profiles.txt
+-rw-r--r--      22896 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-012.profiler.txt.xz
+-rw-r--r--     118133 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-012.txt
+-rw-r--r--      23949 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-013.extra.txt
+-rw-r--r--     110712 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-013.json-port-profiles.txt
+-rw-r--r--      23156 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-013.profiler.txt.xz
+-rw-r--r--     117155 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-013.txt
+-rw-r--r--      23613 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-014.extra.txt
+-rw-r--r--     110712 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-014.json-port-profiles.txt
+-rw-r--r--      23108 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-014.profiler.txt.xz
+-rw-r--r--     115917 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-014.txt
+-rw-r--r--      23941 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-015.extra.txt
+-rw-r--r--     110724 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-015.json-port-profiles.txt
+-rw-r--r--      23036 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-015.profiler.txt.xz
+-rw-r--r--     117146 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-015.txt
+-rw-r--r--      23674 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-016.extra.txt
+-rw-r--r--     110724 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-016.json-port-profiles.txt
+-rw-r--r--      23320 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-016.profiler.txt.xz
+-rw-r--r--     116219 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116/binary-search.trial-016.txt
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv
+-rw-r--r--        523 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Global BPS.csv
+-rw-r--r--        584 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Global CPU Utilization.csv
+-rw-r--r--        403 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Global PPS.csv
+-rw-r--r--        368 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Global Per Core Bandwidth.csv
+-rw-r--r--        287 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Global Queue Full.csv
+-rw-r--r--        803 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Interface BPS - Port 0.csv
+-rw-r--r--        803 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Interface BPS - Port 1.csv
+-rw-r--r--        819 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Interface BPS - Port total.csv
+-rw-r--r--        573 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Interface PPS - Port 0.csv
+-rw-r--r--        573 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Interface PPS - Port 1.csv
+-rw-r--r--        582 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Interface PPS - Port total.csv
+-rw-r--r--        470 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Interface Utilization - Port 0.csv
+-rw-r--r--        475 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Interface Utilization - Port 1.csv
+-rw-r--r--        492 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Interface Utilization - Port total.csv
+-rw-r--r--        331 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Profiler data sample collection latency.csv
+-rw-r--r--        542 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1063.csv
+-rw-r--r--        543 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1064.csv
+-rw-r--r--        543 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1065.csv
+-rw-r--r--        543 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1066.csv
+-rw-r--r--        541 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1067.csv
+-rw-r--r--        543 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1068.csv
+-rw-r--r--        543 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1190.csv
+-rw-r--r--        543 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1191.csv
+-rw-r--r--        542 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1192.csv
+-rw-r--r--        542 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1193.csv
+-rw-r--r--        540 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1194.csv
+-rw-r--r--        542 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency - PGID 1195.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1063.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1064.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1065.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1066.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1067.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1068.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1190.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1191.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1192.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1193.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1194.csv
+-rw-r--r--        534 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream Latency Errors - PGID 1195.csv
+-rw-r--r--       1091 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1000.csv
+-rw-r--r--       1089 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1001.csv
+-rw-r--r--       1081 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1002.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1003.csv
+-rw-r--r--       1089 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1004.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1005.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1063.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1064.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1065.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1066.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1067.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1068.csv
+-rw-r--r--       1081 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1127.csv
+-rw-r--r--       1081 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1128.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1129.csv
+-rw-r--r--       1085 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1130.csv
+-rw-r--r--       1087 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1131.csv
+-rw-r--r--       1089 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1132.csv
+-rw-r--r--       1083 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1190.csv
+-rw-r--r--       1083 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1191.csv
+-rw-r--r--       1083 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1192.csv
+-rw-r--r--       1083 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1193.csv
+-rw-r--r--       1083 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1194.csv
+-rw-r--r--       1083 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - PGID 1195.csv
+-rw-r--r--       3317 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - Port 0 RX.csv
+-rw-r--r--       3323 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - Port 0 TX.csv
+-rw-r--r--       3320 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - Port 1 RX.csv
+-rw-r--r--       3307 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - Port 1 TX.csv
+-rw-r--r--       5020 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - Port total RX.csv
+-rw-r--r--       5013 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv/trafficgen_Stream PPS - Port total TX.csv
+-rw-r--r--    5515203 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/postprocess-output.txt
+-rw-r--r--        385 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/postprocess.cmd
+-rw-r--r--     672650 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/result.json
+-rw-r--r--        988 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/sample.json
+drwxr-xr-x          - public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default
+-rw-r--r--      35471 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/trafficgen-average.txt
+-rw-r--r--      17362 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/trafficgen.html
+-rw-r--r--        258 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/iteration-list.txt
+-rw-r--r--        842 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/metadata.log
+-rw-r--r--        335 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/pbench-run-benchmark.cmd
+-rw-r--r--       1000 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/pbench.log
+-rw-r--r--      36234 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/result.csv
+-rw-r--r--     174497 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/result.html
+-rw-r--r--    1024252 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/result.json
+-rw-r--r--     127075 public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29/result.txt
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/results/ctlrA
+drwxrwxr-x          - public_html/results/ctlrA/prb-trafficgen-testing
+lrwxrwxrwx        107 public_html/results/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T19.49.39 -> /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39
+lrwxrwxrwx        107 public_html/results/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T20.04.29 -> /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+drwxrwxr-x          - public_html/users/janedoe@example.com
+drwxrwxr-x          - public_html/users/janedoe@example.com/ctlrA
+drwxrwxr-x          - public_html/users/janedoe@example.com/ctlrA/prb-trafficgen-testing
+lrwxrwxrwx        107 public_html/users/janedoe@example.com/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T19.49.39 -> /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39
+lrwxrwxrwx        107 public_html/users/janedoe@example.com/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T20.04.29 -> /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-7.21/pbench-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--       5085 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       6177 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-unpack-tarballs
+-rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+-rw-rw-r--       1716 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-7.21/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.21/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
++++ pbench log file contents
+++++ pbench-local/logs
++++++ pbench-audit-server/pbench-audit-server.error
+----- pbench-audit-server/pbench-audit-server.error
++++++ pbench-audit-server/pbench-audit-server.log
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 2 tar balls
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed.
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [0 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed.
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [0 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: indexed 2 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index-tool-data/pbench-index-tool-data.log
++++++ pbench-index/pbench-index.log
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 2 tar balls
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
+1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed.
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [0 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [7 table-of-contents documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [0 result documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 8, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed.
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [0 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [7 table-of-contents documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [0 result documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 4606, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
+1970-01-01T00:00:00.000000 WARNING pbench-index.indexer dump_opctx -- ** Errors encountered while indexing: [{"counters": {"sample_missing_timeseries": 27}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz"}, {"counters": {"sample_missing_timeseries": 27}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz"}]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: indexed 2 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index/pbench-index.log
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
+run-1970-01-01T00:00:00-UTC
+ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/results/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T20.04.29
+ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/users/janedoe@example.com/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T20.04.29
+run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29: success - elapsed time (secs): 0 - size (bytes): 724228
+ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/results/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T19.49.39
+ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/users/janedoe@example.com/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T19.49.39
+run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39: success - elapsed time (secs): 0 - size (bytes): 53736
+run-1970-01-01T00:00:00-UTC: Processed 2 tarballs
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
+---- pbench-local/logs
+++++ pbench-satellite-local/logs
+---- pbench-satellite-local/logs
+--- pbench log file contents
