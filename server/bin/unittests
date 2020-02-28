@@ -651,6 +651,7 @@ declare -A cmds=(
 
     # Test run-benchmark data.
     [test-7.20]="_run_indexing"
+    [test-7.21]="_run_indexing"
 
     # activation test
     [test-8]="_run_activate"
