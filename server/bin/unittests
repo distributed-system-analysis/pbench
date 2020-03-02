@@ -41,7 +41,7 @@ function _install_venv {
     pip3 install -U setuptools pip
     pip3 install elasticsearch sh boto3
     pip3 list 
-    python --version
+    pushd $(dirname $(dirname $_tdir)) && python setup.py develop && popd
 }
 
 

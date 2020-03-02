@@ -70,6 +70,7 @@ function _install_venv {
     pip3 install -U setuptools pip
     pip3 list
     python --version
+    pushd $(dirname $(dirname $_tdir)) && python setup.py develop && popd
 }
 
 function remove_path {
