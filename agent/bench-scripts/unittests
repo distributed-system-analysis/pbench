@@ -1,4 +1,5 @@
 #!/bin/bash
+
 export LANG=C
 export LC_ALL=C
 export _tdir=$(dirname $(readlink -f ${0}))
@@ -20,6 +21,7 @@ export _testlog=${_testroot}/test-execution.log
 # This directory location is equivalent to the $pbench_run (or
 # /var/lib/pbench-agent).
 export _testdir=${_testroot}/pbench-agent
+export _testvenv=${_testroot}/venv
 
 # Copy bench-scripts execution environment to _testroot
 export _testopt=${_testroot}/opt/pbench-agent
@@ -56,6 +58,20 @@ if [[ ${res} -ne 0 ]]; then
     exit 1
 fi
 
+function _install_venv {
+    # This is a no-op until the $PYTHONPATH is removed
+    echo "Installing virtualenv"
+    if ! [ -x "$(command -v virtualenv)" ]; then
+        echo "Virtualenv is not installed"
+        exit 1
+    fi
+    virtualenv ${_testvenv}
+    source ${_testvenv}/bin/activate
+    pip3 install -U setuptools pip
+    pip3 list
+    python --version
+}
+
 function remove_path {
     # PATH (${2}) => /bin:/opt/a dir/bin:/sbin
     WORK=:${2}:
@@ -74,6 +90,8 @@ PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 # Allows us to intercept scp, ssh, rsync, etc.
 export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/bench-scripts:${PATH}
 export PYTHONPATH=${_testopt}/common/lib:${PYTHONPATH}
+
+_install_venv
 
 # Fixed timestamp output
 export _PBENCH_BENCH_TESTS=1

@@ -15,12 +15,27 @@ if [[ ! -z "$1" ]]; then
 fi
 
 export _testroot=/var/tmp/pbench-test-tools-postprocess
+export _testvenv=${_testroot}/venv
 mkdir -p ${_testroot}
 if [ $? -ne 0 ]; then
     echo "ERROR - unable to create ${_testroot} directory" >&2
     exit 1
 fi
 rm -rf ${_testroot}/*
+
+function _install_venv {
+    # This is a no-op until the $PYTHONPATH is removed
+    echo "Installing virtualenv"
+    if ! [ -x "$(command -v virtualenv)" ]; then
+        echo "Virtualenv is not installed"
+        exit 1
+    fi
+    virtualenv ${_testvenv}
+    source ${_testvenv}/bin/activate
+    pip3 install -U setuptools pip
+    pip3 list
+    python --version
+}
 
 function remove_path {
     # PATH ($2) => /bin:/opt/a dir/bin:/sbin
@@ -320,6 +335,8 @@ function testpidstat {
 }
 
 res=0
+
+_install_venv
 
 for i in $(ls -1 samples/) ; do
     if [[ ! -z "$testname" ]]; then
