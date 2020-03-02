@@ -39,7 +39,6 @@ function _install_venv {
     virtualenv  ${_testvenv}
     source ${_testvenv}/bin/activate
     pip3 install -U setuptools pip
-    pip3 install elasticsearch sh boto3
     pip3 list 
     pushd $(dirname $(dirname $_tdir)) && python setup.py develop && popd
 }
