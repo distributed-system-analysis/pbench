@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
 # This is a script to run the uperf benchmark
 # Author: Andrew Theurer
@@ -124,9 +124,9 @@ function gen_xml {
 
 	echo "<?xml version=\"1.0\"?>"
 	echo "<profile name=\"$proto-$test_type-${size}B-${nthr}i\">"
-	echo "  <group nthreads=\"$nthr\">"
 	case $test_type in
-		rr)
+	rr)
+		echo "  <group nthreads=\"$nthr\">"
 		echo "    <transaction iterations=\"1\">"
 		echo "      <flowop type=\"connect\" options=\"remotehost=$h protocol=$proto\"/>"
 		echo "    </transaction>"
@@ -136,8 +136,10 @@ function gen_xml {
 		echo "    <transaction iterations=\"1\">"
 		echo "      <flowop type=\"disconnect\" />"
 		echo "    </transaction>"
+		echo "  </group>"
 		;;
-		stream|bidirec)
+	stream|bidirec)
+		echo "  <group nthreads=\"$nthr\">"
 		echo "    <transaction iterations=\"1\">"
 		echo "      <flowop type=\"connect\" options=\"remotehost=$h protocol=$proto\"/>"
 		echo "    </transaction>"
@@ -147,8 +149,10 @@ function gen_xml {
 		echo "    <transaction iterations=\"1\">"
 		echo "      <flowop type=\"disconnect\" />"
 		echo "    </transaction>"
-		;;
-		maerts|bidirec)
+		echo "  </group>"
+		;;&
+	maerts|bidirec)
+		echo "  <group nthreads=\"$nthr\">"
 		echo "    <transaction iterations=\"1\">"
 		echo "      <flowop type=\"accept\" options=\"remotehost=$h protocol=$proto\"/>"
 		echo "    </transaction>"
@@ -158,9 +162,9 @@ function gen_xml {
 		echo "    <transaction iterations=\"1\">"
 		echo "      <flowop type=\"disconnect\" />"
 		echo "    </transaction>"
+		echo "  </group>"
 		;;
 	esac
-	echo "  </group>"
 	echo "</profile>"
 }
 
