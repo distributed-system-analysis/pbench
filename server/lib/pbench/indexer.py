@@ -911,7 +911,7 @@ class ResultData(PbenchData):
     # Each "result type" is a dictionary containing one or more results with
     # the "title" of each result being the "key" in the dictionary, and its
     # value an array of result data.  For example, the following are typical
-    # contents one might see of fio, trafficgen, and uperf data:
+    # contents one might see of fio, linpack, trafficgen, and uperf data:
     #
     #   [ # fio
     #     {
@@ -971,7 +971,6 @@ class ResultData(PbenchData):
     #       }
     #     }
     #   ]
-    _benchmarks = set(['fio', 'linpack', 'trafficgen', 'uperf', 'user-benchmark'])
 
     def _make_source_json(self):
         """Generate source documents for all result.json files we need to
@@ -1124,11 +1123,6 @@ class ResultData(PbenchData):
             self.logger.warning("result-data-indexing: bad result data in JSON"
                     " file, {}: missing 'benchmark_name' field", result_json)
             self.counters['bad_result_data_in_json_file_missing_bm_name'] += 1
-            return
-        # Skip any results that we don't support.
-        if benchmark not in self._benchmarks:
-            self.logger.warning("result-data-indexing: don't support indexing"
-                    " data from {} benchmarks", benchmark)
             return
 
         # Rename the benchmark_name field to just 'name'.
