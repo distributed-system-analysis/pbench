@@ -656,6 +656,9 @@ declare -A cmds=(
     # Test run-benchmark linpack data.
     [test-7.22]="_run_indexing"
 
+    # Test handling of non-uniform timestamps (strings and ints)
+    [test-7.23]="_run_indexing"
+
     # activation test
     [test-8]="_run_activate"
 
