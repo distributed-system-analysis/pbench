@@ -91,6 +91,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--        106 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
+-rw-rw-r--          0 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine.bad
@@ -146,6 +147,8 @@ drwxrwxr-x          - tmp
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 Failed: /var/tmp/pbench-test-server/test-13/pbench-local/quarantine does not exist, or is not a directory
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
++++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
