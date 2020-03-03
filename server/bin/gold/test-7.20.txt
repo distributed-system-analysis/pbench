@@ -659,7 +659,7 @@ len(actions) = 30
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_id": "7b8f48658abfa6e71e4b862678bd8406",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
         "_source": {
@@ -714,7 +714,7 @@ len(actions) = 30
                 "closest_sample": 2,
                 "description": "Average completion latency per I/O operation",
                 "end": "2020-02-27T22:26:14.062000",
-                "mean": 38340,
+                "mean": 38340.0,
                 "measurement_idx": 0,
                 "measurement_title": "clat",
                 "measurement_type": "latency",
@@ -730,10 +730,10 @@ len(actions) = 30
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "644d178acc42bbb035f0a519ab32a075",
+        "_id": "916b7bfebae1d3780f2ebdcc7b9b1bcb",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:49.572000",
             "@timestamp_original": 1582841809572,
@@ -761,10 +761,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "bf2ab16667609837b08d27e899e6c7a0",
+        "_id": "eef1e00c4505ff0cf225a94bda980d9a",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:50.572000",
             "@timestamp_original": 1582841810572,
@@ -792,10 +792,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "9eb6eaa46c7c6123673cefc6652b7c35",
+        "_id": "13b1d52c0479b187287b3ff9b4f528d8",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:51.572000",
             "@timestamp_original": 1582841811572,
@@ -823,10 +823,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "f38a0505bb95f47e0e5b35d342e9617d",
+        "_id": "ef9520872c292e08189bbac8e7bb3f49",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:52.572000",
             "@timestamp_original": 1582841812572,
@@ -854,10 +854,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "02e3a175adbd4a3858e52045c1aca85e",
+        "_id": "0bb7cc9291253b7f011a8aeff958edec",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:53.572000",
             "@timestamp_original": 1582841813572,
@@ -885,10 +885,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "b34c72e137d5d7e96c7def85c74527ad",
+        "_id": "ea366ed1ef6562ce96ef38305687ec37",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:54.572000",
             "@timestamp_original": 1582841814572,
@@ -916,10 +916,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "3d887d405c7b0c41c3511138d6915a9e",
+        "_id": "68cc3fbccd51da087b6b95782b8567ae",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:55.572000",
             "@timestamp_original": 1582841815572,
@@ -947,10 +947,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "388a87fe6acfe88f92ee2636c9abdec7",
+        "_id": "aeabcb7f1217494779682c98e1effb1f",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:56.572000",
             "@timestamp_original": 1582841816572,
@@ -978,10 +978,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "c80d31b6d30b1df8877d84853727367f",
+        "_id": "37e0c93a6c915433f61d24bf4a9e2d63",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:57.572000",
             "@timestamp_original": 1582841817572,
@@ -1009,10 +1009,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "ebe3e5f39907ae9c7de93e786e59f4f7",
+        "_id": "00636bd938034a60cb4db46c0f983bbd",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:58.572000",
             "@timestamp_original": 1582841818572,
@@ -1040,10 +1040,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "6fc01b31e88088b497a2eb27291352bf",
+        "_id": "a6515eef11f803f4574caf94ae6ff29c",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:16:59.572000",
             "@timestamp_original": 1582841819572,
@@ -1071,10 +1071,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "5e8a5dfcf6ae10d8f6d691ea7a684b76",
+        "_id": "4bb6bf694661a5a3263b6be08e6fa7c3",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:17:00.572000",
             "@timestamp_original": 1582841820572,
@@ -1102,10 +1102,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "567c769229308c9bfd1c68f04bac3543",
+        "_id": "fae9b1939b5cc137ee4a71c7a4dc5470",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:17:01.572000",
             "@timestamp_original": 1582841821572,
@@ -1133,10 +1133,10 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "c19ae8bec531f7e5a94410bbb176e0b9",
+        "_id": "0d02b7268e697466ebeb4e9ab79b9c8e",
         "_index": "pbench-unittests.v3.result-data.2020-02-27",
         "_op_type": "create",
-        "_parent": "87bd9da1f4dc1fa531ef97c9a8729afb",
+        "_parent": "7b8f48658abfa6e71e4b862678bd8406",
         "_source": {
             "@timestamp": "2020-02-27T22:17:02.572000",
             "@timestamp_original": 1582841822572,

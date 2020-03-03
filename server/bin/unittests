@@ -649,9 +649,12 @@ declare -A cmds=(
     # Test trafficgen data.
     [test-7.19]="_run_indexing"
 
-    # Test run-benchmark data.
+    # Test run-benchmark fio data.
     [test-7.20]="_run_indexing"
+    # Test run-benchmark trafficgen data.
     [test-7.21]="_run_indexing"
+    # Test run-benchmark linpack data.
+    [test-7.22]="_run_indexing"
 
     # activation test
     [test-8]="_run_activate"

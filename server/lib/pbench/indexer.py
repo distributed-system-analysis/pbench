@@ -929,6 +929,20 @@ class ResultData(PbenchData):
     #     }
     #   ]
     #
+    #   [ # linpack
+    #     {
+    #       "iteration_data": {
+    #         "parameters": {...},
+    #         "latency": {
+    #         },
+    #         "resource": {
+    #         },
+    #         "throughput": {
+    #         }
+    #       }
+    #     }
+    #   ]
+    #
     #   [ # trafficgen
     #     {
     #       "iteration_data": {
@@ -957,7 +971,7 @@ class ResultData(PbenchData):
     #       }
     #     }
     #   ]
-    _benchmarks = set(['fio', 'trafficgen', 'uperf', 'user-benchmark'])
+    _benchmarks = set(['fio', 'linpack', 'trafficgen', 'uperf', 'user-benchmark'])
 
     def _make_source_json(self):
         """Generate source documents for all result.json files we need to
@@ -1113,6 +1127,8 @@ class ResultData(PbenchData):
             return
         # Skip any results that we don't support.
         if benchmark not in self._benchmarks:
+            self.logger.warning("result-data-indexing: don't support indexing"
+                    " data from {} benchmarks", benchmark)
             return
 
         # Rename the benchmark_name field to just 'name'.
@@ -1290,6 +1306,19 @@ class ResultData(PbenchData):
         # and replace the template with the result.
         result_el['uid_tmpl'] = result_el['uid']
         result_el['uid'] = ResultData.expand_template(result_el['uid_tmpl'], result_el)
+        try:
+            mean_val = float(result_el['mean'])
+        except KeyError:
+            # We don't have a mean field, so just ignore.
+            pass
+        except ValueError:
+            # The mean field is not a proper float value, so move it to the
+            # side to avoid indexing errors.
+            result_el['mean_raw'] = str(result_el['mean'])
+            del result_el['mean']
+        else:
+            # Update the mean field to ensure it is a float value.
+            result_el['mean'] = mean_val
         return result_el, samples
 
     @staticmethod
@@ -1318,32 +1347,6 @@ class ResultData(PbenchData):
                             result_type, title, result_el_idx, result_el)
                     sample_idx = 0
                     for sample in samples:
-                        # Reach into the timeseries data to get the first
-                        # entry as the start time of the sample, and the
-                        # last entry as the ending timestamp of the
-                        # sample.
-                        try:
-                            tseries = sample['timeseries']
-                        except KeyError:
-                            obj.counters['sample_missing_timeseries'] += 1
-                            continue
-                        else:
-                            if not tseries:
-                                obj.counters['sample_empty_timeseries'] += 1
-                                continue
-                        start = tseries[0]
-                        end = tseries[-1]
-                        try:
-                            start_ts = cvt_ts(start['date'])
-                            end_ts = cvt_ts(end['date'])
-                        except KeyError:
-                            obj.counters['timeseries_missing_date'] += 1
-                            continue
-                        except BadDate:
-                            # Ignore entire sample if start/end timestamps
-                            # are bad.  Already counted.
-                            continue
-                        del sample['timeseries']
                         # Remember the order in which samples were
                         # processed (zero based).
                         sample_md['@idx'] = sample_idx
@@ -1358,13 +1361,51 @@ class ResultData(PbenchData):
                                 ( 'measurement_idx', sample_md['measurement_idx'] ),
                                 ( 'measurement_title', sample_md['measurement_title'] )
                             ])
-                        sample_md['start'] = start_ts
-                        sample_md['end'] = end_ts
+                        # Reach into the timeseries data to get the first
+                        # entry as the start time of the sample, and the
+                        # last entry as the ending timestamp of the
+                        # sample.
+                        try:
+                            tseries = sample['timeseries']
+                        except KeyError:
+                            obj.counters['sample_missing_timeseries'] += 1
+                            tseries = None
+                        else:
+                            del sample['timeseries']
+                            if not tseries:
+                                obj.counters['sample_empty_timeseries'] += 1
+                        if tseries:
+                            start = tseries[0]
+                            end = tseries[-1]
+                            try:
+                                start_ts = cvt_ts(start['date'])
+                                end_ts = cvt_ts(end['date'])
+                            except KeyError:
+                                obj.counters['timeseries_missing_date'] += 1
+                                # FIXME: Hack
+                                start_ts = obj.ptb.start_run
+                                tseries = start = end = None
+                            except BadDate:
+                                # Ignore entire sample if start/end timestamps
+                                # are bad.  Already counted.
+                                obj.counters['timeseries_bad_dates'] += 1
+                                # FIXME: Hack
+                                start_ts = obj.ptb.start_run
+                                tseries = start = end = None
+                            else:
+                                sample_md['start'] = start_ts
+                                sample_md['end'] = end_ts
+                        else:
+                            # FIXME: Hack
+                            start_ts = obj.ptb.start_run
+                            start = end = None
                         # Now we can emit the sample document knowing the
                         # ID of its iteration parent document.
                         source = _dict_const([
+                            # We endow the source document for the sample with
+                            # the timestamp of the first element of all the
+                            # recorded data that is present.
                             ( '@timestamp', start_ts ),
-                            ( '@timestamp_original', start['date'] ),
                             # Sample documents inherit the run and
                             # iteration data of its parent.
                             ( 'run', iteration['run'] ),
@@ -1372,8 +1413,15 @@ class ResultData(PbenchData):
                             ( 'benchmark', iteration['benchmark'] ),
                             ( 'sample', sample_md )
                         ])
+                        if start:
+                            # Only record the original timestamp if we have
+                            # it.
+                            source['@timestamp_original'] = start['date']
                         sample_id = PbenchData.make_source_id(source)
                         yield source, None, 'sample'
+                        if not tseries:
+                            # No timeseries documents to emit.
+                            continue
                         # Now we can yield each entry of the timeseries
                         # data for this sample.
                         prev_ts = None
