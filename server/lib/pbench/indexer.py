@@ -1424,15 +1424,20 @@ class ResultData(PbenchData):
                             continue
                         # Now we can yield each entry of the timeseries
                         # data for this sample.
+                        prev_orig_ts = None
                         prev_ts = None
                         value_idx = 0
                         for res in tseries:
                             orig_ts = res['date']
                             del res['date']
-                            if prev_ts is not None:
-                                assert prev_ts <= orig_ts, "prev_ts %r > orig_ts %r" % (prev_ts, orig_ts)
                             ts = cvt_ts(orig_ts)
-                            prev_ts = orig_ts
+                            if prev_ts is not None:
+                                assert prev_ts <= ts, (
+                                        "prev_ts (%r, %r) > ts (%r, %r)" % (
+                                                prev_ts, prev_orig_ts, ts,
+                                                orig_ts))
+                            prev_orig_ts = orig_ts
+                            prev_ts = ts
                             # Now we can emit the actual timeseries value
                             # as a small record not having any sample or
                             # iteration data, found only by its parent
@@ -2137,7 +2142,8 @@ class ToolData(PbenchData):
                 yield idx, rows
                 idx += 1
         self.logger.info("tool-data-indexing: tool {}, gen unified begin for {}", self.toolname, self.basepath)
-        prev_ts = None
+        prev_first = None
+        prev_ts_val = None
         for idx, rows in rows_generator():
             # Verify timestamps are all the same for this row.
             tstamp = None
@@ -2180,10 +2186,13 @@ class ToolData(PbenchData):
             # The timestamp is taken from the "first" timestamp, converted
             # to a floating point value in seconds, and then formatted as a
             # string.
-            if prev_ts is not None:
-                assert prev_ts <= first, "prev_ts %r > first %r" % (prev_ts, first)
             ts_val = self.mk_abs_timestamp_millis(first)
-            prev_ts = first
+            if prev_ts_val is not None:
+                assert prev_ts_val <= ts_val, (
+                        "prev_ts_val (%r, %r) > first (%r, %r)" % (
+                                prev_ts_val, prev_first, ts_val, first))
+            prev_first = first
+            prev_ts_val = ts_val
             datum = _dict_const()
             for identifier in identifiers.keys():
                 datum[identifier] = _dict_const([
@@ -2271,17 +2280,21 @@ class ToolData(PbenchData):
             except IndexError:
                 # This handler does not have an id, skip this file.
                 break
-            prev_ts = None
+            prev_val = None
+            prev_ts_val = None
             idx = 0
             self.logger.info("tool-data-indexing: tool {}, individual start {}", self.toolname, csv['path'])
             for row in reader:
                 for col,val in enumerate(row):
                     # The timestamp column is index zero.
                     if col == 0:
-                        if prev_ts is not None:
-                            assert prev_ts <= val, "prev_ts %r > val %r" % (prev_ts, val)
                         ts_val = self.mk_abs_timestamp_millis(val)
-                        prev_ts = val
+                        if prev_ts_val is not None:
+                            assert prev_ts_val <= ts_val, (
+                                    "prev_ts_val (%r, %r) > ts_val (%r, %r)" % (
+                                            prev_ts_val, prev_val, ts_val, val))
+                        prev_val = val
+                        prev_ts_val = ts_val
                         datum = _dict_const()
                         datum['@timestamp'] = ts_val
                         datum['@timestamp_original'] = val
