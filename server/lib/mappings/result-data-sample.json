@@ -119,11 +119,17 @@
                     "mean": {
                         "type": "double"
                     },
+                    "mean_raw": {
+                        "type": "string"
+                    },
                     "pgid": {
                         "type": "string",
                         "index": "not_analyzed"
                     },
                     "role": {
+                        "type": "string"
+                    },
+                    "rx_port": {
                         "type": "string"
                     },
                     "server_hostname": {
@@ -144,6 +150,9 @@
                     },
                     "stddevpct": {
                         "type": "double"
+                    },
+                    "tx_port": {
+                        "type": "string"
                     },
                     "uid": {
                         "type": "string",
@@ -168,6 +177,12 @@
                         "type": "string"
                     },
                     "active_device_pairs": {
+                        "type": "string"
+                    },
+                    "alignment_values": {
+                        "type": "string"
+                    },
+                    "binary": {
                         "type": "string"
                     },
                     "bs": {
@@ -203,6 +218,9 @@
                     "direct": {
                         "type": "string"
                     },
+                    "disable_upward_search": {
+                        "type": "boolean"
+                    },
                     "duplicate_packet_failure_mode": {
                         "type": "string",
                         "index": "not_analyzed"
@@ -215,6 +233,9 @@
                     },
                     "filename": {
                         "type": "string"
+                    },
+                    "frame_size": {
+                        "type": "long"
                     },
                     "instances": {
                         "type": "long"
@@ -233,8 +254,14 @@
                         "type": "string",
                         "index": "not_analyzed"
                     },
+                    "kmp_affinity": {
+                        "type": "string"
+                    },
                     "latency_rate": {
                         "type": "long"
+                    },
+                    "leading_dimensions": {
+                        "type": "string"
                     },
                     "loaded_traffic_profile": {
                         "properties": {
@@ -465,6 +492,12 @@
                             }
                         }
                     },
+                    "num_flows": {
+                        "type": "long"
+                    },
+                    "numactl_cmd": {
+                        "type": "string"
+                    },
                     "numjobs": {
                         "type": "string",
                         "index": "not_analyzed"
@@ -472,6 +505,9 @@
                     "output_dir": {
                         "type": "string",
                         "analyzer": "path_analyzer"
+                    },
+                    "packet_protocol": {
+                        "type": "string"
                     },
                     "percentage_random": {
                         "type": "string"
@@ -485,6 +521,9 @@
                     "primary_metric": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "problem_sizes": {
+                        "type": "string"
                     },
                     "process_all_profiler_data": {
                         "type": "boolean"
@@ -547,6 +586,9 @@
                     "sniff_runtime": {
                         "type": "long"
                     },
+                    "stream_mode": {
+                        "type": "string"
+                    },
                     "sync": {
                         "type": "string",
                         "index": "not_analyzed"
@@ -583,6 +625,9 @@
                     "test_type": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "threads": {
+                        "type": "string"
                     },
                     "time_based": {
                         "type": "string"
@@ -633,6 +678,21 @@
                     "uid_tmpl": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "use_dst_ip_flows": {
+                        "type": "long"
+                    },
+                    "use_dst_mac_flows": {
+                        "type": "long"
+                    },
+                    "use_omp": {
+                        "type": "string"
+                    },
+                    "use_src_ip_flows": {
+                        "type": "long"
+                    },
+                    "use_src_mac_flows": {
+                        "type": "long"
                     },
                     "validation_runtime": {
                         "type": "long"
