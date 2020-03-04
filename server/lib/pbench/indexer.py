@@ -3648,15 +3648,18 @@ class PbenchTarBall(object):
                 if path == "/" or path == "":
                     dpath = "/"
                     name = None
+                    parent = "/"
                     path_els = []
                 else:
                     dpath = path[:-1] if path.endswith(os.path.sep) else path
                     name = os.path.basename(dpath)
+                    parent = os.path.dirname(dpath)
                     path_els = dpath.split(os.path.sep)[1:-1]
                 if dpath in toc_dirs:
                     raise Exception("Logic bomb! Found a directory entry that"
                             " already exists!")
                 toc_dirs[dpath] = _dict_const(
+                        parent=parent,
                         directory=dpath,
                         mtime=datetime.utcfromtimestamp(float(m.mtime)).isoformat(),
                         mode=oct(m.mode)

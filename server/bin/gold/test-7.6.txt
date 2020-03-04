@@ -145,7 +145,8 @@ len(actions) = 5
                 }
             ],
             "mode": "0o775",
-            "mtime": "2019-02-20T05:52:30"
+            "mtime": "2019-02-20T05:52:30",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -159,7 +160,8 @@ len(actions) = 5
             "directory": "/sysinfo",
             "mode": "0o775",
             "mtime": "2015-09-21T18:57:56",
-            "name": "sysinfo"
+            "name": "sysinfo",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -176,7 +178,8 @@ len(actions) = 5
             "directory": "/sysinfo/foo",
             "mode": "0o775",
             "mtime": "2015-09-21T18:58:00",
-            "name": "foo"
+            "name": "foo",
+            "parent": "/sysinfo"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -210,7 +213,8 @@ len(actions) = 5
             ],
             "mode": "0o775",
             "mtime": "2015-09-21T20:27:20",
-            "name": "end"
+            "name": "end",
+            "parent": "/sysinfo/foo"
         },
         "_type": "pbench-run-toc-entry"
     }

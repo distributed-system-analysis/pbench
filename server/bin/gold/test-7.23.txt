@@ -193,7 +193,8 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2020-03-03T12:22:47"
+            "mtime": "2020-03-03T12:22:47",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -230,7 +231,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-03-03T12:21:37",
-            "name": "1-read-4KiB"
+            "name": "1-read-4KiB",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -298,7 +300,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-03-03T12:22:28",
-            "name": "sample1"
+            "name": "sample1",
+            "parent": "/1-read-4KiB"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -316,7 +319,8 @@ len(actions) = 30
             "directory": "/1-read-4KiB/sample1/clients",
             "mode": "0o755",
             "mtime": "2020-03-03T12:56:25",
-            "name": "clients"
+            "name": "clients",
+            "parent": "/1-read-4KiB/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -379,7 +383,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-01-19T00:23:44",
-            "name": "ctlrA"
+            "name": "ctlrA",
+            "parent": "/1-read-4KiB/sample1/clients"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -464,7 +469,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-01-19T00:23:44",
-            "name": "hist"
+            "name": "hist",
+            "parent": "/1-read-4KiB/sample1/clients/ctlrA"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -512,7 +518,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-03-03T12:22:14",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-read-4KiB/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -595,7 +602,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-01-19T00:23:44",
-            "name": "hist"
+            "name": "hist",
+            "parent": "/1-read-4KiB/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -613,7 +621,8 @@ len(actions) = 30
             "directory": "/1-read-4KiB/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2020-03-03T12:20:36",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/1-read-4KiB/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -632,7 +641,8 @@ len(actions) = 30
             "directory": "/1-read-4KiB/sample1/tools-default/ctlrA",
             "mode": "0o755",
             "mtime": "2020-03-03T12:19:48",
-            "name": "ctlrA"
+            "name": "ctlrA",
+            "parent": "/1-read-4KiB/sample1/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -675,7 +685,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-01-19T00:19:41",
-            "name": "turbostat"
+            "name": "turbostat",
+            "parent": "/1-read-4KiB/sample1/tools-default/ctlrA"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -712,7 +723,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-03-03T12:21:37",
-            "name": "2-read-64KiB"
+            "name": "2-read-64KiB",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -780,7 +792,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-03-03T12:22:28",
-            "name": "sample1"
+            "name": "sample1",
+            "parent": "/2-read-64KiB"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -798,7 +811,8 @@ len(actions) = 30
             "directory": "/2-read-64KiB/sample1/clients",
             "mode": "0o755",
             "mtime": "2020-03-03T12:56:25",
-            "name": "clients"
+            "name": "clients",
+            "parent": "/2-read-64KiB/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },

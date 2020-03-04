@@ -244,7 +244,8 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T21:00:42"
+            "mtime": "2018-02-02T21:00:42",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -295,7 +296,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:12",
-            "name": "1-tcp_rr-64B-8i"
+            "name": "1-tcp_rr-64B-8i",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -349,7 +351,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:12",
-            "name": "sample1"
+            "name": "sample1",
+            "parent": "/1-tcp_rr-64B-8i"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -383,7 +386,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:12",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-tcp_rr-64B-8i/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -401,7 +405,8 @@ len(actions) = 30
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:11",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/1-tcp_rr-64B-8i/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -420,7 +425,8 @@ len(actions) = 30
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44",
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:11",
-            "name": "dhcp31-44"
+            "name": "dhcp31-44",
+            "parent": "/1-tcp_rr-64B-8i/sample1/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -477,7 +483,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:10",
-            "name": "iostat"
+            "name": "iostat",
+            "parent": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -549,7 +556,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:10",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -620,7 +628,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:10",
-            "name": "mpstat"
+            "name": "mpstat",
+            "parent": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -657,7 +666,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:10",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/mpstat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -721,7 +731,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:11",
-            "name": "perf"
+            "name": "perf",
+            "parent": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -751,7 +762,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:11",
-            "name": "perf-percpu"
+            "name": "perf-percpu",
+            "parent": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/perf"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -864,7 +876,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:10",
-            "name": "pidstat"
+            "name": "pidstat",
+            "parent": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -950,7 +963,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:10",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/pidstat"
         },
         "_type": "pbench-run-toc-entry"
     },

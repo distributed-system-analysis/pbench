@@ -214,7 +214,8 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2019-04-26T19:36:24"
+            "mtime": "2019-04-26T19:36:24",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -265,7 +266,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:40:38",
-            "name": "21-tcp_rr-1024B-1i"
+            "name": "21-tcp_rr-1024B-1i",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -319,7 +321,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T18:20:55",
-            "name": "sample1"
+            "name": "sample1",
+            "parent": "/21-tcp_rr-1024B-1i"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -353,7 +356,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/21-tcp_rr-1024B-1i/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -371,7 +375,8 @@ len(actions) = 30
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/21-tcp_rr-1024B-1i/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -390,7 +395,8 @@ len(actions) = 30
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4",
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
-            "name": "rhel8-4"
+            "name": "rhel8-4",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -447,7 +453,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
-            "name": "iostat"
+            "name": "iostat",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -519,7 +526,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -632,7 +640,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:19",
-            "name": "mpstat"
+            "name": "mpstat",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -690,7 +699,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:19",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/mpstat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -754,7 +764,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
-            "name": "perf"
+            "name": "perf",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -805,7 +816,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
-            "name": "perf-percpu"
+            "name": "perf-percpu",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/perf"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -918,7 +930,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:19",
-            "name": "pidstat"
+            "name": "pidstat",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1004,7 +1017,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/pidstat"
         },
         "_type": "pbench-run-toc-entry"
     },

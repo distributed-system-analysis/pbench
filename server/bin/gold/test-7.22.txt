@@ -179,7 +179,8 @@ len(actions) = 21
                 }
             ],
             "mode": "0o755",
-            "mtime": "2020-03-02T02:28:32"
+            "mtime": "2020-03-02T02:28:32",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -202,7 +203,8 @@ len(actions) = 21
             ],
             "mode": "0o755",
             "mtime": "2020-03-02T02:28:32",
-            "name": "0__linpack-binary=:root:linpack:xlinpack_xeon64"
+            "name": "0__linpack-binary=:root:linpack:xlinpack_xeon64",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -263,7 +265,8 @@ len(actions) = 21
             ],
             "mode": "0o755",
             "mtime": "2020-03-02T02:33:09",
-            "name": "sample0"
+            "name": "sample0",
+            "parent": "/0__linpack-binary=:root:linpack:xlinpack_xeon64"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -281,7 +284,8 @@ len(actions) = 21
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/csv",
             "mode": "0o755",
             "mtime": "2020-02-28T19:13:01",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -299,7 +303,8 @@ len(actions) = 21
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-03-02T02:30:14",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -318,7 +323,8 @@ len(actions) = 21
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default/ctlrA",
             "mode": "0o755",
             "mtime": "2020-03-02T02:29:47",
-            "name": "ctlrA"
+            "name": "ctlrA",
+            "parent": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -361,7 +367,8 @@ len(actions) = 21
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T19:11:15",
-            "name": "turbostat"
+            "name": "turbostat",
+            "parent": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default/ctlrA"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -384,7 +391,8 @@ len(actions) = 21
             ],
             "mode": "0o755",
             "mtime": "2020-03-02T02:28:32",
-            "name": "1__linpack-binary=:root:linpack:bob:xlinpack_xeon64"
+            "name": "1__linpack-binary=:root:linpack:bob:xlinpack_xeon64",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -445,7 +453,8 @@ len(actions) = 21
             ],
             "mode": "0o755",
             "mtime": "2020-03-02T02:33:09",
-            "name": "sample0"
+            "name": "sample0",
+            "parent": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -463,7 +472,8 @@ len(actions) = 21
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/csv",
             "mode": "0o755",
             "mtime": "2020-02-28T19:14:55",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -481,7 +491,8 @@ len(actions) = 21
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-03-02T02:30:33",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -500,7 +511,8 @@ len(actions) = 21
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default/ctlrA",
             "mode": "0o755",
             "mtime": "2020-03-02T02:29:47",
-            "name": "ctlrA"
+            "name": "ctlrA",
+            "parent": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -543,7 +555,8 @@ len(actions) = 21
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T19:13:20",
-            "name": "turbostat"
+            "name": "turbostat",
+            "parent": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default/ctlrA"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -566,7 +579,8 @@ len(actions) = 21
             ],
             "mode": "0o755",
             "mtime": "2020-03-02T02:28:32",
-            "name": "2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64"
+            "name": "2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },

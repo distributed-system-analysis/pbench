@@ -189,7 +189,8 @@ len(actions) = 23
                 }
             ],
             "mode": "0o755",
-            "mtime": "2019-09-07T01:53:01"
+            "mtime": "2019-09-07T01:53:01",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -233,7 +234,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2019-08-27T15:29:14",
-            "name": "1-forwarding_test.json-5pct_drop"
+            "name": "1-forwarding_test.json-5pct_drop",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -868,7 +870,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2019-08-27T15:29:13",
-            "name": "sample1"
+            "name": "sample1",
+            "parent": "/1-forwarding_test.json-5pct_drop"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1217,7 +1220,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2019-08-27T15:29:13",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-forwarding_test.json-5pct_drop/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1235,7 +1239,8 @@ len(actions) = 23
             "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2019-08-27T15:29:11",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/1-forwarding_test.json-5pct_drop/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1254,7 +1259,8 @@ len(actions) = 23
             "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124",
             "mode": "0o755",
             "mtime": "2019-09-07T01:49:35",
-            "name": "perf124"
+            "name": "perf124",
+            "parent": "/1-forwarding_test.json-5pct_drop/sample1/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1297,7 +1303,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2019-08-27T15:29:12",
-            "name": "turbostat"
+            "name": "turbostat",
+            "parent": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124"
         },
         "_type": "pbench-run-toc-entry"
     },

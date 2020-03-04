@@ -171,7 +171,8 @@ len(actions) = 23
                 }
             ],
             "mode": "0o755",
-            "mtime": "2020-02-28T21:26:29"
+            "mtime": "2020-02-28T21:26:29",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -194,7 +195,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T20:00:16",
-            "name": "0__device-pairs=0000:01:00.0,0000:01:00.1"
+            "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -262,7 +264,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T21:20:32",
-            "name": "sample0"
+            "name": "sample0",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -280,7 +283,8 @@ len(actions) = 23
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients",
             "mode": "0o755",
             "mtime": "2020-02-28T20:00:10",
-            "name": "clients"
+            "name": "clients",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -658,7 +662,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T19:59:58",
-            "name": "perf116"
+            "name": "perf116",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -676,7 +681,8 @@ len(actions) = 23
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv",
             "mode": "0o755",
             "mtime": "2020-02-28T20:00:16",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -694,7 +700,8 @@ len(actions) = 23
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-02-28T19:50:20",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -3070,7 +3077,8 @@ len(actions) = 23
                 }
             ],
             "mode": "0o755",
-            "mtime": "2020-02-28T21:27:52"
+            "mtime": "2020-02-28T21:27:52",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -3093,7 +3101,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T20:15:23",
-            "name": "0__device-pairs=0000:01:00.0,0000:01:00.1"
+            "name": "0__device-pairs=0000:01:00.0,0000:01:00.1",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -3161,7 +3170,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T21:23:29",
-            "name": "sample0"
+            "name": "sample0",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -3179,7 +3189,8 @@ len(actions) = 23
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients",
             "mode": "0o755",
             "mtime": "2020-02-28T20:15:12",
-            "name": "clients"
+            "name": "clients",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -3669,7 +3680,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T20:15:02",
-            "name": "perf116"
+            "name": "perf116",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -4172,7 +4184,8 @@ len(actions) = 23
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T20:15:22",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -4190,7 +4203,8 @@ len(actions) = 23
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-02-28T20:04:59",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
