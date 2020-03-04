@@ -1,7 +1,96 @@
 +++ Running pbench-index --dump-templates
 
 
-Template: pbench-unittests.v2.tool-data-iostat
+Template: pbench-unittests.v3.server-reports
+
+{
+    "mappings": {
+        "pbench-server-reports": {
+            "_all": {
+                "enabled": false
+            },
+            "_meta": {
+                "version": "3"
+            },
+            "date_detection": false,
+            "properties": {
+                "@generated-by": {
+                    "properties": {
+                        "commit_id": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "group_id": {
+                            "type": "integer"
+                        },
+                        "hostname": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        },
+                        "pid": {
+                            "type": "integer"
+                        },
+                        "user_id": {
+                            "type": "integer"
+                        },
+                        "version": {
+                            "index": "not_analyzed",
+                            "type": "string"
+                        }
+                    }
+                },
+                "@timestamp": {
+                    "type": "date"
+                },
+                "chunk_id": {
+                    "type": "integer"
+                },
+                "doctype": {
+                    "index": "not_analyzed",
+                    "type": "string"
+                },
+                "name": {
+                    "index": "not_analyzed",
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "total_chunks": {
+                    "type": "long"
+                },
+                "total_size": {
+                    "type": "long"
+                }
+            }
+        }
+    },
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "comma_analyzer": {
+                    "tokenizer": "comma_tokenizer"
+                }
+            },
+            "tokenizer": {
+                "comma_tokenizer": {
+                    "pattern": ",",
+                    "type": "pattern"
+                }
+            }
+        },
+        "index": {
+            "query": {
+                "default_field": "text"
+            }
+        }
+    },
+    "template": "pbench-unittests.v3.server-reports.*"
+}
+
+
+
+Template: pbench-unittests.v3.tool-data-iostat
 
 {
     "mappings": {
@@ -10,7 +99,7 @@ Template: pbench-unittests.v2.tool-data-iostat
                 "enabled": false
             },
             "_meta": {
-                "version": "2"
+                "version": "3"
             },
             "_source": {
                 "enabled": true
@@ -174,12 +263,12 @@ Template: pbench-unittests.v2.tool-data-iostat
             }
         }
     },
-    "template": "pbench-unittests.v2.tool-data-iostat.*"
+    "template": "pbench-unittests.v3.tool-data-iostat.*"
 }
 
 
 
-Template: pbench-unittests.v2.tool-data-mpstat
+Template: pbench-unittests.v3.tool-data-mpstat
 
 {
     "mappings": {
@@ -188,7 +277,7 @@ Template: pbench-unittests.v2.tool-data-mpstat
                 "enabled": false
             },
             "_meta": {
-                "version": "2"
+                "version": "3"
             },
             "_source": {
                 "enabled": true
@@ -334,12 +423,12 @@ Template: pbench-unittests.v2.tool-data-mpstat
             }
         }
     },
-    "template": "pbench-unittests.v2.tool-data-mpstat.*"
+    "template": "pbench-unittests.v3.tool-data-mpstat.*"
 }
 
 
 
-Template: pbench-unittests.v2.tool-data-pidstat
+Template: pbench-unittests.v3.tool-data-pidstat
 
 {
     "mappings": {
@@ -348,7 +437,7 @@ Template: pbench-unittests.v2.tool-data-pidstat
                 "enabled": false
             },
             "_meta": {
-                "version": "2"
+                "version": "3"
             },
             "_source": {
                 "enabled": true
@@ -514,12 +603,12 @@ Template: pbench-unittests.v2.tool-data-pidstat
             }
         }
     },
-    "template": "pbench-unittests.v2.tool-data-pidstat.*"
+    "template": "pbench-unittests.v3.tool-data-pidstat.*"
 }
 
 
 
-Template: pbench-unittests.v2.tool-data-proc-interrupts
+Template: pbench-unittests.v3.tool-data-proc-interrupts
 
 {
     "mappings": {
@@ -528,7 +617,7 @@ Template: pbench-unittests.v2.tool-data-proc-interrupts
                 "enabled": false
             },
             "_meta": {
-                "version": "2"
+                "version": "3"
             },
             "_source": {
                 "enabled": true
@@ -656,12 +745,12 @@ Template: pbench-unittests.v2.tool-data-proc-interrupts
             }
         }
     },
-    "template": "pbench-unittests.v2.tool-data-proc-interrupts.*"
+    "template": "pbench-unittests.v3.tool-data-proc-interrupts.*"
 }
 
 
 
-Template: pbench-unittests.v2.tool-data-proc-vmstat
+Template: pbench-unittests.v3.tool-data-proc-vmstat
 
 {
     "mappings": {
@@ -670,7 +759,7 @@ Template: pbench-unittests.v2.tool-data-proc-vmstat
                 "enabled": false
             },
             "_meta": {
-                "version": "2"
+                "version": "3"
             },
             "_source": {
                 "enabled": true
@@ -1899,12 +1988,12 @@ Template: pbench-unittests.v2.tool-data-proc-vmstat
             }
         }
     },
-    "template": "pbench-unittests.v2.tool-data-proc-vmstat.*"
+    "template": "pbench-unittests.v3.tool-data-proc-vmstat.*"
 }
 
 
 
-Template: pbench-unittests.v2.tool-data-prometheus-metrics
+Template: pbench-unittests.v3.tool-data-prometheus-metrics
 
 {
     "mappings": {
@@ -1913,7 +2002,7 @@ Template: pbench-unittests.v2.tool-data-prometheus-metrics
                 "enabled": false
             },
             "_meta": {
-                "version": "2"
+                "version": "3"
             },
             "_source": {
                 "enabled": true
@@ -2175,12 +2264,12 @@ Template: pbench-unittests.v2.tool-data-prometheus-metrics
             }
         }
     },
-    "template": "pbench-unittests.v2.tool-data-prometheus-metrics.*"
+    "template": "pbench-unittests.v3.tool-data-prometheus-metrics.*"
 }
 
 
 
-Template: pbench-unittests.v2.tool-data-vmstat
+Template: pbench-unittests.v3.tool-data-vmstat
 
 {
     "mappings": {
@@ -2189,7 +2278,7 @@ Template: pbench-unittests.v2.tool-data-vmstat
                 "enabled": false
             },
             "_meta": {
-                "version": "2"
+                "version": "3"
             },
             "_source": {
                 "enabled": true
@@ -2375,12 +2464,12 @@ Template: pbench-unittests.v2.tool-data-vmstat
             }
         }
     },
-    "template": "pbench-unittests.v2.tool-data-vmstat.*"
+    "template": "pbench-unittests.v3.tool-data-vmstat.*"
 }
 
 
 
-Template: pbench-unittests.v3.result-data
+Template: pbench-unittests.v4.result-data
 
 {
     "mappings": {
@@ -2389,7 +2478,7 @@ Template: pbench-unittests.v3.result-data
                 "enabled": false
             },
             "_meta": {
-                "version": "3"
+                "version": "4"
             },
             "_parent": {
                 "type": "pbench-result-data-sample"
@@ -2471,7 +2560,7 @@ Template: pbench-unittests.v3.result-data
                 "enabled": false
             },
             "_meta": {
-                "version": "3"
+                "version": "4"
             },
             "date_detection": false,
             "properties": {
@@ -3201,12 +3290,12 @@ Template: pbench-unittests.v3.result-data
             }
         }
     },
-    "template": "pbench-unittests.v3.result-data.*"
+    "template": "pbench-unittests.v4.result-data.*"
 }
 
 
 
-Template: pbench-unittests.v3.run
+Template: pbench-unittests.v4.run
 
 {
     "mappings": {
@@ -3215,7 +3304,7 @@ Template: pbench-unittests.v3.run
                 "enabled": false
             },
             "_meta": {
-                "version": "3"
+                "version": "4"
             },
             "date_detection": false,
             "properties": {
@@ -3435,7 +3524,7 @@ Template: pbench-unittests.v3.run
                 "enabled": false
             },
             "_meta": {
-                "version": "3"
+                "version": "4"
             },
             "_parent": {
                 "type": "pbench-run"
@@ -3524,96 +3613,7 @@ Template: pbench-unittests.v3.run
             }
         }
     },
-    "template": "pbench-unittests.v3.run.*"
-}
-
-
-
-Template: pbench-unittests.v3.server-reports
-
-{
-    "mappings": {
-        "pbench-server-reports": {
-            "_all": {
-                "enabled": false
-            },
-            "_meta": {
-                "version": "3"
-            },
-            "date_detection": false,
-            "properties": {
-                "@generated-by": {
-                    "properties": {
-                        "commit_id": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "group_id": {
-                            "type": "integer"
-                        },
-                        "hostname": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        },
-                        "pid": {
-                            "type": "integer"
-                        },
-                        "user_id": {
-                            "type": "integer"
-                        },
-                        "version": {
-                            "index": "not_analyzed",
-                            "type": "string"
-                        }
-                    }
-                },
-                "@timestamp": {
-                    "type": "date"
-                },
-                "chunk_id": {
-                    "type": "integer"
-                },
-                "doctype": {
-                    "index": "not_analyzed",
-                    "type": "string"
-                },
-                "name": {
-                    "index": "not_analyzed",
-                    "type": "string"
-                },
-                "text": {
-                    "type": "string"
-                },
-                "total_chunks": {
-                    "type": "long"
-                },
-                "total_size": {
-                    "type": "long"
-                }
-            }
-        }
-    },
-    "settings": {
-        "analysis": {
-            "analyzer": {
-                "comma_analyzer": {
-                    "tokenizer": "comma_tokenizer"
-                }
-            },
-            "tokenizer": {
-                "comma_tokenizer": {
-                    "pattern": ",",
-                    "type": "pattern"
-                }
-            }
-        },
-        "index": {
-            "query": {
-                "default_field": "text"
-            }
-        }
-    },
-    "template": "pbench-unittests.v3.server-reports.*"
+    "template": "pbench-unittests.v4.run.*"
 }
 
 --- Finished pbench-index (status=0)

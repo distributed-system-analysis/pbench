@@ -2,7 +2,7 @@
     "pbench-run-toc-entry": {
         "_all" : {"enabled" : false},
         "_meta": {
-            "version": "3"
+            "version": "4"
         },
         "_parent": {
             "type": "pbench-run"
