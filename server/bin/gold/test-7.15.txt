@@ -422,7 +422,8 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2019-02-20T05:21:07"
+            "mtime": "2019-02-20T05:21:07",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -473,7 +474,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2016-10-06T17:05:23",
-            "name": "1-tcp_stream-16384B-32i"
+            "name": "1-tcp_stream-16384B-32i",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -527,7 +529,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-10-26T18:30:45",
-            "name": "sample1"
+            "name": "sample1",
+            "parent": "/1-tcp_stream-16384B-32i"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -554,7 +557,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2016-10-06T17:05:22",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-tcp_stream-16384B-32i/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -572,7 +576,8 @@ len(actions) = 30
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2016-10-06T17:05:21",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/1-tcp_stream-16384B-32i/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -591,7 +596,8 @@ len(actions) = 30
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb",
             "mode": "0o755",
             "mtime": "2016-10-06T17:05:21",
-            "name": "flat7_40gb"
+            "name": "flat7_40gb",
+            "parent": "/1-tcp_stream-16384B-32i/sample1/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -648,7 +654,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2016-10-06T17:05:21",
-            "name": "iostat"
+            "name": "iostat",
+            "parent": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -720,7 +727,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2017-02-17T18:51:14",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1001,7 +1009,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2017-02-17T18:58:55",
-            "name": "mpstat"
+            "name": "mpstat",
+            "parent": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1143,7 +1152,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2017-02-17T18:51:14",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/mpstat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1207,7 +1217,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2016-10-06T17:05:21",
-            "name": "perf"
+            "name": "perf",
+            "parent": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1342,7 +1353,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2016-10-06T17:05:21",
-            "name": "perf-percpu"
+            "name": "perf-percpu",
+            "parent": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/perf"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1455,7 +1467,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2017-02-17T18:57:33",
-            "name": "pidstat"
+            "name": "pidstat",
+            "parent": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1541,7 +1554,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2017-02-17T18:51:14",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/pidstat"
         },
         "_type": "pbench-run-toc-entry"
     },

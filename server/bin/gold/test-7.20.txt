@@ -179,7 +179,8 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2020-02-28T20:18:47"
+            "mtime": "2020-02-28T20:18:47",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -202,7 +203,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-02-27T22:27:31",
-            "name": "0__fio"
+            "name": "0__fio",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -285,7 +287,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T18:01:25",
-            "name": "sample0"
+            "name": "sample0",
+            "parent": "/0__fio"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -303,7 +306,8 @@ len(actions) = 30
             "directory": "/0__fio/sample0/clients",
             "mode": "0o755",
             "mtime": "2020-02-27T22:20:00",
-            "name": "clients"
+            "name": "clients",
+            "parent": "/0__fio/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -338,7 +342,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T20:11:07",
-            "name": "localhost"
+            "name": "localhost",
+            "parent": "/0__fio/sample0/clients"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -379,7 +384,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-02-27T22:20:06",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/0__fio/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -397,7 +403,8 @@ len(actions) = 30
             "directory": "/0__fio/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-02-28T17:58:37",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/0__fio/sample0"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -416,7 +423,8 @@ len(actions) = 30
             "directory": "/0__fio/sample0/tools-default/ctlrA",
             "mode": "0o755",
             "mtime": "2020-02-28T20:18:21",
-            "name": "ctlrA"
+            "name": "ctlrA",
+            "parent": "/0__fio/sample0/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -459,7 +467,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-02-27T22:16:39",
-            "name": "turbostat"
+            "name": "turbostat",
+            "parent": "/0__fio/sample0/tools-default/ctlrA"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -542,7 +551,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T18:01:25",
-            "name": "sample1"
+            "name": "sample1",
+            "parent": "/0__fio"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -560,7 +570,8 @@ len(actions) = 30
             "directory": "/0__fio/sample1/clients",
             "mode": "0o755",
             "mtime": "2020-02-27T22:23:42",
-            "name": "clients"
+            "name": "clients",
+            "parent": "/0__fio/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -595,7 +606,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-02-28T20:11:07",
-            "name": "localhost"
+            "name": "localhost",
+            "parent": "/0__fio/sample1/clients"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -636,7 +648,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-02-27T22:23:49",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/0__fio/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -654,7 +667,8 @@ len(actions) = 30
             "directory": "/0__fio/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2020-02-28T17:58:46",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/0__fio/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },

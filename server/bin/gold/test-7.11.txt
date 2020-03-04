@@ -237,7 +237,8 @@ len(actions) = 30
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-02-02T20:31:09"
+            "mtime": "2018-02-02T20:31:09",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -267,7 +268,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "1-rw-4KiB"
+            "name": "1-rw-4KiB",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -335,7 +337,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "sample1"
+            "name": "sample1",
+            "parent": "/1-rw-4KiB"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -353,7 +356,8 @@ len(actions) = 30
             "directory": "/1-rw-4KiB/sample1/clients",
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:00",
-            "name": "clients"
+            "name": "clients",
+            "parent": "/1-rw-4KiB/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -416,7 +420,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:17",
-            "name": "localhost"
+            "name": "localhost",
+            "parent": "/1-rw-4KiB/sample1/clients"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -464,7 +469,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-rw-4KiB/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -482,7 +488,8 @@ len(actions) = 30
             "directory": "/1-rw-4KiB/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/1-rw-4KiB/sample1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -501,7 +508,8 @@ len(actions) = 30
             "directory": "/1-rw-4KiB/sample1/tools-default/dhcp31-44",
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "dhcp31-44"
+            "name": "dhcp31-44",
+            "parent": "/1-rw-4KiB/sample1/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -558,7 +566,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "iostat"
+            "name": "iostat",
+            "parent": "/1-rw-4KiB/sample1/tools-default/dhcp31-44"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -630,7 +639,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -701,7 +711,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "mpstat"
+            "name": "mpstat",
+            "parent": "/1-rw-4KiB/sample1/tools-default/dhcp31-44"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -738,7 +749,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/mpstat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -802,7 +814,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "perf"
+            "name": "perf",
+            "parent": "/1-rw-4KiB/sample1/tools-default/dhcp31-44"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -832,7 +845,8 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2018-02-01T22:41:18",
-            "name": "perf-percpu"
+            "name": "perf-percpu",
+            "parent": "/1-rw-4KiB/sample1/tools-default/dhcp31-44/perf"
         },
         "_type": "pbench-run-toc-entry"
     },

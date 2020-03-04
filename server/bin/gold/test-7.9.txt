@@ -174,7 +174,8 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2017-04-21T20:39:50"
+            "mtime": "2017-04-21T20:39:50",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -188,7 +189,8 @@ len(actions) = 15
             "directory": "/1",
             "mode": "0o755",
             "mtime": "2017-04-21T20:38:16",
-            "name": "1"
+            "name": "1",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -214,7 +216,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:29",
-            "name": "reference-result"
+            "name": "reference-result",
+            "parent": "/1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -232,7 +235,8 @@ len(actions) = 15
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:22",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/1/reference-result"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -251,7 +255,8 @@ len(actions) = 15
             "directory": "/1/reference-result/tools-default/dhcp31-144",
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:22",
-            "name": "dhcp31-144"
+            "name": "dhcp31-144",
+            "parent": "/1/reference-result/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -308,7 +313,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:20",
-            "name": "iostat"
+            "name": "iostat",
+            "parent": "/1/reference-result/tools-default/dhcp31-144"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -380,7 +386,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:20",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1/reference-result/tools-default/dhcp31-144/iostat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -451,7 +458,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:21",
-            "name": "mpstat"
+            "name": "mpstat",
+            "parent": "/1/reference-result/tools-default/dhcp31-144"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -488,7 +496,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:21",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1/reference-result/tools-default/dhcp31-144/mpstat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -552,7 +561,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:22",
-            "name": "perf"
+            "name": "perf",
+            "parent": "/1/reference-result/tools-default/dhcp31-144"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -582,7 +592,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:21",
-            "name": "perf-percpu"
+            "name": "perf-percpu",
+            "parent": "/1/reference-result/tools-default/dhcp31-144/perf"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -695,7 +706,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:21",
-            "name": "pidstat"
+            "name": "pidstat",
+            "parent": "/1/reference-result/tools-default/dhcp31-144"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -781,7 +793,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:21",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1/reference-result/tools-default/dhcp31-144/pidstat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -852,7 +865,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:20",
-            "name": "proc-interrupts"
+            "name": "proc-interrupts",
+            "parent": "/1/reference-result/tools-default/dhcp31-144"
         },
         "_type": "pbench-run-toc-entry"
     }

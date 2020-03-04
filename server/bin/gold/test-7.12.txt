@@ -325,7 +325,8 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2019-03-07T01:28:29"
+            "mtime": "2019-03-07T01:28:29",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -339,7 +340,8 @@ len(actions) = 15
             "directory": "/1",
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:05",
-            "name": "1"
+            "name": "1",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -365,7 +367,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-02-05T21:09:07",
-            "name": "reference-result"
+            "name": "reference-result",
+            "parent": "/1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -383,7 +386,8 @@ len(actions) = 15
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
             "mtime": "2018-02-05T21:08:31",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/1/reference-result"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -402,7 +406,8 @@ len(actions) = 15
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216",
             "mode": "0o755",
             "mtime": "2018-02-05T21:07:41",
-            "name": "svt_master_1_etcd_1:ip-172-31-47-216"
+            "name": "svt_master_1_etcd_1:ip-172-31-47-216",
+            "parent": "/1/reference-result/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -459,7 +464,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:08",
-            "name": "disk"
+            "name": "disk",
+            "parent": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -524,7 +530,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:08",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1372,7 +1379,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-02-05T21:07:05",
-            "name": "haproxy-ocp"
+            "name": "haproxy-ocp",
+            "parent": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1393,7 +1401,8 @@ len(actions) = 15
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config",
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:13",
-            "name": "config"
+            "name": "config",
+            "parent": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1431,7 +1440,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:14",
-            "name": "start"
+            "name": "start",
+            "parent": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1469,7 +1479,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:13",
-            "name": "stop"
+            "name": "stop",
+            "parent": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1933,7 +1944,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:33",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1954,7 +1966,8 @@ len(actions) = 15
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs",
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:11",
-            "name": "logs"
+            "name": "logs",
+            "parent": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -1992,7 +2005,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:11",
-            "name": "start"
+            "name": "start",
+            "parent": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs"
         },
         "_type": "pbench-run-toc-entry"
     }

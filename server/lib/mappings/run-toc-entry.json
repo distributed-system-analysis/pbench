@@ -12,6 +12,10 @@
             "@timestamp": {
                 "type": "date"
             },
+            "ancestor_path_elements": {
+                "type": "string",
+                "index": "not_analyzed"
+            },
             "directory": {
                 "type": "string",
                 "analyzer": "path_analyzer"
@@ -54,9 +58,9 @@
                 "type": "string",
                 "index": "not_analyzed"
             },
-            "ancestor_path_elements": {
+            "parent": {
                 "type": "string",
-                "index": "not_analyzed"
+                "analyzer": "path_analyzer"
             }
         }
     }

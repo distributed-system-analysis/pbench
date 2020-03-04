@@ -3490,6 +3490,10 @@ Template: pbench-unittests.v3.run
                 "name": {
                     "index": "not_analyzed",
                     "type": "string"
+                },
+                "parent": {
+                    "analyzer": "path_analyzer",
+                    "type": "string"
                 }
             }
         }

@@ -301,7 +301,8 @@ len(actions) = 15
                 }
             ],
             "mode": "0o755",
-            "mtime": "2018-04-10T19:09:10"
+            "mtime": "2018-04-10T19:09:10",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -315,7 +316,8 @@ len(actions) = 15
             "directory": "/1",
             "mode": "0o755",
             "mtime": "2018-04-10T19:01:19",
-            "name": "1"
+            "name": "1",
+            "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -341,7 +343,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-04-10T19:04:23",
-            "name": "reference-result"
+            "name": "reference-result",
+            "parent": "/1"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -359,7 +362,8 @@ len(actions) = 15
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:55",
-            "name": "tools-default"
+            "name": "tools-default",
+            "parent": "/1/reference-result"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -378,7 +382,8 @@ len(actions) = 15
             "directory": "/1/reference-result/tools-default/b03-h01-1029p",
             "mode": "0o755",
             "mtime": "2018-05-22T20:28:32",
-            "name": "b03-h01-1029p"
+            "name": "b03-h01-1029p",
+            "parent": "/1/reference-result/tools-default"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -442,7 +447,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:55",
-            "name": "perf"
+            "name": "perf",
+            "parent": "/1/reference-result/tools-default/b03-h01-1029p"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -913,7 +919,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:52",
-            "name": "perf-percpu"
+            "name": "perf-percpu",
+            "parent": "/1/reference-result/tools-default/b03-h01-1029p/perf"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -998,7 +1005,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2019-05-15T17:18:57",
-            "name": "proc-interrupts"
+            "name": "proc-interrupts",
+            "parent": "/1/reference-result/tools-default/b03-h01-1029p"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -4157,7 +4165,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:34",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -4214,7 +4223,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:27",
-            "name": "proc-vmstat"
+            "name": "proc-vmstat",
+            "parent": "/1/reference-result/tools-default/b03-h01-1029p"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -4356,7 +4366,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:27",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -4490,7 +4501,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:43",
-            "name": "sar"
+            "name": "sar",
+            "parent": "/1/reference-result/tools-default/b03-h01-1029p"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -5101,7 +5113,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:43",
-            "name": "csv"
+            "name": "csv",
+            "parent": "/1/reference-result/tools-default/b03-h01-1029p/sar"
         },
         "_type": "pbench-run-toc-entry"
     },
@@ -5144,7 +5157,8 @@ len(actions) = 15
             ],
             "mode": "0o755",
             "mtime": "2018-04-10T19:01:21",
-            "name": "turbostat"
+            "name": "turbostat",
+            "parent": "/1/reference-result/tools-default/b03-h01-1029p"
         },
         "_type": "pbench-run-toc-entry"
     }
