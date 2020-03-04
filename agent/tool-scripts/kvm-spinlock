@@ -318,7 +318,7 @@ case "$mode" in
 		rc=$?
 		;;
 		turbostat)
-		release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)
+		release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release 2> /dev/null)
 		case $release in
 			6)
 			pkg=cpupowerutils
