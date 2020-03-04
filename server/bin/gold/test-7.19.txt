@@ -29,21 +29,21 @@ len(actions) = 1
 ]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
-Template:  pbench-unittests.v2.tool-data-iostat
-Template:  pbench-unittests.v2.tool-data-mpstat
-Template:  pbench-unittests.v2.tool-data-pidstat
-Template:  pbench-unittests.v2.tool-data-proc-interrupts
-Template:  pbench-unittests.v2.tool-data-proc-vmstat
-Template:  pbench-unittests.v2.tool-data-prometheus-metrics
-Template:  pbench-unittests.v2.tool-data-vmstat
-Template:  pbench-unittests.v3.result-data
-Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "8b0a858cc2900c40ad6a6f2789367e86",
+        "_id": "8aab70198482b229b068fa82873f594f",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -53,7 +53,7 @@ len(actions) = 1
                 "hostname": "example.com",
                 "pid": 42,
                 "user_id": 44,
-                "version": "3.0.0"
+                "version": "4.0.0"
             },
             "@timestamp": "1970-01-01T00:00:00",
             "doctype": "start",
@@ -62,26 +62,26 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
-Template:  pbench-unittests.v2.tool-data-iostat
-Template:  pbench-unittests.v2.tool-data-mpstat
-Template:  pbench-unittests.v2.tool-data-pidstat
-Template:  pbench-unittests.v2.tool-data-proc-interrupts
-Template:  pbench-unittests.v2.tool-data-proc-vmstat
-Template:  pbench-unittests.v2.tool-data-prometheus-metrics
-Template:  pbench-unittests.v2.tool-data-vmstat
-Template:  pbench-unittests.v3.result-data
-Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.result-data.2019-08-27 24227
-Index:  pbench-unittests.v3.run.2019-08 8
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
+Index:  pbench-unittests.v4.result-data.2019-08-27 24227
+Index:  pbench-unittests.v4.run.2019-08 8
 len(actions) = 23
 [
     {
         "_id": "7b1d050eab2b577f772b152aeb100fa1",
-        "_index": "pbench-unittests.v3.run.2019-08",
+        "_index": "pbench-unittests.v4.run.2019-08",
         "_op_type": "create",
         "_source": {
-            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@generated-by": "8aab70198482b229b068fa82873f594f",
             "@metadata": {
                 "controller_dir": "perf122",
                 "file-date": "2019-09-07T01:54:23",
@@ -117,7 +117,7 @@ len(actions) = 23
     },
     {
         "_id": "01b8e5e1bb365124c2719da1ea48f73a",
-        "_index": "pbench-unittests.v3.run.2019-08",
+        "_index": "pbench-unittests.v4.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
@@ -196,7 +196,7 @@ len(actions) = 23
     },
     {
         "_id": "69604d48e09dc14a572e7c5c3939429e",
-        "_index": "pbench-unittests.v3.run.2019-08",
+        "_index": "pbench-unittests.v4.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
@@ -241,7 +241,7 @@ len(actions) = 23
     },
     {
         "_id": "f57cb4d9b747503fc70e3411abb63af5",
-        "_index": "pbench-unittests.v3.run.2019-08",
+        "_index": "pbench-unittests.v4.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
@@ -877,7 +877,7 @@ len(actions) = 23
     },
     {
         "_id": "da058ec6a14d12a93bf081b52acedbab",
-        "_index": "pbench-unittests.v3.run.2019-08",
+        "_index": "pbench-unittests.v4.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
@@ -1227,7 +1227,7 @@ len(actions) = 23
     },
     {
         "_id": "4ccc0fa7d2e0cfb972d7b9eed44edcd2",
-        "_index": "pbench-unittests.v3.run.2019-08",
+        "_index": "pbench-unittests.v4.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
@@ -1246,7 +1246,7 @@ len(actions) = 23
     },
     {
         "_id": "e1f2843626d5560707fa72742a2fc8eb",
-        "_index": "pbench-unittests.v3.run.2019-08",
+        "_index": "pbench-unittests.v4.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
@@ -1266,7 +1266,7 @@ len(actions) = 23
     },
     {
         "_id": "8a3d8b929a947730655c514734573c09",
-        "_index": "pbench-unittests.v3.run.2019-08",
+        "_index": "pbench-unittests.v4.run.2019-08",
         "_op_type": "create",
         "_parent": "7b1d050eab2b577f772b152aeb100fa1",
         "_source": {
@@ -1310,10 +1310,10 @@ len(actions) = 23
     },
     {
         "_id": "0e8d236f6b8674a2080cac2f863c92ff",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_source": {
-            "@generated-by": "8b0a858cc2900c40ad6a6f2789367e86",
+            "@generated-by": "8aab70198482b229b068fa82873f594f",
             "@timestamp": "2019-08-27T15:18:43.666000",
             "@timestamp_original": 1566919123666,
             "benchmark": {
@@ -1628,7 +1628,7 @@ len(actions) = 23
     },
     {
         "_id": "05b92c612ad92dc8e269fdecfa6eac89",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1659,7 +1659,7 @@ len(actions) = 23
     },
     {
         "_id": "7fc8014bc5ee1c328827d777680cfbb0",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1690,7 +1690,7 @@ len(actions) = 23
     },
     {
         "_id": "c2912bfc07150d8d0a61209896be109b",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1721,7 +1721,7 @@ len(actions) = 23
     },
     {
         "_id": "791b7bc3ddaf2012712f5237a586d5db",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1752,7 +1752,7 @@ len(actions) = 23
     },
     {
         "_id": "34eeffb0d65ab91660ec9739e9355196",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1783,7 +1783,7 @@ len(actions) = 23
     },
     {
         "_id": "09bed5da05d760c93c7cc83a20525db4",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1814,7 +1814,7 @@ len(actions) = 23
     },
     {
         "_id": "329f0493a9e9e54118d87b720cd0fbcf",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1845,7 +1845,7 @@ len(actions) = 23
     },
     {
         "_id": "3e5a7ac032b92867c9fa9ad3217aa35f",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1876,7 +1876,7 @@ len(actions) = 23
     },
     {
         "_id": "8e77b5b7f8035c5490328ef636626d8e",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1907,7 +1907,7 @@ len(actions) = 23
     },
     {
         "_id": "2c27a4911ff0b248769ec345191bf777",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1938,7 +1938,7 @@ len(actions) = 23
     },
     {
         "_id": "4c5594fac088bbbe54cd3c4e1b06ac23",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -1969,7 +1969,7 @@ len(actions) = 23
     },
     {
         "_id": "1fb0d3d3814d76e5d971a759cc974e60",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -2000,7 +2000,7 @@ len(actions) = 23
     },
     {
         "_id": "fe7e22f6ca449f767bed9b1d3b450204",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -2031,7 +2031,7 @@ len(actions) = 23
     },
     {
         "_id": "217d903d0919afba04f67c25a187e12f",
-        "_index": "pbench-unittests.v3.result-data.2019-08-27",
+        "_index": "pbench-unittests.v4.result-data.2019-08-27",
         "_op_type": "create",
         "_parent": "0e8d236f6b8674a2080cac2f863c92ff",
         "_source": {
@@ -2061,21 +2061,21 @@ len(actions) = 23
         "_type": "pbench-result-data"
     }
 ]
-Template:  pbench-unittests.v2.tool-data-iostat
-Template:  pbench-unittests.v2.tool-data-mpstat
-Template:  pbench-unittests.v2.tool-data-pidstat
-Template:  pbench-unittests.v2.tool-data-proc-interrupts
-Template:  pbench-unittests.v2.tool-data-proc-vmstat
-Template:  pbench-unittests.v2.tool-data-prometheus-metrics
-Template:  pbench-unittests.v2.tool-data-vmstat
-Template:  pbench-unittests.v3.result-data
-Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "b449627d22c68bf361fa0ef48418cf5e",
+        "_id": "8149773560424fb80b24148d93983a5b",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -2085,7 +2085,7 @@ len(actions) = 1
                 "hostname": "example.com",
                 "pid": 42,
                 "user_id": 44,
-                "version": "3.0.0"
+                "version": "4.0.0"
             },
             "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,
@@ -2100,21 +2100,21 @@ len(actions) = 1
 ]
 --- Finished pbench-index (status=0)
 +++ Running pbench-index --tool-data
-Template:  pbench-unittests.v2.tool-data-iostat
-Template:  pbench-unittests.v2.tool-data-mpstat
-Template:  pbench-unittests.v2.tool-data-pidstat
-Template:  pbench-unittests.v2.tool-data-proc-interrupts
-Template:  pbench-unittests.v2.tool-data-proc-vmstat
-Template:  pbench-unittests.v2.tool-data-prometheus-metrics
-Template:  pbench-unittests.v2.tool-data-vmstat
-Template:  pbench-unittests.v3.result-data
-Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "a49255f14070b6824a0008c8b8f8fe2b",
+        "_id": "be2ab3a759dc3058c775a9475cbc9603",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -2124,7 +2124,7 @@ len(actions) = 1
                 "hostname": "example.com",
                 "pid": 42,
                 "user_id": 44,
-                "version": "3.0.0"
+                "version": "4.0.0"
             },
             "@timestamp": "1970-01-01T00:00:00",
             "doctype": "start",
@@ -2133,33 +2133,33 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
-Template:  pbench-unittests.v2.tool-data-iostat
-Template:  pbench-unittests.v2.tool-data-mpstat
-Template:  pbench-unittests.v2.tool-data-pidstat
-Template:  pbench-unittests.v2.tool-data-proc-interrupts
-Template:  pbench-unittests.v2.tool-data-proc-vmstat
-Template:  pbench-unittests.v2.tool-data-prometheus-metrics
-Template:  pbench-unittests.v2.tool-data-vmstat
-Template:  pbench-unittests.v3.result-data
-Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
 len(actions) = 0
 []
-Template:  pbench-unittests.v2.tool-data-iostat
-Template:  pbench-unittests.v2.tool-data-mpstat
-Template:  pbench-unittests.v2.tool-data-pidstat
-Template:  pbench-unittests.v2.tool-data-proc-interrupts
-Template:  pbench-unittests.v2.tool-data-proc-vmstat
-Template:  pbench-unittests.v2.tool-data-prometheus-metrics
-Template:  pbench-unittests.v2.tool-data-vmstat
-Template:  pbench-unittests.v3.result-data
-Template:  pbench-unittests.v3.run
 Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "0f7d7aedc7f7b26f1d2847abcf3f7684",
+        "_id": "4a2dd850b78fd1696be894efd12f14e5",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -2169,7 +2169,7 @@ len(actions) = 1
                 "hostname": "example.com",
                 "pid": 42,
                 "user_id": 44,
-                "version": "3.0.0"
+                "version": "4.0.0"
             },
             "@timestamp": "1970-01-01T00:00:00",
             "chunk_id": 1,

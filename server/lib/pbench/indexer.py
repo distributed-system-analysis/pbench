@@ -57,7 +57,7 @@ except ImportError:
 # generated those documents.  In turn, this can help us fix indexing problems
 # via re-indexing data with transformations based on the version of the code
 # that generated the documents.
-VERSION = "3.0.0"
+VERSION = "4.0.0"
 
 # Maximum length of messages logged by es_index()
 _MAX_ERRMSG_LENGTH = 16384
