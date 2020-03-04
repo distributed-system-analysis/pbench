@@ -196,7 +196,7 @@ function _setup_state {
     tst=${1}
     tool=${2}
 
-    cp -a ${_testopt}/config/pbench-agent.cfg.example ${_testopt}/config/pbench-agent.cfg
+    sed "s;/opt/pbench-agent;${_testopt};" ${_testopt}/config/pbench-agent.cfg.example > ${_testopt}/config/pbench-agent.cfg
     if [[ ${?} -ne 0 ]]; then
         echo "ERROR: failed to create default pbench-agent.cfg" >&2
         exit 1
@@ -209,8 +209,20 @@ function _setup_state {
         exit 1
     fi
     if [[ ! -z "${tool}" && ! -z "${tst}" ]]; then
+        if [[ -e ${_tdir}/configs/${tool}/${tst}/pbench-agent.cfg.frag ]]; then
+            printf -- "\n" >> ${_PBENCH_AGENT_CONFIG}
+            cat ${_tdir}/configs/${tool}/${tst}/pbench-agent.cfg.frag >> ${_PBENCH_AGENT_CONFIG}
+            if [[ ${?} -ne 0 ]]; then
+                echo "ERROR: failed to setup pbench-agent.cfg file" >&2
+                exit 1
+            fi
+        fi
         if [[ -d ${_tdir}/samples/${tool}/${tst} ]]; then
             cp -r ${_tdir}/samples/${tool}/${tst}/* ${_testroot}
+            if [[ ${?} -ne 0 ]]; then
+                echo "ERROR: failed to setup ${tool}/${tst} samples" >&2
+                exit 1
+            fi
         fi
     fi
 
@@ -278,6 +290,7 @@ declare -A tools=(
     [test-11.11]="pbench-register-tool-set"
     [test-11.12]="pbench-register-tool-set"
     [test-11.13]="pbench-register-tool-set"
+    [test-11.14]="pbench-register-tool-set"
     [test-12]="pbench-clear-tools"
     [test-13]="pbench-postprocess-tools"
     [test-14]="pbench-agent-config-activate"
