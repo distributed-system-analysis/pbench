@@ -1,6 +1,16 @@
+___
+# black complains loudly that fio-histo-log-pctile.py is not a python file
+# because it isnt, so ignore it
+exclude: agent/bench-scripts/test-bin/fio-histo-log-pctiles.py
 repos:
--   repo: https://gitlab.com/pycqa/flake8
+  - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.9
     hooks:
-    - id: flake8
-      additional_dependencies: [flake8-typing-imports==1.6.0]
+     - id: flake8
+       additional_dependencies: [flake8-typing-imports==1.6.0]
+  - repo: https://github.com/python/black.git
+    rev: 19.10b0
+    hooks:
+        - id: black
+          language_version: python3
+          args: ["--check"]
