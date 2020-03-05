@@ -1,5 +1,7 @@
 dist: bionic
 jobs:
+  allow_failures:
+      - name: "black-tests"
   include:
     - stage: "Agent Unit Tests"
       name: "agent-unit-tests"
@@ -36,3 +38,16 @@ jobs:
       install:
         - pip install flake8
       script: flake8
+
+    - stage: "Python black tests"
+      name: "black-tests"
+      language: python
+      python:
+        - "3.6"
+      before_install:
+        - sudo apt-get update
+      install:
+        - pip install black
+      script: black --check .
+
+
