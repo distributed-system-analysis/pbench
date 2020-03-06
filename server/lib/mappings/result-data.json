@@ -14,7 +14,7 @@
                 "format": "dateOptionalTime"
             },
             "@timestamp_original": {
-                "type": "long"
+                "type": "string"
             },
             "run": {
                 "properties": {

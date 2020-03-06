@@ -11,7 +11,7 @@
                 "format": "dateOptionalTime"
             },
             "@timestamp_original": {
-                "type": "long"
+                "type": "string"
             },
             "@generated-by": {
                 "type": "string",
@@ -115,6 +115,13 @@
                     "group": {
                         "type": "string",
                         "index": "not_analyzed"
+                    },
+                    "Hammerdb-tpcc": {
+                        "properties": {
+                            "Users": {
+                                "type": "long"
+                            }
+                        }
                     },
                     "mean": {
                         "type": "double"
@@ -236,6 +243,34 @@
                     },
                     "frame_size": {
                         "type": "long"
+                    },
+                    "Hammerdb-tpcc": {
+                        "properties": {
+                            "Cpus": {
+                                "type": "long"
+                            },
+                            "DBVer": {
+                                "type": "string"
+                            },
+                            "Database": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "Hostname": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            },
+                            "Kernel": {
+                                "type": "string"
+                            },
+                            "Memory": {
+                                "type": "long"
+                            },
+                            "StorageType": {
+                                "type": "string",
+                                "index": "not_analyzed"
+                            }
+                        }
                     },
                     "instances": {
                         "type": "long"

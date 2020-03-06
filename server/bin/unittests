@@ -673,6 +673,9 @@ declare -A cmds=(
     # Test handling of non-uniform timestamps (strings and ints)
     [test-7.23]="_run_indexing"
 
+    # Test user-benchmark indexing
+    [test-7.24]="_run_indexing"
+
     # activation test
     [test-8]="_run_activate"
 
