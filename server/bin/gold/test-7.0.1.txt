@@ -2490,7 +2490,7 @@ Template: pbench-unittests.v4.result-data
                     "type": "date"
                 },
                 "@timestamp_original": {
-                    "type": "long"
+                    "type": "string"
                 },
                 "iteration": {
                     "properties": {
@@ -2573,10 +2573,38 @@ Template: pbench-unittests.v4.result-data
                     "type": "date"
                 },
                 "@timestamp_original": {
-                    "type": "long"
+                    "type": "string"
                 },
                 "benchmark": {
                     "properties": {
+                        "Hammerdb-tpcc": {
+                            "properties": {
+                                "Cpus": {
+                                    "type": "long"
+                                },
+                                "DBVer": {
+                                    "type": "string"
+                                },
+                                "Database": {
+                                    "index": "not_analyzed",
+                                    "type": "string"
+                                },
+                                "Hostname": {
+                                    "index": "not_analyzed",
+                                    "type": "string"
+                                },
+                                "Kernel": {
+                                    "type": "string"
+                                },
+                                "Memory": {
+                                    "type": "long"
+                                },
+                                "StorageType": {
+                                    "index": "not_analyzed",
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "active_device_pairs": {
                             "type": "string"
                         },
@@ -3167,6 +3195,13 @@ Template: pbench-unittests.v4.result-data
                     "properties": {
                         "@idx": {
                             "type": "long"
+                        },
+                        "Hammerdb-tpcc": {
+                            "properties": {
+                                "Users": {
+                                    "type": "long"
+                                }
+                            }
                         },
                         "category": {
                             "index": "not_analyzed",

@@ -1560,13 +1560,13 @@ len(actions) = 30
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_id": "9ba4c5824ce8d82e815c5f2280695539",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
         "_source": {
             "@generated-by": "8aab70198482b229b068fa82873f594f",
             "@timestamp": "2016-10-06T16:34:17.472000",
-            "@timestamp_original": 1475771657472,
+            "@timestamp_original": "1475771657472",
             "benchmark": {
                 "clients": "10.10.40.15",
                 "instances": 32,
@@ -1618,13 +1618,13 @@ len(actions) = 30
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "314542c33c78a95afd7f9ba3226e7bc1",
+        "_id": "0bdf6e5e9f04c800e998ec620d832ef4",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:17.472000",
-            "@timestamp_original": 1475771657472,
+            "@timestamp_original": "1475771657472",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1649,13 +1649,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "133ef5e1f81327c2f077df2d0f5c7754",
+        "_id": "0cbcf3f9b740d598dc8e0136dd3f68c4",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:18.473000",
-            "@timestamp_original": 1475771658473,
+            "@timestamp_original": "1475771658473",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1680,13 +1680,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "f14b43f73d8dad45035eb99c06f6dee4",
+        "_id": "37d53dccbfe0eaeb70a9c202516cf396",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:19.474000",
-            "@timestamp_original": 1475771659474,
+            "@timestamp_original": "1475771659474",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1711,13 +1711,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "3936e48938cec2a2ce8a5d9722469910",
+        "_id": "9bd799154fcd3375e587d25807e265b0",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:20.475000",
-            "@timestamp_original": 1475771660475,
+            "@timestamp_original": "1475771660475",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1742,13 +1742,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "ac79c2193adab384cf28c44289b1a5a0",
+        "_id": "a30cee21cd601fa045bdb7a1c4772508",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:21.476000",
-            "@timestamp_original": 1475771661476,
+            "@timestamp_original": "1475771661476",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1773,13 +1773,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "72750309ee07ac05f96c9efd98d9e2e7",
+        "_id": "4fedd134fc2ac2ddd2765f6123dc0f6f",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:22.478000",
-            "@timestamp_original": 1475771662478,
+            "@timestamp_original": "1475771662478",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1804,13 +1804,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "47266e25c06c8b025d8253a4e90654f0",
+        "_id": "beb0c0d8442cd498109c8902e8c58e88",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:23.479000",
-            "@timestamp_original": 1475771663479,
+            "@timestamp_original": "1475771663479",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1835,13 +1835,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "8b1b25f41c19ebb696e7d86aa688a495",
+        "_id": "f0bc734784ea0e56b1ae8bab77750a5c",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:24.480000",
-            "@timestamp_original": 1475771664480,
+            "@timestamp_original": "1475771664480",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1866,13 +1866,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "2ad377df20a6a34e84583d63f1dc5dda",
+        "_id": "2c1dcdbb89338f8371ad6ff3700cc81b",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:25.481000",
-            "@timestamp_original": 1475771665481,
+            "@timestamp_original": "1475771665481",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1897,13 +1897,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "71bde8b18e39fea5baaee95f93a9e7f2",
+        "_id": "23eefd96372e8400dd57877296e6b543",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:26.482000",
-            "@timestamp_original": 1475771666482,
+            "@timestamp_original": "1475771666482",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1928,13 +1928,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "aa2f484b9c7805ed1323cb90bec54d5e",
+        "_id": "84102fcd4c9f55b56fd0b62c644a5701",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:27.483000",
-            "@timestamp_original": 1475771667483,
+            "@timestamp_original": "1475771667483",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1959,13 +1959,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "001fc38009f734aeff4636d86877e416",
+        "_id": "f90be82faf367a24bc054de5f885a011",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:28.484000",
-            "@timestamp_original": 1475771668484,
+            "@timestamp_original": "1475771668484",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -1990,13 +1990,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "c4b90363f973a5a1978762cae30b3a5d",
+        "_id": "ebcbf175df8b5f544ad459785057b29a",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:29.485000",
-            "@timestamp_original": 1475771669485,
+            "@timestamp_original": "1475771669485",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -2021,13 +2021,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "2a29ef04522512e39af370830fe33035",
+        "_id": "87698c1508c2fdd7e12e08e89a8bc2bc",
         "_index": "pbench-unittests.v4.result-data.2016-10-06",
         "_op_type": "create",
-        "_parent": "b78f149ac6e5f54ddfd49151487afd2f",
+        "_parent": "9ba4c5824ce8d82e815c5f2280695539",
         "_source": {
             "@timestamp": "2016-10-06T16:34:30.486000",
-            "@timestamp_original": 1475771670486,
+            "@timestamp_original": "1475771670486",
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1

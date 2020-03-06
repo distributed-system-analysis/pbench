@@ -969,13 +969,13 @@ len(actions) = 30
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "7d3536ded4dc4aa6550597046ec355a5",
+        "_id": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
         "_source": {
             "@generated-by": "8aab70198482b229b068fa82873f594f",
             "@timestamp": "2018-02-02T20:58:13.411000",
-            "@timestamp_original": 1517605093411,
+            "@timestamp_original": "1517605093411",
             "benchmark": {
                 "clients": "dhcp31-44.perf.lab.eng.bos.redhat.com",
                 "instances": 8,
@@ -1028,13 +1028,13 @@ len(actions) = 30
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "1d452c293a88962bd45976a2f787787f",
+        "_id": "2c862e2775391175ad04e31fa05359b3",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:13.411000",
-            "@timestamp_original": 1517605093411,
+            "@timestamp_original": "1517605093411",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1059,13 +1059,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "d7407d744d8ed2d0a8309d547fd52b83",
+        "_id": "d96a051de5e371f39156c6da6049541d",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:14.412000",
-            "@timestamp_original": 1517605094412,
+            "@timestamp_original": "1517605094412",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1090,13 +1090,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "595ca1b5db352da1c19cdd38a2d238dc",
+        "_id": "0bdef40a59edc3b740b16ca4a3d3c74f",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:15.413000",
-            "@timestamp_original": 1517605095413,
+            "@timestamp_original": "1517605095413",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1121,13 +1121,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1db507f1a56f6e0ef9b286bf7722aa21",
+        "_id": "2471c43b408440dfa9afc2beadb90a75",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:16.414000",
-            "@timestamp_original": 1517605096414,
+            "@timestamp_original": "1517605096414",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1152,13 +1152,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "fa71d3bfb2e45149d2cfd73ed5fecffb",
+        "_id": "8aa05da04d33a428cb54d0b6a3807d57",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:17.416000",
-            "@timestamp_original": 1517605097416,
+            "@timestamp_original": "1517605097416",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1183,13 +1183,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "9f69226c17e850a62fbb591ce0874444",
+        "_id": "160772679d42caeb596d92f422fb9e58",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:18.417000",
-            "@timestamp_original": 1517605098417,
+            "@timestamp_original": "1517605098417",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1214,13 +1214,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "06dac057143fe562abe2452dde7dfbe4",
+        "_id": "68968d76da881d317998ab7145832b1c",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:19.417000",
-            "@timestamp_original": 1517605099417,
+            "@timestamp_original": "1517605099417",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1245,13 +1245,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "3f2d9b125950ed339d4e7742d77f66a1",
+        "_id": "31d330ebecc327d3106d31f3cfbdfb89",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:20.418000",
-            "@timestamp_original": 1517605100418,
+            "@timestamp_original": "1517605100418",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1276,13 +1276,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "1e939a5ebda281879a96a476bd924d60",
+        "_id": "a67e0d9df85a631b977621f4ef06daf4",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:21.419000",
-            "@timestamp_original": 1517605101419,
+            "@timestamp_original": "1517605101419",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1307,13 +1307,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "159229887afb5b84842964c18ca0e3d3",
+        "_id": "9d55226cab311a0df5bbbc0d3c419c26",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:22.420000",
-            "@timestamp_original": 1517605102420,
+            "@timestamp_original": "1517605102420",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1338,13 +1338,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "6ecbffd5c04b9a7b581b95ed407a04ba",
+        "_id": "7815e24fc3d5f6482aa781d77dd21afa",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:23.421000",
-            "@timestamp_original": 1517605103421,
+            "@timestamp_original": "1517605103421",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1369,13 +1369,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "f425239bf242f06283f4799f014ef084",
+        "_id": "a20b50ad07c06fc378379efce99f94c2",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:24.422000",
-            "@timestamp_original": 1517605104422,
+            "@timestamp_original": "1517605104422",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1400,13 +1400,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "b85ae9b7616d9e4c5a9dd193c518a0f1",
+        "_id": "a7f6200fe24846c76d2291c3ba3be8aa",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:25.423000",
-            "@timestamp_original": 1517605105423,
+            "@timestamp_original": "1517605105423",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -1431,13 +1431,13 @@ len(actions) = 30
         "_type": "pbench-result-data"
     },
     {
-        "_id": "4ea8f96415e7565ffa2064aad9c2222a",
+        "_id": "82c62904752f695fd8462c2962fd4334",
         "_index": "pbench-unittests.v4.result-data.2018-02-02",
         "_op_type": "create",
-        "_parent": "7d3536ded4dc4aa6550597046ec355a5",
+        "_parent": "b2e3445bf15bf9fdb7342d4f974a95b9",
         "_source": {
             "@timestamp": "2018-02-02T20:58:26.425000",
-            "@timestamp_original": 1517605106425,
+            "@timestamp_original": "1517605106425",
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1

@@ -14,6 +14,7 @@ import re
 import socket
 import sys
 import tarfile
+import errno
 from collections import Counter, deque
 from configparser import ConfigParser
 from configparser import Error as ConfigParserError
@@ -70,9 +71,6 @@ _MAX_ERRMSG_LENGTH = 16384
 # existing records, allowing us to detect duplicates.
 _op_type = "create"
 
-# UID keyword pattern
-uid_keyword_pat = re.compile(r"%\w*?%")
-
 # global - defaults to normal dict, ordered dict for unit tests
 _dict_const = dict
 
@@ -126,6 +124,22 @@ class TemplateError(Exception):
     pass
 
 
+class BadIterationName(Exception):
+    """Raised when constructing an Iteration object where the given name does
+    not exist on disk, or if the iteration name does not have a leading number.
+    """
+
+    pass
+
+
+class BadSampleName(Exception):
+    """Raised when constructing Sample object where the given name does not
+    have a trailing number.
+    """
+
+    pass
+
+
 class PbenchTemplates(object):
     """Encapsulation of methods for loading / working with all the Pbench
     templates for Elasticsearch.
@@ -157,6 +171,8 @@ class PbenchTemplates(object):
         if len(keys) != 1:
             raise MappingFileError("Invalid mapping file: {}".format(mapping_fn))
         return keys[0], mapping[keys[0]]
+
+    _fpat = re.compile(r"tool-data-frag-(?P<toolname>.+)\.json")
 
     def __init__(self, basepath, idx_prefix, logger, known_tool_handlers=None, _dbg=0):
         # Where to find the mappings
@@ -315,12 +331,11 @@ class PbenchTemplates(object):
         ip = self.index_patterns["tool-data"]
 
         # Next we load all the tool fragments
-        fpat = re.compile(r"tool-data-frag-(?P<toolname>.+)\.json")
         tool_mapping_frags = {}
         for mapping_fn in glob.iglob(
             os.path.join(MAPPING_DIR, "tool-data-frag-*.json")
         ):
-            m = fpat.match(os.path.basename(mapping_fn))
+            m = self._fpat.match(os.path.basename(mapping_fn))
             toolname = m.group("toolname")
             if self.known_tool_handlers is not None:
                 if toolname not in self.known_tool_handlers:
@@ -1018,20 +1033,22 @@ class ResultData(PbenchData):
         )
         self.json_dirs = None
         try:
-            self.json_dirs = ResultData.get_result_json_dirs(ptb)
+            self.json_dirs = ResultData._get_result_json_dirs(ptb)
         except KeyError:
-            self.json_dirs = None
+            pass
+        # Check to see if this is a "known" user benchmark.
+        self.user_benchmark = ResultData._known_user_benchmark(ptb)
 
     @staticmethod
-    def get_result_json_dirs(ptb):
+    def _get_result_json_dirs(ptb):
         """
         Fetch the list of directories containing result.json files for this
         experiment; return a list directory path names.
         """
         paths = [
-            x
-            for x in ptb.tb.getnames()
-            if (os.path.basename(x) == "result.json") and ptb.tb.getmember(x).isfile()
+            x.name
+            for x in ptb.members
+            if x.isfile() and (os.path.basename(x.name) == "result.json")
         ]
         dirnames = []
         for p in paths:
@@ -1040,27 +1057,380 @@ class ResultData(PbenchData):
 
     def make_source(self):
         """
+        Generator to make the source documents for ResultData.
+
         If we ever decide we need to process anything other than JSON files, this
         is going to become a jump method, similar to ToolData.make_source().
         ATM, we only handle JSON files.
         """
-        if not self.json_dirs:
-            # If we do not have any json files for this experiment, ignore it.
-            return None
-        gen = self._make_source_json()
+        gen = None
+        if self.json_dirs:
+            gen = self._make_source_json()
+        if gen is None and self.user_benchmark:
+            # We do not have any JSON files for this experiment, but we do
+            # have "known" user benchmark files we can index.
+            gen = self._make_user_benchmark_json()
         return gen
 
-    # Set of supported benchmarks.
+    known_user_benchmarks = {
+        "Hammerdb-tpcc": {
+            "HammerDB-3.2": {
+                "name": "Hammerdb-tpcc",
+                "version": "HammerDB-3.2",
+                "columns": {
+                    "Cpus": "long",
+                    "DBVer": "text",
+                    "Database": "keyword",
+                    "EndTime": "date",
+                    "Hostname": "keyword",
+                    "Kernel": "text",
+                    "Memory": "long",
+                    "StartTime": "date",
+                    "StorageType": "keyword",
+                    "Tpm": "long",
+                    "Users": "long",
+                },
+                "methods": {"long": int, "date": str, "keyword": str, "text": str},
+                "benchmark_md_cols": [
+                    "Hostname",
+                    "Kernel",
+                    "Database",
+                    "DBVer",
+                    "Cpus",
+                    "Memory",
+                    "StorageType",
+                ],
+                "sample_md_cols": ["Users"],
+                "val_col": "Tpm",
+                "start_ts_col": "StartTime",
+                "end_ts_col": "EndTime",
+                "ts_format": "%Y.%m.%d.%H:%M:%S",
+            }
+        }
+    }
+
+    @staticmethod
+    def _known_user_benchmark(ptb):
+        """Determine if this is a "known" user benchmark.
+
+        We load the "user-benchmark-name.txt" file if it exists. If it has a
+        workload name and version on the first line that we recognize, then we
+        find all the user-benchmark-result.csv files to be indexed.
+        """
+        idxctx = ptb.idxctx
+        ubm_name = os.path.join(
+            ptb.extracted_root, ptb.dirname, "user-benchmark-name.txt"
+        )
+        try:
+            with open(ubm_name, "r") as fp:
+                first_line = fp.readline()
+                blob = fp.read()
+        except OSError as exc:
+            if exc.errno == errno.ENOENT:
+                return None
+            else:
+                idxctx.logger.warning(
+                    "Unable to read user benchmark name from {}, {}, user"
+                    " benchmark data won't be indexed",
+                    ubm_name,
+                    exc,
+                )
+                return None
+        except Exception as exc:
+            idxctx.logger.error(
+                "Error reading user benchmark name from {}, {}, user"
+                " benchmark data won't be indexed",
+                ubm_name,
+                exc,
+            )
+            return None
+        user_benchmark = None
+        try:
+            name, ver = first_line.split(" ", 1)
+        except ValueError:
+            name = first_line
+            ver = ""
+        name = name.strip()
+        try:
+            ubm_driver_versions = ResultData.known_user_benchmarks[name]
+        except KeyError:
+            pass
+        else:
+            ver = ver.strip()
+            try:
+                ubm_driver = ubm_driver_versions[ver]
+            except KeyError:
+                idxctx.logger.warning(
+                    "Unrecognized user-benchmark driver, '{}.{}'", name, ver
+                )
+            else:
+                # Verify columns to be safe.
+                cols = set(ubm_driver["columns"].keys())
+                if ubm_driver["val_col"] not in cols:
+                    idxctx.logger.error("Logic bomb! bad ubm driver val_col")
+                    return None
+                if ubm_driver["start_ts_col"] not in cols:
+                    idxctx.logger.error("Logic bomb! bad ubm driver start_ts_col")
+                    return None
+                if ubm_driver["end_ts_col"] and (ubm_driver["end_ts_col"] not in cols):
+                    idxctx.logger.error("Logic bomb! bad ubm driver end_ts_col")
+                    return None
+                for bm_md_col in ubm_driver["benchmark_md_cols"]:
+                    if bm_md_col not in cols:
+                        idxctx.logger.error(
+                            "Logic bomb! bad ubm driver benchmark_md_cols"
+                        )
+                        return None
+                for sample_md_col in ubm_driver["sample_md_cols"]:
+                    if sample_md_col not in cols:
+                        idxctx.logger.error("Logic bomb! bad ubm driver sample_md_cols")
+                        return None
+                user_benchmark = _dict_const(
+                    name=name,
+                    version=ver.strip(),
+                    description=blob.strip(),
+                    driver=ubm_driver,
+                )
+        return user_benchmark
+
+    @staticmethod
+    def _normalize_timestamp(ts_format, ts):
+        return datetime.strptime(ts, ts_format).strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+    def _make_user_benchmark_json(self):
+        """Find all of the user-benchmark-result.csv files, and build up sample
+        documents with the columns from the spreadsheet as benchmark
+        parameters.
+
+        An example .csv file for the known "frabitz" user benchmark might look
+        like:
+
+            StartTime,EndTime,Hostname,Kernel,Database,DBVer,Cpus,Memory,StorageType,Users,Tpm
+            "2020.01.31.14:17:32","2020.01.31.14:33:38","hostA","4.18.0-173.el8.x86_64","MyDB","v42.0","40","263826620","NVME","10","917474"
+
+        We'll want a result data sample document that ends up looking like:
+
+            "_source": {
+                "@timestamp": "2020.01.31T14:33:38.000000",
+                "@timestamp_original": "2020.01.31.14:33:38",
+                "benchmark": {
+                    "@name": "frabitz",
+                    "@version": "v0.1",
+                    "frabitz" : {
+                        "Hostname": "hostA",
+                        "Kernel": "4.18.0-173.el8.x86_64",
+                        "Database": "MyDB",
+                        "DBVer": "v42.0",
+                        "Cpus": "40",
+                        "Memory": "263826620",
+                        "StorageType": "NVME"
+                    },
+                },
+                "iteration": {
+                    "name": "10U-NVME",
+                    "number": 1
+                },
+                "run": {
+                   ...
+                },
+                "sample": {
+                    "@idx": 0,
+                    "closest_sample": 1,
+                    "frabitz": {
+                        "Users": "10"
+                    },
+                    "measurement_idx": 0,
+                    "measurement_title": "Tpm",
+                    "measurement_type": "number",
+                    "name": "sample1",
+                    "start": "2020.01.31T14:17:32.000000"
+                }
+            }
+
+        And a result data document that ends up looking like:
+
+            "_source": {
+                "@timestamp": "2020.01.31T14:33:38.000000",
+                "@timestamp_original": "2020.01.31.14:33:38",
+                "iteration": {
+                    "name": "10U-NVME",
+                    "number": 1
+                },
+                "result": {
+                    "@idx": 0,
+                    "value": 917474
+                },
+                "run": {
+                   ...
+                },
+                "sample": {
+                    "@idx": 0,
+                    "measurement_idx": 0,
+                    "measurement_title": "Tpm",
+                    "measurement_type": "number",
+                    "name": "sample1"
+                }
+            }
+        """
+        name = self.user_benchmark["name"]
+        version = self.user_benchmark["version"]
+        driver = self.user_benchmark["driver"]
+        start_ts_col = driver["start_ts_col"]
+        end_ts_col = driver["end_ts_col"]
+        val_col = driver["val_col"]
+        methods = driver["methods"]
+        columns = driver["columns"]
+        columns_set = set(columns.keys())
+        bm_md_cols = driver["benchmark_md_cols"]
+        sam_md_cols = driver["sample_md_cols"]
+        ts_format = driver["ts_format"]
+        for iter_obj in self.ptb.get_iterations():
+            iteration_md = _dict_const(
+                [("name", iter_obj.name), ("number", iter_obj.number)]
+            )
+            for sample_obj in self.ptb.get_samples(iter_obj):
+                csv_name = os.path.join(sample_obj.path, "user-benchmark-result.csv")
+                try:
+                    with open(csv_name, "r") as fp:
+                        csv_reader = csv.DictReader(fp)
+                        row = next(csv_reader)
+                        # Now that we have read the first line of the .csv
+                        # file, the CSV reader now knows all the field names,
+                        # so we can compare against the expected field names.
+                        if set(csv_reader.fieldnames) - columns_set:
+                            self.ptb.idxctx.logger.warning(
+                                "Unexpected column(s) found, '{!r}' in {}",
+                                set(csv_reader.fieldnames) - columns_set,
+                                csv_name,
+                            )
+                            continue
+                except OSError as exc:
+                    if exc.errno == errno.ENOENT:
+                        continue
+                except Exception as exc:
+                    self.ptb.idxctx.logger.warning(
+                        "Unable to read '{}', '{}'", csv_name, exc
+                    )
+                    continue
+                # First construct the base sample metadata common to sample
+                # documents and result documents.
+                base_sample_md = _dict_const(
+                    [
+                        ("@idx", 0),
+                        ("measurement_idx", 0),
+                        ("measurement_title", val_col),
+                        ("measurement_type", "number"),
+                        ("name", sample_obj.name),
+                    ]
+                )
+                sample_md = dict()
+                sample_md.update(base_sample_md)
+                sample_md["closest_sample"] = sample_obj.number
+                start_time = self._normalize_timestamp(ts_format, row[start_ts_col])
+                sample_md["start"] = start_time
+                if end_ts_col:
+                    sample_md["end"] = self._normalize_timestamp(
+                        ts_format, row[end_ts_col]
+                    )
+                # Add all the specified sample metadata.
+                if sam_md_cols:
+                    _sam_md = _dict_const()
+                    for sam_md_name in sam_md_cols:
+                        _sam_md[sam_md_name] = methods[columns[sam_md_name]](
+                            row[sam_md_name]
+                        )
+                    sample_md[name] = _sam_md
+                # Add all the benchmark metadata columns.
+                _bm_md = _dict_const()
+                for bm_md_name in bm_md_cols:
+                    _bm_md[bm_md_name] = methods[columns[bm_md_name]](row[bm_md_name])
+                bm_md = _dict_const(
+                    [("name", name), ("version", version), (name, _bm_md)]
+                )
+                source = _dict_const(
+                    [
+                        ("@timestamp", start_time),
+                        ("@timestamp_original", str(row[start_ts_col])),
+                        ("benchmark", bm_md),
+                        ("iteration", iteration_md),
+                        ("run", self.run_metadata),
+                        ("sample", sample_md),
+                    ]
+                )
+                # Yield the result-data-sample document.
+                _id = PbenchData.make_source_id(source)
+                yield source, _id, None, "sample"
+
+                # Construct the result-data document.
+                sample_md = base_sample_md
+                # Add val columns
+                result = _dict_const(
+                    [("@idx", 0), ("value", methods[columns[val_col]](row[val_col]))]
+                )
+                source = _dict_const(
+                    [
+                        ("@timestamp", start_time),
+                        ("@timestamp_original", str(row[start_ts_col])),
+                        ("iteration", iteration_md),
+                        ("result", result),
+                        (
+                            "run",
+                            _dict_const(
+                                [
+                                    ("id", self.run_metadata["id"]),
+                                    ("name", self.run_metadata["name"]),
+                                ]
+                            ),
+                        ),
+                        ("sample", sample_md),
+                    ]
+                )
+                # Yield the result-data document.
+                _parent = _id
+                _id = PbenchData.make_source_id(source, _parent=_parent)
+                yield source, _id, _parent, "res"
+        return
+
+    # Set of supported benchmarks using result.json files.
     #
-    # There are three categories of "result types" produced by the benchmarks
-    # we support for indexing: "latency", "resource", and "throughput".  At
-    # least one of these result types is expected, but benchmarks produce some
-    # combination of the three.
+    # A result.json file provides an array of dictionaries at the outer most
+    # level.  Each dictionary in the array describes an "iteration", with 3 or
+    # 4 fields:
+    #
+    #   * "iteration_name"        - The human-readable name for the iteration;
+    #                               this is often the name of the directory
+    #                               in the pbench tar ball containing iteration
+    #                               data
+    #   * "iteration_number"      - The sequence number of the iteration as
+    #                               recorded by the benchmark driver
+    #   * "iteration_name_format" - (optional) The string formatting (printf)
+    #                               use to construct the directory in the tar
+    #                               ball using the "name" and "number" fields
+    #   * "iteration_data"        - The dictionary containing all the recorded
+    #                               data for this iteration
+    #
+    # NOTE: the "iteration_number" field is NOT necessarily the order of the
+    # iteration dictionaries in the JSON array; if the "iteration_name_format"
+    # field is present, then the format must be used to construct the name of
+    # the iteration directory in the tar ball; if the "iteration_name_format"
+    # is NOT present, then either the "iteration_name" field is the name of
+    # the iteration directory in the tar ball, or we'll use a default
+    # iteration name of "%d-%s".format(number, name).
+    #
+    # Each "iteration_data" dictionary is made up of a "parameters"
+    # dictionary, and one or more dictionaries of "result types".  There are
+    # three categories of "result types" produced by the benchmarks we support
+    # for indexing: "latency", "resource", and "throughput".  At least one of
+    # these result types is expected, but benchmarks produce some combination
+    # of the three.
     #
     # So a result.json top-level might look like the following:
     #
     #   [
     #     {
+    #       "iteration_name": "iter-one",
+    #       "iteration_number": "1",
+    #       "iteration_name_format": "%d--%s",
     #       "iteration_data": {
     #         "parameters": {...},
     #         "latency": {...},
@@ -1070,10 +1440,30 @@ class ResultData(PbenchData):
     #     }
     #   ]
     #
+    # The "parameters" dictionary always has a "benchmark" dictionary as its
+    # lone entry.
+    #
     # Each "result type" is a dictionary containing one or more results with
-    # the "title" of each result being the "key" in the dictionary, and its
-    # value an array of result data.  For example, the following are typical
-    # contents one might see of fio, linpack, trafficgen, and uperf data:
+    # the "title" of each result being the "key" in the dictionary. In turn,
+    # each "title" entry is an array of individual results containing the
+    # parameters and attributes for that result, along with 1 or more samples.
+    # Each sample contains metadata for that sample, along with any timeseries
+    # data.
+    #
+    # The field mapping from result.json file to indexed JSON documents is as
+    # follows:
+    #
+    #   "iteration_name"  -->   "iteration.name"
+    #   "result type"     -->   "sample.measurement_type"
+    #   "title"           -->   "sample.measurement_title"
+    #   <result index>    -->   "sample.measurement_idx"
+    #   <sample index>    -->   "sample.name"
+    #
+    # It is required that all five (5) of the above fields be used to uniquely
+    # identify a particular sample document or result data timeseries.
+    #
+    # For example, the following are typical contents one might see of fio,
+    # linpack, trafficgen, and uperf data:
     #
     #   [ # fio
     #     {
@@ -1421,11 +1811,14 @@ class ResultData(PbenchData):
                 source, _parent=_parent
             ), _parent, _type
 
+    # UID keyword pattern
+    _uid_keyword_pat = re.compile(r"%\w*?%")
+
     @staticmethod
     def expand_template(templ, d, run=None):
         # match %...% patterns non-greedily.
         s = templ
-        for m in re.findall(uid_keyword_pat, s):
+        for m in re.findall(ResultData._uid_keyword_pat, s):
             # m[1:-1] strips the initial and final % signs from the match.
             key = m[1:-1]
             try:
@@ -1602,7 +1995,7 @@ class ResultData(PbenchData):
                         if start:
                             # Only record the original timestamp if we have
                             # it.
-                            source["@timestamp_original"] = start["date"]
+                            source["@timestamp_original"] = str(start["date"])
                         sample_id = PbenchData.make_source_id(source)
                         yield source, None, "sample"
                         if not tseries:
@@ -1640,7 +2033,7 @@ class ResultData(PbenchData):
                             source = _dict_const(
                                 [
                                     ("@timestamp", ts),
-                                    ("@timestamp_original", orig_ts),
+                                    ("@timestamp_original", str(orig_ts)),
                                     ("run", run_md_subset),
                                     ("iteration", iteration_md_subset),
                                     ("sample", sample_md_subset),
@@ -2496,7 +2889,7 @@ class ToolData(PbenchData):
                         prev_ts_val = ts_val
                         datum = _dict_const()
                         datum["@timestamp"] = ts_val
-                        datum["@timestamp_original"] = val
+                        datum["@timestamp_original"] = str(val)
                         datum["run"] = self.run_metadata
                         datum["iteration"] = self.iteration_metadata
                         datum["sample"] = self.sample_metadata
@@ -2970,11 +3363,7 @@ class ToolData(PbenchData):
         return a dictionary mapping their column headers to their field names.
         """
         path = os.path.join(basepath, "csv")
-        paths = [
-            x
-            for x in ptb.tb.getnames()
-            if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()
-        ]
+        paths = ptb.gen_files_by_partial_path(path)
         datafiles = []
         for p in paths:
             fname = os.path.basename(p)
@@ -3019,11 +3408,7 @@ class ToolData(PbenchData):
         containing their metadata.
         """
         path = os.path.join(basepath, "json")
-        paths = [
-            x
-            for x in ptb.tb.getnames()
-            if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()
-        ]
+        paths = ptb.gen_files_by_partial_path(path)
         datafiles = []
         for p in paths:
             fname = os.path.basename(p)
@@ -3039,11 +3424,7 @@ class ToolData(PbenchData):
         """
         stdout_file = "{0}-stdout.txt".format(tool)
         path = os.path.join(basepath, stdout_file)
-        paths = [
-            x
-            for x in ptb.tb.getnames()
-            if x.find(path) >= 0 and ptb.tb.getmember(x).isfile()
-        ]
+        paths = ptb.gen_files_by_partial_path(path)
         datafiles = []
         for p in paths:
             fname = os.path.basename(p)
@@ -3226,7 +3607,8 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
     ip addresses of all the network interfaces we find at sosreport time."""
 
     sostb = tarfile.open(sos_file_name)
-    hostname_files = [x for x in sostb.getnames() if find_hostname(x) >= 0]
+    names = sostb.getnames()
+    hostname_files = [name for name in names if find_hostname(name) >= 0]
 
     # Fetch the hostname -f and hostname file contents
     hostname_f_file = [x for x in hostname_files if x.endswith("hostname_-f")]
@@ -3301,9 +3683,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
     d = _dict_const([("hostname-f", hostname_f), ("hostname-s", hostname_s)])
 
     # get the ip addresses for all interfaces
-    ipfiles = [
-        x for x in sostb.getnames() if x.find("sos_commands/networking/ip_") >= 0
-    ]
+    ipfiles = [name for name in names if name.find("sos_commands/networking/ip_") >= 0]
     ip_files = [x for x in ipfiles if x.find("sos_commands/networking/ip_-o_addr") >= 0]
     if ip_files:
         d.update(if_ip_from_sosreport(sostb.extractfile(ip_files[0])))
@@ -3317,8 +3697,83 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
     return (0, d)
 
 
+class Iteration(object):
+    """Encapsulation of all iteration information pulled from a pbench result
+    tar ball's metadata.log file, cross-referenced with the tar ball contents.
+
+    Note that the "name" field is always the on-disk directory name for the
+    iteration.
+    """
+
+    def __init__(self, ptb, name):
+        self._ptb = ptb
+        iter_dict = dict()
+        try:
+            items = ptb.mdconf.items(f"iterations/{name}")
+        except NoSectionError:
+            if name == "1":
+                # Old pbench-user-benchmark implementations used an iteration
+                # name of "1" for the on-disk directory, since they only ever
+                # ran one iteration.  However, they did not record the
+                # iteration data in the metadata.log file.  So we implicitly
+                # know the name and number.
+                self.name = name
+                self.number = 1
+            else:
+                match = PbenchTarBall._iter_num_pat.match(name)
+                if not match:
+                    raise BadIterationName(name)
+                self.name = name
+                self.number = int(match.group("num"))
+        else:
+            iter_dict.update(items)
+            self.name = iter_dict["iteration_name"]
+            try:
+                self.number = iter_dict["iteration_number"]
+            except KeyError:
+                # Certain benchmark scripts fail to record the iteration
+                # number along with the on-disk directory name in
+                # 'iteration_name'.  We extract the iteration number from the
+                # name in those cases.
+                match = PbenchTarBall._iter_num_pat.match(self.name)
+                if match:
+                    self.number = int(match.group("num"))
+                elif name == "1":
+                    # Old pbench-user-benchmark implementation that did not
+                    # record the iteration number explicitly since the name is
+                    # the iteration number.
+                    self.number = 1
+                else:
+                    raise BadIterationName(self.name)
+        self.path = os.path.join(ptb.extracted_root, ptb.dirname, self.name)
+        self.md = iter_dict
+
+
+class Sample(object):
+    """Encapsulation of all sample information pulled from a pbench result
+    tar ball's metadata.log file, cross-ferenced with the tar ball contents.
+    """
+
+    def __init__(self, iteration, name):
+        self._iteration = iteration
+        self.name = name  # On-disk directory name
+        try:
+            self.number = int(name[6:])  # Remove "sample" to get number.
+        except ValueError:
+            if name == "reference-result":
+                # There were old implementations of pbench-user-benchmark
+                # where it did not create "sample###" directories, but just
+                # "reference-result". In those cases, the sample "number" is
+                # 1, but the sample name must remain "reference-result" since
+                # that is the on-disk directory name for that sample.
+                self.number = 1
+            else:
+                raise BadSampleName(name)
+        self.path = os.path.join(iteration.path, name)
+
+
 class PbenchTarBall(object):
-    """Encapsualation of the data structures representing the contents of a
+    """Encapsulation of the data structures representing the contents of a
     pbench tar ball.
     """
 
@@ -3524,36 +3979,80 @@ class PbenchTarBall(object):
         # It's what ties all of the relevant documents together.
         self.run_metadata["id"] = md5sum
 
+    def gen_files_by_partial_path(self, path):
+        """Generator for all files in the tar ball which match the given path
+        pattern.
+        """
+        for member in self.members:
+            if member.isfile() and member.name.find(path) >= 0:
+                yield member.name
+
+    _iter_num_pat = re.compile(r"(?P<num>^[1-9][0-9]*)-")
+
     def get_iterations(self):
+        """Get the list of Iteration objects for this pbench tar ball.
+
+        Note: (in v0.67 and earlier)
+
+            * pbench-user-benchmark recorded the list of iterations as a set
+              of numbers, not on-disk directory names.
+
+            * pbench-specjbb2005 recorded the iterations in its
+              "iterations.txt" file instead of ".iterations" which means we
+              didn't have iterations properly recorded in the metadata.log
+              file; AND they were recorded as a set of numbers, not on-disk
+              directory names.
+
+        Some benchmarks (NOT including pbench-uperf, -fio, -trafficgen, or
+        -user-benchmark) do not record the iteration number separately from
+        the on-disk name.
+        """
         try:
             # N.B. Comma-separated list
             iterations_str = self.run_metadata["iterations"]
         except Exception:
-            # TBD - trawl through tb with some heuristics
+            # Since we don't have the iterations list in the metadata, we run
+            # through the tar ball members looking for directories that are
+            # most likely iterations.
             iterations = []
-            for path in self.tb.getnames():
-                path_els = path.split("/")
+            for member in self.members:
+                if not member.isdir():
+                    # We are only looking for directories
+                    continue
+                path_els = member.name.split("/")
                 if len(path_els) != 2:
                     # Iteration directory names always have 2 path elements,
                     # [ '/', '<iteration name>' ].
                     continue
                 itername = path_els[1]
-                # FIXME - Iteration names don't have to match this pattern!
-                if re.search("^[1-9][0-9]*-", itername):
+                if self._iter_num_pat.match(itername):
+                    # We only recognize iteration names that match this
+                    # pattern, as later versions of the pbench-agent have
+                    # benchmark scripts which properly record the iteration
+                    # names in the metadata.log file.
                     iterations.append(itername)
         else:
-            iterations = iterations_str.split(", ")
+            iterations = [iteration.strip() for iteration in iterations_str.split(", ")]
         iterations_set = set(iterations)
         iterations = list(iterations_set)
         iterations.sort()
-        return iterations
+
+        iter_objs = []
+        for iteration in iterations:
+            iter_objs.append(Iteration(self, iteration))
+        return iter_objs
 
     def get_samples(self, iteration):
+        """Get the list of Sample objects for a given iteration object.
+        """
         samples = []
-        for path in self.tb.getnames():
-            if path.find("{}/".format(iteration)) < 0:
+        for member in self.members:
+            if not member.isdir():
+                # We are only looking for directories
                 continue
-            path_els = path.split("/")
+            if member.name.find(f"{iteration.name}/") < 0:
+                continue
+            path_els = member.name.split("/")
             if len(path_els) != 3:
                 # Sample directory names always have 3 path elements,
                 # [ '/', '<iteration name>', 'sample<number>' ].
@@ -3567,7 +4066,11 @@ class PbenchTarBall(object):
         samples_set = set(samples)
         samples = list(samples_set)
         samples.sort()
-        return samples
+
+        sample_objs = []
+        for sample in samples:
+            sample_objs.append(Sample(iteration, sample))
+        return sample_objs
 
     def get_section_items(self, section):
         try:
@@ -3708,9 +4211,9 @@ class PbenchTarBall(object):
         self.idxctx.logger.debug("start")
 
         sosreports = [
-            x
-            for x in self.tb.getnames()
-            if x.find("sosreport") >= 0 and x.endswith(".md5")
+            x.name
+            for x in self.members
+            if x.name.find("sosreport") >= 0 and x.name.endswith(".md5")
         ]
         sosreports.sort()
 
@@ -3994,7 +4497,9 @@ class PbenchTarBall(object):
                     tool_names = list(tools_data.keys())
                     tool_names.sort()
                     for tool in tool_names:
-                        yield ToolData(self, iteration, sample, hostname, tool)
+                        yield ToolData(
+                            self, iteration.name, sample.name, hostname, tool
+                        )
         return
 
     def mk_tool_data_actions(self):

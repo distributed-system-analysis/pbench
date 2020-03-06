@@ -77,17 +77,17 @@ Index:  pbench-unittests.v4.run.2020-02 20
 len(actions) = 21
 [
     {
-        "_id": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_id": "38c50b45fa28a3958e4f4310abe19587",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
         "_source": {
             "@generated-by": "8aab70198482b229b068fa82873f594f",
             "@metadata": {
                 "controller_dir": "ctlrA",
-                "file-date": "2020-03-02T02:34:42",
+                "file-date": "2020-03-21T14:07:45",
                 "file-name": "/var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz",
-                "file-size": 20824,
-                "md5": "ecf0e89f7267731a8a4a7a714929fc0c",
+                "file-size": 20848,
+                "md5": "38c50b45fa28a3958e4f4310abe19587",
                 "pbench-agent-version": "0.67-1g3fb4270c",
                 "raw_size": 86906351,
                 "result-prefix": "linpack-dev2",
@@ -108,8 +108,8 @@ len(actions) = 21
                 "controller": "ctlrA",
                 "date": "2020-02-28T19:09:47",
                 "end": "2020-02-28T19:16:58.350741",
-                "id": "ecf0e89f7267731a8a4a7a714929fc0c",
-                "iterations": "0__linpack-binary=:root:linpack:xlinpack_xeon64,1__linpack-binary=:root:linpack:bob:xlinpack_xeon64,2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64",
+                "id": "38c50b45fa28a3958e4f4310abe19587",
+                "iterations": "0__linpack-binary=:root:linpack:xlinpack_xeon64, 1__linpack-binary=:root:linpack:bob:xlinpack_xeon64, 2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64",
                 "name": "linpack_mock_2020.02.28T19.10.55",
                 "script": "linpack",
                 "start": "2020-02-28T19:10:55.645002",
@@ -120,10 +120,10 @@ len(actions) = 21
         "_type": "pbench-run"
     },
     {
-        "_id": "ee01f09ce9e2a41bd3b9fbcf1a036d7f",
+        "_id": "3ea57ce63cdd6ba40a4365245df43553",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "directory": "/",
@@ -137,9 +137,9 @@ len(actions) = 21
                 },
                 {
                     "mode": "0o644",
-                    "mtime": "2020-03-02T02:22:54",
+                    "mtime": "2020-03-21T14:06:10",
                     "name": "metadata.log",
-                    "size": 1538,
+                    "size": 1540,
                     "type": "reg"
                 },
                 {
@@ -179,16 +179,16 @@ len(actions) = 21
                 }
             ],
             "mode": "0o755",
-            "mtime": "2020-03-02T02:28:32",
+            "mtime": "2020-03-21T14:06:10",
             "parent": "/"
         },
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "8fdd23083863798ce9d82ca757a0bd46",
+        "_id": "0b410c707cdeab2173136475189f1169",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64",
@@ -209,10 +209,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "f244e748a0d075c6735deeea34018e69",
+        "_id": "c17a8074c49be0dcb7e87a1133395dc4",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -271,10 +271,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "3fa9c34e0322346f51af56aa1ca3e68b",
+        "_id": "c46f28def7a05a69a3d8417f1adda0b0",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -290,10 +290,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "2f0c0febd3c06cf3ffa8dc32c2a2ba6a",
+        "_id": "6a4724af641564ff4cc854261e3f0cc2",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -309,10 +309,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "7acf97055b97ac2eca22980cc80cd3c7",
+        "_id": "504acd8ff2eec003c70cfec46b2c122d",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -329,10 +329,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "3e42ff5ddd6ff4d1980ee733519916ee",
+        "_id": "eebc5bbdea8721962251c684e0cac563",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -373,10 +373,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "91d5eacba6517e3a8f333a4944345020",
+        "_id": "d99a1782f577a27574e63f5f7d080c22",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64",
@@ -397,10 +397,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "639e220a8da7bade1b1f4adc21ee5efe",
+        "_id": "7248ecd9e6405f865c33bd072e51970b",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -459,10 +459,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "28294591eb3c6ef7c0af4005e9af0532",
+        "_id": "43f5bed3926290c54e50df48481bd8ad",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -478,10 +478,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "2c126bcf4dc6165ca0e5a54233a3cad0",
+        "_id": "f3e30a345f50dd3b0865ac534a69fa78",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -497,10 +497,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "392729aec7ae2b1f9e83d597957973a7",
+        "_id": "217165030eabd5537ecd50d4448ccf72",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -517,10 +517,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "e21613c0d3c6b64ec1cecb35177e942c",
+        "_id": "91fb60c27bc789fc0fe7cd67cf8a8266",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "ancestor_path_elements": [
@@ -561,10 +561,10 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "5523c3f26c2547868c5c2344f78b9f18",
+        "_id": "dc43487c323354be78979f17b8c78c82",
         "_index": "pbench-unittests.v4.run.2020-02",
         "_op_type": "create",
-        "_parent": "ecf0e89f7267731a8a4a7a714929fc0c",
+        "_parent": "38c50b45fa28a3958e4f4310abe19587",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
             "directory": "/2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64",
@@ -585,7 +585,7 @@ len(actions) = 21
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "018cea7fcb51f60a7e6bb9c5bb823bca",
+        "_id": "76d9eb7b612f0c6b86db12e8ae88303b",
         "_index": "pbench-unittests.v4.result-data.2020-02-28",
         "_op_type": "create",
         "_source": {
@@ -616,7 +616,7 @@ len(actions) = 21
                 "controller": "ctlrA",
                 "date": "2020-02-28T19:09:47",
                 "end": "2020-02-28T19:16:58.350741",
-                "id": "ecf0e89f7267731a8a4a7a714929fc0c",
+                "id": "38c50b45fa28a3958e4f4310abe19587",
                 "name": "linpack_mock_2020.02.28T19.10.55",
                 "script": "linpack",
                 "start": "2020-02-28T19:10:55.645002",
@@ -642,7 +642,7 @@ len(actions) = 21
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "e1822ceaa96ee4b69c4ca049b3566ff8",
+        "_id": "b0ba125535b563a48f944a2ef20d07e1",
         "_index": "pbench-unittests.v4.result-data.2020-02-28",
         "_op_type": "create",
         "_source": {
@@ -673,7 +673,7 @@ len(actions) = 21
                 "controller": "ctlrA",
                 "date": "2020-02-28T19:09:47",
                 "end": "2020-02-28T19:16:58.350741",
-                "id": "ecf0e89f7267731a8a4a7a714929fc0c",
+                "id": "38c50b45fa28a3958e4f4310abe19587",
                 "name": "linpack_mock_2020.02.28T19.10.55",
                 "script": "linpack",
                 "start": "2020-02-28T19:10:55.645002",
@@ -699,7 +699,7 @@ len(actions) = 21
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "994da132e7fa04a98f685e8b4a3a4d58",
+        "_id": "76368af6424b16a32af23fa53f343a9b",
         "_index": "pbench-unittests.v4.result-data.2020-02-28",
         "_op_type": "create",
         "_source": {
@@ -730,7 +730,7 @@ len(actions) = 21
                 "controller": "ctlrA",
                 "date": "2020-02-28T19:09:47",
                 "end": "2020-02-28T19:16:58.350741",
-                "id": "ecf0e89f7267731a8a4a7a714929fc0c",
+                "id": "38c50b45fa28a3958e4f4310abe19587",
                 "name": "linpack_mock_2020.02.28T19.10.55",
                 "script": "linpack",
                 "start": "2020-02-28T19:10:55.645002",
@@ -756,7 +756,7 @@ len(actions) = 21
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "98b7b6e762d4d383836615e20ed350b5",
+        "_id": "0168053ee770b9dbdea3a7d7ce19ae01",
         "_index": "pbench-unittests.v4.result-data.2020-02-28",
         "_op_type": "create",
         "_source": {
@@ -787,7 +787,7 @@ len(actions) = 21
                 "controller": "ctlrA",
                 "date": "2020-02-28T19:09:47",
                 "end": "2020-02-28T19:16:58.350741",
-                "id": "ecf0e89f7267731a8a4a7a714929fc0c",
+                "id": "38c50b45fa28a3958e4f4310abe19587",
                 "name": "linpack_mock_2020.02.28T19.10.55",
                 "script": "linpack",
                 "start": "2020-02-28T19:10:55.645002",
@@ -813,7 +813,7 @@ len(actions) = 21
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "ea3080200069ff35c476f891f3b18311",
+        "_id": "dd9ebe75f09005c491d77cb557e9795f",
         "_index": "pbench-unittests.v4.result-data.2020-02-28",
         "_op_type": "create",
         "_source": {
@@ -844,7 +844,7 @@ len(actions) = 21
                 "controller": "ctlrA",
                 "date": "2020-02-28T19:09:47",
                 "end": "2020-02-28T19:16:58.350741",
-                "id": "ecf0e89f7267731a8a4a7a714929fc0c",
+                "id": "38c50b45fa28a3958e4f4310abe19587",
                 "name": "linpack_mock_2020.02.28T19.10.55",
                 "script": "linpack",
                 "start": "2020-02-28T19:10:55.645002",
@@ -870,7 +870,7 @@ len(actions) = 21
         "_type": "pbench-result-data-sample"
     },
     {
-        "_id": "6641e7728eaf5d62f09d952861407165",
+        "_id": "95be3d60d17ab3acdbc0cfadc65731cc",
         "_index": "pbench-unittests.v4.result-data.2020-02-28",
         "_op_type": "create",
         "_source": {
@@ -901,7 +901,7 @@ len(actions) = 21
                 "controller": "ctlrA",
                 "date": "2020-02-28T19:09:47",
                 "end": "2020-02-28T19:16:58.350741",
-                "id": "ecf0e89f7267731a8a4a7a714929fc0c",
+                "id": "38c50b45fa28a3958e4f4310abe19587",
                 "name": "linpack_mock_2020.02.28T19.10.55",
                 "script": "linpack",
                 "start": "2020-02-28T19:10:55.645002",
@@ -1135,7 +1135,7 @@ drwxrwxr-x          - archive/fs-version-001/ctlrA/UNPACKED
 lrwxrwxrwx         42 archive/fs-version-001/ctlrA/UNPACKED/linpack_mock_2020.02.28T19.10.55.tar.xz -> ../linpack_mock_2020.02.28T19.10.55.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-UNPACK
--rw-rw-r--      20824 archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz
+-rw-rw-r--      20848 archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz
 -rw-rw-r--         74 archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
@@ -1190,7 +1190,7 @@ drwxr-xr-x          - public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.5
 -rw-r--r--      45123 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64/sample0/tools-default/ctlrA/turbostat/turbostat-stdout.txt
 -rwxr-xr-x        276 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64/sample0/tools-default/ctlrA/turbostat/turbostat.cmd
 -rw-r--r--        267 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/iteration-list.txt
--rw-r--r--       1538 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/metadata.log
+-rw-r--r--       1540 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/metadata.log
 -rw-r--r--        286 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/pbench-run-benchmark.cmd
 -rw-r--r--        362 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/result.csv
 -rw-r--r--       2814 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/result.html
@@ -1296,7 +1296,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20824)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
@@ -1308,7 +1308,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz: success
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20824)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
@@ -1321,7 +1321,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
 1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20824)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
@@ -1339,7 +1339,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 26, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz: success
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20824)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
 1970-01-01T00:00:00.000000 WARNING pbench-index.indexer dump_opctx -- ** Errors encountered while indexing: [{"counters": {"sample_missing_timeseries": 6}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz"}]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
@@ -1351,7 +1351,7 @@ drwxrwxr-x          - tmp
 run-1970-01-01T00:00:00-UTC
 ln -s /var/tmp/pbench-test-server/test-7.22/pbench/public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55 /var/tmp/pbench-test-server/test-7.22/pbench/public_html/results/ctlrA/linpack-dev2/linpack_mock_2020.02.28T19.10.55
 ln -s /var/tmp/pbench-test-server/test-7.22/pbench/public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55 /var/tmp/pbench-test-server/test-7.22/pbench/public_html/users/janedo@example.com/ctlrA/linpack-dev2/linpack_mock_2020.02.28T19.10.55
-run-1970-01-01T00:00:00-UTC: ctlrA/linpack_mock_2020.02.28T19.10.55: success - elapsed time (secs): 0 - size (bytes): 20824
+run-1970-01-01T00:00:00-UTC: ctlrA/linpack_mock_2020.02.28T19.10.55: success - elapsed time (secs): 0 - size (bytes): 20848
 run-1970-01-01T00:00:00-UTC: Processed 1 tarballs
 1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
