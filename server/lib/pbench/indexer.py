@@ -722,15 +722,29 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
 
 class PbenchData(object):
     """Pbench Data abstract class - ToolData and ResultData inherit from it.
+
+    The following generic methods are not intended to be overridden:
+
+        * make_source_id()
+        * mk_abs_timestamp_millis()
+        * generate_index_name()
+
+    We also provide a set of metadata.log convenience methods that are not to
+    overridden:
+
+        * get_iterations()
+        * get_samples(iteration)
     """
-    def __init__(self, ptb, idxctx):
+    def __init__(self, ptb):
         self.year, self.month, self.day = (
                 "{:04d}".format(ptb.start_run_ts.year),
                 "{:02d}".format(ptb.start_run_ts.month),
                 "{:02d}".format(ptb.start_run_ts.day))
         self.ptb = ptb
-        self.logger = idxctx.logger
-        self.idxctx = idxctx
+        self.logger = ptb.idxctx.logger
+        self.idxctx = ptb.idxctx
+        # "run_metadata" only contains the run metadata we want to add to
+        # every tool data or result data document.
         self.run_metadata = _dict_const([
             ( 'id', ptb.run_metadata['id'] ),
             ( 'controller', ptb.run_metadata['controller'] ),
@@ -752,6 +766,9 @@ class PbenchData(object):
 
     @staticmethod
     def make_source_id(source, _parent=None):
+        """Construct a source ID (MD5 value) by first converting the python object to
+        JSON, and then computing the hash of the resulting string.
+        """
         the_bytes = json.dumps(source, sort_keys=True).encode('utf-8')
         if _parent is not None:
             the_bytes += str(_parent).encode('utf-8')
@@ -759,11 +776,11 @@ class PbenchData(object):
 
     def mk_abs_timestamp_millis(self, orig_ts):
         """Convert the given millis since the epoch relative or absolute
-           timestamp to an absolute ISO string timestamp, converting from
-           relative to absolute if necessary.
+        timestamp to an absolute ISO string timestamp, converting from
+        relative to absolute if necessary.
 
-           It is assumed the given timestamp is a float in milliseconds since
-           the epoch and is in UTC.
+        It is assumed the given timestamp is a float in milliseconds since
+        the epoch and is in UTC.
         """
         try:
             orig_ts_float = float(orig_ts)
@@ -848,8 +865,8 @@ class ResultData(PbenchData):
     result.json file recording all the iterations run, including all samples
     from all iterations.
     """
-    def __init__(self, ptb, idxctx):
-        super().__init__(ptb, idxctx)
+    def __init__(self, ptb):
+        super().__init__(ptb)
 
         self.idxctx.opctx.append(
             _dict_const(
@@ -1457,52 +1474,6 @@ class ResultData(PbenchData):
         return
 
 
-def mk_result_data_actions(ptb, idxctx):
-    idxctx.logger.debug("start")
-    rd = ResultData(ptb, idxctx)
-    if not rd:
-        idxctx.logger.debug("end [no result data]")
-        return
-    # sources is a generator
-    sources = rd.make_source()
-    if not sources:
-        idxctx.logger.debug("end [no result data sources]")
-        return
-    count = 0
-    for source, source_id, parent_id, doc_type in sources:
-        try:
-            idx_name = rd.generate_index_name('result-data', source)
-        except BadDate:
-            # We don't raise this exception because we are already well into
-            # indexing so much data that there is no point in stopping
-            # now.  The source of the exception has already counted the
-            # exception in its operational context.
-            pass
-        else:
-            assert doc_type in ( 'sample', 'res'), \
-                    "Invalid result data document type, {}".format(doc_type)
-            if doc_type == "res":
-                _type = "pbench-result-data"
-            else:
-                _type = "pbench-result-data-{}".format(doc_type)
-            action = _dict_const(
-                _op_type=_op_type,
-                _index=idx_name,
-                _type=_type,
-                _id=source_id,
-                _source=source
-            )
-            if parent_id is not None:
-                action['_parent'] = parent_id
-            else:
-                # Only the parent result data documents hold the tracking IDs.
-                source['@generated-by'] = idxctx.get_tracking_id()
-            count += 0
-            yield action
-    idxctx.logger.debug("end [{:d} result documents]", count)
-    return
-
-
 ###########################################################################
 # Tool data routines
 
@@ -1890,10 +1861,10 @@ def _noop(arg):
 
 
 class ToolData(PbenchData):
-    def __init__(self, ptb, iteration, sample, host, tool, idxctx):
-        super().__init__(ptb, idxctx)
+    def __init__(self, ptb, iteration, sample, host, tool):
+        super().__init__(ptb)
         self.toolname = tool
-        idxctx.opctx.append(_dict_const(
+        self.idxctx.opctx.append(_dict_const(
                 tbname=ptb.tbname,
                 object="ToolData-%s-%s-%s-%s" % (
                     iteration, sample, host, tool),
@@ -2817,112 +2788,8 @@ class ToolData(PbenchData):
         return datafiles
 
 
-# Tool data are stored in csv files in the tar ball.
-# The structure is
-#      <iterN> -> sampleN -> tools-$group -> <host> -> <tool> -> csv -> files
-# we have access routines for getting the iterations, samples, hosts, tools and files
-# because although we prefer to get as many of these things out of the metadata log,
-# that may not be possible; in the latter case, we fall back to trawling through the
-# tar ball and using heuristics.
-
-def get_iterations(ptb):
-    try:
-        # N.B. Comma-separated list
-        iterations_str = ptb.run_metadata['iterations']
-    except Exception:
-        # TBD - trawl through tb with some heuristics
-        iterations = []
-        for x in ptb.tb.getnames():
-            l = x.split('/')
-            if len(l) != 2:
-                continue
-            iter = l[1]
-            if re.search('^[1-9][0-9]*-', iter):
-                iterations.append(iter)
-    else:
-        iterations = iterations_str.split(', ')
-    iterations_set = set(iterations)
-    iterations = list(iterations_set)
-    iterations.sort()
-    return iterations
-
-def get_samples(ptb, iteration):
-    samples = []
-    for x in ptb.tb.getnames():
-        if x.find("{}/".format(iteration)) < 0:
-            continue
-        l = x.split('/')
-        if len(l) !=  3:
-            continue
-        sample = l[2]
-        if sample.startswith('sample'):
-            samples.append(sample)
-    if len(samples) == 0:
-        samples.append('reference-result')
-    samples_set = set(samples)
-    samples = list(samples_set)
-    samples.sort()
-    return samples
-
-def mk_tool_data(ptb, idxctx):
-    # Process the sosreports to ensure we get all the information about the
-    # host names for the tools.
-    sos_d = mk_sosreports(ptb.tb, ptb.extracted_root, idxctx.logger)
-    tools_array = mk_tool_info(sos_d, ptb.mdconf, idxctx.logger)
-    iterations = get_iterations(ptb)
-    for iteration in iterations:
-        samples = get_samples(ptb, iteration)
-        for sample in samples:
-            for host_tools in tools_array:
-                try:
-                    tools_data = host_tools['tools']
-                except KeyError:
-                    # No actual tools found.
-                    continue
-                hostname = host_tools['hostname']
-                tool_names = list(tools_data.keys())
-                tool_names.sort()
-                for tool in tool_names:
-                    yield ToolData(ptb, iteration, sample,
-                            hostname, tool, idxctx)
-    return
-
-def mk_tool_data_actions(ptb, idxctx):
-    idxctx.logger.debug("start")
-    count = 0
-    for td in mk_tool_data(ptb, idxctx):
-        # Each ToolData object, td, that is returned here represents how
-        # data collected for that tool across all hosts is to be returned.
-        # The make_source method returns a generator that will emit each
-        # source document for the appropriate unit of tool data.  Each has
-        # the option of constructing that data as best fits its tool data.
-        # The tool data for each tool is kept in its own index to allow
-        # for different curation policies for each tool.
-        asource = td.make_source()
-        if not asource:
-            continue
-        type_name = "pbench-tool-data-{}".format(td.toolname)
-        for source, source_id in asource:
-            try:
-                idx_name = td.generate_index_name('tool-data', source, toolname=td.toolname)
-            except BadDate:
-                pass
-            else:
-                source['@generated-by'] = idxctx.get_tracking_id()
-                action = _dict_const(
-                    _op_type=_op_type,
-                    _index=idx_name,
-                    _type=type_name,
-                    _id=source_id,
-                    _source=source
-                )
-                count += 1
-                yield action
-    idxctx.logger.debug("end [{:d} tool data documents]", count)
-    return
-
 ###########################################################################
-# Build tar ball table-of-contents (toc) source documents.
+# Various helper methods.
 
 def get_md5sum_of_dir(dir, parentid):
     """Calculate the md5 sum of all the names in the toc"""
@@ -2935,43 +2802,13 @@ def get_md5sum_of_dir(dir, parentid):
                 h.update(repr(f[k]).encode('utf-8'))
     return h.hexdigest()
 
-def mk_toc_actions(ptb, idxctx):
-    """Construct Table-of-Contents actions.
-
-    These are indexed into the run index along side the runs."""
-    idxctx.logger.debug("start")
-    tstamp = ptb.start_run
-    # Since the timestamp for every TOC record will be the same, we generate
-    # the index name once here using a fake source document on the call to
-    # generate_index_name().
-    pd = PbenchData(ptb, idxctx)
-    idx_name = pd.generate_index_name('toc-data', { "@timestamp": tstamp })
-    count = 0
-    for source in ptb.gen_toc():
-        source["@timestamp"] = tstamp
-        action = _dict_const(
-            _id=get_md5sum_of_dir(source, ptb.run_metadata['id']),
-            _op_type=_op_type,
-            _index=idx_name,
-            _type="pbench-run-toc-entry",
-            _source=source,
-            _parent=ptb.run_metadata['id']
-        )
-        count += 1
-        yield action
-    idxctx.logger.debug("end [{:d} table-of-contents documents]", count)
-    return
-
-###########################################################################
-# Build run source document
-
-# routines for handling sosreports, hostnames, and tools
 def valid_ip(address):
     try:
         socket.inet_aton(address)
-        return True
     except Exception:
         return False
+    else:
+        return True
 
 def search_by_host(sos_d_list, host):
     for sos_d in sos_d_list:
@@ -3000,107 +2837,6 @@ def get_hostname_f_from_sos_d(sos_d, host=None, ip=None):
         return search_by_host(sos_d, host)
     else:
         return search_by_ip(sos_d, ip)
-
-def get_section_items(section, mdconf, logger):
-    try:
-        section_items = mdconf.items(section)
-    except NoSectionError:
-        logger.warning("No [{}] section in metadata.log: tool data will"
-                " *not* be indexed", section)
-        return []
-    except ConfigParserError:
-        logger.exception("ConfigParser error in get_section_items: tool data"
-                " will *not* be indexed -- this is most probably a bug: please"
-                " open an issue")
-        return []
-    section_items.sort()
-    return section_items
-
-def get_hosts(mdconf, logger):
-    try:
-        # N.B. Space-separated list
-        hosts = mdconf.get("tools", "hosts")
-    except NoSectionError:
-        logger.warning("No [tools] section in metadata.log: tool data will"
-                " *not* be indexed.")
-        return []
-    except NoOptionError:
-        logger.warning("No \"hosts\" option in [tools] section in metadata"
-                " log: tool data will *NOT* be indexed.")
-        return []
-    except ConfigParserError:
-        logger.exception("ConfigParser error in get_hosts: tool data will"
-                " *not* be indexed -- this is most probably a bug: please open"
-                " an issue")
-        return []
-    hosts_set = set(hosts.split())
-    hosts = list(hosts_set)
-    hosts.sort()
-    return hosts
-
-def mk_tool_info(sos_d, mdconf, logger):
-    """Return a dict containing tool info (local and remote)"""
-    logger.debug("start")
-    tools_array = []
-    try:
-        labels = _dict_const()
-        for host in get_hosts(mdconf, logger):
-            section = "tools/{}".format(host)
-            section_items = get_section_items(section, mdconf, logger)
-            if not section_items:
-                # No tools for this host, skip it.
-                continue
-
-            tools_info = _dict_const()
-
-            # XXX - we should have an FQDN for the host but
-            # sometimes we have only an IP address.
-            tools_info['hostname'] = host
-            if valid_ip(host):
-                full_hostname = get_hostname_f_from_sos_d(sos_d, ip=host)
-            else:
-                full_hostname = get_hostname_f_from_sos_d(sos_d, host=host)
-            if full_hostname:
-                tools_info['hostname-f'] = full_hostname
-
-            # Process the list of items to extract all the tools, remotes and
-            # their labels, short host names, and the local label.
-            tools = _dict_const()
-            for k,v in section_items:
-                if k == 'label':
-                    # Local label
-                    if v:
-                        tools_info['label'] = v
-                    continue
-                if k == 'hostname-s':
-                    # Move the tool/host "hostname-s" value to the tools_info level.
-                    if tools_info['hostname'] != v:
-                        tools_info['hostname-s'] = v
-                    continue
-                if k.startswith('remote@'):
-                    # Process remote entries for a label and remember them in
-                    # the labels dict.
-                    if v:
-                        rhost = k.replace('remote@', '', 1)
-                        labels[rhost] = v
-                    continue
-                # Otherwise, it must be a tool key / value pair, where the key
-                # is the name of the tool, and the value is the tool options.
-                tools[k] = v
-            if tools:
-                tools_info['tools'] = tools
-            tools_array.append(tools_info)
-
-        # now process remote labels
-        for item in tools_array:
-            host = item['hostname']
-            if host in labels:
-                item['label'] = labels[host]
-    except Exception:
-        logger.exception("mk_tool_info")
-        return []
-    logger.debug("end [{:d} tools processed]", len(tools_array))
-    return tools_array
 
 def ip_address_to_ip_o_addr(s):
     # This routine deals with the contents of either the ip_-o_addr
@@ -3277,88 +3013,11 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
             d.update(if_ip_from_sosreport(sostb.extractfile(ip_files[0])))
     return (0, d)
 
-def mk_sosreports(tb, extracted_root, logger):
-    logger.debug("start")
-
-    sosreports = [ x for x in tb.getnames() if x.find("sosreport") >= 0 and x.endswith('.md5') ]
-    sosreports.sort()
-
-    sosreportlist = []
-    for x in sosreports:
-        # x is the *sosreport*.tar.xz.md5 filename
-        sos = x[:x.rfind('.md5')]
-        md5f = os.path.join(extracted_root, x)
-        try:
-            with open(md5f, "r") as fp:
-                md5_val = fp.read()[:-1]
-        except Exception as e:
-            logger.warning("Failed to fetch .md5 of sosreport {}: {}", sos, e)
-            continue
-        ret_val = hostnames_if_ip_from_sosreport(os.path.join(extracted_root, sos))
-        # get hostname (short and FQDN) from sosreport
-        d = _dict_const()
-        d['name'] = sos
-        d['md5'] = md5_val
-        if ret_val[0] == 0:
-            d.update(ret_val[1])
-        else:
-            d['sosreport-error'] = ret_val[1]
-        sosreportlist.append(d)
-    logger.debug("end [{:d} sosreports processed]", len(sosreportlist))
-    return sosreportlist
-
-def mk_run_action(ptb, idxctx):
-    """Extract metadata from the named tar ball and create an indexing
-       action out of them.
-
-       There are two kinds of metadata: what goes into _source[@metadata] is
-       metadata about the tar ball itself - not things that are *part* of the
-       tar ball: its name, size, md5, mtime, etc.  Metadata about the run are
-       *data* to be indexed under the "run" field.
-    """
-    idxctx.logger.debug("start")
-    source = _dict_const([('@timestamp', ptb.start_run)])
-    source['@metadata'] = ptb.at_metadata
-    # Note that the contents of the "@generated-by" record does not contribute
-    # to the generation of the documents `_id` field since a run document's ID
-    # is the MD5 hash of the tar ball.
-    source['@generated-by'] = idxctx.get_tracking_id()
-    source['run'] = ptb.run_metadata
-    sos_d = mk_sosreports(ptb.tb, ptb.extracted_root, idxctx.logger)
-    if sos_d:
-        source['sosreports'] = sos_d
-    source['host_tools_info'] = mk_tool_info(sos_d, ptb.mdconf, idxctx.logger)
-
-    # make a simple action for indexing
-    pd = PbenchData(ptb, idxctx)
-    idx_name = pd.generate_index_name('run-data', source)
-    action = _dict_const(
-        _op_type=_op_type,
-        _index=idx_name,
-        _type="pbench-run",
-        _id=ptb.run_metadata['id'],
-        _source=source,
-    )
-    idxctx.logger.debug("end")
-    return action
-
-def make_all_actions(ptb, idxctx):
-    """Driver for generating all actions on source documents for indexing into
-       Elasticsearch. This generator drives the generation of the run source
-       document, the table-of-contents tar ball documents, and then all the
-       result data.
-    """
-    idxctx.logger.debug("start")
-    yield mk_run_action(ptb, idxctx)
-    for action in mk_toc_actions(ptb, idxctx):
-        yield action
-    for action in mk_result_data_actions(ptb, idxctx):
-        yield action
-    idxctx.logger.debug("end")
-    return
-
 
 class PbenchTarBall(object):
+    """Encapsualation of the data structures representing the contents of a
+    pbench tar ball.
+    """
     def __init__(self, idxctx, tbarg, tmpdir, extracted_root):
         self.idxctx = idxctx
         self.tbname = tbarg
@@ -3544,6 +3203,87 @@ class PbenchTarBall(object):
         # It's what ties all of the relevant documents together.
         self.run_metadata['id'] = md5sum
 
+    def get_iterations(self):
+        try:
+            # N.B. Comma-separated list
+            iterations_str = self.run_metadata['iterations']
+        except Exception:
+            # TBD - trawl through tb with some heuristics
+            iterations = []
+            for x in self.tb.getnames():
+                l = x.split('/')
+                if len(l) != 2:
+                    continue
+                iter = l[1]
+                if re.search('^[1-9][0-9]*-', iter):
+                    iterations.append(iter)
+        else:
+            iterations = iterations_str.split(', ')
+        iterations_set = set(iterations)
+        iterations = list(iterations_set)
+        iterations.sort()
+        return iterations
+
+    def get_samples(self, iteration):
+        samples = []
+        for x in self.tb.getnames():
+            if x.find("{}/".format(iteration)) < 0:
+                continue
+            l = x.split('/')
+            if len(l) !=  3:
+                continue
+            sample = l[2]
+            if sample.startswith('sample'):
+                samples.append(sample)
+        if len(samples) == 0:
+            samples.append('reference-result')
+        samples_set = set(samples)
+        samples = list(samples_set)
+        samples.sort()
+        return samples
+
+    def get_section_items(self, section):
+        try:
+            section_items = self.mdconf.items(section)
+        except NoSectionError:
+            self.idxctx.logger.warning(
+                    "No [{}] section in metadata.log: tool data will"
+                    " *not* be indexed", section)
+            return []
+        except ConfigParserError:
+            self.idxctx.logger.exception(
+                    "ConfigParser error in get_section_items: tool data"
+                    " will *not* be indexed -- this is most probably a bug:"
+                    " please open an issue")
+            return []
+        section_items.sort()
+        return section_items
+
+    def get_hosts(self):
+        try:
+            # N.B. Space-separated list
+            hosts = self.mdconf.get("tools", "hosts")
+        except NoSectionError:
+            self.idxctx.logger.warning(
+                    "No [tools] section in metadata.log: tool data will"
+                    " *not* be indexed.")
+            return []
+        except NoOptionError:
+            self.idxctx.logger.warning(
+                    "No \"hosts\" option in [tools] section in metadata"
+                    " log: tool data will *NOT* be indexed.")
+            return []
+        except ConfigParserError:
+            self.idxctx.logger.exception(
+                    "ConfigParser error in get_hosts: tool data will"
+                    " *not* be indexed -- this is most probably a bug: please"
+                    " open an issue")
+            return []
+        hosts_set = set(hosts.split())
+        hosts = list(hosts_set)
+        hosts.sort()
+        return hosts
+
     # We'll accept dates that match any of the following:
     #  * 2019-01-10_12:12:12
     #  * 2019-01-10T12:12:12
@@ -3559,7 +3299,12 @@ class PbenchTarBall(object):
     # precision is ignored and causes problems during date/time string
     # conversions (e.g. Elasticsearch ignores it, and python std lib
     # does not offer a way to handle nanoseconds).
-    _formats = [ "%Y-%m-%dT%H:%M:%S.%f", "%Y%m%dT%H:%M:%S.%f", "%Y-%m-%dT%H:%M:%S", "%Y%m%dT%H:%M:%S" ]
+    _formats = [
+        "%Y-%m-%dT%H:%M:%S.%f",
+        "%Y%m%dT%H:%M:%S.%f",
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y%m%dT%H:%M:%S"
+    ]
 
     @staticmethod
     def convert_to_dt(dt_str):
@@ -3576,6 +3321,185 @@ class PbenchTarBall(object):
                 return dt, dt.isoformat()
         else:
             raise Exception()
+
+    def make_all_actions(self):
+        """Driver for generating all actions on source documents for indexing into
+        Elasticsearch. This generator drives the generation of the run source
+        document, the table-of-contents tar ball documents, and then all the
+        result data.
+        """
+        self.idxctx.logger.debug("start")
+        yield self.mk_run_action()
+        for action in self.mk_toc_actions():
+            yield action
+        for action in self.mk_result_data_actions():
+            yield action
+        self.idxctx.logger.debug("end")
+        return
+
+    def mk_run_action(self):
+        """Extract metadata from the named tar ball and create an indexing
+        action out of them.
+
+        There are two kinds of metadata: what goes into _source[@metadata] is
+        metadata about the tar ball itself - not things that are *part* of the
+        tar ball: its name, size, md5, mtime, etc.  Metadata about the run are
+        *data* to be indexed under the "run" field.
+        """
+        self.idxctx.logger.debug("start")
+        source = _dict_const([('@timestamp', self.start_run)])
+        source['@metadata'] = self.at_metadata
+        # Note that the contents of the "@generated-by" record does not contribute
+        # to the generation of the documents `_id` field since a run document's ID
+        # is the MD5 hash of the tar ball.
+        source['@generated-by'] = self.idxctx.get_tracking_id()
+        source['run'] = self.run_metadata
+        sos_d = self.mk_sosreports()
+        if sos_d:
+            source['sosreports'] = sos_d
+        source['host_tools_info'] = self.mk_tool_info(sos_d)
+
+        # make a simple action for indexing
+        pd = PbenchData(self)
+        idx_name = pd.generate_index_name('run-data', source)
+        action = _dict_const(
+            _op_type=_op_type,
+            _index=idx_name,
+            _type="pbench-run",
+            _id=self.run_metadata['id'],
+            _source=source,
+        )
+        self.idxctx.logger.debug("end")
+        return action
+
+    def mk_sosreports(self):
+        self.idxctx.logger.debug("start")
+
+        sosreports = [
+            x for x in self.tb.getnames()
+                if x.find("sosreport") >= 0 and x.endswith('.md5')
+        ]
+        sosreports.sort()
+
+        sosreportlist = []
+        for x in sosreports:
+            # x is the *sosreport*.tar.xz.md5 filename
+            sos = x[:x.rfind('.md5')]
+            md5f = os.path.join(self.extracted_root, x)
+            try:
+                with open(md5f, "r") as fp:
+                    md5_val = fp.read()[:-1]
+            except Exception as e:
+                self.idxctx.logger.warning(
+                        "Failed to fetch .md5 of sosreport {}: {}", sos, e)
+                continue
+            ret_val = hostnames_if_ip_from_sosreport(
+                    os.path.join(self.extracted_root, sos))
+            # get hostname (short and FQDN) from sosreport
+            d = _dict_const()
+            d['name'] = sos
+            d['md5'] = md5_val
+            if ret_val[0] == 0:
+                d.update(ret_val[1])
+            else:
+                d['sosreport-error'] = ret_val[1]
+            sosreportlist.append(d)
+        self.idxctx.logger.debug(
+                "end [{:d} sosreports processed]", len(sosreportlist))
+        return sosreportlist
+
+    def mk_tool_info(self, sos_d):
+        """Return a dict containing tool info (local and remote)"""
+        self.idxctx.logger.debug("start")
+        tools_array = []
+        try:
+            labels = _dict_const()
+            for host in self.get_hosts():
+                section = "tools/{}".format(host)
+                section_items = self.get_section_items(section)
+                if not section_items:
+                    # No tools for this host, skip it.
+                    continue
+
+                tools_info = _dict_const()
+
+                # XXX - we should have an FQDN for the host but
+                # sometimes we have only an IP address.
+                tools_info['hostname'] = host
+                if valid_ip(host):
+                    full_hostname = get_hostname_f_from_sos_d(sos_d, ip=host)
+                else:
+                    full_hostname = get_hostname_f_from_sos_d(sos_d, host=host)
+                if full_hostname:
+                    tools_info['hostname-f'] = full_hostname
+
+                # Process the list of items to extract all the tools, remotes and
+                # their labels, short host names, and the local label.
+                tools = _dict_const()
+                for k,v in section_items:
+                    if k == 'label':
+                        # Local label
+                        if v:
+                            tools_info['label'] = v
+                        continue
+                    if k == 'hostname-s':
+                        # Move the tool/host "hostname-s" value to the tools_info level.
+                        if tools_info['hostname'] != v:
+                            tools_info['hostname-s'] = v
+                        continue
+                    if k.startswith('remote@'):
+                        # Process remote entries for a label and remember them in
+                        # the labels dict.
+                        if v:
+                            rhost = k.replace('remote@', '', 1)
+                            labels[rhost] = v
+                        continue
+                    # Otherwise, it must be a tool key / value pair, where the key
+                    # is the name of the tool, and the value is the tool options.
+                    tools[k] = v
+                if tools:
+                    tools_info['tools'] = tools
+                tools_array.append(tools_info)
+
+            # now process remote labels
+            for item in tools_array:
+                host = item['hostname']
+                if host in labels:
+                    item['label'] = labels[host]
+        except Exception:
+            self.idxctx.logger.exception("mk_tool_info")
+            return []
+        self.idxctx.logger.debug("end [{:d} tools processed]", len(tools_array))
+        return tools_array
+
+    def mk_toc_actions(self):
+        """Construct Table-of-Contents actions.
+
+        These are indexed into the run index along side the runs.
+        """
+        self.idxctx.logger.debug("start")
+        tstamp = self.start_run
+        # Since the timestamp for every TOC record will be the same, we generate
+        # the index name once here using a fake source document on the call to
+        # generate_index_name().
+        pd = PbenchData(self)
+        idx_name = pd.generate_index_name('toc-data', { "@timestamp": tstamp })
+        count = 0
+        for source in self.gen_toc():
+            source["@timestamp"] = tstamp
+            action = _dict_const(
+                _id=get_md5sum_of_dir(source, self.run_metadata['id']),
+                _op_type=_op_type,
+                _index=idx_name,
+                _type="pbench-run-toc-entry",
+                _source=source,
+                _parent=self.run_metadata['id']
+            )
+            count += 1
+            yield action
+        self.idxctx.logger.debug(
+                "end [{:d} table-of-contents documents]", count)
+        return
 
     _mode_table = _dict_const([
         (tarfile.REGTYPE, "reg"),
@@ -3698,6 +3622,127 @@ class PbenchTarBall(object):
             else:
                 source['files'] = sorted_file_list
             yield source
+
+    def mk_tool_data(self):
+        """Yield ToolData() objects for each tool directory found in the
+        hierarhcy.
+
+        Tool data are stored in various files in the tar ball under a specific
+        hierarchy.  The structure looks like the following:
+
+            /<iterN>
+                <sampleN>
+                    <tools-${group}>
+                        <host>
+                            <tool>
+
+        We leverage helper methods to walk this hierarchy.
+        """
+        # Process the sosreports to ensure we get all the information about the
+        # host names for the tools.
+        sos_d = self.mk_sosreports()
+        tools_array = self.mk_tool_info(sos_d)
+        iterations = self.get_iterations()
+        for iteration in iterations:
+            samples = self.get_samples(iteration)
+            for sample in samples:
+                for host_tools in tools_array:
+                    try:
+                        tools_data = host_tools['tools']
+                    except KeyError:
+                        # No actual tools found.
+                        continue
+                    hostname = host_tools['hostname']
+                    tool_names = list(tools_data.keys())
+                    tool_names.sort()
+                    for tool in tool_names:
+                        yield ToolData(self, iteration, sample,
+                                hostname, tool)
+        return
+
+    def mk_tool_data_actions(self):
+        """Generate all the tool data actions from the entire run hierarchy.
+        """
+        self.idxctx.logger.debug("start")
+        count = 0
+        for td in self.mk_tool_data():
+            # Each ToolData object, td, that is returned here represents how
+            # data collected for that tool across all hosts is to be returned.
+            # The make_source method returns a generator that will emit each
+            # source document for the appropriate unit of tool data.  Each has
+            # the option of constructing that data as best fits its tool data.
+            # The tool data for each tool is kept in its own index to allow
+            # for different curation policies for each tool.
+            asource = td.make_source()
+            if not asource:
+                continue
+            type_name = "pbench-tool-data-{}".format(td.toolname)
+            for source, source_id in asource:
+                try:
+                    idx_name = td.generate_index_name(
+                            'tool-data', source, toolname=td.toolname)
+                except BadDate:
+                    pass
+                else:
+                    source['@generated-by'] = self.idxctx.get_tracking_id()
+                    action = _dict_const(
+                        _op_type=_op_type,
+                        _index=idx_name,
+                        _type=type_name,
+                        _id=source_id,
+                        _source=source
+                    )
+                    count += 1
+                    yield action
+        self.idxctx.logger.debug("end [{:d} tool data documents]", count)
+        return
+
+    def mk_result_data_actions(self):
+        """Generate all the result data actions.
+        """
+        self.idxctx.logger.debug("start")
+        rd = ResultData(self)
+        if not rd:
+            self.idxctx.logger.debug("end [no result data]")
+            return
+        # sources is a generator
+        sources = rd.make_source()
+        if not sources:
+            self.idxctx.logger.debug("end [no result data sources]")
+            return
+        count = 0
+        for source, source_id, parent_id, doc_type in sources:
+            try:
+                idx_name = rd.generate_index_name('result-data', source)
+            except BadDate:
+                # We don't raise this exception because we are already well into
+                # indexing so much data that there is no point in stopping
+                # now.  The source of the exception has already counted the
+                # exception in its operational context.
+                pass
+            else:
+                assert doc_type in ( 'sample', 'res'), \
+                        "Invalid result data document type, {}".format(doc_type)
+                if doc_type == "res":
+                    _type = "pbench-result-data"
+                else:
+                    _type = "pbench-result-data-{}".format(doc_type)
+                action = _dict_const(
+                    _op_type=_op_type,
+                    _index=idx_name,
+                    _type=_type,
+                    _id=source_id,
+                    _source=source
+                )
+                if parent_id is not None:
+                    action['_parent'] = parent_id
+                else:
+                    # Only the parent result data documents hold the tracking IDs.
+                    source['@generated-by'] = self.idxctx.get_tracking_id()
+                count += 0
+                yield action
+        self.idxctx.logger.debug("end [{:d} result documents]", count)
+        return
 
 
 class IdxContext(object):
