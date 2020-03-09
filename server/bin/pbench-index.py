@@ -19,8 +19,7 @@ from pbench import tstos, BadConfig, get_pbench_logger, \
         quarantine, rename_tb_link
 from pbench.indexer import IdxContext, ConfigFileError, BadDate, \
         UnsupportedTarballFormat, BadMDLogFormat, SosreportHostname, \
-        PbenchTarBall, make_all_actions, mk_tool_data_actions, es_index, \
-        JsonFileError, TemplateError, VERSION
+        PbenchTarBall, es_index, JsonFileError, TemplateError, VERSION
 from pbench.report import Report
 
 
@@ -286,9 +285,9 @@ def main(options, name):
                     # list.
                     idxctx.logger.debug("generator setup")
                     if options.index_tool_data:
-                        actions = mk_tool_data_actions(ptb, idxctx)
+                        actions = ptb.mk_tool_data_actions()
                     else:
-                        actions = make_all_actions(ptb, idxctx)
+                        actions = ptb.make_all_actions()
 
                     # File name for containing all indexing errors that
                     # can't/won't be retried.
