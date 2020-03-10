@@ -1,1 +1,2 @@
+systemd-detect-virt --vm
 turbostat -i 42
