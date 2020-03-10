@@ -8,3 +8,4 @@ dist
 ????-*.patch
 .npmrc
 .yarnrc
+.venv
