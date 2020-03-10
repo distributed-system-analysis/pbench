@@ -25,9 +25,9 @@ if [[ ${?} -ne 0 ]]; then
     exit 1
 fi
 
-command -v pmdumptext > /dev/null
+command -v pcp2csv > /dev/null
 if [[ ${?} -ne 0 ]]; then
-    printf -- "%s: missing required 'pmdumptext' command\n" "${PROG}" >&2
+    printf -- "%s: missing required 'pcp2csv' command\n" "${PROG}" >&2
     exit 1
 fi
 
@@ -59,7 +59,7 @@ for html_page in ${html_pages}; do
     echo '    <h2 class="page-header">'${html_page}'</h2>' >>${html_page}.html
     chart_count=1
     for graph in $(pminfo -a archive $html_page); do
-        pmdumptext ${graph} -a archive -t ${interval} -f %s000 -m  -d, | grep -v "?" | sed -e s/^Time/timestamp_ms/ > ./csv/${graph}.csv
+        pcp2csv ${graph} -a archive -t ${interval} -f %s000 | sed -e '2d;s/^Time/timestamp_ms/' > ./csv/${graph}.csv
         echo '    <div class="chart">' >>${html_page}.html
         echo '      <h3 class="chart-header">'${graph} >>${html_page}.html
         echo '        <button id="save'${chart_count}'">Save as Image</button>' >>${html_page}.html
