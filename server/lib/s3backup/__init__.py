@@ -3,15 +3,10 @@ This module provides convenience functions that interface to lower-level service
 """
 import boto3
 import os
-import sys
 import glob
 import base64
 import hashlib
-import shutil
-import time
-import configtools
-from datetime import datetime
-from configparser import ConfigParser, NoSectionError, NoOptionError
+from configparser import NoSectionError, NoOptionError
 from boto3.s3.transfer import TransferConfig
 from botocore.exceptions import ConnectionClosedError, ClientError
 
