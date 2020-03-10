@@ -90,7 +90,7 @@ oc)
 	tool_package_name="atomic-openshift-clients"
 	;;
 pcp)
-	tool_package_name="pcp"
+	tool_package_name="pcp-system-tools"
 	;;
 perf)
 	def_record_opts="-a --freq=100"
