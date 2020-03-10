@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo "$(basename ${0}) ${@}" >> ${_testlog}
+echo "none"
+exit 0
