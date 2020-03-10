@@ -8,14 +8,13 @@ into the configured Elasticsearch V1 instance.
 
 import sys
 import os
-import re
 import glob
 import tarfile
 import tempfile
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
-from pbench import tstos, BadConfig, get_pbench_logger, quarantine, rename_tb_link
+from pbench import tstos, BadConfig, quarantine, rename_tb_link
 from pbench.indexer import (
     IdxContext,
     ConfigFileError,
