@@ -92,7 +92,7 @@ while (my $line = <CPUACCT_TXT>) {
 		#$group_cpu_usage_per_node{$group_name}{$node_id}{$timestamp_ms} = 0;
 		for $this_cpu_usage (@cpu_usage) {
 			my $tgt = "cpu$cpu_id";
-            $node_id = cpu_node($tgt);
+			$node_id = cpu_node($tgt);
 			$group_cpu_usage_per_node{$group_name}{$node_id}{$timestamp_ms} += $this_cpu_usage;
 			$cpu_id++;
 		}

@@ -8,7 +8,7 @@ else
     _version=""
 fi
 if [[ ! -z "${_PBENCH_UNIT_TESTS}" ]]; then
-    # don't install packages when unit-testing
+    # Package changes are always successful for unit tests.
     exit 0
 fi
 

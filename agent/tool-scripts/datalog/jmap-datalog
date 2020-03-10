@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
 
 PROG="$(basename ${0})"
 
@@ -41,7 +41,6 @@ while [[ ${rc} -eq 0 ]]; do
     jvm_pids="$(pgrep "${pattern}") ${pid_to_jmap}"
 
     for jvm_pid in ${jvm_pids}; do
-	# TODO: extend the heap stats to collect min,max and non-heap
 	# check if containerized.
 	cnt=$(grep -cF 'user.slice' /proc/${jvm_pid}/cgroup 2> /dev/null)
 	if [[ ${?} -eq 0 && ${cnt} -eq 0 ]]; then
