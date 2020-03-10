@@ -582,8 +582,8 @@ install)
 		rc=${?}
 		;;
 	systemtap)
-		# The installation for systemtap includes compiling the kernel
-		# module from the stap script; this is done to avoid extra
+		# We need a number of systemtap and kernel packages for the
+		# systemtap tool to actually work.
 		require_rpm "systemtap-client"
 		rc=${?}
 		if [[ ${rc} == 0 ]]; then

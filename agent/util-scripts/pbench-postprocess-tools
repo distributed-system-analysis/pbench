@@ -9,8 +9,8 @@ action=`echo ${script_name#pbench-} | awk -F- '{print $1}'`
 # source the base script
 . "$pbench_bin"/base
 
-if [ "$action" != "start" -a "$action" != "stop" -a "$action" != "postprocess" -a "$action" != "kill" ]; then
-	error_log "[$script_name] action "$action" is not supported"
+if [[ "${action}" != "start" && "${action}" != "stop" && "${action}" != "postprocess" && "${action}" != "kill" ]]; then
+	error_log "[${script_name}] action \"${action}\" is not supported"
 	exit 1
 fi
 
