@@ -6,7 +6,6 @@ import sys
 import os
 import re
 import logging
-import stat
 import copy
 import hashlib
 import json
@@ -26,18 +25,16 @@ from configparser import (
     NoSectionError,
     NoOptionError,
 )
-from urllib3 import Timeout, exceptions as ul_excs
+from urllib3 import Timeout
 
 try:
     from elasticsearch1 import (
-        VERSION as es_VERSION,
         Elasticsearch,
         helpers,
         exceptions as es_excs,
     )
 except ImportError:
     from elasticsearch import (
-        VERSION as es_VERSION,
         Elasticsearch,
         helpers,
         exceptions as es_excs,
@@ -2143,9 +2140,13 @@ class ToolData(PbenchData):
             self.toolname,
             self.basepath,
         )
-        for csv in self.files:
+
+        # TODO: (chuck) - csv is a module that is imported by indexer
+        #        so flake8 complains loudly about this, csv is
+        #        not a great choice for a variable.
+        for csv in self.files:  # noqa:F402
             # Each csv file dictionary provides its header row.
-            header = csv["header"]
+            header = csv["header"]  # noqa:F402
             if header[0] != "timestamp_ms":
                 self.logger.warning(
                     "tool-data-indexing: expected first column of"
@@ -2255,6 +2256,7 @@ class ToolData(PbenchData):
         # At this point, we have processed all the data about csv files
         # and are ready to start reading the contents of all the csv
         # files and building the unified records.
+
         def rows_generator():
             # We use this generator to highlight the process of reading from
             # all the csv files, reading one row from each of the csv files,
@@ -2400,7 +2402,8 @@ class ToolData(PbenchData):
     def _make_source_individual(self):
         """Read .csv files individually, emitting records for each row and
         column coordinate."""
-        for csv in self.files:
+        # TODO (chuck) here too
+        for csv in self.files:  # noqa: F402
             assert (
                 csv["header"][0] == "timestamp_ms"
             ), "Unexpected time stamp header, '{}'".format(csv["header"][0])
@@ -3049,8 +3052,8 @@ def get_iterations(ptb):
         # TBD - trawl through tb with some heuristics
         iterations = []
         for x in ptb.tb.getnames():
-            l = x.split("/")
-            if len(l) != 2:
+            l = x.split("/")  # noqa: E741
+            if len(l) != 2:  # noqa: F402
                 continue
             iter = l[1]
             if re.search("^[1-9][0-9]*-", iter):
@@ -3068,7 +3071,7 @@ def get_samples(ptb, iteration):
     for x in ptb.tb.getnames():
         if x.find("{}/".format(iteration)) < 0:
             continue
-        l = x.split("/")
+        l = x.split("/")  # noqa:E741
         if len(l) != 3:
             continue
         sample = l[2]
@@ -3209,10 +3212,10 @@ def search_by_ip(sos_d_list, ip):
     # import pdb; pdb.set_trace()
     for sos_d in sos_d_list:
         for l in sos_d.values():
-            if type(l) != type([]):
+            if not isinstance(l, list):
                 continue
             for d in l:
-                if type(d) != type({}):
+                if not isinstance(d, dict):
                     continue
                 if ip in d.values():
                     return sos_d["hostname-f"]
