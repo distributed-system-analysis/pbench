@@ -1,14 +1,13 @@
 """ Configtools """
 from __future__ import print_function
 
-import os, sys
+import os
+import sys
 
 # python3
 from configparser import ConfigParser
 
 from optparse import OptionParser, make_option
-
-import logging
 
 
 def uniq(l):
@@ -103,7 +102,7 @@ def get_list(s):
     """get_list"""
     if not s:
         return []
-    l = [x.strip().strip("\\\n") for x in s.split(",")]
+    l = [x.strip().strip("\\\n") for x in s.split(",")]  # noqa:E741
     try:
         nl = []
         for x in l:
