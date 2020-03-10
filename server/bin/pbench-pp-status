@@ -9,29 +9,31 @@ import sys
 import json
 from operator import itemgetter
 
-with open(sys.argv[1], 'r') as fp:
+with open(sys.argv[1], "r") as fp:
     doc = json.load(fp)
 hits_d = None
 query_ms = None
 shards = None
 timed_out = None
 for key, val in doc.items():
-    if key == 'hits':
+    if key == "hits":
         hits_d = val
         continue
-    if key == 'took':
+    if key == "took":
         query_ms = val
         continue
-    if key == '_shards':
+    if key == "_shards":
         shards = val
         continue
-    if key == 'timed_out':
+    if key == "timed_out":
         timed_out = val
         continue
     print("{} = {}".format(key, val))
 
-if shards['failed'] > 0:
-    shards_rpt = " ({:d} successful, {:d} failed)".format(shards['successful'], shards['failed'])
+if shards["failed"] > 0:
+    shards_rpt = " ({:d} successful, {:d} failed)".format(
+        shards["successful"], shards["failed"]
+    )
 else:
     shards_rpt = ""
 if timed_out:
@@ -42,18 +44,37 @@ else:
 total = None
 hits_l = None
 for key, val in hits_d.items():
-    if key == 'total':
+    if key == "total":
         total = val
         continue
-    if key == 'hits':
+    if key == "hits":
         hits_l = val
         continue
-    if key == 'max_score':
+    if key == "max_score":
         continue
     print("{}".format(key))
 
-print("Report Pull took {:d} ms{}, hitting {:d} total shards{}, matching {:d} total documents, returning {:d}".format(query_ms, timed_out_rpt, shards['total'], shards_rpt, total, len(hits_l)))
+print(
+    "Report Pull took {:d} ms{}, hitting {:d} total shards{}, matching {:d} total documents, returning {:d}".format(
+        query_ms, timed_out_rpt, shards["total"], shards_rpt, total, len(hits_l)
+    )
+)
 
-for doc in sorted(hits_l, key=lambda k:"{} {} {:d}".format(k['_source']['@timestamp'], k['_source']['name'], k['_source']['chunk_id'])):
-    source = doc['_source']
-    print("\n\n=======\n{} - {} ({:d} of {:d}) - text[{} of {:d} bytes]: \"{}\"".format(source['@timestamp'], source['name'], source['chunk_id'], source['total_chunks'], len(source['text']), source['total_size'], source['text'][:4096].strip()))
+for doc in sorted(
+    hits_l,
+    key=lambda k: "{} {} {:d}".format(
+        k["_source"]["@timestamp"], k["_source"]["name"], k["_source"]["chunk_id"]
+    ),
+):
+    source = doc["_source"]
+    print(
+        '\n\n=======\n{} - {} ({:d} of {:d}) - text[{} of {:d} bytes]: "{}"'.format(
+            source["@timestamp"],
+            source["name"],
+            source["chunk_id"],
+            source["total_chunks"],
+            len(source["text"]),
+            source["total_size"],
+            source["text"][:4096].strip(),
+        )
+    )

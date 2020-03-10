@@ -8,13 +8,16 @@ PROG = os.path.basename(sys.argv[0])
 try:
     tool_output_dir = sys.argv[1]
 except IndexError:
-    logging.error("[%s]: missing required tool output directory argument",
-            PROG)
+    logging.error("[%s]: missing required tool output directory argument", PROG)
     sys.exit(1)
 else:
     if not os.path.isdir(tool_output_dir):
-        logging.error("[%s]: the provided tool output directory, '%s', does"
-                " not appear to be a valid directory", PROG, tool_output_dir)
+        logging.error(
+            "[%s]: the provided tool output directory, '%s', does"
+            " not appear to be a valid directory",
+            PROG,
+            tool_output_dir,
+        )
         sys.exit(1)
 
 try:
@@ -35,7 +38,7 @@ except IndexError:
     logging.error("[%s]: missing required clear counters argument", PROG)
     sys.exit(1)
 else:
-    if clear_counters_param in ( 'true', '1', 'T', 'Y', 'Yes', 'yes', 'True' ):
+    if clear_counters_param in ("true", "1", "T", "Y", "Yes", "yes", "True"):
         clear_counters = True
     else:
         clear_counters = False
@@ -48,23 +51,32 @@ from time import time, sleep
 _router_namespace = "default"
 haproxy_config = "/var/lib/haproxy/conf/haproxy.config"
 haproxy_socket_path = "/var/lib/haproxy/run/haproxy.sock"
-clear_counters_cmd = f"echo 'clear counters all' | socat - UNIX-CONNECT:{haproxy_socket_path}"
+clear_counters_cmd = (
+    f"echo 'clear counters all' | socat - UNIX-CONNECT:{haproxy_socket_path}"
+)
 show_stats_cmd = f"echo 'show stat' | socat - UNIX-CONNECT:{haproxy_socket_path}"
 
 # Generator to fetch the current list of routers
 def fetch_routers():
-    oc_proc = subprocess.run(f"oc get pod --no-headers -n {_router_namespace}",
-            shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            universal_newlines=True)
+    oc_proc = subprocess.run(
+        f"oc get pod --no-headers -n {_router_namespace}",
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True,
+    )
     if oc_proc.returncode != 0:
-        logging.error("[%s] failed to fetch list of router pods, stderr: '%r'",
-                PROG, oc_proc.stderr)
+        logging.error(
+            "[%s] failed to fetch list of router pods, stderr: '%r'",
+            PROG,
+            oc_proc.stderr,
+        )
         sys.exit(1)
     try:
-        lines = oc_proc.stdout.split('\n')
+        lines = oc_proc.stdout.split("\n")
         for line in lines:
-            if line.startswith('router-'):
-                yield line.split(' ', 1)[0]
+            if line.startswith("router-"):
+                yield line.split(" ", 1)[0]
     except Exception:
         logging.error("[%s] failed to parse list of routers")
         sys.exit(1)
@@ -101,6 +113,7 @@ class Router(object):
     suffix added to the files of the same name) to capture any output emitted
     via stderr from various operations performed on a router.
     """
+
     def __init__(self, pod_namespace, pod_name, clear_counters):
         self._pod_namespace = pod_namespace
         self._pod_name = pod_name
@@ -121,7 +134,9 @@ class Router(object):
         err_name = os.path.join(self._dir, "metrics.csv.err")
         self.err_fp = open(err_name, "w+")
         # The oc exec command prefix is always the same for this router pod.
-        self._oc_exec_prefix = f"oc exec {pod_name} -n {self._pod_namespace} -- /bin/sh -c"
+        self._oc_exec_prefix = (
+            f"oc exec {pod_name} -n {self._pod_namespace} -- /bin/sh -c"
+        )
         # The following dict() maintains the active background processes being
         # run to collect data.
         self.proc = dict()
@@ -136,9 +151,10 @@ class Router(object):
             oc_exec_cmd = f"{self._oc_exec_prefix} {clear_counters_cmd}"
         else:
             oc_exec_cmd = f"{self._oc_exec_prefix} {show_stats_cmd}"
-        proc = subprocess.Popen(oc_exec_cmd, shell=True,
-                stdout=self.csv_fp, stderr=self.err_fp)
-        self.proc['metrics'] = (proc, None, None)
+        proc = subprocess.Popen(
+            oc_exec_cmd, shell=True, stdout=self.csv_fp, stderr=self.err_fp
+        )
+        self.proc["metrics"] = (proc, None, None)
 
     def _mktagdir(self, tag):
         tag_dir = os.path.join(self._dir, tag)
@@ -156,9 +172,10 @@ class Router(object):
         stderr_name = f"{stdout_name}.err"
         stderr_fp = open(stderr_name, "w")
         oc_exec_cmd = f"{self._oc_exec_prefix} haproxy -vv"
-        proc = subprocess.Popen(oc_exec_cmd, shell=True,
-                stdout=stdout_fp, stderr=stderr_fp)
-        self.proc['ver'] = (proc, stdout_fp, stderr_fp)
+        proc = subprocess.Popen(
+            oc_exec_cmd, shell=True, stdout=stdout_fp, stderr=stderr_fp
+        )
+        self.proc["ver"] = (proc, stdout_fp, stderr_fp)
 
     def collect_config(self, timestamp, tag):
         tag_dir = self._mktagdir(tag)
@@ -167,9 +184,10 @@ class Router(object):
         stderr_name = f"{stdout_name}.err"
         stderr_fp = open(stderr_name, "w")
         oc_exec_cmd = f"{self._oc_exec_prefix} cat {haproxy_config}"
-        proc = subprocess.Popen(oc_exec_cmd, shell=True,
-                stdout=stdout_fp, stderr=stderr_fp)
-        self.proc['config'] = (proc, stdout_fp, stderr_fp)
+        proc = subprocess.Popen(
+            oc_exec_cmd, shell=True, stdout=stdout_fp, stderr=stderr_fp
+        )
+        self.proc["config"] = (proc, stdout_fp, stderr_fp)
 
     def collect_logs(self, timestamp, tag):
         tag_dir = self._mktagdir(tag)
@@ -178,9 +196,10 @@ class Router(object):
         stderr_name = f"{stdout_name}.err"
         stderr_fp = open(stderr_name, "w")
         oc_exec_cmd = f"oc logs {self._pod_name} -n {self._pod_namespace}"
-        proc = subprocess.Popen(oc_exec_cmd, shell=True,
-                stdout=stdout_fp, stderr=stderr_fp)
-        self.proc['logs'] = (proc, stdout_fp, stderr_fp)
+        proc = subprocess.Popen(
+            oc_exec_cmd, shell=True, stdout=stdout_fp, stderr=stderr_fp
+        )
+        self.proc["logs"] = (proc, stdout_fp, stderr_fp)
 
     def wait(self, all=True):
         # We wait on any "metrics" background process first. Once that
@@ -189,14 +208,18 @@ class Router(object):
         errs = 0
         for name, proc in self.proc.items():
             proc, stdout_fp, stderr_fp = proc
-            if all or name == 'metrics':
+            if all or name == "metrics":
                 # We only actively wait() for metrics processes ...
                 returncode = proc.wait()
                 if returncode != 0:
                     errs += 1
                     logging.warning(
-                            "[%s] reaped %s process for %s with error return code:"
-                            " %d", PROG, name, self._pod_name, returncode)
+                        "[%s] reaped %s process for %s with error return code:" " %d",
+                        PROG,
+                        name,
+                        self._pod_name,
+                        returncode,
+                    )
             else:
                 # ... all other processes we just poll()
                 returncode = proc.poll()
@@ -204,8 +227,13 @@ class Router(object):
                     if returncode != 0:
                         errs += 1
                         logging.warning(
-                                "[%s] reaped %s process for %s with error return code:"
-                                " %d", PROG, name, self._pod_name, returncode)
+                            "[%s] reaped %s process for %s with error return code:"
+                            " %d",
+                            PROG,
+                            name,
+                            self._pod_name,
+                            returncode,
+                        )
                     # Close the provided stdout/err files regardless of
                     # success or failure.
                     stdout_fp.close()
@@ -222,17 +250,18 @@ class Router(object):
                 stderr_fp.close()
             proc.wait()
 
+
 if clear_counters:
-    logging.info(
-            "[%s] clearing counters on all routers before collecting metrics.")
+    logging.info("[%s] clearing counters on all routers before collecting metrics.")
 
 # The current list of active routers indexed by router pod name.
 _routers = {}
 
+
 def operation(routers, ts_str):
     # The set of current router pod names.
-    curr_routers = set( pod_name for pod_name in fetch_routers() )
-    prev_routers = set( pod_name for pod_name in routers.keys() )
+    curr_routers = set(pod_name for pod_name in fetch_routers())
+    prev_routers = set(pod_name for pod_name in routers.keys())
     # These are all the new routers that have showed up since the last time.
     new_routers = curr_routers - prev_routers
     # These are all the routers that have died since the last time.
@@ -252,12 +281,11 @@ def operation(routers, ts_str):
         # For new routers we first create a Router() object from an initial
         # list of router pods, optionally clearing the counters for each pod,
         # and initiating the version, config, and logs collection.
-        routers[pod_name] = r = Router(
-                _router_namespace, pod_name, clear_counters)
+        routers[pod_name] = r = Router(_router_namespace, pod_name, clear_counters)
         r.collect_metrics(ts_str)
-        r.collect_version(ts_str, 'start')
-        r.collect_config(ts_str, 'start')
-        r.collect_logs(ts_str, 'start')
+        r.collect_version(ts_str, "start")
+        r.collect_config(ts_str, "start")
+        r.collect_logs(ts_str, "start")
 
     # At this point, all the background processes are started.
 
@@ -266,10 +294,11 @@ def operation(routers, ts_str):
     for router in routers.values():
         router.wait()
 
+
 # Flag for terminating the operations loop below.
 terminate = False
 
-_unit_test_iterations = os.environ.get('_PBENCH_UNIT_TESTS')
+_unit_test_iterations = os.environ.get("_PBENCH_UNIT_TESTS")
 if _unit_test_iterations is not None:
     # Mock "time.time" and "time.sleep" functions so that we ensure we only
     # execute as many iterations ("sleep" cycles) as specified by the unit
@@ -277,6 +306,7 @@ if _unit_test_iterations is not None:
     _unit_test_iterations = int(_unit_test_iterations)
     _sleep_iterations = 0
     _ts = 1234567890
+
     def _time(*args, **kwargs):
         """Each call to mock'd _time() increments the internal clock by
            one second.
@@ -284,8 +314,10 @@ if _unit_test_iterations is not None:
         global _ts
         _ts += 1
         return _ts
+
     time = _time
     _orig_sleep = sleep
+
     def _sleep(length):
         """Each call to mock'd _sleep() increments the internal clock by
            the amount of time requested for the sleep, and checks to see
@@ -304,6 +336,7 @@ if _unit_test_iterations is not None:
         global _orig_sleep
         _orig_sleep(1)
         _ts += int(length)
+
     sleep = _sleep
 else:
     # We only setup a signal handler for the non-unit test case.
@@ -325,9 +358,7 @@ total_duration = 0
 drifted = 0
 
 while not terminate:
-    operation(
-            _routers,
-            datetime.utcfromtimestamp(time_stamp).strftime("%s.%f"))
+    operation(_routers, datetime.utcfromtimestamp(time_stamp).strftime("%s.%f"))
 
     # Record how long the operation took for use when we run beyond the given
     # interval.
@@ -343,11 +374,17 @@ while not terminate:
         sleep(next_start - endtime)
     elif endtime > next_start:
         drifted += 1
-        logging.warning("[%s] interval exceeded now %d times: [interval: %d,"
-                " start: %d, duration: %d]; please consider changing the"
-                " interval to at least %d seconds",
-                PROG, drifted, interval, time_stamp, duration,
-                int(math.ceil(avg_duration * 1.5)))
+        logging.warning(
+            "[%s] interval exceeded now %d times: [interval: %d,"
+            " start: %d, duration: %d]; please consider changing the"
+            " interval to at least %d seconds",
+            PROG,
+            drifted,
+            interval,
+            time_stamp,
+            duration,
+            int(math.ceil(avg_duration * 1.5)),
+        )
         # The current time, endtime, is now the end of this interval.
         next_start = endtime
 
@@ -363,9 +400,9 @@ for router in _routers.values():
 ts_str = datetime.utcfromtimestamp(time()).strftime("%s.%f")
 # Collect the final version, config, and logs for each existing pod.
 for router in _routers.values():
-    router.collect_version(ts_str, 'stop')
-    router.collect_config(ts_str, 'stop')
-    router.collect_logs(ts_str, 'stop')
+    router.collect_version(ts_str, "stop")
+    router.collect_config(ts_str, "stop")
+    router.collect_logs(ts_str, "stop")
 
 # Wait for all routers to finish collecting their required information.
 for router in _routers.values():
