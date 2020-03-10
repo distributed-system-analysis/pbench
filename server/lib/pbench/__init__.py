@@ -4,9 +4,6 @@ Simple module level convenience functions.
 
 import sys
 import os
-import time
-import json
-import errno
 import logging
 import configtools
 import shutil
