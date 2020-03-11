@@ -14,7 +14,7 @@ else
     printf -- "${_basename}: pbench-trampoline needs python3, either directly or through SCL\n" >&2
     exit 1
 fi
-export PYTHONPATH=$(dirname ${_dirname})/lib:$(dirname ${_dirname})/common/lib:$PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:$(dirname ${_dirname})/lib:$(dirname ${_dirname})/common/lib
 if [[ -e ${_dirname}/${_basename}.py ]]; then
     # We don't use pbench-base.py to invoke python programs, they can use the
     # PbenchConfig class directly.
