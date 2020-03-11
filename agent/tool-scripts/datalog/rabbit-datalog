@@ -1,36 +1,15 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-PROG="$(basename ${0})"
+interval=$1
+username=$2
+password=$3
+file=$4
 
-interval="${1}"
-if [[ -z "${interval}" ]]; then
-	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
-	exit 1
-fi
+cmd="/usr/bin/rabbitmqadmin --username=$username --password=$password list queues"
 
-username="${2}"
-if [[ -z "${username}" ]]; then
-	printf -- "%s: missing required 'username' argument\n" "${PROG}" >&2
-	exit 1
-fi
-
-password="${3}"
-if [[ -z "${password}" ]]; then
-	printf -- "%s: missing required 'password' argument\n" "${PROG}" >&2
-	exit 1
-fi
-
-command -v rabbitmqadmin > /dev/null
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: missing required 'rabbitmqadmin' command\n" "${PROG}" >&2
-	exit 1
-fi
-
-rc=0
-while [[ ${rc} -eq 0 ]]; do
-	echo "timestamp: $(date +%s.%N)"
-	rabbitmqadmin --username=${username} --password=${password} list queues
-	sleep ${interval}
-	rc=${?}
+cat /dev/null >$file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	$cmd >>$file
+	sleep $interval
 done

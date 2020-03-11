@@ -1,33 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import logging
-
-PROG = os.path.basename(sys.argv[0])
-try:
-    tool_output_dir = sys.argv[1]
-except IndexError:
-    logging.error("%s: missing required tool output directory argument", PROG)
-    sys.exit(1)
-else:
-    if not os.path.isdir(tool_output_dir):
-        logging.error("%s: the provided tool output directory, '%s', does not"
-                " appear to be a valid directory", PROG, tool_output_dir)
-        sys.exit(1)
-
-import json
-import math
+import sys, json, warnings, logging, math
 import collections
+
+input_file = sys.argv[1]
+output_file = sys.argv[2]
+docs = []
 
 
 class InvalidDataFormat(Exception):
     pass
 
 
+# convert strings to float for elasticsearch visualization
 def convert(metrics_data):
-    # convert strings to float for elasticsearch visualization
     if isinstance(metrics_data, list):
         raise InvalidDataFormat(
                 "expected a dict, str, int, or float, got a list")
@@ -56,8 +43,8 @@ def convert_value(val):
                 val = 0
     return val
 
-def denormalize_metrics(new_item, metrics, docs):
-    # denormalize metrics for elasticsearch to scale
+# denormalize metrics for elasticsearch to scale
+def denormalize_metrics(new_item, metrics):
     if not isinstance(metrics, list):
         raise InvalidDataFormat("expected a list, got %s" % (type(metrics),))
     _metric_idx = 0
@@ -95,15 +82,16 @@ def denormalize_metrics(new_item, metrics, docs):
             docs.append(new_metric)
         _metric_idx += 1
 
-def process_stdout(metrics_datalog, name):
-    docs = []
+in_file = open(input_file, "r")
+metrics_datalog = in_file.readlines()
+with open(output_file, 'w') as f:
     _idx = 0
     for item in metrics_datalog:
         try:
             item = json.loads(item)
         except ValueError:
-            logging.warning("line %d of %s is not a valid json document, skipping"
-                    " the entry", _idx, name)
+            logging.warn("line %d not a valid json document, skipping the"
+                    " entry", _idx)
             # Count this line as processed
             _idx += 1
             continue
@@ -115,30 +103,27 @@ def process_stdout(metrics_datalog, name):
             }
             metrics = item['metrics']
         except KeyError:
-            logging.warning("line %d of %s is an invalid prometheus metrics"
-                    " format, missing keys; keys found: %r", _idx, name,
-                    sorted(item))
+            logging.warn("line %d invalid prometheus metrics format, missing"
+                    " keys; keys found: %r", _idx, sorted(item))
             # Count this line as processed
             _idx += 1
             continue
         if len(item) > 4:
-            logging.warning("line %d of %s is an invalid prometheus metrics"
-                    " format, too many keys; keys found: %r", _idx, name,
-                    sorted(item))
+            logging.warn("line %d invalid prometheus metrics format, too many"
+                    " keys; keys found: %r", _idx, sorted(item))
             # Count this line as processed
             _idx += 1
             continue
         if not isinstance(metrics, list):
-            logging.warning("line %d of %s is an invalid prometheus metrics"
-                    " format, metrics is not a list; metrics: %s", _idx,
-                    name, type(metrics))
+            logging.warn("line %d invalid prometheus metrics format, metrics is"
+                    " not a list; metrics: %s", _idx, type(metrics))
             # Count this line as processed
             _idx += 1
             continue
         metrics_l = len(metrics)
         if metrics_l == 0:
-            logging.warning("line %d of %s is an invalid prometheus metrics"
-                    " format, metrics is an empty list", _idx, name)
+            logging.warn("line %d invalid prometheus metrics format, metrics is"
+                    " an empty list", _idx)
             # Count this line as processed
             _idx += 1
             continue
@@ -147,19 +132,18 @@ def process_stdout(metrics_datalog, name):
         if metrics_l == 1:
             metric_val = metrics[0]
             if not isinstance(metric_val, dict):
-                logging.warning("line %d of %s is an invalid prometheus metrics"
-                        " format, single metrics entry is not a dict", _idx,
-                        name)
+                logging.warn("line %d invalid prometheus metrics format, single"
+                        " metrics entry is not a dict", _idx)
                 # Count this line as processed
                 _idx += 1
                 continue
             if len(metric_val) > 1:
                 # Handle multiple keys in the only metrics entry
                 try:
-                    denormalize_metrics(new_item, metrics, docs)
+                    denormalize_metrics(new_item, metrics)
                 except InvalidDataFormat as exc:
-                    logging.warning("line %d of %s is an invalid prometheus"
-                            " metrics format, %s", _idx, name, exc)
+                    logging.warn("line %d invalid prometheus metrics format,"
+                            " %s", _idx, exc)
                     # Count this line as processed
                     _idx += 1
                     continue
@@ -170,65 +154,20 @@ def process_stdout(metrics_datalog, name):
                     new_item[key] = convert_value(value)
                     docs.append(new_item)
                 else:
-                    logging.warning("line %d of %s is an invalid prometheus"
-                            " metrics format, single metrics entry has no"
-                            " keys", _idx, name)
+                    logging.warn("line %d invalid prometheus metrics format,"
+                            " single metrics entry has no keys", _idx)
                     # Count this line as processed
                     _idx += 1
                     continue
         else:
             try:
-                denormalize_metrics(new_item, metrics, docs)
+                denormalize_metrics(new_item, metrics)
             except InvalidDataFormat as exc:
-                logging.warning("line %d of %s is an invalid prometheus metrics"
-                        " format, %s", _idx, name, exc)
+                logging.warn("line %d invalid prometheus metrics format,"
+                        " %s", _idx, exc)
                 # Count this line as processed
                 _idx += 1
                 continue
         # Count this line as processed
         _idx += 1
-    return docs
-
-def host_n_port(tod):
-    inv_file = os.path.join(tod, "inv_hosts")
-    if not os.path.exists(inv_file):
-        logging.error("%s: missing expected inventory file, '%s'", PROG,
-                inv_file)
-        return
-    with open(inv_file, "r") as invf:
-	# File format:
-	#   host port=<port> cert=<cert> key=<key> selfsigned=(true|false)
-        for line in invf:
-            try:
-                parts = line.split(" ")
-                host = parts[0]
-                for part in parts[1:]:
-                    if part.startswith("port="):
-                        port = part.split('=', 1)[1]
-                        break
-                else:
-                    logging.warning("%s: missing port for host, '%s'", PROG, host)
-                    continue
-                yield host, port
-            except Exception as exc:
-                logging.error("%s: bad inv_hosts file encountered (%s)", PROG,
-                        exc)
-
-json_dir = os.path.join(tool_output_dir, 'json')
-try:
-    os.mkdir(json_dir)
-except Exception as exc:
-    logging.error("%s: unable to create %s/json directory (%s)", PROG,
-            tool_output_dir, exc)
-
-for host, port in host_n_port(tool_output_dir):
-    stdo_n = "{}-{}-stdout.txt".format(host, port)
-    json_n = "{}-{}.json".format(host, port)
-    input_file = os.path.join(tool_output_dir, stdo_n)
-    if not os.path.exists(input_file):
-        logging.warning("%s: missing expected '%s' file", PROG, input_file)
-        continue
-    output_file = os.path.join(tool_output_dir, 'json', json_n)
-    with open(input_file, "r") as inf, open(output_file, 'w') as ouf:
-        docs = process_stdout(inf, input_file)
-        json.dump(docs, ouf, sort_keys=True, indent=4, separators=(',', ':'))
+    json.dump(docs, f, sort_keys=True, indent=4, separators=(',', ':'))

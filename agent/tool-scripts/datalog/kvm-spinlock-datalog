@@ -1,28 +1,16 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-PROG="$(basename ${0})"
+interval=$1
+file=$2
 
-interval="${1}"
-if [[ -z "${interval}" ]]; then
-	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
-	exit 1
-fi
-
-sysfs_spinlock_dir="/sys/kernel/debug/kvm/spinlocks"
-ls ${sysfs_spinlock_dir} > /dev/null 2>&1
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: ${sysfs_spinlock_dir} does not exist or is not readable\n" "${PROG}" >&2
-	exit 1
-fi
-
-rc=0
-while [[ ${rc} -eq 0 ]]; do
-	echo "timestamp: $(date +%s.%N)"
-	for i in $(ls ${sysfs_spinlock_dir} | grep -v "histo_blocked" | grep -v "zero_stats"); do
-		echo ${i}: $(cat ${sysfs_spinlock_dir}/${i})
+cat /dev/null >$file
+sysfs_spinlock_dir=/sys/kernel/debug/kvm/spinlocks
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	for i in `/bin/ls $sysfs_spinlock_dir | grep -v "histo_blocked" | grep -v "zero_stats"`; do
+		echo $i: `cat $sysfs_spinlock_dir/$i` >>$file
 	done
-	echo ""
-	sleep ${interval}
-	rc=${?}
+	echo >>$file
+	sleep $interval
 done
+popd >/dev/null

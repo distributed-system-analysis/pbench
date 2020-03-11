@@ -9,7 +9,7 @@
 #
 #   CSV files and statically generated graphs
 #   with embedded javascript, using d3.js libraries
-#
+# 
 # or
 #
 #   CommonDataModel documents
@@ -44,9 +44,6 @@ use GenData qw(gen_data);
 use SysStat qw(get_sar_cpumode_attributes build_cpu_topology get_cpu_socket_core);
 
 my $dir = shift;
-
-die "Non-default options, skipping post-processing for sar" if (-f $dir . "/sar.options");
-
 my $es_dir;
 my $hostname;
 my $period_doc_path;
@@ -874,7 +871,7 @@ while ($line = <SAR_TXT>) {
 			}
 		} else {
 			$sar{network_l345}{tcp_sockets}{active_opens_sec}{$timestamp_ms} = $tcp_opens_sec{'Active'};
-			$sar{network_l345}{tcp_sockets}{passive_opens_sec}{$timestamp_ms} = $tcp_opens_sec{'Passive'};
+			$sar{network_l345}{tcp_sockets}{passive_opens_sec}{$timestamp_ms} = $tcp_opens_sec{'Passive'}; 
 			$sar{network_l345}{tcp_sockets}{rx_segments_sec}{$timestamp_ms} = $tcp_segments_sec{'Input'};
 			$sar{network_l345}{tcp_sockets}{tx_segments_sec}{$timestamp_ms} = $tcp_segments_sec{'Output'};
 		}
@@ -995,7 +992,7 @@ while ($line = <SAR_TXT>) {
 			my %md = ( 'host' => $hostname, 'socket' => $socket, 'core' => $core, 'id' => $cpuid );
 			log_cdm_metric_sample('sar', 'count', 'ProcessorFrequencyMhz', '%host%-%socket%:%core%:%id%',
 						\%md, \%sar, $timestamp_ms, $mhz);
-		} else {
+		} else { 
 			$sar{cpu}{"frequency_MHz"}{sprintf "cpu_%02d", $cpuid}{$timestamp_ms} = $mhz;
 		}
 		next;

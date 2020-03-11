@@ -1,26 +1,10 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-PROG="$(basename ${0})"
+interval=$1
+file=$2
 
-interval="${1}"
-if [[ -z "${interval}" ]]; then
-	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
-	exit 1
-fi
-
-command -v df > /dev/null
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: missing required 'df' command\n" "${PROG}" >&2
-	exit 1
-fi
-
-rc=0
-while [[ ${rc} -eq 0 ]]; do
+while true; do
 	# we display the output in kilobytes.
-	df --output=source,target,fstype,itotal,iused,iavail,size,used,avail,file \
-		| grep -v openshift_local_volumes | grep -vw Filesystem \
-		| pbench-log-timestamp | awk -F ' ' '{gsub(":","",$1); print}'
-	sleep ${interval}
-	rc=${?}
+	/usr/bin/df --output=source,target,fstype,itotal,iused,iavail,size,used,avail,file | grep -v openshift_local_volumes | grep -vw Filesystem | pbench-log-timestamp | awk -F ' ' '{gsub(/\:/,"",$1); print}' >> $file
+	sleep $interval
 done

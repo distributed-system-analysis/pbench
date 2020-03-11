@@ -7,7 +7,7 @@
 #
 #   CSV files and statically generated graphs
 #   with embedded javascript, using d3.js libraries
-#
+# 
 # or
 #
 #   CommonDataModel documents
@@ -40,14 +40,10 @@ BEGIN {
 }
 use GenData qw(gen_data);
 use SysStat qw(get_mpstat_cpumode_attributes build_cpu_topology get_cpu_socket_core);
-
-my $dir = shift;
-
-die "Non-default options, skipping post-processing for mpstat" if (-f $dir . "/mpstat.options");
-
 my $date_ms;
 my $prev_time = "";
 my %online_cpus;
+my $dir = shift;
 my $hostname; # for CDM
 
 # We'll force mpstat into a LANG=C environment: two-digit year on the first line,

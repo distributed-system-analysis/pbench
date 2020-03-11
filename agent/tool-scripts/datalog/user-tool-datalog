@@ -1,13 +1,13 @@
 #!/bin/bash
 
 interval=$1
-file=$2
-pattern=$3
-cmd="/usr/bin/numastat -m -n $pattern"
+file_to_capture=$2
+file=$3
 
 cat /dev/null >$file
 while true; do
+	echo >>$file
 	echo "timestamp: `date +%s.%N`" >>$file
-	$cmd >>$file
+	cat $file_to_capture >>$file
 	sleep $interval
 done

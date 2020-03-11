@@ -1,5 +1,4 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
 
 # base: contains the base functions and environment variables needed to use
 #       the pbench-agent.
@@ -71,7 +70,7 @@ export pbench_bspp_dir pbench_lib_dir
 
 TS_FORMAT="%FT%H:%M:%S"
 
-if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
+if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     function timestamp {
 	# use ns in the timestamp
 	echo "$(date --utc +"${TS_FORMAT}.%N")"
@@ -111,7 +110,7 @@ function debug_log {
 
 # Some standard global vars - try the config file first and fall back on hardwired defaults
 # which are valid today.
-if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
+if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     # date may be set "accidentally" so add a var with an unlikely name
     # to check whether we need to set it.
     if [[ -z "$date" || -z "$_PBENCH_DATE_SET" ]]; then
@@ -168,7 +167,7 @@ function get_redhat_version() {
     cat /etc/redhat-release | awk '{ print $7 }'
 }
 
-if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
+if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
     function check_enable_copr {
         local copr_user=$1
         local copr_name=$2
@@ -197,23 +196,51 @@ else
     }
 fi
 
-function check_install_rpm {
-    _n="${1}"
-    _v="${2}"
-    require-rpm "${_n}" "${_v}"
-    local rc=${?}
-    if [[ ! -z "${_v}" ]]; then
-	_rpm="${_n}-${_v}"
-    else
-	_rpm="${_n}"
-    fi
-    if [[ ${rc} -ne 0 ]]; then
-	error_log "[check_install_rpm] ${_rpm} is not installed"
-    else
-	debug_log "[check_install_rpm] ${_rpm} is installed"
-    fi
-    return ${rc}
-}
+# don't install packages when unit-testing
+if [[ -z "$_PBENCH_BENCH_TESTS" ]]; then
+    function check_install_rpm {
+	local this_rpm=$1
+	if [[ ! -z "$2" ]]; then
+    	    local this_version="-$2"
+	else
+	    local this_version=""
+	fi
+
+	local rpm_status=`rpm --query ${this_rpm}$this_version`
+	local rc=0
+	if echo $rpm_status | grep -q "is not installed"; then
+	    debug_log "[check_install_rpm] attempting to install ${this_rpm}$this_version"
+	    yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
+	    rc=$?
+	else
+	    local installed_rpm_version=`rpm -q --qf "-%{VERSION}" ${this_rpm}`
+	    if [[ ! -z "$this_version" && "$this_version" != "$installed_rpm_version" ]]; then
+		yum --debuglevel=0 install -y ${this_rpm}$this_version >> $pbench_log 2>&1
+		rc=$?
+	    else
+		debug_log "[check_install_rpm] $this_rpm has already been installed"
+		rc=0
+	    fi
+	fi
+	if [[ $rc -ne 0 ]]; then
+	    error_log "[check_install_rpm] the installation of $this_rpm$this_version failed"
+	    return 1
+	else
+	    return 0
+	fi
+    }
+else
+    function check_install_rpm {
+	local this_rpm=$1
+	if [[ ! -z "$2" ]]; then
+    	    local this_version="-$2"
+	else
+	    local this_version=""
+	fi
+	debug_log "[check_install_rpm] attempting to install ${this_rpm}$this_version"
+	return 0
+    }
+fi
 
 function verify_tool_group {
     local group=$1
@@ -269,7 +296,7 @@ function generate_inventory {
 	fi
 }
 
-if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]] ;then
+if [[ "${_PBENCH_BENCH_TESTS}" == 1 ]] ;then
     # For unit tests, we use a mock kill:
     # disable the built-in.
     enable -n kill

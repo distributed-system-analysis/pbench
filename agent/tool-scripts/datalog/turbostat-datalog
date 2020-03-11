@@ -1,23 +1,6 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-PROG="$(basename ${0})"
+interval=$1
+file=$2
 
-interval="${1}"
-if [[ -z "${interval}" ]]; then
-	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
-	exit 1
-fi
-
-command -v turbostat > /dev/null
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: missing required 'turbostat' command\n" "${PROG}" >&2
-	exit 1
-fi
-
-if grep -q KVM /sys/devices/virtual/dmi/id/product_name; then
-	printf -- "%s: running inside a KVM guest; disabling turbostat\n" >&2
-	exit 1
-fi
-
-turbostat -i ${interval} | pbench-log-timestamp
+/usr/bin/turbostat -i $interval | pbench-log-timestamp > $file

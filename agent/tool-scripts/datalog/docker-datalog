@@ -1,24 +1,17 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-PROG="$(basename ${0})"
+interval=$1
+file=$2
+pattern=$3
+function count_docker {
+/usr/bin/docker ps -aq | wc -l
+}
 
-interval="${1}"
-if [[ -z "${interval}" ]]; then
-	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
-	exit 1
-fi
+cmd="count_docker"
 
-command -v docker > /dev/null
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: missing 'docker' command\n" "${PROG}" >&2
-	exit 1
-fi
-
-rc=0
-while [[ ${rc} -eq 0 ]]; do
-	echo "timestamp: $(date +%s.%N)"
-	docker ps -aq | wc -l
-	sleep ${interval}
-	rc=${?}
+cat /dev/null >$file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	$cmd >>$file
+	sleep $interval
 done

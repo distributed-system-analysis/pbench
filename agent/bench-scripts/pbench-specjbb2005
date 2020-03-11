@@ -371,7 +371,7 @@ for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 		error_log "unable to move ${iteration}-default directory hierarchy to ${new_iteration_name}, skipping post-processing"
 	else
 		record_iteration ${iteration} ${new_iteration_name} ${benchmark}
-		pbench-postprocess-tools --group=${tool_group} --dir=${benchmark_run_dir}/${new_iteration_name}/sample1
+		pbench-postprocess-tools --group=${tool_group} --iteration=${new_iteration_name} --dir=${benchmark_run_dir}/${new_iteration_name}/sample1
 		ln -s sample1 ${benchmark_run_dir}/${new_iteration_name}/reference-result
 	fi
 	let iteration=$iteration+1

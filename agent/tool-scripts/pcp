@@ -1,1 +1,179 @@
-base-tool
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+
+script_path="`dirname $0`"
+script_name="`basename $0`"
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Perftool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) post-process the data
+
+# Defaults
+tool="$script_name"
+tool_package_name="pcp-gui" # this package should have appropriate deps for the remaining (90+!) pcp packages
+tool_daemon="pmcd"
+group="default"
+dir="/tmp"
+mode=""
+interval="3"
+iteration="1"
+options="none"
+tool_bin="/usr/bin/pmlogger"
+pmlogger_conf="$pbench_bin/config/pmlogger.conf"
+
+# TODO: implement a generic start_service function in $pbench_run/base
+function start_pmcd {
+	if ! pgrep pmcd; then
+		if [ -x /usr/bin/systemctl ]; then
+			systemctl start pmcd
+		else if [-x /usr/bin/service ]; then
+				service pmcd start
+			else
+				error_log "$script_name: could not start pmcd service"
+			fi
+		fi
+	fi
+	if pgrep pmcd; then
+		debug_log "$script_name: service pmcd started"
+		return 0 
+	else
+		error_log "$script_name: could not start pmcd service"
+		return 1
+	fi
+}
+
+# Process options and arguments
+opts=$(getopt -q -o idp --longoptions "dir:,group:,iteration:,interval:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+	printf "The following options are available: \n\n"
+	printf -- "\t--install,			install this perf tool\n"
+	printf "\n"
+	printf -- "\t--start|stop|postprocess	start/stop/post-process the data collection\n"
+	printf -- "\t--iteration=int 		the iteration (required)\n"
+	printf -- "\t--group=str		the perftool group (required)\n"
+	printf -- "\t--dir=str			directory to store data collection (required)\n"
+	printf -- "\t--interval=int		number of seconds between each data collection\n"
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		--install)
+		mode="install"
+		shift;
+		;;
+		--start)
+		mode="start"
+		shift;
+		;;
+		--stop)
+		mode="stop"
+		shift;
+		;;
+		--postprocess)
+		mode="postprocess"
+		shift;
+		;;
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift
+		fi
+		;;
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift
+		fi
+		;;
+		-i|--iteration)
+		shift;
+		if [ -n "$1" ]; then
+			iteration="$1"
+			shift
+		fi
+		;;
+		--interval)
+		shift;
+		if [ -n "$1" ]; then
+			interval="$1"
+			shift
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+
+tool_dir="$dir/tools-$group"
+tool_output_dir="$tool_dir/$tool" # all tools keep data in their tool specific dir
+tool_cmd_file="$tool_output_dir/$tool.cmd"
+tool_pid_file="$pbench_tmp/$group.$iteration.$tool.pid"
+tool_stdout_file="$tool_output_dir/$tool-stdout.txt"
+tool_stderr_file="$tool_output_dir/$tool-stderr.txt"
+tool_cmd="$tool_bin -c pmlogger.conf -t ${interval} archive >$tool_stdout_file 2>$tool_stderr_file & echo \$! >$tool_pid_file"
+
+case "$mode" in
+	install)
+	# pcp package are not maintained by pbench
+	if check_install_rpm $tool_package_name; then
+		# if a user does not create their own pmlogger config, we create one
+		if [ ! -e $pmlogger_conf ]; then
+			if start_pmcd; then
+    				if /usr/libexec/pcp/bin/pmlogconf -c -r $pmlogger_conf; then
+					debug_log "$script_name: created pmlogger config"
+				else
+					error_log "$script_name: could not create pmlogger config"
+				fi
+			else
+				error_log "$script_name: creating pmlogger config not possible because pmcd could not be started"
+			fi
+		fi
+	else
+		error_log "$script_name: installation of $tool_package_name failed"
+		exit 1
+	fi
+	;;
+	start)
+	if start_pmcd; then
+		mkdir -p "$tool_output_dir"
+		pushd "$tool_output_dir" >/dev/null
+		/bin/rm -f archive*
+		echo "$tool_cmd" >"$tool_cmd_file"
+		chmod +x "$tool_cmd_file"
+		# pmlogger config is kept with tool data for debug purposes
+		/bin/cp "$pmlogger_conf" "$tool_output_dir"
+		debug_log "$script_name: running $tool_cmd"
+		. $tool_cmd_file 
+		popd >/dev/null
+		wait
+	else
+		error_log "$script_name: could not not run pmlogger because pmcd is not running"
+	fi
+	;;
+	stop)
+	if [[ -s "$tool_pid_file" ]]; then
+		pid=`cat "$tool_pid_file"`
+		debug_log "stopping $script_name"
+		kill $pid && /bin/rm "$tool_pid_file"
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
+	fi
+	;;
+	postprocess)
+	debug_log "postprocessing $script_name"
+	$script_path/postprocess/$script_name-postprocess "$tool_output_dir" "$interval" >>"$tool_stdout_file" 2>>"$tool_stderr_file"
+	;;
+esac
