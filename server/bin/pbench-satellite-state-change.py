@@ -7,13 +7,11 @@ import shutil
 _prog = os.path.basename(sys.argv[0])
 
 if len(sys.argv) < 2:
-    print("{}: Missing working directory argument".format(_prog),
-        file=sys.stderr)
+    print("{}: Missing working directory argument".format(_prog), file=sys.stderr)
     sys.exit(1)
 
 if len(sys.argv) > 2:
-    print("{}: Too many arguments ({!r})".format(_prog, sys.argv),
-        file=sys.stderr)
+    print("{}: Too many arguments ({!r})".format(_prog, sys.argv), file=sys.stderr)
     sys.exit(1)
 
 try:
@@ -25,7 +23,7 @@ except Exception as e:
 errors = 0
 for tar in sys.stdin:
     try:
-        src = tar.strip('\n')
+        src = tar.strip("\n")
         des = src.replace("TO-SYNC", "TO-DELETE")
         shutil.move(src, des)
     except Exception as e:
