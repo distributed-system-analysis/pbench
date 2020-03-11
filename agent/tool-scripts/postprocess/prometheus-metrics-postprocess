@@ -4,6 +4,9 @@
 import os
 import sys
 import logging
+import json
+import math
+
 
 PROG = os.path.basename(sys.argv[0])
 try:
@@ -20,10 +23,6 @@ else:
             tool_output_dir,
         )
         sys.exit(1)
-
-import json
-import math
-import collections
 
 
 class InvalidDataFormat(Exception):

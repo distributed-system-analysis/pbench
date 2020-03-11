@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
+from datetime import datetime
 import sys
 import os
 import logging
+import subprocess
+import errno
+from time import time, sleep
+
 
 PROG = os.path.basename(sys.argv[0])
 try:
@@ -43,10 +48,6 @@ else:
     else:
         clear_counters = False
 
-import subprocess
-import errno
-from time import time, sleep
-
 # FIXME: haproxy router namespace, "default"
 _router_namespace = "default"
 haproxy_config = "/var/lib/haproxy/conf/haproxy.config"
@@ -55,6 +56,7 @@ clear_counters_cmd = (
     f"echo 'clear counters all' | socat - UNIX-CONNECT:{haproxy_socket_path}"
 )
 show_stats_cmd = f"echo 'show stat' | socat - UNIX-CONNECT:{haproxy_socket_path}"
+
 
 # Generator to fetch the current list of routers
 def fetch_routers():
@@ -315,7 +317,7 @@ if _unit_test_iterations is not None:
         _ts += 1
         return _ts
 
-    time = _time
+    time = _time  # noqa:F811
     _orig_sleep = sleep
 
     def _sleep(length):
@@ -347,8 +349,6 @@ else:
     signal.signal(signal.SIGTERM, handler)
     signal.signal(signal.SIGQUIT, handler)
     signal.signal(signal.SIGINT, handler)
-
-from datetime import datetime
 
 # Initial timestamp and next interval calcultion
 time_stamp = time()

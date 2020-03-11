@@ -4,14 +4,9 @@
 import os
 import sys
 import glob
-import base64
-import hashlib
 import shutil
 import tempfile
-from enum import Enum
-from argparse import ArgumentParser
 from s3backup import S3Config, Status
-from botocore.exceptions import ConnectionClosedError, ClientError
 
 from pbench import (
     PbenchConfig,
