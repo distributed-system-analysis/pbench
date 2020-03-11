@@ -1,1 +1,5 @@
 pbr
+elasticsearch
+sh
+boto3
+ansible

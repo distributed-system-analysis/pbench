@@ -9,3 +9,5 @@ dist
 .npmrc
 .yarnrc
 .venv
+.tox
+*.egg-info
