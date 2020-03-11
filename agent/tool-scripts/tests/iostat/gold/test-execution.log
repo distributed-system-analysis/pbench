@@ -1,2 +1,0 @@
-iostat-datalog 10
-iostat-postprocess /var/tmp/pbench-test-tool-scripts/iostat/tools-group/iostat

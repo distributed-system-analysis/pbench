@@ -1,4 +1,0 @@
-dm-cache: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/dm-cache-datalog 10"
-dm-cache: stopping
-dm-cache: no post-processing available following stop
-dm-cache: no data post-processing available

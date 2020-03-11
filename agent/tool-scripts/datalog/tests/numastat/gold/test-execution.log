@@ -1,3 +1,0 @@
-date +%s.%N
-numastat -m -n a-pattern
-sleep 42

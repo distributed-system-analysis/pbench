@@ -1,4 +1,0 @@
-#/bin/bash
-
-echo "${_execdir}"
-exit 0

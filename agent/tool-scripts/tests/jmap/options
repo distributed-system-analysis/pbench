@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--pid=42 --pattern=jmap-pat-42"
-exit 0

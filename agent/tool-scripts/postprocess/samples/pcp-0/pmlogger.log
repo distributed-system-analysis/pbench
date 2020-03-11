@@ -1,0 +1,14 @@
+Log for pmlogger on alphaville.usersys.redhat.com started Tue Mar  8 13:05:21 2016
+
+preprocessor cmd: /usr/libexec/pcp/bin/pmcpp -rs pmlogger.conf -I /var/lib/pcp/config/pmlogger
+Warning [pmlogger.conf, line 185]
+Description unavailable for metric "hinv.nlv" ... not logged
+Reason: Unknown or illegal metric identifier
+Warning [pmlogger.conf, line 185]
+Description unavailable for metric "hinv.map.lvname" ... not logged
+Reason: Unknown or illegal metric identifier
+Config parsed
+Starting logger for host "alphaville.usersys.redhat.com" via "local:"
+Archive basename: archive
+
+Log finished Tue Mar  8 13:06:20 2016

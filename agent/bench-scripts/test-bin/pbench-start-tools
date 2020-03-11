@@ -1,43 +1,35 @@
 #!/bin/bash
 
-echo "${0} ${*}" >> ${_testlog}
+echo "$0 $*" >> $_testlog
 
-PROG="$(basename "${0}")"
-
-opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "mock-${PROG}" -- "${@}")
-if [[ ${?} -ne 0 ]]; then
-	printf -- "mock-%s: unrecognized argument, \"%s\"\n" "${PROG}" "${*}" >> ${_testlog}
-	exit 1
-fi
-eval set -- "${opts}"
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:,iteration:" -n "getopt.sh" -- "$@");
+eval set -- "$opts";
 while true; do
-	opt="${1}"
-	shift
-	case "${opt}" in
-	-g|--group)
-		if [[ -n "${1}" ]]; then
-			group="${1}"
-			shift
+	case "$1" in
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift;
 		fi
 		;;
-	-d|--dir)
-		if [[ -n "${1}" ]]; then
-			dir="${1}"
-			shift
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift;
 		fi
 		;;
-	--)
-		break
+		-i|--iteration)
+		shift;
+		if [ -n "$1" ]; then
+			shift;
+		fi
 		;;
-	*)
-		printf -- "mock-%s: unrecognized argument, \"%s\"\n" "${PROG}" "${opt}" >> ${_testlog}
-		exit 1
+		--)
+		shift;
+		break;
+		;;
 	esac
 done
-if [[ "${PROG}" == "pbench-start-tools" ]]; then
-	mkdir -p "${dir}/tools-${group}"
-	retsts=${?}
-else
-	retsts=0
-fi
-exit ${retsts}
+mkdir -p "$dir/tools-$group"

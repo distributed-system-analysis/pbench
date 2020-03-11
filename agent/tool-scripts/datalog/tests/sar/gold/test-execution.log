@@ -1,1 +1,0 @@
-sar -A -opt0 -o /var/tmp/pbench-test-tools-datalog/sar/sar.data 42

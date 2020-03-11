@@ -58,25 +58,26 @@ else
 fi
 
 function testit {
-    echo "Testing ${2}-postprocess under sample ${1} ..."
+    echo "Testing $2-postprocess under sample $1 ..."
 
-    mkdir ${_testroot}/${1}
-    cp samples/${1}/* ${_testroot}/${1}/
-
-    pbench_lib_dir=$(pwd)/../../lib ./${2}-postprocess ${_testroot}/${1} > ${_testroot}/${1}/stdout 2> ${_testroot}/${1}/stderr
-
-    local _fn
-    for _fn in $(find samples/${1} -maxdepth 1 ! -type d); do
-        local fn=$(basename ${_fn})
-        rm ${_testroot}/${1}/${fn}
-    done
-
-    diff -cr gold/${1}/ ${_testroot}/${1}
-    sts=${?}
-    if [[ ${sts} -eq 0 ]]; then
-        rm -rf ${_testroot}/${1}
+    mkdir ${_testroot}/$1
+    cp samples/$1/$2-std*.txt ${_testroot}/$1/
+    if [[ -e samples/$1/online-cpus.txt ]]; then
+        cp samples/$1/online-cpus.txt ${_testroot}/$1/
     fi
-    return ${sts}
+    pbench_lib_dir=$(pwd)/../../lib ./$2-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+
+    rm ${_testroot}/$1/$2-std*.txt
+    if [[ -e ${_testroot}/$1/online-cpus.txt ]]; then
+        rm ${_testroot}/$1/online-cpus.txt
+    fi
+
+    diff -cr gold/$1/ ${_testroot}/$1
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
 }
 
 # Remove any file that is in the sample directory that
@@ -211,7 +212,7 @@ function testfio {
     echo "Testing bench-scripts/postprocess/fio-postprocess under sample $1 ..."
 
     mkdir ${_testroot}/$1
-    cp -r samples/$1/* ${_testroot}/$1/
+    cp -r samples/$1/* ${_testroot}/$1
 
     pbench_lib_dir=$(pwd)/../../lib pbench_bspp_dir=$(pwd)/../../bench-scripts/postprocess \
         ../../bench-scripts/postprocess/fio-postprocess ${_testroot}/$1/result/reference-result fio- default > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
@@ -230,7 +231,7 @@ function testhaproxy_ocp {
     echo "Testing haproxy-ocp-postprocess under sample $1 ..."
 
     mkdir ${_testroot}/$1
-    cp -r samples/$1/* ${_testroot}/$1/
+    cp samples/$1/router*.csv ${_testroot}/$1/
 
     pbench_lib_dir=$(pwd)/../../lib ./haproxy-ocp-postprocess ${_testroot}/$1 > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
 
@@ -253,6 +254,22 @@ function testjmap {
     remove_sample_data $1
 
     diff -cr gold/$1/ ${_testroot}/$1/
+    sts=$?
+    if [ $sts -eq 0 ]; then
+        rm -rf ${_testroot}/$1
+    fi
+    return $sts
+}
+
+function testprometheus_metrics {
+    echo "Testing prometheus-metrics-postprocess under sample $1 ..."
+
+    mkdir -p ${_testroot}/$1/json
+    cp -r samples/$1/* ${_testroot}/$1
+
+    pbench_lib_dir=$(pwd)/../../lib ./prometheus-metrics-postprocess ${_testroot}/$1/metrics-stdout ${_testroot}/$1/json/metrics.json 2> ${_testroot}/$1/stderr
+
+    diff -cr gold/$1/stderr ${_testroot}/$1/stderr && diff -cr gold/$1/json/ ${_testroot}/$1/json/
     sts=$?
     if [ $sts -eq 0 ]; then
         rm -rf ${_testroot}/$1
@@ -286,7 +303,7 @@ function testpidstat {
     mkdir ${_testroot}/${1}
 
     # Generate pidstat converted data as tool would.
-    cvt_path=$(dirname $(realpath ../datalog/pidstat-convert))
+    cvt_path=$(dirname $(realpath ./pidstat-convert))
     cat samples/${1}/pidstat-stdout.txt | (cd ${_testroot}/${1}; pbench_lib_dir=${cvt_path}/../../lib ${cvt_path}/pidstat-convert ${_testroot}/${1})
 
     pbench_lib_dir=$(pwd)/../../lib ./pidstat-postprocess ${_testroot}/${1} > ${_testroot}/${1}/stdout 2> ${_testroot}/${1}/stderr
@@ -326,9 +343,13 @@ for i in $(ls -1 samples/) ; do
         jmap)
             testjmap $i
             sts=$?
-            ;;
+            ;;            
         jstack)
             testjstack $i
+            sts=$?
+            ;;
+        prometheus-metrics)
+            testprometheus_metrics $i
             sts=$?
             ;;
         pcp-*)
@@ -350,11 +371,10 @@ for i in $(ls -1 samples/) ; do
         pidstat-*)
             testpidstat $i
             sts=$?
-            ;;
+            ;;            
         *)
             testit $i ${i%-[0-9]}
             sts=$?
-            ;;
     esac
     if [[ $sts -eq 0 ]]; then
         echo "PASS - $i"

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--pattern=pig42"
-exit 0

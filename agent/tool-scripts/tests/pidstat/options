@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--patterns=one42,two43,three44 --threads --options='-other-opt'"
-exit 0

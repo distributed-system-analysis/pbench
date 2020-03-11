@@ -1,4 +1,0 @@
-sysfs: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/sysfs-datalog 10 "kernel" "4" "*""
-sysfs: stopping
-sysfs: no post-processing available following stop
-sysfs: post-processing data

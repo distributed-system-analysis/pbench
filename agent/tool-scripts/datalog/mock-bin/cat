@@ -1,8 +1,0 @@
-#!/bin/bash
-
-echo "$(basename ${0}) ${@}" >> ${_testlog}
-
-if [[ "$(basename ${1})" == "cpuacct.usage_percpu" ]]; then
-    echo "43"
-fi
-exit 0

@@ -1,2 +1,0 @@
-File-Capture-datalog 10 /proc/interrupts
-proc-interrupts-postprocess /var/tmp/pbench-test-tool-scripts/proc-interrupts/tools-group/proc-interrupts

@@ -1,5 +1,0 @@
-prometheus-metrics: golang is installed
-prometheus-metrics: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/prometheus-metrics-datalog /var/tmp/pbench-test-tool-scripts/prometheus-metrics/tools-group/prometheus-metrics 42 tests/prometheus-metrics/inventory-hosts.lis"
-prometheus-metrics: stopping
-prometheus-metrics: no post-processing available following stop
-prometheus-metrics: post-processing data

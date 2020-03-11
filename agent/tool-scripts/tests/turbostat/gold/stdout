@@ -1,5 +1,0 @@
-turbostat: kernel-tools is installed
-turbostat: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/turbostat-datalog 10"
-turbostat: stopping
-turbostat: no post-processing available following stop
-turbostat: no data post-processing available

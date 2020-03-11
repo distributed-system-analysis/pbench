@@ -1,4 +1,0 @@
-virsh-migrate: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/virsh-migrate-datalog 42 vm42"
-virsh-migrate: stopping
-virsh-migrate: no post-processing available following stop
-virsh-migrate: post-processing data

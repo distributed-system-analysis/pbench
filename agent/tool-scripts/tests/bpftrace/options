@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--script=my-bpf-script"
-exit 0

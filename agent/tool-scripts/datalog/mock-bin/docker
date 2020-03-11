@@ -1,6 +1,0 @@
-#!/bin/bash
-
-echo "$(basename ${0}) ${@}" >> ${_testlog}
-
-printf -- "info line 1\ninfo line 2\ninfo line 3\n"
-exit 0

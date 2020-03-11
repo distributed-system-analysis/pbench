@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--record-opts='--a42' --report-opts='--b43' --callgraph"
-exit 0
