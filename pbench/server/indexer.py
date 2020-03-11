@@ -45,6 +45,7 @@ except ImportError:
 # constructor's execution.
 import pbench.server
 
+from pbench.server import logger as _logger
 from pbench.server import utils
 
 try:
@@ -4132,7 +4133,7 @@ class IdxContext(object):
             self.getuid = os.getuid
         self.TS = self.config.TS
 
-        self.logger = pbench.server.get_pbench_logger(self.name, self.config)
+        self.logger = _logger.get_pbench_logger(self.name, self.config)
         self.es = get_es(self.config, self.logger)
         self.templates = PbenchTemplates(
             self.config.BINDIR,

@@ -5,7 +5,8 @@ import logging
 import os
 import sys
 
-from pbench.server import PbenchConfig, BadConfig, get_pbench_logger
+from pbench.server import PbenchConfig, BadConfig
+from pbench.server import logger as _logger
 
 _NAME_ = "pbench-logger-test"
 cfg_name = os.environ["_PBENCH_SERVER_CONFIG"]
@@ -39,7 +40,7 @@ def mock_the_handler(logger, logger_type, fname):
 def test_pbench_logger():
 
     config = PbenchConfig(cfg_name)
-    logger = get_pbench_logger(_NAME_, config)
+    logger = _logger.get_pbench_logger(_NAME_, config)
 
     logger_type = config.get("logging", "logger_type")
 

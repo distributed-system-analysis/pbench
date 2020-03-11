@@ -13,10 +13,10 @@ from pbench.server.s3backup import S3Config, Status
 from pbench.server import (
     PbenchConfig,
     BadConfig,
-    get_pbench_logger,
 )
 from pbench.server.report import Report
 from pbench.server import utils
+from pbench.server import logger as _logger
 
 
 _NAME_ = "pbench-backup-tarballs"
@@ -502,7 +502,7 @@ def main():
         print("{}: {}".format(_NAME_, e), file=sys.stderr)
         return 1
 
-    logger = get_pbench_logger(_NAME_, config)
+    logger = _logger.get_pbench_logger(_NAME_, config)
 
     # Add a BACKUP and QDIR field to the config object
     config.BACKUP = config.conf.get("pbench-server", "pbench-backup-dir")

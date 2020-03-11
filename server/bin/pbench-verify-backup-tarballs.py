@@ -49,7 +49,8 @@ import tempfile
 from enum import Enum
 from pbench.server.s3backup import S3Config, Entry
 
-from pbench.server import PbenchConfig, BadConfig, get_pbench_logger
+from pbench.server import PbenchConfig, BadConfig
+from pbench.server import logger as _logger
 from pbench.server.report import Report
 from pbench.server import utils
 
@@ -270,7 +271,7 @@ def main():
         print("{}: {}".format(_NAME_, e), file=sys.stderr)
         return 1
 
-    logger = get_pbench_logger(_NAME_, config)
+    logger = _logger.get_pbench_logger(_NAME_, config)
 
     archive = config.ARCHIVE
     if not os.path.isdir(archive):
