@@ -8,15 +8,13 @@ into the configured Elasticsearch V1 instance.
 
 import sys
 import os
-import re
 import glob
 import tarfile
 import tempfile
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
-from pbench import tstos, BadConfig, get_pbench_logger, \
-        quarantine, rename_tb_link
+from pbench import tstos, BadConfig, quarantine, rename_tb_link
 from pbench.indexer import IdxContext, ConfigFileError, BadDate, \
         UnsupportedTarballFormat, BadMDLogFormat, SosreportHostname, \
         PbenchTarBall, es_index, JsonFileError, TemplateError, VERSION
@@ -97,7 +95,7 @@ def main(options, name):
     idxctx = None
     try:
         idxctx = IdxContext(options, name, _dbg=_DEBUG)
-    except (ConfigFileError, ConfigParserError):
+    except (ConfigFileError, ConfigParserError) as e:
         print("{}: {}".format(name, e), file=sys.stderr)
         return 2
     except BadConfig as e:
@@ -392,7 +390,7 @@ def main(options, name):
                     rename_tb_link(tb, os.path.join(controller_path,
                             linkerrdest), idxctx.logger)
                 idxctx.logger.info("Finished {} (size {:d})", tb, size)
-        except Exception as e:
+        except Exception:
             idxctx.logger.exception("Unexpected setup error")
             res = 12
         else:

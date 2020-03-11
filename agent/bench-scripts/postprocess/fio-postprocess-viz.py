@@ -67,10 +67,11 @@ def main(ctx):
   cp.read(ctx.job_file)
   for s in cp.sections():
     try:
-      epoch = cp.get(s, 'log_unix_epoch')
-      chart_type = "timeseries"
+      cp.get(s, 'log_unix_epoch')
     except Exception:
       pass
+    else:
+      chart_type = "timeseries"
   result_file_name = join(ctx.DIR, 'results.html')
   print("[{}] Chart Type: {} ({})".format(
       _prog, chart_type, result_file_name))

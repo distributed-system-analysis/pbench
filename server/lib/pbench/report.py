@@ -167,9 +167,9 @@ class Report(object):
                             timestamp_noutc)
                     fpath = os.path.join(self.config.LOGSDIR, self.name, fname)
                     with lzma.open(fpath, mode="w", preset=9) as fp:
-                        f.write(the_bytes)
+                        fp.write(the_bytes)
                         for _, _, the_bytes in payload_gen:
-                            f.write(the_bytes)
+                            fp.write(the_bytes)
                 # Always log the first 4,096 bytes
                 self.logger.info("{}", payload[:4096])
             else:

@@ -8,8 +8,6 @@ from configparser import ConfigParser
 
 from optparse import OptionParser, make_option
 
-import logging
-
 def uniq(l):
     # uniquify the list without scrambling it
     seen = set()
@@ -83,18 +81,63 @@ def parse_args(options=[], usage=None):
 
     return parser.parse_args()
 
+def parse_range(s):
+    """s is of the form <prefix>[<range>]<suffix>.
+       Parse and return the three components separately.
+    """
+    pos = s.find('[')
+    rpos = s.find(']')
+    if pos >= 0:
+        prefix = s[0:pos]
+        if rpos >= 0:
+            rng = s[pos+1:rpos]
+            suffix = s[rpos+1:]
+        else:
+            prefix = s
+            rng = suffix = ""
+    else:
+        prefix = s
+        rng = suffix = ""
+
+    return (prefix, suffix, rng)
+
+def expand_range(s):
+    """Expand a range `foo[N-M]bar' or 'foo[1, 2, 3]bar' or 'foo[a, b, c]bar'
+       into a list - no multiple ranges or nesting allowed.
+       Always return a list, maybe a singleton if no expansion is necessary.
+    """
+    prefix, suffix, rng = parse_range(s)
+    if not rng:
+        return ["%s%s" % (prefix, suffix)]
+
+    try:
+        nfields = [x for x in rng.split('-')]
+        if len(nfields) == 2:
+            # expand the range
+            try:
+                els = map(str, range(int(nfields[0]), int(nfields[1])+1))
+            except Exception:
+                els = map(chr, range(ord(nfields[0]), ord(nfields[1])+1))
+            return ["%s%s%s" % (prefix, x, suffix) for x in els]
+        elif len(nfields) == 1:
+            # split it on ,
+            els = map(str.strip, rng.split(','))
+            return ["%s%s%s" % (prefix, x, suffix) for x in els]
+    except Exception:
+        return [s]
+
 def get_list(s):
     """get_list"""
     if not s:
         return []
-    l = [x.strip().strip('\\\n') for x in s.split(',')]
+    els = [x.strip().strip('\\\n') for x in s.split(',')]
     try:
         nl = []
-        for x in l:
+        for x in els:
             nl += expand_range(x)
         return nl
     except Exception:
-        return l
+        return els
 
 def get(conf, option, sections):
     """get option from section list"""
