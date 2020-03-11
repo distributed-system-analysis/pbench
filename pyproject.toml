@@ -1,3 +1,3 @@
 [tool.black]
 skip-string-normalization = false
-exclude = '(web-server|agent/stockpile|agent/bench-scripts/test-bin)'
+exclude = '(web-server|agent/stockpile|agent/bench-scripts/test-bin|agent/bench-scripts/contrib)'
