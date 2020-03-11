@@ -1,5 +1,5 @@
 +++ Running test_logger_type.py
-BadConfig exception was raised
+BadConfig exception was raised, 'No option 'logger_host' in section: 'logging''
 --- Finished test_logger_type.py (status=1)
 +++ Running unit test audit
 pbench-audit-server: No option 'logger_host' in section: 'logging' (config file /var/tmp/pbench-test-server/test-26.3/opt/pbench-server/lib/config/pbench-server.cfg)

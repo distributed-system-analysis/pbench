@@ -83,7 +83,7 @@ def main(ctx):
     # Override job file options with command line options:
     for a in other_args:
         val = ctx.__dict__[a]
-        if not (val is None or val is ""):
+        if not (val is None or val == ""):
             for k in jobfile.keys():
                 if a in jobfile[k]: # has_key(a)
                         jobfile[k][a] = val

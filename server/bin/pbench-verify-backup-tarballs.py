@@ -43,11 +43,8 @@ import os
 import sys
 import glob
 import errno
-import hashlib
-import shutil
 import tempfile
 from enum import Enum
-from argparse import ArgumentParser
 from s3backup import S3Config, Entry
 
 from pbench import PbenchConfig, BadConfig, get_pbench_logger, md5sum
@@ -152,8 +149,7 @@ class BackupObject(object):
         self.indicator_file_ok = "{}.ok".format(self.indicator_file)
         self.indicator_file_fail = "{}.fail".format(self.indicator_file)
         self.nfailed_md5 = 0
-        with open(self.indicator_file, 'w') as f_list,\
-                open(self.indicator_file_ok, 'w') as f_ok,\
+        with open(self.indicator_file_ok, 'w') as f_ok,\
                 open(self.indicator_file_fail, 'w') as f_fail:
             for tar in self.content_list:
                 md5_returned = md5sum(os.path.join(self.dirname, tar.name))

@@ -6,7 +6,6 @@ import sys
 import os
 import re
 import logging
-import stat
 import copy
 import hashlib
 import json
@@ -22,11 +21,11 @@ from datetime import datetime, timedelta
 from collections import Counter, deque
 from configparser import ConfigParser, Error as ConfigParserError, \
         NoSectionError, NoOptionError
-from urllib3 import Timeout, exceptions as ul_excs
+from urllib3 import Timeout
 try:
-    from elasticsearch1 import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
+    from elasticsearch1 import Elasticsearch, helpers, exceptions as es_excs
 except ImportError:
-    from elasticsearch import VERSION as es_VERSION, Elasticsearch, helpers, exceptions as es_excs
+    from elasticsearch import Elasticsearch, helpers, exceptions as es_excs
 
 # We import the entire pbench module so that mocking time works by changing
 # the _time binding in the pbench module for unit tests via the PbenchConfig
@@ -67,7 +66,7 @@ _MAX_ERRMSG_LENGTH = 16384
 _op_type = "create"
 
 # UID keyword pattern
-uid_keyword_pat = re.compile("%\w*?%")
+uid_keyword_pat = re.compile(r"%\w*?%")
 
 # global - defaults to normal dict, ordered dict for unit tests
 _dict_const = dict
@@ -308,7 +307,6 @@ class PbenchTemplates(object):
             self.versions[ip['idxname'].format(tool=toolname)] = idxver
         tool_settings = self._load_json(os.path.join(SETTING_DIR, "tool-data.json"))
 
-        tool_templates = []
         for toolname,frag in tool_mapping_frags.items():
             tool_skel = copy.deepcopy(skel)
             idxname = ip['idxname'].format(tool=toolname)
@@ -471,7 +469,7 @@ class PbenchTemplates(object):
             self.counters['bad_source'] += 1
             raise Exception("Failed to generate index name, {!r}, source:"
                     " {!r}".format(e, source))
-        year, month, day = source['@timestamp'].split('T', 1)[0].split('-')[0:3]
+        year, month, day = ts_val.split('T', 1)[0].split('-')[0:3]
         return template.format(prefix=self.idx_prefix, version=version,
                 idxname=idxname, year=year, month=month, day=day)
 
@@ -543,7 +541,7 @@ def es_put_template(es, name=None, body=None):
                 backoff += 1
                 retry_count += 1
                 continue
-        except es_excs.ConnectionError as exc:
+        except es_excs.ConnectionError:
             # We retry all connection errors
             _sleep_w_backoff(backoff)
             backoff += 1
@@ -552,7 +550,7 @@ def es_put_template(es, name=None, body=None):
         else:
             try:
                 tmpl_ver = int(tmpl[name]['mappings'][mapping_name]['_meta']['version'])
-            except KeyError as e:
+            except KeyError:
                 pass
             else:
                 if tmpl_ver == body_ver:
@@ -566,7 +564,7 @@ def es_put_template(es, name=None, body=None):
             _sleep_w_backoff(backoff)
             backoff += 1
             retry_count += 1
-        except es_excs.ConnectionError as exc:
+        except es_excs.ConnectionError:
             # We retry all connection errors
             _sleep_w_backoff(backoff)
             backoff += 1
@@ -1190,7 +1188,7 @@ class ResultData(PbenchData):
             pass
         else:
             # Ensure the "runtime" field is a string
-            bm_md['runtime'] = str(bm_md['runtime'])
+            bm_md['runtime'] = str(curr_runtime)
 
         try:
             # Attempt to copy the `uid` field to a renamed field adding the
@@ -1984,30 +1982,30 @@ class ToolData(PbenchData):
         # by deriving data from the header rows of all the csv files,
         # first. This is driven by the data provided in the handler.
         self.logger.info("tool-data-indexing: tool {}, start unified for {}", self.toolname, self.basepath)
-        for csv in self.files:
+        for csvf in self.files:
             # Each csv file dictionary provides its header row.
-            header = csv['header']
+            header = csvf['header']
             if header[0] != 'timestamp_ms':
                 self.logger.warning("tool-data-indexing: expected first column of"
                         " .csv file ({}) to be 'timestamp_ms', found '{}'",
-                        csv['basename'], header[0])
+                        csvf['basename'], header[0])
                 self.counters['first_column_not_timestamp_ms'] += 1
                 continue
-            handler_rec = csv['handler_rec']
+            handler_rec = csvf['handler_rec']
             if handler_rec['class'] is not None:
                 class_list[handler_rec['class']] = True
             try:
                 converter = handler_rec['converter']
             except KeyError:
                 converter = _noop
-            metric_mapping[csv['basename']] = (handler_rec['class'], handler_rec['metric'], converter)
+            metric_mapping[csvf['basename']] = (handler_rec['class'], handler_rec['metric'], converter)
             colpat = handler_rec['colpat']
-            if csv['basename'] not in field_mapping:
-                field_mapping[csv['basename']] = _dict_const()
+            if csvf['basename'] not in field_mapping:
+                field_mapping[csvf['basename']] = _dict_const()
             for idx,col in enumerate(header):
                 if idx == 0:
                     # No field mapping necessary for the timestamp
-                    field_mapping[csv['basename']][idx] = None
+                    field_mapping[csvf['basename']][idx] = None
                     continue
                 # First pull out the identifier of the target from the column
                 # header and record it in the list of identifiers.
@@ -2034,13 +2032,13 @@ class ToolData(PbenchData):
                                 " {:r}, has an unexpected subfield, {:r},"
                                 " expected {:r} subfields, for .csv {}",
                                 col, subfield, handler_rec['subfields'],
-                                csv['basename'])
+                                csvf['basename'])
                         self.counters['column_subfields_do_not_match_handler'] += 1
                         subfield = None
                 # Record the association between the column number
                 # ('idx') of a given .csv file ('basename') and the
                 # identifier / subfield tuple.
-                field_mapping[csv['basename']][idx] = (identifier, subfield)
+                field_mapping[csvf['basename']][idx] = (identifier, subfield)
                 try:
                     # Some identifiers are constructed by combining
                     # pieces of metadata to make a unique ID.  Pull
@@ -2070,7 +2068,7 @@ class ToolData(PbenchData):
                                         " {:r} using pattern {:r}, for .csv"
                                         " '{}'", handler_rec['metadata'], col,
                                         handler_rec['metadata_pat'],
-                                        csv['basename'])
+                                        csvf['basename'])
                                 self.counters['expected_column_metadata_not_found'] += 1
                             else:
                                 colmd[md] = val
@@ -2090,9 +2088,9 @@ class ToolData(PbenchData):
             while True:
                 # Read a row from each .csv file
                 rows = _dict_const()
-                for csv in self.files:
+                for csvf in self.files:
                     try:
-                        rows[csv['basename']] = next(csv['reader'])
+                        rows[csvf['basename']] = next(csvf['reader'])
                     except StopIteration:
                         # This should handle the case of mismatched number of
                         # rows across all .csv files. All readers which have
@@ -2217,25 +2215,24 @@ class ToolData(PbenchData):
     def _make_source_individual(self):
         """Read .csv files individually, emitting records for each row and
         column coordinate."""
-        for csv in self.files:
-            assert csv['header'][0] == 'timestamp_ms', \
+        for csvf in self.files:
+            assert csvf['header'][0] == 'timestamp_ms', \
                     "Unexpected time stamp header, '{}'".format(
-                        csv['header'][0])
-            header = csv['header']
-            handler_rec = csv['handler_rec']
+                        csvf['header'][0])
+            header = csvf['header']
+            handler_rec = csvf['handler_rec']
             klass = handler_rec['class']
             metric = handler_rec['metric']
             try:
                 converter = handler_rec['converter']
             except KeyError:
                 converter = _noop
-            reader = csv['reader']
-            ts = None
+            reader = csvf['reader']
 
             if 'pattern' not in handler_rec:
                 # No pattern to consider to find matching files.
                 continue
-            match = handler_rec['pattern'].match(csv['basename'])
+            match = handler_rec['pattern'].match(csvf['basename'])
             if not match:
                 # The pattern does not match the basename, skip this file.
                 continue
@@ -2248,7 +2245,7 @@ class ToolData(PbenchData):
             prev_val = None
             prev_ts_val = None
             idx = 0
-            self.logger.info("tool-data-indexing: tool {}, individual start {}", self.toolname, csv['path'])
+            self.logger.info("tool-data-indexing: tool {}, individual start {}", self.toolname, csvf['path'])
             for row in reader:
                 for col,val in enumerate(row):
                     # The timestamp column is index zero.
@@ -2275,12 +2272,12 @@ class ToolData(PbenchData):
                         _d[metric] = _dict_const()
                     else:
                         column = header[col]
-                        _d[metric][column] = float(val)
+                        _d[metric][column] = converter(val)
 
                 source_id = PbenchData.make_source_id(datum)
                 yield datum, source_id
                 idx += 1
-            self.logger.info("tool-data-indexing: tool {}, individual end {}", self.toolname, csv['path'])
+            self.logger.info("tool-data-indexing: tool {}, individual end {}", self.toolname, csvf['path'])
         return
 
     # For some tools, proc-vmstat being the first case we encounter this,
@@ -2555,7 +2552,6 @@ class ToolData(PbenchData):
         one of the supported "sub-formats" (see _subformats array above).
         """
         for output_file in self.files:
-            basename = output_file['basename']
             handler_rec = output_file['handler_rec']
             subformat = handler_rec['subformat']
             try:
@@ -2820,10 +2816,10 @@ def search_by_ip(sos_d_list, ip):
     # import pdb; pdb.set_trace()
     for sos_d in sos_d_list:
         for l in sos_d.values():
-            if type(l) != type([]):
+            if isinstance(l, list):
                 continue
             for d in l:
-                if type(d) != type({}):
+                if isinstance(d, dict):
                     continue
                 if ip in d.values():
                     return sos_d['hostname-f']
@@ -2838,84 +2834,83 @@ def get_hostname_f_from_sos_d(sos_d, host=None, ip=None):
     else:
         return search_by_ip(sos_d, ip)
 
-def ip_address_to_ip_o_addr(s):
-    # This routine deals with the contents of either the ip_-o_addr
-    # (preferred) or the ip_address file in the sosreport.
-    # If each line starts with a number followed by a colon,
-    # leave it alone and return it as is - that's the preferred case.
-    # If not, grovel through the ip_address file, collect the juicy pieces
-    # and fake a string that is similar in format to the preferred case -
-    # at least similar enough to satisfy the caller of this function.
-    as_is = True
-    pat = re.compile(r'^[0-9]+:')
 
-    # reduce is not available in python3 :-(
-    # as_is = reduce(lambda x, y: x and y,
-    #               map(lambda x: re.match(pat, x), s.split('\n')[:-1]))
-    for l in s.split('\n')[:-1]:
-        if not re.match(pat, l):
+_ip_o_addr_pat = re.compile(r'^[0-9]+:')
+
+
+def ip_address_to_ip_o_addr(contents):
+    """This routine deals with the contents of either the ip_-o_addr
+    (preferred) or the ip_address file in the sosreport.  If each line starts
+    with a number followed by a colon, leave it alone and return it as is -
+    that's the preferred case.  If not, grovel through the ip_address file,
+    collect the juicy pieces and fake a string that is similar in format to
+    the preferred case - at least similar enough to satisfy the caller of this
+    function.
+    """
+    as_is = True
+    lines = contents.split('\n')
+    for line in lines[:-1]:
+        if not re.match(_ip_o_addr_pat, line):
             as_is = False
             break
     if as_is:
-        return s
+        return lines
 
-    # rats - we've got to do real work
-    # state machine
-    # start: 0
-    # seen <N:>: 1
-    # seen inet* : 2
-    # EOF: 3
-    # if we see anything else, we stay put in the current state
-    # transitions: 2 --> 1  action: output a line
-    #              2 --> 2  action: output a line
+    # Handle various formats encountered via a state machine:
     #
+    #   start: 0
+    #   seen <N:>: 1
+    #   seen inet* : 2
+    #   EOF: 3
+    #
+    # If we see anything else, we stay put in the current state.
+    #
+    #   transitions: 2 --> 1  action: output a line
+    #                2 --> 2  action: output a line
     state = 0
-    ret = ""
-    # import pdb; pdb.set_trace()
-    for l in s.split('\n'):
-        if re.match(pat, l):
+    newlines = []
+    serial, ifname, proto, addr = "", "", "", ""
+    for line in lines:
+        if re.match(_ip_o_addr_pat, line):
             if state == 0 or state == 1:
                 state = 1
             elif state == 2:
-                ret += "%s: %s %s %s\n" % (serial, ifname, proto, addr)
+                newlines.append(f"{serial}: {ifname} {proto} {addr}\n")
                 state = 1
-            serial, ifname = l.split(':')[0:2]
-        elif l.lstrip().startswith('inet'):
-            assert(state != 0), \
-                    "Logic bomb! Unexpected state: {!r}".format(state)
+            serial, ifname = line.split(':')[0:2]
+        elif line.lstrip().startswith('inet'):
+            assert state != 0, f"Logic bomb! Unexpected state: {state!r}"
             if state == 1:
                 state = 2
             elif state == 2:
-                ret += "%s: %s %s %s\n" % (serial, ifname, proto, addr)
+                newlines.append(f"{serial}: {ifname} {proto} {addr}\n")
                 state = 2
-            proto, addr = l.lstrip().split()[0:2]
+            proto, addr = line.lstrip().split()[0:2]
     if state == 2:
-        ret += "%s: %s %s %s\n" % (serial, ifname, proto, addr)
+        newlines.append(f"{serial}: {ifname} {proto} {addr}\n")
         state = 3
-    return ret
+    return newlines
 
 def if_ip_from_sosreport(ip_addr_f):
     """Parse the ip_-o_addr file or ip_address file from the sosreport and
-    get a dict associating the if name with the ip - separate entries
+    get a dict associating the ifname with the ip - separate entries
     for inet and inet6.
     """
-
-    s = str(ip_addr_f.read(), 'iso8859-1')
-    d = _dict_const()
+    contents = str(ip_addr_f.read(), 'iso8859-1')
     # if it's an ip_address file, convert it to ip_-o_addr format
-    s = ip_address_to_ip_o_addr(s)
-    for l in s.split('\n'):
-        fields = l.split()
+    lines = ip_address_to_ip_o_addr(contents)
+    ifnames = _dict_const()
+    for line in lines:
+        fields = line.split()
         if not fields:
             continue
         ifname = fields[1]
         ifproto = fields[2]
         ifip = fields[3].split('/')[0]
-        if ifproto not in d:
-            d[ifproto] = []
-        d[ifproto].append(_dict_const(ifname=ifname, ipaddr=ifip))
-
-    return d
+        if ifproto not in ifnames:
+            ifnames[ifproto] = []
+        ifnames[ifproto].append(_dict_const(ifname=ifname, ipaddr=ifip))
+    return ifnames
 
 def find_hostname(a_string):
     ret_val = a_string.find('sos_commands/host/hostname')
@@ -2935,7 +2930,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
     if hostname_f_file:
         try:
             hostname_f = str(sostb.extractfile(hostname_f_file[0]).read(), 'iso8859-1')[:-1]
-        except IOError as e:
+        except IOError:
             return (1, "Failure to fetch a hostname-f from the sosreport")
         if hostname_f == 'hostname: Name or service not known':
             hostname_f = ""
@@ -2945,7 +2940,7 @@ def hostnames_if_ip_from_sosreport(sos_file_name):
     if hostname_s_file:
         try:
             hostname_s = str(sostb.extractfile(hostname_s_file[0]).read(), 'iso8859-1')[:-1]
-        except IOError as e:
+        except IOError:
             return (1, "Failure to fetch a hostname from the sosreport")
     else:
         hostname_s = ""
@@ -3210,13 +3205,16 @@ class PbenchTarBall(object):
         except Exception:
             # TBD - trawl through tb with some heuristics
             iterations = []
-            for x in self.tb.getnames():
-                l = x.split('/')
-                if len(l) != 2:
+            for path in self.tb.getnames():
+                path_els = path.split('/')
+                if len(path_els) != 2:
+                    # Iteration directory names always have 2 path elements,
+                    # [ '/', '<iteration name>' ].
                     continue
-                iter = l[1]
-                if re.search('^[1-9][0-9]*-', iter):
-                    iterations.append(iter)
+                itername = path_els[1]
+                # FIXME - Iteration names don't have to match this pattern!
+                if re.search('^[1-9][0-9]*-', itername):
+                    iterations.append(itername)
         else:
             iterations = iterations_str.split(', ')
         iterations_set = set(iterations)
@@ -3226,14 +3224,17 @@ class PbenchTarBall(object):
 
     def get_samples(self, iteration):
         samples = []
-        for x in self.tb.getnames():
-            if x.find("{}/".format(iteration)) < 0:
+        for path in self.tb.getnames():
+            if path.find("{}/".format(iteration)) < 0:
                 continue
-            l = x.split('/')
-            if len(l) !=  3:
+            path_els = path.split('/')
+            if len(path_els) != 3:
+                # Sample directory names always have 3 path elements,
+                # [ '/', '<iteration name>', 'sample<number>' ].
                 continue
-            sample = l[2]
+            sample = path_els[2]
             if sample.startswith('sample'):
+                # Sample directories always begin with 'sample'.
                 samples.append(sample)
         if len(samples) == 0:
             samples.append('reference-result')

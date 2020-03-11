@@ -4,9 +4,6 @@ Simple module level convenience functions.
 
 import sys
 import os
-import time
-import json
-import errno
 import logging
 import configtools
 import shutil
@@ -144,7 +141,7 @@ def get_pbench_logger(caller, config):
 
     We also return a logger that supports "brace" style message formatting,
     e.g. logger.warning("that = {}", that)
-    """ 
+    """
 
     pbench_logger = logging.getLogger(caller)
     if caller not in _handlers:
@@ -164,7 +161,7 @@ def get_pbench_logger(caller, config):
             handler = handlers.SysLogHandler(address=(config.logger_host, int(config.logger_port)))
         else:
             raise Exception("Unsupported logger type")
-        
+
         handler.setLevel(logging.DEBUG)
         if not config._unittests:
             logfmt = "{asctime} {levelname} {process} {thread} {name}.{module} {funcName} {lineno} -- {message}"
@@ -196,15 +193,15 @@ class PbenchConfig(object):
         # Now fetch some default common pbench settings that are required.
         try:
             self.TOP = self.conf.get("pbench-server", "pbench-top-dir")
-            if not os.path.isdir(self.TOP): raise BadConfig("Bad TOP={}".format(self.TOP))
+            if not os.path.isdir(self.TOP): raise BadConfig("Bad TOP={}".format(self.TOP))  # noqa:E701
             self.TMP = self.conf.get("pbench-server", "pbench-tmp-dir")
-            if not os.path.isdir(self.TMP): raise BadConfig("Bad TMP={}".format(self.TMP))
+            if not os.path.isdir(self.TMP): raise BadConfig("Bad TMP={}".format(self.TMP))  # noqa:E701
             self.LOGSDIR = self.conf.get("pbench-server", "pbench-logs-dir")
-            if not os.path.isdir(self.LOGSDIR): raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))
+            if not os.path.isdir(self.LOGSDIR): raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))  # noqa:E701
             self.BINDIR = self.conf.get("pbench-server", "script-dir")
-            if not os.path.isdir(self.BINDIR): raise BadConfig("Bad BINDIR={}".format(self.BINDIR))
+            if not os.path.isdir(self.BINDIR): raise BadConfig("Bad BINDIR={}".format(self.BINDIR))  # noqa:E701
             self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
-            if not os.path.isdir(self.LIBDIR): raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))
+            if not os.path.isdir(self.LIBDIR): raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))  # noqa:E701
             # the scripts may use this to send status messages
             self.mail_recipients = self.conf.get("pbench-server", "mailto")
         except (NoOptionError, NoSectionError) as exc:
@@ -225,7 +222,7 @@ class PbenchConfig(object):
             self.COMMIT_ID = self.conf.get("pbench-server", "commit_id")
         except NoOptionError:
             self.COMMIT_ID = "(unknown)"
-        
+
         try:
             self.logger_type = self.conf.get("logging", "logger_type")
         except (NoOptionError, NoSectionError):
@@ -240,7 +237,7 @@ class PbenchConfig(object):
 
         try:
             self._unittests = self.conf.get('pbench-server', 'debug_unittest')
-        except Exception as e:
+        except Exception:
             self._unittests = False
         else:
             self._unittests = bool(self._unittests)
