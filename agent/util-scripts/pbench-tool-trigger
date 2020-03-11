@@ -73,7 +73,7 @@ while (<STDIN>) {
 
 	# Look for triggers
 	if ((/$stop_t/) && $started) {
-		$cmd="pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir\n";
+		$cmd="pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir\n";
 		print "[$script]$cmd";
 		system("$cmd");
 		$started = 0;
@@ -83,7 +83,7 @@ while (<STDIN>) {
 		$benchmark_results_dir = $benchmark_run_dir . '/' . $iteration . '-default/sample' . $sample_num;
 	}
 	if ((/$start_t/) && !$started) {
-		$cmd="pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir\n";
+		$cmd="pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir\n";
 		print "[$script]$cmd";
 		system("$cmd");
 		$started = 1;
@@ -91,7 +91,7 @@ while (<STDIN>) {
 }
 
 if ($started) {
-	$cmd="pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir\n";
+	$cmd="pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir\n";
 	print "[$script]$cmd";
 	system("$cmd");
 }

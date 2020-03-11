@@ -1,1 +1,137 @@
-base-tool
+#!/usr/bin/env bash
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Perftool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) post-process the data
+
+# Defaults
+tool=oc
+tool_bin=/usr/bin/$tool
+# atomic-openshift-clients should be present on machine 
+tool_package=atomic-openshift-clients
+group=default
+dir="/tmp"
+mode=""
+iteration="1"
+options="none"
+interval=10
+
+opts=$(getopt -o d --longoptions "dir:,group:,iteration:,occomponent:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+# occomponent not used at time, place holder for eventual future PR where oc parameters will be specified from command line 
+
+eval set -- "$opts"; 
+while true ; do 
+    case "$1" in 
+    --install)
+        mode="install"
+        shift;
+    ;;
+    --start)
+        mode="start"
+        shift;
+    ;;
+    --stop)
+        mode="stop"
+        shift;
+    ;;
+    --postprocess)
+        mode="postprocess"
+        shift;
+    ;;
+    -d|--dir)
+        shift;
+        if [ -n "$1" ]; then
+            dir="$1"
+            shift
+        fi
+    ;;
+    -g|--group)
+        shift;
+        if [ -n "$1" ]; then
+                group="$1"
+                shift
+        fi
+      ;;
+     -i|--iteration)
+        shift;
+        if [ -n "$1" ]; then
+           iteration="$1"
+           shift
+        fi
+      ;;
+      --occomponent)
+        shift;
+        if [ -n "$1" ]; then 
+            occomponent="$1"
+            shift;
+        fi
+        ;; 
+      --)
+        shift;
+        break;
+    ;;
+    *)
+        echo "what's this? [$1]"
+        shift;
+        break;
+    ;; 
+esac
+done 
+
+tool_cmd="$tool_bin $record_opts"
+tool_dir="$dir/tools-$group"
+tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_cmd_file="$tool_output_dir/$tool.cmd"
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+tool_output_file=$tool_output_dir/$tool.txt
+oc_component="rc ep pods pv pvc svc cs"
+
+oc_data_collect() { 
+    for component in $oc_component; do 
+        if [[ "$component" == "cs"  || "$component" == "pv" ]] ; then
+            sleep 5
+            oc get $component -o wide -w | unbuffer -p awk '{print strftime("%Y-%m-%d %H:%M:%S"),$0}' >> $tool_output_dir/$component.txt &
+        else
+            sleep 5
+            oc get --all-namespaces $component -o wide -w | unbuffer -p awk '{print strftime("%Y-%m-%d %H:%M:%S"),$0}' >> $tool_output_dir/$component.txt &
+        fi
+    done
+}
+
+oc_data_once() { 
+    oc get nodes -o wide --show-labels >> "${tool_output_dir}"/nodes.txt 
+    oc get ev --all-namespaces -o wide >> "${tool_output_dir}"/ev.txt 
+} 
+
+case "$mode" in 
+    install)
+	if ! oc --help >/dev/null 2>&1 ; then
+            printf "${script_name} needs an OpenShift client to work\n"
+            exit 1
+	fi
+    ;; 
+    start)
+        mkdir -p $tool_output_dir
+	check_install_rpm expect 
+        oc_data_collect
+    ;; 
+    stop)
+        oc_data_once
+        # killing pprof processes at end on of itteration 
+        for oc_process in $(ps aux | grep pbench-tool-oc | grep -v grep | awk '{print $2}'); do kill -9 $oc_process; done
+    ;; 
+    postprocess)
+        oc_data_once
+        printf "Data already collected\n" 
+        ls -l $tool_output_dir 
+    ;; 
+esac

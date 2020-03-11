@@ -1,33 +1,26 @@
 #!/usr/bin/env bash
-
-PROG="$(basename ${0})"
-dir="${1}"
+dir=$1;
 
 # create csv dir
-mkdir -p ${dir}/csv
-if [[ ${?} -ne 0 ]]; then
-    printf -- "%s: unable to create %s/csv directory" "${PROG}" "${dir}" >&2
-    exit 1
-fi
+mkdir -p $dir/csv
 
-# build csv data file
-for filepath in $(find ${dir} -name 'jstack-*-stdout.txt' | sort); do
-    file=$(basename ${filepath})
-    name=${file#*-}   # Strip "jstack-"
-    pid=${name%-*}    # Strip "-stdout.txt"
-    echo "${pid}" >> ${dir}/pids.lis
-    csv="${dir}/csv/jstack-${pid}.csv"
+# get all jvm_pids
+file_to_process=$(ls $dir/*stdout* |awk -F '/jstack-' '{print $2}' |sort |uniq)
 
-    printf -- "timestamp,running,blocked,waiting\n" > ${csv}
+# build csv struct
+for pid in $file_to_process; do
+  csv=$dir/csv/jstack-$pid.csv
+  echo -n "timestamp,running,blocked,waiting" > $csv
+  echo "" >> $csv
 
-    while read line; do
-        # format the line and print it to csv.
-        line=$(echo ${line} | awk -F "," '{$1 = $1 * 1000; print $0}')
-        echo ${line} | sed 's| |,|g'
-    done < ${dir}/${file} >> ${csv}
+  for line in `cat $dir/jstack-$pid`; do
+    # format the line and print it to csv.
+    line=`echo $line | awk -F "," '{$1 = $1 * 1000; print $0}'`
+    echo $line |sed 's| |,|g' >> $csv
+  done
 done
 
-html_file=${dir}/jstack.html
+html_file=$dir/jstack.html
 # generate html file
 echo '<!DOCTYPE HTML>' > ${html_file}
 echo '<html>' >> ${html_file}
@@ -42,16 +35,15 @@ echo '  </head>' >> ${html_file}
 echo '  <body>' >> ${html_file}
 echo '    <center><h2>jstack - threads_state_per_process</h2></center>' >> ${html_file}
 i=1
-for pid in $(cat ${dir}/pids.lis); do
-    echo "    <div id=\"chart_${i}\">" >> ${html_file}
-    echo '      <script>' >> ${html_file}
-    echo "        create_jschart(\"lineChart\", \"timeseries\", \"chart_${i}\", \"${pid}\", null, null, { csvfiles: [ \"csv/jstack-${pid}.csv\" ], threshold: 1 });" >> ${html_file}
-    echo '      </script>' >> ${html_file}
-    echo '    </div>' >> ${html_file}
-    let i++
+for pid in $file_to_process; do
+  echo "    <div id=\"chart_$i\">"  >> ${html_file}
+  echo '      <script>' >> ${html_file}
+  echo "        create_jschart(\"lineChart\", \"timeseries\", \"chart_$i\", \"$pid\", null, null, { csvfiles: [ \"csv/jstack-$pid.csv\" ], threshold: 1 });" >> ${html_file}
+  echo '      </script>' >> ${html_file}
+  echo '    </div>' >> ${html_file}
+  let i++
 done
 echo '  </body>' >> ${html_file}
 echo '</html>' >> ${html_file}
 
-rm -f ${dir}/pids.lis
 exit 0

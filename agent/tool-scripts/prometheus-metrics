@@ -1,1 +1,227 @@
-base-tool
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+
+script_path=`dirname $0`
+script_name=`basename $0`
+pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+
+# source the base script
+. "$pbench_bin"/base
+
+# Perftool scripts must provide the following functions
+# 1) Install the tool
+# 2) Start data collection
+# 3) Stop data collection
+# 4) post-process the data
+
+# Defaults
+tool=$script_name
+group=default
+dir="/tmp"
+mode=""
+interval="10"
+iteration="1"
+options=""
+
+# Usage function
+function usage {
+	printf "The following options are available: \n\n"
+	printf -- "\t--install,                 install this perf tool\n"
+	printf "\n"
+	printf -- "\t--start|stop|postprocess   start/stop/post-process the data collection\n"
+	printf -- "\t--iteration=int            the iteration (required)\n"
+	printf -- "\t--group=str                the perftool group (required)\n"
+	printf -- "\t--dir=str                  directory to store data collection (required)\n"
+	printf -- "\t--interval=int             number of seconds between each data collection\n"
+	printf -- "\t--options=str              options passed directly to the tool\n"
+	printf -- "\t--inventory=str            path to the inventory file\n"
+
+}
+# Process options and arguments
+opts=$(getopt -q -o idp --longoptions "inventory:,dir:,group:,iteration:,interval:,options:,start,stop,install,postprocess" -n "getopt.sh" -- "$@");
+if [ $? -ne 0 ]; then
+	printf "\n"
+	printf "$script_name: you specified an invalid option\n\n"
+	usage
+	exit 1
+fi
+eval set -- "$opts";
+while true; do
+	case "$1" in
+		--install)
+		mode="install"
+		shift;
+		;;
+		--start)
+		mode="start"
+		shift;
+		;;
+		--stop)
+		mode="stop"
+		shift;
+		;;
+		--postprocess)
+		mode="postprocess"
+		shift;
+		;;
+		--inventory)
+		shift;
+		if [ -n "$1" ]; then
+			inventory="$1"
+			shift
+		fi
+		;;
+		-d|--dir)
+		shift;
+		if [ -n "$1" ]; then
+			dir="$1"
+			shift
+		fi
+		;;
+		-g|--group)
+		shift;
+		if [ -n "$1" ]; then
+			group="$1"
+			shift
+		fi
+		;;
+		-i|--iteration)
+		shift;
+		if [ -n "$1" ]; then
+			iteration="$1"
+			shift
+		fi
+		;;
+		--interval)
+		shift;
+		if [ -n "$1" ]; then
+			interval="$1"
+			shift
+		fi
+		;;
+		-o|--options)
+		shift;
+		if [ -n "$1" ]; then
+			options="$1"
+			shift
+		fi
+		;;
+		--)
+		shift;
+		break;
+		;;
+	esac
+done
+tool_dir="$dir/tools-$group"
+tool_output_dir=$tool_dir/$tool # all tools keep data in their tool specific dir
+tool_pid_file=$pbench_tmp/$group.$iteration.$tool.pid
+tool_stderr_file=$tool_output_dir/$tool-stderr.txt
+tool_log=$tool_output_dir/tool.log
+## check if the inventory variable is set correctly
+if [[ -z "$inventory" ]]; then
+	usage
+	exit 1
+elif [[ ! -s "$inventory" ]] || [[ ! -f "$inventory" ]]; then
+	echo "Please check if the inventory file exists, is not empty and the inventory variable is not set to a directory"
+	exit 1
+fi
+## create pbench directory to store info about endpoints
+mkdir -p /run/pbench
+## parse inventory file
+if [[ -d /run/pbench ]]; then
+	cat "$inventory" | sed -n '/^\[prometheus-metrics\]/,/^$/p' | awk '{if (NR!=1) {print}}' | sed '/^$/d' > /run/pbench/inv_hosts
+else
+	error_log "creation of /run/pbench directory failed"
+	exit 1
+fi
+case "$mode" in
+	install)
+	command -v go &>/dev/null
+	if [[ $? != 0 ]]; then
+		yum -y install go &>/dev/null
+		if [[ $? != 0 ]]; then
+			error_log "[$script_name] \"yum -y install go\" failed!"
+			exit 1
+		fi
+	fi
+	mkdir -p $pbench_install_dir/.go
+	if [[ $? != 0 ]]; then
+		error_log "[$script_name] \"mkdir -p $pbench_install_dir/.go\" failed!"
+		exit 1
+	fi
+	GOPATH=$pbench_install_dir/.go go get github.com/prometheus/prom2json/cmd/prom2json
+	if [[ $? != 0 ]]; then
+		error_log "[$script_name] \"go get github.com/prometheus/prom2json/cmd/prom2json\" failed!"
+		exit 1
+	fi
+	;;
+	start)
+	mkdir -p $tool_output_dir/json
+	if [[ $? != 0 ]]; then
+		error_log "[$script_name] \"mkdir -p $tool_output_dir/json\" failed!"
+		exit 1
+	fi
+	while read -u 9 file; do
+		# If the file doesn't have a port defined, we exit with
+		# an error.  In the case where it doesn't have certs or
+		# key defined, we default to "None".  We assume a cert
+		# is not self-signed by default.
+		#
+		# File format:
+		#   host port=<port> cert=<cert> key=<key> selfsigned=(true|false)
+		host=$(echo $file | awk -F " " '{ print $1 }')
+		port=$(echo $file | grep -w "port" | awk -F " " '{ print $2 }' | awk -F "=" '{print $2}')
+		cert=$(echo $file | grep -w "cert" | awk -F " " '{ print $3 }' | awk -F "=" '{print $2}')
+		selfsigned=$(echo $file | grep -w "selfsigned" | awk -F " " '{ print $5 }' | awk -F "=" '{print $2}')
+		key=$(echo $file | grep -w "key" | awk -F " " '{ print $4 }' | awk -F "=" '{print $2}')
+		# Exit if port is not defined
+		if [ -z "$port" ]; then
+			echo "metrics endpoint port is not defined for $host, the syntax is <host> port=<port> cert=<path-to-cert> key=<path-to-cert> selfsigned=<\"true\"|\"false\">"
+			error_log "[$script_name] port is not defined for $host"
+			exit 1
+		fi
+		if [ -z "$cert" ]; then
+			debug_log "[$script_name] cert is not defined for $host, assuming that the endpoint doesn't need authentication"
+			cert="None"
+		fi
+		if [ -z "$selfsigned" ]; then
+			selfsigned="false"
+		fi
+		if [ -z "$key" ]; then
+			debug_log "[$script_name] key is not defined for $host, assuming that the endpoint doesn't need authentication"
+			key="None"
+		fi
+		# We make sure PYTHONUNBUFFERED is set as an environment
+    		# variable so that data is written immediately to output files.
+		tool_cmd='PYTHONUNBUFFERED=True GOPATH=$pbench_install_dir/.go PATH=$PATH:$GOPATH/bin $script_path/datalog/$tool-datalog $host $interval $tool_log $port $cert $selfsigned $key'
+		metrics_data=$tool_output_dir/"$host"-"$port"-stdout.txt
+		debug_log "$script_name: running $tool_cmd"
+		eval $tool_cmd >"$metrics_data" 2>"$tool_stderr_file" & echo $! >>$tool_pid_file
+	done 9</run/pbench/inv_hosts
+	wait
+	;;
+	stop)
+	if [[ -s "$tool_pid_file" ]]; then
+		while read -u 10 pid; do
+			debug_log "stopping $script_name"
+			kill $pid
+		done 10<"$tool_pid_file"
+		/bin/rm "$tool_pid_file"
+	else
+		warn_log "[$script_name]: tool is not running, nothing to kill"
+	fi
+	;;
+	postprocess)
+	if [ -z "$options" ]; then
+		debug_log "postprocessing $script_name"
+		while read -u 11 file; do
+			host=$(echo $file | awk -F " " '{ print $1 }')
+			port=$(echo $file | grep -w "port" | awk -F " " '{ print $2 }' | awk -F "=" '{print $2}')
+			$script_path/postprocess/$script_name-postprocess $tool_output_dir/"$host"-"$port"-stdout.txt $tool_output_dir/json/"$host"-"$port".json
+		done 11</run/pbench/inv_hosts
+	else
+		debug_log "Non-default options $options: skipping postprocessing for $script_name"
+	fi
+	/bin/rm /run/pbench/inv_hosts
+	;;
+esac

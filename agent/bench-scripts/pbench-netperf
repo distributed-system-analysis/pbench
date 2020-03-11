@@ -480,7 +480,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									done
 									wait
 								fi
-								pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
+								pbench-start-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 								# start a local netperf client process for each host found in the $servers list
 								if [ -z "$clients" ]; then
 									for server in `echo $servers | sed -e s/","/" "/g`; do
@@ -508,8 +508,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									done
 									wait
 								fi
-								pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
-								pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
+								pbench-stop-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
+								pbench-postprocess-tools --group=$tool_group --iteration=$iteration --dir=$benchmark_results_dir
 							else
 								echo "Not going to run netperf.  Only postprocesing existing data"
 							fi

@@ -1,30 +1,11 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-PROG="$(basename ${0})"
+interval=$1
+file=$2
 
-interval="${1}"
-if [[ -z "${interval}" ]]; then
-	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
-	exit 1
-fi
-
-command -v perf > /dev/null
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: perf command not available on this host\n" "${PROG}" >&2
-	exit 1
-fi
-
-kvm_events="$(perf list | grep kvm)"
-if [[ -z "${kvm_events}" ]]; then
-	printf -- "%s: KVM events are not available on this host\n" "${PROG}" >&2
-	exit 1
-fi
-
-rc=0
-while [[ ${rc} -eq 0 ]]; do
+cat /dev/null >$file
+while true; do
 	# perf outputs to stderr
-	perf stat -e 'kvm:*' -a sleep ${interval} 2>&1
-	rc=${?}
-	echo "timestamp: $(date +%s.%N)"
+	perf stat -e 'kvm:*' -a sleep $interval 2>>$file
+	echo "time: `date +%s.%N`" >>$file
 done

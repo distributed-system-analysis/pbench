@@ -8,7 +8,7 @@
 #
 #   CSV files and statically generated graphs
 #   with embedded javascript, using d3.js libraries
-#
+# 
 # or
 #
 #   CommonDataModel documents
@@ -44,9 +44,6 @@ BEGIN {
 }
 
 my $dir = shift;
-
-die "Non-default options, skipping post-processing for pidstat" if (-f $dir . "/pidstat.options");
-
 my %pidstat;
 my $cdm = 0;
 my $es_dir;
@@ -55,6 +52,8 @@ my $hostname;
 my %graph_type;
 my %graph_threshold;
 my $vm_name;
+my %vcpus;
+my $vcpu;
 my $line;
 my $line2;
 my $tid;
@@ -63,6 +62,8 @@ my @curr_stats;
 my $interval; # sampling interval
 my $threads;
 
+my @virsh_list;
+my @virsh_vcpus;
 # When producing CDM docs, this is typically called from the pbench
 # controller only, and the following arguments must be provided:
 if (scalar @ARGV > 2) {
@@ -81,6 +82,34 @@ if (scalar @ARGV > 2) {
 		}
 	}
 	close FH;
+} else {
+	$threads = shift;
+	# build a table for vcpu <-> TID
+	# only do this is libvirtd is running
+	system("pgrep libvirtd > /dev/null 2>&1");
+	# the exit code is not $?, but $?>>8
+	if ( (($? >> 8) == 0) && (! -e "/usr/bin/vdsClient") && (-e "/usr/bin/virsh") ) {
+		@virsh_list = `virsh list 2> /dev/null`;
+		foreach $line (@virsh_list) {
+			chomp $line;
+			#  8     dhcp31-212                     running
+			if ( $line =~ /^\s+\d+\s+(\S+)\s+running/ ) {
+				$vm_name = $1;
+				@virsh_vcpus = `virsh qemu-monitor-command $vm_name --hmp info cpus`;
+				foreach $line2 (@virsh_vcpus) {
+					# * CPU #0: pc=0xffffffff81046346 (halted) thread_id=30618
+					chomp $line2;
+					# for some unknown reason, virsh qemu-monitor-cmd outputs a \r in addition to a \n at the end of every line
+					$line2 =~ s/\r//;
+					if ( $line2 =~ /^..CPU\s\#(\d+).*thread_id=(\d+)\s*/) {
+						$vcpu = $1;
+						$tid = $2;
+						$vcpus{$vm_name}{$tid} = $vcpu;
+					}
+				}
+			}
+		}
+	}
 }
 
 my %timestamps;

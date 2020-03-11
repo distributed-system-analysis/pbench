@@ -1,30 +1,12 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-PROG="$(basename ${0})"
+interval=$1
+datalog_file=$2
+vm=$3
 
-interval="${1}"
-if [[ -z "${interval}" ]]; then
-	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
-	exit 1
-fi
-
-vm="${2}"
-if [[ -z "${vm}" ]]; then
-	printf -- "%s: missing required 'vm' argument\n" "${PROG}" >&2
-	exit 1
-fi
-
-command -v virsh > /dev/null
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: missing required 'virsh' command\n" "${PROG}" >&2
-	exit 1
-fi
-
-rc=${?}
-while [[ ${rc} -eq 0 ]]; do
-	echo "timestamp: $(date +%s.%N)"
-	virsh domjobinfo ${vm}
-	sleep ${interval}
-	rc=${?}
+cat /dev/null >$datalog_file
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$datalog_file
+	virsh domjobinfo $vm >>$datalog_file
+	sleep $interval
 done

@@ -1,39 +1,17 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-PROG="$(basename ${0})"
+interval=$1
+file=$2
 
-interval="${1}"
-if [[ -z "${interval}" ]]; then
-	printf -- "%s: missing required 'interval' argument\n" "${PROG}" >&2
-	exit 1
-fi
-
-# The only time _CPUACCT_DIR is defined ahead of time is during unit tests.
-if [[ -z "${_CPUACCT_DIR}" ]]; then
-	_CPUACCT_DIR="/sys/fs/cgroup/cpuacct"
-fi
-
-pushd ${_CPUACCT_DIR} > /dev/null
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: CPU accounting appears disabled\n" "${PROG}" >&2
-	exit 1
-fi
-
-dirs="$(find -mindepth 1 -type d)"
-if [[ -z "${dirs}" ]]; then
-	printf -- "%s: CPU accounting appears disabled, no sub-directories found\n" "${PROG}" >&2
-	exit 1
-fi
-
-rc=0
-while [[ ${rc} -eq 0 ]]; do
-	echo "timestamp: $(date +%s.%N)"
-	for dir in ${dirs}; do
-		echo "${dir}: $(cat ${dir}/cpuacct.usage_percpu)"
+cat /dev/null >$file
+pushd /sys/fs/cgroup/cpuacct >/dev/null
+dirs=`find -mindepth 1 -type d`
+while true; do
+	echo "timestamp: `date +%s.%N`" >>$file
+	for dir in $dirs; do
+		echo "$dir: `cat $dir/cpuacct.usage_percpu`" >>$file
 	done
-	echo ""
-	sleep ${interval}
-	rc=${?}
+	echo >>$file
+	sleep $interval
 done
-popd > /dev/null
+popd >/dev/null

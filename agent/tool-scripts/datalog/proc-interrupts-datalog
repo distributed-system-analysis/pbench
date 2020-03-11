@@ -2,12 +2,10 @@
 
 interval=$1
 file=$2
-pattern=$3
-cmd="/usr/bin/numastat -m -n $pattern"
 
 cat /dev/null >$file
 while true; do
 	echo "timestamp: `date +%s.%N`" >>$file
-	$cmd >>$file
+	cat /proc/interrupts >>$file
 	sleep $interval
 done

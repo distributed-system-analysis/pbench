@@ -24,7 +24,6 @@ use lib $ENV{'pbench_lib_dir'};
 no lib ".";
 use GenData qw(gen_data);
 use File::Find;
-use File::Basename;
 
 my $dir=$ARGV[0];
 my %haproxy;
@@ -166,12 +165,12 @@ sub html_ln {
     print $fh "    <a href=\"$href\">$title</a>";
 }
 
-find(sub { push @router_csv, $File::Find::name if /metrics\.csv$/ }, ("$dir"));
+find(sub { push @router_csv, $File::Find::name if /router-.*\.csv$/ }, ("$dir"));
 open(my $index_page_fh, ">$dir/$index_page") || die "could not open `$index_page' for writing\n";
 html_head($index_page_fh);
 foreach my $csv (@router_csv) {
-    my $router_index = dirname($csv) . '.html';
-    my $router_name = basename(dirname($csv));
+    my $router_index = $csv; $router_index =~ s/\.csv$/.html/;
+    my $router_name = $csv; $router_name =~ s/^.*\/([^\/]*)\.csv$/$1/;
     open(ROUTER_CSV, "$csv") || die "could not find `$csv'\n";
     open(my $router_index_fh, ">$router_index") || die "could not open `$router_index' for writing\n";
     html_ln($index_page_fh, "${router_name}.html", $router_name);
