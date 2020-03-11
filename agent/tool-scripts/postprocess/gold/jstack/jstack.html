@@ -12,12 +12,12 @@
     <center><h2>jstack - threads_state_per_process</h2></center>
     <div id="chart_1">
       <script>
-        create_jschart("lineChart", "timeseries", "chart_1", "java1", null, null, { csvfiles: [ "csv/jstack-java1.csv" ], threshold: 1 });
+        create_jschart("lineChart", "timeseries", "chart_1", "java1-stdout.txt", null, null, { csvfiles: [ "csv/jstack-java1-stdout.txt.csv" ], threshold: 1 });
       </script>
     </div>
     <div id="chart_2">
       <script>
-        create_jschart("lineChart", "timeseries", "chart_2", "java2", null, null, { csvfiles: [ "csv/jstack-java2.csv" ], threshold: 1 });
+        create_jschart("lineChart", "timeseries", "chart_2", "java2-stdout.txt", null, null, { csvfiles: [ "csv/jstack-java2-stdout.txt.csv" ], threshold: 1 });
       </script>
     </div>
   </body>

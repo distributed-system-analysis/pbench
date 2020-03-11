@@ -1,2 +1,0 @@
-jmap-datalog /var/tmp/pbench-test-tool-scripts/jmap/tools-group/jmap 10 42 jmap-pat-42
-jmap-postprocess /var/tmp/pbench-test-tool-scripts/jmap/tools-group/jmap

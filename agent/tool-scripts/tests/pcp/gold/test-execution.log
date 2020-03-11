@@ -1,2 +1,0 @@
-pcp-datalog /var/tmp/pbench-test-tool-scripts/pcp/tools-group/pcp 10
-pcp-postprocess /var/tmp/pbench-test-tool-scripts/pcp/tools-group/pcp

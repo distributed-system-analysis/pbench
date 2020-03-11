@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--type=url --source=https://prometheus.example.com/42"
-exit 0

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "42"
-exit 0

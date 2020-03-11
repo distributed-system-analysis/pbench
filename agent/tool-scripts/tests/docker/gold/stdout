@@ -1,4 +1,0 @@
-docker: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/docker-datalog 10"
-docker: stopping
-docker: no post-processing available following stop
-docker: post-processing data

@@ -446,9 +446,9 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-fio-3.3 is installed
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-fio-3.3
 [debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
-[debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/tmp/fio", clients="")
+[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio 
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/fio.job ]
@@ -583,96 +583,96 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00 beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00 end
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-rw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/1-rw-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=2-rw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/2-rw-64KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=3-rw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/3-rw-1024KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=4-randrw-4KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/4-randrw-4KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=5-randrw-64KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/5-randrw-64KiB/sample5
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample4
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=6-randrw-1024KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-04_1900.01.01T00.00.00/6-randrw-1024KiB/sample5
 --- test-execution.log file contents
 +++ fio_test-04_1900.01.01T00.00.00/metadata.log file contents
 [pbench]

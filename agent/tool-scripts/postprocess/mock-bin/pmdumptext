@@ -2,11 +2,11 @@
 
 # mock out pmdumptext
 
-graph="${1}"
-if [[ -z "${graph}" ]]; then
+graph=$1
+
+if [ -z "$graph" ] ;then
     exit 1
 fi
 
-printf -- "Time,col0,col1,col2\n"
-printf -- "? should be ignored\n"
-printf -- "12345,6,7,8\n"
+# ignore all other arguments
+cat csv/$graph

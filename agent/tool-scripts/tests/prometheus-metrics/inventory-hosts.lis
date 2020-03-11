@@ -1,1 +1,0 @@
-hostB.example.com port=4242 cert=hostB.cert key=hostB.key selfsigned=true

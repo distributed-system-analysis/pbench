@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--vm=qemu-vm-42"
-exit 0

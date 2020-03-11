@@ -1,4 +1,0 @@
-cat ./dir0/cpuacct.usage_percpu
-cat ./dir1/cpuacct.usage_percpu
-date +%s.%N
-sleep 42

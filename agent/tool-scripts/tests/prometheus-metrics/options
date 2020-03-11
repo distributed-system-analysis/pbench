@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "--interval=42 --inventory=${_testsrc}/inventory-hosts.lis --gopath=${_testroot}/go"
-exit 0

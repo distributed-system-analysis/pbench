@@ -51,9 +51,9 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-fio-3.3 is installed
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] attempting to install pbench-fio-3.3
 [debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
-[debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/tmp/fio", clients="")
+[debug][1900-01-01T00:00:00.000000] fio_device_check() /tmp/fio 
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB/fio.job ]
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 --- pbench.log file contents
@@ -62,15 +62,15 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio --config=test-28 --pre-iteration-script=/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-preint --samples=1 --test-type=read --block-sizes=8 /var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB readwrite_IOPS 5 0 6 y y
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-preint
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-preint 
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00 --sysinfo=default beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00 --sysinfo=default end
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00 beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00 end
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --iteration=1-read-8KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --iteration=1-read-8KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --iteration=1-read-8KiB --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB/sample1
 --- test-execution.log file contents
 +++ fio_test-28_1900.01.01T00.00.00/metadata.log file contents
 [pbench]

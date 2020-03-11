@@ -1,3 +1,0 @@
-date +%s.%N
-rabbitmqadmin --username=mad --password=hatter list queues
-sleep 42

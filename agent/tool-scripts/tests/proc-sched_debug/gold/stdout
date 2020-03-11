@@ -1,4 +1,0 @@
-proc-sched_debug: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/File-Capture-datalog 10 /proc/sched_debug"
-proc-sched_debug: stopping
-proc-sched_debug: no post-processing available following stop
-proc-sched_debug: post-processing data

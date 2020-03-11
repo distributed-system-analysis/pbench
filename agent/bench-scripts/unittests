@@ -38,7 +38,7 @@ cp ${_tdir}/postprocess/* ${_testopt}/bench-scripts/postprocess
 let res=res+${?}
 cp ${_tdir}/templates/* ${_testopt}/bench-scripts/templates
 let res=res+${?}
-cp -a $_tdir/../util-scripts/{getconf.py,require-rpm,pbench-*} $_testopt/util-scripts/
+cp -a $_tdir/../util-scripts/{getconf.py,pbench-*} $_testopt/util-scripts/
 let res=res+$?
 cp -a $_tdir/../../lib/* $_testopt/common/lib/
 let res=res+${?}
@@ -76,7 +76,7 @@ export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/be
 export PYTHONPATH=${_testopt}/common/lib:${PYTHONPATH}
 
 # Fixed timestamp output
-export _PBENCH_UNIT_TESTS=1
+export _PBENCH_BENCH_TESTS=1
 
 res=0
 

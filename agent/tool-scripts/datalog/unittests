@@ -2,38 +2,28 @@
 export LANG=C
 export LC_ALL=C
 
-_tdir="$(dirname $(readlink -f ${0}))"
+_tdir=$(dirname $(readlink -f ${0}))
 cd ${_tdir}
 
 if [[ ! -z "${1}" ]]; then
-    if [[ -d ./tests/${1} ]]; then
-        testname="${1}"
-    elif [[ -d ./tests/${1%-*} ]]; then
-        testname="${1%-*}"
-    else
-        printf -- "Ignoring '%s', ./tests/%s does not exist as a directory\n" "${1}" "${1}" >&2
+    if [[ ! -d ./gold/${1} ]]; then
+        printf -- "Ignoring ${1}, ./gold/${1} does not exist as a directory\n" >&2
         testname=""
+    else
+        testname="${1}"
     fi
 fi
 
 export _testroot=/var/tmp/pbench-test-tools-datalog
 mkdir -p ${_testroot}
-if [[ ${?} -ne 0 ]]; then
-    printf -- "ERROR - unable to create %s directory\n" "${_testroot}" >&2
+if [ ${?} -ne 0 ]; then
+    printf -- "ERROR - unable to create ${_testroot} directory\n" >&2
     exit 1
 fi
 rm -rf ${_testroot}/*
 
-# Setup a special mock environment for the cpuacct-datalog
-mkdir -p ${_testroot}/_sys_fs_cgroup_cpuacct/dir0 ${_testroot}/_sys_fs_cgroup_cpuacct/dir1
-if [[ ${?} -ne 0 ]]; then
-    printf -- "ERROR - unable to create mock cpuacct directory hierarchy\n" >&2
-    exit 1
-fi
-export _CPUACCT_DIR=${_testroot}/_sys_fs_cgroup_cpuacct
-
 function remove_path {
-    # PATH (${2}) => /bin:/opt/a dir/bin:/sbin
+    # PATH ($2) => /bin:/opt/a dir/bin:/sbin
     WORK=:${2}:
     # WORK => :/bin:/opt/a dir/bin:/sbin:
     REMOVE=${1}
@@ -41,19 +31,18 @@ function remove_path {
     # WORK => :/bin:/sbin:
     WORK=${WORK%:}
     WORK=${WORK#:}
-    #PATH=${WORK}
+    #PATH=$WORK
     # PATH => /bin:/sbin
-    printf -- "${WORK}\n"
+    printf -- "$WORK\n"
 }
 PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
 PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
+export PATH=${_tdir}/mock-bin:${PATH}
 
 # the timestamps in the data are (or should be) in UTC
 # make sure that we test in that environment, else the
 # timestamps will show a constant offset.
 export TZ=UTC
-
-export _PBENCH_UNIT_TESTS
 
 if command -v python3 > /dev/null 2>&1 ;then
     # All python programs/scripts have headers using "python3" by default.
@@ -63,38 +52,26 @@ elif command -v scl > /dev/null 2>&1 ;then
     # Python 3.6.
     source scl_source enable rh-python36
 else
-    printf -- "ERROR: python3 required, either directly or through SCL\n" >&2
+    printf -- "python3 required, either directly or through SCL\n" >&2
     exit 1
 fi
+
+declare -A options=(
+    [prometheus-metrics]="example.host.com 3 tool_log 9042 cert false key"
+)
 
 function testit {
     printf -- "Testing ${2}-datalog under setup ${1} ...\n"
 
-    export _execdir=${_testroot}/${1}
+    local _execdir=${_testroot}/${1}
     mkdir ${_execdir}
-    if [[ ${?} -ne 0 ]]; then
-        printf -- "ERROR: test environment can be properly created\n" >&2
-        exit 1
-    fi
 
     # Run the data for three iterations (sleep cycles) by setting
     # _PBENCH_UNIT_TEST=3. We also make sure PYTHONUNBUFFERED is set as an
     # environment variable so that data is written immediately to output
     # files.
-    PYTHONUNBUFFERED=True \
-    _PBENCH_UNIT_TESTS=3 \
-    _testlog=${_execdir}/test-execution.log \
-    pbench_lib_dir=${_tdir}/../../lib \
-    PATH=${_tdir}/mock-bin:${PATH} \
-    _tool_bin="${_tdir}/mock-bin/${2}" \
-    ./${2}-datalog $(tests/${2}/options 2> /dev/null) > ${_execdir}/stdout 2> ${_execdir}/stderr < /dev/null
-
-    if [[ -f "${_execdir}/test-execution.log" ]]; then
-        sort ${_execdir}/test-execution.log > ${_execdir}/test-execution.log.sorted
-        mv ${_execdir}/test-execution.log.sorted ${_execdir}/test-execution.log
-    fi
-
-    diff -cr tests/${1}/gold/ ${_execdir}
+    _PBENCH_UNIT_TEST=3 _testlog=${_execdir}/test-execution.log PYTHONUNBUFFERED=True pbench_lib_dir=$(pwd)/../../lib ./${2}-datalog ${options[${2}]} > ${_execdir}/stdout 2> ${_execdir}/stderr < /dev/null
+    diff -cr gold/${1}/ ${_execdir}
     sts=${?}
     if [ ${sts} -eq 0 ]; then
         rm -rf ${_execdir}
@@ -104,7 +81,7 @@ function testit {
 
 res=0
 
-for i in $(ls -1 tests/) ; do
+for i in $(ls -1 gold/) ; do
     if [[ ! -z "${testname}" ]]; then
         if [[ "${testname}" != "${i}" ]]; then
             continue
@@ -120,7 +97,6 @@ for i in $(ls -1 tests/) ; do
     let res=${res}+${sts}
 done
 
-rm -rf ${_CPUACCT_DIR}
 # Attempt to remove the test directory; if it fails we ignore the failure
 # as it indicates failed test output left for review.
 rmdir ${_testroot} > /dev/null 2>&1

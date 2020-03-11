@@ -1,6 +1,0 @@
-#!/bin/bash
-
-echo "$(basename ${0}) ${@}" >> ${_testlog}
-
-printf -- "dmsetup line 0\ndmsetup line 1\n"
-exit 0

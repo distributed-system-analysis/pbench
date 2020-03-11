@@ -1,2 +1,0 @@
-sleep 43
-trace-cmd record -a -e kvm sleep 42
