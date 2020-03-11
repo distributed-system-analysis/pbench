@@ -11,14 +11,14 @@ if (-d $sysdevsyscpu) {
 	opendir(D, $sysdevsyscpu) || die "Can't open directory $sysdevsyscpu: $!\n";
 	my @dirlist = readdir(D);
 	closedir(D);
-	open(CPUNODEMAP, ">$dir/$outfile") || die "Could not create $dir/$outfile";
+    open(CPUNODEMAP, ">$dir/$outfile") || die "Could not create $dir/$outfile";
 	foreach my $f (@dirlist) {
 		my $tgt = "$sysdevsyscpu/$f/topology/physical_package_id";
 		if (-f $tgt) {
 			$node_id = `cat $tgt`;
 			chomp $node_id;
-			printf CPUNODEMAP "%s: %s\n", $f, $node_id;
+            printf CPUNODEMAP "%s: %s\n", $f, $node_id;
 		}
 	}
-	close(CPUNODEMAP);
+    close(CPUNODEMAP);
 }

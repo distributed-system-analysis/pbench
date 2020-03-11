@@ -184,7 +184,7 @@ class Router(object):
 
     def wait(self, all=True):
         # We wait on any "metrics" background process first. Once that
-        # completes, we "reap" (poll()) any other background process so that
+        # completes, we "reap" (poll()) and other background process so that
         # we don't skew the interval.
         errs = 0
         for name, proc in self.proc.items():
