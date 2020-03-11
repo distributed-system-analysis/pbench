@@ -15,19 +15,8 @@ if [[ ${?} -ne 0 ]]; then
 	exit 1
 fi
 
-command -v systemd-detect-virt > /dev/null
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: missing required 'systemd-detect-virt' command\n" "${PROG}" >&2
-	exit 1
-fi
-
-virtenv="$(systemd-detect-virt --vm 2> /dev/null)"
-if [[ ${?} -ne 0 ]]; then
-	printf -- "%s: problem detecting the virtualized environment\n" "${PROG}" >&2
-	exit 1
-fi
-if [[ "${virtenv}" != "none" ]]; then
-	printf -- "%s: running inside a '%s' guest; disabling turbostat\n" "${PROG}" "${virtenv}" >&2
+if grep -q KVM /sys/devices/virtual/dmi/id/product_name; then
+	printf -- "%s: running inside a KVM guest; disabling turbostat\n" >&2
 	exit 1
 fi
 
