@@ -43,11 +43,8 @@ import os
 import sys
 import glob
 import errno
-import hashlib
-import shutil
 import tempfile
 from enum import Enum
-from argparse import ArgumentParser
 from s3backup import S3Config, Entry
 
 from pbench import PbenchConfig, BadConfig, get_pbench_logger, md5sum
