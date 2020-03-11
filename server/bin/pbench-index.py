@@ -5,6 +5,8 @@
 into the configured Elasticsearch V1 instance.
 
 """
+from __future__ import print_function
+
 
 import sys
 import os
@@ -14,7 +16,7 @@ import tempfile
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
-from pbench.server import tstos, BadConfig, quarantine, rename_tb_link
+from pbench.server import tstos, BadConfig, rename_tb_link
 from pbench.server.indexer import (
     IdxContext,
     ConfigFileError,
@@ -31,6 +33,7 @@ from pbench.server.indexer import (
     VERSION,
 )
 from pbench.server.report import Report
+from pbench.server import utils
 
 
 # Internal debugging flag.
@@ -178,7 +181,7 @@ def main(options, name):
                 rp = os.path.realpath(tb)
             except OSError:
                 idxctx.logger.warning("{} does not resolve to a real path", tb)
-                quarantine(qdir, idxctx.logger, tb)
+                utils.quarantine(qdir, idxctx.logger, tb)
                 continue
             controller_path = os.path.dirname(rp)
             controller = os.path.basename(controller_path)
@@ -187,11 +190,11 @@ def main(options, name):
                 idxctx.logger.warning(
                     "For tar ball {}, original home is not {}", tb, ARCHIVE_rp
                 )
-                quarantine(qdir, idxctx.logger, tb)
+                utils.quarantine(qdir, idxctx.logger, tb)
                 continue
             if not os.path.isfile(rp + ".md5"):
                 idxctx.logger.warning("Missing .md5 file for {}", tb)
-                quarantine(qdir, idxctx.logger, tb)
+                utils.quarantine(qdir, idxctx.logger, tb)
                 # Audit should pick up missing .md5 file in ARCHIVE directory.
                 continue
             try:
@@ -199,7 +202,7 @@ def main(options, name):
                 size = os.path.getsize(rp)
             except OSError:
                 idxctx.logger.warning("Could not fetch tar ball size for {}", tb)
-                quarantine(qdir, idxctx.logger, tb)
+                utils.quarantine(qdir, idxctx.logger, tb)
                 # Audit should pick up missing .md5 file in ARCHIVE directory.
                 continue
             else:

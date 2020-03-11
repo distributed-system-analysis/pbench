@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
+from __future__ import print_function
+
 import os
 import sys
 import glob
@@ -12,11 +14,11 @@ from pbench.server import (
     PbenchConfig,
     BadConfig,
     get_pbench_logger,
-    quarantine,
     rename_tb_link,
     md5sum,
 )
 from pbench.server.report import Report
+from pbench.server import utils
 
 
 _NAME_ = "pbench-backup-tarballs"
@@ -357,7 +359,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             pass
         else:
             # tarball does not exist or it is not a regular file
-            quarantine(qdir, logger, tb)
+            utils.quarantine(qdir, logger, tb)
             nquaran += 1
             logger.error(
                 "Quarantine: {}, {} does not exist or it is not a regular file".format(
@@ -373,7 +375,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             pass
         else:
             # md5 file does not exist or it is not a regular file
-            quarantine(qdir, logger, tb)
+            utils.quarantine(qdir, logger, tb)
             nquaran += 1
             logger.error(
                 "Quarantine: {}, {} does not exist or it is not a regular file".format(
@@ -388,7 +390,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
                 archive_md5_hex_value = f.readline().split(" ")[0]
         except Exception:
             # Could not read file.
-            quarantine(qdir, logger, tb)
+            utils.quarantine(qdir, logger, tb)
             nquaran += 1
             logger.exception(
                 "Quarantine: {}, Could not read {}".format(tb, archive_md5)
@@ -400,13 +402,13 @@ def backup_data(lb_obj, s3_obj, config, logger):
             archive_tar_hex_value = md5sum(tar)
         except Exception:
             # Could not read file.
-            quarantine(qdir, logger, tb)
+            utils.quarantine(qdir, logger, tb)
             nquaran += 1
             logger.exception("Quarantine: {}, Could not read {}".format(tb, tar))
             continue
 
         if archive_tar_hex_value != archive_md5_hex_value:
-            quarantine(qdir, logger, tb)
+            utils.quarantine(qdir, logger, tb)
             nquaran += 1
             logger.error(
                 "Quarantine: {}, md5sum of {} does not match with its md5 file {}".format(

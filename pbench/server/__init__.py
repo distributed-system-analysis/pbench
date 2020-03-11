@@ -2,10 +2,8 @@
 Simple module level convenience functions.
 """
 
-import sys
 import os
 import logging
-import shutil
 import hashlib
 
 from logging import handlers
@@ -324,29 +322,3 @@ def rename_tb_link(tb, dest, logger):
             )
         )
         raise
-
-
-def quarantine(dest, logger, *files):
-    """Quarantine problematic tarballs.
-    Errors here are fatal but we log an error message to help diagnose
-    problems.
-    """
-    try:
-        os.mkdir(dest)
-    except FileExistsError:
-        # directory already exists, ignore
-        pass
-    except Exception:
-        logger.exception('quarantine {} {!r}: "mkdir -p {}/" failed', dest, files, dest)
-        sys.exit(101)
-
-    for afile in files:
-        if not os.path.exists(afile) and not os.path.islink(afile):
-            continue
-        try:
-            shutil.move(afile, os.path.join(dest, os.path.basename(afile)))
-        except Exception:
-            logger.exception(
-                'quarantine {} {!r}: "mv {} {}/" failed', dest, files, afile, dest
-            )
-            sys.exit(102)
