@@ -45,6 +45,8 @@ except ImportError:
 # constructor's execution.
 import pbench.server
 
+from pbench.server import utils
+
 try:
     from pbench.server.mock import MockElasticsearch
 except ImportError:
@@ -509,7 +511,7 @@ class PbenchTemplates(object):
         self.logger.info(
             "done templates (end ts: {}, duration: {:.2f}s,"
             " successes: {:d}, retries: {:d})",
-            pbench.server.tstos(end),
+            utils.tstos(end),
             end - beg,
             successes,
             retries,
@@ -803,12 +805,13 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                         "ok": ok,
                         "resp": resp,
                         "retry_count": retry_count,
-                        "timestamp": pbench.server.tstos(),
+                        "timestamp": utils.tstos(),
                     },
                     indent=4,
                     sort_keys=True,
                 )
-                print(jsonstr, file=errorsfp)
+                # TODO (chuck): error?
+                print(jsonstr, file=errorsfp)  # noqa:E999
                 errorsfp.flush()
                 failures += 1
             else:
@@ -830,12 +833,13 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                             "ok": ok,
                             "resp": resp,
                             "retry_count": retry_count,
-                            "timestamp": pbench.server.tstos(),
+                            "timestamp": utils.tstos(),
                         },
                         indent=4,
                         sort_keys=True,
                     )
-                    print(jsonstr, file=errorsfp)
+                    # TODO (chuck): error?
+                    print(jsonstr, file=errorsfp)  # noqa:E999
                     errorsfp.flush()
                     failures += 1
                 else:

@@ -10,29 +10,12 @@ import hashlib
 
 from logging import handlers
 from time import time as _time
-from datetime import datetime, tzinfo, timedelta
+from datetime import datetime
 from functools import partial
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
 from pbench.lib import configtools
-
-
-class simple_utc(tzinfo):
-    def tzname(self, *args, **kwargs):
-        return "UTC"
-
-    def utcoffset(self, dt):
-        return timedelta(0)
-
-    def dst(self, dt):
-        return timedelta(0)
-
-
-def tstos(ts=None):
-    if ts is None:
-        ts = _time()
-    dt = datetime.utcfromtimestamp(ts).replace(tzinfo=simple_utc())
-    return dt.strftime("%Y-%m-%dT%H:%M:%S-%Z")
+from pbench.server import utils
 
 
 class _Message(object):
@@ -304,7 +287,7 @@ class PbenchConfig(object):
         "Return the current timestamp formatted as a string of the following form:
                   <YYYY>-<MM>-<DD>T<hh>:<mm>:<ss>-<TZ>
         """
-        return tstos(_time())
+        return utils.tstos(_time())
 
 
 def md5sum(filename):

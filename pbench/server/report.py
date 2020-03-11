@@ -12,6 +12,7 @@ from configparser import Error as NoSectionError, NoOptionError
 
 import pbench.server
 from pbench.server.indexer import PbenchTemplates, get_es, es_index, _op_type
+from pbench.server import utils
 
 
 class Report(object):
@@ -215,7 +216,7 @@ class Report(object):
                     "posted status (end ts: {}, duration: {:.2f}s,"
                     " successes: {:d}, duplicates: {:d}, failures: {:d},"
                     " retries: {:d})",
-                    pbench.server.tstos(end),
+                    utils.tstos(end),
                     end - beg,
                     successes,
                     duplicates,
