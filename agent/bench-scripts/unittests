@@ -40,8 +40,6 @@ cp ${_tdir}/templates/* ${_testopt}/bench-scripts/templates
 let res=res+${?}
 cp -a $_tdir/../util-scripts/{getconf.py,require-rpm,pbench-*} $_testopt/util-scripts/
 let res=res+$?
-cp -a $_tdir/../../lib/* $_testopt/common/lib/
-let res=res+${?}
 cp -rH ${_tdir}/test-bin/* ${_testopt}/unittest-scripts/
 let res=res+${?}
 # replace real post-processing scripts with mocked ones

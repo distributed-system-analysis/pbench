@@ -43,10 +43,10 @@ except ImportError:
 # We import the entire pbench module so that mocking time works by changing
 # the _time binding in the pbench module for unit tests via the PbenchConfig
 # constructor's execution.
-import pbench
+import pbench.server
 
 try:
-    from pbench.mock import MockElasticsearch
+    from pbench.server.mock import MockElasticsearch
 except ImportError:
     MockElasticsearch = None
 
@@ -509,7 +509,7 @@ class PbenchTemplates(object):
         self.logger.info(
             "done templates (end ts: {}, duration: {:.2f}s,"
             " successes: {:d}, retries: {:d})",
-            pbench.tstos(end),
+            pbench.server.tstos(end),
             end - beg,
             successes,
             retries,
@@ -622,7 +622,7 @@ def es_put_template(es, name=None, body=None):
     retry = True
     retry_count = 0
     backoff = 1
-    beg, end = pbench._time(), None
+    beg, end = pbench.server._time(), None
     # Derive the mapping name from the template name
     mapping_name = "pbench-{}".format(name.split(".")[2])
     try:
@@ -675,7 +675,7 @@ def es_put_template(es, name=None, body=None):
             retry_count += 1
         else:
             retry = False
-    end = pbench._time()
+    end = pbench.server._time()
     return beg, end, retry_count
 
 
@@ -737,7 +737,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                 # pounding on the ES instance.
                 backoff += 1
 
-    beg, end = pbench._time(), None
+    beg, end = pbench.server._time(), None
     successes = 0
     duplicates = 0
     failures = 0
@@ -803,7 +803,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                         "ok": ok,
                         "resp": resp,
                         "retry_count": retry_count,
-                        "timestamp": pbench.tstos(),
+                        "timestamp": pbench.server.tstos(),
                     },
                     indent=4,
                     sort_keys=True,
@@ -830,7 +830,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                             "ok": ok,
                             "resp": resp,
                             "retry_count": retry_count,
-                            "timestamp": pbench.tstos(),
+                            "timestamp": pbench.server.tstos(),
                         },
                         indent=4,
                         sort_keys=True,
@@ -846,7 +846,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                     )
                     actions_retry_deque.append((retry_count + 1, action))
 
-    end = pbench._time()
+    end = pbench.server._time()
 
     assert len(actions_deque) == 0
     assert len(actions_retry_deque) == 0
@@ -4080,7 +4080,7 @@ class IdxContext(object):
         self.name = name
         self._dbg = _dbg
         self.opctx = []
-        self.config = pbench.PbenchConfig(options.cfg_name)
+        self.config = pbench.server.PbenchConfig(options.cfg_name)
         try:
             self.idx_prefix = self.config.get("Indexing", "index_prefix")
         except Exception as e:
@@ -4095,7 +4095,7 @@ class IdxContext(object):
         # We expose the pbench module's internal _time() method here for
         # convenience, allowing us to more easily mock out "time" for unit
         # test environments.
-        self.time = pbench._time
+        self.time = pbench.server._time
         if self.config._unittests:
             import collections
 
@@ -4128,7 +4128,7 @@ class IdxContext(object):
             self.getuid = os.getuid
         self.TS = self.config.TS
 
-        self.logger = pbench.get_pbench_logger(self.name, self.config)
+        self.logger = pbench.server.get_pbench_logger(self.name, self.config)
         self.es = get_es(self.config, self.logger)
         self.templates = PbenchTemplates(
             self.config.BINDIR,

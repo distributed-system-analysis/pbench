@@ -6,8 +6,8 @@ import sys
 from socket import gethostname
 import os
 
-from pbench import PbenchConfig, BadConfig
-from pbench.report import Report
+from pbench.server import PbenchConfig, BadConfig
+from pbench.server.report import Report
 
 
 if __name__ != "__main__":

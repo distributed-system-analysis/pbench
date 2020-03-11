@@ -10,8 +10,8 @@ import hashlib
 import socket
 from configparser import Error as NoSectionError, NoOptionError
 
-import pbench
-from pbench.indexer import PbenchTemplates, get_es, es_index, _op_type
+import pbench.server
+from pbench.server.indexer import PbenchTemplates, get_es, es_index, _op_type
 
 
 class Report(object):
@@ -37,7 +37,7 @@ class Report(object):
     ):
         self.config = config
         self.name = name
-        self.logger = pbench.get_pbench_logger(name, config)
+        self.logger = pbench.server.get_pbench_logger(name, config)
 
         # We always create a base "tracking" document composed of parameters
         # from the caller, and other environmental data. This document is used
@@ -215,7 +215,7 @@ class Report(object):
                     "posted status (end ts: {}, duration: {:.2f}s,"
                     " successes: {:d}, duplicates: {:d}, failures: {:d},"
                     " retries: {:d})",
-                    pbench.tstos(end),
+                    pbench.server.tstos(end),
                     end - beg,
                     successes,
                     duplicates,

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import sys
-import configtools
+
+from pbench.lib import configtools
 
 if __name__ == "__main__":
     opts, args = configtools.parse_args(

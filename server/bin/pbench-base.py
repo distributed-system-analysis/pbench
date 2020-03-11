@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 import os
 import sys
 
-from pbench import PbenchConfig, BadConfig
+from pbench.server import PbenchConfig, BadConfig
 
 if __name__ != "__main__":
     sys.exit(1)
