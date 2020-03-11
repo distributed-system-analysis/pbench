@@ -14,7 +14,6 @@ from pbench.server import (
     PbenchConfig,
     BadConfig,
     get_pbench_logger,
-    md5sum,
 )
 from pbench.server.report import Report
 from pbench.server import utils
@@ -398,7 +397,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
 
         # match md5sum of the tarball to its md5 file
         try:
-            archive_tar_hex_value = md5sum(tar)
+            archive_tar_hex_value = utils.md5sum(tar)
         except Exception:
             # Could not read file.
             utils.quarantine(qdir, logger, tb)

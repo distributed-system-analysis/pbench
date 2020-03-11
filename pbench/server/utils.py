@@ -1,4 +1,6 @@
 from datetime import datetime, tzinfo, timedelta
+from functools import partial
+import hashlib
 import os
 import shutil
 import sys
@@ -71,3 +73,15 @@ def rename_tb_link(tb, dest, logger):
             )
         )
         raise
+
+
+def md5sum(filename):
+    """
+    Return the MD5 check-sum of a given file.
+    We don't want to read the entire file into memory.
+    """
+    with open(filename, mode="rb") as f:
+        d = hashlib.md5()
+        for buf in iter(partial(f.read, 128), b""):
+            d.update(buf)
+    return d.hexdigest()

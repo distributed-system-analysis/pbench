@@ -39,6 +39,8 @@ or S3, then those files will have been moved backed up first before we can
 re-verify.
 """
 
+from __future__ import print_function
+
 import os
 import sys
 import glob
@@ -47,8 +49,9 @@ import tempfile
 from enum import Enum
 from pbench.server.s3backup import S3Config, Entry
 
-from pbench.server import PbenchConfig, BadConfig, get_pbench_logger, md5sum
+from pbench.server import PbenchConfig, BadConfig, get_pbench_logger
 from pbench.server.report import Report
+from pbench.server import utils
 
 
 _NAME_ = "pbench-verify-backup-tarballs"
@@ -153,7 +156,7 @@ class BackupObject(object):
             self.indicator_file_ok, "w"
         ) as f_ok, open(self.indicator_file_fail, "w") as f_fail:
             for tar in self.content_list:
-                md5_returned = md5sum(os.path.join(self.dirname, tar.name))
+                md5_returned = utils.md5sum(os.path.join(self.dirname, tar.name))
                 if tar.md5 == md5_returned:
                     f_ok.write("{}: {}\n".format(tar.name, "OK"))
                 else:
