@@ -3,6 +3,11 @@
 import sys
 import os
 import logging
+import json
+import math
+import subprocess
+from time import time, sleep
+
 
 PROG = os.path.basename(sys.argv[0])
 try:
@@ -101,11 +106,6 @@ def host_n_port(inv_file):
                 sys.exit(1)
 
 
-import json
-import math
-import subprocess
-from time import time, sleep
-
 # We keep track of pids by "host" as that should be unique.
 parent = True
 pids = {}
@@ -123,7 +123,7 @@ for host, port, cert, key, selfsigned, linenum in host_n_port(inv_file):
         )
         sys.exit(1)
     else:
-        if pid is 0:
+        if pid == 0:
             # Child continue below
             parent = False
             break
@@ -197,7 +197,7 @@ if _unit_test_iterations is not None:
         _ts += 1
         return _ts
 
-    time = _time
+    time = _time  # noqa:F811
     _orig_sleep = sleep
 
     def _sleep(length):

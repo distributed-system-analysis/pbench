@@ -115,6 +115,10 @@ if os.environ.get("_PBENCH_UNIT_TESTS"):
 
     signal.pause = mock_pause
 
+    def now():  # noqa:F811
+        return datetime.utcfromtimestamp(0).strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+
 else:
     _OC_DELAY = 5
 
