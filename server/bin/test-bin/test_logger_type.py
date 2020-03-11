@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-import os, sys
 import logging
+import os
+import sys
 
 from pbench import PbenchConfig, BadConfig, get_pbench_logger
 
