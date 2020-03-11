@@ -16,7 +16,7 @@ import tempfile
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
-from pbench.server import tstos, BadConfig, rename_tb_link
+from pbench.server import BadConfig
 from pbench.server.indexer import (
     IdxContext,
     ConfigFileError,
@@ -259,7 +259,7 @@ def main(options, name):
     # We use the "start" report ID as the tracking ID for all indexed
     # documents.
     try:
-        tracking_id = report.post_status(tstos(idxctx.time()), "start")
+        tracking_id = report.post_status(utils.tstos(idxctx.time()), "start")
     except Exception:
         idxctx.logger.error("Failed to post initial report status")
         return 12
@@ -355,7 +355,7 @@ def main(options, name):
                         "done indexing (end ts: {}, duration:"
                         " {:.2f}s, successes: {:d}, duplicates: {:d},"
                         " failures: {:d}, retries: {:d})",
-                        tstos(end),
+                        utils.tstos(end),
                         end - beg,
                         successes,
                         duplicates,
@@ -377,7 +377,7 @@ def main(options, name):
                     # Success fetching indexing error file size.
                     if ie_len > len(tb) + 1:
                         try:
-                            report.post_status(tstos(end), "errors", ie_filename)
+                            report.post_status(utils.tstos(end), "errors", ie_filename)
                         except Exception:
                             idxctx.logger.exception(
                                 "Unexpected error issuing"
@@ -406,7 +406,7 @@ def main(options, name):
                     # Success
                     with open(indexed, "a") as fp:
                         print(tb, file=fp)
-                    rename_tb_link(
+                    utils.rename_tb_link(
                         tb, os.path.join(controller_path, linkdest), idxctx.logger
                     )
                 elif tb_res == 1:
@@ -415,7 +415,7 @@ def main(options, name):
                     )
                     with open(erred, "a") as fp:
                         print(tb, file=fp)
-                    rename_tb_link(
+                    utils.rename_tb_link(
                         tb,
                         os.path.join(controller_path, "{}.1".format(linkerrdest)),
                         idxctx.logger,
@@ -429,7 +429,7 @@ def main(options, name):
                     # # Quietly skip these errors
                     with open(skipped, "a") as fp:
                         print(tb, file=fp)
-                    rename_tb_link(
+                    utils.rename_tb_link(
                         tb,
                         os.path.join(
                             controller_path, "{}.{:d}".format(linkerrdest, tb_res)
@@ -442,7 +442,7 @@ def main(options, name):
                     )
                     with open(erred, "a") as fp:
                         print(tb, file=fp)
-                    rename_tb_link(
+                    utils.rename_tb_link(
                         tb, os.path.join(controller_path, linkerrdest), idxctx.logger
                     )
                 idxctx.logger.info("Finished {} (size {:d})", tb, size)
@@ -513,7 +513,7 @@ def main(options, name):
                         for line in sfp:
                             print(line, file=fp)
             try:
-                report.post_status(tstos(idxctx.time()), "status", report_fname)
+                report.post_status(utils.tstos(idxctx.time()), "status", report_fname)
             except Exception:
                 pass
 

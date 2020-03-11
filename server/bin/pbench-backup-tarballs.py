@@ -14,7 +14,6 @@ from pbench.server import (
     PbenchConfig,
     BadConfig,
     get_pbench_logger,
-    rename_tb_link,
     md5sum,
 )
 from pbench.server.report import Report
@@ -470,7 +469,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             s3_obj is None or s3_backup_result == Status.SUCCESS
         ):
             # Move tar ball symlink to its final resting place
-            rename_tb_link(tb, os.path.join(controller_path, _linkdest), logger)
+            utils.rename_tb_link(tb, os.path.join(controller_path, _linkdest), logger)
         else:
             # Do nothing when the backup fails, allowing us to retry on a
             # future pass.

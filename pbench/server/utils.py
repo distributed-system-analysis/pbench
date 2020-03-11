@@ -47,3 +47,27 @@ def quarantine(dest, logger, *files):
                 'quarantine {} {!r}: "mv {} {}/" failed', dest, files, afile, dest
             )
             sys.exit(102)
+
+
+def rename_tb_link(tb, dest, logger):
+    try:
+        os.mkdir(dest)
+    except FileExistsError:
+        # directory already exists, ignore
+        pass
+    except Exception:
+        logger.exception(
+            "os.mkdir: Unable to create tar ball destination directory: {}".format(dest)
+        )
+        raise
+    tbname = os.path.basename(tb)
+    tbnewname = os.path.join(dest, tbname)
+    try:
+        os.rename(tb, tbnewname)
+    except Exception:
+        logger.exception(
+            "os.rename: Unable to move tar ball link {} to destination directory: {}".format(
+                tb, dest
+            )
+        )
+        raise
