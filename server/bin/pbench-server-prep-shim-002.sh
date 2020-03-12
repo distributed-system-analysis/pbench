@@ -87,6 +87,10 @@ list=$tmp/list.check
 status=$tmp/status
 > $status
 
+tarball_status=$tmp/tarball_status
+> $tarball_status
+
+
 echo $TS
 # Check for results that are ready for processing: version 002 agents
 # upload the MD5 file as xxx.md5.check and they rename it to xxx.md5
@@ -117,8 +121,9 @@ while read tbmd5 ;do
     tbdir=$(dirname ${tb})
 
     # resultname: get the basename foo.tar.xz and then strip the .tar.xz
-    resultname=$(basename ${tb})
-    resultname=${resultname%.tar.xz}
+    result_name=$(basename ${tb})
+    resultname=${result_name%.tar.xz}
+    tarballts=${resultname:(-19)}
 
     # the controller hostname is the last component of the directory part of the full path
     controller=$(basename ${tbdir})
@@ -127,6 +132,9 @@ while read tbmd5 ;do
 
     if [ -f ${dest}/${resultname}.tar.xz -o -f ${dest}/${resultname}.tar.xz.md5 ] ;then
         log_error "$TS: Duplicate: ${tb} duplicate name"
+	echo "${TS}: FAILED ${tb}" | tee -a $tarball_status
+	tbstat="FAILED"
+	pbench-tarball-state --name ${result_name} --controller ${controller} --tbts ${tarballts} --tstat ${tbstat} --timestamp $(timestamp)
         quarantine ${duplicates}/${controller} ${tb} ${tbmd5}
         ndups=$ndups+1
         continue
@@ -138,6 +146,9 @@ while read tbmd5 ;do
     popd > /dev/null 2>&4
     if [ $sts -ne 0 ] ;then
         log_error "$TS: Quarantined: ${tb} failed MD5 check"
+	echo "${TS}: FAILED ${tb}" | tee -a $tarball_status
+	tbstat="FAILED"
+	pbench-tarball-state --name ${result_name} --controller ${controller} --tbts ${tarballts} --tstat ${tbstat} --timestamp $(timestamp)
         quarantine ${quarantine}/${controller} ${tb} ${tb}.md5
         nquarantined=$nquarantined+1
         continue
@@ -148,6 +159,9 @@ while read tbmd5 ;do
     sts=$?
     if [ $sts -ne 0 ] ;then
         log_error "$TS: Error: \"mkdir -p ${dest}/TODO\", status $sts" "$status"
+	echo "${TS}: FAILED ${tb}" | tee -a $tarball_status
+	tbstat="FAILED"
+	pbench-tarball-state --name ${result_name} --controller ${controller} --tbts ${tarballts} --tstat ${tbstat} --timestamp $(timestamp)
         quarantine ${errors}/${controller} ${tb} ${tb}.md5
         nerrs=$nerrs+1
         continue
@@ -159,10 +173,13 @@ while read tbmd5 ;do
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
         log_error "${TS}: Error: \"cp -a ${tb}.md5 ${dest}/\", status ${sts}" "${status}"
+	echo "${TS}: FAILED ${tb}" | tee -a $tarball_status
+	tbstat="FAILED"
+	pbench-tarball-state --name ${result_name} --controller ${controller} --tbts ${tarballts} --tstat ${tbstat} --timestamp $(timestamp)
         rm ${dest}/${resultname}.tar.xz.md5
         sts=${?}
         if [[ ${sts} -ne 0 ]]; then
-            log_error "${TS}: Warning: cleanup of copy failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}" "${status}"
+            log_error "${TS}: Warning: cleanup of copy failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}" "${status}" 
         fi
         quarantine ${errors}/${controller} ${tb} ${tb}.md5
         (( nerrs++ ))
@@ -192,20 +209,29 @@ while read tbmd5 ;do
     # destination, we can remove the original .md5 file.
     rm ${tb}.md5
     sts=${?}
-    if [[ ${sts} -ne 0 ]]; then
-        log_error "$TS: Warning: cleanup of successful copy operation failed: \"rm ${tb}.md5\", status $sts" "$status"
+    if [ $sts -ne 0 ] ;then
+        log_error "$TS: Warning: cleanup of successful copy operation failed: \"rm -f ${tb} ${tb}.md5\", status $sts" "$status"
+	echo "${TS}: FAILED ${tb}" | tee -a $tarball_status
+	tbstat="FAILED" 
+	pbench-tarball-state --name ${result_name} --controller ${controller} --tbts ${tarballts} --tstat ${tbstat} --timestamp $(timestamp)
     fi
 
     ln -s ${dest}/${resultname}.tar.xz ${dest}/TODO/
     sts=$?
     if [ $sts -ne 0 ] ;then
         log_error "$TS: Error: \"ln -s ${dest}/${resultname}.tar.xz ${dest}/TODO/\", status $sts" "$status"
+	echo "${TS}: FAILED ${tb}" | tee -a $tarball_status
+	tbstat="FAILED"
+	pbench-tarball-state --name ${result_name} --controller ${controller} --tbts ${tarballts} --tstat ${tbstat} --timestamp $(timestamp)
         # if we fail to make the link, we quarantine the (already moved)
         # tarball and .md5.
         quarantine ${errors}/${controller} ${dest}/${tb} ${dest}/${tb}.md5
         nerrs=$nerrs+1
     else
         echo "$TS: processed ${tb}" >> $status
+	echo "${TS}: PASSED ${tb}" | tee -a $tarball_status
+	tbstat="PASSED"
+	pbench-tarball-state --name ${result_name} --controller ${controller} --tbts ${tarballts} --tstat ${tbstat} --timestamp $(timestamp)
         ntbs=$ntbs+1
     fi
 done < $list
@@ -217,5 +243,6 @@ echo "$TS: Processed $ntotal entries, $ntbs tarballs successful,"\
 log_finish
 
 pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${status}
+#pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${tarball_status}
 
 exit $nerrs

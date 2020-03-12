@@ -226,6 +226,33 @@ class PbenchTemplates(object):
         self.templates[server_reports_template_name] = server_reports_template_body
         self.versions["server-reports"] = idxver
 
+        tarball_existence_mappings = {}
+        mfile = os.path.join(MAPPING_DIR, "tarball-existence.json")
+        key, mapping = self._fetch_mapping(mfile)
+        try:
+            idxver = mapping['_meta']['version']
+        except KeyError:
+            raise MappingFileError(
+                "{} mapping missing _meta field in {}".format(key, mfile))
+        if self._dbg > 5:
+            print("fetch_mapping: {} -- {}\n{}\n".format(mfile, key,
+                    json.dumps(mapping, indent=4, sort_keys=True)))
+        tarball_existence_mappings[key] = mapping
+        server_reports_settings = self._load_json(
+            os.path.join(SETTING_DIR, "tarball-existence.json"))
+
+        ip = self.index_patterns['tarball-existence']
+        idxname = ip['idxname']
+        server_reports_template_name = ip['template_name'].format(
+            prefix=self.idx_prefix, version=idxver, idxname=idxname)
+        server_reports_template_body = dict(
+            template=ip['template_pat'].format(prefix=self.idx_prefix,
+                version=idxver, idxname=idxname),
+            settings=server_reports_settings,
+            mappings=tarball_existence_mappings)
+        self.templates[server_reports_template_name] = server_reports_template_body
+        self.versions['tarball-existence'] = idxver
+
         # For v1 Elasticsearch, we need to use two doc types to have
         # parent/child relationship between run documents and
         # table-of-contents documents. So we load two mappings in a loop, but
@@ -432,6 +459,14 @@ class PbenchTemplates(object):
             "template": "{prefix}.v{version}.{idxname}.{year}-{month}-{day}",
             "desc": "Daily tool data for all tools land in indices"
             " named by tool; e.g. prefix.v0.tool-data-iostat.YYYY-MM-DD",
+        },
+        "tarball-existence": {
+            "idxname": "tarball-existence",
+            "template_name": "{prefix}.v{version}.{idxname}",
+            "template_pat": "{prefix}.v{version}.{idxname}.*",
+            "template": "{prefix}.v{version}.{idxname}.{year}-{month}",
+            "desc": "Monthly tarballs lifecycle tarballs existence for all"
+            " cron jobs; e.g. prefix.v0.tarball-existence.YYYY-MM"
         },
     }
 

@@ -1,0 +1,38 @@
+{
+	"pbench-tarball-existence": {
+		"_meta": {
+			"version": "3"
+		},
+		"properties": {
+			"@timestamp": {
+				"type": "date"
+			},
+			"name": {
+				"type": "string",
+				"index": "not_analyzed"
+			},
+			"creation_ts": {
+				"type": "date"
+			},
+			"tbstatus": {
+				"type": "string"
+			},
+			"doctype": {
+				"type": "string",
+				"index": "not_analyzed"
+			},
+			"md5": {
+				"type": "string"
+			},
+			"controller": {
+				"type": "string"
+			},
+			"total_size": {
+				"type": "long"
+			},
+			"tarballts": {
+				"type": "date"
+			}
+		}
+	}
+}
