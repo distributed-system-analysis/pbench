@@ -10,7 +10,7 @@ import hashlib
 import socket
 from configparser import Error as NoSectionError, NoOptionError
 
-import pbench.server
+from pbench.server import logger as _logger
 from pbench.server.indexer import PbenchTemplates, get_es, es_index, _op_type
 from pbench.server import utils
 
@@ -38,7 +38,7 @@ class Report(object):
     ):
         self.config = config
         self.name = name
-        self.logger = pbench.server.get_pbench_logger(name, config)
+        self.logger = _logger.get_pbench_logger(name, config)
 
         # We always create a base "tracking" document composed of parameters
         # from the caller, and other environmental data. This document is used

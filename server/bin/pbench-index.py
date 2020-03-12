@@ -107,7 +107,7 @@ def main(options, name):
     idxctx = None
     try:
         idxctx = IdxContext(options, name, _dbg=_DEBUG)
-    except (ConfigFileError, ConfigParserError):
+    except (exception.ConfigFileError, ConfigParserError):
         print("{}: {}".format(name, e), file=sys.stderr)
         return 2
     except exception.BadConfig as e:
