@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
+from __future__ import print_function
+
 from argparse import ArgumentParser
 import os
 import sys
 
-from pbench.server import PbenchConfig, BadConfig
+from pbench.server import exception
+from pbench.server import PbenchConfig
 
 if __name__ != "__main__":
     sys.exit(1)
@@ -51,7 +54,7 @@ else:
 
 try:
     config = PbenchConfig(config_name)
-except BadConfig as e:
+except exception.BadConfig as e:
     print("{}: {} (config file {})".format(_prog, e, config_name), file=sys.stderr)
     sys.exit(1)
 

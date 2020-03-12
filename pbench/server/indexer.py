@@ -44,6 +44,7 @@ except ImportError:
 # the _time binding in the pbench module for unit tests via the PbenchConfig
 # constructor's execution.
 import pbench.server
+from pbench.server import exception
 
 from pbench.server import logger as _logger
 from pbench.server import utils
@@ -102,42 +103,6 @@ def _sleep_w_backoff(backoff):
     _sleep(_calc_backoff_sleep(backoff))
 
 
-class BadDate(Exception):
-    pass
-
-
-class ConfigFileNotSpecified(Exception):
-    pass
-
-
-class ConfigFileError(Exception):
-    pass
-
-
-class BadMDLogFormat(Exception):
-    pass
-
-
-class UnsupportedTarballFormat(Exception):
-    pass
-
-
-class SosreportHostname(Exception):
-    pass
-
-
-class JsonFileError(Exception):
-    pass
-
-
-class MappingFileError(JsonFileError):
-    pass
-
-
-class TemplateError(Exception):
-    pass
-
-
 class PbenchTemplates(object):
     """Encapsulation of methods for loading / working with all the Pbench
     templates for Elasticsearch.
@@ -152,7 +117,7 @@ class PbenchTemplates(object):
             try:
                 data = json.load(jsonfp)
             except ValueError as err:
-                raise JsonFileError("{}: {}".format(json_fn, err))
+                raise exception.JsonFileError("{}: {}".format(json_fn, err))
         return data
 
     @staticmethod
@@ -167,7 +132,9 @@ class PbenchTemplates(object):
         mapping = PbenchTemplates._load_json(mapping_fn)
         keys = list(mapping.keys())
         if len(keys) != 1:
-            raise MappingFileError("Invalid mapping file: {}".format(mapping_fn))
+            raise exception.MappingFileError(
+                "Invalid mapping file: {}".format(mapping_fn)
+            )
         return keys[0], mapping[keys[0]]
 
     def __init__(self, basepath, idx_prefix, logger, known_tool_handlers=None, _dbg=0):
@@ -190,7 +157,7 @@ class PbenchTemplates(object):
         try:
             idxver = mapping["_meta"]["version"]
         except KeyError:
-            raise MappingFileError(
+            raise exception.MappingFileError(
                 "{} mapping missing _meta field in {}".format(key, mfile)
             )
         if self._dbg > 5:
@@ -230,7 +197,7 @@ class PbenchTemplates(object):
             try:
                 idxver_val = mapping["_meta"]["version"]
             except KeyError:
-                raise MappingFileError(
+                raise exception.MappingFileError(
                     "{} mapping missing _meta field in {}".format(key, mapping_fn)
                 )
             else:
@@ -238,7 +205,7 @@ class PbenchTemplates(object):
                     idxver = idxver_val
                 else:
                     if idxver != idxver_val:
-                        raise MappingFileError(
+                        raise exception.MappingFileError(
                             "{} mappings have mismatched"
                             " version fields in {}".format(key, mapping_fn)
                         )
@@ -279,7 +246,7 @@ class PbenchTemplates(object):
         try:
             idxver = mapping["_meta"]["version"]
         except KeyError:
-            raise MappingFileError(
+            raise exception.MappingFileError(
                 "{} mapping missing _meta field in {}".format(key, mfile)
             )
         if self._dbg > 5:
@@ -294,7 +261,7 @@ class PbenchTemplates(object):
         try:
             idxver = mapping["_meta"]["version"]
         except KeyError:
-            raise MappingFileError(
+            raise exception.MappingFileError(
                 "{} mapping missing _meta field in {}".format(key, mfile)
             )
         if self._dbg > 5:
@@ -336,7 +303,7 @@ class PbenchTemplates(object):
             toolname = m.group("toolname")
             if self.known_tool_handlers is not None:
                 if toolname not in self.known_tool_handlers:
-                    MappingFileError(
+                    raise exception.MappingFileError(
                         "Unsupported tool '{}' mapping file {}".format(
                             toolname, mapping_fn
                         )
@@ -345,7 +312,7 @@ class PbenchTemplates(object):
             try:
                 idxver = mapping["_meta"]["version"]
             except KeyError:
-                raise MappingFileError(
+                raise exception.MappingFileError(
                     "{} mapping missing _meta field in {}".format(key, mapping_fn)
                 )
             if self._dbg > 5:
@@ -502,7 +469,7 @@ class PbenchTemplates(object):
                 )
             except Exception as e:
                 self.counters["put_template_failures"] += 1
-                raise TemplateError(e)
+                raise exception.TemplateError(e)
             else:
                 successes += 1
                 if beg is None:
@@ -551,7 +518,7 @@ class PbenchTemplates(object):
             ts_val = source["@timestamp"]
         except KeyError:
             self.counters["ts_missing_at_timestamp"] += 1
-            raise BadDate(
+            raise exception.BadDate(
                 "missing @timestamp in a source document:" " {!r}".format(source)
             )
         except TypeError as e:
@@ -912,7 +879,7 @@ class PbenchData(object):
             orig_ts_float = float(orig_ts)
         except Exception as e:
             self.counters["ts_not_epoch_millis_float"] += 1
-            raise BadDate(
+            raise exception.BadDate(
                 "{!r} is not a float in milliseconds since the"
                 " epoch: {}".format(orig_ts, e)
             )
@@ -921,7 +888,7 @@ class PbenchData(object):
             ts = datetime.utcfromtimestamp(ts_float)
         except Exception as e:
             self.counters["ts_not_epoch_float"] += 1
-            raise BadDate(
+            raise exception.BadDate(
                 "{:f} ({!r}) is not a proper float in seconds since"
                 " the epoch: {}".format(ts_float, orig_ts, e)
             )
@@ -950,7 +917,7 @@ class PbenchData(object):
                 d = timedelta(0, 0, orig_ts_float * 1000)
             except Exception as e:
                 self.counters["ts_calc_not_epoch_millis_float"] += 1
-                raise BadDate(
+                raise exception.BadDate(
                     "{:f} ({!r}) is not a proper float in"
                     " milliseconds since the epoch: {}".format(
                         orig_ts_float, orig_ts, e
@@ -959,7 +926,7 @@ class PbenchData(object):
             newts = self.ptb.start_run_ts + d
             if newts > self.ptb.end_run_ts:
                 self.counters["ts_before_start_run_ts"] += 1
-                raise BadDate(
+                raise exception.BadDate(
                     "{} ({!r}) is before the start of the"
                     " run ({})".format(ts, orig_ts, self.ptb.start_run_ts)
                 )
@@ -967,7 +934,7 @@ class PbenchData(object):
                 ts = newts
         elif ts > self.ptb.end_run_ts:
             self.counters["ts_after_end_run_ts"] += 1
-            raise BadDate(
+            raise exception.BadDate(
                 "{} ({!r}) is after the end of the"
                 " run ({})".format(ts, orig_ts, self.ptb.end_run_ts)
             )
@@ -978,7 +945,7 @@ class PbenchData(object):
         data (for an @timestamp field) and an optional tool name."""
         year, month, day = source["@timestamp"].split("T", 1)[0].split("-")[0:3]
         if (year, month, day) < (self.year, self.month, self.day):
-            raise BadDate(
+            raise exception.BadDate(
                 "TS y/m/d, {!r}, earlier than pbench run, {!r}".format(
                     (year, month, day), (self.year, self.month, self.day)
                 )
@@ -1567,7 +1534,7 @@ class ResultData(PbenchData):
                                 # FIXME: Hack
                                 start_ts = obj.ptb.start_run
                                 tseries = start = end = None
-                            except BadDate:
+                            except exception.BadDate:
                                 # Ignore entire sample if start/end timestamps
                                 # are bad.  Already counted.
                                 obj.counters["timeseries_bad_dates"] += 1
@@ -1664,7 +1631,7 @@ def mk_result_data_actions(ptb, idxctx):
     for source, source_id, parent_id, doc_type in sources:
         try:
             idx_name = rd.generate_index_name("result-data", source)
-        except BadDate:
+        except exception.BadDate:
             # We don't raise this exception because we are already well into
             # indexing so much data that there is no point in stopping
             # now.  The source of the exception has already counted the
@@ -3220,7 +3187,7 @@ def mk_tool_data_actions(ptb, idxctx):
                 idx_name = td.generate_index_name(
                     "tool-data", source, toolname=td.toolname
                 )
-            except BadDate:
+            except exception.BadDate:
                 pass
             else:
                 source["@generated-by"] = idxctx.get_tracking_id()
@@ -3737,20 +3704,20 @@ class PbenchTarBall(object):
             if sampled_prefix != self.dirname:
                 # All members of the tar ball should have self.dirname as its
                 # prefix.
-                raise UnsupportedTarballFormat(
+                raise exception.UnsupportedTarballFormat(
                     '{} - directory prefix should be "{}", but is'
                     ' "{}" instead, for tar ball member "{}"'.format(
                         self.tbname, self.dirname, sampled_prefix, m.name
                     )
                 )
         if not metadata_log_found:
-            raise UnsupportedTarballFormat(
+            raise exception.UnsupportedTarballFormat(
                 '{} - tar ball is missing "{}".'.format(self.tbname, metadata_log_path)
             )
 
         self.extracted_root = extracted_root
         if not os.path.isdir(os.path.join(self.extracted_root, self.dirname)):
-            raise UnsupportedTarballFormat(
+            raise exception.UnsupportedTarballFormat(
                 '{} - extracted tar ball directory "{}" does not'
                 " exist.".format(
                     self.tbname, os.path.join(self.extracted_root, self.dirname)
@@ -3794,7 +3761,7 @@ class PbenchTarBall(object):
             if not date_orig:
                 raise Exception("empty pbench.date")
         except Exception as e:
-            raise BadMDLogFormat(
+            raise exception.BadMDLogFormat(
                 "{} - error fetching required metadata.log"
                 ' fields, "{}"'.format(self.tbname, e)
             )
@@ -3869,7 +3836,7 @@ class PbenchTarBall(object):
             self.run_metadata.update(self.mdconf.items("run"))
             self.run_metadata.update(self.mdconf.items("pbench"))
         except NoSectionError as e:
-            raise BadMDLogFormat(
+            raise exception.BadMDLogFormat(
                 '{} - missing section in metadata.log, "{}"'.format(self.dirname, e)
             )
         # Remove from run metadata as these fields are either kept in
@@ -4089,10 +4056,10 @@ class IdxContext(object):
         try:
             self.idx_prefix = self.config.get("Indexing", "index_prefix")
         except Exception as e:
-            raise ConfigFileError(str(e))
+            raise exception.ConfigFileError(str(e))
         else:
             if "." in self.idx_prefix:
-                raise ConfigFileError(
+                raise exception.ConfigFileError(
                     "Index prefix, '{}', not allowed to"
                     " contain a period ('.')".format(self.idx_prefix)
                 )

@@ -10,11 +10,9 @@ import shutil
 import tempfile
 from pbench.server.s3backup import S3Config, Status
 
-from pbench.server import (
-    PbenchConfig,
-    BadConfig,
-)
+from pbench.server import PbenchConfig
 from pbench.server.report import Report
+from pbench.server import exception
 from pbench.server import utils
 from pbench.server import logger as _logger
 
@@ -498,7 +496,7 @@ def main():
 
     try:
         config = PbenchConfig(cfg_name)
-    except BadConfig as e:
+    except exception.BadConfig as e:
         print("{}: {}".format(_NAME_, e), file=sys.stderr)
         return 1
 

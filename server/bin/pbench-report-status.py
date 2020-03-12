@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
+from __future__ import print_function
+
 from argparse import ArgumentParser
 import sys
 from socket import gethostname
 import os
 
-from pbench.server import PbenchConfig, BadConfig
+from pbench.server import PbenchConfig
+from pbench.server import exception
 from pbench.server.report import Report
 
 
@@ -65,7 +68,7 @@ parsed = parser.parse_args()
 
 try:
     config = PbenchConfig(parsed.cfg_name)
-except BadConfig as e:
+except exception.BadConfig as e:
     print("{}: {}".format(_prog, e), file=sys.stderr)
     sys.exit(1)
 

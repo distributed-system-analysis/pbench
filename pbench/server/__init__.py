@@ -9,11 +9,8 @@ from time import time as _time
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
 from pbench.lib import configtools
+from pbench.server import exception
 from pbench.server import utils
-
-
-class BadConfig(Exception):
-    pass
 
 
 class PbenchConfig(object):
@@ -32,23 +29,23 @@ class PbenchConfig(object):
         try:
             self.TOP = self.conf.get("pbench-server", "pbench-top-dir")
             if not os.path.isdir(self.TOP):
-                raise BadConfig("Bad TOP={}".format(self.TOP))
+                raise exception.BadConfig("Bad TOP={}".format(self.TOP))
             self.TMP = self.conf.get("pbench-server", "pbench-tmp-dir")
             if not os.path.isdir(self.TMP):
-                raise BadConfig("Bad TMP={}".format(self.TMP))
+                raise exception.BadConfig("Bad TMP={}".format(self.TMP))
             self.LOGSDIR = self.conf.get("pbench-server", "pbench-logs-dir")
             if not os.path.isdir(self.LOGSDIR):
-                raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))
+                raise exception.BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))
             self.BINDIR = self.conf.get("pbench-server", "script-dir")
             if not os.path.isdir(self.BINDIR):
-                raise BadConfig("Bad BINDIR={}".format(self.BINDIR))
+                raise exception.BadConfig("Bad BINDIR={}".format(self.BINDIR))
             self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
             if not os.path.isdir(self.LIBDIR):
-                raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))
+                raise exception.BadConfig("Bad LIBDIR={}".format(self.LIBDIR))
             # the scripts may use this to send status messages
             self.mail_recipients = self.conf.get("pbench-server", "mailto")
         except (NoOptionError, NoSectionError) as exc:
-            raise BadConfig(str(exc))
+            raise exception.BadConfig(str(exc))
         else:
             self.ARCHIVE = self.conf.get("pbench-server", "pbench-archive-dir")
             self.INCOMING = os.path.join(self.TOP, "public_html", "incoming")
@@ -76,7 +73,7 @@ class PbenchConfig(object):
                     self.logger_host = self.conf.get("logging", "logger_host")
                     self.logger_port = self.conf.get("logging", "logger_port")
                 except (NoOptionError) as exc:
-                    raise BadConfig(str(exc))
+                    raise exception.BadConfig(str(exc))
 
         try:
             self._unittests = self.conf.get("pbench-server", "debug_unittest")

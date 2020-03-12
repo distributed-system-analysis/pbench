@@ -5,7 +5,8 @@ import logging
 import os
 import sys
 
-from pbench.server import PbenchConfig, BadConfig
+from pbench.server import PbenchConfig
+from pbench.server import exception
 from pbench.server import logger as _logger
 
 _NAME_ = "pbench-logger-test"
@@ -57,6 +58,6 @@ def test_pbench_logger():
 if __name__ == "__main__":
     try:
         test_pbench_logger()
-    except BadConfig as bd:
+    except exception.BadConfig as bd:
         print("BadConfig exception was raised")
         sys.exit(1)

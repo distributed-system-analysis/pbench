@@ -16,20 +16,13 @@ import tempfile
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
-from pbench.server import BadConfig
+from pbench.server import exception
 from pbench.server.indexer import (
     IdxContext,
-    ConfigFileError,
-    BadDate,
-    UnsupportedTarballFormat,
-    BadMDLogFormat,
-    SosreportHostname,
     PbenchTarBall,
     make_all_actions,
     mk_tool_data_actions,
     es_index,
-    JsonFileError,
-    TemplateError,
     VERSION,
 )
 from pbench.server.report import Report
@@ -117,10 +110,10 @@ def main(options, name):
     except (ConfigFileError, ConfigParserError):
         print("{}: {}".format(name, e), file=sys.stderr)
         return 2
-    except BadConfig as e:
+    except exception.BadConfig as e:
         print("{}: {}".format(name, e), file=sys.stderr)
         return 3
-    except JsonFileError as e:
+    except exception.JsonFileError as e:
         print("{}: {}".format(name, e), file=sys.stderr)
         return 8
 
@@ -229,7 +222,7 @@ def main(options, name):
         # have the proper index templates in place.
         idxctx.logger.debug("update_templates [start]")
         idxctx.templates.update_templates(idxctx.es)
-    except TemplateError as e:
+    except exception.TemplateError as e:
         idxctx.logger.error("update_templates [end], error {}", repr(e))
         res = 9
     except Exception:
@@ -324,21 +317,21 @@ def main(options, name):
                         es_res = es_index(
                             idxctx.es, actions, fp, idxctx.logger, idxctx._dbg
                         )
-                except UnsupportedTarballFormat as e:
+                except exception.UnsupportedTarballFormat as e:
                     idxctx.logger.warning("Unsupported tar ball format: {}", e)
                     tb_res = 4
-                except BadDate as e:
+                except exception.BadDate as e:
                     idxctx.logger.warning("Bad Date: {!r}", e)
                     tb_res = 5
                 except _filenotfounderror as e:
                     idxctx.logger.warning("No such file: {}", e)
                     tb_res = 6
-                except BadMDLogFormat as e:
+                except exception.BadMDLogFormat as e:
                     idxctx.logger.warning(
                         "The metadata.log file is curdled in" " tar ball: {}", e
                     )
                     tb_res = 7
-                except SosreportHostname as e:
+                except exception.SosreportHostname as e:
                     idxctx.logger.warning("Bad hostname in sosreport: {}", e)
                     tb_res = 10
                 except tarfile.TarError as e:
