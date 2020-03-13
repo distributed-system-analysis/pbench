@@ -328,8 +328,8 @@ function _setup_state {
     cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
 
     # First we activate the main pbench server (not a satellite).
-    echo "$_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
-    $_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
+    echo "pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
+    pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
     rc=$?
     rm ${_testtmp}/pbench-server.cfg
     if [ $rc == 0 ] ;then
@@ -360,8 +360,8 @@ function _setup_state {
     cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
 
     # Next we activate the satellite pbench server.
-    echo "$_testopt_sat/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
-    $_testopt_sat/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
+    echo "$pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
+    pbench-server-config-activate ${_testtmp}/pbench-server.cfg >> $_testactout
     rc=$?
     rm ${_testtmp}/pbench-server.cfg
     if [ $rc == 0 ] ;then

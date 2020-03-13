@@ -1,7 +1,7 @@
 +++ Verifying server activation
-/var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-server-config-activate /var/tmp/pbench-test-server/test-8/tmp/pbench-server.cfg
+pbench-server-config-activate /var/tmp/pbench-test-server/test-8/tmp/pbench-server.cfg
 /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-server-activate /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/config/pbench-server.cfg
-/var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-config-activate /var/tmp/pbench-test-server/test-8/tmp/pbench-server.cfg
+pbench-server-config-activate /var/tmp/pbench-test-server/test-8/tmp/pbench-server.cfg
 /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-activate /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config/pbench-server.cfg
 ++++ /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
 _PBENCH_SERVER_CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/config/pbench-server.cfg
