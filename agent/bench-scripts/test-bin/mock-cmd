@@ -11,10 +11,17 @@ args=( "${@}" )
 lastidx=$((${#args[@]} - 1))
 # avoid "bad array subscript" error
 if [[ "${lastidx}" -lt 0 ]] ;then
-   exit 0
+    exit 0
 fi
 
 last=${args[${lastidx}]}
-if [[ "${prog}" == "pbench-metadata-log" ]] && [[ "${last}" == "beg" ]];then
+if [[ "${prog}" == "pbench-metadata-log" && "${last}" == "beg" ]]; then
     echo [pbench] > ${benchmark_run_dir}/metadata.log
+elif [[ "${prog}" == "screen" && "${args[7]}" == "--start" ]]; then
+    # Mock out creating the tool directory for a tool "start" action
+    _tool="$(basename "${args[6]}")"
+    _dir="${args[8]}"
+    mkdir ${_dir#*=}/${_tool}
+    exit ${?}
 fi
+exit 0

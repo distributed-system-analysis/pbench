@@ -10,3 +10,5 @@ The following options are available:
 	--counters-clear-all      clear all HAProxy counters at tool start (optional, default: 'false')
 
 	-h|--help                 display this help message
+haproxy-ocp: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/haproxy-ocp/tools-group/haproxy-ocp', missing
+haproxy-ocp: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/haproxy-ocp/tools-group/haproxy-ocp', missing

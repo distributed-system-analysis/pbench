@@ -10,3 +10,5 @@ The following options are available:
 	--pattern=str             strace any PID which name matches this string (via pgrep)
 
 	-h|--help                 display this help message
+strace: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/strace/tools-group/strace', missing
+strace: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/strace/tools-group/strace', missing

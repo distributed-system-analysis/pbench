@@ -8,18 +8,12 @@ START DEFAULT
 bar
 STOP DEFAULT
 [pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1
-sar: stopping
-sar: tool is not running, nothing to kill
-sar: no post-processing available following stop
 rab
 START DEFAULT
 [pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1
 bir
 STOP DEFAULT
 [pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1
-sar: stopping
-sar: tool is not running, nothing to kill
-sar: no post-processing available following stop
 baz
 --- Finished test-19 test-tool-trigger (status=0)
 +++ pbench tree state
@@ -29,19 +23,21 @@ baz
 /var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1
 /var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1/tools-default
 /var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1/tools-default/pbench-tool-sar-default.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1/tools-default/sar
+/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1/tools-default/stop.log
 /var/tmp/pbench-test-utils/pbench/mock-run/1-default
 /var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1
 /var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1/tools-default
 /var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1/tools-default/pbench-tool-sar-default.cmd
+/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1/tools-default/sar
+/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1/tools-default/stop.log
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tmp/.empty
 /var/tmp/pbench-test-utils/pbench/tool-triggers
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/sar
 === /var/tmp/pbench-test-utils/pbench/tools-default/sar:
 --interval=3
-=== /var/tmp/pbench-test-utils/pbench/tmp/.empty:
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] [pbench-start-tools]started: --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1
@@ -65,6 +61,16 @@ baz
 [debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/1-default/sample1/tools-default --interval=3
 [debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
 --- pbench.log file contents
++++ mock-run/0-default/sample1/tools-default/stop.log file contents
+sar: stopping
+sar: tool is not running, nothing to kill
+sar: no post-processing available following stop
+--- mock-run/0-default/sample1/tools-default/stop.log file contents
++++ mock-run/1-default/sample1/tools-default/stop.log file contents
+sar: stopping
+sar: tool is not running, nothing to kill
+sar: no post-processing available following stop
+--- mock-run/1-default/sample1/tools-default/stop.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -ls
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dm -L -Logfile /var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1/tools-default/pbench-tool-sar-default.log -S pbench-tool-sar-default /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-default/sample1/tools-default --interval=3

@@ -8,3 +8,5 @@ The following options are available:
 	-d str|--dir=str          directory to store data collection (required)
 
 	-h|--help                 display this help message
+lockstat: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/lockstat/tools-group/lockstat', missing
+lockstat: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/lockstat/tools-group/lockstat', missing

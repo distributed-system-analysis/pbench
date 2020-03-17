@@ -10,3 +10,5 @@ The following options are available:
 	--packets=int             the number of packets to monitor before exiting
 
 	-h|--help                 display this help message
+tcpdump: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/tcpdump/tools-group/tcpdump', missing
+tcpdump: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/tcpdump/tools-group/tcpdump', missing

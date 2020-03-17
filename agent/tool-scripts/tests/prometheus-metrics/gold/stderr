@@ -12,3 +12,5 @@ The following options are available:
 	--inventory=str           path to the inventory file (required)
 
 	-h|--help                 display this help message
+prometheus-metrics: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/prometheus-metrics/tools-group/prometheus-metrics', missing
+prometheus-metrics: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/prometheus-metrics/tools-group/prometheus-metrics', missing

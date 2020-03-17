@@ -10,3 +10,5 @@ The following options are available:
 	--options=str             options passed directly to the tool (optional)
 
 	-h|--help                 display this help message
+mpstat: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/mpstat/tools-group/mpstat', missing
+mpstat: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/mpstat/tools-group/mpstat', missing

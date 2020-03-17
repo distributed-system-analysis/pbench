@@ -12,3 +12,5 @@ The following options are available:
 	--maxdepth=int            a maxdepth passed to the find command to limit recursion depth
 
 	-h|--help                 display this help message
+sysfs: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/sysfs/tools-group/sysfs', missing
+sysfs: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/sysfs/tools-group/sysfs', missing

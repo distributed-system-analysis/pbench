@@ -1,7 +1,4 @@
 +++ Running test-06 pbench-stop-tools --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample
-kvmstat: stopping
-kvmstat: tool is not running, nothing to kill
-kvmstat: no post-processing available following stop
 --- Finished test-06 pbench-stop-tools (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -9,18 +6,22 @@ kvmstat: no post-processing available following stop
 /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration
 /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample
 /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/kvmstat
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/stop.log
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
-/var/tmp/pbench-test-utils/pbench/tmp/default.NNNNN.kvmstat.pid
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/kvmstat
 === /var/tmp/pbench-test-utils/pbench/tools-default/kvmstat:
 --interval="30"
-=== /var/tmp/pbench-test-utils/pbench/tmp/default.NNNNN.kvmstat.pid:
-123463
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample
 [debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/kvmstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default --interval="30"
 [debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
 --- pbench.log file contents
++++ mock-run/mock-iteration/mock-sample/tools-default/stop.log file contents
+kvmstat: stopping
+kvmstat: tool is not running, nothing to kill
+kvmstat: no post-processing available following stop
+--- mock-run/mock-iteration/mock-sample/tools-default/stop.log file contents

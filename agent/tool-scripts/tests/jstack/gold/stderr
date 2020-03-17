@@ -11,3 +11,5 @@ The following options are available:
 	--pattern=str             jstack any PID which name matches this string (via pgrep)
 
 	-h|--help                 display this help message
+jstack: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/jstack/tools-group/jstack', missing
+jstack: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/jstack/tools-group/jstack', missing

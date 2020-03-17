@@ -16,3 +16,5 @@ The following options are available:
 	                           but not both at the same time
 
 	-h|--help                 display this help message
+user-tool-foo42: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/user-tool/tools-group/user-tool-foo42', missing
+user-tool-foo42: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/user-tool/tools-group/user-tool-foo42', missing

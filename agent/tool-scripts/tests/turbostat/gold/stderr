@@ -9,3 +9,5 @@ The following options are available:
 	--interval=int            number of seconds between each data collection (optional, default is 10 seconds)
 
 	-h|--help                 display this help message
+turbostat: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/turbostat/tools-group/turbostat', missing
+turbostat: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/turbostat/tools-group/turbostat', missing
