@@ -10,3 +10,5 @@ The following options are available:
 	--vm=str                  the name of the VM being migrated
 
 	-h|--help                 display this help message
+virsh-migrate: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/virsh-migrate/tools-group/virsh-migrate', missing
+virsh-migrate: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/virsh-migrate/tools-group/virsh-migrate', missing

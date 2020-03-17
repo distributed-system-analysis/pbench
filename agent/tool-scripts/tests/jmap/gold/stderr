@@ -11,3 +11,5 @@ The following options are available:
 	--pattern=str             jmap any PID which name matches this string (via pgrep)
 
 	-h|--help                 display this help message
+jmap: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/jmap/tools-group/jmap', missing
+jmap: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/jmap/tools-group/jmap', missing

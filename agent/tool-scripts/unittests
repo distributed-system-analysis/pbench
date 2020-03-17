@@ -194,6 +194,8 @@ function testit {
     > ${_rundir}/stdout
     > ${_rundir}/stderr
     invokit ${2}               >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
+    invokit ${2} --postprocess >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
+    invokit ${2} --stop        >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
     invokit ${2} --install     >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
     invokit ${2} --start       >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null
     invokit ${2} --stop        >> ${_rundir}/stdout 2>> ${_rundir}/stderr < /dev/null

@@ -174,7 +174,7 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 			fi
 		else
 			# $action == ( "stop" | "postprocess" )
-			$pbench_bin/tool-scripts/$name --$action --dir=$tool_output_dir "${tool_opts[@]}" &
+			$pbench_bin/tool-scripts/$name --$action --dir=${tool_output_dir} "${tool_opts[@]}" >> ${tool_output_dir}/${action}.log 2>&1 &
 			pids="$pids $!"
 		fi
 	fi

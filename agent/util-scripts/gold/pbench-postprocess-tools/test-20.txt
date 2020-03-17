@@ -1,6 +1,5 @@
 +++ Running test-20 pbench-postprocess-tools --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample --group=default
 [warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
-iostat: post-processing data
 [warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 --- Finished test-20 pbench-postprocess-tools (status=0)
 +++ pbench tree state
@@ -15,6 +14,7 @@ iostat: post-processing data
 /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/bar:testhost/iostat/iostat-postprocess.err
 /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/bar:testhost/iostat/iostat-postprocess.out
 /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/bar:testhost/iostat/iostat-stdout.txt
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/bar:testhost/postprocess.log
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-default
@@ -35,3 +35,6 @@ bar
 [warn][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]foo does not exist in /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts; spurious file perhaps? Please consider deleting it.
 [debug][1900-01-01T00:00:00.000000] [pbench-postprocess-tools]completed: 
 --- pbench.log file contents
++++ mock-run/mock-iteration/mock-sample/tools-default/bar:testhost/postprocess.log file contents
+iostat: post-processing data
+--- mock-run/mock-iteration/mock-sample/tools-default/bar:testhost/postprocess.log file contents

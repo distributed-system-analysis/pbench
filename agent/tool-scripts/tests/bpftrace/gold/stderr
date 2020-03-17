@@ -9,3 +9,5 @@ The following options are available:
 	--script=str              path to the bpftrace script (required w/ --start)
 
 	-h|--help                 display this help message
+bpftrace: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/bpftrace/tools-group/bpftrace', missing
+bpftrace: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/bpftrace/tools-group/bpftrace', missing

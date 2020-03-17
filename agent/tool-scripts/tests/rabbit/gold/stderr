@@ -11,3 +11,5 @@ The following options are available:
 	--password=str            rabbit password (default is "guest")
 
 	-h|--help                 display this help message
+rabbit: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/rabbit/tools-group/rabbit', missing
+rabbit: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/rabbit/tools-group/rabbit', missing

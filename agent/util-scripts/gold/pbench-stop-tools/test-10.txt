@@ -1,6 +1,4 @@
 +++ Running test-10 pbench-stop-tools --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample
-sar: stopping
-sar: no post-processing available following stop
 --- Finished test-10 pbench-stop-tools (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -9,6 +7,7 @@ sar: no post-processing available following stop
 /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample
 /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default
 /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/sar
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/stop.log
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-default
@@ -22,6 +21,10 @@ sar: no post-processing available following stop
 [debug][1900-01-01T00:00:00.000000] [pbench-stop-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/sar --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default --interval=40 
 [debug][1900-01-01T00:00:00.000000] [pbench-stop-tools]completed: 
 --- pbench.log file contents
++++ mock-run/mock-iteration/mock-sample/tools-default/stop.log file contents
+sar: stopping
+sar: no post-processing available following stop
+--- mock-run/mock-iteration/mock-sample/tools-default/stop.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x sar
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/kill -s TERM 123456

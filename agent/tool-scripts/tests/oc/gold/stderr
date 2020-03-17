@@ -9,3 +9,5 @@ The following options are available:
 	--components=str[,str]    one or more OpenShift component names suitable for use with "oc get" (optional, default: 'rc,ep,pods,pv,pvc,svc,cs')
 
 	-h|--help                 display this help message
+oc: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/oc/tools-group/oc', missing
+oc: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/oc/tools-group/oc', missing

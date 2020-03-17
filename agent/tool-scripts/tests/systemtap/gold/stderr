@@ -9,3 +9,5 @@ The following options are available:
 	--script=str              path to the systemtap script (required w/ --install)
 
 	-h|--help                 display this help message
+systemtap: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/systemtap/tools-group/systemtap', missing
+systemtap: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/systemtap/tools-group/systemtap', missing

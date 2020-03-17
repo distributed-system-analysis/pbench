@@ -10,3 +10,5 @@ The following options are available:
 	--options=str             options passed directly to the tool (optional)
 
 	-h|--help                 display this help message
+iostat: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/iostat/tools-group/iostat', missing
+iostat: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/iostat/tools-group/iostat', missing

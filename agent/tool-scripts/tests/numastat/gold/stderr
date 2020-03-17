@@ -10,3 +10,5 @@ The following options are available:
 	--pattern=str             a pattern for matching which processes for reporting per-node memory allocation
 
 	-h|--help                 display this help message
+numastat: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/numastat/tools-group/numastat', missing
+numastat: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/numastat/tools-group/numastat', missing

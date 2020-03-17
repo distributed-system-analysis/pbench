@@ -10,3 +10,5 @@ The following options are available:
 	--options=str             options passed directly to the tool (optional)
 
 	-h|--help                 display this help message
+sar: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/sar/tools-group/sar', missing
+sar: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/sar/tools-group/sar', missing

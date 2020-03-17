@@ -11,3 +11,5 @@ The following options are available:
 	--callgraph               generate a call graph by adding '-g' to the record and report options
 
 	-h|--help                 display this help message
+perf: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/perf/tools-group/perf', missing
+perf: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/perf/tools-group/perf', missing

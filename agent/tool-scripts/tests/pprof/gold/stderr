@@ -12,3 +12,5 @@ The following options are available:
 	--inventory=str           path to the inventory file (required)
 
 	-h|--help                 display this help message
+pprof: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/pprof/tools-group/pprof', missing
+pprof: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/pprof/tools-group/pprof', missing

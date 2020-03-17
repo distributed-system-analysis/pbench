@@ -15,3 +15,5 @@ The following options are available:
 	--threads                 collect per-thread statistics
 
 	-h|--help                 display this help message
+pidstat: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/pidstat/tools-group/pidstat', missing
+pidstat: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/pidstat/tools-group/pidstat', missing

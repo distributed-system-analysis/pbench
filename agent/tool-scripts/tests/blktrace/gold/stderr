@@ -9,3 +9,5 @@ The following options are available:
 	--devices=str,[str]       the list of block devices to trace (required w/ --start)
 
 	-h|--help                 display this help message
+blktrace: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/blktrace/tools-group/blktrace', missing
+blktrace: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/blktrace/tools-group/blktrace', missing

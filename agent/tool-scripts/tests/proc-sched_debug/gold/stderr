@@ -9,3 +9,5 @@ The following options are available:
 	--interval=int            number of seconds between each data collection (optional, default is 10 seconds)
 
 	-h|--help                 display this help message
+proc-sched_debug: WARNING - postprocess - tool output directory, '/var/tmp/pbench-test-tool-scripts/proc-sched_debug/tools-group/proc-sched_debug', missing
+proc-sched_debug: WARNING - stop - tool output directory, '/var/tmp/pbench-test-tool-scripts/proc-sched_debug/tools-group/proc-sched_debug', missing

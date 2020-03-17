@@ -152,6 +152,12 @@ function _dump_logs {
             echo "--- ${mddir}/metadata.log file contents" >> ${_testout}
         fi
     done
+    local bm_run_dir="$(basename "${benchmark_run_dir}")"
+    for actionlog in $(cd ${_testdir}; find "${bm_run_dir}" \( -name 'stop.log' -o -name 'postprocess.log' \) 2> /dev/null | sort); do
+        echo "+++ ${actionlog} file contents" >> ${_testout}
+        cat ${_testdir}/${actionlog} >> ${_testout} 2>&1
+        echo "--- ${actionlog} file contents" >> ${_testout}
+    done
     if [[ -f ${_testlog} ]]; then
         echo "+++ test-execution.log file contents" >> ${_testout}
         cat ${_testlog} >> ${_testout} 2>&1
@@ -421,6 +427,10 @@ declare -A expected_status=(
 )
 
 declare -A pre_hooks=(
+    [test-05]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/turbostat'
+    [test-06]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/kvmstat'
+    [test-07]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/vmstat'
+    [test-08]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/numastat'
     [test-14]='rm ${_testopt}/config/pbench-agent.cfg; sed -i "s;_REPLACE_ME_;${_testopt};g" ${_testdir}/tmp/pbench-agent.cfg'
     [test-20]='mkdir -p ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/iostat; touch ${_testdir}/mock-run/mock-iteration/mock-sample/tools-default/iostat/iostat-stdout.txt'
     [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> ${_testout}'
