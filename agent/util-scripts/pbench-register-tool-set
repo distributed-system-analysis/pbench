@@ -161,7 +161,7 @@ for tool_name in ${the_tool_set}; do
 done
 # low overhead perf
 if [[ ${reg_perf} -ne 0 ]]; then
-	pbench-register-tool --name=perf${group_arg}${install_arg}${remotes_arg}${labels_arg} -- --record-opts="record -a --freq=100"
+	pbench-register-tool --name=perf${group_arg}${install_arg}${remotes_arg}${labels_arg} -- --record-opts="'record -a --freq=100'"
 	rc=${?}
 	if [[ ${rc} != 0 ]] ;then
 		nerrs=${nerrs}+1

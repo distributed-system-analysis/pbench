@@ -25,7 +25,7 @@ perf tool is now registered in group default
 === /var/tmp/pbench-test-utils/pbench/tools-default/mpstat:
 --interval=10
 === /var/tmp/pbench-test-utils/pbench/tools-default/perf:
---record-opts=record -a --freq=100
+--record-opts='record -a --freq=100'
 === /var/tmp/pbench-test-utils/pbench/tools-default/pidstat:
 --interval=30
 === /var/tmp/pbench-test-utils/pbench/tools-default/sar:
@@ -44,7 +44,7 @@ perf tool is now registered in group default
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
 [info][1900-01-01T00:00:00.000000] sar tool is now registered in group default
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts=record -a --freq=100"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts='record -a --freq=100'"
 [debug][1900-01-01T00:00:00.000000] checking to see if tool is installed...
 [info][1900-01-01T00:00:00.000000] perf tool is now registered in group default
 --- pbench.log file contents
