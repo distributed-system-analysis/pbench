@@ -47,6 +47,7 @@ case "${tool}" in
 blktrace)
 	devices=""
 	longoptions="${longoptions},devices:"
+	tool_package_name="blktrace"
 	;;
 bpftrace)
 	script=""
@@ -65,7 +66,7 @@ iostat|mpstat|sar)
 	tool_package_name="pbench-sysstat"
 	tool_package_ver="12.0.3"
 	;;
-jmap|jstack|strace)
+jmap|jstack)
 	pid="0"
 	pattern=""
 	longoptions="${longoptions},pid:,pattern:"
@@ -82,6 +83,7 @@ kvmtrace)
 numastat)
 	pattern=""
 	longoptions="${longoptions},pattern:"
+	tool_package_name="numactl"
 	;;
 oc)
 	def_components="rc,ep,pods,pv,pvc,svc,cs"
@@ -126,9 +128,10 @@ prometheus-metrics)
 	longoptions="${longoptions},gopath:,goroot:,inventory:"
 	tool_package_name="golang"
 	;;
-qemu-migrate|virsh-migrate)
+qemu-migrate)
 	vm=""
 	longoptions="${longoptions},vm:"
+	tool_package_name="nmap-ncat"
 	;;
 rabbit)
 	def_username="guest"
@@ -136,6 +139,12 @@ rabbit)
 	def_password="guest"
 	password="${def_password}"
 	longoptions="${longoptions},username:,password:"
+	;;
+strace)
+	pid="0"
+	pattern=""
+	longoptions="${longoptions},pid:,pattern:"
+	tool_package_name="strace"
 	;;
 sysfs)
 	maxdepth=4
@@ -151,6 +160,7 @@ tcpdump)
 	interface=""
 	packets=500
 	longoptions="${longoptions},interface:,packets:"
+	tool_package_name="tcpdump"
 	;;
 turbostat)
 	release="$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release 2> /dev/null)"
@@ -170,6 +180,11 @@ user-tool)
 	stop_script=""
 	tool_name=""
 	longoptions="${longoptions},file-to-capture:,postprocess-script:,start-script:,stop-script:,tool-name:"
+	;;
+virsh-migrate)
+	vm=""
+	longoptions="${longoptions},vm:"
+	tool_package_name="libvirt-client"
 	;;
 esac
 
