@@ -27,4 +27,4 @@ if [[ "${1}" == "record" ]]; then
 fi
 
 echo "${@}" > ${tool_output_dir}/record_opts
-perf record ${@} --output=${tool_output_dir}/perf.data
+exec perf record ${@} --output=${tool_output_dir}/perf.data

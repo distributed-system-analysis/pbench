@@ -63,12 +63,12 @@ baz
 --- pbench.log file contents
 +++ mock-run/0-default/sample1/tools-default/stop.log file contents
 sar: stopping
-sar: tool is not running, nothing to kill
+sar: tool is not running, nothing to kill (missing or empty pid file)
 sar: no post-processing available following stop
 --- mock-run/0-default/sample1/tools-default/stop.log file contents
 +++ mock-run/1-default/sample1/tools-default/stop.log file contents
 sar: stopping
-sar: tool is not running, nothing to kill
+sar: tool is not running, nothing to kill (missing or empty pid file)
 sar: no post-processing available following stop
 --- mock-run/1-default/sample1/tools-default/stop.log file contents
 +++ test-execution.log file contents

@@ -27,4 +27,4 @@ if [[ ! -x ${_tool_bin} ]]; then
 	exit 1
 fi
 
-${_tool_bin} ${default_options} ${options} -o ${tool_output_dir}/sar.data ${interval}
+exec ${_tool_bin} ${default_options} ${options} -o ${tool_output_dir}/sar.data ${interval}

@@ -27,4 +27,4 @@ if [[ ! -z "${start_delay}" && ${start_delay} > 0 ]]; then
     sleep ${start_delay}
 fi
 
-trace-cmd record -a -e kvm ${sleep_cmd}
+exec trace-cmd record -a -e kvm ${sleep_cmd}

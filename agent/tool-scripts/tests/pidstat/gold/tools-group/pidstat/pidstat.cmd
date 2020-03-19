@@ -1,4 +1,4 @@
 #!/bin/bash
 # base-tool generated command file
 
-LANG=C PYTHONUNBUFFERED=True /var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/pidstat-datalog /var/tmp/pbench-test-tool-scripts/pidstat/tools-group/pidstat 10 true p='one42,two43,three44' '-other-opt'
+LANG=C PYTHONUNBUFFERED=True exec /var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/pidstat-datalog /var/tmp/pbench-test-tool-scripts/pidstat/tools-group/pidstat 10 true p='one42,two43,three44' '-other-opt'

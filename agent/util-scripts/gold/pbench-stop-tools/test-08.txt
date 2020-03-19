@@ -22,6 +22,6 @@
 --- pbench.log file contents
 +++ mock-run/mock-iteration/mock-sample/tools-default/stop.log file contents
 numastat: stopping
-numastat: tool is not running, nothing to kill
+numastat: tool is not running, nothing to kill (missing or empty pid file)
 numastat: no post-processing available following stop
 --- mock-run/mock-iteration/mock-sample/tools-default/stop.log file contents

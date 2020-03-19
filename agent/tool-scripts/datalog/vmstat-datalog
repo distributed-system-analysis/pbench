@@ -50,4 +50,4 @@ case "${ver}" in
         ;;
 esac
 
-vmstat -a ${opts} ${interval}
+exec vmstat -a ${opts} ${interval}
