@@ -736,7 +736,7 @@ start)
 		_newpath=""
 	fi
 	# Force LANG=C for all tools
-	printf -- "#!/bin/bash\n# base-tool generated command file\n\nLANG=C PYTHONUNBUFFERED=True%s%s%s %s\n" "${_goroot}" "${_gopath}" "${_newpath}" "${tool_cmd}" > "${tool_cmd_file}"
+	printf -- "#!/bin/bash\n# base-tool generated command file\n\nLANG=C PYTHONUNBUFFERED=True%s%s%s exec %s\n" "${_goroot}" "${_gopath}" "${_newpath}" "${tool_cmd}" > "${tool_cmd_file}"
 	chmod +x "${tool_cmd_file}"
 	printf -- "%s: running \"%s\"\n" "${tool_name}" "${tool_cmd}"
 	tool_stdout_file="${tool_output_dir}/${tool_name}-stdout.txt"
@@ -747,7 +747,7 @@ start)
 	popd > /dev/null
 	;;
 stop)
-	if [[ ! -d ${tool_output_dir} ]]; then
+	if [[ ! -d "${tool_output_dir}" ]]; then
 		printf -- "%s: WARNING - stop - tool output directory, '%s', missing\n" "${tool_name}" "${tool_output_dir}" >&2
 		exit 1
 	fi
@@ -756,16 +756,14 @@ stop)
 	if [[ -s "${tool_pid_file}" ]]; then
 		pid="$(cat ${tool_pid_file})"
 		if [[ ! -z "${pid}" ]] ;then
-			if [[ "${tool_name}" == "kvmtrace" ]]; then
-				if [[ -z "${sleep_cmd}" ]]; then
-					# kill the tool directly with an INT signal
-					safe_kill "${tool_name}" "${pid}" "INT"
+			case "${tool_name}" in
+			kvmtrace)
+				# kill the sleep process if it still exists
+				sleep_pid="$(ps --ppid ${pid} | pgrep sleep)"
+				if [[ ! -z "${sleep_pid}" ]]; then
+					safe_kill "sleep" "${sleep_pid}"
 				else
-					# kill the sleep process if it still exists
-					sleep_pid="$(ps --ppid ${pid} | pgrep sleep)"
-					if [[ ! -z "${sleep_pid}" ]]; then
-						safe_kill "${tool_name}" "${sleep_pid}"
-					fi
+					safe_kill "trace-cmd" "${pid}" "INT"
 				fi
 				# wait for the trace-cmd pid to complete
 				while [[ -d /proc/${pid} ]]; do
@@ -773,7 +771,8 @@ stop)
 					sleep 0.5
 				done
 				rc=0
-			elif [[ "${tool_name}" == "perf" ]]; then
+				;;
+			perf)
 				safe_kill "${tool_name}" "${pid}" "INT"
 				# Wait for perf to finish recording.  if you
 				# do not wait, 'perf report' will not be
@@ -784,21 +783,40 @@ stop)
 					printf -- "%s: Waiting for PID '%s' (%s) to finish\n" "${tool_name}" "${pid}" "${pidcmd}"
 					sleep 0.5
 				done
-			else
+				rc=0
+				;;
+			user-tool)
+				if [[ ! -z "${file_to_capture}" ]]; then
+					safe_kill "File-Capture-datalog" "${pid}"
+				else
+					safe_kill "$(basename "${start_script}")" "${pid}"
+				fi
+				rc=${?}
+				;;
+			blktrace|bpftrace|iostat|mpstat|pcp|pidstat|sar|systemtap|tcpdump|turbostat|vmstat)
 				safe_kill "${tool_name}" "${pid}"
 				rc=${?}
-			fi
+				;;
+			proc-interrupts|proc-sched_debug|proc-vmstat)
+				safe_kill "File-Capture-datalog" "${pid}"
+				rc=${?}
+				;;
+			*)
+				safe_kill "${tool_name}-datalog" "${pid}"
+				rc=${?}
+				;;
+			esac
 			if [[ ${rc} -eq 0 ]]; then
 				/bin/rm -f "${tool_pid_file}"
 			fi
 		else
-			printf -- "%s: tool is not running, nothing to kill\n" "${tool_name}" >&2
+			printf -- "%s: tool is not running, nothing to kill (empty pid file)\n" "${tool_name}" >&2
 		fi
 	else
-		printf -- "%s: tool is not running, nothing to kill\n" "${tool_name}" >&2
+		printf -- "%s: tool is not running, nothing to kill (missing or empty pid file)\n" "${tool_name}" >&2
 	fi
 	if [[ ${rc} == 0 ]]; then
-		case ${tool} in
+		case "${tool}" in
 		user-tool)
 			_script_path="${stop_script}"
 			;;
@@ -832,11 +850,11 @@ stop)
 	fi
 	;;
 postprocess)
-	if [[ ! -d ${tool_output_dir} ]]; then
+	if [[ ! -d "${tool_output_dir}" ]]; then
 		printf -- "%s: WARNING - postprocess - tool output directory, '%s', missing\n" "${tool_name}" "${tool_output_dir}" >&2
 		exit 1
 	fi
-	case ${tool} in
+	case "${tool}" in
 	user-tool)
 		_script_path="${postprocess_script}"
 		;;
@@ -844,7 +862,7 @@ postprocess)
 		_script_path="${postprocess_path}/${tool}-postprocess"
 		;;
 	esac
-	if [[ -x ${_script_path} ]]; then
+	if [[ -x "${_script_path}" ]]; then
 		printf -- "%s: post-processing data\n" "${tool_name}"
 		pushd ${tool_output_dir} >/dev/null
 		${_script_path} "${tool_output_dir}" \

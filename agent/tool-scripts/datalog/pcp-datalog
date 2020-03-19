@@ -41,4 +41,4 @@ fi
 # Save the interval for use by post-processing step.
 printf -- "%s\n" "${interval}" > ${tool_output_dir}/interval
 
-pmlogger -c ${tool_output_dir}/pmlogger.conf -t ${interval} archive
+exec pmlogger -c ${tool_output_dir}/pmlogger.conf -t ${interval} archive

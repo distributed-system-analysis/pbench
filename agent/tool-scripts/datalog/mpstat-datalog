@@ -21,4 +21,4 @@ if [[ ! -x ${_tool_bin} ]]; then
 	exit 1
 fi
 
-${_tool_bin} ${default_options} ${options} ${interval}
+exec ${_tool_bin} ${default_options} ${options} ${interval}

@@ -57,4 +57,4 @@ if [[ "${_PBENCH_UNIT_TESTS}" != "" ]] ;then
     enable -n ulimit
 fi
 # ulimit is for all the files that might be opened by pidstat-convert
-${_tool_bin} ${default_options} ${options} ${interval} | (ulimit -n 102400; $(dirname ${0})/pidstat-convert ${tool_output_dir})
+exec ${_tool_bin} ${default_options} ${options} ${interval} | (ulimit -n 102400; $(dirname ${0})/pidstat-convert ${tool_output_dir})
