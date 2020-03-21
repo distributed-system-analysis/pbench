@@ -253,7 +253,6 @@ fi
 
 benchmark_fullname="${benchmark}_${config}_${date_suffix}"
 export benchmark_run_dir="$pbench_run/${benchmark_fullname}"
-benchmark_iterations="${benchmark_run_dir}/iterations.txt"
 export benchmark config
 
 mkdir -p $benchmark_run_dir/.running
@@ -263,8 +262,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # now that the benchmark_run_dir directory exists, we can initialize the iterations file
+benchmark_iterations="${benchmark_run_dir}/.iterations"
 > ${benchmark_iterations}
-
 
 pbench-register-tool-trigger --group=$tool_group --start-trigger="Timing Measurement began" --stop-trigger="Timing Measurement ended"
 
@@ -347,8 +346,9 @@ function record_iteration {
 	local benchmark_bin=$3
 
 	echo ${iteration_name} >> ${benchmark_iterations}
-	echo ${iteration_name} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
-	echo ${benchmark_bin} | pbench-add-metalog-option ${mdlog} iterations/${iteration} user_script
+	echo ${iteration}      | pbench-add-metalog-option ${mdlog} iterations/${iteration_name} iteration_number
+	echo ${iteration_name} | pbench-add-metalog-option ${mdlog} iterations/${iteration_name} iteration_name
+	echo ${benchmark_bin}  | pbench-add-metalog-option ${mdlog} iterations/${iteration_name} user_script
 }
 
 # rename the iterations with warehouse count and then postprocess the tools
