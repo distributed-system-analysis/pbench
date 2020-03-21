@@ -37,7 +37,8 @@ Running user-benchmark-script no-file for iteration 1-default
 +++ pbench-user-benchmark_test-09_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
 
-[iterations/1]
+[iterations/1-default]
+iteration_number = 1
 iteration_name = 1-default
 user_script = user-benchmark-script, no-file
 

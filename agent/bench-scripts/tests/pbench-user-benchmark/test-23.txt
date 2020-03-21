@@ -73,15 +73,18 @@ sud
 +++ pbench-user-benchmark_test-23_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
 
-[iterations/1]
+[iterations/1-default]
+iteration_number = 1
 iteration_name = 1-default
 user_script = tool-trigger-example
 
-[iterations/2]
+[iterations/2-default]
+iteration_number = 2
 iteration_name = 2-default
 user_script = tool-trigger-example
 
-[iterations/3]
+[iterations/3-default]
+iteration_number = 3
 iteration_name = 3-default
 user_script = tool-trigger-example
 

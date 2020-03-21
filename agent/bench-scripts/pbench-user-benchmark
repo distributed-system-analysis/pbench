@@ -206,17 +206,19 @@ function record_iteration {
 	local iteration_name="${2}"
 	local benchmark_bin="${3}"
 
-	echo "${iteration}" >> ${benchmark_iterations}
-	echo "${iteration_name}" | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
-	echo "${benchmark_bin}" | pbench-add-metalog-option ${mdlog} iterations/${iteration} user_script
+	echo "${iteration_name}" >> ${benchmark_iterations}
+	echo "${iteration}"      | pbench-add-metalog-option ${mdlog} iterations/${iteration_name} iteration_number
+	echo "${iteration_name}" | pbench-add-metalog-option ${mdlog} iterations/${iteration_name} iteration_name
+	echo "${benchmark_bin}"  | pbench-add-metalog-option ${mdlog} iterations/${iteration_name} user_script
 }
 
 function run_benchmark {
 	local iteration="${1}"
 	local iteration_name="${2}"
+	local arguments="${3}"
 	local iter_benchmark_bin="${benchmark_bin}"
-	if [[ ! -z "${3}" ]]; then
-		iter_benchmark_bin="${iter_benchmark_bin} ${3}"
+	if [[ ! -z "${arguments}" ]]; then
+		iter_benchmark_bin="${iter_benchmark_bin} ${arguments}"
 	fi
 
 	export benchmark_results_dir="${benchmark_run_dir}/${iteration_name}/${sample_name}"
@@ -300,7 +302,6 @@ declare -a parts
 while read -u 3 line; do
 	# Current line number, starting from 1 (not zero)
 	(( lineno++ ))
-	iteration=${iter_num}
 	if [[ ${line::1} == "#" ]]; then
 		# Ignore comments
 		continue
@@ -310,15 +311,18 @@ while read -u 3 line; do
 		# Ignore empty lines
 		continue
 	fi
+
+	iteration=${iter_num}
 	iteration_name="${iter_num}-${parts[0]}"
+	# Setup the *next* iteration number
+	(( iter_num++ ))
+
 	if [[ ${#parts[@]} == 1 ]]; then
 		# Assume the only part is the iteration name.
 		l_args=""
 	else
 		l_args="${parts[@]:1:${#parts[@]}}"
 	fi
-	# Setup the *next* iteration number
-	(( iter_num++ ))
 
 	run_benchmark "${iteration}" "${iteration_name}" "${l_args}"
 	duration=${?}
