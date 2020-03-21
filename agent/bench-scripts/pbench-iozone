@@ -190,8 +190,7 @@ trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT 
 
 benchmark_results_dir="$benchmark_run_dir/$iteration/sample1"
 echo $iteration >> $benchmark_iterations
-benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
-mkdir -p $benchmark_results_dir $benchmark_tools_dir
+mkdir -p $benchmark_results_dir
 
 pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
