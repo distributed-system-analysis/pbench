@@ -797,7 +797,6 @@ function fio_run_benchmark() {
 						for sample in `seq 1 $nr_samples`; do
 							# each attempt at a test config requires multiple samples to get stddev
 							benchmark_results_dir="$iteration_dir/sample$sample"
-							benchmark_tools_dir="$benchmark_results_dir/tools-$tool_group"
 							if [ "$postprocess_only" = "n" ]; then
 								if [ -e $benchmark_results_dir ]; then
 									# FIXME - Shouldn't we error and exit out instead of removing data?
