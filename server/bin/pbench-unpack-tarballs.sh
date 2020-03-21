@@ -128,7 +128,7 @@ function gen_work_list() {
     return $(( ${max_seconds} * 2 ))
 }
 
-function  move_symlink() {
+function move_symlink() {
     local hostname="${1}"
     local resultname="${2}"
     local linksrc="${3}"
