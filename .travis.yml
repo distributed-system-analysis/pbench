@@ -14,6 +14,7 @@ jobs:
         # Perl JSON and JSON-XS required
         - sudo apt-get install libjson-perl libjson-xs-perl
         - pip install ansible
+        - pip install .
       script: ./agent/run-unittests
 
     - stage: "Server Unit Tests"
@@ -27,6 +28,7 @@ jobs:
         - sudo apt-get update
       install:
         - pip install elasticsearch sh boto3
+        - pip install .
       script: ./server/bin/unittests
 
     - stage: "Python flake8 tests"
