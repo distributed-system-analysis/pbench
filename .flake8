@@ -1,17 +1,7 @@
 [flake8]
 doctests = True
-exclude=.venv,.git,.tox,dist,doc,*lib/python*,*egg,build,*web-server/*,*agent/stockpile/*,*agent/bench-scripts/test-bin/fio-histo-log-pctiles.py
-# For a full list see https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes
-# E1 - Indentation
-# E2 - Whitespace
-# E3 - Blank Line
-# E4 - Import
-# E5 - Line length
-# E7 - Statement
-# E9 - Runtime
-# W1 - Indentation warning
-# W2 - Whitespace warning
-# W3 - Blank line warning
-# W5 - Line break warning
-# W6 - Deprecation Warning
-ignore = E1, E2, E3, E4, E5, W1, W2, W3, W5
+exclude=.venv,.git,.tox,dist,doc,*lib/python*,*egg,build,*web-server/*,
+        *agent/stockpile/*,*agent/bench-scripts/test-bin/fio-histo-log-pctiles.py
+ignore = E121,E123,E126,E226,E24,E704,E501,W503,E203
+max-line-length = 88
+
