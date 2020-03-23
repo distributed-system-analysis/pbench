@@ -2,8 +2,8 @@
 Module for mocking out behaviors of V1 Elasticsearch.
 """
 
-import sys
 import json
+import sys
 from collections import Counter
 
 

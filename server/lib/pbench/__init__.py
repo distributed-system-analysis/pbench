@@ -2,18 +2,18 @@
 Simple module level convenience functions.
 """
 
-import sys
-import os
-import logging
-import configtools
-import shutil
 import hashlib
-
+import logging
+import os
+import shutil
+import sys
+from configparser import ConfigParser, NoOptionError, NoSectionError
+from datetime import datetime, timedelta, tzinfo
+from functools import partial
 from logging import handlers
 from time import time as _time
-from datetime import datetime, tzinfo, timedelta
-from functools import partial
-from configparser import ConfigParser, NoSectionError, NoOptionError
+
+import configtools
 
 
 class simple_utc(tzinfo):

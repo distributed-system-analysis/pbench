@@ -1,12 +1,12 @@
 """ Configtools """
 from __future__ import print_function
 
-import os, sys
-
+import os
+import sys
 # python3
 from configparser import ConfigParser
-
 from optparse import OptionParser, make_option
+
 
 def uniq(l):
     # uniquify the list without scrambling it

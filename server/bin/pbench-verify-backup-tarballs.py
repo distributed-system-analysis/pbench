@@ -39,17 +39,16 @@ or S3, then those files will have been moved backed up first before we can
 re-verify.
 """
 
+import errno
+import glob
 import os
 import sys
-import glob
-import errno
 import tempfile
 from enum import Enum
-from s3backup import S3Config, Entry
 
-from pbench import PbenchConfig, BadConfig, get_pbench_logger, md5sum
+from pbench import BadConfig, PbenchConfig, get_pbench_logger, md5sum
 from pbench.report import Report
-
+from s3backup import Entry, S3Config
 
 _NAME_ = "pbench-verify-backup-tarballs"
 

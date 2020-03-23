@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-import os
-import sys
 import glob
+import os
 import shutil
+import sys
 import tempfile
-from s3backup import S3Config, Status, NoSuchKey
 
-from pbench import PbenchConfig, BadConfig, get_pbench_logger, quarantine, \
-        rename_tb_link, md5sum
+from pbench import (BadConfig, PbenchConfig, get_pbench_logger, md5sum,
+                    quarantine, rename_tb_link)
 from pbench.report import Report
-
+from s3backup import NoSuchKey, S3Config, Status
 
 _NAME_ = "pbench-backup-tarballs"
 

@@ -6,20 +6,20 @@ into the configured Elasticsearch V1 instance.
 
 """
 
-import sys
-import os
 import glob
+import os
+import sys
 import tarfile
 import tempfile
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
-from pbench import tstos, BadConfig, quarantine, rename_tb_link
-from pbench.indexer import IdxContext, ConfigFileError, BadDate, \
-        UnsupportedTarballFormat, BadMDLogFormat, SosreportHostname, \
-        PbenchTarBall, es_index, JsonFileError, TemplateError, VERSION
+from pbench import BadConfig, quarantine, rename_tb_link, tstos
+from pbench.indexer import (VERSION, BadDate, BadMDLogFormat, ConfigFileError,
+                            IdxContext, JsonFileError, PbenchTarBall,
+                            SosreportHostname, TemplateError,
+                            UnsupportedTarballFormat, es_index)
 from pbench.report import Report
-
 
 # Internal debugging flag.
 _DEBUG = 0

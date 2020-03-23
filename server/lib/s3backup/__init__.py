@@ -1,16 +1,16 @@
 """
 This module provides convenience functions that interface to lower-level services, provided by the boto3 module.
 """
-import boto3
-import os
-import glob
 import base64
+import glob
 import hashlib
-from configparser import NoSectionError, NoOptionError
-from boto3.s3.transfer import TransferConfig
-from botocore.exceptions import ConnectionClosedError, ClientError
-
+import os
+from configparser import NoOptionError, NoSectionError
 from enum import Enum
+
+import boto3
+from boto3.s3.transfer import TransferConfig
+from botocore.exceptions import ClientError, ConnectionClosedError
 
 
 class Status(Enum):

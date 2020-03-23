@@ -9,8 +9,9 @@
 #
 # where the iterations are in the <iterations.file>, one iteration per line.
 
-import sys
 from configparser import ConfigParser, NoSectionError
+import sys
+
 
 def main(lfile, section, option):
     config = ConfigParser()

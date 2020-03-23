@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import shutil
+import sys
 
 _prog = os.path.basename(sys.argv[0])
 

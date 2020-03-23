@@ -2,37 +2,41 @@
 result tar balls.
 """
 
-import sys
-import os
-import re
-import logging
 import copy
+import csv
+import glob
 import hashlib
 import json
-import csv
-import tarfile
-import socket
-import glob
+import logging
 import math
-from time import sleep as _sleep
-from random import SystemRandom
-from operator import itemgetter
-from datetime import datetime, timedelta
+import os
+import re
+import socket
+import sys
+import tarfile
 from collections import Counter, deque
-from configparser import ConfigParser, Error as ConfigParserError, \
-        NoSectionError, NoOptionError
+from configparser import ConfigParser
+from configparser import Error as ConfigParserError
+from configparser import NoOptionError, NoSectionError
+from datetime import datetime, timedelta
+from operator import itemgetter
+from random import SystemRandom
+from time import sleep as _sleep
+
 from urllib3 import Timeout
-try:
-    from elasticsearch1 import Elasticsearch, helpers, exceptions as es_excs
-except ImportError:
-    from elasticsearch import Elasticsearch, helpers, exceptions as es_excs
 
 # We import the entire pbench module so that mocking time works by changing
 # the _time binding in the pbench module for unit tests via the PbenchConfig
 # constructor's execution.
 import pbench
+
 try:
-    from pbench.mock import MockElasticsearch
+    from elasticsearch1 import Elasticsearch, helpers, exceptions as es_excs
+except ImportError:
+    from elasticsearch import Elasticsearch, helpers, exceptions as es_excs
+
+try:
+    from .mock import MockElasticsearch
 except ImportError:
     MockElasticsearch = None
 
