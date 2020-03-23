@@ -1,2 +1,4 @@
-flake8
-pre-commit
+ansible
+elasticsearch
+sh3
+boto3
