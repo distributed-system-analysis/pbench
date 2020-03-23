@@ -44,6 +44,7 @@ from pbench.exception import (
     MappingFileError,
     TemplateError,
 )
+from pbench.logger import get_pbench_logger
 
 try:
     from .mock import MockElasticsearch
@@ -4117,7 +4118,7 @@ class IdxContext(object):
             self.getuid = os.getuid
         self.TS = self.config.TS
 
-        self.logger = pbench.get_pbench_logger(self.name, self.config)
+        self.logger = get_pbench_logger(self.name, self.config)
         self.es = get_es(self.config, self.logger)
         self.templates = PbenchTemplates(
             self.config.BINDIR,

@@ -46,8 +46,9 @@ import sys
 import tempfile
 from enum import Enum
 
-from pbench import PbenchConfig, get_pbench_logger
+from pbench import PbenchConfig
 from pbench.exception import BadConfig
+from pbench.logger import get_pbench_logger
 from pbench.utils import md5sum
 from pbench.report import Report
 from s3backup import Entry, S3Config

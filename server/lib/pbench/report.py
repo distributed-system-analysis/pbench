@@ -14,6 +14,7 @@ from configparser import NoOptionError
 import pbench
 
 from .indexer import PbenchTemplates, _op_type, es_index, get_es
+from pbench.logger import get_pbench_logger
 
 
 class Report(object):
@@ -39,7 +40,7 @@ class Report(object):
     ):
         self.config = config
         self.name = name
-        self.logger = pbench.get_pbench_logger(name, config)
+        self.logger = get_pbench_logger(name, config)
 
         # We always create a base "tracking" document composed of parameters
         # from the caller, and other environmental data. This document is used
