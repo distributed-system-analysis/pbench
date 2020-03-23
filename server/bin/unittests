@@ -256,8 +256,6 @@ function _setup_state {
     let res=res+$?
     cp -a $_tdir/{unittests,getconf.py,pbench*} $_testopt_sat/bin
     let res=res+$?
-    cp -a $_tdir/../../lib/* $_testopt/common/lib
-    let res=res+$?
     cp -a $_tdir/../lib $_testopt
     let res=res+$?
     cp -a $_tdir/../lib $_testopt_sat
@@ -302,8 +300,7 @@ function _setup_state {
     # All the "real" scripts are found at $_testopt/bin, the mock scripts
     # are found in $_testopt/unittest-scripts.
     _orig_PATH=$PATH
-    export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
-    export PYTHONPATH="${_testopt}/lib:${_testopt}/common/lib:${PYTHONPATH}"
+    export PATH=$_testopt/unittest-scripts:$_testopt/bin:~/.local/bin:$PATH
 
     # Expected location of the final configuration files 
     export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg

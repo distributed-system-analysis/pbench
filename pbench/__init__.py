@@ -6,9 +6,8 @@ import os
 from configparser import ConfigParser, NoOptionError, NoSectionError
 from time import time as _time
 
-import configtools
-
 from pbench.exception import BadConfig
+from pbench.lib import configtools
 from pbench.utils import tstos
 
 

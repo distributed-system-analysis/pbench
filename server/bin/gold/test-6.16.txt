@@ -205,7 +205,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs backup_to_local -- Already locally backed-up: foo/fio__2016-08-18_15:47:09.tar.xz
 1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- Start S3 backup of /var/tmp/pbench-test-server/test-6.16/pbench/archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz.
 1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- tarball: /var/tmp/pbench-test-server/test-6.16/pbench/archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz, size = 1610896
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.__init__ put_tarball -- Upload to s3 succeeded: foo/fio__2016-08-18_15:47:09.tar.xz
+1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.s3backup put_tarball -- Upload to s3 succeeded: foo/fio__2016-08-18_15:47:09.tar.xz
 1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-6.16/pbench/archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz.
 1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-6.16/pbench/archive/fs-version-001/foo/fio__2016-08-18_15:47:09.tar.xz.
 1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 2, Local backup successes: 2, Local backup failures: 0, S3 upload successes: 1, S3 upload failures: 1, Quarantined: 0

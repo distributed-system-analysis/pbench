@@ -1,4 +1,4 @@
 ansible
 elasticsearch
-sh3
+sh
 boto3

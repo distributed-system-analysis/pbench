@@ -51,7 +51,7 @@ from pbench.exception import BadConfig
 from pbench.logger import get_pbench_logger
 from pbench.utils import md5sum
 from pbench.report import Report
-from s3backup import Entry, S3Config
+from pbench.s3backup import Entry, S3Config
 
 _NAME_ = "pbench-verify-backup-tarballs"
 
