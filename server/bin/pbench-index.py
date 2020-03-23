@@ -14,7 +14,6 @@ import tempfile
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
-from pbench import tstos
 from pbench.exception import (
     BadConfig,
     BadDate,
@@ -27,7 +26,7 @@ from pbench.exception import (
 )
 from pbench.indexer import VERSION, IdxContext, es_index, PbenchTarBall
 from pbench.report import Report
-from pbench.utils import quarantine, rename_tb_link
+from pbench.utils import quarantine, rename_tb_link, tstos
 
 # Internal debugging flag.
 _DEBUG = 0

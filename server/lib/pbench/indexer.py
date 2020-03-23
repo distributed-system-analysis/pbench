@@ -45,6 +45,7 @@ from pbench.exception import (
     TemplateError,
 )
 from pbench.logger import get_pbench_logger
+from pbench.utils import tstos
 
 try:
     from .mock import MockElasticsearch
@@ -473,7 +474,7 @@ class PbenchTemplates(object):
         self.logger.info(
             "done templates (end ts: {}, duration: {:.2f}s,"
             " successes: {:d}, retries: {:d})",
-            pbench.tstos(end),
+            tstos(end),
             end - beg,
             successes,
             retries,
@@ -767,7 +768,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                         "ok": ok,
                         "resp": resp,
                         "retry_count": retry_count,
-                        "timestamp": pbench.tstos(),
+                        "timestamp": tstos(),
                     },
                     indent=4,
                     sort_keys=True,
@@ -794,7 +795,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                             "ok": ok,
                             "resp": resp,
                             "retry_count": retry_count,
-                            "timestamp": pbench.tstos(),
+                            "timestamp": tstos(),
                         },
                         indent=4,
                         sort_keys=True,
