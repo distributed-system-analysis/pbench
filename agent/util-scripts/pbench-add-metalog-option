@@ -18,17 +18,18 @@ def main(lfile, section, option):
     config.read(lfile)
     # python3
     # config[section][option] = ', '.join(sys.stdin.read().split())
-    sin = sys.stdin.read().replace("%","%%")
+    sin = sys.stdin.read().replace("%", "%%")
     try:
-        config.set(section, option, ', '.join(sin.split()))
+        config.set(section, option, ", ".join(sin.split()))
     except NoSectionError:
         config.add_section(section)
-        config.set(section, option, ', '.join(sin.split()))
+        config.set(section, option, ", ".join(sin.split()))
     config.write(open(lfile, "w"))
-   
-if __name__ == '__main__':
-   lfile = sys.argv[1]
-   section = sys.argv[2]
-   option = sys.argv[3]
-   status = main(lfile, section, option)
-   sys.exit(status)
+
+
+if __name__ == "__main__":
+    lfile = sys.argv[1]
+    section = sys.argv[2]
+    option = sys.argv[3]
+    status = main(lfile, section, option)
+    sys.exit(status)

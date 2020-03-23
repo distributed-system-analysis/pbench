@@ -25,8 +25,18 @@ class Report(object):
     # that Elasticsearch typically handles.
     _CHUNK_SIZE = 50 * 1024 * 1024
 
-    def __init__(self, config, name, es=None, pid=None, group_id=None,
-                user_id=None, hostname=None, version=None, templates=None):
+    def __init__(
+        self,
+        config,
+        name,
+        es=None,
+        pid=None,
+        group_id=None,
+        user_id=None,
+        hostname=None,
+        version=None,
+        templates=None,
+    ):
         self.config = config
         self.name = name
         self.logger = pbench.get_pbench_logger(name, config)
@@ -48,19 +58,21 @@ class Report(object):
             _pid = pid if pid else os.getpid()
             _group_id = group_id if group_id else os.getgid()
             _user_id = user_id if user_id else os.getuid()
-        self.generated_by = dict([
-            ('commit_id', self.config.COMMIT_ID),
-            ('group_id', _group_id),
-            ('hostname', _hostname),
-            ('pid', _pid),
-            ('user_id', _user_id),
-            ('version', version if version else '')
-        ])
+        self.generated_by = dict(
+            [
+                ("commit_id", self.config.COMMIT_ID),
+                ("group_id", _group_id),
+                ("hostname", _hostname),
+                ("pid", _pid),
+                ("user_id", _user_id),
+                ("version", version if version else ""),
+            ]
+        )
         # The "tracking_id" is the final MD5 hash of the first document
         # indexed via the `post_status()` method.
         self.tracking_id = None
         try:
-            self.idx_prefix = config.get('Indexing', 'index_prefix')
+            self.idx_prefix = config.get("Indexing", "index_prefix")
         except (NoOptionError, NoSectionError):
             # No index prefix so reporting will be performed via logging.
             self.idx_prefix = None
@@ -70,8 +82,9 @@ class Report(object):
                 try:
                     self.es = get_es(config, self.logger)
                 except Exception:
-                    self.logger.exception("Unexpected failure fetching"
-                            " Elasticsearch configuration")
+                    self.logger.exception(
+                        "Unexpected failure fetching" " Elasticsearch configuration"
+                    )
                     # If we don't have an Elasticsearch configuration just use
                     # None to indicate logging should be used instead.
                     self.es = None
@@ -80,8 +93,9 @@ class Report(object):
         if templates is not None:
             self.templates = templates
         else:
-            self.templates = PbenchTemplates(self.config.BINDIR,
-                    self.idx_prefix, self.logger)
+            self.templates = PbenchTemplates(
+                self.config.BINDIR, self.idx_prefix, self.logger
+            )
 
     def init_report_template(self):
         """Setup the Elasticsearch templates needed for properly indexing
@@ -89,16 +103,16 @@ class Report(object):
         """
         if self.es is None:
             return
-        self.templates.update_templates(self.es, 'server-reports')
+        self.templates.update_templates(self.es, "server-reports")
 
     @staticmethod
     def _make_json_payload(source):
         """Given a source dictionary, return its ID, and a formatted JSON
         payload.
         """
-        the_bytes = json.dumps(source, sort_keys=True).encode('utf-8')
+        the_bytes = json.dumps(source, sort_keys=True).encode("utf-8")
         source_id = hashlib.md5(the_bytes).hexdigest()
-        return source, source_id, the_bytes.decode('utf-8')
+        return source, source_id, the_bytes.decode("utf-8")
 
     def _gen_json_payload(self, base_source, file_to_index):
         """Generate a series of JSON documents to be indexed, where the text
@@ -119,7 +133,7 @@ class Report(object):
                         "chunk_id": chunk_id,
                         "total_chunks": number_of_chunks,
                         "total_size": total_size,
-                        "text": text
+                        "text": text,
                     }
                     source.update(base_source)
                     yield self._make_json_payload(source)
@@ -137,21 +151,20 @@ class Report(object):
         We return the tracking ID use for this report object.
         """
         try:
-            if timestamp.startswith('run-'):
+            if timestamp.startswith("run-"):
                 timestamp = timestamp[4:]
             # Snip off the trailing "-<TZ>" - assumes that <TZ> does not
             # contain a "-"
-            timestamp_noutc = timestamp.rsplit('-', 1)[0]
+            timestamp_noutc = timestamp.rsplit("-", 1)[0]
 
             base_source = {
                 "@timestamp": timestamp_noutc,
                 "@generated-by": self.generated_by,
                 "name": self.name,
-                "doctype": doctype
+                "doctype": doctype,
             }
             if file_to_index:
-                payload_gen = self._gen_json_payload(base_source,
-                        file_to_index)
+                payload_gen = self._gen_json_payload(base_source, file_to_index)
             else:
                 payload_gen = self._gen_no_json_payload(base_source)
 
@@ -165,8 +178,9 @@ class Report(object):
                 payload = "@cee:{}".format(the_bytes)
                 if len(payload) > 4096:
                     # Compress the full message to a file.
-                    fname = "report-status-payload.{}.{}.xz".format(self.name,
-                            timestamp_noutc)
+                    fname = "report-status-payload.{}.{}.xz".format(
+                        self.name, timestamp_noutc
+                    )
                     fpath = os.path.join(self.config.LOGSDIR, self.name, fname)
                     with lzma.open(fpath, mode="w", preset=9) as fp:
                         fp.write(the_bytes)
@@ -183,27 +197,41 @@ class Report(object):
                             # First generated document becomes the tracking ID.
                             self.tracking_id = source_id
                         idx_name = self.templates.generate_index_name(
-                                "server-reports", source)
+                            "server-reports", source
+                        )
                         action = {
                             "_op_type": _op_type,
                             "_index": idx_name,
-                            "_type": 'pbench-server-reports',
+                            "_type": "pbench-server-reports",
                             "_id": source_id,
-                            "_source": source
+                            "_source": source,
                         }
                         yield action
-                es_res = es_index(self.es, _es_payload_gen(payload_gen),
-                        sys.stderr, self.logger)
+
+                es_res = es_index(
+                    self.es, _es_payload_gen(payload_gen), sys.stderr, self.logger
+                )
                 beg, end, successes, duplicates, failures, retries = es_res
-                do_log = self.logger.info if successes == 1 \
-                        else self.logger.warning
-                do_log("posted status (end ts: {}, duration: {:.2f}s,"
-                        " successes: {:d}, duplicates: {:d}, failures: {:d},"
-                        " retries: {:d})", pbench.tstos(end), end - beg,
-                        successes, duplicates, failures, retries)
+                do_log = self.logger.info if successes == 1 else self.logger.warning
+                do_log(
+                    "posted status (end ts: {}, duration: {:.2f}s,"
+                    " successes: {:d}, duplicates: {:d}, failures: {:d},"
+                    " retries: {:d})",
+                    pbench.tstos(end),
+                    end - beg,
+                    successes,
+                    duplicates,
+                    failures,
+                    retries,
+                )
         except Exception:
-            self.logger.exception("Failed to post status, name = {},"
-                    " timestamp = {}, doctype = {}, file_to_index = {}",
-                    self.name, timestamp, doctype, file_to_index)
+            self.logger.exception(
+                "Failed to post status, name = {},"
+                " timestamp = {}, doctype = {}, file_to_index = {}",
+                self.name,
+                timestamp,
+                doctype,
+                file_to_index,
+            )
             raise
         return self.tracking_id
