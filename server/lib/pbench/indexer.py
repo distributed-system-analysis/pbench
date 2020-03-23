@@ -25,15 +25,25 @@ from time import sleep as _sleep
 
 from urllib3 import Timeout
 
-# We import the entire pbench module so that mocking time works by changing
-# the _time binding in the pbench module for unit tests via the PbenchConfig
-# constructor's execution.
-import pbench
-
 try:
     from elasticsearch1 import Elasticsearch, helpers, exceptions as es_excs
 except ImportError:
     from elasticsearch import Elasticsearch, helpers, exceptions as es_excs
+
+
+# We import the entire pbench module so that mocking time works by changing
+# the _time binding in the pbench module for unit tests via the PbenchConfig
+# constructor's execution.
+import pbench
+from pbench.exception import (
+    BadDate,
+    ConfigFileError,
+    BadMDLogFormat,
+    UnsupportedTarballFormat,
+    JsonFileError,
+    MappingFileError,
+    TemplateError,
+)
 
 try:
     from .mock import MockElasticsearch
@@ -87,42 +97,6 @@ def _calc_backoff_sleep(backoff):
 
 def _sleep_w_backoff(backoff):
     _sleep(_calc_backoff_sleep(backoff))
-
-
-class BadDate(Exception):
-    pass
-
-
-class ConfigFileNotSpecified(Exception):
-    pass
-
-
-class ConfigFileError(Exception):
-    pass
-
-
-class BadMDLogFormat(Exception):
-    pass
-
-
-class UnsupportedTarballFormat(Exception):
-    pass
-
-
-class SosreportHostname(Exception):
-    pass
-
-
-class JsonFileError(Exception):
-    pass
-
-
-class MappingFileError(JsonFileError):
-    pass
-
-
-class TemplateError(Exception):
-    pass
 
 
 class PbenchTemplates(object):
@@ -2292,6 +2266,7 @@ class ToolData(PbenchData):
                         # and the metadata mapping for field names.
                         if colmd:
                             metadata[identifier] = colmd
+
         # At this point, we have processed all the data about csv files
         # and are ready to start reading the contents of all the csv
         # files and building the unified records.

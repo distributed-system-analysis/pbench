@@ -14,20 +14,18 @@ import tempfile
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
-from pbench import BadConfig, tstos
-from pbench.indexer import (
-    VERSION,
+from pbench import tstos
+from pbench.exception import (
+    BadConfig,
     BadDate,
     BadMDLogFormat,
     ConfigFileError,
-    IdxContext,
     JsonFileError,
-    PbenchTarBall,
     SosreportHostname,
     TemplateError,
     UnsupportedTarballFormat,
-    es_index,
 )
+from pbench.indexer import VERSION, IdxContext, es_index, PbenchTarBall
 from pbench.report import Report
 from pbench.utils import quarantine, rename_tb_link
 

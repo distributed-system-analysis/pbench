@@ -11,6 +11,8 @@ from time import time as _time
 
 import configtools
 
+from pbench.exception import BadConfig
+
 
 class simple_utc(tzinfo):
     def tzname(self, *args, **kwargs):
@@ -179,10 +181,6 @@ def get_pbench_logger(caller, config):
         _handlers[caller] = handler
         pbench_logger.addHandler(handler)
     return _StyleAdapter(pbench_logger)
-
-
-class BadConfig(Exception):
-    pass
 
 
 class PbenchConfig(object):

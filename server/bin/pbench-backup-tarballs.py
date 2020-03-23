@@ -7,7 +7,8 @@ import shutil
 import sys
 import tempfile
 
-from pbench import BadConfig, PbenchConfig, get_pbench_logger
+from pbench import PbenchConfig, get_pbench_logger
+from pbench.exception import BadConfig
 from pbench.report import Report
 from pbench.utils import quarantine, rename_tb_link, md5sum
 from s3backup import NoSuchKey, S3Config, Status
