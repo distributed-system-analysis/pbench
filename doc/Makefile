@@ -12,8 +12,8 @@ everything: all pbench-agent.pdf
 	emacs -batch -l batch-export.el --eval "(batch-org-export-as 'latex)" $<
 
 
-desthost = $(shell getconf.py repohost $(prog) repo)
-destuser = $(shell getconf.py repouser $(prog) repo)
+desthost = $(shell pbench-config repohost $(prog) repo)
+destuser = $(shell pbench-config repouser $(prog) repo)
 destdir  = /var/www/html
 dest = ${destuser}@${desthost}:${destdir}
 

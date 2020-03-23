@@ -22,14 +22,14 @@ if [ ! -f "$_PBENCH_SERVER_CONFIG" ] ;then
     exit 2
 fi
 
-bindir=$(getconf.py script-dir pbench-server)
+bindir=$(pbench-config script-dir pbench-server)
 if [ -z "$bindir" ] ;then
     echo "No 'script-dir' setting in [pbench-server] section of config file $_PBENCH_SERVER_CONFIG"
     exit 3
 fi
 
 # what roles does this server play?
-roles=$(getconf.py -l roles pbench-server)
+roles=$(pbench-config -l roles pbench-server)
 if [ -z "$roles" ] ;then
     echo "No 'roles' setting in [pbench-server] section of config file $_PBENCH_SERVER_CONFIG"
     exit 3
@@ -45,20 +45,20 @@ hostname=$(hostname -f)
 # the sanity check below will just skip all the roles for
 # the host, leaving us with an empty crontab. If you do
 # get an empty crontab, this is a good thing to check.
-realhost=$(getconf.py realhost pbench-server)
+realhost=$(pbench-config realhost pbench-server)
 
 function crontab_header() {
     local mailfrom mailto
 
     echo "_PBENCH_SERVER_CONFIG=$_PBENCH_SERVER_CONFIG" >> $crontab
 
-    mailto=$(getconf.py mailto pbench-server)
+    mailto=$(pbench-config mailto pbench-server)
     if [ -z "$mailto" ] ;then
         echo "No 'mailto' specified in [pbench-server] section of the config file $_PBENCH_SERVER_CONFIG"
     else
         echo "MAILTO=$mailto" >> $crontab
     fi
-    mailfrom=$(getconf.py mailfrom pbench-server)
+    mailfrom=$(pbench-config mailfrom pbench-server)
     if [ -z "$mailfrom" ] ;then
         echo "No 'mailfrom' specified in [pbench-server] section of the config file $_PBENCH_SERVER_CONFIG"
     else
@@ -69,12 +69,12 @@ function crontab_header() {
 function crontab_normal() {
     local role=$1
 
-    tasks=$(getconf.py -l tasks $role)
+    tasks=$(pbench-config -l tasks $role)
     if [ -z "$tasks" ] ;then
         echo "No 'tasks' specified in [$role] section of the config file $_PBENCH_SERVER_CONFIG"
     else
         for task in $tasks ;do
-            crontabline=$(getconf.py crontab $task)
+            crontabline=$(pbench-config crontab $task)
             if [ -z "$tasks" ] ;then
                 echo "No 'crontab' specified in [$task] section of the config file $_PBENCH_SERVER_CONFIG"
             else
@@ -109,13 +109,13 @@ function crontab_with_substitutions() {
     local section=$1
     local task=$2
 
-    crontabline=$(getconf.py crontab $task)
+    crontabline=$(pbench-config crontab $task)
     if [ -z "$crontabline" ] ;then
         echo "No 'crontab' specified in [$task] section of the config file $_PBENCH_SERVER_CONFIG"
     else
         echo "$crontabline" |
                 sed "s;\$SATELLITE_CONFIG;$section;g" |
-                sed "$(getconf.py -a $section | grep = | awk -F' = ' '{gsub(/-/, "_", $1); printf "s;$%s;%s;g\n", toupper($1) , $2;}')" >> $crontab
+                sed "$(pbench-config -a $section | grep = | awk -F' = ' '{gsub(/-/, "_", $1); printf "s;$%s;%s;g\n", toupper($1) , $2;}')" >> $crontab
     fi
 }
 
@@ -124,7 +124,7 @@ crontab_header
 
 for role in $roles ;do
 
-    host=$(getconf.py host $role)
+    host=$(pbench-config host $role)
     # Sanity test: either host or realhost (from the config file)
     # *must* match the hostname of the host where this is being
     # installed, otherwise this role is irrelevant for this host
@@ -134,8 +134,8 @@ for role in $roles ;do
     fi
     case $role in
         pbench-sync-satellites)
-            satellites=$(getconf.py -l satellites $role)
-            tasks=$(getconf.py -l tasks $role)
+            satellites=$(pbench-config -l satellites $role)
+            tasks=$(pbench-config -l tasks $role)
             for satellite in $satellites ;do
                 for task in $tasks; do
                     crontab_with_substitutions $satellite $task
@@ -143,8 +143,8 @@ for role in $roles ;do
             done
             ;;
         pbench-prep)
-            versions=$(getconf.py -l pbench-move-results-receive-versions pbench-server)
-            tasks=$(getconf.py -l tasks $role)
+            versions=$(pbench-config -l pbench-move-results-receive-versions pbench-server)
+            tasks=$(pbench-config -l tasks $role)
             for version in $versions ;do
                 for task in $tasks; do
                     crontab_with_substitutions prep-shim-$version $task
@@ -160,17 +160,17 @@ done
 chmod 644 $crontab
 
 # create the lock directory that the cron entries will use
-lockdir=$(getconf.py lock-dir pbench-server)
+lockdir=$(pbench-config lock-dir pbench-server)
 mkdir -p ${lockdir}
 chmod 755 ${lockdir}
 
-user=$(getconf.py user pbench-server)
+user=$(pbench-config user pbench-server)
 if [ -z "$user" ] ;then
     echo "user is undefined in section \"pbench-server\" of config file."
     exit 5
 fi
 
-group=$(getconf.py group pbench-server)
+group=$(pbench-config group pbench-server)
 if [ -z "$group" ] ;then
     echo "group is undefined in section \"pbench-server\" of config file."
     exit 5

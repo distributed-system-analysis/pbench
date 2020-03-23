@@ -38,7 +38,7 @@ cp ${_tdir}/postprocess/* ${_testopt}/bench-scripts/postprocess
 let res=res+${?}
 cp ${_tdir}/templates/* ${_testopt}/bench-scripts/templates
 let res=res+${?}
-cp -a $_tdir/../util-scripts/{getconf.py,require-rpm,pbench-*} $_testopt/util-scripts/
+cp -a $_tdir/../util-scripts/{require-rpm,pbench-*} $_testopt/util-scripts/
 let res=res+$?
 cp -a $_tdir/../../lib/* $_testopt/common/lib/
 let res=res+${?}

@@ -29,7 +29,7 @@ sub get_hostname {
 sub get_pbench_run_dir {
     my $dir = $ENV{'pbench_run'};
     if (not defined $dir) {
-        $dir = `getconf.py pbench_run pbench-agent 2>/dev/null`;
+        $dir = `pbench-config pbench_run pbench-agent 2>/dev/null`;
     } elsif (not defined $dir) {
         $dir = "/var/lib/pbench-agent";
     }

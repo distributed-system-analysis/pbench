@@ -29,7 +29,7 @@ cp -rL ${_tdir}/../config/* ${_testopt}/config/
 let res=res+${?}
 cp -a $_tdir/../../lib/* $_testopt/common/lib/
 let res=res+${?}
-cp -a ${_tdir}/{getconf.py,require-rpm,pbench-*} ${_testopt}/util-scripts/
+cp -a ${_tdir}/{require-rpm,pbench-*} ${_testopt}/util-scripts/
 let res=res+${?}
 scripts="${_tdir}/../tool-scripts/*"
 for script in ${scripts}; do

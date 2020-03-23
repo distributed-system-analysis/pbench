@@ -19,7 +19,7 @@ remotes_arg=""
 labels_arg=""
 group_arg=""
 install_arg=""
-default_interval=$(getconf.py interval pbench/tools)
+default_interval=$(pbench-config interval pbench/tools)
 if [[ -z "${default_interval}" ]] ;then
 	default_interval=3
 fi
@@ -45,7 +45,7 @@ function usage() {
 	printf -- "\tseparated by a comma (\",\"); empty lines are ignored, and comments are\n"
 	printf -- "\tdenoted by a leading hash, or pound (\"#\"), character.\n"
 	printf -- "\nAvailable tool sets from ${_PBENCH_AGENT_CONFIG}:\n"
-	toolsets_raw=$(getconf.py -a pbench/tools | grep tool-set | awk '{print $1}')
+	toolsets_raw=$(pbench-config -a pbench/tools | grep tool-set | awk '{print $1}')
 	for toolset_raw in ${toolsets_raw}; do
 		printf -- "\t${toolset_raw%%-*}\n"
 	done
@@ -119,7 +119,7 @@ if [[ -z "${toolset}" ]]; then
 	exit 1
 fi
 
-the_tool_set=$(getconf.py -l ${toolset}-tool-set pbench/tools 2>/dev/null)
+the_tool_set=$(pbench-config -l ${toolset}-tool-set pbench/tools 2>/dev/null)
 if [[ ${?} -ne 0 ]]; then
 	printf -- "ERROR: failed to fetch tool set, ${toolset}-tool-set, from the pbench-agent configuration file\n" >&2
 	exit 1
@@ -149,7 +149,7 @@ for tool_name in ${the_tool_set}; do
 		reg_perf=1
 		continue
 	fi
-	interval=$(getconf.py interval tools/${tool_name})
+	interval=$(pbench-config interval tools/${tool_name})
 	if [[ -z "${interval}" ]]; then
 		interval=${default_interval}
 	fi

@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # move the static directory to where it's supposed to go
-install_dir=$(getconf.py install-dir pbench-server)
-pbench_top=$(getconf.py pbench-top-dir pbench-server)
+install_dir=$(pbench-config install-dir pbench-server)
+pbench_top=$(pbench-config pbench-top-dir pbench-server)
 pbench_static_dir=${pbench_top}/public_html/static
 
 if [ -z "$pbench_static_dir" ] ;then
