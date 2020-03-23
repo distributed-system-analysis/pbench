@@ -232,7 +232,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "c85efb5cd15fb7818339dad895fd0620",
+        "_id": "9ae535142eb3986712f2cf5d1ca2b1db",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -248,9 +248,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-backup-tarballs",
-            "text": "pbench-backup-tarballs.py.1970-01-01T00:00:00-UTC(unit-test)\nTotal processed: 8, Local backup successes: 8, Local backup failures: 0, S3 upload successes: 8, S3 upload failures: 0, Quarantined: 0\n",
+            "text": "pbench-backup-tarballs.1970-01-01T00:00:00-UTC(unit-test)\nTotal processed: 8, Local backup successes: 8, Local backup failures: 0, S3 upload successes: 8, S3 upload failures: 0, Quarantined: 0\n",
             "total_chunks": 1,
-            "total_size": 196
+            "total_size": 193
         },
         "_type": "pbench-server-reports"
     }
