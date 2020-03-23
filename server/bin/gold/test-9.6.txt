@@ -4,7 +4,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "80989909329ec9f87ce201890d37d57e",
+        "_id": "9d933fe2d5aeeb49c5d79ad580f2526a",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -20,9 +20,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC (unit-test) started at 1970-01-01T00:00:00-UTC\n\nComparing ARCHIVE with BACKUP\n-----------------------------\n\nComparing ARCHIVE with S3\n-------------------------\ncontroller/fio__2016-08-16_22:03:11.tar.xz: present in S3 but not in ARCHIVE\n\n\nPhases (started):\nArchive List Creation:       1970-01-01T00:00:00-UTC\nLocal Backup List Creation:  1970-01-01T00:00:00-UTC\nS3 List Creation:            1970-01-01T00:00:00-UTC\nArchive MD5 Checks:          1970-01-01T00:00:00-UTC\nLocal Backup MD5 Checks:     1970-01-01T00:00:00-UTC\n\npbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC (unit-test) finished at 1970-01-01T00:00:00-UTC\n",
+            "text": "pbench-verify-backup-tarballs.run-1970-01-01T00:00:00-UTC (unit-test) started at 1970-01-01T00:00:00-UTC\n\nComparing ARCHIVE with BACKUP\n-----------------------------\n\nComparing ARCHIVE with S3\n-------------------------\ncontroller/fio__2016-08-16_22:03:11.tar.xz: present in S3 but not in ARCHIVE\n\n\nPhases (started):\nArchive List Creation:       1970-01-01T00:00:00-UTC\nLocal Backup List Creation:  1970-01-01T00:00:00-UTC\nS3 List Creation:            1970-01-01T00:00:00-UTC\nArchive MD5 Checks:          1970-01-01T00:00:00-UTC\nLocal Backup MD5 Checks:     1970-01-01T00:00:00-UTC\n\npbench-verify-backup-tarballs.run-1970-01-01T00:00:00-UTC (unit-test) finished at 1970-01-01T00:00:00-UTC\n",
             "total_chunks": 1,
-            "total_size": 694
+            "total_size": 688
         },
         "_type": "pbench-server-reports"
     }
