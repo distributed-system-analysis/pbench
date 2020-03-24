@@ -218,10 +218,10 @@ if [ "$action" == "postprocess" ]; then
 			if [ -f "$tool_group_dir/label" ]; then
 				label="`cat "$tool_group_dir/label"`"
 				mkdir -p "$label:$hostname"
-				mv * "$label:$hostname" 2>/dev/null
+				mv .screen.d * "$label:$hostname" 2>/dev/null
 			else
 				mkdir -p $hostname
-				mv * $hostname 2>/dev/null
+				mv .screen.d * $hostname 2>/dev/null
 			fi
 			popd >/dev/null
 		fi
