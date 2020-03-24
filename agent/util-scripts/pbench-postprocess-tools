@@ -155,7 +155,7 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 		debug_log "[${script_name}] ${pbench_bin}/tool-scripts/${name} --${action} --dir=${tool_output_dir} ${tool_opts[@]}"
 		if [ "$action" == "start" ]; then
 			# using screen to avoid tty issues and guarantee tool is backgrounded
-			screen_dir="${tool_output_dir}/screen/${group}-${name}"
+			screen_dir="${tool_output_dir}/.screen.d/${group}-${name}"
 			mkdir -p ${screen_dir}
 			rc=${?}
 			if [[ ${rc} -ne 0 ]]; then
