@@ -151,21 +151,25 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 			((i++))
 		done < "${tool_group_dir}/${this_tool_file}"
 		name="${this_tool_file}"
-		screen_name="pbench-tool-${name}-${group}"
+		screen_name="pbench-tool-${group}-${name}"
 		debug_log "[${script_name}] ${pbench_bin}/tool-scripts/${name} --${action} --dir=${tool_output_dir} ${tool_opts[@]}"
 		if [ "$action" == "start" ]; then
 			# using screen to avoid tty issues and guarantee tool is backgrounded
-			screen_cmd="${tool_output_dir}/${screen_name}.cmd"
+			screen_dir="${tool_output_dir}/screen/${group}-${name}"
+			mkdir -p ${screen_dir}
+			rc=${?}
+			if [[ ${rc} -ne 0 ]]; then
+				error_log "[${script_name}] unable to create screen directory: \"${screen_dir}\""
+				exit ${rc}
+			fi
+			screen_cmd="${screen_dir}/command"
 			printf -- "#!/bin/bash\n\nscreen -dm -L -S \"${screen_name}\" ${pbench_bin}/tool-scripts/${name} --${action} --dir=${tool_output_dir} ${tool_opts[@]}\n" > ${screen_cmd}
 			chmod +x ${screen_cmd}
 			debug_log "[${script_name}] \"$(cat ${screen_cmd} | tr '\n' ' ')\""
-			(cd ${tool_output_dir}; ${screen_cmd})
+			(cd ${screen_dir}; ${screen_cmd})
 			rc=${?}
 			if [[ ${rc} -ne 0 ]]; then
 				error_log "[${script_name}] screen command failed: \"$(cat ${screen_cmd} | tr '\n' ' ')\""
-			fi
-			if [[ -e "${tool_output_dir}/screenlog.0" ]]; then
- 				mv ${tool_output_dir}/screenlog.0 ${tool_output_dir}/${screen_name}.log
 			fi
 		elif [ "$action" == "kill" ]; then
 			screens_to_kill=`screen -ls | grep "$screen_name" | awk '{print $1}'`
