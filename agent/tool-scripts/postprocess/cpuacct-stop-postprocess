@@ -15,7 +15,7 @@ if (-d $sysdevsyscpu) {
 	foreach my $f (@dirlist) {
 		my $tgt = "$sysdevsyscpu/$f/topology/physical_package_id";
 		if (-f $tgt) {
-			$node_id = `cat $tgt`;
+			my $node_id = `cat $tgt`;
 			chomp $node_id;
 			printf CPUNODEMAP "%s: %s\n", $f, $node_id;
 		}
