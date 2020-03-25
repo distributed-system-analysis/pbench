@@ -31946,6 +31946,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/.iterations
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/result.json
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1
@@ -32009,11 +32010,13 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-average.txt
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/result.json
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1
@@ -32069,11 +32072,13 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-average.txt
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/result.json
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1
@@ -32129,6 +32134,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-average.txt
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
