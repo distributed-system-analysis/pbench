@@ -12,8 +12,8 @@ from configparser import Error as NoSectionError
 from configparser import NoOptionError
 
 from .indexer import PbenchTemplates, _op_type, es_index, get_es
-from pbench.logger import get_pbench_logger
-from pbench.utils import tstos
+from pbench.server.logger import get_pbench_logger
+from pbench.server.utils import tstos
 
 
 class Report(object):

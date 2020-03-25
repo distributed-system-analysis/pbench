@@ -1,7 +1,7 @@
 import sys
 
 from pbench.cli.base import get_config
-from pbench.lib import configtools
+from pbench.common import configtools
 
 
 def main():

@@ -5,9 +5,9 @@ import logging
 import os
 import sys
 
-from pbench import PbenchConfig
-from pbench.exception import BadConfig
-from pbench.logger import get_pbench_logger
+from pbench.server import PbenchConfig
+from pbench.common.exception import BadConfig
+from pbench.server.logger import get_pbench_logger
 
 _NAME_ = "pbench-logger-test"
 cfg_name = os.environ["_PBENCH_SERVER_CONFIG"]

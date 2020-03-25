@@ -7,12 +7,12 @@ import shutil
 import sys
 import tempfile
 
-from pbench import PbenchConfig
-from pbench.exception import BadConfig
-from pbench.logger import get_pbench_logger
-from pbench.report import Report
-from pbench.utils import quarantine, rename_tb_link, md5sum
-from pbench.s3backup import NoSuchKey, S3Config, Status
+from pbench.server import PbenchConfig
+from pbench.common.exception import BadConfig
+from pbench.server.logger import get_pbench_logger
+from pbench.server.report import Report
+from pbench.server.utils import quarantine, rename_tb_link, md5sum
+from pbench.server.s3backup import NoSuchKey, S3Config, Status
 
 _NAME_ = "pbench-backup-tarballs"
 

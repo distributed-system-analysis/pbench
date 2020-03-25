@@ -6,8 +6,9 @@ import sys
 from argparse import ArgumentParser
 from socket import gethostname
 
-from pbench import BadConfig, PbenchConfig
-from pbench.report import Report
+from pbench.common.exception import BadConfig
+from pbench.server import PbenchConfig
+from pbench.server.report import Report
 
 
 def main():

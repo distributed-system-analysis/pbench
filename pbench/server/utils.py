@@ -7,7 +7,7 @@ import sys
 
 from oslo_concurrency import processutils
 
-from pbench import _time
+from pbench.server import _time
 
 
 class simple_utc(tzinfo):

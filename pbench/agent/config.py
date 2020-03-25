@@ -2,7 +2,7 @@ import os
 
 import configparser
 
-from pbench.lib import configtools
+from pbench.common import configtools
 from pbench.agent import util
 
 class PbenchAgentConfig(object):
