@@ -181,4 +181,4 @@ close(KVMTRACE_EXIT_SOURCES);
 
 waitpid($zip_kallsyms_pid, 0);
 waitpid($zip_report_pid, 0);
-waitpid($zip_trace_pid, );
+waitpid($zip_trace_pid, 0);
