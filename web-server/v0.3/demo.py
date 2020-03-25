@@ -24,7 +24,7 @@ import thread
 SocketServer.TCPServer.allow_reuse_address = True
 
 # prevent logging of each request by sending STDERR to null
-FD = open(os.devnull, 'w')
+FD = open(os.devnull, "w")
 sys.stderr = FD
 
 INTERFACE = "127.0.0.1"
@@ -39,6 +39,7 @@ Handler.extensions_map[""] = "text/plain"
 
 httpd = SocketServer.TCPServer((INTERFACE, PORT), Handler)
 
+
 def shutdown(msg, evt):
     print "%s: Stopping web server..." % (msg)
     httpd.shutdown()
@@ -46,14 +47,21 @@ def shutdown(msg, evt):
     evt.set()
     return
 
+
 def handler(signum, frame):
     # since httpd.server_forever below is blocking, must issue the shutdown command in a separate thread
-    t = threading.Thread(target = shutdown, args = ('\nSIGINT received', event))
+    t = threading.Thread(target=shutdown, args=("\nSIGINT received", event))
     t.start()
+
 
 signal.signal(signal.SIGINT, handler)
 
-print "Using your browser, open http://%s:%d/demo.html to view the demo charts or http://%s:%d to browse all files." % (INTERFACE, PORT, INTERFACE, PORT)
+print "Using your browser, open http://%s:%d/demo.html to view the demo charts or http://%s:%d to browse all files." % (
+    INTERFACE,
+    PORT,
+    INTERFACE,
+    PORT,
+)
 print "Press CTRL-C to quit..."
 # this will block....
 httpd.serve_forever()

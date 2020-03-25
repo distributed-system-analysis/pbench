@@ -3,5 +3,6 @@ skip-string-normalization = false
 exclude = '''
 (
 fio-histo-log-pctiles.py
+| agent/stockpile
 )
 '''

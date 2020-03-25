@@ -19,8 +19,10 @@ from configparser import ConfigParser, NoSectionError, NoOptionError
 class simple_utc(tzinfo):
     def tzname(self, *args, **kwargs):
         return "UTC"
+
     def utcoffset(self, dt):
         return timedelta(0)
+
     def dst(self, dt):
         return timedelta(0)
 
@@ -43,6 +45,7 @@ class _Message(object):
 
     Taken from the Python Logging Cookbook, https://docs.python.org/3.6/howto/logging-cookbook.html#use-of-alternative-formatting-styles.
     """
+
     def __init__(self, fmt, args):
         self.fmt = fmt
         self.args = args
@@ -58,6 +61,7 @@ class _StyleAdapter(logging.LoggerAdapter):
 
     Taken from the Python Logging Cookbook, https://docs.python.org/3.6/howto/logging-cookbook.html#use-of-alternative-formatting-styles.
     """
+
     def __init__(self, logger, extra=None):
         super().__init__(logger, extra or {})
 
@@ -100,7 +104,7 @@ class _PbenchLogFormatter(logging.Formatter):
     limitations under the License.
     """
 
-    def __init__(self, fmt=None, datefmt=None, style='{', max_line_length=0):
+    def __init__(self, fmt=None, datefmt=None, style="{", max_line_length=0):
         super().__init__(fmt=fmt, datefmt=datefmt, style=style)
         self.max_line_length = max_line_length
 
@@ -108,33 +112,36 @@ class _PbenchLogFormatter(logging.Formatter):
         # Included from Python's logging.Formatter and then altered slightly to
         # replace \n with #012
         record.message = record.getMessage()
-        if self._fmt.find('{asctime}') >= 0:
+        if self._fmt.find("{asctime}") >= 0:
             try:
                 record.asctime = datetime.utcfromtimestamp(record.asctime).isoformat()
             except AttributeError:
                 record.asctime = datetime.now().isoformat()
-        msg = (self._fmt.format(**record.__dict__)).replace('\n', '#012')
+        msg = (self._fmt.format(**record.__dict__)).replace("\n", "#012")
         if record.exc_info:
             # Cache the traceback text to avoid converting it multiple times
             # (it's constant anyway)
             if not record.exc_text:
-                record.exc_text = self.formatException(
-                    record.exc_info).replace('\n', '#012')
+                record.exc_text = self.formatException(record.exc_info).replace(
+                    "\n", "#012"
+                )
         if record.exc_text:
-            if not msg.endswith('#012'):
-                msg = msg + '#012'
+            if not msg.endswith("#012"):
+                msg = msg + "#012"
             msg = msg + record.exc_text
         if self.max_line_length > 0 and len(msg) > self.max_line_length:
             if self.max_line_length < 7:
-                msg = msg[:self.max_line_length]
+                msg = msg[: self.max_line_length]
             else:
                 approxhalf = (self.max_line_length - 5) // 2
                 msg = msg[:approxhalf] + " ... " + msg[-approxhalf:]
         return msg
 
+
 # Used to track the individual FileHandler's created by callers of
 # get_pbench_logger().
 _handlers = {}
+
 
 def get_pbench_logger(caller, config):
     """Add a specific handler for the caller using the configured LOGSDIR.
@@ -156,9 +163,13 @@ def get_pbench_logger(caller, config):
         if config.logger_type == "file":
             handler = logging.FileHandler(os.path.join(logdir, "{}.log".format(caller)))
         elif config.logger_type == "devlog":
-            handler = handlers.SysLogHandler(address='/dev/log')
-        elif config.logger_type == "hostport":         #hostport logger type uses UDP-based logging
-            handler = handlers.SysLogHandler(address=(config.logger_host, int(config.logger_port)))
+            handler = handlers.SysLogHandler(address="/dev/log")
+        elif (
+            config.logger_type == "hostport"
+        ):  # hostport logger type uses UDP-based logging
+            handler = handlers.SysLogHandler(
+                address=(config.logger_host, int(config.logger_port))
+            )
         else:
             raise Exception("Unsupported logger type")
 
@@ -193,15 +204,20 @@ class PbenchConfig(object):
         # Now fetch some default common pbench settings that are required.
         try:
             self.TOP = self.conf.get("pbench-server", "pbench-top-dir")
-            if not os.path.isdir(self.TOP): raise BadConfig("Bad TOP={}".format(self.TOP))  # noqa:E701
+            if not os.path.isdir(self.TOP):
+                raise BadConfig("Bad TOP={}".format(self.TOP))  # noqa:E701
             self.TMP = self.conf.get("pbench-server", "pbench-tmp-dir")
-            if not os.path.isdir(self.TMP): raise BadConfig("Bad TMP={}".format(self.TMP))  # noqa:E701
+            if not os.path.isdir(self.TMP):
+                raise BadConfig("Bad TMP={}".format(self.TMP))  # noqa:E701
             self.LOGSDIR = self.conf.get("pbench-server", "pbench-logs-dir")
-            if not os.path.isdir(self.LOGSDIR): raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))  # noqa:E701
+            if not os.path.isdir(self.LOGSDIR):
+                raise BadConfig("Bad LOGSDIR={}".format(self.LOGSDIR))  # noqa:E701
             self.BINDIR = self.conf.get("pbench-server", "script-dir")
-            if not os.path.isdir(self.BINDIR): raise BadConfig("Bad BINDIR={}".format(self.BINDIR))  # noqa:E701
+            if not os.path.isdir(self.BINDIR):
+                raise BadConfig("Bad BINDIR={}".format(self.BINDIR))  # noqa:E701
             self.LIBDIR = self.conf.get("pbench-server", "lib-dir")
-            if not os.path.isdir(self.LIBDIR): raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))  # noqa:E701
+            if not os.path.isdir(self.LIBDIR):
+                raise BadConfig("Bad LIBDIR={}".format(self.LIBDIR))  # noqa:E701
             # the scripts may use this to send status messages
             self.mail_recipients = self.conf.get("pbench-server", "mailto")
         except (NoOptionError, NoSectionError) as exc:
@@ -232,19 +248,21 @@ class PbenchConfig(object):
                 try:
                     self.logger_host = self.conf.get("logging", "logger_host")
                     self.logger_port = self.conf.get("logging", "logger_port")
-                except(NoOptionError) as exc:
+                except (NoOptionError) as exc:
                     raise BadConfig(str(exc))
 
         try:
-            self._unittests = self.conf.get('pbench-server', 'debug_unittest')
+            self._unittests = self.conf.get("pbench-server", "debug_unittest")
         except Exception:
             self._unittests = False
         else:
             self._unittests = bool(self._unittests)
 
         if self._unittests:
+
             def mocked_time():
                 return 0
+
             global _time
             _time = mocked_time
 
@@ -257,18 +275,25 @@ class PbenchConfig(object):
         # Make all the state directories for the pipeline and any others
         # needed.  Every related state directories are paired together with
         # their final state at the end.
-        self.LINKDIRS = "TODO BAD-MD5" \
-                " TO-UNPACK UNPACKED WONT-UNPACK" \
-                " TO-SYNC SYNCED" \
-                " TO-LINK" \
-                " TO-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX" \
-                " TO-COPY-SOS COPIED-SOS" \
-                " TO-BACKUP BACKED-UP BACKUP-FAILED" \
-                " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED" \
-                " TO-DELETE SATELLITE-DONE"
+        self.LINKDIRS = (
+            "TODO BAD-MD5"
+            " TO-UNPACK UNPACKED WONT-UNPACK"
+            " TO-SYNC SYNCED"
+            " TO-LINK"
+            " TO-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX"
+            " TO-COPY-SOS COPIED-SOS"
+            " TO-BACKUP BACKED-UP BACKUP-FAILED"
+            " SATELLITE-MD5-PASSED SATELLITE-MD5-FAILED"
+            " TO-DELETE SATELLITE-DONE"
+        )
         # List of the state directories which will be excluded during rsync.
         # Note that range(1,12) generates the sequence [1..11] inclusively.
-        self.EXCLUDE_DIRS = "_QUARANTINED " + self.LINKDIRS + " " + " ".join([ "WONT-INDEX.{:d}".format(i) for i in range(1,12) ])
+        self.EXCLUDE_DIRS = (
+            "_QUARANTINED "
+            + self.LINKDIRS
+            + " "
+            + " ".join(["WONT-INDEX.{:d}".format(i) for i in range(1, 12)])
+        )
 
     def get(self, *args, **kwargs):
         return self.conf.get(*args, **kwargs)
@@ -286,11 +311,12 @@ def md5sum(filename):
     Return the MD5 check-sum of a given file.
     We don't want to read the entire file into memory.
     """
-    with open(filename, mode='rb') as f:
+    with open(filename, mode="rb") as f:
         d = hashlib.md5()
-        for buf in iter(partial(f.read, 128), b''):
+        for buf in iter(partial(f.read, 128), b""):
             d.update(buf)
     return d.hexdigest()
+
 
 def rename_tb_link(tb, dest, logger):
     try:
@@ -300,7 +326,8 @@ def rename_tb_link(tb, dest, logger):
         pass
     except Exception:
         logger.exception(
-            "os.mkdir: Unable to create tar ball destination directory: {}".format(dest))
+            "os.mkdir: Unable to create tar ball destination directory: {}".format(dest)
+        )
         raise
     tbname = os.path.basename(tb)
     tbnewname = os.path.join(dest, tbname)
@@ -308,8 +335,12 @@ def rename_tb_link(tb, dest, logger):
         os.rename(tb, tbnewname)
     except Exception:
         logger.exception(
-            "os.rename: Unable to move tar ball link {} to destination directory: {}".format(tb, dest))
+            "os.rename: Unable to move tar ball link {} to destination directory: {}".format(
+                tb, dest
+            )
+        )
         raise
+
 
 def quarantine(dest, logger, *files):
     """Quarantine problematic tarballs.
@@ -322,7 +353,7 @@ def quarantine(dest, logger, *files):
         # directory already exists, ignore
         pass
     except Exception:
-        logger.exception("quarantine {} {!r}: \"mkdir -p {}/\" failed", dest, files, dest)
+        logger.exception('quarantine {} {!r}: "mkdir -p {}/" failed', dest, files, dest)
         sys.exit(101)
 
     for afile in files:
@@ -331,5 +362,7 @@ def quarantine(dest, logger, *files):
         try:
             shutil.move(afile, os.path.join(dest, os.path.basename(afile)))
         except Exception:
-            logger.exception("quarantine {} {!r}: \"mv {} {}/\" failed", dest, files, afile, dest)
+            logger.exception(
+                'quarantine {} {!r}: "mv {} {}/" failed', dest, files, afile, dest
+            )
             sys.exit(102)

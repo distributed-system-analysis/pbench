@@ -1,7 +1,7 @@
 ---
 # black complains loudly that fio-histo-log-pctile.py is not a python file
 # because it isn't, so ignore it.
-exclude: agent/bench-scripts/test-bin/fio-histo-log-pctiles.py
+exclude: (agent/bench-scripts/test-bin/fio-histo-log-pctiles.py|agent/stockpile/roles)
 repos:
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.9
