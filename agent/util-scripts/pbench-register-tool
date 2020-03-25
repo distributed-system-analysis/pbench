@@ -297,7 +297,7 @@ if [[ -n "${local_hostname}" ]]; then
 		done
 		_msg="${name} tool is now registered in group ${group}"
 		log "${_msg}"
-		printf "${_msg}\n"
+		printf -- "%s\n" "${_msg}"
 		# If we have a label, update the label in the tool directory
 		if [[ "${local_label}" != "" ]]; then
 			this_label_file="${pbench_run}/tools-${group}/label"
@@ -305,7 +305,7 @@ if [[ -n "${local_hostname}" ]]; then
 			echo "${local_label}" > "${this_label_file}"
 		fi
 	else
-		error_log "Failed to install tool ${name} (${pbench_bin}/tool-scripts/${name} --install \"${tool_opts[@]}\")\n"
+		error_log "Failed to install tool ${name} (${pbench_bin}/tool-scripts/${name} --install \"${tool_opts[@]}\")"
 	fi
 fi
 
@@ -335,7 +335,7 @@ for (( i=0; ${i} < ${#remotes[@]}; i++ )); do
 	rc=${?}
 	let exit_rc=${exit_rc}+${rc}
 	if [[ ${rc} -ne 0 ]]; then
-		error_log "Failed to register tool ${name} on remote host ${remote}\n"
+		error_log "Failed to register tool ${name} on remote host ${remote}"
 		continue
 	fi
 	if [[ ! -d "${pbench_run}/tools-${group}" ]]; then
