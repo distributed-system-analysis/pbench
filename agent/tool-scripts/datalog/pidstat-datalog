@@ -45,7 +45,7 @@ options="${5}"
 default_options="-l -H -w -u -h -d -r ${threads_arg} -p ALL ${patterns_arg}"
 
 if [[ -z "${_tool_bin}" ]]; then
-	_tool_bin="/usr/local/bin/mpstat"
+	_tool_bin="/usr/local/bin/pidstat"
 fi
 if [[ ! -x ${_tool_bin} ]]; then
 	printf -- "%s: missing required '${_tool_bin}' command\n" "${PROG}" >&2
