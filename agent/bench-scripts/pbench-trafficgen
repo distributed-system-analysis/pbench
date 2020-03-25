@@ -1137,14 +1137,18 @@ function inner_most_loop() {
 						fi
 						echo "$script_path/postprocess/$benchmark_name-postprocess \"$benchmark_results_dir\" \"$iteration\" \"$max_loss_pct\" \"$trafficgen_version\" \"$tool_label_pattern\" \"$tool_group\"" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
 						chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-						$benchmark_results_dir/$benchmark_name-postprocess.cmd || rc=1
+						$benchmark_results_dir/$benchmark_name-postprocess.cmd 2>&1 | tee $benchmark_results_dir/$benchmark_name-postprocess.out || rc=1
 					fi
 				done
 				if [ $rc -eq 0 ]; then
 					echo "$script_path/postprocess/process-iteration-samples \"$iteration_dir\" Mframes_sec \"$maxstddevpct\" \"$failures\" \"$max_failures\" \"$tar_nonref_data\" \"$keep_failed_tool_data\"" >"$iteration_dir/process-iteration-samples.cmd"
 					chmod +x "$iteration_dir/process-iteration-samples.cmd"
-					$iteration_dir/process-iteration-samples.cmd
+					$iteration_dir/process-iteration-samples.cmd 2>&1 | tee $iteration_dir/process-iteration-samples.out
 					fail=$?
+					if [ $fail -ne 0 -a $fail -ne 1 ]; then
+						error_log "process-iteration-samples generated an unknown error, aborting"
+						exit 1
+					fi
 					if [ $fail -eq 1 ]; then
 						error_log "This test iteration failed"
 						((failures++))
