@@ -1,7 +1,5 @@
 dist: bionic
 jobs:
-  allow_failures:
-      - name: "black-tests"
   include:
     - stage: "Agent Unit Tests"
       name: "agent-unit-tests"
