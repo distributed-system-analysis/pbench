@@ -5,8 +5,6 @@ import os
 import shutil
 import sys
 
-from oslo_concurrency import processutils
-
 from pbench.server import _time
 
 
@@ -88,7 +86,3 @@ def quarantine(dest, logger, *files):
                 'quarantine {} {!r}: "mv {} {}/" failed', dest, files, afile, dest
             )
             sys.exit(102)
-
-def execute(*cmd, **kwargs):
-    """Convience wrapper around oslo's execute() function"""
-    return processutils.execute(*cmd, **kwargs)

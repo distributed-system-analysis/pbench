@@ -26,9 +26,9 @@ export _testopt=${_testroot}/opt/pbench-agent
 res=0
 mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
 let res=res+${?}
-cp ${_tdir}/../base ${_testopt}/
-let res=res+${?}
 cp -rH ${_tdir}/../lib/* ${_testopt}/lib/
+let res=res+${?}
+cp ${_tdir}/../base ${_testopt}/
 let res=res+${?}
 for script in ${_tdir}/pbench-* ; do
     cp $script ${_testopt}/bench-scripts/
@@ -40,8 +40,6 @@ cp ${_tdir}/templates/* ${_testopt}/bench-scripts/templates
 let res=res+${?}
 cp -a $_tdir/../util-scripts/{require-rpm,pbench-*} $_testopt/util-scripts/
 let res=res+$?
-cp -a $_tdir/../../lib/* $_testopt/common/lib/
-let res=res+${?}
 cp -rH ${_tdir}/test-bin/* ${_testopt}/unittest-scripts/
 let res=res+${?}
 # replace real post-processing scripts with mocked ones

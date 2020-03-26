@@ -2,4 +2,3 @@ ansible
 elasticsearch
 sh
 boto3
-oslo_concurrency
