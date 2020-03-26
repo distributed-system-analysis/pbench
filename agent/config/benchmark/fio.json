@@ -111,7 +111,7 @@
       }
     },
   "client" : { 
-    "packages" : [ "pbench-fio-3.12-1" ],
+    "packages" : [ "pbench-fio-3.19-1" ],
     "pre-script" : " ",
     "post-script" : " ",
     "copy-to" : [ "/var/lib/pbench-agent/tmp/fio.job" ],
