@@ -2,7 +2,7 @@ import os
 
 import click
 
-from pbench.cli.agent.cleanup import PbenchCleanup
+from pbench.cli.agent.cleanup import PbenchCleanup, PbenchCleanupTools
 from pbench.cli.agent.setup import PbenchConfigure, PbenchSSHKey
 from pbench.common.utils import sysexit
 
@@ -27,3 +27,8 @@ def setup_config(cfg_file):
 def setup_ssh_key(cfg_file, keyfile):
     command_args = {"keyfile": keyfile}
     PbenchSSHKey(cfg_file, command_args).main()
+
+
+@click.command()
+def clear_results():
+    PbenchCleanupTools().main()
