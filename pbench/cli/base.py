@@ -1,7 +1,5 @@
 import abc
 import os
-import sys
-
 from pbench.agent import config
 from pbench.common.utils import sysexit
 
@@ -27,19 +25,10 @@ class PbenchAgentCli(object, metaclass=abc.ABCMeta):
                 print("Unable to determine configuration file")
                 sysexit()
         else:
-            pbench_config = os.environ.get("_PBENCH_AGENT_CONFIG")
-            if pbench_config:
-                if not os.path.exists(pbench_config):
-                    print("Unable to determine configuration file")
-                    sysexit()
-                else:
-                    self.cfg = pbench_config
-            else:
-                print(
-                    "{}: No config file specified: set _PBENCH_AGENT_CONFIG env "
-                    "variable.".format(sys.argv[0])
-                )
-                sysexit()
+            if os.environ.get("CONFIG") is not None:
+                self.cfg = os.environ.get("CONFIG")
+            if os.environ.get("_PBENCH_AGENT_CONFIG") is not None:
+                self.cfg = os.environ.get("_PBENCH_AGENT_CONFIG")
 
         self.config = config.PbenchAgentConfig(self.cfg)
 

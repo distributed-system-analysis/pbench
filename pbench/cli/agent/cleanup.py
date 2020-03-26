@@ -22,4 +22,4 @@ class PbenchCleanupTools(PbenchAgentCli):
                 if not f.name.startswith("tmp") and not f.name.startswith("tools")
             ]
             for x in f:
-                pathlib.Pat(run_dir).unlink()
+                pathlib.Path(run_dir).unlink()
