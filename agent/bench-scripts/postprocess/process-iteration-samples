@@ -236,7 +236,7 @@ foreach $sample (@json_samples) { # samples 0..N
 							if ( $key ne get_label('timeseries_label') and $key ne get_label('uid_label') ) { # timeseries already handled above
 								if ($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key}) {
 									my $iteration_value = $iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key};
-									if ($sample_value ne $iteration_value) {
+									if ("$sample_value" ne "$iteration_value") {
 										print "Error: values do not match\nkey: $key values: $iteration_value $sample_value\n";
 									}
 								} else {
