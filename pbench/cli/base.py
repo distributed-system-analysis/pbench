@@ -8,6 +8,7 @@ from pbench.common.utils import sysexit
 
 class PbenchAgentCli(object, metaclass=abc.ABCMeta):
     def __init__(self, config=None):
+        self.cfg = config
         self.config = None
 
     @abc.abstractmethod
@@ -19,18 +20,27 @@ class PbenchAgentCli(object, metaclass=abc.ABCMeta):
         self.run()
 
     def get_config(self):
-        pbench_config = os.environ.get("_PBENCH_AGENT_CONFIG")
-        if pbench_config:
-            if not os.path.exists(pbench_config):
+        """Check for and read the configuration file"""
+        if self.cfg:
+            if not os.path.exists(self.cfg):
                 print("Unable to determine configuration file")
                 sysexit()
-            self.config = config.PbenchAgentConfig(pbench_config)
         else:
-            print(
-                "{}: No config file specified: set _PBENCH_AGENT_CONFIG env "
-                "variable.".format(sys.argv[0])
-            )
-            sysexit()
+            pbench_config = os.environ.get("_PBENCH_AGENT_CONFIG")
+            if pbench_config:
+                if not os.path.exists(pbench_config):
+                    print("Unable to determine configuration file")
+                    sysexit()
+                else:
+                    self.cfg = pbench_config
+            else:
+                print(
+                    "{}: No config file specified: set _PBENCH_AGENT_CONFIG env "
+                    "variable.".format(sys.argv[0])
+                )
+                sysexit()
+
+        self.config = config.PbenchAgentConfig(self.cfg)
 
 
 def get_config():

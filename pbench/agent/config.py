@@ -1,5 +1,7 @@
 import configparser
 
+from pbench.common.exception import BadConfig
+
 
 class PbenchAgentConfig(object):
     def __init__(self, cfg_name):
@@ -11,3 +13,9 @@ class PbenchAgentConfig(object):
         if not run_dir:
             run_dir = "/var/lib/pbench-agent"
         return run_dir
+
+    def get_pbench_install_dir(self):
+        install_dir = self.conf.get("pbench-agent", "install-dir")
+        if not install_dir:
+            raise BadConfig
+        return install_dir
