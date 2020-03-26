@@ -3,7 +3,7 @@ import os
 import click
 
 from pbench.cli.agent.cleanup import PbenchCleanup
-from pbench.cli.agent.setup import PbenchConfigure
+from pbench.cli.agent.setup import PbenchConfigure, PbenchSSHKey
 from pbench.common.utils import sysexit
 
 
@@ -19,3 +19,11 @@ def setup_config(cfg_file):
         print("{} does not exist".format(cfg_file))
         sysexit()
     PbenchConfigure(cfg_file).main()
+
+
+@click.command()
+@click.argument("cfg_file", nargs=1)
+@click.argument("keyfile", nargs=1)
+def setup_ssh_key(cfg_file, keyfile):
+    command_args = {"keyfile": keyfile}
+    PbenchSSHKey(cfg_file, command_args).main()

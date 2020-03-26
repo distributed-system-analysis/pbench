@@ -19,3 +19,15 @@ class PbenchAgentConfig(object):
         if not install_dir:
             raise BadConfig
         return install_dir
+
+    def get_pbench_user(self):
+        pbench_user = self.conf.get("pbench-agent", "pbench_user")
+        if not pbench_user:
+            return "pbench"
+        return pbench_user
+
+    def get_pbench_group(self):
+        pbench_group = self.conf.get("pbench-agent", "pbench_group")
+        if not pbench_group:
+            return "pbench"
+        return pbench_group

@@ -7,8 +7,9 @@ from pbench.common.utils import sysexit
 
 
 class PbenchAgentCli(object, metaclass=abc.ABCMeta):
-    def __init__(self, config=None):
+    def __init__(self, config=None, command_args=None):
         self.cfg = config
+        self.command_args = command_args
         self.config = None
 
     @abc.abstractmethod
