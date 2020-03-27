@@ -735,7 +735,9 @@ declare -A cmds=(
     [test-26.3]="_run test_logger_type.py"
 
     # Test to Log messages on hostport with logger-host and logger_port
-    [test-26.4]="_run test_logger_type.py"  
+    [test-26.4]="_run test_logger_type.py"
+
+    [test-27]="_run test_logger_level.py" 
 
 )
 all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\+\)-\([0-9]\+\)/\1.\2/')
