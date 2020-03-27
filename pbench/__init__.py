@@ -155,7 +155,12 @@ def get_pbench_logger(caller, config):
 
     pbench_logger = logging.getLogger(caller)
     if caller not in _handlers:
-        pbench_logger.setLevel(logging.DEBUG)
+        try:
+            logging_level = config.get(caller, "logging_level")
+        except (NoSectionError, NoOptionError):
+            logging_level = config.default_logging_level
+        pbench_logger.setLevel(logging_level)
+
         logdir = os.path.join(config.LOGSDIR, caller)
         try:
             os.mkdir(logdir)
@@ -253,6 +258,11 @@ class PbenchConfig(object):
                     self.logger_port = self.conf.get("logging", "logger_port")
                 except (NoOptionError) as exc:
                     raise BadConfig(str(exc))
+
+        try:
+            self.default_logging_level = self.conf.get("logging", "logging_level")
+        except (NoOptionError, NoSectionError):
+            self.default_logging_level = "INFO"
 
         try:
             self._unittests = self.conf.get("pbench-server", "debug_unittest")
