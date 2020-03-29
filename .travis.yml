@@ -1,52 +1,20 @@
+language: python
 dist: bionic
-jobs:
-  include:
-    - stage: "Agent Unit Tests"
-      name: "agent-unit-tests"
-      language: python
-      python:
-        - "3.6"
-      before_install:
-        - sudo apt-get update
-      install:
-        # Perl JSON and JSON-XS required
-        - sudo apt-get install libjson-perl libjson-xs-perl
-        - pip install ansible
-      script: ./agent/run-unittests
-
-    - stage: "Server Unit Tests"
-      name: "server-unit-tests"
-      language: python
-      python:
-        - "3.6"
-      env:
-        - PBENCH_UNITTEST_SERVER_MODE=serial
-      before_install:
-        - sudo apt-get update
-      install:
-        - pip install elasticsearch sh boto3
-      script: ./server/bin/unittests
-
-    - stage: "Python flake8 tests"
-      name: "flake8-tests"
-      language: python
-      python:
-        - "3.6"
-      before_install:
-        - sudo apt-get update
-      install:
-        - pip install flake8
-      script: flake8
-
-    - stage: "Python black tests"
-      name: "black-tests"
-      language: python
-      python:
-        - "3.6"
-      before_install:
-        - sudo apt-get update
-      install:
-        - pip install black
-      script: black --check .
-
-
+python:
+ - "3.6"
+env:
+ matrix:
+  - TOXENV=lint
+  - TOXENV=agent
+  - TOXENV=server
+before_install:
+ - sudo apt-get update
+install:
+ # Perl JSON and JSON-XS required
+ - sudo apt-get install libjson-perl libjson-xs-perl
+ - travis_retry pip install tox
+script:
+ - tox
+cache:
+ directories:
+  - $HOME/.cache/pip

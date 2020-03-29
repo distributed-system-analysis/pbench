@@ -1,3 +1,28 @@
+# Setup 
+
+To create a development environment, one just clones what they need
+
+## Getting the code
+
+Grab the code from git
+
+$ git clone https://github.com/distributed-system-analysis/pbench
+$ cd pbench
+
+## Run unit tests
+
+The first step is to install the necessary dependencies that are required to
+run on the system:
+
+sudo yum install -y perl-JSON
+sudo yum install -y python3-pip
+sudo pip3 install tox
+
+Once tox is installed you can run the unittests:
+
+tox -e agent (for pbench agent)
+tox -e server (for pbench server)
+
 # Python formatting
 
 This project uses the flake8 method of code style enforcement, linting and checking,
