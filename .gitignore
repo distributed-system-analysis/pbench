@@ -8,3 +8,5 @@ dist
 ????-*.patch
 .npmrc
 .yarnrc
+*.egg-info
+.tox
