@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 
-import sys
+import logging
 import os
+
+# Establish signal handler for TERM, QUIT, and INT to stop process creation,
+# and then tear them all down.
+import signal
+import subprocess
+import sys
+import time
+from datetime import datetime
 
 PROG = os.path.basename(sys.argv[0])
 
@@ -18,15 +26,9 @@ if not components:
     print(f"{PROG}: missing required components argument(s)", file=sys.stderr)
     sys.exit(1)
 
-from datetime import datetime
-
 
 def now():
     return datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f")
-
-
-import subprocess
-import logging
 
 
 def gather_nodes_ev(when):
@@ -100,15 +102,10 @@ def handler(signum, frame):
     terminate = True
 
 
-# Establish signal handler for TERM, QUIT, and INT to stop process creation,
-# and then tear them all down.
-import signal
-
 signal.signal(signal.SIGTERM, handler)
 signal.signal(signal.SIGQUIT, handler)
 signal.signal(signal.SIGINT, handler)
 
-import time
 
 if os.environ.get("_PBENCH_UNIT_TESTS"):
     _OC_DELAY = 0
@@ -120,7 +117,7 @@ if os.environ.get("_PBENCH_UNIT_TESTS"):
 
     signal.pause = mock_pause
 
-    def now():
+    def now():  # noqa:F811
         return datetime.utcfromtimestamp(0).strftime("%Y-%m-%dT%H:%M:%S.%f")
 
 

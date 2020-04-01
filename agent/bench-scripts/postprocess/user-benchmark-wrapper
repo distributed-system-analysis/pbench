@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
-import sys, json, os.path, logging, shutil
+import json
+import logging
+import os.path
+import shutil
+import sys
 
 benchmark_run_dir = sys.argv[1]
 benchmark_duration = int(sys.argv[2])

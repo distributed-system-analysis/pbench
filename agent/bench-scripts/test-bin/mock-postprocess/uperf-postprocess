@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-import os, sys
+import os
+import sys
 
 outfn = os.environ.get("_testlog")
 if not outfn:
