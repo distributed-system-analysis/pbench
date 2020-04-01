@@ -27,4 +27,4 @@ if [[ "${virtenv}" != "none" ]]; then
 	exit 1
 fi
 
-exec turbostat -i ${interval} | pbench-log-timestamp
+turbostat -i ${interval} | pbench-log-timestamp

@@ -808,7 +808,7 @@ stop)
 				fi
 				rc=${?}
 				;;
-			blktrace|bpftrace|iostat|mpstat|pcp|sar|systemtap|tcpdump|turbostat|vmstat)
+			blktrace|bpftrace|iostat|mpstat|pcp|sar|systemtap|tcpdump|vmstat)
 				safe_kill "${tool_name}" "${pid}"
 				rc=${?}
 				;;
