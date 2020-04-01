@@ -47,10 +47,6 @@ a{
   text-decoration: underline;
 }
 
-a:hover{
-  color: #0E6267;
-}
-
 .App{
   margin: 0;
   padding: 0;
@@ -86,6 +82,12 @@ a:hover{
   display: table-cell;
 }
 
+.title{
+  padding-left: var(--pf-global--spacer--xl);
+  margin: var(--pf-global--spacer--2xl);
+  padding-right: var(--pf-global--spacer--xl);
+}
+
 .hero_header{
   font-family: Work Sans;
   font-size: calc(30px + 1vw);
@@ -103,7 +105,14 @@ a:hover{
 
 
 .card,.next_card,.info_card,.accor_card,.gallery_card{
-  border: 1px solid #d2d2d2
+  box-shadow: var(--pf-global--BoxShadow--md);
+}
+
+.callout_card{
+  padding: var( --pf-global--spacer--xl );
+  text-align: center;
+  box-shadow: var(--pf-global--BoxShadow--md-bottom);
+  margin: var( --pf-global--spacer--xl ) 0 var( --pf-global--spacer--xl ) 0;
 }
 
 .card{
@@ -112,11 +121,7 @@ a:hover{
 }
 
 .demoCard{
-  border: 1px solid #d2d2d2;
-}
-
-.demoCard:hover{
-  box-shadow: var(--pf-global--BoxShadow--lg);
+  margin-bottom: var( --pf-global--spacer--lg) ;
 }
 
 .gallery_card{
@@ -200,6 +205,11 @@ a:hover{
   text-decoration: none;
 }
 
+.viewDemoLink{
+  margin-left: var(--pf-global--spacer--2xl);
+  margin-bottom: var(--pf-global--spacer--md);
+}
+
 .videoLabel{
   font-family: Work Sans;
   font-size: var(--pf-global--FontSize--sm);
@@ -238,8 +248,11 @@ p.quickLink{
   text-decoration: none;
 }
 
-.linkSymbol:hover{
-  color: #0E6267;
+.quickLinkDiv{
+  margin-top: 16px;
+  margin-bottom: 10px;
+  position: absolute;
+  bottom: 0;
 }
 
 .cardImage{
@@ -288,6 +301,18 @@ p.quickLink{
   text-align:  left;
   padding-left: 32px;
 
+}
+
+.div1{
+  background-image: url(../images/CollectionAgent.png);
+}
+
+.div2{
+  background-image: url(../images/BackgroundTasks.png);
+}
+
+.div3{
+  background-image: url(../images/WebServer.png);
 }
 
 .info_text{
@@ -402,6 +427,53 @@ button.tablinks:hover {
   display: flex;
 }
 
+.contact_card_logo{
+  width: 70px;
+  height: auto;
+}
+
+.contact_cards{
+  padding: var(--pf-global--spacer--3xl);
+  margin-bottom: 100px;
+}
+
+.contactCard{
+  margin: 4%;
+  min-height: 150px;
+}
+.contact_card_item1{
+  width: 30%;
+  height: 100%;
+  float: left;
+  margin-top: 0.7%;
+  padding-left: 6%;
+}
+.contact_card_item2{
+  width: 70%;
+  height: auto;
+  margin-left: 30%;
+}
+
+.contact_card_header{
+  font-size: 20px;
+  text-align: left;
+  margin-left: 30%;
+}
+
+.contactLink, .contactLink ul li{
+  text-align: justify;
+  font-size: var(--pf-global--FontSize--sm);
+  color: var(--pf-global--primary-color--100);
+  margin-top: 4%;
+  text-decoration: none;
+}
+
+.contactLink a{
+  font-size: var(--pf-global--FontSize--md);
+  font-family: Work Sans;
+  text-decoration: none;
+}
+
 .pf-c-page__header{
   background-color: var(--pf-global--BackgroundColor--dark-100);
 }
@@ -418,6 +490,40 @@ button.tablinks:hover {
 
 .pf-c-button.pf-m-link:hover {
   color: #0E6267;
+}
+
+#navlogo{
+  height: 44px;
+  margin-left: 60px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.contrib{
+  font-family: Work Sans;
+  margin: 0 5% 20px 8%;
+  text-align: justify;
+}
+
+.quoteBox{
+  margin: 0 8% 20px 3%;
+  background-color:#F5F5F5;
+  padding: 48px;
+}
+
+.quote-left{
+  font-size: 24px;
+  color: #1BC1C9;
+}
+
+p.quote{
+  font-size: 24px;
+  font-weight: 300;
+}
+
+p.credit{
+  font-size: 16px;
+  float: right;
 }
 
 .footer{
@@ -438,6 +544,10 @@ button.tablinks:hover {
 .lightFoot{
   font-size: var(--pf-global--FontSize—sm);
   color: var(--pf-global--Color--200);
+}
+
+path{
+  fill: red
 }
 
 .menu-wrapper {
@@ -494,13 +604,6 @@ ul.pf-c-nav__horizontal-list.menu {
 
 .demoVideo{
   height: 200px;
-  border-bottom: 3px solid var(--pf-global--primary-color--100);
-}
-
-.demoVideoExpanded{
-  height: 50vh;
-  width: -webkit-fill-available;
-  padding: 0px 16px 0px 16px;
   border-bottom: 3px solid var(--pf-global--primary-color--100);
 }
 

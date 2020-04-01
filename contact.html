@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <title></title>
+      <meta name="author" content="">
+      <meta name="description" content="">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link href="./css/style.css" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400&display=swap" rel="stylesheet">
+   </head>
+   <style>
+        body, .pf-c-button, .pf-m-primary{
+		    font-family: 'Work Sans';font-size: 22px;
+	    }
+   </style>
+   <body>
+      	<div class="pf-c-page">
+            <header role="banner" class="pf-c-page__header header">
+                <div class="pf-c-page__header-brand" style="position: absolute;">
+                   <a class="pf-c-page__header-brand-link" href="index.html">
+                   <img class="pf-c-brand" src="./images/pbench_logo.png" alt="PatternFly logo" id="navlogo"/>
+                   </a>
+                </div>
+                <div class="pf-c-page__header nav-wrapper">
+                   <div class="pf-c-page__header-nav" style="background-color: var(--pf-global--BackgroundColor--dark-100);">
+                      <nav class="pf-c-nav pf-m-start pf-m-end menu-wrapper" aria-label="Global">
+                         <button class="pf-c-nav__scroll-button left-paddle paddle hidden" aria-label="Scroll left">
+                         <i class="fas fa-angle-left" aria-hidden="true"></i>
+                         </button>
+                         <ul class="pf-c-nav__horizontal-list menu">
+                            <li class="pf-c-nav__item item">
+                               <a href="start.html" class="pf-c-nav__link">Get Started</a>
+                            </li>
+                            <li class="pf-c-nav__item item">
+                               <a href="doc.html" class="pf-c-nav__link">Documentation</a>
+                            </li>
+                            <li class="pf-c-nav__item item">
+                               <a href="learn.html" class="pf-c-nav__link">Learn More</a>
+                               </li class="pf-c-nav__item item">
+                               <a href="contact.html" class="pf-c-nav__link pf-m-current">Contact</a>
+                            </li>
+                         </ul>
+                         <button class="pf-c-nav__scroll-button right-paddle paddle hidden" aria-label="Scroll right">
+                         <i class="fas fa-angle-right" aria-hidden="true"></i>
+                         </button>
+                      </nav>
+                      <!-- // Will be added later  -->
+                      <!-- <div class="pf-c-input-group searchDiv">
+                         <input class="pf-c-form-control searchInput" type="search" placeholder="search site" oninput="toggleSearchIcon()">
+                         <button type="button" aria-label="search button for search input" class="searchBtn">
+                           <i class="fas fa-search" aria-hidden="true"></i>
+                         </button>
+                         </div> -->
+                   </div>
+                </div>
+             </header>
+			<main role="main" class="pf-c-page__main" tabindex="-1" style="background-color: white;">
+			<div class="content">
+				<div class="section">
+                    <div class="pf-c-card info_card">
+                        <div class="pf-c-card__body">
+                            <p className="info_text" style="text-align:justify">
+                                Want to get in touch with the PBench crew?
+                            </p>
+                            <p className="info_text" style="text-align:justify">
+                                <b>We want to hear from you!</b>
+                            </p>
+                        </div>
+                    </div>
+                  </div>
+                  <div class="section">
+                    <div class="contact_cards">
+                        <div class="card_body">
+                            <div class="pf-l-grid pf-m-all-6-col-on-sm pf-m-all-4-col-on-md pf-m-all-2-col-on-lg pf-m-all-1-col-on-xl">
+                                <div class="pf-l-grid__item pf-m-12-col-on-sm pf-m-6-col-on-lg pf-m-4-col-on-xl">
+                                    <div class="pf-c-card gallery_card" style="border-top: 3px solid var(--pf-global--primary-color--100)">
+                                        <div class="pf-c-card__body">
+                                            <div class="contactCard">
+                                                <p class="cardText contact_card_header">GitHub</p>
+                                                <div>
+                                                    <div class="contact_card_item1">
+                                                        <div class="contact_card_logo">
+                                                            <img src="./images/github-brands.svg">
+                                                        </div>
+                                                    </div>
+                                                    <div class="contact_card_item2">
+                                                        <p class="sub_info_text" style="margin-top:2%">
+                                                        Open and follow issues, track current work, and see what's on the road map
+                                                        for Pbench.
+                                                        </p>
+                                                        <p class="contactLink" >
+                                                            <a href="#">Go to Github &nbsp;<i class="fas fa-arrow-right" style="color: var(--pf-global--link--Color);"></i></a></p>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pf-l-grid__item pf-m-12-col-on-sm pf-m-6-col-on-lg pf-m-4-col-on-xl">
+                                    <div class="pf-c-card gallery_card" style="border-top: 3px solid var(--pf-global--primary-color--100)">
+                                        <div class="pf-c-card__body">
+                                            <div class="contactCard">
+                                                <p class="cardText contact_card_header">Google Groups</p>
+                                                <div>
+                                                    <div class="contact_card_item1">
+                                                        <div class="contact_card_logo">
+                                                            <img src="./images/google-brands.svg">
+                                                        </div>
+                                                    </div>
+                                                    <div class="contact_card_item2">
+                                                        <p class="sub_info_text" style="margin-top:2%">
+                                                            Join our group to participate in exciting conversations, raise new topics to learn,
+                                                            and get to know the contributor base
+                                                        </p>
+                                                        <p class="contactLink" >
+                                                            <a href="#">Join our Google Groups&nbsp;<i class="fas fa-arrow-right" style="color: var(--pf-global--link--Color);"></i></a></p>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pf-l-grid__item pf-m-12-col-on-sm pf-m-6-col-on-lg pf-m-4-col-on-xl">
+                                    <div class="pf-c-card gallery_card" style="border-top: 3px solid var(--pf-global--primary-color--100)">
+                                        <div class="pf-c-card__body">
+                                            <div class="contactCard">
+                                                <p class="cardText contact_card_header">Mailing List</p>
+                                                <div>
+                                                    <div class="contact_card_item1">
+                                                        <div class="contact_card_logo">
+                                                            <img src="./images/envelope-solid.svg">
+                                                        </div>
+                                                    </div>
+                                                    <div class="contact_card_item2">
+                                                        <p class="sub_info_text" style="margin-top:2%">
+                                                            Subscribe to the pbench mailing list to hear about news, upcoming changes and more.
+                                                        </p>
+                                                        <p class="contactLink" >
+                                                            <a href="#">Subscribe to the mailing list&nbsp;<i class="fas fa-arrow-right" style="color: var(--pf-global--link--Color);"></i></a></p>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                              </div>
+                        </div>
+                    </div>
+                  </div>
+			<div class="section">
+				<span class="footer">
+					<p class="darkFoot">2020 Pbench | Privacy Statement</p>
+					<p class="lightFoot">Code licensed under a thing, site under a thing</p>
+				</span>
+			</div> 	
+		</div>   			
+		</main>
+	</div>
+</body>
+<script src="./js/jquery.min.js"></script>
+<script src="./js/accordion.js"></script>
+<script src="./js/tab.js"></script>
+<script>
+    function toggleSearchIcon(){
+        $(".searchBtn").hide();
+        if($(".searchInput").val()===''){
+            $(".searchBtn").show();
+        }
+    }
+</script>
+</html>
