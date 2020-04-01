@@ -1,0 +1,413 @@
+	<!DOCTYPE html>
+	<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="author" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="./css/style.css" rel="stylesheet">
+		<link href="./css/fontawesome.min.css">
+		<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400&display=swap" rel="stylesheet">
+	</head>
+
+	<body>
+		<div class="pf-c-page">
+			<header role="banner" class="pf-c-page__header header">
+                <div class="pf-c-page__header-brand" style="position: absolute;">
+                   <a class="pf-c-page__header-brand-link" href="index.html">
+                   <img class="pf-c-brand" src="./images/pbench_logo.png" alt="PatternFly logo" id="navlogo"/>
+                   </a>
+                </div>
+                <div class="pf-c-page__header nav-wrapper">
+                   <div class="pf-c-page__header-nav" style="background-color: var(--pf-global--BackgroundColor--dark-100);">
+                      <nav class="pf-c-nav pf-m-start pf-m-end menu-wrapper" aria-label="Global">
+                         <button class="pf-c-nav__scroll-button left-paddle paddle hidden" aria-label="Scroll left">
+                         <i class="fas fa-angle-left" aria-hidden="true"></i>
+                         </button>
+                         <ul class="pf-c-nav__horizontal-list menu">
+                            <li class="pf-c-nav__item item">
+                               <a href="start.html" class="pf-c-nav__link">Get Started</a>
+                            </li>
+                            <li class="pf-c-nav__item item">
+                               <a href="doc.html" class="pf-c-nav__link">Documentation</a>
+                            </li>
+                            <li class="pf-c-nav__item item">
+                               <a href="learn.html" class="pf-c-nav__link pf-m-current">Learn More</a>
+                               </li class="pf-c-nav__item item">
+                               <a href="contact.html" class="pf-c-nav__link">Contact</a>
+                            </li>
+                         </ul>
+                         <button class="pf-c-nav__scroll-button right-paddle paddle hidden" aria-label="Scroll right">
+                         <i class="fas fa-angle-right" aria-hidden="true"></i>
+                         </button>
+                      </nav>
+                      <!-- // Will be added later  -->
+                      <!-- <div class="pf-c-input-group searchDiv">
+                         <input class="pf-c-form-control searchInput" type="search" placeholder="search site" oninput="toggleSearchIcon()">
+                         <button type="button" aria-label="search button for search input" class="searchBtn">
+                           <i class="fas fa-search" aria-hidden="true"></i>
+                         </button>
+                         </div> -->
+                   </div>
+                </div>
+             </header>
+	<main role="main" class="pf-c-page__main" tabindex="-1" style="background-color: white;">
+	<div class="content">
+	<div class="tab">
+		<div class="pf-c-tabs" id="primary" style="align-items: center;margin-left: 10%;">
+		<ul class="pf-c-tabs__list pf-l-flex" style="width: 100%;">
+		<li class="tab-item pf-c-tabs__item pf-l-flex__item">
+			<button class="tablinks active" onClick="openTab(event,'demos')">Demo</button>
+		</li>
+		<li class="tab-item pf-c-tabs__item pf-l-flex__item">
+			<button class="tablinks" onClick="openTab(event, 'faq')">FAQ</button>
+		</li>
+		</ul>
+		</div>
+	</div>
+	<div>
+		<div id="demos" class="tabcontent" style="display:block">
+		<div class="section">
+			<div class="pf-c-card info_card">
+				<div class="pf-c-card__body" style="padding-left: 1.5%;">
+					<p className="info_text" style="text-align:justify">
+						For full usage documentation, check out full <a href="https://distributed-system-analysis.github.io/pbench/doc/agent/user-guide.html">Pbench User Guide</a>
+					</p>
+					<p className="info_text" style="text-align:justify">
+						Stay up to date with updates made in the Pbench space with <a href="https://distributed-system-analysis.github.io/pbench/doc/release-notes/RELEASE-NOTES.html">release notes</a>
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="section" style="margin-left:9%;margin-right:9%;">
+			<div class="pf-l-gallery">
+						<div class="pf-l-gallery__item" >
+							<div class="pf-c-card gallery_card">
+								<div style="overflow:hidden;position: relative;">
+									<iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="demoVideo" type="text/html" src="https://www.youtube.com/embed/yS8k3iiSEv0?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0">
+									</iframe>
+									<div style="position: absolute;bottom: 10px;left: 0;right: 0;margin-left: auto;margin-right: auto;color: #000;text-align: center;"><small style="line-height: 1.8;font-size: 0px;background: #fff;"> <a href="https://logun.com.se/">logun</a> </small>
+									</div>
+									<style>.newst{position:relative;text-align:right;height:420px;width:520px;} #gmap_canvas img{max-width:none!important;background:none!important}
+									</style>
+								</div>
+								<p class="videoHeader">Distributed system analysis made easy with PBench</p>
+								<p class="videoLabel">03rd June 2020</p>
+							</div>
+						</div>
+						<div class="pf-l-gallery__item">
+							<div class="pf-c-card gallery_card">
+									<div style="overflow:hidden;position: relative;">
+										<iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="demoVideo" type="text/html" src="https://www.youtube.com/embed/-p32Nak9Gbg?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0">
+										</iframe>
+										<div style="position: absolute;bottom: 10px;left: 0;right: 0;margin-left: auto;margin-right: auto;color: #000;text-align: center;">
+											<small style="line-height: 1.8;font-size: 0px;background: #fff;"> <a href="https://logun.com.se/">logun</a> 
+											</small>
+										</div><style>.newst{position:relative;text-align:right;height:420px;width:520px;} #gmap_canvas img{max-width:none!important;background:none!important}</style>
+									</div>
+									<p class="videoHeader">Using Pbench to debug Performance Problems</p>
+									<p class="videoLabel">30th Mar 2020</p>
+							</div>
+						</div>
+						<div class="pf-l-gallery__item">
+							<div class="pf-c-card gallery_card">
+								<div style="overflow:hidden;position: relative;">
+									<iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0" class="demoVideo" type="text/html" src="https://www.youtube.com/embed/QvZ2W-4pXmA?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0">
+									</iframe>
+									<div style="position: absolute;bottom: 10px;left: 0;right: 0;margin-left: auto;margin-right: auto;color: #000;text-align: center;"><small style="line-height: 1.8;font-size: 0px;background: #fff;"> <a href="https://logun.com.se/">logun</a> </small>
+									</div>
+									<style>.newst{position:relative;text-align:right;height:420px;width:520px;} #gmap_canvas img{max-width:none!important;background:none!important}
+									</style>
+								</div>
+								<p class="videoHeader">Distributed System Analysis using Pbench Tool</p>
+								<p class="videoLabel">28th Sep 2018</p>
+							</div>
+						</div>
+			</div>
+			<div class="pf-l-gallery">				
+						<div class="pf-l-gallery__item">
+							<div class="pf-c-card gallery_card">
+							<div style="overflow:hidden;position: relative;">
+								<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTAb6eV5cVwizptqB65EyyYWHCHAXNdPJSdjEFX93byoSwpj3VEl23VlS9XBj17mBlQkDDh16baSt2C/embed?start=true&loop=true&delayms=3000" frameborder="0" style="height: 250px;" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true">
+								</iframe>
+							</div>
+							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="faq" class="tabcontent">
+		<div class="section">
+			<div class="pf-c-accordion accor_card">
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">What does --name do?</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">
+								This option is recognized by pbench-register-tool and pbench-unregister-tool: it specifies the name of the tool that is to be (un)registered. pbench-list-tools with the --name option list all the groups that contain the named tool.
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">What does --config do?</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">
+								This option is recognized by the benchmark scripts (see Available benchmark scripts above) which use it as a tag for the directory where the benchmark is going to run. The default value is empty. The run directory for the benchmark is constructed this way:
+							</p>
+							<p class="c_snip">$pbench_run/${benchmark}_${config}_$date</p>
+							<p class="info_text" style="text-align: justify">where $pbench_run and $date are set by the /opt/pbench-agent/base script and $benchmark is set to the obvious value by the benchmark script; e.g. a fio run with config=foo would run in the directory /var/lib/pbench-agent/fio_foo_2014-11-10_15:47:04.</p>
+						</div>
+					</div>
+				</div>
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">What does --dir do?</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">
+								This option is recognized by <span class="c_snip_inline">pbench-start-tools, pbench-stop-tools, 
+									pbench-tool-trigger and pbench-postprocess-tools</span>. It specifies the directory 
+								where the tools are going to stash their data. The default value is <b>/tmp</b>. Each
+								group then uses it as a prefix for its own stash, which has the form <span class="c_snip_inline">$dir/tools-$group</span>
+								. Part of the stash is the set of cmds to start and stop 
+								the tools - they are stored in $dir/tools-$group/cmds. The output of the tool
+								is in <span class="c_snip_inline">$dir/tools-$group/$tool.txt</span>.
+							</p>
+							<p class="info_text" style="text-align: justify">This option <b>has </b>to be specified identically for 
+								each command when invoking these commands (actually, each of the commands should be invoked 
+								with the identical set of <b>all</b> options, not just --dir.)</p>
+							<p class="info_text" style="text-align: justify">If you use these tools explicitly (i.e. you don't
+								use one of the benchmark scripts), it is <b>highly</b> recommended that you specify this option explicitly 
+								and not rely on the /tmp default. For one, you should make sure that different iterations of your 
+								benchmark use a <b>different</b> value for this option, otherwise later results will overwrite earlier ones.</p>
+							<p class="info_text" style="text-align: justify"><b>N.B.</b> If you want to run pbench-move-results or pbench-copy-results
+								after the end of the run, your results should be under /var/lib/pbench-agent: pbench-move/copy-results does not know anything about your choice for this option; it only looks in /var/lib/pbench-agent for results to upload. So if you are planning to use pbench-move/copy-results, make sure that the specified directory is a subdirectory of /var/lib/pbench-agent.</p>                                  
+						</div>
+					</div>
+				</div>
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">What does --remote do?</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">pbench can register tools on remote hosts, start them and stop them remotely and gather up the results from the remote hosts for post-processing. The model is that one has a controller or orchestrator and a bunch of remote hosts that participate in the benchmark run.</p>
+							<p class="info_text" style="text-align: justify">The pbench setup is as follows: pbench-register-tool-set or pbench-register-tool is called on the controller with the --remote option, once for each remote host:</p>
+							<p class="c_snip">for remote in $remotes ;do<br>
+								&nbsp;&nbsp; pbench-register-tool-set --remote=$remote --label=foo --group=$group<br>
+							done</p>
+							<p class="info_text" style="text-align: justify">That has two effects: it adds a stanza for the tool to the appropriate tools-$group directory on the remote host and it also adds a stanza like this to the controller tools-$group directory's file for the remote host:</p>
+							<p class="c_snip">remote@&#60;host&#62;:&#60;label&#62;</p>
+							<p class="info_text" style="text-align: justify">The label is optionally specified with <b>--label</b> and is empty by default.</p>
+							<p class="info_text" style="text-align: justify">When pbench-start-tools</b> is called on the controller, it starts the local collection (if any), but it also interprets the above stanzas and starts the appropriate tools on the remote hosts. Similarly for pbench-stop-tools and <span class="c_snip_inline">pbench-postprocess-tools</span>.</p>
+						</div>
+					</div>
+				</div>
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">What does --label do?</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">TBD</p>
+						</div>
+					</div>
+				</div>
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">How to add a collection tool</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">Tool scripts are mostly boilerplate: they need to take a standard set of commands (–install, –start, –stop, –postprocess) and a standard set of options (–iteration, –group, –dir, –interval, –options). Consequently, the easiest thing to do is to take an existing script and modify it slightly to call the tool of your choice. I describe here the case of turbostat.</p>
+							<p class="info_text" style="text-align: justify">There are some tools that timestamp each output stanza; there are others that do not. In the former case, make sure to use whatever option the tool requires to include such timestamps (e.g. vmstat -t on RHEL6 or RHEL7 - but strangely <b>not</b> on Fedora 20 - will produce such timestamps).</p>
+							<p class="info_text" style="text-align: justify">There are some tools that are included in the default installation - others need to be installed separately. Turbostat is not always installed by default, so the tool script installs the package (which is named differently on RHEL6 and RHEL7) if necessary. In some cases (e.g. the sysstat tools), we provide an RPM in the pbench repo and the tool script makes sure to install that if necessary.</p>
+							<p class="info_text" style="text-align: justify">The only other knowledge required is where the tool executable resides (usually /usr/bin/<tool> or /usr/local/bin/<tool> - /usr/bin/turbostat in this case) and the default options to pass to the tool (which can be modified by passing –options to the tool script).</p>
+							<p class="info_text" style="text-align: justify">So here are the non-boilerplate portions of the <a href="https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/kvm-spinlock">turbostat</a> tool script. The first interesting part is to set tool_bin to point to the binary:</p>
+							<p class="c_snip"># Defaults<br>
+								tool=$script_name<br>
+								tool_bin=/usr/bin/$tool</p>
+							<p class="info_text" style="text-align: justify">This only works if the script is named the same as the tool, which is encouraged. If the installed location of your tool is not <b>/usr/bin</b>, then adjust accordingly.</p>
+							<p class="info_text" style="text-align: justify">Since turbostat does not provide a timestamp option, we define a datalog script to add timestamps (no need for that for vmstat e.g.) and use that as the tool command:</p>
+							<p class="c_snip">case "$script_name" in turbostat)<br>
+								&nbsp;&nbsp; tool_cmd="$script_path/datalog/$tool-datalog $interval $tool_output_file"<br>
+								&nbsp;&nbsp; ;;<br>
+							esac</p>
+							<p class="info_text" style="text-align: justify">The <a href="https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/datalog/turbostat-datalog">datalog</a> script uses the <span class="c_snip_inline">pbench-log-timestamp</span> pbench utility to timestamp the output. It will then be up to the postprocessing script to tease out the data appropriately.</p>
+							<p class="info_text" style="text-align: justify">The last interesting part dispatches on the command - the install is turbostat-specific, but the rest is boilerplate: <b>--start</b> just executes the tool_cmd as defined above and stashes away the pid, so that <b>--stop</b> can kill the command later; <b>--postprocess</b> calls the separate post-processing script (see below):</p>
+							<p class="c_snip">
+								release=$(awk '{x=$7; split(x, a, "."); print a[1];}' /etc/redhat-release)<br>
+								case $release in<br>
+								&nbsp;&nbsp;6)<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pkg=cpupowerutils<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;;<br>
+								&nbsp;&nbsp;7)<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pkg=kernel-tools<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;;;<br>
+								&nbsp;&nbsp;*)<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# better be installed already<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ;;<br>
+								esac<br>
+
+								case "$mode" in<br>
+								&nbsp;&nbsp;install)<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;if [ ! -e $tool_bin ]; then<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yum install $pkg<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo $script_name is installed<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;else<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo $script_name is installed<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;fi<br>
+								&nbsp;&nbsp;start)<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;mkdir -p $tool_output_dir<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;echo "$tool_cmd" >$tool_cmd_file<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;debug_log "$script_name: running $tool_cmd"<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;$tool_cmd >>"$tool_output_file" & echo $! >$tool_pid_file<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;wait<br>
+								&nbsp;&nbsp;&nbsp;&nbsp;;;<br>
+								&nbsp;&nbsp;stop)<br>
+								&nbsp;&nbsp; &nbsp;&nbsp;pid=`cat "$tool_pid_file"`<br>
+								&nbsp;&nbsp; &nbsp;&nbsp;debug_log "stopping $script_name"<br>
+								&nbsp;&nbsp; &nbsp;&nbsp;kill $pid && /bin/rm "$tool_pid_file"<br>
+								&nbsp;&nbsp; &nbsp;&nbsp;;;<br>
+								&nbsp;&nbsp;postprocess)<br>
+								&nbsp;&nbsp; &nbsp;&nbsp;debug_log "postprocessing $script_name"<br>
+								&nbsp;&nbsp; &nbsp;&nbsp;$script_path/postprocess/$script_name-postprocess $tool_output_dir<br>
+								&nbsp;&nbsp; &nbsp;&nbsp;;;<br>
+								esac
+							</p>
+							<p class="info_text" style="text-align: justify">Finally, there is the post-processing tool: the simplest thing to do is nothing. That's currently the case for the <a href="https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/kvm-spinlock">turbostat</a> post-processing tool, but ideally it should produce a JSON file with the data points and an HTML file that uses the nv3 library to plot the data graphically in a browser. See the <a href="https://github.com/distributed-system-analysis/pbench/tree/master/agent/tool-scripts/postprocess">postprocess</a> directory for examples, e.g. <a href="https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/postprocess/iostat-postprocess">iostat postprocessing tool.</a></p>
+						</div>
+					</div>
+				</div>
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">How to add a benchmark</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">TBD</p>
+						</div>
+					</div>
+				</div>
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">How do I collect data for a short time while my benchmark is running?</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">Running</p>
+							<p class="c_snip">pbench-user-benchmark -- sleep 60</p>
+							<p class="info_text" style="text-align: justify">will start whatever data collections are specified in the default tool group, then sleep for 60 seconds. At the end of that period, it will stop the running collections tools and postprocess the collected data. Running <span class="c_snip_inline">pbench-move-results</span> afterwards will move the results to the results server as usual.</p>
+						</div>
+					</div>
+				</div>
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">I have a script to run my benchmark - how do I use it with pbench?</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">pbench is a set of building blocks, so it allows you to use it in many different ways, but it also makes certain assumptions which if not satisfied, lead to problems.</p>
+							<p class="info_text" style="text-align: justify">Let's assume that you want to run a number of iozone experiments, each with different parameters. Your script probably contains a loop, running one experiment each time around. If you can change your script so that it executes <b>one</b> experiment specified by an argument, then the best way is to use the <b>pbench-user-benchmark</b> script:</p>
+							<p class="c_snip">
+								pbench-register-tool-set
+								for exp in experiment1 experiment2 experiment3 ;do
+								&nbsp;&nbsp; pbench-user-benchmark --config $exp -- my-script.sh $exp
+								done
+								pbench-move-results
+							</p>
+							<p class="info_text" style="text-align: justify">The results are going to end up in directories named <span class="c_snip_inline">/var/lib/pbench-agent/pbench-user-benchmark_$exp_$ts</span> for each experiment (unfortunately, the timestamp will be recalculated at the beginning of each <span class="c_snip_inline">pbench-user-benchmark</span> invocation), before being uploaded to the results server.</p>
+							<p class="info_text" style="text-align: justify">Alternatively, you can modify your script so that each experiment is wrapped with start/stop/postprocess-tools and then call <span class="c_snip_inline">pbench-move-results</span> at the end:</p>
+							<p class="c_snip">
+								pbench-register-tool-set
+								dir=/var/lib/pbench-agent
+								tool_group=default
+								typeset -i iter=1
+								for exp in experiment1 experiment2 experiment3 ;do
+								&nbsp;&nbsp; pbench-start-tools --group=$tool_group --dir=$dir --iteration=$iter
+								&nbsp;&nbsp; <run the experiment>
+								&nbsp;&nbsp; pbench-stop-tools --group=$tool_group --dir=$dir --iteration=$iter
+								&nbsp;&nbsp; pbench-postprocess-tools --group=$tool_group --dir=$dir --iteration=$iter
+								&nbsp;&nbsp; iter=$iter+1
+								done
+								pbench-move-results
+							</p>
+							<p class="info_text" style="text-align: justify"><b>N.B.</b>You need to invoke the <span class="c_snip_inline">pbench-{start,stop,postprocess}-tools</span> scripts with the same arguments.</p>
+						</div>
+					</div>
+				</div>
+				<div class="accordionCard">
+					<h3 class="accordion">
+						<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+							<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+							<span class="pf-c-accordion__toggle-text">How do I install pbench-agent?</span>
+						</button>
+					</h3>
+					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+						<div class="pf-c-accordion__expanded-content-body">
+							<p class="info_text" style="text-align: justify">See the <a href="start.html">Installation Instructions</a>.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			</div>
+		</div>
+		<div class="section">
+			<span class="footer">
+			<p class="darkFoot">2020 Pbench | Privacy Statement</p>
+			<p class="lightFoot">Code licensed under a thing, site under a thing</p>
+			</span>
+		</div>  	
+		</main>
+	</div>
+
+	</body>
+	<script src="./js/jquery.min.js"></script>
+	<script src="./js/tab.js"></script>
+	<script src="./js/accordion.js"></script>
+	<script>
+	function toggleSearchIcon(){
+		$(".searchBtn").hide();
+		if($(".searchInput").val()===''){
+			$(".searchBtn").show();
+		}
+	}
+	</script>
+	</html>
