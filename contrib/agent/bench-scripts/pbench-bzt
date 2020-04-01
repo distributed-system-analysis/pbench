@@ -77,12 +77,13 @@ class BztConfigWriter:
     """
     Writes a template json config file for testing endpoints with taurus bzt
     """
+
     def __init__(self, args):
         self.args = args
         self.bzt_conf = dict()
-        self.bzt_conf['execution'] = []
-        self.bzt_conf['reporting'] = []
-        self.bzt_conf['scenarios'] = {}
+        self.bzt_conf["execution"] = []
+        self.bzt_conf["reporting"] = []
+        self.bzt_conf["scenarios"] = {}
 
     def create_scenario_file(self):
         if self.args.scenario == "simple":
@@ -90,20 +91,30 @@ class BztConfigWriter:
             with open(self.args.url_file) as f:
                 for line in f:
                     scenario_nbr = self.args.scenario + str(count)
-                    self.bzt_conf['execution'].append({'concurrency': self.args.concurrency,
-                                                       'hold-for': self.args.hold_for,
-                                                       'ramp-up': self.args.ramp_up,
-                                                       'scenario': scenario_nbr})
-                    self.bzt_conf['scenarios'][scenario_nbr] = {'requests': [self.args.prefix + line.strip()]}
+                    self.bzt_conf["execution"].append(
+                        {
+                            "concurrency": self.args.concurrency,
+                            "hold-for": self.args.hold_for,
+                            "ramp-up": self.args.ramp_up,
+                            "scenario": scenario_nbr,
+                        }
+                    )
+                    self.bzt_conf["scenarios"][scenario_nbr] = {
+                        "requests": [self.args.prefix + line.strip()]
+                    }
                     count += 1
 
-            self.bzt_conf['modules'] = {'blazemeter': {'browser-open': False, 'test': self.args.test_name},
-                                        'console': {'disable': True}}
-            self.bzt_conf['reporting'].append({'module': 'final_stats', 'dump-csv': self.args.stats_file})
+            self.bzt_conf["modules"] = {
+                "blazemeter": {"browser-open": False, "test": self.args.test_name},
+                "console": {"disable": True},
+            }
+            self.bzt_conf["reporting"].append(
+                {"module": "final_stats", "dump-csv": self.args.stats_file}
+            )
             self.write_json_file(self.args.out_json_file)
 
     def write_json_file(self, f):
-        with open(f, mode='w') as fd:
+        with open(f, mode="w") as fd:
             json.dump(self.bzt_conf, fd, sort_keys=True, indent=2)
 
 
@@ -113,6 +124,7 @@ def which(cmd):
     :param cmd: executable to look up for
     :return:
     """
+
     def is_executable(path):
         return os.path.isfile(path) and os.access(path, os.X_OK)
 
@@ -136,34 +148,64 @@ def fingerprint():
     :return:
     """
     ost = OSType()
-    if 'fedora' == ost.query_os():
+    if "fedora" == ost.query_os():
         print(ost.query_os())
-    if 'redhat' == ost.query_os():
+    if "redhat" == ost.query_os():
         print(ost.query_os())
 
 
 def parser():
-    parser_obj = argparse.ArgumentParser(description="This script generates a taurus scenario file and, based on \
+    parser_obj = argparse.ArgumentParser(
+        description="This script generates a taurus scenario file and, based on \
                                          that file, executes a bzt jmeter performance test.\
-                                         E.g.: pbench_bzt.py -u jmeter_urls/4_http_urls")
+                                         E.g.: pbench_bzt.py -u jmeter_urls/4_http_urls"
+    )
 
-    parser_obj.add_argument('-u', '--url_file', action="store", dest="url_file", type=str, required=True)
-    parser_obj.add_argument('-c', '--concurrency', action="store", dest="concurrency", type=str, default=10)
-    parser_obj.add_argument('-r', '--ramp-up', action="store", dest="ramp_up", type=str, default='10s')
-    parser_obj.add_argument('-d', '--hold_for', action="store", dest="hold_for", type=str, default='1m')
-    parser_obj.add_argument('-s', '--scenario', action="store", dest="scenario", type=str, default='simple')
-    parser_obj.add_argument('-o', '--out_json_file', action="store", dest="out_json_file",
-                            type=str, default='/tmp/bzt.json')
-    parser_obj.add_argument('-n', '--test_name', action="store", dest="test_name", type=str, default='OSE')
-    parser_obj.add_argument('-p', '--prefix', action="store", dest="prefix", type=str, default='http://')
-    parser_obj.add_argument('-f', '--stats_file', action="store", dest="stats_file",
-                            type=str, default='/tmp/taurus.csv')
-    parser_obj.add_argument('-P', '--program', action="store", dest="program", default='bzt')
+    parser_obj.add_argument(
+        "-u", "--url_file", action="store", dest="url_file", type=str, required=True
+    )
+    parser_obj.add_argument(
+        "-c", "--concurrency", action="store", dest="concurrency", type=str, default=10
+    )
+    parser_obj.add_argument(
+        "-r", "--ramp-up", action="store", dest="ramp_up", type=str, default="10s"
+    )
+    parser_obj.add_argument(
+        "-d", "--hold_for", action="store", dest="hold_for", type=str, default="1m"
+    )
+    parser_obj.add_argument(
+        "-s", "--scenario", action="store", dest="scenario", type=str, default="simple"
+    )
+    parser_obj.add_argument(
+        "-o",
+        "--out_json_file",
+        action="store",
+        dest="out_json_file",
+        type=str,
+        default="/tmp/bzt.json",
+    )
+    parser_obj.add_argument(
+        "-n", "--test_name", action="store", dest="test_name", type=str, default="OSE"
+    )
+    parser_obj.add_argument(
+        "-p", "--prefix", action="store", dest="prefix", type=str, default="http://"
+    )
+    parser_obj.add_argument(
+        "-f",
+        "--stats_file",
+        action="store",
+        dest="stats_file",
+        type=str,
+        default="/tmp/taurus.csv",
+    )
+    parser_obj.add_argument(
+        "-P", "--program", action="store", dest="program", default="bzt"
+    )
 
     return parser_obj.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     fingerprint()
     opt_args = parser()
 
@@ -176,7 +218,12 @@ if __name__ == '__main__':
             # check_call: blocking code
             subprocess.check_call([executable, opt_args.out_json_file])
         except subprocess.CalledProcessError:
-            print("%s has returned in error: %s" % (opt_args.program, subprocess.CalledProcessError.message))
+            print(
+                "%s has returned in error: %s"
+                % (opt_args.program, subprocess.CalledProcessError.message)
+            )
     else:
-        sys.exit("Either %s is not installed, or the current user does not have permission to execute it.\n"
-                 "http://gettaurus.org/docs/Installation/" % opt_args.program)
+        sys.exit(
+            "Either %s is not installed, or the current user does not have permission to execute it.\n"
+            "http://gettaurus.org/docs/Installation/" % opt_args.program
+        )

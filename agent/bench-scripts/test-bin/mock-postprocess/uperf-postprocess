@@ -8,18 +8,20 @@ if not outfn:
     sys.exit(1)
 else:
     with open(outfn, "a") as outf:
-        outf.write(' '.join(sys.argv) + '\n')
+        outf.write(" ".join(sys.argv) + "\n")
 
 # FIX-ME how does uperf-postprocess get the test_type?
 test_type = os.environ.get("test_type")
 if not test_type:
     test_type = sys.argv[4]
-#print "test_type = %r" % test_type
+# print "test_type = %r" % test_type
 
 with open(os.path.join(sys.argv[1], "uperf-average.txt"), "w") as avgf:
     if test_type == "rr":
         avgf.write("CPU_usage-CPU_uperf-client-server:localhost=0.500000\n")
-        avgf.write("Efficiency-transactions_sec/CPU_uperf-client-server:localhost=5000.000000\n")
+        avgf.write(
+            "Efficiency-transactions_sec/CPU_uperf-client-server:localhost=5000.000000\n"
+        )
         avgf.write("Latency-latency_usec=250.000000\n")
         avgf.write("Per_Server_Latency-127.0.0.1-latency_us=250.000000\n")
         avgf.write("Per_Server_Throughput-127.0.0.1-trans_sec=5000.000000\n")

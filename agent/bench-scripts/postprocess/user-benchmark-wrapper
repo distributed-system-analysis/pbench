@@ -5,9 +5,8 @@ import sys, json, os.path, logging, shutil
 benchmark_run_dir = sys.argv[1]
 benchmark_duration = int(sys.argv[2])
 
-summary_file_name = os.path.join(benchmark_run_dir,
-        "user-benchmark-summary.json")
-with open(summary_file_name, 'a+') as data_file:
+summary_file_name = os.path.join(benchmark_run_dir, "user-benchmark-summary.json")
+with open(summary_file_name, "a+") as data_file:
     # We use the "a+" mode on open to ensure the file is created if it does not
     # already exist. But we have to seek to the beginning to make sure we read
     # it properly if it already exists.
@@ -18,31 +17,39 @@ with open(summary_file_name, 'a+') as data_file:
         position = data_file.tell()
         if position != 0:
             # Log the exception if the position is not 0.
-            logging.warning("Unable to load JSON data from %s, \"%s\", current"
-                    " position in file: %d; ignoring bad summary data...",
-                    summary_file_name, exc, position)
+            logging.warning(
+                'Unable to load JSON data from %s, "%s", current'
+                " position in file: %d; ignoring bad summary data...",
+                summary_file_name,
+                exc,
+                position,
+            )
         data = {}
     if "duration" not in data:
         # At this point we may or may not have a dictionary of data loaded from
         # the JSON file, but we do know that if we did load some JSON it did not
         # have a duration field in it.
-        data['duration'] = benchmark_duration
-        data['duration_units'] = "sec"
+        data["duration"] = benchmark_duration
+        data["duration_units"] = "sec"
     if data_file.tell() == 0:
         # Either there was nothing in the file, or they didn't create the file.
-        logging.info("pbench-user-benchmark run didn't create a %s or the"
-                " file is empty, creating %s containing info about the run",
-                summary_file_name, summary_file_name)
+        logging.info(
+            "pbench-user-benchmark run didn't create a %s or the"
+            " file is empty, creating %s containing info about the run",
+            summary_file_name,
+            summary_file_name,
+        )
     # copy the input user-benchmark-summary.json file to
     # user-benchmark-summary-debug.json for debugging purposes
-    shutil.copyfile(summary_file_name,
-            os.path.join(benchmark_run_dir,
-                    "user-benchmark-summary-debug.json"))
+    shutil.copyfile(
+        summary_file_name,
+        os.path.join(benchmark_run_dir, "user-benchmark-summary-debug.json"),
+    )
     # Prepare to re-write the file with an updated JSON document.
-    summary_tmp_file = os.path.join(benchmark_run_dir,
-            "user-benchmark-summary-tmp.json")
-    with open(summary_tmp_file, 'w') as tmp_data_file:
-        json.dump(data, tmp_data_file, sort_keys=True, indent=4,
-                separators=(',', ':'))
-        tmp_data_file.write('\n')
+    summary_tmp_file = os.path.join(
+        benchmark_run_dir, "user-benchmark-summary-tmp.json"
+    )
+    with open(summary_tmp_file, "w") as tmp_data_file:
+        json.dump(data, tmp_data_file, sort_keys=True, indent=4, separators=(",", ":"))
+        tmp_data_file.write("\n")
     shutil.move(summary_tmp_file, summary_file_name)
