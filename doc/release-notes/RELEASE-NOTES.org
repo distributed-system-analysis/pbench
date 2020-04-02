@@ -1,4 +1,4 @@
-# Created 2020-01-21 Tue 16:26
+# Created 2020-04-01 Wed 21:12
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
@@ -15,6 +15,212 @@
 #+subtitle: 
 #+infojs_opt: 
 #+latex_header: 
+
+* Version 0.68
+
+This release is an agent-only release. The release contains a large
+number of changes, most of which are invisible from the outside but
+some of which are *very* visible:
+
+- The first such change is that the =configtools= package is now
+  incorporated into =pbench-agent=. That means that if you have a
+  =configtools= package already installed (which you probably do),
+  *you need to uninstall it*: first, the current =pbench-agent= RPM
+  explicitly conflicts with the =configtools= package, so unless you
+  uninstall =configtools=, you will not be able to install
+  =pbench-agent=.  Second, if you have installed configtools from Pypi,
+  (e.g. v0.67 did that) you need to uninstall that also:
+  #+begin_src shell
+    yum erase configtools -y
+    pip3 uninstall -y configtools
+  #+end_src
+  On RHEL7, you need an extra step (see [[file:python3-on-rhel7.org][Python3 on RHEL7]] for details):
+  #+begin_src shell
+    scl enable rh-python36 bash
+    pip3 uninstall -y configtools
+  #+end_src
+
+- The =CONFIG= environment variable that =configtools= used is no
+  longer used. There is a new environment variable that is set when
+  you login to a host after you install =pbench-agent=:
+  =_PBENCH_AGENT_CONFIG=. That variable is set by
+  =/etc/profile.d/pbench-agent.sh= which is executed automatically
+  when you login.
+
+- The agent is using =python3= for all its python needs now. On RHEL7,
+  =python3= is provided by =scl-utils= (the Software Collections Library
+  package) and the associated =rh-python36= package. If you are running
+  =pbench-agent=, all of that should stay invisible in the background:
+  you should not even notice.  But if there are problems, it helps to
+  know what's going on underneath in order to debug and fix any
+  problems. See [[file:python3-rhel7.org][Python3 on RHEL7]] for some tips if you have problems.
+
+- =pbench-agent= scripts no longer install packages behind the
+  scenes. We used to check for and install packages that were needed for
+  bench-scripts. We still check, but do *not* install, those
+  packages. If you run a script and you get a failure, you will have to
+  install the required package before rerunning the script.
+
+** Installation                                                    :external:
+
+There are ansible playbooks to install ~pbench-agent~ and the pieces
+needed (key and config files) to be able to send results to a server.
+
+There are no other installation changes in this release: see the
+[[file:../agent/installation.org][Installation Instructions]] for how to install or update.
+
+After installation or update, you should have version 0.68-1gf4c94b4d
+of the pbench-agent RPM installed.
+
+** agent
+
+Here are the most important changes to the agent in this release:
+
+- Running the =pbench-fio= bench-script now requires that the 3.19 release of
+  upstream fio be installed. Previous releases required the 3.12 release. You will
+  need to install the current version:
+  #+begin_src shell
+    yum install/update pbench-fio
+  #+end_src
+  and make sure that you are installing the 3.19 release.
+
+- There is a long-standing problem with =fio=: when you request
+  latency logs to be collected , the resulting logs frequently contain
+  multiple entries per timestamp. This causes the pbench postprocessing
+  code to emit warnings about the duplicate timestamps:
+  #+begin_example
+    ...
+    [WARNING] fio_slat.3.log: timestamp 8612 for rwtype 0 found multiple times, values [16195, 4000, 4000] will be averaged
+    [WARNING] fio_slat.3.log: timestamp 9397 for rwtype 0 found multiple times, values [122900, 5571] will be averaged
+    [WARNING] fio_slat.3.log: timestamp 9397 for rwtype 1 found multiple times, values [8021, 13000] will be averaged
+    [WARNING] fio_slat.4.log: timestamp 2054 for rwtype 1 found multiple times, values [27133, 4750] will be averaged
+    ...
+  #+end_example
+  That was the case in earlier releases and is still the case now. We
+  have opened an [[https://github.com/axboe/fio/issues/947][issue in upstream fio]] to try to get to the bottom of
+  this problem.
+
+- The tools code was thoroughly roto-tilled in preparation for the upcoming
+  tool-meister changes, but the visible effects of that should be nil.
+
+- The uperf bidirec case was fixed.
+
+- pbench-user-benchmark has undergone considerable improvement in order to
+  allow the results to be indexed in certain cases.
+
+- =linpack= workloads have been added and =linpack= is now supported by =pbench-run-benchmark=.
+
+- =pbench-specjbb2005= has seen a number of fixes.
+
+- We are moving towards an all-python implementation of the agent. To that
+  end, we are now checking the code automatically with =flake8= and reformatting
+  it with =black= through a commit hook.
+
+** server                                                          :external:
+This is an agent-only release. There are several changes to server
+code, however we are not ready to make a release yet.
+
+** web-server
+:PROPERTIES:
+:CUSTOM_ID: web-server-0.68
+:END:
+
+There are no changes and no new web-server RPMs have been produced.
+
+** Pbench dashboard
+:PROPERTIES:
+:CUSTOM_ID: pbench-dashboard-0.68
+:END:
+
+The development of the dashboard is not tracked in these release
+notes. The dashboard has been moved into its own [[https://github.com/distributed-system-analysis/pbench-dashboard][git repo]].
+
+** Changelog
+:PROPERTIES:
+:CUSTOM_ID: changelog-v0.68
+:END:
+
+This is the list of visible commits since v0.67:
+
+- f4c94b4d0 v0.68: Version bump
+- 4273ae110 process-iteration-samples: ensure strings are being compared
+- 11b6187a6 pbench-trafficgen: harden post processing
+- 549eb51f8 Make sure pidstat-datalog does not use exec
+- f07759ff5 Bump fio version to 3.19.
+- 78ee7b240 Fix kvmtrace & cpuacct -stop-postprocess
+- 1da70e47c Change the fio version that pbench will use
+- ece06e060 Fix pidstat and turbostat datalogs
+- e9a3b3fa2 Capture new .screen.d with tool data
+- b0f25fe71 Rename screen directory to .screen.d to avoid confusion with tools
+- 83490987a Use dedicated directory for screen logs
+- 746efbc4a Fix uperf XML for bidirec test type
+- e4ae83278 Drop use of screen -Logfile for old screen vers
+- f463f838e Separate run benchmark iteration names by a space
+- d454cb446 Modify pbench-user-benchmark to use iteration names
+- ed4f319f1 Fix pbench-specjbb2005's iteration handling
+- 69dcbea92 Add missing package names for a few tools
+- 5cb312d9c Use exec instead of fork for tools were possible
+- d385df4b8 Add single quotes to perf tool options
+- 64cb494b7 Fix tool stop/postprocess handling
+- 8a4417838 S3 backup: Large object fixes
+- 8070e7085 Delay formatting logging strings.
+- 19ffd31c1 Tighten down flake8
+- 85b1dcf09 Refactor indexer module functions into class methods
+- 53dba5f45 Refactor tool-scripts to use one script
+- c790d6332 Fix .pre-commit-config.yaml YAML signature
+- e36de350a Add pre-commit hooks for black
+- 2e47cbf8d Remove unused job_pool.sh
+- fbfcc6198 Bump the mapping versions to accommodate changes
+- 2a3859041 Add parent field to table-of-contents JSON docs
+- f90e4fc83 Remove list of accepted benchmarks for indexing
+- d1ae4db0f Fix bad assertion checks
+- 6fe7c7d98 Add support for linpack workloads
+- 21f9f9e4b Allow indexing of results without tool data
+- 0bb101c26 Enhance indexing to handle pbench-run-benchmark
+- 97f7bea2e Restore the perf tool to the default tool set
+- ebef66085 Add flake8 support
+- adf7286a3 Fix getconf.py and activation script invocations.
+- 429faa04e Refactor variables to isolate site-specific information:
+- 6432ba03b Correctly invoke pbench-metadata-log 'beg'
+- 7e598b8c7 Don't emit messages directly to the tty
+- 3e081594d Remove the dashboard code given it has its own repo
+- 5a8812ea2 Preparations for move the dashboard to a new repo
+- 627c713ae Show favorite user records
+- e1a945a68 fixes test fail
+- 59ed4c90d Adds unit test for Search Bar component
+- f2aee7b30 Renders breadcrumbs onto the PageHeader
+- 48309860d Pass route through the context
+- 2c2a81919 import link and fix sidebar collapse issue
+- deb5df2ee siderMenu collapse action check
+- 54be3d87f adds unit test for SiderMenuWrapper Component
+- bcea99850 fix maximum depth error on Explore page
+- 0ccc2265a add pbench-run-benchmark support for linpack
+- dced77790 pbench-run-benchmark: remove '/' characters from iteration labels
+- 69c4f99a3 pbench-run-benchmark-sample: bug fixes for controller pre/post scripts
+- 7561dc776 pbench-run-benchmark: optimizations and improvements for postprocessing and postprocessing only mode
+- d7502f0a5 pbench-run-benchmark: properly handle return codes and capture STDERR
+- f03fc3e37 pbench-gen-iterations: bug fix for multiple parameter sets
+- 658ebf752 fix pagination e2e bug
+- ec6fb64c5 Add --iteration-list option to pbench-user-benchmark
+- ebfb35dd2 Fix pbench-trafficgen defaults in help text
+- e2bf15458 S3 backup fixes for large objects.
+- d3bef963c rename CONFIG to their respective environment var
+- c92d4b4ce Add Marker to sosreport if Hostname not found
+- 933ac9a12 Upgrade and lock eslint dependencies for consistent linting between local and TravisCI environments
+- 8d822e37e Minor specjbb usage cleanup.
+- 5d8c2a671 Update README.org
+- 4c8874121 clicks on the current pagination value
+- 90aaffa28 Merge Configtools into Pbench
+- 5a4201b1b Corrections to the main README ahead of DevConf.cz
+- d84e370aa Refactor e2e tests to support multiple records
+- fad5125bb Enable pagination for every Table component in pbench
+- daac79d60 Fix specjbb2005 bugs
+- 3fb4270cc small fixes
+- babdb333a minor changes to explore model
+- 6c569db90 adds unit test
+- ddc315de1 Merging table cells
+- 50b4ac372 Implements the feature to delete created sessions
+
 
 * Version 0.67
 

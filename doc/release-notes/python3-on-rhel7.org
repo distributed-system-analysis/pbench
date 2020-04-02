@@ -1,0 +1,82 @@
+# Created 2020-04-01 Wed 21:12
+#+OPTIONS: ^:{}
+#+OPTIONS: html-link-use-abs-url:nil html-postamble:t
+#+OPTIONS: html-preamble:t html-scripts:t html-style:t
+#+OPTIONS: html5-fancy:nil tex:t
+#+OPTIONS: ^:{} H:2
+#+TITLE: Python3 usage by pbench on RHEL7
+#+html_doctype: xhtml-strict
+#+html_container: div
+#+keywords: pbench
+#+html_link_home: 
+#+html_link_up: 
+#+html_mathjax: 
+#+html_head_extra: 
+#+subtitle: 
+#+infojs_opt: 
+#+latex_header: 
+
+* SCL
+
+We are using =python3= exclusively for =pbench-agent= and =pbench-server= as of v0.67.
+RHEL7 includes support for =python3= through the Software Collections Library. So RHEL7
+=pbench-agent= installations require two extra packages: =scl-utils= and =rh-python36=.
+
+For "normal" usage of =pbench-agent=, this is invisible: we take care
+to use the SCL environment internally, without allowing that to "leak"
+to the end user. There is one historical area however where it might
+help to know a bit more about what's being done underneath the
+surface: =configtools=, =getconf.py= and the =CONFIG= environment variable.
+
+We no longer use a separate =configtools= package: the functionality has been folded
+into pbench proper. On the agent side, the =CONFIG= environment variable has been
+replaced by the =_PBENCH_AGENT_CONFIG= environment variable and =getconf.py= is no
+longer in =/usr/bin= or =/usr/local/bin=: it is now in =/opt/pbench-agent/util-scripts=.
+
+Historically, we used to test for proper installation of =configtools= and the pbench-agent
+config files by using:
+#+begin_src shell
+  # is the environment variable set? This should say /opt/pbench-agent/config/pbench-agent.cfg
+  echo $CONFIG
+  # does it point to a config file? This should look like a config file...
+  cat $CONFIG
+  # where does getconf.py live? This should say /usr/bin/getconf.py
+  # (or in some cases /usr/local/bin/getconf.py)
+  command -v getconf.py
+  # what is the list of config files in use? This should say ['/opt/pbench-agent/config/pbench-agent.cfg', '/opt/pbench-agent/config/pbench-agent-default.cfg']
+  getconf.py -L
+#+end_src
+plus possibly more calls of =getconf.py= to verify details of the config files.
+
+For Fedora and RHEL8 systems that support =python3= natively, the main change is
+the environment variable name change and the location change. Assuming that you
+have sourced the =/etc/profile.d/pbench-agent.sh= file, the new environment variable
+should be set properly and =/opt/pbench-agent/util-scripts= should be added to the PATH,
+so the analogous invocation goes like this:
+#+begin_src shell
+  # is the environment variable set?
+  echo $_PBENCH_AGENT_CONFIG
+  # does it point to a config file?
+  cat $_PBENCH_AGENT_CONFIG
+  # where does getconf.py live? This should say /opt/pbench-agent/util-scripts/getconf.py
+  command -v getconf.py
+  # what is the list of config files in use?
+  getconf.py -L
+#+end_src
+
+For RHEL7 however, you need an extra step: you need to enable the python3 SCL environment
+before issuing any of the above commands:
+#+begin_src shell
+  # enter the python3 SCL environment
+  scl enable rh-python36 bash
+  # *now* you can check the rest as before ...
+
+  # is the environment variable set?
+  echo $_PBENCH_AGENT_CONFIG
+  # does it point to a config file?
+  cat $_PBENCH_AGENT_CONFIG
+  # where does getconf.py live? This should say /opt/pbench-agent/util-scripts/getconf.py
+  command -v getconf.py
+  # what is the list of config files in use?
+  getconf.py -L
+#+end_src

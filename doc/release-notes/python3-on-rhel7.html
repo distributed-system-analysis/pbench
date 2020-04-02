@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-04-01 Wed 21:14 -->
+<!-- 2020-04-01 Wed 21:13 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PBench web server</title>
+<title>Python3 usage by pbench on RHEL7</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Nick Dokos" />
 <meta name="keywords" content="pbench" />
@@ -224,118 +224,103 @@
 </head>
 <body>
 <div id="content">
-<h1 class="title">PBench web server</h1>
+<h1 class="title">Python3 usage by pbench on RHEL7</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgae3b922">Introduction</a></li>
-<li><a href="#org7b12f0c">Installation</a></li>
-<li><a href="#orgf8e5fd3">Local configuration</a></li>
-<li><a href="#orgd8f8bc5">Viewing pbench data locally</a></li>
+<li><a href="#org13fb75f">SCL</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgae3b922" class="outline-2">
-<h2 id="orgae3b922">Introduction</h2>
-<div class="outline-text-2" id="text-orgae3b922">
+<div id="outline-container-org13fb75f" class="outline-2">
+<h2 id="org13fb75f">SCL</h2>
+<div class="outline-text-2" id="text-org13fb75f">
 <p>
-These are the bits of Javascript, CSS and such that are necessary to render
-the graphs that pbench produces. They are packaged up in an RPM for easy installation.
-The RPM is used by the pbench server installation, but it can also be used to
-allow viewing of pbench graphs locally. This is what is described in this document.
-</p>
-</div>
-</div>
-
-<div id="outline-container-org7b12f0c" class="outline-2">
-<h2 id="org7b12f0c">Installation</h2>
-<div class="outline-text-2" id="text-org7b12f0c">
-<p>
-The RPM is available from the standard pbench repo on COPR. If you
-have a pbench-agent installed already, the repo should be already
-available. If not, consult the <a href="../agent/installation.html#org783a3d4">PBench agent installation instructions</a>
-for details.
+We are using <code>python3</code> exclusively for <code>pbench-agent</code> and <code>pbench-server</code> as of v0.67.
+RHEL7 includes support for <code>python3</code> through the Software Collections Library. So RHEL7
+<code>pbench-agent</code> installations require two extra packages: <code>scl-utils</code> and <code>rh-python36</code>.
 </p>
 
 <p>
-Once the repo is installed, the RPM itself can be installed with:
-</p>
-<pre class="example">
-dnf install pbench-web-server
-# or ...
-yum install pbench-web-server
-</pre>
-<p>
-The RPM defines a <code>post-trans</code> action that uses the <code>Node.js</code> package
-manager <code>npm</code> to install various Javascript libraries, in particular
-<code>d3</code> and <code>nvd3</code>. The RPM requires the <code>npm</code> package, so if it is not
-installed already, it will be installed as a dependency<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>. The action
-then calls <code>npm install</code> on the various packages.
-</p>
-</div>
-</div>
-
-<div id="outline-container-orgf8e5fd3" class="outline-2">
-<h2 id="orgf8e5fd3">Local configuration</h2>
-<div class="outline-text-2" id="text-orgf8e5fd3">
-<p>
-It is assumed that you have an HTTP server installed and running. Here
-I will assume <code>apache</code>, but similar considerations apply to other servers.
+For "normal" usage of <code>pbench-agent</code>, this is invisible: we take care
+to use the SCL environment internally, without allowing that to "leak"
+to the end user. There is one historical area however where it might
+help to know a bit more about what's being done underneath the
+surface: <code>configtools</code>, <code>getconf.py</code> and the <code>CONFIG</code> environment variable.
 </p>
 
 <p>
-The HTTP server will need access to the JS/CSS files that the pbench HTML
-files require: these are assumed to reside in a subdirectory of the document
-root of the server, called <code>static</code>. Assuming that the document root is
-the default <code>/var/www/html</code>, the easiest way to accomplish that is to
-plant a symlink in the document root that points to the installed <code>static</code>
-directory:
+We no longer use a separate <code>configtools</code> package: the functionality has been folded
+into pbench proper. On the agent side, the <code>CONFIG</code> environment variable has been
+replaced by the <code>_PBENCH_AGENT_CONFIG</code> environment variable and <code>getconf.py</code> is no
+longer in <code>/usr/bin</code> or <code>/usr/local/bin</code>: it is now in <code>/opt/pbench-agent/util-scripts</code>.
 </p>
-<pre class="example">
-ln -sf /opt/pbench-web-server/html/static /var/www/html
-</pre>
 
 <p>
-In addition, you will need to bring the <code>pbench-agent</code> data directory
-into the purview of the server. Again, a symlink is the simplest solution:
+Historically, we used to test for proper installation of <code>configtools</code> and the pbench-agent
+config files by using:
 </p>
-<pre class="example">
-ln -sf /var/lib/pbench-agent /var/www/html
+<div class="org-src-container">
+<pre class="src src-shell"><span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">is the environment variable set? This should say /opt/pbench-agent/config/pbench-agent.cfg</span>
+<span style="font-weight: bold;">echo</span> $<span style="font-weight: bold; font-style: italic;">CONFIG</span>
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">does it point to a config file? This should look like a config file...</span>
+cat $<span style="font-weight: bold; font-style: italic;">CONFIG</span>
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">where does getconf.py live? This should say /usr/bin/getconf.py</span>
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">(or in some cases /usr/local/bin/getconf.py)</span>
+<span style="font-weight: bold;">command</span> -v getconf.py
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">what is the list of config files in use? This should say ['/opt/pbench-agent/config/pbench-agent.cfg', '/opt/pbench-agent/config/pbench-agent-default.cfg']</span>
+getconf.py -L
 </pre>
 </div>
-</div>
-
-<div id="outline-container-orgd8f8bc5" class="outline-2">
-<h2 id="orgd8f8bc5">Viewing pbench data locally</h2>
-<div class="outline-text-2" id="text-orgd8f8bc5">
 <p>
-Now browse to
+plus possibly more calls of <code>getconf.py</code> to verify details of the config files.
 </p>
-<pre class="example">
-http://localhost/pbench-agent
+
+<p>
+For Fedora and RHEL8 systems that support <code>python3</code> natively, the main change is
+the environment variable name change and the location change. Assuming that you
+have sourced the <code>/etc/profile.d/pbench-agent.sh</code> file, the new environment variable
+should be set properly and <code>/opt/pbench-agent/util-scripts</code> should be added to the PATH,
+so the analogous invocation goes like this:
+</p>
+<div class="org-src-container">
+<pre class="src src-shell"><span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">is the environment variable set?</span>
+<span style="font-weight: bold;">echo</span> $<span style="font-weight: bold; font-style: italic;">_PBENCH_AGENT_CONFIG</span>
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">does it point to a config file?</span>
+cat $<span style="font-weight: bold; font-style: italic;">_PBENCH_AGENT_CONFIG</span>
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">where does getconf.py live? This should say /opt/pbench-agent/util-scripts/getconf.py</span>
+<span style="font-weight: bold;">command</span> -v getconf.py
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">what is the list of config files in use?</span>
+getconf.py -L
 </pre>
+</div>
+
 <p>
-You should be able view graphs on you local system the same way that you can
-view graphs on the pbench server.
+For RHEL7 however, you need an extra step: you need to enable the python3 SCL environment
+before issuing any of the above commands:
 </p>
+<div class="org-src-container">
+<pre class="src src-shell"><span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">enter the python3 SCL environment</span>
+scl enable rh-python36 bash
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">*now* you can check the rest as before ...</span>
+
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">is the environment variable set?</span>
+<span style="font-weight: bold;">echo</span> $<span style="font-weight: bold; font-style: italic;">_PBENCH_AGENT_CONFIG</span>
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">does it point to a config file?</span>
+cat $<span style="font-weight: bold; font-style: italic;">_PBENCH_AGENT_CONFIG</span>
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">where does getconf.py live? This should say /opt/pbench-agent/util-scripts/getconf.py</span>
+<span style="font-weight: bold;">command</span> -v getconf.py
+<span style="font-weight: bold; font-style: italic;"># </span><span style="font-weight: bold; font-style: italic;">what is the list of config files in use?</span>
+getconf.py -L
+</pre>
 </div>
 </div>
-<div id="footnotes">
-<h2 class="footnotes">Footnotes: </h2>
-<div id="text-footnotes">
-
-<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
-RHEL[6,7] requires the addition of the <a href="https://fedoraproject.org/wiki/EPEL">EPEL</a> repo in order to be
-able to get the npm package. 
-</p></div></div>
-
-
 </div>
-</div></div>
+</div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2020-04-01 Wed 21:14</p>
+<p class="date">Page updated: 2020-04-01 Wed 21:13</p>
 </div>
 </body>
 </html>

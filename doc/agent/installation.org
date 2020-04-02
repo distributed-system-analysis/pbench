@@ -1,10 +1,10 @@
-# Created 2020-01-21 Tue 16:26
+# Created 2020-04-01 Wed 21:12
 #+OPTIONS: ^:{}
 #+OPTIONS: html-link-use-abs-url:nil html-postamble:t
 #+OPTIONS: html-preamble:t html-scripts:t html-style:t
 #+OPTIONS: html5-fancy:nil tex:t
 #+OPTIONS: ^:{}
-#+TITLE: PBench agent installation (WIP - HARD HAT AREA)
+#+TITLE: PBench agent installation
 #+html_doctype: xhtml-strict
 #+html_container: div
 #+keywords: pbench
@@ -21,35 +21,41 @@
 The pbench agent requires the installation of some generic bits, but it
 also requires some localization: it needs to know where to send the results
 for storage and analysis and it needs to be able to authenticate to the
-storage server.
+results server.
 
 The generic bits are packaged as an RPM, available from COPR
 ([[https://copr.fedorainfracloud.org/]]). We try to build a new release
 every month or so.
 
 The localization bits are of course, specific to a particular
-installation.  Internally, we make them available to users through an
-internal RPM, but other installations may use different methods to
-make them available. Consult your local pbench guru for help.
+installation.  Internally, we make them available through an ansible
+playbook. We used to make them available through an internal RPM, but
+we are trying to deprecate that method and eventually drop it. Other
+installations may use different methods to make them
+available. Consult your local pbench guru for help.
 
 In the following, we describe how to install =pbench-agent= using the
-two RPMs (the "external" RPM and the "internal" RPM). You will have to
-modify these instructions for *your* local installation. Nevertheless,
-for simplicity, in the following we will refer to the two packages as
-=pbench-agent= and =pbench-agent-internal=, but bear in mind that your
-local installation may use different names or may not use an internal
-RPM or may not use RPMs at all.
+ansible playbook. The old method using two RPMs is also described, but
+as mentioned, we would like to drop that method.
 
 Note that the same =pbench-agent= version *must* be installed on all the
 test systems that participate in a benchmark run: there is *no support
 for mixed installations*.
 
-* Repos
+* The following sections are obsolete
+
+Most of the information is probably still correct but there are no guarantees. 
+As we update the docs, it is likely that all the following sections will be deleted.
+** Repos
+N.B. We are trying to get away from this method of installation and replace it
+with ansible playbooks. If ansible playbooks are provided for you, we recommend
+that you use them in preference to having an internal repo.
+
 You will need to install both the external repo and (if applicable)
 the internal repo on every machine where you are planning to run
 =pbench= (including VMs).  N.B. These steps must be run as =root=.
 
-** External repo                                                   :external:
+*** External repo                                                  :external:
 If your system supports =dnf=, then you can copy the repo locally with:
 #+begin_example
   dnf copr enable ndokos/pbench
@@ -65,7 +71,7 @@ If all else fails, you can manually download the repo, by visiting
 on the appropriate repo (Epel 6, Epel 7, Fedora XX).
 Save it into =/etc/yum.repos.d/ndokos-pbench.repo=.
 
-** Internal repo                                                   :external:
+*** Internal repo                                                  :external:
 
 Refer to your local installation guide or ask your local pbench guru for help.
 
@@ -73,13 +79,7 @@ If there is no such repo, you will need to install the =pbench-agent= RPM and
 then manually install the config file and the pbench private key which will allow
 you to send results to the server. Refer to [[*Installing =pbench-agent=][Installing =pbench-agent=]] below.
 
-* Package dependencies
-In order to simplify installation, the =pbench-agent= RPM requires the
-installation of a few tools that should be available from the distribution's
-standard repo(s), plus one package (=configtools=) that is available from
-the external repo above.
-
-* Installing =pbench-agent=                                        :external:
+** Installing =pbench-agent=                                       :external:
 Once you have the COPR repo installed, you can install the =pbench-agent= RPM
 and source the startup file to initialize your PATH and CONFIG environment
 variables:
@@ -102,7 +102,7 @@ You can install these two as follows:
 #+end_example
 You should be ready to roll.
 
-* Administrator responsibility: Config file and ssh private key file :external:
+** Administrator responsibility: Config file and ssh private key file :external:
 If you are the administrator for this installation, you will have to
 create a config file and make it available to your users. How you make
 it available is up to you. This section describes how to create the config file

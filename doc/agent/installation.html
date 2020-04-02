@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-01-21 Tue 16:27 -->
+<!-- 2020-04-01 Wed 21:13 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PBench agent installation (WIP - HARD HAT AREA)</title>
+<title>PBench agent installation</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Nick Dokos" />
 <meta name="keywords" content="pbench" />
@@ -198,69 +198,50 @@
 <link rel="stylesheet" href="../../stylesheets/stylesheet.css" type="text/css"/>
 <link rel="stylesheet" href="../../stylesheets/github-light.css" type="text/css"/>
 <script type="text/javascript">
-/*
-@licstart  The following is the entire license notice for the
-JavaScript code in this tag.
-
-Copyright (C) 2012-2019 Free Software Foundation, Inc.
-
-The JavaScript code in this tag is free software: you can
-redistribute it and/or modify it under the terms of the GNU
-General Public License (GNU GPL) as published by the Free Software
-Foundation, either version 3 of the License, or (at your option)
-any later version.  The code is distributed WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
-
-As additional permission under GNU GPL version 3 section 7, you
-may distribute non-source (e.g., minimized or compacted) forms of
-that code without the copy of the GNU GPL normally required by
-section 4, provided you include this license notice and a URL
-through which recipients can access the Corresponding Source.
-
-
-@licend  The above is the entire license notice
-for the JavaScript code in this tag.
-*/
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
 <!--/*--><![CDATA[/*><!--*/
- function CodeHighlightOn(elem, id)
- {
-   var target = document.getElementById(id);
-   if(null != target) {
-     elem.cacheClassElem = elem.className;
-     elem.cacheClassTarget = target.className;
-     target.className = "code-highlighted";
-     elem.className   = "code-highlighted";
-   }
- }
- function CodeHighlightOff(elem, id)
- {
-   var target = document.getElementById(id);
-   if(elem.cacheClassElem)
-     elem.className = elem.cacheClassElem;
-   if(elem.cacheClassTarget)
-     target.className = elem.cacheClassTarget;
- }
-/*]]>*///-->
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.cacheClassElem = elem.className;
+         elem.cacheClassTarget = target.className;
+         target.className = "code-highlighted";
+         elem.className   = "code-highlighted";
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(elem.cacheClassElem)
+         elem.className = elem.cacheClassElem;
+       if(elem.cacheClassTarget)
+         target.className = elem.cacheClassTarget;
+     }
+    /*]]>*///-->
+// @license-end
 </script>
 </head>
 <body>
 <div id="content">
-<h1 class="title">PBench agent installation (WIP - HARD HAT AREA)</h1>
+<h1 class="title">PBench agent installation</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#org07792e3">Introduction</a></li>
+<li><a href="#orga8caba4">The following sections are obsolete</a>
+<ul>
 <li><a href="#org83ded6f">Repos</a>
 <ul>
 <li><a href="#org37a8289">External repo</a></li>
 <li><a href="#org3f5b96c">Internal repo</a></li>
 </ul>
 </li>
-<li><a href="#org2ee5fc4">Package dependencies</a></li>
 <li><a href="#orgef7de67">Installing <code>pbench-agent</code></a></li>
 <li><a href="#org8ecd67f">Administrator responsibility: Config file and ssh private key file</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -272,7 +253,7 @@ for the JavaScript code in this tag.
 The pbench agent requires the installation of some generic bits, but it
 also requires some localization: it needs to know where to send the results
 for storage and analysis and it needs to be able to authenticate to the
-storage server.
+results server.
 </p>
 
 <p>
@@ -283,19 +264,17 @@ every month or so.
 
 <p>
 The localization bits are of course, specific to a particular
-installation.  Internally, we make them available to users through an
-internal RPM, but other installations may use different methods to
-make them available. Consult your local pbench guru for help.
+installation.  Internally, we make them available through an ansible
+playbook. We used to make them available through an internal RPM, but
+we are trying to deprecate that method and eventually drop it. Other
+installations may use different methods to make them
+available. Consult your local pbench guru for help.
 </p>
 
 <p>
 In the following, we describe how to install <code>pbench-agent</code> using the
-two RPMs (the "external" RPM and the "internal" RPM). You will have to
-modify these instructions for <b>your</b> local installation. Nevertheless,
-for simplicity, in the following we will refer to the two packages as
-<code>pbench-agent</code> and <code>pbench-agent-internal</code>, but bear in mind that your
-local installation may use different names or may not use an internal
-RPM or may not use RPMs at all.
+ansible playbook. The old method using two RPMs is also described, but
+as mentioned, we would like to drop that method.
 </p>
 
 <p>
@@ -306,9 +285,23 @@ for mixed installations</b>.
 </div>
 </div>
 
-<div id="outline-container-org83ded6f" class="outline-2">
-<h2 id="org83ded6f">Repos</h2>
-<div class="outline-text-2" id="text-org83ded6f">
+<div id="outline-container-orga8caba4" class="outline-2">
+<h2 id="orga8caba4">The following sections are obsolete</h2>
+<div class="outline-text-2" id="text-orga8caba4">
+<p>
+Most of the information is probably still correct but there are no guarantees. 
+As we update the docs, it is likely that all the following sections will be deleted.
+</p>
+</div>
+<div id="outline-container-org83ded6f" class="outline-3">
+<h3 id="org83ded6f">Repos</h3>
+<div class="outline-text-3" id="text-org83ded6f">
+<p>
+N.B. We are trying to get away from this method of installation and replace it
+with ansible playbooks. If ansible playbooks are provided for you, we recommend
+that you use them in preference to having an internal repo.
+</p>
+
 <p>
 You will need to install both the external repo and (if applicable)
 the internal repo on every machine where you are planning to run
@@ -316,9 +309,9 @@ the internal repo on every machine where you are planning to run
 </p>
 </div>
 
-<div id="outline-container-org37a8289" class="outline-3">
-<h3 id="org37a8289">External repo</h3>
-<div class="outline-text-3" id="text-org37a8289">
+<div id="outline-container-org37a8289" class="outline-4">
+<h4 id="org37a8289">External repo</h4>
+<div class="outline-text-4" id="text-org37a8289">
 <p>
 If your system supports <code>dnf</code>, then you can copy the repo locally with:
 </p>
@@ -342,9 +335,9 @@ Save it into <code>/etc/yum.repos.d/ndokos-pbench.repo</code>.
 </div>
 </div>
 
-<div id="outline-container-org3f5b96c" class="outline-3">
-<h3 id="org3f5b96c">Internal repo</h3>
-<div class="outline-text-3" id="text-org3f5b96c">
+<div id="outline-container-org3f5b96c" class="outline-4">
+<h4 id="org3f5b96c">Internal repo</h4>
+<div class="outline-text-4" id="text-org3f5b96c">
 <p>
 Refer to your local installation guide or ask your local pbench guru for help.
 </p>
@@ -358,21 +351,9 @@ you to send results to the server. Refer to <a href="#orgef7de67">Installing <co
 </div>
 </div>
 
-<div id="outline-container-org2ee5fc4" class="outline-2">
-<h2 id="org2ee5fc4">Package dependencies</h2>
-<div class="outline-text-2" id="text-org2ee5fc4">
-<p>
-In order to simplify installation, the <code>pbench-agent</code> RPM requires the
-installation of a few tools that should be available from the distribution's
-standard repo(s), plus one package (<code>configtools</code>) that is available from
-the external repo above.
-</p>
-</div>
-</div>
-
-<div id="outline-container-orgef7de67" class="outline-2">
-<h2 id="orgef7de67">Installing <code>pbench-agent</code></h2>
-<div class="outline-text-2" id="text-orgef7de67">
+<div id="outline-container-orgef7de67" class="outline-3">
+<h3 id="orgef7de67">Installing <code>pbench-agent</code></h3>
+<div class="outline-text-3" id="text-orgef7de67">
 <p>
 Once you have the COPR repo installed, you can install the <code>pbench-agent</code> RPM
 and source the startup file to initialize your PATH and CONFIG environment
@@ -405,9 +386,9 @@ You should be ready to roll.
 </div>
 </div>
 
-<div id="outline-container-org8ecd67f" class="outline-2">
-<h2 id="org8ecd67f">Administrator responsibility: Config file and ssh private key file</h2>
-<div class="outline-text-2" id="text-org8ecd67f">
+<div id="outline-container-org8ecd67f" class="outline-3">
+<h3 id="org8ecd67f">Administrator responsibility: Config file and ssh private key file</h3>
+<div class="outline-text-3" id="text-org8ecd67f">
 <p>
 If you are the administrator for this installation, you will have to
 create a config file and make it available to your users. How you make
@@ -437,8 +418,9 @@ user on the server where the results are copied.
 </div>
 </div>
 </div>
+</div>
 <div id="postamble" class="status">
-<p class="date">Page updated: 2020-01-21 Tue 16:27</p>
+<p class="date">Page updated: 2020-04-01 Wed 21:13</p>
 </div>
 </body>
 </html>
