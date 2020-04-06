@@ -11,3 +11,6 @@ dist
 *.egg-info
 .tox
 .eggs
+pip-wheel-metadata
+AUTHORS
+ChangeLog
