@@ -10,3 +10,5 @@ dist
 .yarnrc
 *.egg-info
 .tox
+pip-wheel-metadata
+.eggs

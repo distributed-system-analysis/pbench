@@ -5,7 +5,6 @@ Simple module level convenience functions.
 import sys
 import os
 import logging
-import configtools
 import shutil
 import hashlib
 
@@ -15,9 +14,10 @@ from datetime import datetime, tzinfo, timedelta
 from functools import partial
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
-# Standard normalized date/time format
-_STD_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f"
+from pbench.common import configtools
 
+
+_STD_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 class simple_utc(tzinfo):
     def tzname(self, *args, **kwargs):
