@@ -10,7 +10,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -26,7 +25,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -42,7 +40,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_logs_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -58,7 +55,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_tmp_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -74,7 +70,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_quarantine_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -91,7 +86,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_host_info_prefix: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -108,7 +102,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_reception_dir_prefix: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -124,7 +117,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     httpd_document_root_dir: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -140,7 +132,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_user: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -156,7 +147,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_group: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -172,7 +162,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     pbench_host: "{{ cmd_output.stdout_lines[0].strip() }}"
@@ -188,7 +177,6 @@
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
-    PYTHONPATH: "{{ pbench_server_install_dir }}/lib:"
 
 - set_fact:
     mailaddr: "{{ cmd_output.stdout_lines[0].strip() }}"
