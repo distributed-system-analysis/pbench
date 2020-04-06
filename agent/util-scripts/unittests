@@ -27,8 +27,6 @@ cp -L ${_tdir}/../base ${_testopt}/
 let res=res+${?}
 cp -rL ${_tdir}/../config/* ${_testopt}/config/
 let res=res+${?}
-cp -a $_tdir/../../lib/* $_testopt/common/lib/
-let res=res+${?}
 cp -a ${_tdir}/{getconf.py,require-rpm,pbench-*} ${_testopt}/util-scripts/
 let res=res+${?}
 scripts="${_tdir}/../tool-scripts/*"
@@ -86,7 +84,6 @@ PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
 PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 # Allows us to intercept scp, ssh, rsync, etc.
 export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/tool-scripts:${PATH}
-export PYTHONPATH=${_testopt}/common/lib:${PYTHONPATH}
 
 # Fixed timestamp output
 export _PBENCH_UNIT_TESTS=1
