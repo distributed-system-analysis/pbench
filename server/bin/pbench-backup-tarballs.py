@@ -6,7 +6,6 @@ import sys
 import glob
 import shutil
 import tempfile
-from s3backup import S3Config, Status, NoSuchKey
 
 from pbench import (
     PbenchConfig,
@@ -17,6 +16,7 @@ from pbench import (
     md5sum,
 )
 from pbench.report import Report
+from pbench.s3backup import S3Config, Status, NoSuchKey
 
 
 _NAME_ = "pbench-backup-tarballs"
