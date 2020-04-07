@@ -97,26 +97,26 @@ def main(options, name):
     """
     if not options.cfg_name:
         print(
-            "{}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
-            " use --config <file> on the command line".format(name),
+            f"{name}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG"
+            f" env variable or use --config <file> on the command line",
             file=sys.stderr,
         )
         return 2
 
     if options.index_tool_data:
-        name = "{}-tool-data".format(name)
+        name = f"{name}-tool-data"
 
     idxctx = None
     try:
         idxctx = IdxContext(options, name, _dbg=_DEBUG)
     except (ConfigFileError, ConfigParserError) as e:
-        print("{}: {}".format(name, e), file=sys.stderr)
+        print(f"{name}: {e}", file=sys.stderr)
         return 2
     except BadConfig as e:
-        print("{}: {}".format(name, e), file=sys.stderr)
+        print(f"{name}: {e}", file=sys.stderr)
         return 3
     except JsonFileError as e:
-        print("{}: {}".format(name, e), file=sys.stderr)
+        print(f"{name}: {e}", file=sys.stderr)
         return 8
 
     if options.dump_index_patterns:
@@ -262,22 +262,22 @@ def main(options, name):
         idxctx.set_tracking_id(tracking_id)
 
     with tempfile.TemporaryDirectory(
-        prefix="{}.".format(name), dir=idxctx.config.TMP
+        prefix=f"{name}.", dir=idxctx.config.TMP
     ) as tmpdir:
         idxctx.logger.debug("start processing list of tar balls")
-        tb_list = os.path.join(tmpdir, "{}.{}.list".format(name, idxctx.TS))
+        tb_list = os.path.join(tmpdir, f"{name}.{idxctx.TS}.list")
         try:
             with open(tb_list, "w") as lfp:
                 # Write out all the tar balls we are processing so external
                 # viewers can follow along from home.
                 for size, controller, tb in tarballs:
-                    print("{:20d} {} {}".format(size, controller, tb), file=lfp)
+                    print(f"{size:20d} {controller} {tb}", file=lfp)
 
-            indexed = os.path.join(tmpdir, "{}.{}.indexed".format(name, idxctx.TS))
-            erred = os.path.join(tmpdir, "{}.{}.erred".format(name, idxctx.TS))
-            skipped = os.path.join(tmpdir, "{}.{}.skipped".format(name, idxctx.TS))
+            indexed = os.path.join(tmpdir, f"{name}.{idxctx.TS}.indexed")
+            erred = os.path.join(tmpdir, f"{name}.{idxctx.TS}.erred")
+            skipped = os.path.join(tmpdir, f"{name}.{idxctx.TS}.skipped")
             ie_filename = os.path.join(
-                tmpdir, "{}.{}.indexing-errors.json".format(name, idxctx.TS)
+                tmpdir, f"{name}.{idxctx.TS}.indexing-errors.json"
             )
 
             for size, controller, tb in tarballs:
@@ -285,8 +285,7 @@ def main(options, name):
                 linksrc_dir = os.path.dirname(tb)
                 linksrc_dirname = os.path.basename(linksrc_dir)
                 assert linksrc_dirname == linksrc, (
-                    "Logic bomb!  tar ball "
-                    "path {} does not contain {}".format(tb, linksrc)
+                    f"Logic bomb!  tar ball " f"path {tb} does not contain {linksrc}"
                 )
 
                 idxctx.logger.info("Starting {} (size {:d})", tb, size)
@@ -413,13 +412,13 @@ def main(options, name):
                         print(tb, file=fp)
                     rename_tb_link(
                         tb,
-                        os.path.join(controller_path, "{}.1".format(linkerrdest)),
+                        os.path.join(controller_path, f"{linkerrdest}.1"),
                         idxctx.logger,
                     )
                 elif tb_res in (2, 3):
                     assert False, (
-                        "Logic Bomb!  Unexpected tar ball handling "
-                        "result status {:d} for tar ball {}".format(tb_res, tb)
+                        f"Logic Bomb!  Unexpected tar ball handling "
+                        f"result status {tb_res:d} for tar ball {tb}"
                     )
                 elif tb_res >= 4 or res <= 11:
                     # # Quietly skip these errors
@@ -427,9 +426,7 @@ def main(options, name):
                         print(tb, file=fp)
                     rename_tb_link(
                         tb,
-                        os.path.join(
-                            controller_path, "{}.{:d}".format(linkerrdest, tb_res)
-                        ),
+                        os.path.join(controller_path, f"{linkerrdest}.{tb_res:d}"),
                         idxctx.logger,
                     )
                 else:
@@ -469,25 +466,21 @@ def main(options, name):
             if err > 0:
                 if skp > 0:
                     subj = (
-                        "{}.{} - Indexed {:d} results, skipped {:d}"
-                        " results, w/ {:d} errors".format(
-                            name, idxctx.TS, idx, skp, err
-                        )
+                        f"{name}.{idxctx.TS} - Indexed {idx:d} results, skipped {skp:d}"
+                        f" results, w/ {err:d} errors"
                     )
                 else:
-                    subj = "{}.{} - Indexed {:d} results, w/ {:d}" " errors".format(
-                        name, idxctx.TS, idx, err
+                    subj = (
+                        f"{name}.{idxctx.TS} - Indexed {idx:d} results, w/ {err:d}"
+                        " errors"
                     )
             else:
                 if skp > 0:
-                    subj = (
-                        "{}.{} - Indexed {:d} results, skipped {:d}"
-                        " results".format(name, idxctx.TS, idx, skp)
-                    )
+                    subj = f"{name}.{idxctx.TS} - Indexed {idx:d} results, skipped {skp:d} results"
                 else:
-                    subj = "{}.{} - Indexed {:d} results".format(name, idxctx.TS, idx)
+                    subj = f"{name}.{idxctx.TS} - Indexed {idx:d} results"
 
-            report_fname = os.path.join(tmpdir, "{}.{}.report".format(name, idxctx.TS))
+            report_fname = os.path.join(tmpdir, f"{name}.{idxctx.TS}.report")
             with open(report_fname, "w") as fp:
                 print(subj, file=fp)
                 if idx > 0:
@@ -522,11 +515,11 @@ if __name__ == "__main__":
     run_name = os.path.basename(sys.argv[0])
     run_name = run_name if run_name[-3:] != ".py" else run_name[:-3]
     if run_name not in ("pbench-index",):
-        print("unexpected command file name: {}".format(run_name), file=sys.stderr)
+        print(f"unexpected command file name: {run_name}", file=sys.stderr)
         sys.exit(1)
     parser = ArgumentParser(
-        "Usage: {} [--config <path-to-config-file>] [--dump-index-patterns]"
-        " [--dump_templates]".format(run_name)
+        f"Usage: {run_name} [--config <path-to-config-file>] [--dump-index-patterns]"
+        f" [--dump_templates]"
     )
     parser.add_argument("-C", "--config", dest="cfg_name", help="Specify config file")
     parser.set_defaults(cfg_name=os.environ.get("_PBENCH_SERVER_CONFIG"))
