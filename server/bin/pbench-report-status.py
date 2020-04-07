@@ -67,7 +67,7 @@ parsed = parser.parse_args()
 try:
     config = PbenchConfig(parsed.cfg_name)
 except BadConfig as e:
-    print("{}: {}".format(_prog, e), file=sys.stderr)
+    print(f"{_prog}: {e}", file=sys.stderr)
     sys.exit(1)
 
 
