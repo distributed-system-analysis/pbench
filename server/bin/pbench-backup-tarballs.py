@@ -155,7 +155,7 @@ def backup_to_local(
     archive_md5,
     archive_md5_hex_value,
 ):
-    logger.debug("Start local backup of {}.".format(tar))
+    logger.debug("Start local backup of {}.", tar)
     if lb_obj is None:
         # Short-circuit operation when we don't have an lb object. This can
         # happen when the expected result of sanity check does not exist, or
@@ -172,27 +172,22 @@ def backup_to_local(
         pass
     except Exception:
         logger.exception(
-            "os.mkdir: Unable to create backup destination directory: {}".format(
-                backup_controller_path
-            )
+            "os.mkdir: Unable to create backup destination directory: {}",
+            backup_controller_path,
         )
         return Status.FAIL
 
     # Check if tarball exists in local backup
     backup_tar = os.path.join(backup_controller_path, resultname)
     if os.path.exists(backup_tar) and os.path.isfile(backup_tar):
-        backup_md5 = os.path.join(backup_controller_path, "{}.md5".format(resultname))
+        backup_md5 = os.path.join(backup_controller_path, f"{resultname}.md5")
 
         # check backup md5 file exist and it is a regular file
         if os.path.exists(backup_md5) and os.path.isfile(backup_md5):
             pass
         else:
             # backup md5 file does not exist or it is not a regular file
-            logger.error(
-                "{md5} does not exist or it is not a regular file".format(
-                    md5=backup_md5
-                )
-            )
+            logger.error("{} does not exist or it is not a regular file", backup_md5)
             return Status.FAIL
 
         # read backup md5 file
@@ -201,23 +196,19 @@ def backup_to_local(
                 backup_md5_hex_value = f.readline().split(" ")[0]
         except Exception:
             # Could not read file
-            logger.exception("Could not read file {md5}".format(md5=backup_md5))
+            logger.exception("Could not read file {}", backup_md5)
             return Status.FAIL
         else:
             if archive_md5_hex_value == backup_md5_hex_value:
                 # declare success
-                logger.info(
-                    "Already locally backed-up: {tarball}".format(
-                        tarball=os.path.join(controller, resultname)
-                    )
-                )
+                logger.info("Already locally backed-up: {}/{}", controller, resultname)
                 return Status.SUCCESS
             else:
                 # md5 file of archive and backup does not match
                 logger.error(
-                    "{tarball} already exists in backup but md5 sums of archive and backup disagree".format(
-                        tarball=os.path.join(controller, resultname)
-                    )
+                    "{}/{} already exists in backup but md5 sums of archive and backup disagree",
+                    controller,
+                    resultname,
                 )
                 return Status.FAIL
     else:
@@ -230,9 +221,9 @@ def backup_to_local(
             # couldn't copy md5 file
             md5_done = False
             logger.exception(
-                "shutil.copy: Unable to copy {} from archive to backup: {}".format(
-                    archive_md5, backup_controller_path
-                )
+                "shutil.copy: Unable to copy {} from archive to backup: {}",
+                archive_md5,
+                backup_controller_path,
             )
         else:
             md5_done = True
@@ -245,30 +236,24 @@ def backup_to_local(
                 # couldn't copy tarball
                 tar_done = False
                 logger.exception(
-                    "shutil.copy: Unable to copy {} from archive to backup: {}".format(
-                        tar, backup_controller_path
-                    )
+                    "shutil.copy: Unable to copy {} from archive to backup: {}",
+                    tar,
+                    backup_controller_path,
                 )
 
                 # remove the copied md5 file from backup
-                bmd5_file = os.path.join(
-                    backup_controller_path, "{}.md5".format(resultname)
-                )
+                bmd5_file = os.path.join(backup_controller_path, f"{resultname}.md5")
                 if os.path.exists(bmd5_file):
                     try:
                         os.remove(bmd5_file)
                     except Exception:
-                        logger.exception("Unable to remove: {}".format(bmd5_file))
+                        logger.exception("Unable to remove: {}", bmd5_file)
             else:
                 tar_done = True
 
         logger.debug("End local backup of {}.".format(tar))
         if md5_done and tar_done:
-            logger.info(
-                "Local backup of {tarball} successful".format(
-                    tarball=os.path.join(controller, resultname)
-                )
-            )
+            logger.info("Local backup of {}/{} successful", controller, resultname)
             return Status.SUCCESS
         else:
             return Status.FAIL
@@ -361,7 +346,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             )
             continue
 
-        archive_md5 = "{}.md5".format(tar)
+        archive_md5 = f"{tar}.md5"
 
         # check md5 file exist and it is a regular file
         if os.path.exists(archive_md5) and os.path.isfile(archive_md5):
@@ -432,9 +417,9 @@ def backup_data(lb_obj, s3_obj, config, logger):
         elif local_backup_result == Status.FAIL:
             nbackup_fail += 1
         else:
-            assert False, "Impossible situation, local_backup_result = {!r}".format(
-                local_backup_result
-            )
+            assert (
+                False
+            ), f"Impossible situation, local_backup_result = {local_backup_result!r}"
 
         # This will handle all the S3 bucket related operations
         # and count the number of successes and failures.
@@ -454,9 +439,9 @@ def backup_data(lb_obj, s3_obj, config, logger):
         elif s3_backup_result == Status.FAIL:
             ns3_fail += 1
         else:
-            assert False, "Impossible situation, s3_backup_result = {!r}".format(
-                s3_backup_result
-            )
+            assert (
+                False
+            ), f"Impossible situation, s3_backup_result = {s3_backup_result!r}"
 
         if local_backup_result == Status.SUCCESS and (
             s3_obj is None or s3_backup_result == Status.SUCCESS
@@ -484,8 +469,8 @@ def main():
 
     if not cfg_name:
         print(
-            "{}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
-            " use --config <file> on the command line".format(_NAME_),
+            f"{_NAME_}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG"
+            f" env variable or use --config <file> on the command line",
             file=sys.stderr,
         )
         return 2
@@ -493,7 +478,7 @@ def main():
     try:
         config = PbenchConfig(cfg_name)
     except BadConfig as e:
-        print("{}: {}".format(_NAME_, e), file=sys.stderr)
+        print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
 
     logger = get_pbench_logger(_NAME_, config)
@@ -519,19 +504,12 @@ def main():
     counts = backup_data(lb_obj, s3_obj, config, logger)
 
     result_string = (
-        "Total processed: {},"
-        " Local backup successes: {},"
-        " Local backup failures: {},"
-        " S3 upload successes: {},"
-        " S3 upload failures: {},"
-        " Quarantined: {}".format(
-            counts.ntotal,
-            counts.nbackup_success,
-            counts.nbackup_fail,
-            counts.ns3_success,
-            counts.ns3_fail,
-            counts.nquaran,
-        )
+        f"Total processed: {counts.ntotal},"
+        f" Local backup successes: {counts.nbackup_success},"
+        f" Local backup failures: {counts.nbackup_fail},"
+        f" S3 upload successes: {counts.ns3_success},"
+        f" S3 upload failures: {counts.ns3_fail},"
+        f" Quarantined: {counts.nquaran}"
     )
 
     logger.info(result_string)
@@ -541,9 +519,7 @@ def main():
     # prepare and send report
     with tempfile.NamedTemporaryFile(mode="w+t", dir=config.TMP) as reportfp:
         reportfp.write(
-            "{}.{}({})\n{}\n".format(
-                prog, config.timestamp(), config.PBENCH_ENV, result_string
-            )
+            f"{prog}.{config.timestamp()}({config.PBENCH_ENV})\n{result_string}\n"
         )
         reportfp.seek(0)
 
