@@ -71,7 +71,7 @@ class BackupObject(object):
             self.dirname = None
         else:
             if not os.path.isdir(dirname):
-                raise Exception("Bad {}: {}".format(name, dirname))
+                raise Exception(f"Bad {name}: {dirname}")
             self.dirname = dirname
             self.s3_config_obj = None
         self.tmpdir = tmpdir
@@ -90,7 +90,7 @@ class BackupObject(object):
         for tar in tarlist:
             result_name = os.path.basename(tar)
             controller = os.path.basename(os.path.dirname(tar))
-            md5_file = "{}.md5".format(tar)
+            md5_file = f"{tar}.md5"
             try:
                 with open(md5_file) as k:
                     md5 = k.readline().split(" ")[0]
@@ -156,9 +156,9 @@ class BackupObject(object):
         # This function returns the count of results that failed the MD5 sum
         # check, and raises exceptions on failure.
 
-        self.indicator_file = os.path.join(self.tmpdir, "list.{}".format(self.name))
-        self.indicator_file_ok = "{}.ok".format(self.indicator_file)
-        self.indicator_file_fail = "{}.fail".format(self.indicator_file)
+        self.indicator_file = os.path.join(self.tmpdir, f"list.{self.name}")
+        self.indicator_file_ok = f"{self.indicator_file}.ok"
+        self.indicator_file_fail = f"{self.indicator_file}.fail"
         self.nfailed_md5 = 0
         with open(self.indicator_file_ok, "w") as f_ok, open(
             self.indicator_file_fail, "w"
@@ -166,10 +166,10 @@ class BackupObject(object):
             for tar in self.content_list:
                 md5_returned = md5sum(os.path.join(self.dirname, tar.name))
                 if tar.md5 == md5_returned:
-                    f_ok.write("{}: {}\n".format(tar.name, "OK"))
+                    f_ok.write(f"{tar.name}: {'OK'}\n")
                 else:
                     self.nfailed_md5 += 1
-                    f_fail.write("{}: {}\n".format(tar.name, "FAILED"))
+                    f_fail.write(f"{tar.name}: {'FAILED'}\n")
         return self.nfailed_md5
 
     def report_failed_md5(self, report):
@@ -177,17 +177,17 @@ class BackupObject(object):
         fail_f = self.indicator_file_fail
         if os.path.exists(fail_f) and os.path.getsize(fail_f) > 0:
             report.write(
-                "\nMD5 Errors ({}): the calculated MD5 values of the following entries "
-                "failed to match the stored MD5:\n".format(self.name)
+                f"\nMD5 Errors ({self.name}): the calculated MD5 values of the following entries "
+                f"failed to match the stored MD5:\n"
             )
             try:
                 with open(fail_f) as f:
                     report.write(f.readline())
             except Exception:
                 # Could not open/read the file
-                msg = "Failure trying to read from the file {}".format(fail_f)
+                msg = f"Failure trying to read from the file {fail_f}"
                 self.logger.exception(msg)
-                report.write("ERROR - {}\n".format(msg))
+                report.write(f"ERROR - {msg}\n")
 
 
 def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
@@ -203,18 +203,18 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
             j += 1
         elif sorted_list_one_content[i].name == sorted_list_two_content[j].name:
             # The md5s are different even though the names are the same.
-            report_text = "MD5 values don't match for: {}\n".format(
-                sorted_list_one_content[i].name
+            report_text = (
+                f"MD5 values don't match for: {sorted_list_one_content[i].name}\n"
             )
             report.write(report_text)
             logger.debug(report_text)
             i += 1
             j += 1
         elif sorted_list_one_content[i].name < sorted_list_two_content[j].name:
-            report_text = "{}: present in {} but not in {}\n".format(
-                sorted_list_one_content[i].name,
-                list_one_obj.description,
-                list_two_obj.description,
+            report_text = (
+                f"{sorted_list_one_content[i].name}: present in "
+                f"{list_one_obj.description} but not in "
+                f"{list_two_obj.description}\n"
             )
             report.write(report_text)
             logger.debug(report_text)
@@ -223,10 +223,10 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
             assert (
                 sorted_list_one_content[i].name > sorted_list_two_content[j].name
             ), "Logic bomb!"
-            report_text = "{}: present in {} but not in {}\n".format(
-                sorted_list_two_content[j].name,
-                list_two_obj.description,
-                list_one_obj.description,
+            report_text = (
+                f"{sorted_list_two_content[j].name}: present in "
+                f"{list_two_obj.description} but not in "
+                f"{list_one_obj.description}\n"
             )
             report.write(report_text)
             logger.debug(report_text)
@@ -235,15 +235,17 @@ def compare_entry_lists(list_one_obj, list_two_obj, report, logger):
 
     if i == len_list_one_content and j < len_list_two_content:
         for entry in sorted_list_two_content[j:len_list_two_content]:
-            report_text = "{}: present in {} but not in {}\n".format(
-                entry.name, list_two_obj.description, list_one_obj.description
+            report_text = (
+                f"{entry.name}: present in {list_two_obj.description} "
+                f" but not in {list_one_obj.description}\n"
             )
             report.write(report_text)
             logger.debug(report_text)
     elif i < len_list_one_content and j == len_list_two_content:
         for entry in sorted_list_one_content[i:len_list_one_content]:
-            report_text = "{}: present in {} but not in {}\n".format(
-                entry.name, list_one_obj.description, list_two_obj.description
+            report_text = (
+                f"{entry.name}: present in {list_one_obj.description} "
+                f"but not in {list_two_obj.description}\n"
             )
             report.write(report_text)
             logger.debug(report_text)
@@ -259,9 +261,7 @@ def sanity_check(s3_obj, logger):
         s3_obj.head_bucket(Bucket=s3_obj.bucket_name)
     except Exception:
         logger.exception(
-            "Bucket: {} does not exist or you have no access\n".format(
-                s3_obj.bucket_name
-            )
+            "Bucket: {} does not exist or you have no access\n", s3_obj.bucket_name
         )
         s3_obj = None
     return s3_obj
@@ -271,8 +271,8 @@ def main():
     cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
     if not cfg_name:
         print(
-            "{}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
-            " use --config <file> on the command line".format(_NAME_),
+            f"{_NAME_}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
+            f" use --config <file> on the command line",
             file=sys.stderr,
         )
         return 2
@@ -280,7 +280,7 @@ def main():
     try:
         config = PbenchConfig(cfg_name)
     except BadConfig as e:
-        print("{}: {}".format(_NAME_, e), file=sys.stderr)
+        print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
 
     logger = get_pbench_logger(_NAME_, config)
@@ -329,9 +329,7 @@ def main():
 
         with tempfile.NamedTemporaryFile(mode="w+t", dir=tmpdir) as reportfp:
             reportfp.write(
-                "{}.{} ({}) started at {}\n".format(
-                    prog, config.TS, config.PBENCH_ENV, start
-                )
+                f"{prog}.{config.TS} ({config.PBENCH_ENV}) started at {start}\n"
             )
             if s3_config_obj is None:
                 reportfp.write(
@@ -372,11 +370,9 @@ def main():
                 # Check the data integrity in ARCHIVE (Question 1).
                 md5_result_archive = archive_obj.checkmd5()
             except Exception as ex:
-                msg = "Failed to check data integrity of ARCHIVE ({})".format(
-                    config.ARCHIVE
-                )
+                msg = f"Failed to check data integrity of ARCHIVE ({config.ARCHIVE})"
                 logger.exception(msg)
-                reportfp.write("\n{} - '{}'\n".format(msg, ex))
+                reportfp.write(f"\n{msg} - '{ex}'\n")
                 sts += 1
             else:
                 if md5_result_archive > 0:
@@ -395,11 +391,9 @@ def main():
                 # Check the data integrity in BACKUP (Question 2).
                 md5_result_backup = local_backup_obj.checkmd5()
             except Exception as ex:
-                msg = "Failed to check data integrity of BACKUP ({})".format(
-                    config.BACKUP
-                )
+                msg = f"Failed to check data integrity of BACKUP ({config.BACKUP})"
                 logger.exception(msg)
-                reportfp.write("\n{} - '{}'\n".format(msg, ex))
+                reportfp.write(f"\n{msg} - '{ex}'\n")
             else:
                 if md5_result_backup > 0:
                     # Create a report for failed MD5 results from BACKUP (Question 2)
@@ -413,7 +407,7 @@ def main():
 
             # Compare ARCHIVE with BACKUP (Questions 3 and 3a).
             msg = "Comparing ARCHIVE with BACKUP"
-            reportfp.write("\n{}\n{}\n".format(msg, "-" * len(msg)))
+            reportfp.write(f"\n{msg}\n{'-' * len(msg)}\n")
             logger.debug("{}: start", msg)
             compare_entry_lists(archive_obj, local_backup_obj, reportfp, logger)
             logger.debug("{}: end", msg)
@@ -421,7 +415,7 @@ def main():
             if s3_config_obj is not None:
                 # Compare ARCHIVE with S3 (Questions 4, 4a, and 4b).
                 msg = "Comparing ARCHIVE with S3"
-                reportfp.write("\n{}\n{}\n".format(msg, "-" * len(msg)))
+                reportfp.write(f"\n{msg}\n{'-' * len(msg)}\n")
                 logger.debug("{}: start", msg)
                 compare_entry_lists(archive_obj, s3_backup_obj, reportfp, logger)
                 logger.debug("{}: end", msg)
@@ -429,21 +423,17 @@ def main():
             if s3_config_obj is None:
                 s3_start = "<skipped>"
             reportfp.write(
-                "\n\nPhases (started):\n"
-                "Archive List Creation:       {}\n"
-                "Local Backup List Creation:  {}\n"
-                "S3 List Creation:            {}\n"
-                "Archive MD5 Checks:          {}\n"
-                "Local Backup MD5 Checks:     {}\n".format(
-                    ar_start, lb_start, s3_start, ar_md5_start, lb_md5_start
-                )
+                f"\n\nPhases (started):\n"
+                f"Archive List Creation:       {ar_start}\n"
+                f"Local Backup List Creation:  {lb_start}\n"
+                f"S3 List Creation:            {s3_start}\n"
+                f"Archive MD5 Checks:          {ar_md5_start}\n"
+                f"Local Backup MD5 Checks:     {lb_md5_start}\n"
             )
 
             end = config.timestamp()
             reportfp.write(
-                "\n{}.{} ({}) finished at {}\n".format(
-                    prog, config.TS, config.PBENCH_ENV, end
-                )
+                f"\n{prog}.{config.TS} ({config.PBENCH_ENV}) finished at {end}\n"
             )
 
             # Rewind to the beginning.
