@@ -2,3 +2,4 @@ ansible
 elasticsearch
 sh
 boto3
+click

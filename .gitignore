@@ -12,3 +12,4 @@ dist
 .tox
 pip-wheel-metadata
 .eggs
+.venv
