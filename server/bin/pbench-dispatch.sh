@@ -48,7 +48,7 @@ log_init $PROG
 
 # the link source and destination for this script
 linksrc=TODO
-linkdestlist=$(getconf.py -l dispatch-states pbench-server)
+linkdestlist=$(pbench-config -l dispatch-states pbench-server)
 
 mail_content=$tmp/mail_content.log
 index_content=$tmp/index_mail_contents

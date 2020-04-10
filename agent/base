@@ -23,7 +23,7 @@ fi
 
 # very first thing to do is figure out which pbench we are
 if [[ -z "$pbench_run" ]]; then
-    pbench_run=$(getconf.py pbench_run pbench-agent)
+    pbench_run=$(pbench-config pbench_run pbench-agent)
     if [[ -z "$pbench_run" ]]; then
 	pbench_run=/var/lib/pbench-agent
     fi
@@ -47,7 +47,7 @@ export pbench_tmp
 
 # log file - N.B. not a directory
 if [[ -z "$pbench_log" ]]; then
-    pbench_log=$(getconf.py pbench_log pbench-agent)
+    pbench_log=$(pbench-config pbench_log pbench-agent)
     if [[ -z "$pbench_log" ]]; then
 	pbench_log=$pbench_run/pbench.log
     fi
@@ -55,7 +55,7 @@ if [[ -z "$pbench_log" ]]; then
 fi
 
 if [[ -z "$pbench_install_dir" ]]; then
-    pbench_install_dir=$(getconf.py install-dir pbench-agent)
+    pbench_install_dir=$(pbench-config install-dir pbench-agent)
     if [[ -z "$pbench_install_dir" ]]; then
 	pbench_install_dir=/opt/pbench-agent
     fi
@@ -139,7 +139,7 @@ else
 fi
 
 if [[ -z "$ssh_opts" ]]; then
-    ssh_opts=$(getconf.py ssh_opts results)
+    ssh_opts=$(pbench-config ssh_opts results)
     if [[ -z "$ssh_opts" ]]; then
         ssh_opts='-o StrictHostKeyChecking=no'
     fi
@@ -147,7 +147,7 @@ if [[ -z "$ssh_opts" ]]; then
 fi
 
 if [[ -z "$scp_opts" ]]; then
-    scp_opts=$(getconf.py scp_opts results)
+    scp_opts=$(pbench-config scp_opts results)
     if [[ -z "$scp_opts" ]]; then
         scp_opts='-o StrictHostKeyChecking=no'
     fi

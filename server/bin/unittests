@@ -5,7 +5,7 @@
 umask 0002
 
 # Don't allow an external _PBENCH_SERVER_CONFIG environment variable to affect the operation
-# of the unit tests since the unit tests themselves use getconf.py which looks
+# of the unit tests since the unit tests themselves use pbench-config which looks
 # for that envinronment variable as input.
 unset _PBENCH_SERVER_CONFIG
 
@@ -242,7 +242,7 @@ function _setup_state {
     let res=res+$?
     mkdir -p $_testopt/common/lib
     let res=res+$?
-    cp -a $_tdir/{unittests,getconf.py,pbench*} $_testopt/bin
+    cp -a $_tdir/{unittests,pbench*} $_testopt/bin
     let res=res+$?
     mkdir -p $_testopt/html/static/{js,css}/v0.{2,3}
     let res=res+$?
@@ -254,7 +254,7 @@ function _setup_state {
     let res=res+$?
     cp -a $_tdir/../../web-server/v0.3/css/ $_testopt/html/static/css/v0.3
     let res=res+$?
-    cp -a $_tdir/{unittests,getconf.py,pbench*} $_testopt_sat/bin
+    cp -a $_tdir/{unittests,pbench*} $_testopt_sat/bin
     let res=res+$?
     cp -a $_tdir/../lib $_testopt
     let res=res+$?
