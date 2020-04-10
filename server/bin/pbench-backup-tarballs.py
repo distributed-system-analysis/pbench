@@ -15,8 +15,8 @@ from pbench import (
     rename_tb_link,
     md5sum,
 )
-from pbench.report import Report
-from pbench.s3backup import S3Config, Status, NoSuchKey
+from pbench.server.report import Report
+from pbench.server.s3backup import S3Config, Status, NoSuchKey
 
 
 _NAME_ = "pbench-backup-tarballs"

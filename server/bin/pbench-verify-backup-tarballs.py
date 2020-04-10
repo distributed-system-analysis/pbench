@@ -47,8 +47,8 @@ import tempfile
 from enum import Enum
 
 from pbench import PbenchConfig, BadConfig, get_pbench_logger, md5sum
-from pbench.report import Report
-from pbench.s3backup import S3Config, Entry
+from pbench.server.report import Report
+from pbench.server.s3backup import S3Config, Entry
 
 
 _NAME_ = "pbench-verify-backup-tarballs"
