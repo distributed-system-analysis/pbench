@@ -1031,6 +1031,7 @@ function inner_most_loop() {
 				iteration="${count}-${tmp_traffic_profile}-${max_loss_pct}pct_drop"
 				record_profile_iteration "${count}" "${tmp_traffic_profile}" "${max_loss_pct}pct_drop" "${iteration}"
 			fi
+			tt_iteration_dir="${benchmark_run_dir}/${count}-default"
 			iteration_dir="$benchmark_run_dir/$iteration"
 			mkdir -p $iteration_dir
 			benchmark_cmd_file="$iteration_dir/$benchmark_name.cmd"
@@ -1102,6 +1103,7 @@ function inner_most_loop() {
 						break
 					fi
 					benchmark_results_dir="$iteration_dir/sample$sample"
+					tt_benchmark_results_dir="${tt_iteration_dir}/sample${sample}"
 					if [ "$postprocess_only" != "y" ]; then
 						mkdir -p $benchmark_results_dir
 						echo "test sample $sample of $num_samples"
@@ -1111,16 +1113,33 @@ function inner_most_loop() {
 						if [ "$pre_benchmark_cmd" != "" ]; then
 							PBENCH_ITERATION=$iteration PBENCH_SAMPLE=$sample $pre_benchmark_cmd 2>&1 | tee -i $pre_benchmark_cmd_log
 						fi
-						$benchmark_cmd_file --output-dir=$benchmark_results_dir 2>&1 | pbench-tool-trigger "$iteration" "$benchmark_run_dir" $tool_group $sample | tee -i $result_file
+						${benchmark_cmd_file} --output-dir=${benchmark_results_dir} 2>&1 | pbench-tool-trigger "${count}" "${benchmark_run_dir}" ${tool_group} ${sample} | tee -i ${result_file}
 						rc=$?
 						echo "exit code: $rc"
 						if [ $rc -ne 0 ]; then
-							error_log "iteration $iteration sample $sample returned non-zero exit code"
-							pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
+							error_log "iteration ${iteration} sample ${sample} returned non-zero exit code"
+							pbench-stop-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
 						fi
 
-						if [ -e "$benchmark_results_dir/tools-default" ]; then
-							pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
+						if [[ -e "${tt_benchmark_results_dir}/tools-${tool_group}" ]]; then
+							# Post-process the collected tool data now
+							pbench-postprocess-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
+
+							# Move the tool data collected for the tool-group to its final resting place.
+							mv ${tt_benchmark_results_dir}/tools-${tool_group} ${benchmark_results_dir}/
+							if [[ ${?} -ne 0 ]]; then
+								error_log "INTERNAL ERROR: failed to move tool-trigger data, '${tt_benchmark_results_dir}/tools-${tool_group}' to '${benchmark_results_dir}'"
+								exit 1
+							fi
+							# The "tool-trigger" sample directory should be empty now.
+							rmdir ${tt_benchmark_results_dir}
+							if [[ ${?} -ne 0 ]]; then
+								error_log "INTERNAL ERROR: failed to remove tool-trigger results directory, '${tt_benchmark_results_dir}'"
+								exit 1
+							fi
+						else
+							msg="tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
+							echo "${msg}"; log "${msg}"
 						fi
 					else
 						if [[ ! -d $benchmark_results_dir ]]; then
@@ -1165,6 +1184,14 @@ function inner_most_loop() {
 			if [ $rc -eq 0 ]; then
 				echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
 				log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+			fi
+			if [[ "$postprocess_only" != "y" && -e "${tt_iteration_dir}" ]]; then
+				# Remove this iteration's "tool-trigger" directory.
+				rmdir ${tt_iteration_dir}
+				if [[ ${?} -ne 0 ]]; then
+					error_log "INTERNAL ERROR: failed to remove tool-trigger directory, '${tt_iteration_dir}'"
+					exit 1
+				fi
 			fi
 		else
 			echo "Skipping iteration $iteration ($count of $total_iterations)"
