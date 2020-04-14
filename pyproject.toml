@@ -3,6 +3,8 @@ skip-string-normalization = false
 exclude = '''
 (
 fio-histo-log-pctiles.py
+| binary-search.py
+| profile-builder.py
 | agent/stockpile
 )
 '''

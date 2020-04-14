@@ -1,7 +1,8 @@
 [flake8]
 doctests = True
-exclude=.venv,.git,.tox,dist,doc,*lib/python*,*egg,build,*web-server/*,
-        *agent/stockpile/*,*agent/bench-scripts/test-bin/fio-histo-log-pctiles.py
+exclude = .venv,.git,.tox,dist,doc,*lib/python*,*egg,build,*web-server/*,
+        *agent/stockpile/*,*agent/bench-scripts/test-bin/fio-histo-log-pctiles.py,
+        *agent/bench-scripts/tests/pbench-trafficgen/test-39.trafficgen/*,
+        *agent/bench-scripts/tests/pbench-trafficgen/test-40.trafficgen/*
 ignore = E121,E123,E126,E226,E24,E704,E501,W503,E203
 max-line-length = 88
-
