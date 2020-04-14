@@ -68,8 +68,7 @@ try:
     from ansible.inventory.manager import InventoryManager
 except ImportError as exc:
     logging.error(
-        "[%s]: required Ansible python3 modules not available, '%s'", PROG, exc
-    )
+        "[%s]: required Ansible python3 modules not available, '%s'", PROG, exc)
     sys.exit(1)
 
 try:

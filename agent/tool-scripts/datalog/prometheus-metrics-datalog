@@ -261,8 +261,7 @@ while True:
                 ofp.flush()
         else:
             logging.warning(
-                "[%s] json.loads(prom2json_out) did not return a" " list", PROG
-            )
+                "[%s] json.loads(prom2json_out) did not return a" " list", PROG)
 
     # Record how long all the work took during this interval.
     endtime = time()

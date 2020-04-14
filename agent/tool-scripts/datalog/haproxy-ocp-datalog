@@ -222,8 +222,7 @@ class Router(object):
                         PROG,
                         name,
                         self._pod_name,
-                        returncode,
-                    )
+                        returncode)
             else:
                 # ... all other processes we just poll()
                 returncode = proc.poll()

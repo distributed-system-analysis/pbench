@@ -219,8 +219,7 @@ def process_stdout(metrics_datalog, name):
                     "line %d of %s is an invalid prometheus metrics" " format, %s",
                     _idx,
                     name,
-                    exc,
-                )
+                    exc)
                 # Count this line as processed
                 _idx += 1
                 continue
