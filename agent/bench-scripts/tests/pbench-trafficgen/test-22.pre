@@ -1,5 +1,16 @@
 #!/bin/bash
 
+function remove_mock() {
+    # Remove the mocked out symlink for post-processing operations.
+    rm ${_testopt}/bench-scripts/postprocess/${1}
+    # Install the real one.
+    cp ${_tdir}/postprocess/${1} ${_testopt}/bench-scripts/postprocess/
+}
+
+remove_mock generate-benchmark-summary
+remove_mock process-iteration-samples
+remove_mock trafficgen-postprocess
+
 prog=$(basename ${0})
 dir=$(basename $(dirname ${0}))
 tar xf ${_tdir}/tests/${dir}/${prog%%.*}.tar.xz -C ${_testdir}/

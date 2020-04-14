@@ -3,6 +3,9 @@ export LANG=C
 export LC_ALL=C
 export _tdir=$(dirname $(readlink -f ${0}))
 
+# We mock our "cat" during our tests, so we fetch the real one first.
+export _real_cat="$(command -v cat)"
+
 _testroot=/var/tmp/pbench-test-bench
 mkdir -p ${_testroot}
 if [[ ! -d ${_testroot} ]]; then
@@ -86,25 +89,34 @@ function _run {
     local tscrpt="${1}"
     shift
     local opts_file="${1}"
+    shift
     local opts
     if [[ -f "${opts_file}" ]]; then
-        opts=" $(cat ${opts_file})"
+        opts=" $(${_real_cat} ${opts_file})"
     else
         opts=""
     fi
+    local env_file="${1}"
 
     echo "${tname} ${tscrpt}${opts}"
     echo "+++ Running ${tname} ${tscrpt}" >> $_testout
 
-    _tst_benchmark=${tscrpt%% *} \
-    _PBENCH_AGENT_CONFIG=${_testopt}/config/pbench-agent.cfg \
-    pbench_install_dir=${_testopt} \
-    pbench_bspp_dir=${_testopt}/bench-scripts/postprocess \
-    pbench_lib_dir=${_testopt}/lib \
-    pbench_run=${_testdir} \
-    pbench_log=${_testdir}/pbench.log \
-    benchmark_bin=${_testopt}/unittest-scripts/bm \
-            eval ${tscrpt} --config=${tname} ${opts} >> ${_testout} 2>&1
+    printf -- "#!/bin/bash\n\n" > ${_testroot}/run.cmd
+    printf -- "export _tst_benchmark=%s\n" "${tscrpt%% *}" >> ${_testroot}/run.cmd
+    printf -- "export _PBENCH_AGENT_CONFIG=%s/config/pbench-agent.cfg\n" "${_testopt}" >> ${_testroot}/run.cmd
+    printf -- "export pbench_install_dir=%s\n" "${_testopt}" >> ${_testroot}/run.cmd
+    printf -- "export pbench_bspp_dir=%s/bench-scripts/postprocess\n" "${_testopt}" >> ${_testroot}/run.cmd
+    printf -- "export pbench_lib_dir=%s/lib\n" "${_testopt}" >> ${_testroot}/run.cmd
+    printf -- "export pbench_run=%s\n" "${_testdir}" >> ${_testroot}/run.cmd
+    printf -- "export pbench_log=%s/pbench.log\n" "${_testdir}" >> ${_testroot}/run.cmd
+    printf -- "export benchmark_bin=%s/unittest-scripts/bm\n\n" "${_testopt}" >> ${_testroot}/run.cmd
+    if [[ -e "${env_file}" ]]; then
+        ${_real_cat} ${env_file} >> ${_testroot}/run.cmd
+        printf -- "\n" >> ${_testroot}/run.cmd
+    fi
+    printf -- "%s --config=%s %s\n" "${tscrpt}" "${tname}" "${opts}" >> ${_testroot}/run.cmd
+    chmod +x ${_testroot}/run.cmd
+    ${_testroot}/run.cmd >> ${_testout} 2>&1
     sts=${?}
 
     echo "--- Finished ${tname} ${tscrpt} (status=${sts})" >> ${_testout}
@@ -123,7 +135,7 @@ function _dump_file {
         return
     fi
     echo "+++ ${1}/${2} file contents" >> ${_testout}
-    cat ${_testdir}/${1}/${2} >> ${_testout} 2>&1
+    ${_real_cat} ${_testdir}/${1}/${2} >> ${_testout} 2>&1
     echo "--- ${1}/${2} file contents" >> ${_testout}
 }
 
@@ -131,7 +143,7 @@ function _dump_logs {
     # Dump the state of any generated script logs
     if [[ -s "${_testdir}/pbench.log" ]]; then
         echo "+++ pbench.log file contents" >> ${_testout}
-        cat ${_testdir}/pbench.log >> ${_testout} 2>&1
+        ${_real_cat} ${_testdir}/pbench.log >> ${_testout} 2>&1
         echo "--- pbench.log file contents" >> ${_testout}
     fi
     if [[ -s "${_testroot}/test-execution.log" ]]; then
@@ -286,7 +298,7 @@ while read tst benchmark; do
     bm_postfix="${benchmark#*-}"
 
     if [[ -f "${_tdir}/tests/${_tst}.sts" ]]; then
-        status="$(cat ${_tdir}/tests/${_tst}.sts)"
+        status="$(${_real_cat} ${_tdir}/tests/${_tst}.sts)"
     else
         status=""
     fi
@@ -305,7 +317,7 @@ while read tst benchmark; do
         ${_tdir}/tests/${_tst}.pre
     fi
 
-    _run ${tst} ${benchmark} ${_tdir}/tests/${_tst}.opts
+    _run ${tst} ${benchmark} ${_tdir}/tests/${_tst}.opts ${_tdir}/tests/${_tst}.env
     res=${?}
 
     if [[ -x "${_tdir}/tests/${_tst}.post" ]]; then

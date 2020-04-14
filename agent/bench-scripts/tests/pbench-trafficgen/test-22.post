@@ -1,3 +1,14 @@
 #!/bin/bash
 
-cat ${_testdir}/result.json >> ${_testout}
+${_real_cat} ${_testdir}/result.json >> ${_testout}
+
+function restore_mock() {
+    # Remove the real post-processing operation.
+    rm ${_testopt}/bench-scripts/postprocess/${1}
+    # Restore the mocked out symlink for the post-processing operation.
+    ln -s mock-cmd ${_testopt}/bench-scripts/postprocess/${1}
+}
+
+restore_mock generate-benchmark-summary
+restore_mock process-iteration-samples
+restore_mock trafficgen-postprocess
