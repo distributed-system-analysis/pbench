@@ -1,6 +1,7 @@
 #!/bin/bash
 
-tox -e server
+tox -e lint
+tox -e py3-agent
 tox -e agent
-tox -e pytest_server
-tox -e pytest_agent
+tox -e py3-server
+tox -e server
