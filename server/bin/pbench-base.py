@@ -9,7 +9,8 @@ from argparse import ArgumentParser
 # existing shell scripts.  This maintains the single-source-of-
 # truth for those definitions in the PbenchConfig class, but
 # still accessible to all pbench bash shell scripts.
-from pbench import BadConfig, PbenchConfig
+from pbench import PbenchConfig
+from pbench.common.exceptions import BadConfig
 
 if __name__ != "__main__":
     sys.exit(1)
