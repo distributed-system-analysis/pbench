@@ -173,7 +173,6 @@ def print_list(_list, sep):
     print(sep.join([str(x) for x in _list]))
 
 
-
 options = [
     make_option(
         "-a",
