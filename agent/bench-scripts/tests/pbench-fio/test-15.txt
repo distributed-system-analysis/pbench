@@ -230,8 +230,8 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-fio-3.3 is installed
-[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-fio-3.19 is installed
+[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.19 is installed
 [debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/tmp/fio", clients="")
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/1-rw-42KiB/fio.job ]
 [debug][1900-01-01T00:00:00.000000] post-processing fio result

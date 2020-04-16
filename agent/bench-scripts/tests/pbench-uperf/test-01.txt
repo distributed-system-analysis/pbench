@@ -73,8 +73,8 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/pbench-uperf.cmd
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-uperf-1.0.4 is installed
-[debug][1900-01-01T00:00:00.000000] [pbench-uperf]pbench-uperf is installed
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] uperf-1.0.7 is installed
+[debug][1900-01-01T00:00:00.000000] [pbench-uperf] uperf-1.0.7 is installed
 [debug][1900-01-01T00:00:00.000000] checking for uperf on client c1
 [debug][1900-01-01T00:00:00.000000] checking for uperf on client c2
 [debug][1900-01-01T00:00:00.000000] checking for uperf on client c3
@@ -118,10 +118,10 @@ Iteration 2-tcp_stream-64B-1i complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary uperf --config=test-01 --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2 --servers=s1,s2,s3 --clients=c1,c2,c3 --server-node=0,-1,2 --client-node=1,-1,3 /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i trans_sec 5 0 6 n y
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i Gb_sec 5 0 6 n y
-/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1 tcp 64 1 rr c1,c2,c3 s1,s2,s3 uperf- default 1.0.4
-/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2 tcp 64 1 rr c1,c2,c3 s1,s2,s3 uperf- default 1.0.4
-/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1 tcp 64 1 stream c1,c2,c3 s1,s2,s3 uperf- default 1.0.4
-/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2 tcp 64 1 stream c1,c2,c3 s1,s2,s3 uperf- default 1.0.4
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1 tcp 64 1 rr c1,c2,c3 s1,s2,s3 uperf- default 1.0.7
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2 tcp 64 1 rr c1,c2,c3 s1,s2,s3 uperf- default 1.0.7
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1 tcp 64 1 stream c1,c2,c3 s1,s2,s3 uperf- default 1.0.7
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess /var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2 tcp 64 1 stream c1,c2,c3 s1,s2,s3 uperf- default 1.0.7
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00 --sysinfo=default beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/uperf_test-01_1900.01.01T00.00.00 --sysinfo=default end
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check

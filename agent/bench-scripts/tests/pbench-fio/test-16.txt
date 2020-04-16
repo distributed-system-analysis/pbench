@@ -60,8 +60,8 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-fio-3.3 is installed
-[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.3 is installed
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] pbench-fio-3.19 is installed
+[debug][1900-01-01T00:00:00.000000] [pbench-fio]pbench-fio 3.19 is installed
 [debug][1900-01-01T00:00:00.000000] verifying clients have fio installed
 [debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/dev/sda0,/dev/sda1", clients="192.168.1.1")
 [debug][1900-01-01T00:00:00.000000] checking to see if /dev/sda0 exists on client 192.168.1.1

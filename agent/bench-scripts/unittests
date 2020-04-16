@@ -214,7 +214,13 @@ function _setup_state {
         echo "ERROR: failed to create test pbench config directory, \"${_testopt}/config\"" >&2
         exit 1
     fi
-    cp ${_tdir}/tests/Defaults/pbench-agent.cfg ${_testopt}/config/
+    cp ${_tdir}/../config/pbench-agent-default.cfg ${_testopt}/config/
+    if [[ ${?} -ne 0 ]]; then
+        echo "ERROR: failed to create pbench-agent default config file, \"${_testopt}/config/pbench-agent-default.cfg\"" >&2
+        exit 1
+    fi
+    printf -- "[DEFAULT]\npbench_install_dir = %s\n" "${_testopt}" > ${_testopt}/config/pbench-agent.cfg
+    cat ${_tdir}/tests/Defaults/pbench-agent.cfg >> ${_testopt}/config/pbench-agent.cfg
     if [[ ${?} -ne 0 ]]; then
         echo "ERROR: failed to create pbench-agent config file, \"${_testopt}/config/pbench-agent.cfg\"" >&2
         exit 1
@@ -334,7 +340,7 @@ done < ${_testroot}/tests.lis
 
 # Final clean up, if there are no failures, we'll be able to remove the
 # hierarchy entirely.
-rm -rf ${_testroot}/opt ${_testroot}/tests.lis
+rm -rf ${_testroot}/opt ${_testroot}/tests.lis ${_testroot}/run.cmd
 rmdir ${_testroot} > /dev/null 2>&1
 
 if [[ ${errs} -gt 0 ]]; then
