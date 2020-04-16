@@ -1,8 +1,0 @@
-+++ Running test-34 pbench-move-results --help
-usage:
-pbench-move-results [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]
---- Finished test-34 pbench-move-results (status=0)
-+++ pbench tree state
-/var/tmp/pbench-test-utils/pbench
-/var/tmp/pbench-test-utils/pbench/tmp
---- pbench tree state
