@@ -16,3 +16,5 @@ AUTHORS
 ChangeLog
 .idea/
 .pytest_cache/
+.venv
+.vscode
