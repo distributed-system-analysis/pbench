@@ -24,12 +24,16 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-benchmark_rpm=$script_name
 benchmark="uperf"
+benchmark_rpm=${benchmark}
 if [[ -z "$benchmark_bin" ]]; then
     benchmark_bin=/usr/local/bin/$benchmark
 fi
-ver=1.0.4
+ver="$(getconf.py version uperf)"
+if [[ -z "${ver}" ]]; then
+        error_log "${script_name}: package version is missing in config file"
+        exit 1
+fi
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
@@ -182,10 +186,10 @@ function stop_server {
 }
 
 function install_uperf {
-	if check_install_rpm $benchmark_rpm $ver; then
-		debug_log "[$script_name]$benchmark_rpm is installed"
+	if check_install_rpm ${benchmark_rpm} ${ver}; then
+		debug_log "[$script_name] ${benchmark_rpm}-${ver} is installed"
 	else
-		error_log "[$script_name]$benchmark_rpm installation failed, exiting"
+		error_log "[$script_name] ${benchmark_rpm}-${ver} is not installed, exiting"
 		exit 1
 	fi
 }
@@ -568,7 +572,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									if [ "$log_response_times" == "y" ]; then
 										resp_opt=" -X $benchmark_results_dir/$uperf_identifier--response-times.txt"
 									fi
-									benchmark_client_cmd="${benchmark_bin} -v -m $xml_file -x -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
+									benchmark_client_cmd="${benchmark_bin} -v -m $xml_file -R -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
 									# adjust client command for NUMA binding
 									if [ ! -z "$client_node" ]; then
 										if [ $client_node -ge 0 ]; then
@@ -684,7 +688,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								echo "Not going to run uperf.  Only postprocesing existing data"
 								log "Not going to run uperf.  Only postprocesing existing data"
 							fi
-							echo "$script_path/postprocess/$benchmark-postprocess \"$benchmark_results_dir\" \"$protocol\" \"$message_size\" \"$instance\" \"$test_type\" \"$clients\" \"$servers\" \"$tool_label_pattern\" \"$tool_group\" \"$ver\"" >"$benchmark_results_dir/$benchmark-postprocess.cmd"
+							echo "$script_path/postprocess/$benchmark-postprocess \"$benchmark_results_dir\" \"$protocol\" \"$message_size\" \"$instance\" \"$test_type\" \"$clients\" \"$servers\" \"$tool_label_pattern\" \"$tool_group\" \"${ver}\"" >"$benchmark_results_dir/$benchmark-postprocess.cmd"
 							chmod +x "$benchmark_results_dir/$benchmark-postprocess.cmd"
 							$benchmark_results_dir/$benchmark-postprocess.cmd
 						done
