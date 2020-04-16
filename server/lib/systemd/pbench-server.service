@@ -10,7 +10,7 @@ After=network.target httpd.service
 
 [Service]
 Type = simple
-ExecStart = /opt/pbench-server/utils/pbench_server.py
+ExecStart = /usr/bin/pbench-server
 ExecStop = /usr/bin/pkill pbench-server
 Restart = always
 StartLimitInterval = 60
