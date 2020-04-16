@@ -14,3 +14,5 @@ pip-wheel-metadata
 .eggs
 .idea/
 .pytest_cache/
+.venv
+.vscode

@@ -7,9 +7,8 @@ env:
   - TOXENV=lint
   - TOXENV=agent
   - TOXENV=server
-  - TOXENV=pytest_agent
-  - TOXENV=pytest_server
-  - TOXENV=py3
+  - TOXENV=py3-server
+  - TOXENV=py3-agent
 before_install:
  - sudo apt-get update
 install:
