@@ -130,7 +130,7 @@ if [[ ! -e "${mdlog}" ]]; then
     exit 0
 fi
 
-res_name=$(getconf.py --config ${mdlog} name pbench)
+res_name=$(pbench-config --config ${mdlog} name pbench)
 if [[ "${res_name}" != "${pbench_run_name}" ]]; then
     warn_log "The run in directory ${pbench_run}/${pbench_run_name} has an unexpected metadata name, \"${res_name}\" - skipping"
     exit 1
