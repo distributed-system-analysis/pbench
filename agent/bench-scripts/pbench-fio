@@ -18,7 +18,7 @@ export benchmark_run_dir=""
 if [[ -z "$benchmark_bin" ]]; then
 	benchmark_bin=/usr/local/bin/$benchmark
 fi
-ver="$(getconf.py version pbench-fio)"
+ver="$(pbench-config version pbench-fio)"
 if [[ -z "${ver}" ]]; then
 	error_log "pbench-fio: package version is missing in config file"
 	exit 1
@@ -69,7 +69,7 @@ tool_label_pattern="fio-"
 tool_group="default"
 max_key_length=20
 primary_metric="readwrite_IOPS"
-histogram_interval_sec=$(getconf.py histogram-interval-sec pbench-fio)
+histogram_interval_sec=$(pbench-config histogram-interval-sec pbench-fio)
 if [ -z "$histogram_interval_sec" ] ;then
 	histogram_interval_sec=10
 fi
