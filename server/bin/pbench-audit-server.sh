@@ -1,6 +1,5 @@
 #! /bin/bash
 
-
 # Audit the fs-version-001 archive, incoming, results, and users
 # directory structures.
 #
@@ -360,7 +359,7 @@ function verify_results {
                     prefix_file="$ARCHIVE/${controller}/.prefix/${tb}.prefix"
                     # Version 002 agents use the metadata log to store a
                     # prefix.
-                    __prefix=$(getconf.py -C $INCOMING/${controller}/${tb}/metadata.log prefix run)
+                    __prefix=$(pbench-config -C $INCOMING/${controller}/${tb}/metadata.log prefix run)
                     _prefix=${__prefix#/}
                     prefix=${_prefix%/}
                     if [[ "${prefix_path}" == "." ]]; then
@@ -404,7 +403,7 @@ function verify_results {
                         # We are reviewing a user tree, so check the user in
                         # the configuration.  Version 002 agents use the
                         # metadata log to store a user as well.
-                        user=$(getconf.py -C $INCOMING/${controller}/${tb}/metadata.log user run)
+                        user=$(pbench-config -C $INCOMING/${controller}/${tb}/metadata.log user run)
                         if [[ -z "${user}" ]]; then
                             # No user in the metadata.log of the tar ball, but
                             # we are examining a link in the user tree that
