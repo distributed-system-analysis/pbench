@@ -22,7 +22,7 @@ fi
 configdir=$(dirname $configfile)
 config_files=$(ls $configdir)
 # copy the configuration file to the standard place
-dest=$(getconf.py --config $configfile install-dir pbench-server)
+dest=$(pbench-config --config $configfile install-dir pbench-server)
 dest=$dest/lib/config
 
 for x in $config_files ;do
@@ -35,13 +35,13 @@ for x in $config_files ;do
     fi
 done
 
-user=$(getconf.py --config $configfile user pbench-server)
+user=$(pbench-config --config $configfile user pbench-server)
 if [ -z "$user" ] ;then
     echo "$prog: user is undefined in section \"pbench-server\" of config file."
     exit 4
 fi
 
-group=$(getconf.py --config $configfile group pbench-server)
+group=$(pbench-config --config $configfile group pbench-server)
 if [ -z "$group" ] ;then
     echo "$prog: group is undefined in section \"pbench-server\" of config file."
     exit 5

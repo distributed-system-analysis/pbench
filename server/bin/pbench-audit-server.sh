@@ -360,7 +360,7 @@ function verify_results {
                     prefix_file="$ARCHIVE/${controller}/.prefix/${tb}.prefix"
                     # Version 002 agents use the metadata log to store a
                     # prefix.
-                    prefix=$(getconf.py -C $INCOMING/${controller}/${tb}/metadata.log prefix run)
+                    prefix=$(pbench-config -C $INCOMING/${controller}/${tb}/metadata.log prefix run)
                     if [[ "${prefix_path}" == "." ]]; then
                         # No prefix, ensure it doesn't have a prefix in the
                         # metadata.log file or in a prefix file.
@@ -402,7 +402,7 @@ function verify_results {
                         # We are reviewing a user tree, so check the user in
                         # the configuration.  Version 002 agents use the
                         # metadata log to store a user as well.
-                        user=$(getconf.py -C $INCOMING/${controller}/${tb}/metadata.log user run)
+                        user=$(pbench-config -C $INCOMING/${controller}/${tb}/metadata.log user run)
                         if [[ -z "${user}" ]]; then
                             # No user in the metadata.log of the tar ball, but
                             # we are examining a link in the user tree that
