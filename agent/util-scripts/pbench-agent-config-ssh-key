@@ -14,8 +14,8 @@
 
 configfile=$1
 keyfile=$2
-user=$(getconf.py -C $configfile pbench_user pbench-agent)
-group=$(getconf.py -C $configfile pbench_group pbench-agent)
+user=$(pbench-config -C $configfile pbench_user pbench-agent)
+group=$(pbench-config -C $configfile pbench_group pbench-agent)
 
 # fallbacks assume the existence of user/group pbench
 if [ -z "$user" ] ;then
@@ -25,7 +25,7 @@ if [ -z "$group" ] ;then
     group=pbench
 fi
 
-pbenchdir=$(getconf.py -C $configfile install-dir pbench-agent)
+pbenchdir=$(pbench-config -C $configfile install-dir pbench-agent)
 # copy the key file and adjust perms
 if [ -f $keyfile ] ;then
     cp $keyfile $pbenchdir/id_rsa
