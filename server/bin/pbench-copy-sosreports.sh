@@ -58,9 +58,9 @@ linksrc=TO-COPY-SOS
 linkdest=COPIED-SOS
 
 if [ "$SOSREPORTDEST" == "" ]; then
-    _sosrpt_user=$(getconf.py user sosreports)
-    _sosrpt_host=$(getconf.py host sosreports)
-    _sosrpt_dir=$(getconf.py dir sosreports)
+    _sosrpt_user=$(pbench-config user sosreports)
+    _sosrpt_host=$(pbench-config host sosreports)
+    _sosrpt_dir=$(pbench-config dir sosreports)
     SOSREPORTDEST=$_sosrpt_user@$_sosrpt_host:$_sosrpt_dir/
 fi
 

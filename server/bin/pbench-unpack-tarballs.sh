@@ -50,7 +50,7 @@ test -d ${USERS} || doexit "Bad USERS=${USERS}"
 linksrc=TO-UNPACK
 linkdest=UNPACKED
 linkerr=WONT-UNPACK
-linkdestlist=$(getconf.py -l unpacked-states pbench-server)
+linkdestlist=$(pbench-config -l unpacked-states pbench-server)
 
 BUCKET="${1}"
 if [[ -z "${BUCKET}" ]]; then
@@ -60,7 +60,7 @@ if [[ -z "${BUCKET}" ]]; then
     upperbound=""
     export PROG="${PROG}"
 else
-    lowerbound=$(getconf.py lowerbound pbench-unpack-tarballs/${BUCKET})
+    lowerbound=$(pbench-config lowerbound pbench-unpack-tarballs/${BUCKET})
     if [[ -z "${lowerbound}" ]]; then
         lb_arg=""
         lowerbound=0
@@ -69,7 +69,7 @@ else
         lowerbound=$(( ${lowerbound} * 1024 * 1024 ))
         lb_arg="-size +$(( ${lowerbound} - 1 ))c"
     fi
-    upperbound=$(getconf.py upperbound pbench-unpack-tarballs/${BUCKET})
+    upperbound=$(pbench-config upperbound pbench-unpack-tarballs/${BUCKET})
     if [[ -z "${upperbound}" ]]; then
         ub_arg=""
     else
@@ -265,8 +265,8 @@ function do_work() {
         # They may also store a user option in the metadata log.
         # We check for both of these here (n.b. if nothing is found
         # they are going to be empty strings):
-        prefix=$(getconf.py -C ${INCOMING}/${hostname}/${resultname}/metadata.log prefix run)
-        user=$(getconf.py -C ${INCOMING}/${hostname}/${resultname}/metadata.log user run)
+        prefix=$(pbench-config -C ${INCOMING}/${hostname}/${resultname}/metadata.log prefix run)
+        user=$(pbench-config -C ${INCOMING}/${hostname}/${resultname}/metadata.log user run)
 
         # Version 001 agents use a prefix file.  If there is a prefix file,
         # create a link as specified in the prefix file.  pbench-dispatch
