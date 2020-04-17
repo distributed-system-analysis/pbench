@@ -32,8 +32,8 @@ shift 1
 
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 
-remote_prefix=$(getconf.py satellite-prefix ${satellite_config})
-remote_host=$(getconf.py satellite-host ${satellite_config})
+remote_prefix=$(pbench-config satellite-prefix ${satellite_config})
+remote_host=$(pbench-config satellite-host ${satellite_config})
 
 tmp=$(get-tempdir-name $PROG)
 unpack=$tmp/unpack.$remote_prefix
