@@ -21,10 +21,10 @@ then
     exit 2
 fi
 
-documentroot=$(getconf.py documentroot apache)
+documentroot=$(pbench-config documentroot apache)
 
 if [ -z "$documentroot" ] ;then
-    httpd_configfile=$(getconf.py configfile apache)
+    httpd_configfile=$(pbench-config configfile apache)
     if [ -z "$httpd_configfile" ] ;then
         echo "No documentroot/configfile for apache is defined in the pbench config file"
         exit 3
@@ -49,7 +49,7 @@ cd $documentroot || exit 1
 # pieces in the config file: the hostname and the path prefix. We only
 # need the path prefix here.
 
-results_host_info_path_prefix=$(getconf.py host-info-path-prefix results)
+results_host_info_path_prefix=$(pbench-config host-info-path-prefix results)
 if [ -z "$results_host_info_path_prefix" ] ;then
     echo 'No setting for host-info-path-prefix in section "results" of the configuration file.'
     exit 5
@@ -60,13 +60,13 @@ path=${results_host_info_path_prefix}
 
 mkdir -p $(dirname $path)
 cd $(dirname $path) >/dev/null 2>&1 || exit 6
-user=$(getconf.py user pbench-server)
-host=$(getconf.py host pbench-server)
+user=$(pbench-config user pbench-server)
+host=$(pbench-config host pbench-server)
 
-versions=$(getconf.py pbench-move-results-receive-versions pbench-server)
+versions=$(pbench-config pbench-move-results-receive-versions pbench-server)
 for version in $versions ;do
     prefix=$(basename $path)${version}
-    receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+    receive_dir_prefix=$(pbench-config pbench-receive-dir-prefix pbench-server)
     receive_dir=${receive_dir_prefix}-${version}
     results_host_info=$user@$host:${receive_dir}
     echo $results_host_info > $prefix.active
@@ -74,7 +74,7 @@ for version in $versions ;do
     # create the maintenance file as well
     # the format is *fixed*: see the pbench-agent move-results script for details
     # IOW, do *NOT* change anything here
-    mailaddr=$(getconf.py admin-email pbench-server)
+    mailaddr=$(pbench-config admin-email pbench-server)
     msg="MESSAGE===System Under Maintenance - please retry at a later time ($mailaddr)"
 
     echo $msg > $prefix.maint

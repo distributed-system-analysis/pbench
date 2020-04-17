@@ -21,9 +21,9 @@ if [ $sts != 0 ]; then
     exit 1
 fi
 
-qdir=$(getconf.py pbench-quarantine-dir pbench-server)
+qdir=$(pbench-config pbench-quarantine-dir pbench-server)
 if [ -z "$qdir" ] ;then
-    echo "Failed: \"getconf.py pbench-quarantine-dir pbench-server\", status $sts" >> $errlog
+    echo "Failed: \"pbench-config pbench-quarantine-dir pbench-server\", status $sts" >> $errlog
     exit 2
 fi
 if [ ! -d "$qdir" ] ;then
@@ -32,9 +32,9 @@ if [ ! -d "$qdir" ] ;then
 fi
 
 # we are explicitly handling version-002 data in this shim
-receive_dir_prefix=$(getconf.py pbench-receive-dir-prefix pbench-server)
+receive_dir_prefix=$(pbench-config pbench-receive-dir-prefix pbench-server)
 if [ -z "$receive_dir_prefix" ] ;then
-    echo "Failed: \"getconf.py pbench-receive-dir-prefix pbench-server\", status $sts" >> $errlog
+    echo "Failed: \"pbench-config pbench-receive-dir-prefix pbench-server\", status $sts" >> $errlog
     exit 2
 fi
 receive_dir=${receive_dir_prefix}-002
