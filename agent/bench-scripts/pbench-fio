@@ -10,17 +10,21 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 # source the base script
 . "$pbench_bin"/base
 
-benchmark_rpm=$script_name
 benchmark="fio"
-fio_server_port=8765
+benchmark_rpm=${benchmark}
 export benchmark_run_dir=""
 # allow unit tests to override
 if [[ -z "$benchmark_bin" ]]; then
 	benchmark_bin=/usr/local/bin/$benchmark
 fi
-ver="$(getconf.py version pbench-fio)"
+ver="$(getconf.py version fio)"
 if [[ -z "${ver}" ]]; then
 	error_log "pbench-fio: package version is missing in config file"
+	exit 1
+fi
+fio_server_port="$(getconf.py server_port fio)"
+if [[ -z "${fio_server_port}" ]]; then
+	error_log "pbench-fio: server_port is missing in config file"
 	exit 1
 fi
 
@@ -488,10 +492,10 @@ function record_iteration {
 
 # Ensure the right version of the benchmark is installed
 function fio_install() {
-	if check_install_rpm $benchmark_rpm $ver; then
-		debug_log "[$script_name]$benchmark_rpm $ver is installed"
+	if check_install_rpm ${benchmark_rpm} ${ver}; then
+		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is installed"
 	else
-		debug_log "[$script_name]$benchmark_rpm $ver installation failed, exiting"
+		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is not installed, exiting"
 		exit 1
 	fi
 	if [ ! -z "$clients" ] ; then
