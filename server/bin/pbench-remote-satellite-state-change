@@ -29,17 +29,17 @@ satellite_config=$1
 input_change_log=$2
 shift 2
 
-remote_host=$(getconf.py satellite-host $satellite_config)
+remote_host=$(pbench-config satellite-host $satellite_config)
 if [ -z "${remote_host}" ]; then
     echo "$PROG: missing \"satellite-host\" configuration for \"${satellite_config}\"" >&2
     exit 1
 fi
-remote_opt=$(getconf.py satellite-opt $satellite_config)
+remote_opt=$(pbench-config satellite-opt $satellite_config)
 if [ -z "${remote_opt}" ]; then
     echo "$PROG: missing \"satellite-opt\" configuration for \"${satellite_config}\"" >&2
     exit 1
 fi
-remote_archive=$(getconf.py satellite-archive $satellite_config)
+remote_archive=$(pbench-config satellite-archive $satellite_config)
 if [ -z "${remote_opt}" ]; then
     echo "$PROG: missing \"satellite-archive\" configuration for \"${satellite_config}\"" >&2
     exit 1

@@ -37,12 +37,12 @@ output_tar_ball=$2
 errors=$3
 shift 2
 
-remote_host=$(getconf.py satellite-host $satellite_config)
+remote_host=$(pbench-config satellite-host $satellite_config)
 if [ -z "${remote_host}" ]; then
     echo "$PROG: missing \"satellite-host\" configuration for \"${satellite_config}\"" >&2
     exit 1
 fi
-remote_opt=$(getconf.py satellite-opt $satellite_config)
+remote_opt=$(pbench-config satellite-opt $satellite_config)
 if [ -z "${remote_opt}" ]; then
     echo "$PROG: missing \"satellite-opt\" configuration for \"${satellite_config}\"" >&2
     exit 1
