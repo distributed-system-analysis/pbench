@@ -23,7 +23,7 @@ fi
 
 # copy the configuration file(s) to the destination
 # use the "real" config file to get the destination
-idir=$(getconf.py --config $configfile install-dir pbench-agent)
+idir=$(pbench-config --config $configfile install-dir pbench-agent)
 dest=$idir/config
 # FIXME - Why do we gratuitously copy any remaining
 # command line parameters as well?
