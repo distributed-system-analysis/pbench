@@ -29,7 +29,7 @@ benchmark_rpm=${benchmark}
 if [[ -z "$benchmark_bin" ]]; then
     benchmark_bin=/usr/local/bin/$benchmark
 fi
-ver="$(getconf.py version uperf)"
+ver="$(pbench-config version uperf)"
 if [[ -z "${ver}" ]]; then
         error_log "${script_name}: package version is missing in config file"
         exit 1
