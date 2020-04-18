@@ -100,9 +100,6 @@ pbench-copy-sosreports: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/p
 --- Finished pbench-index (status=3)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
-+++ Running pbench-edit-prefixes
-pbench-edit-prefixes: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
---- Finished pbench-edit-prefixes (status=1)
 +++ Running pbench-backup-tarballs
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1

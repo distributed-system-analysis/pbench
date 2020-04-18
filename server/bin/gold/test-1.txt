@@ -20,9 +20,6 @@ pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/ar
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-clean-up-dangling-results-links (status=1)
-+++ Running pbench-edit-prefixes
-pbench-edit-prefixes: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
---- Finished pbench-edit-prefixes (status=1)
 +++ Running pbench-backup-tarballs
 --- Finished pbench-backup-tarballs (status=3)
 +++ Running pbench-verify-backup-tarballs
