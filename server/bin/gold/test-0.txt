@@ -22,9 +22,6 @@ pbench-index-tool-data: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-clean-up-dangling-results-links (status=1)
-+++ Running pbench-edit-prefixes
-pbench-edit-prefixes: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
---- Finished pbench-edit-prefixes (status=1)
 +++ Running pbench-backup-tarballs
 pbench-backup-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 --- Finished pbench-backup-tarballs (status=1)

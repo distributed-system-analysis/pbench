@@ -31,7 +31,7 @@ bucket_name = <the name of an S3 bucket which will contain all of the tar ball o
 # In this example we extend the pbench-results role to include sync'ing with
 # remote satellite pbench servers.
 [pbench-results]
-tasks = pbench-dispatch, pbench-unpack-tarballs, pbench-copy-sosreports, pbench-edit-prefixes, pbench-index, pbench-sync-satellites
+tasks = pbench-dispatch, pbench-unpack-tarballs, pbench-copy-sosreports, pbench-index, pbench-sync-satellites
 
 ###########################################################################
 # crontab tasks
