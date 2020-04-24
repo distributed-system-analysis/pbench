@@ -1,5 +1,6 @@
 import click
 
+from pbench.agent import utils
 from pbench.cli.agent import options
 from pbench.cli.agent.commands.log import add_metalog_option
 from pbench.cli.agent.commands.results import move_results
@@ -9,8 +10,8 @@ from pbench.cli.agent.commands.results import move_results
 #
 @click.group()
 @click.pass_context
+# Used for passing the context from the main cli
 def metalog(ctx):
-    """Used for passing the context from the main cli"""
     pass
 
 
@@ -34,8 +35,8 @@ def metalog_add_option(logfile, section, option, value):
 #
 @click.group()
 @click.pass_context
+# Used for passing the context from the main cli
 def results(ctx):
-    """Used for passing the context from the main cli"""
     pass
 
 
@@ -49,10 +50,11 @@ def move(user, prefix, show_server):
 
 @click.group()
 @click.pass_context
-def main(ctx):
+@options.pbench_agent_config
+@options.pbench_agent_debug
+def main(ctx, config, debug):
     """Pass the main args, (that we might have in the future)"""
-    ctx.obj = {}
-    ctx.obj["args"] = {}
+    ctx = utils.init_context(ctx, config, debug)
     return 0
 
 
