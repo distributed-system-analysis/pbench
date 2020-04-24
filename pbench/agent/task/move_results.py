@@ -4,8 +4,7 @@ import requests
 
 from pbench.agent import logger
 from pbench.agent.config import AgentConfig
-from pbench.agent.task.make_result_tb import MakeResultTb
-from pbench.agent.task.copy_result_tb import CopyResultTb
+from pbench.agent.results import MakeResultTb, CopyResultTb
 
 
 def move_results(_user, _prefix, _show_server):
