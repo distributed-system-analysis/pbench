@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from pbench.agent.task.make_result_tb import MakeResultTb
+from pbench.agent.results import MakeResultTb
 from pbench.test.agent.task.common import MockDatetime, target_dir, MRT_DIR
 
 

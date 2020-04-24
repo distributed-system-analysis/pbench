@@ -1,6 +1,6 @@
 import click
 
-from pbench.cli.agents import options
+from pbench.cli.agent import options
 
 from pbench.agent.task.move_results import move_results
 
