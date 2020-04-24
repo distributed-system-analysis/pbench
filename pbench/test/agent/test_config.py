@@ -14,30 +14,25 @@ run_dir = /tmp
 user = pbench
 """
 
-def test_invalid_config(tmpdir, monkeypatch):
+def test_invalid_config(tmpdir):
     config = """
     [pbench-agent]
     run_dir = /tmp
     """
     pbench_config = pbench_agent_config(tmpdir, config)
-    monkeypatch.setenv("_PBENCH_AGENT_CONFIG",str(pbench_config))
     with pytest.raises(exceptions.BadConfig):
-        AgentConfig()
+        AgentConfig(str(pbench_config))
     
-def test_valid_config(tmpdir, monkeypatch):
+def test_valid_config(tmpdir):
     pbench_config = pbench_agent_config(tmpdir, DEFAULT_CONFIG)
-    monkeypatch.setenv("_PBENCH_AGENT_CONFIG",str(pbench_config))
-    config = AgentConfig()
+    config = AgentConfig(str(pbench_config))
     assert "pbench-agent" in config.pbench_config
     assert "results" in config.pbench_config
 
-def test_get_agent(tmpdir, monkeypatch):
+def test_get_agent(tmpdir):
     pbench_config = pbench_agent_config(tmpdir, DEFAULT_CONFIG)
-    monkeypatch.setenv("_PBENCH_AGENT_CONFIG",str(pbench_config))
-    assert "/tmp" in AgentConfig().get_agent()["run_dir"]
+    assert "/tmp" in AgentConfig(str(pbench_config)).get_agent()["run_dir"]
 
-def test_get_results(tmpdir, monkeypatch):
+def test_get_results(tmpdir):
     pbench_config = pbench_agent_config(tmpdir, DEFAULT_CONFIG)
-    monkeypatch.setenv("_PBENCH_AGENT_CONFIG",str(pbench_config))
-    assert "pbench" in AgentConfig().get_results()["user"]
-
+    assert "pbench" in AgentConfig(str(pbench_config)).get_results()["user"]
