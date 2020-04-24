@@ -153,23 +153,47 @@ while read tbmd5 ;do
         continue
     fi
 
-    cp ${tb} ${tb}.md5 ${dest}/
-    sts=$?
-    if [ $sts -ne 0 ] ;then
-        log_error "$TS: Error: \"cp ${tb} ${tb}.md5 ${dest}/\", status $sts" "$status"
-        rm -f ${dest}/${resultname}.tar.xz ${dest}/${resultname}.tar.xz.md5
-        sts=$?
-        if [ $sts -ne 0]; then
-            log_error "$TS: Warning: cleanup of copy failure failed itself: \"rm -f ${dest}/${resultname}.tar.xz ${dest}/${resultname}.tar.xz.md5\", status $sts" "$status"
+    # First, copy the small .md5 file to the destination. That way, if
+    # that operation fails it will fail quickly since the file is small.
+    cp -a ${tb}.md5 ${dest}/
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        log_error "${TS}: Error: \"cp -a ${tb}.md5 ${dest}/\", status ${sts}" "${status}"
+        rm ${dest}/${resultname}.tar.xz.md5
+        sts=${?}
+        if [[ ${sts} -ne 0 ]]; then
+            log_error "${TS}: Warning: cleanup of copy failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}" "${status}"
         fi
         quarantine ${errors}/${controller} ${tb} ${tb}.md5
-        nerrs=$nerrs+1
+        (( nerrs++ ))
         continue
     fi
-    rm -f ${tb} ${tb}.md5
-    sts=$?
-    if [ $sts -ne 0 ] ;then
-        log_error "$TS: Warning: cleanup of successful copy operation failed: \"rm -f ${tb} ${tb}.md5\", status $sts" "$status"
+
+    # Next, mv the "large" tar ball to the destination. If the destination
+    # is on the same device, the move should be quick. If the destination is
+    # on a different device, the move will be a copy and delete, and will
+    # take a bit longer.  If it fails, the file will NOT be at the
+    # destination.
+    mv ${tb} ${dest}/
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        log_error "${TS}: Error: \"mv ${tb} ${dest}/\", status ${sts}" "${status}"
+        rm ${dest}/${resultname}.tar.xz.md5
+        sts=${?}
+        if [[ ${sts} -ne 0 ]]; then
+            log_error "${TS}: Warning: cleanup of move failure failed itself: \"rm ${dest}/${resultname}.tar.xz.md5\", status ${sts}" "${status}"
+        fi
+        quarantine ${errors}/${controller} ${tb} ${tb}.md5
+        (( nerrs++ ))
+        continue
+    fi
+
+    # Now that we have successfully moved the tar ball and its .md5 to the
+    # destination, we can remove the original .md5 file.
+    rm ${tb}.md5
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        log_error "$TS: Warning: cleanup of successful copy operation failed: \"rm ${tb}.md5\", status $sts" "$status"
     fi
 
     ln -s ${dest}/${resultname}.tar.xz ${dest}/TODO/
