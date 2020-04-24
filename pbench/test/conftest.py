@@ -7,6 +7,7 @@ def pbench_agent_config(tmpdir, config):
     pbench_config.write(config)
     return pbench_config
 
+
 def stub_agent_root_dir(tmpdir):
     """Create a root agent directory"""
     pbench_install_dir = tmpdir / "pbench-agent"
