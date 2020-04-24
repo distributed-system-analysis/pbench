@@ -8,6 +8,9 @@ from pbench.common import exceptions
 from pbench.common.constants import AGENT_PATH
 from pbench.agent.utils import error_out
 
+AGENT_DEBUG = os.environ.get("AGENT_DEBUG", "False")
+
+
 def lookup_agent_configuration(filename=None):
     """Return config file PATH"""
     if filename is None:
@@ -18,15 +21,14 @@ def lookup_agent_configuration(filename=None):
             # really need access to the config file to operate, and we
             # know the location of that config file
             # we check to see if that exists before declaring a problem.
-            filename = os.path.join(AGENT_PATH, 
-                "config/pbench-agent-default.cfg")
+            filename = os.path.join(AGENT_PATH, "config/pbench-agent-default.cfg")
         else:
-            filename = pbench_config            
-    
+            filename = pbench_config
+
     path = pathlib.Path(filename)
     if not path.exists():
         error_out(f"Unable to find configuration: {filename}")
-    
+
     config_files = configtools.file_list(filename)
     config_files.reverse()
 
@@ -38,7 +40,8 @@ def lookup_agent_configuration(filename=None):
         sys.exit(2)
 
     return config
-    
+
+
 class AgentConfig:
     def __init__(self, cfg_name=None):
         self.cfg_name = cfg_name
