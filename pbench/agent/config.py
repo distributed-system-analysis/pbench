@@ -4,6 +4,7 @@ import pathlib
 import sys
 
 from pbench.common import configtools
+from pbench.common import exceptions
 from pbench.agent.utils import error_out
 
 
@@ -12,8 +13,11 @@ class AgentConfig:
         self.cfg_name = cfg_name
         self.pbench_config = self._get_agent_config()
 
-        self.agent = self.pbench_config["pbench-agent"]
-        self.results = self.pbench_config["results"]
+        try:
+            self.agent = self.pbench_config["pbench-agent"]
+            self.results = self.pbench_config["results"]
+        except KeyError:
+            raise exceptions.BadConfig()
 
     def get_agent(self):
         return self.agent
