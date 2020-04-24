@@ -151,6 +151,16 @@ function metadata_log_start {
     local dir=$1
     local group=$2
     local ts=$3
+
+    # Opportunistically capture the caller's SSH configuration in case they
+    # have host specific configurations they might want to consider in the
+    # future when reviewing historical data.  The host names used in the
+    # config file might be very different from what tools capture in their
+    # output.
+    cp -L  ${HOME}/.ssh/config   ${dir}/ssh.config > /dev/null 2>&1
+    cp -L  /etc/ssh/ssh_config   ${dir}/ > /dev/null 2>&1
+    cp -rL /etc/ssh/ssh_config.d ${dir}/ > /dev/null 2>&1
+
     local log=$dir/metadata.log
     TMPFILE=$tmpdir/metadata.log
 

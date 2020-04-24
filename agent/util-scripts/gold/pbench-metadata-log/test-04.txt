@@ -4,6 +4,9 @@
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/mock-run
 /var/tmp/pbench-test-utils/pbench/mock-run/metadata.log
+/var/tmp/pbench-test-utils/pbench/mock-run/ssh.config
+/var/tmp/pbench-test-utils/pbench/mock-run/ssh_config
+/var/tmp/pbench-test-utils/pbench/mock-run/ssh_config.d
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-default
 /var/tmp/pbench-test-utils/pbench/tools-default/iostat
@@ -63,5 +66,8 @@ turbostat: --interval=3
 
 --- mock-run/metadata.log file contents
 +++ test-execution.log file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -L /.ssh/config /var/tmp/pbench-test-utils/pbench/mock-run/ssh.config
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -L /etc/ssh/ssh_config /var/tmp/pbench-test-utils/pbench/mock-run/
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum list installed pbench-agent
 --- test-execution.log file contents

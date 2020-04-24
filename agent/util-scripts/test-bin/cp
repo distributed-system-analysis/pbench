@@ -1,0 +1,31 @@
+#!/bin/bash
+
+prog="$(basename "${0}")"
+args=( "${@}" )
+lastidx=$((${#args[@]} - 1))
+# avoid "bad array subscript" error
+if [[ "${lastidx}" -lt 0 ]] ;then
+    exit 0
+fi
+
+if [[ "${prog}" == "cp" && ( "${args[1]}" == "${HOME}/.ssh/config" || "${args[1]}" == "/etc/ssh/ssh_config" || "${args[1]}" == "/etc/ssh/ssh_config.d" ) ]]; then
+    if [[ -z "${*}" ]]; then
+        echo "${0}" >> ${_testlog}
+    else
+        echo "${0} ${*}" >> ${_testlog}
+    fi
+    if [[ "${args[1]}" == "${HOME}/.ssh/config" ]]; then
+        touch "${args[2]}"
+        rc=${?}
+    elif [[ "${args[1]}" == "/etc/ssh/ssh_config" ]]; then
+        touch "${args[2]}/ssh_config"
+        rc=${?}
+    elif [[ "${args[1]}" == "/etc/ssh/ssh_config.d" ]]; then
+        mkdir "${args[2]}/ssh_config.d"
+        rc=${?}
+    else
+        rc=1
+    fi
+    exit ${rc} 
+fi
+${_real_cp} ${*}

@@ -65,6 +65,10 @@ if [[ $res -ne 0 ]]; then
     exit 1
 fi
 
+# After this point the "cp" command it mocked-out, so we have to use
+# the "real" one.
+export _real_cp="$(command -v cp)"
+
 function remove_path {
     # PATH (${2}) => /bin:/opt/a dir/bin:/sbin
     WORK=:${2}:
@@ -172,11 +176,24 @@ function _verify_output {
     tname=${2}
     tscrpt=${3}
     expected_status=${4:-0}
-    # fix up any pids that have snuck into the output.
-    sed -e 's;tmp/\([a-z-]*\)\.[0-9][0-9]*;tmp/\1.NNNNN;g' \
-        -e 's;raw_size = [0-9][0-9]*;raw_size = #####;g' \
-        -e 's;tar up [0-9][0-9]* bytes;tar up ##### bytes;g' ${_testout} |
-        diff -c ${_tdir}/gold/${tscrpt}/${tname}.txt -
+    # Fix up any ${HOME} text that landed in the output.
+    if [[ ! -z "${HOME}" ]]; then
+        sed -i "s;${HOME};;g" ${_testout}
+        if [[ ${?} -ne 0 ]]; then
+            printf -- "INTERNAL ERROR: sed failed to remove '%s'\n" "${HOME}" >&2
+            exit 1
+        fi
+    fi
+    # Fix up any pids or temporary file or directory numbers that have snuck
+    # into the output.
+    sed -i -e 's;tmp/\([a-z-]*\)\.[0-9][0-9]*;tmp/\1.NNNNN;g' \
+           -e 's;raw_size = [0-9][0-9]*;raw_size = #####;g' \
+           -e 's;tar up [0-9][0-9]* bytes;tar up ##### bytes;g' ${_testout}
+    if [[ ${?} -ne 0 ]]; then
+        printf -- "INTERNAL ERROR: sed failed to replace unique patterns\n" >&2
+        exit 1
+    fi
+    diff -c ${_tdir}/gold/${tscrpt}/${tname}.txt ${_testout}
     if [[ ${?} -gt 0 ]]; then
         echo "FAIL - ${tname}"
         mv ${_testout} ${_testroot}/${tname}_output.txt
@@ -224,7 +241,7 @@ function _setup_state {
             fi
         fi
         if [[ -d ${_tdir}/samples/${tool}/${tst} ]]; then
-            cp -r ${_tdir}/samples/${tool}/${tst}/* ${_testroot}
+            ${_real_cp} -r ${_tdir}/samples/${tool}/${tst}/* ${_testroot}
             if [[ ${?} -ne 0 ]]; then
                 echo "ERROR: failed to setup ${tool}/${tst} samples" >&2
                 exit 1
