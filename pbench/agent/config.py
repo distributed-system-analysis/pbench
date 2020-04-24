@@ -8,6 +8,8 @@ from pbench.common import exceptions
 from pbench.common.constants import AGENT_PATH
 from pbench.agent.utils import error_out
 
+AGENT_DEBUG = os.environ.get("AGENT_DEBUG", "False")
+
 
 def lookup_agent_configuration(filename=None):
     """Return config file PATH"""
