@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from pbench.agent import logger
 from pbench.agent.config import AgentConfig
-from pbench.agent.task.add_metalog_option import add_metalog_option
+from pbench.cli.agent.commands.log import add_metalog_option
 from pbench.common import configtools
 
 
