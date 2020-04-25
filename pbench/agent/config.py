@@ -39,7 +39,7 @@ def lookup_agent_configuration(filename=None):
         print(e)
         sys.exit(2)
 
-    return config
+    return filename
 
 
 class AgentConfig:
