@@ -9,5 +9,8 @@ if [ "${remote_host}" = "pbench-satellite.example.com" ] ;then
     # environment from leaking into the "remote" server environment.
     unset _PBENCH_SERVER_CONFIG
     $*
+elif [ "${remote_host}" == "pbench-satellite-error.example.com" ] ;then
+    echo "ssh: connect to host ${remote_host}: No route to host" >&2
+    exit 1
 fi
 exit 0

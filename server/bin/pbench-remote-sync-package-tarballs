@@ -22,11 +22,11 @@ if [[ -z "${dir}" || -z "${PROG}" ]]; then
 fi
 
 case $# in
-    2)
+    3)
         :
         ;;
     *)
-        echo "Usage: $PROG <satellite-config> <output-tar-ball>" >&2
+        echo "Usage: $PROG <satellite-config> <output-tar-ball> <ssh-error>" >&2
         exit 1
         ;;
 esac
@@ -34,6 +34,7 @@ esac
 
 satellite_config=$1
 output_tar_ball=$2
+errors=$3
 shift 2
 
 remote_host=$(getconf.py satellite-host $satellite_config)
@@ -47,4 +48,4 @@ if [ -z "${remote_opt}" ]; then
     exit 1
 fi
 
-ssh ${remote_host} "${remote_opt}/bin/pbench-sync-package-tarballs" > ${output_tar_ball}
+ssh ${remote_host} "${remote_opt}/bin/pbench-sync-package-tarballs" > ${output_tar_ball}  2> ${errors}
