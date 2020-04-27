@@ -675,6 +675,9 @@ declare -A cmds=(
     # Test user-benchmark indexing
     [test-7.24]="_run_indexing"
 
+    # Debug uperf indexing
+    [test-7.25]="_run_indexing"
+
     # activation test
     [test-8]="_run_activate"
 

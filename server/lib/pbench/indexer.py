@@ -759,10 +759,10 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
         try:
             resp = resp_payload[_op_type]
         except KeyError as e:
-            assert not ok, "{!r}".format(ok)
-            assert e.args[0] == _op_type, "e.args = {!r}, _op_type = {!r}".format(
-                e.args, _op_type
-            )
+            assert not ok, f"ok = {ok!r}, e = {e!r}"
+            assert (
+                e.args[0] == _op_type
+            ), f"e.args = {e.args!r}, _op_type = {_op_type!r}"
             # For whatever reason, some errors are always returned using
             # the "index" operation type instead of _op_type (e.g. "create"
             # op type still comes back as an "index" response).
@@ -775,12 +775,15 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
         try:
             status = resp["status"]
         except KeyError as e:
-            assert not ok
+            assert not ok, f"ok = {ok!r}, e = {e!r}"
             # Limit the length of the error message.
             logger.error("{!r}", e)
             status = 999
         else:
-            assert action["_id"] == resp["_id"]
+            assert action["_id"] == resp["_id"], (
+                "Response encountered out of order from actions, "
+                f"""action = {action!r}, response = {resp!r}"""
+            )
         if ok:
             successes += 1
         else:
@@ -841,7 +844,7 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
                     failures += 1
                 else:
                     # Retry all other errors.
-                    # Limit the length of the error message.
+                    # Limit the length of the warning message.
                     logger.warning(
                         "retrying action: {}", json.dumps(resp)[:_MAX_ERRMSG_LENGTH]
                     )
@@ -849,8 +852,12 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
 
     end = pbench._time()
 
-    assert len(actions_deque) == 0
-    assert len(actions_retry_deque) == 0
+    if len(actions_deque) > 0:
+        logger.error("We still have {:d} actions in the deque", len(actions_deque))
+    if len(actions_retry_deque) > 0:
+        logger.error(
+            "We still have {:d} retry actions in the deque", len(actions_retry_deque)
+        )
 
     return (beg, end, successes, duplicates, failures, retries_tracker["retries"])
 
@@ -1127,17 +1134,19 @@ class ResultData(PbenchData):
             else:
                 idxctx.logger.warning(
                     "Unable to read user benchmark name from {}, {}, user"
-                    " benchmark data won't be indexed",
+                    " benchmark data won't be indexed ({})",
                     ubm_name,
                     exc,
+                    ptb._tbctx,
                 )
                 return None
         except Exception as exc:
             idxctx.logger.error(
                 "Error reading user benchmark name from {}, {}, user"
-                " benchmark data won't be indexed",
+                " benchmark data won't be indexed ({})",
                 ubm_name,
                 exc,
+                ptb._tbctx,
             )
             return None
         user_benchmark = None
@@ -1157,29 +1166,42 @@ class ResultData(PbenchData):
                 ubm_driver = ubm_driver_versions[ver]
             except KeyError:
                 idxctx.logger.warning(
-                    "Unrecognized user-benchmark driver, '{}.{}'", name, ver
+                    "Unrecognized user-benchmark driver, '{}.{}' ({})",
+                    name,
+                    ver,
+                    ptb._tbctx,
                 )
             else:
                 # Verify columns to be safe.
                 cols = set(ubm_driver["columns"].keys())
                 if ubm_driver["val_col"] not in cols:
-                    idxctx.logger.error("Logic bomb! bad ubm driver val_col")
+                    idxctx.logger.error(
+                        "Logic bomb! bad ubm driver val_col ({})", ptb._tbctx
+                    )
                     return None
                 if ubm_driver["start_ts_col"] not in cols:
-                    idxctx.logger.error("Logic bomb! bad ubm driver start_ts_col")
+                    idxctx.logger.error(
+                        "Logic bomb! bad ubm driver start_ts_col ({})", ptb._tbctx,
+                    )
                     return None
                 if ubm_driver["end_ts_col"] and (ubm_driver["end_ts_col"] not in cols):
-                    idxctx.logger.error("Logic bomb! bad ubm driver end_ts_col")
+                    idxctx.logger.error(
+                        "Logic bomb! bad ubm driver end_ts_col ({})", ptb._tbctx,
+                    )
                     return None
                 for bm_md_col in ubm_driver["benchmark_md_cols"]:
                     if bm_md_col not in cols:
                         idxctx.logger.error(
-                            "Logic bomb! bad ubm driver benchmark_md_cols"
+                            "Logic bomb! bad ubm driver benchmark_md_cols ({})",
+                            ptb._tbctx,
                         )
                         return None
                 for sample_md_col in ubm_driver["sample_md_cols"]:
                     if sample_md_col not in cols:
-                        idxctx.logger.error("Logic bomb! bad ubm driver sample_md_cols")
+                        idxctx.logger.error(
+                            "Logic bomb! bad ubm driver sample_md_cols ({})",
+                            ptb._tbctx,
+                        )
                         return None
                 user_benchmark = _dict_const(
                     name=name,
@@ -1295,9 +1317,10 @@ class ResultData(PbenchData):
                         # so we can compare against the expected field names.
                         if set(csv_reader.fieldnames) - columns_set:
                             self.ptb.idxctx.logger.warning(
-                                "Unexpected column(s) found, '{!r}' in {}",
+                                "Unexpected column(s) found, '{!r}' in {} ({})",
                                 set(csv_reader.fieldnames) - columns_set,
                                 csv_name,
+                                self.ptb._tbctx,
                             )
                             continue
                 except OSError as exc:
@@ -1305,7 +1328,7 @@ class ResultData(PbenchData):
                         continue
                 except Exception as exc:
                     self.ptb.idxctx.logger.warning(
-                        "Unable to read '{}', '{}'", csv_name, exc
+                        "Unable to read '{}', '{}' ({})", csv_name, exc, self.ptb._tbctx
                     )
                     continue
                 # First construct the base sample metadata common to sample
@@ -1557,9 +1580,11 @@ class ResultData(PbenchData):
                     results = json.load(fp)
             except Exception as e:
                 self.logger.warning(
-                    "result-data-indexing: encountered invalid JSON file, {}: {:r}",
+                    "result-data-indexing: encountered invalid JSON file,"
+                    " {}: {:r} ({})",
                     result_json,
                     e,
+                    self.ptb._tbctx,
                 )
                 self.counters["not_valid_json_file"] += 1
                 continue
@@ -1569,7 +1594,9 @@ class ResultData(PbenchData):
             if not isinstance(results, list):
                 self.logger.warning(
                     "result-data-indexing: encountered unexpected"
-                    " JSON file format, %s" % (result_json,)
+                    " JSON file format, %s ({})",
+                    result_json,
+                    self.ptb._tbctx,
                 )
                 continue
 
@@ -1581,8 +1608,9 @@ class ResultData(PbenchData):
                 except KeyError:
                     self.logger.warning(
                         "result-data-indexing: could not find"
-                        " iteration data in JSON file, {}",
+                        " iteration data in JSON file, {} ({})",
                         result_json,
+                        self.ptb._tbctx,
                     )
                     self.counters["missing_iteration"] += 1
                     continue
@@ -1599,10 +1627,11 @@ class ResultData(PbenchData):
                         self.logger.warning(
                             "result-data-indexing: encountered bad"
                             " iteration name format '{}' in JSON file,"
-                            " {}: {}",
+                            " {}: {} ({})",
                             iteration["iteration_name_format"],
                             result_json,
                             exc,
+                            self.ptb._tbctx,
                         )
                         self.counters["bad_iteration_name_fmt"] += 1
                         continue
@@ -1611,9 +1640,10 @@ class ResultData(PbenchData):
                         self.logger.warning(
                             "result-data-indexing: formatted iteration"
                             " name '{}' in JSON file, {}, does not"
-                            " exist as a directory",
+                            " exist as a directory ({})",
                             iter_name,
                             result_json,
+                            self.ptb._tbctx,
                         )
                         self.counters["bad_iteration_name"] += 1
                         continue
@@ -1628,9 +1658,10 @@ class ResultData(PbenchData):
                             self.logger.warning(
                                 "result-data-indexing: encountered bad"
                                 " iteration name '{}' in JSON file, {},"
-                                " does not exist as a directory",
+                                " does not exist as a directory ({})",
                                 iteration["iteration_name"],
                                 result_json,
+                                self.ptb._tbctx,
                             )
                             self.counters["bad_iteration_name"] += 1
                             continue
@@ -1653,9 +1684,10 @@ class ResultData(PbenchData):
             bm_data = iter_data["parameters"]["benchmark"]
         except Exception as e:
             self.logger.warning(
-                "result-data-indexing: bad result data in JSON file, {}: {!r}",
+                "result-data-indexing: bad result data in JSON file, {}: {!r} ({})",
                 result_json,
                 e,
+                self.ptb._tbctx,
             )
             self.counters["bad_result_data_in_json_file"] += 1
             return
@@ -1663,8 +1695,9 @@ class ResultData(PbenchData):
             if not isinstance(bm_data, (list,)):
                 self.logger.warning(
                     "result-data-indexing: bad result data in"
-                    " JSON file, {}: parameters.benchmark is not a list",
+                    " JSON file, {}: parameters.benchmark is not a list ({})",
                     result_json,
+                    self.ptb._tbctx,
                 )
                 self.counters["bad_result_data_in_json_file_bm_not_a_list"] += 1
                 return
@@ -1689,8 +1722,9 @@ class ResultData(PbenchData):
         except KeyError:
             self.logger.warning(
                 "result-data-indexing: bad result data in JSON"
-                " file, {}: missing 'benchmark_name' field",
+                " file, {}: missing 'benchmark_name' field ({})",
                 result_json,
+                self.ptb._tbctx,
             )
             self.counters["bad_result_data_in_json_file_missing_bm_name"] += 1
             return
@@ -2579,9 +2613,10 @@ class ToolData(PbenchData):
             if header[0] != "timestamp_ms":
                 self.logger.warning(
                     "tool-data-indexing: expected first column of"
-                    " .csv file ({}) to be 'timestamp_ms', found '{}'",
+                    " .csv file ({}) to be 'timestamp_ms', found '{}' ({})",
                     csvf["basename"],
                     header[0],
+                    self.ptb._tbctx,
                 )
                 self.counters["first_column_not_timestamp_ms"] += 1
                 continue
@@ -2629,11 +2664,12 @@ class ToolData(PbenchData):
                         self.logger.warning(
                             "tool-data-indexing: column header,"
                             " {:r}, has an unexpected subfield, {:r},"
-                            " expected {:r} subfields, for .csv {}",
+                            " expected {:r} subfields, for .csv {} ({})",
                             col,
                             subfield,
                             handler_rec["subfields"],
                             csvf["basename"],
+                            self.ptb._tbctx,
                         )
                         self.counters["column_subfields_do_not_match_handler"] += 1
                         subfield = None
@@ -2669,11 +2705,12 @@ class ToolData(PbenchData):
                                     "tool-data-indexing: handler"
                                     " metadata, {:r}, not found in column"
                                     " {:r} using pattern {:r}, for .csv"
-                                    " '{}'",
+                                    " '{}' ({})",
                                     handler_rec["metadata"],
                                     col,
                                     handler_rec["metadata_pat"],
                                     csvf["basename"],
+                                    self.ptb._tbctx,
                                 )
                                 self.counters["expected_column_metadata_not_found"] += 1
                             else:
@@ -2730,8 +2767,9 @@ class ToolData(PbenchData):
                 elif first != tstamp:
                     self.logger.warning(
                         "tool-data-indexing: {} csv files have"
-                        " inconsistent timestamps per row",
+                        " inconsistent timestamps per row ({})",
                         self.toolname,
+                        self.ptb._tbctx,
                     )
                     self.counters["inconsistent_timestamps_across_csv_files"] += 1
                     break
@@ -3208,9 +3246,10 @@ class ToolData(PbenchData):
             except KeyError:
                 self.logger.warning(
                     "tool-data-indexing: encountered unrecognized"
-                    " sub-format, '{}', not one of {!r}",
+                    " sub-format, '{}', not one of {!r} ({})",
                     subformat,
                     [key for key in self._subformats.keys()],
+                    self.ptb._tbctx,
                 )
                 self.counters["unrecognized_subformat"] += 1
                 continue
@@ -3239,9 +3278,10 @@ class ToolData(PbenchData):
                     payload = json.load(fp)
             except Exception as e:
                 self.logger.warning(
-                    "tool-data-indexing: encountered bad JSON file, {}: {:r}",
+                    "tool-data-indexing: encountered bad JSON file, {}: {:r} ({})",
                     df["path"],
                     e,
+                    self.ptb._tbctx,
                 )
                 self.counters["bad_json_file"] += 1
                 continue
@@ -3266,8 +3306,9 @@ class ToolData(PbenchData):
                         missing_ts = True
                         self.logger.warning(
                             "tool-data-indexing: encountered JSON"
-                            " file, {}, with missing @timestamp fields",
+                            " file, {}, with missing @timestamp fields ({})",
                             df["path"],
+                            self.ptb._tbctx,
                         )
                     self.counters["json_doc_missing_timestamp"] += 1
                     idx += 1
@@ -3292,9 +3333,10 @@ class ToolData(PbenchData):
                             self.logger.warning(
                                 "tool-data-indexing: encountered"
                                 " JSON file, {}, with invalid @timestamp"
-                                " fields ('{:r}')",
+                                " fields ('{:r}') ({})",
                                 df["path"],
                                 ts_val,
+                                self.ptb._tbctx,
                             )
                         self.counters["json_doc_timestamp_not_valid"] += 1
                         idx += 1
@@ -3305,9 +3347,10 @@ class ToolData(PbenchData):
                         self.logger.warning(
                             "tool-data-indexing: encountered JSON"
                             " file, {}, with @timestamp fields out side"
-                            " start/end run time range ({:r})",
+                            " start/end run time range ({:r}) ({})",
                             df["path"],
                             ts_val,
+                            self.ptb._tbctx,
                         )
                     self.counters["json_doc_timestamp_out_of_range"] += 1
                     idx += 1
@@ -3483,22 +3526,38 @@ def valid_ip(address):
 
 def search_by_host(sos_d_list, host):
     for sos_d in sos_d_list:
-        if host in sos_d.values():
-            return sos_d["hostname-f"]
+        try:
+            host_f = sos_d["hostname-f"]
+        except KeyError:
+            continue
+        else:
+            if host == host_f:
+                return host_f
+        try:
+            host_s = sos_d["hostname-s"]
+        except KeyError:
+            continue
+        else:
+            if host == host_s:
+                return host_f
     return None
 
 
 def search_by_ip(sos_d_list, ip):
     # import pdb; pdb.set_trace()
     for sos_d in sos_d_list:
+        try:
+            host_f = sos_d["hostname-f"]
+        except KeyError:
+            continue
         for l in sos_d.values():
-            if isinstance(l, list):
+            if not isinstance(l, list):
                 continue
             for d in l:
-                if isinstance(d, dict):
+                if not isinstance(d, dict):
                     continue
-                if ip in d.values():
-                    return sos_d["hostname-f"]
+                if ip == d["ipaddr"]:
+                    return host_f
     return None
 
 
@@ -3975,6 +4034,12 @@ class PbenchTarBall(object):
         # It's what ties all of the relevant documents together.
         self.run_metadata["id"] = md5sum
 
+        # Finally, for error reporting purposes in logs, we construct a string
+        # using the controller directory, tar ball name (not path), and its
+        # MD5 value so that warnings, errors, and exceptions can have
+        # additional context to add.
+        self._tbctx = f"{self.controller_dir}/{os.path.basename(tbarg)}({md5sum})"
+
     def gen_files_by_partial_path(self, path):
         """Generator for all files in the tar ball which match the given path
         pattern.
@@ -4073,15 +4138,18 @@ class PbenchTarBall(object):
             section_items = self.mdconf.items(section)
         except NoSectionError:
             self.idxctx.logger.warning(
-                "No [{}] section in metadata.log: tool data will *not* be indexed",
+                "No [{}] section in metadata.log: tool data will"
+                " *not* be indexed ({})",
                 section,
+                self._tbctx,
             )
             return []
         except ConfigParserError:
             self.idxctx.logger.exception(
                 "ConfigParser error in get_section_items: tool data"
                 " will *not* be indexed -- this is most probably a bug:"
-                " please open an issue"
+                " please open an issue ({})",
+                self._tbctx,
             )
             return []
         section_items.sort()
@@ -4094,20 +4162,23 @@ class PbenchTarBall(object):
         except NoSectionError:
             self.idxctx.logger.warning(
                 "No [tools] section in metadata.log: tool data will"
-                " *not* be indexed."
+                " *not* be indexed ({})",
+                self._tbctx,
             )
             return []
         except NoOptionError:
             self.idxctx.logger.warning(
                 'No "hosts" option in [tools] section in metadata'
-                " log: tool data will *NOT* be indexed."
+                " log: tool data will *NOT* be indexed ({})",
+                self._tbctx,
             )
             return []
         except ConfigParserError:
             self.idxctx.logger.exception(
                 "ConfigParser error in get_hosts: tool data will"
                 " *not* be indexed -- this is most probably a bug: please"
-                " open an issue"
+                " open an issue ({})",
+                self._tbctx,
             )
             return []
         hosts_set = set(hosts.split())
@@ -4223,7 +4294,10 @@ class PbenchTarBall(object):
                     md5_val = fp.read()[:-1]
             except Exception as e:
                 self.idxctx.logger.warning(
-                    "Failed to fetch .md5 of sosreport {}: {}", sos, e
+                    "Failed to fetch .md5 of sosreport {}: {} ({})",
+                    sos,
+                    e,
+                    self._tbctx,
                 )
                 continue
             ret_val = hostnames_if_ip_from_sosreport(
@@ -4300,7 +4374,7 @@ class PbenchTarBall(object):
                 if host in labels:
                     item["label"] = labels[host]
         except Exception:
-            self.idxctx.logger.exception("mk_tool_info")
+            self.idxctx.logger.exception("mk_tool_info failed ({})", self._tbctx)
             return []
         self.idxctx.logger.debug("end [{:d} tools processed]", len(tools_array))
         return tools_array
@@ -4580,7 +4654,7 @@ class PbenchTarBall(object):
                 else:
                     # Only the parent result data documents hold the tracking IDs.
                     source["@generated-by"] = self.idxctx.get_tracking_id()
-                count += 0
+                count += 1
                 yield action
         self.idxctx.logger.debug("end [{:d} result documents]", count)
         return

@@ -1,0 +1,1954 @@
++++ Running pbench-unpack-tarballs
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "b93953b18f6989015766c339934a6c8e",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-unpack-tarballs",
+            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 162
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-unpack-tarballs (status=0)
++++ Running pbench-index
+Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "8aab70198482b229b068fa82873f594f",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "4.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "doctype": "start",
+            "name": "pbench-index"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
+Index:  pbench-unittests.v4.result-data.2019-06-21 1810
+Index:  pbench-unittests.v4.run.2019-06 57
+len(actions) = 30
+[
+    {
+        "_id": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8aab70198482b229b068fa82873f594f",
+            "@metadata": {
+                "controller_dir": "rhel8-1",
+                "file-date": "2020-04-29T00:29:37",
+                "file-name": "/var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz",
+                "file-size": 8423968,
+                "md5": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "pbench-agent-version": "0.60-1gc9e89f8f",
+                "toc-prefix": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "host_tools_info": [
+                {
+                    "hostname": "10.10.10.153",
+                    "hostname-f": "rhel8-1-2",
+                    "hostname-s": "rhel8-1-2",
+                    "tools": {
+                        "turbostat": "--interval=3"
+                    }
+                },
+                {
+                    "hostname": "10.10.10.19",
+                    "hostname-f": "rhel8-1-3",
+                    "hostname-s": "rhel8-1-3",
+                    "tools": {
+                        "turbostat": "--interval=3"
+                    }
+                },
+                {
+                    "hostname": "rhel8-1",
+                    "hostname-f": "rhel8-1",
+                    "tools": {
+                        "turbostat": "--interval=3"
+                    }
+                }
+            ],
+            "run": {
+                "config": "rhel8.1_4.18.0-107.el8_snap4_25gb_virt",
+                "controller": "rhel8-1",
+                "date": "2019-06-21T01:28:57",
+                "end": "2019-06-21T11:13:13.715148",
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "iterations": "1-tcp_stream-64B-1i",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57",
+                "script": "uperf",
+                "start": "2019-06-21T01:29:37.976771",
+                "toolsgroup": "default"
+            },
+            "sosreports": [
+                {
+                    "hostname-f": "rhel8-1-2",
+                    "hostname-s": "rhel8-1-2",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "10.16.31.153"
+                        },
+                        {
+                            "ifname": "ens5",
+                            "ipaddr": "10.10.10.153"
+                        },
+                        {
+                            "ifname": "ens6",
+                            "ipaddr": "25.25.10.153"
+                        },
+                        {
+                            "ifname": "ens7",
+                            "ipaddr": "40.40.10.153"
+                        },
+                        {
+                            "ifname": "ens9",
+                            "ipaddr": "10.10.20.153"
+                        },
+                        {
+                            "ifname": "ens11",
+                            "ipaddr": "40.40.20.153"
+                        },
+                        {
+                            "ifname": "ens10",
+                            "ipaddr": "25.25.20.153"
+                        }
+                    ],
+                    "md5": "c2d6f7ba7ad623568b770fdfc00e37e9",
+                    "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-2/sosreport-rhel8-1-2-rhel8-1-2-pbench-2019-06-20-aszgbtp.tar.xz"
+                },
+                {
+                    "hostname-f": "rhel8-1-3",
+                    "hostname-s": "rhel8-1-3",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "10.16.31.19"
+                        },
+                        {
+                            "ifname": "ens5",
+                            "ipaddr": "10.10.10.19"
+                        },
+                        {
+                            "ifname": "ens6",
+                            "ipaddr": "25.25.10.19"
+                        },
+                        {
+                            "ifname": "ens7",
+                            "ipaddr": "40.40.10.19"
+                        },
+                        {
+                            "ifname": "ens9",
+                            "ipaddr": "10.10.20.19"
+                        },
+                        {
+                            "ifname": "ens11",
+                            "ipaddr": "40.40.20.19"
+                        },
+                        {
+                            "ifname": "ens10",
+                            "ipaddr": "25.25.20.19"
+                        }
+                    ],
+                    "md5": "327a5a4822b1cb8f02fbc4d2eb398de2",
+                    "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-3/sosreport-rhel8-1-3-rhel8-1-3-pbench-2019-06-20-ucaxqyb.tar.xz"
+                },
+                {
+                    "hostname-f": "rhel8-1",
+                    "hostname-s": "rhel8-1",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "10.16.31.79"
+                        },
+                        {
+                            "ifname": "ens5",
+                            "ipaddr": "10.10.10.79"
+                        },
+                        {
+                            "ifname": "ens9",
+                            "ipaddr": "10.10.20.79"
+                        },
+                        {
+                            "ifname": "ens6",
+                            "ipaddr": "25.25.10.79"
+                        },
+                        {
+                            "ifname": "ens7",
+                            "ipaddr": "40.40.10.79"
+                        },
+                        {
+                            "ifname": "ens11",
+                            "ipaddr": "40.40.20.79"
+                        },
+                        {
+                            "ifname": "ens10",
+                            "ipaddr": "25.25.20.79"
+                        }
+                    ],
+                    "md5": "5babfac7e9ae24498cd9ce6122e426ef",
+                    "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1/sosreport-rhel8-1-rhel8-1-pbench-2019-06-20-xywwqpt.tar.xz"
+                },
+                {
+                    "hostname-f": "rhel8-1-2",
+                    "hostname-s": "rhel8-1-2",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "10.16.31.153"
+                        },
+                        {
+                            "ifname": "ens5",
+                            "ipaddr": "10.10.10.153"
+                        },
+                        {
+                            "ifname": "ens6",
+                            "ipaddr": "25.25.10.153"
+                        },
+                        {
+                            "ifname": "ens7",
+                            "ipaddr": "40.40.10.153"
+                        },
+                        {
+                            "ifname": "ens9",
+                            "ipaddr": "10.10.20.153"
+                        },
+                        {
+                            "ifname": "ens11",
+                            "ipaddr": "40.40.20.153"
+                        },
+                        {
+                            "ifname": "ens10",
+                            "ipaddr": "25.25.20.153"
+                        }
+                    ],
+                    "md5": "4bc04a85169f83af4ae7faa82336ea62",
+                    "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-2/sosreport-rhel8-1-2-rhel8-1-2-pbench-2019-06-21-zethffp.tar.xz"
+                },
+                {
+                    "hostname-f": "rhel8-1-3",
+                    "hostname-s": "rhel8-1-3",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "10.16.31.19"
+                        },
+                        {
+                            "ifname": "ens5",
+                            "ipaddr": "10.10.10.19"
+                        },
+                        {
+                            "ifname": "ens6",
+                            "ipaddr": "25.25.10.19"
+                        },
+                        {
+                            "ifname": "ens7",
+                            "ipaddr": "40.40.10.19"
+                        },
+                        {
+                            "ifname": "ens9",
+                            "ipaddr": "10.10.20.19"
+                        },
+                        {
+                            "ifname": "ens11",
+                            "ipaddr": "40.40.20.19"
+                        },
+                        {
+                            "ifname": "ens10",
+                            "ipaddr": "25.25.20.19"
+                        }
+                    ],
+                    "md5": "bfdfac12d0946152bff0d88a8358d59c",
+                    "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-3/sosreport-rhel8-1-3-rhel8-1-3-pbench-2019-06-21-bewlwuk.tar.xz"
+                },
+                {
+                    "hostname-f": "rhel8-1",
+                    "hostname-s": "rhel8-1",
+                    "inet": [
+                        {
+                            "ifname": "lo",
+                            "ipaddr": "127.0.0.1"
+                        },
+                        {
+                            "ifname": "ens3",
+                            "ipaddr": "10.16.31.79"
+                        },
+                        {
+                            "ifname": "ens5",
+                            "ipaddr": "10.10.10.79"
+                        },
+                        {
+                            "ifname": "ens9",
+                            "ipaddr": "10.10.20.79"
+                        },
+                        {
+                            "ifname": "ens6",
+                            "ipaddr": "25.25.10.79"
+                        },
+                        {
+                            "ifname": "ens7",
+                            "ipaddr": "40.40.10.79"
+                        },
+                        {
+                            "ifname": "ens11",
+                            "ipaddr": "40.40.20.79"
+                        },
+                        {
+                            "ifname": "ens10",
+                            "ipaddr": "25.25.20.79"
+                        }
+                    ],
+                    "md5": "036b3539617d193de6601880dde7f314",
+                    "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1/sosreport-rhel8-1-rhel8-1-pbench-2019-06-21-howvnoj.tar.xz"
+                }
+            ]
+        },
+        "_type": "pbench-run"
+    },
+    {
+        "_id": "12df1d10c75e2c22b5ce68888bbfe1ba",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "directory": "/",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T11:13:11",
+                    "name": "generate-benchmark-summary.cmd",
+                    "size": 394,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-04-25T05:12:24",
+                    "name": "metadata.log",
+                    "size": 821,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T01:28:58",
+                    "name": "pbench-uperf.cmd",
+                    "size": 237,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T11:13:13",
+                    "name": "result.csv",
+                    "size": 2229,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T11:13:13",
+                    "name": "result.html",
+                    "size": 26682,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-04-29T00:28:50",
+                    "name": "result.json",
+                    "size": 310463,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T11:13:13",
+                    "name": "result.txt",
+                    "size": 17201,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-04-29T00:28:50",
+            "parent": "/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "264471106623244fc7494eb2cda86b62",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "directory": "/1-tcp_stream-64B-1i",
+            "files": [
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T01:42:55",
+                    "name": "client::25.25.10.19-server::25.25.10.153:20010--client_start.sh",
+                    "size": 406,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T01:42:55",
+                    "name": "client::25.25.10.19-server::25.25.10.153:20010--server_start.sh",
+                    "size": 217,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:42:55",
+                    "name": "client::25.25.10.19-server::25.25.10.153:20010--test_config.xml",
+                    "size": 428,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T01:46:13",
+                    "name": "process-iteration-samples.cmd",
+                    "size": 209,
+                    "type": "reg"
+                },
+                {
+                    "linkpath": "sample1",
+                    "mode": "0o777",
+                    "mtime": "2019-06-21T01:46:14",
+                    "name": "reference-result",
+                    "size": 0,
+                    "type": "sym"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:46:14",
+                    "name": "result.json",
+                    "size": 266548,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:46:14",
+            "name": "1-tcp_stream-64B-1i",
+            "parent": "/"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "a2b85009df4c2d3f837c144ecead4e17",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample1",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:58",
+                    "name": "client::25.25.10.19-server::25.25.10.153:20010--client_output.txt",
+                    "size": 18029,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:58",
+                    "name": "client::25.25.10.19-server::25.25.10.153:20010--server.log",
+                    "size": 693,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:58",
+                    "name": "result.json",
+                    "size": 45658,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:58",
+                    "name": "uperf-average.txt",
+                    "size": 163,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T01:32:58",
+                    "name": "uperf-postprocess.cmd",
+                    "size": 259,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:58",
+                    "name": "uperf.html",
+                    "size": 654,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:32:58",
+            "name": "sample1",
+            "parent": "/1-tcp_stream-64B-1i"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "3d995253ff62dd970beb926f8a40eeed",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample1"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample1/csv",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:58",
+                    "name": "uperf_Gb_sec.csv",
+                    "size": 9026,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:32:58",
+            "name": "csv",
+            "parent": "/1-tcp_stream-64B-1i/sample1"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "dc5e4119c45b74bfa58b713f394ee187",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample1"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample1/tools-default",
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:32:56",
+            "name": "tools-default",
+            "parent": "/1-tcp_stream-64B-1i/sample1"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "c913c80dc42fb6e9cf4bc97f6cfb3df0",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample1",
+                "tools-default"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1",
+            "mode": "0o755",
+            "mtime": "2020-04-25T03:45:31",
+            "name": "rhel8-1",
+            "parent": "/1-tcp_stream-64B-1i/sample1/tools-default"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "1dc031ee1b59b6383a404cf3deaf8d03",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample1",
+                "tools-default"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2",
+            "mode": "0o755",
+            "mtime": "2020-04-25T03:45:31",
+            "name": "rhel8-1-2",
+            "parent": "/1-tcp_stream-64B-1i/sample1/tools-default"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "c9a05867d664b29981b3012eb3c87ebe",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-1-2"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2/turbostat",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:57",
+                    "name": "turbostat-stderr.txt",
+                    "size": 468,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:57",
+                    "name": "turbostat-stdout.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T01:32:57",
+                    "name": "turbostat.cmd",
+                    "size": 219,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:32:57",
+            "name": "turbostat",
+            "parent": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "04fdc0019ab10e166b4d20beefd21eae",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample1",
+                "tools-default"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3",
+            "mode": "0o755",
+            "mtime": "2020-04-25T03:45:31",
+            "name": "rhel8-1-3",
+            "parent": "/1-tcp_stream-64B-1i/sample1/tools-default"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "610f7eb30045385406c94448ea3dcc0f",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-1-3"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3/turbostat",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:57",
+                    "name": "turbostat-stderr.txt",
+                    "size": 468,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:32:57",
+                    "name": "turbostat-stdout.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T01:32:57",
+                    "name": "turbostat.cmd",
+                    "size": 219,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:32:57",
+            "name": "turbostat",
+            "parent": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "b78d2213574e6111e4395c910a6f9473",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-1"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1/turbostat",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:29:41",
+                    "name": "turbostat-stderr.txt",
+                    "size": 468,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:29:41",
+                    "name": "turbostat-stdout.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T01:29:41",
+                    "name": "turbostat.cmd",
+                    "size": 219,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:29:41",
+            "name": "turbostat",
+            "parent": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "68b44daaa04ee2ed70a0e8ba7dd017d0",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample2",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:36:17",
+                    "name": "client::25.25.10.19-server::25.25.10.153:20010--client_output.txt",
+                    "size": 18035,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:36:17",
+                    "name": "client::25.25.10.19-server::25.25.10.153:20010--server.log",
+                    "size": 693,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:36:17",
+                    "name": "result.json",
+                    "size": 45506,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:36:17",
+                    "name": "uperf-average.txt",
+                    "size": 163,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2019-06-21T01:36:17",
+                    "name": "uperf-postprocess.cmd",
+                    "size": 259,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:36:17",
+                    "name": "uperf.html",
+                    "size": 654,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:36:17",
+            "name": "sample2",
+            "parent": "/1-tcp_stream-64B-1i"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "daa9ae6a85ceb67cbeb9453918ab8bfd",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample2"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample2/csv",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2019-06-21T01:36:17",
+                    "name": "uperf_Gb_sec.csv",
+                    "size": 8874,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:36:17",
+            "name": "csv",
+            "parent": "/1-tcp_stream-64B-1i/sample2"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "830e1e964f67a2df8b74e509d17fad0f",
+        "_index": "pbench-unittests.v4.run.2019-06",
+        "_op_type": "create",
+        "_parent": "4b8da5832aa9c7c6a21dc74123b8968b",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:37.976771",
+            "ancestor_path_elements": [
+                "1-tcp_stream-64B-1i",
+                "sample2"
+            ],
+            "directory": "/1-tcp_stream-64B-1i/sample2/tools-default",
+            "mode": "0o755",
+            "mtime": "2019-06-21T01:36:15",
+            "name": "tools-default",
+            "parent": "/1-tcp_stream-64B-1i/sample2"
+        },
+        "_type": "pbench-run-toc-entry"
+    },
+    {
+        "_id": "43dd88aeb972da30a94c7de403530469",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "8aab70198482b229b068fa82873f594f",
+            "@timestamp": "2019-06-21T01:29:48.605000",
+            "@timestamp_original": "1561080588605",
+            "benchmark": {
+                "clients": "25.25.10.19",
+                "instances": 1,
+                "max_stddevpct": 10,
+                "message_size_bytes": 64,
+                "name": "uperf",
+                "primary_metric": "Gb_sec",
+                "protocol": "tcp",
+                "servers": "25.25.10.153",
+                "test_type": "stream",
+                "uid": "benchmark_name:uperf-controller_host:rhel8-1",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                "version": "1.0.4"
+            },
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "run": {
+                "config": "rhel8.1_4.18.0-107.el8_snap4_25gb_virt",
+                "controller": "rhel8-1",
+                "date": "2019-06-21T01:28:57",
+                "end": "2019-06-21T11:13:13.715148",
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57",
+                "script": "uperf",
+                "start": "2019-06-21T01:29:37.976771"
+            },
+            "sample": {
+                "@idx": 4,
+                "client_hostname": "25.25.10.19",
+                "closest_sample": 1,
+                "description": "Number of gigabits sent by client for a period of 1 second",
+                "end": "2019-06-21T01:46:03.554000",
+                "mean": 0.6681,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample5",
+                "role": "client",
+                "server_hostname": "25.25.10.153",
+                "server_port": "20010",
+                "start": "2019-06-21T01:43:04.374000",
+                "stddev": 0.01572,
+                "stddevpct": 2.354,
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%"
+            }
+        },
+        "_type": "pbench-result-data-sample"
+    },
+    {
+        "_id": "e5e2cf1392e0217e7533f2aafd082d35",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:48.605000",
+            "@timestamp_original": "1561080588605",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 0,
+                "value": 0.510408247752248
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "52bf43add5b8c31b54af9e3e1a07b86d",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:49.606000",
+            "@timestamp_original": "1561080589606",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 1,
+                "value": 0.498934537462538
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "3de333746a3b13e6dffccac143db67b9",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:50.607000",
+            "@timestamp_original": "1561080590607",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 2,
+                "value": 0.504163996003996
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "1302505ab26efe9a5d962f30bac9d181",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:51.608000",
+            "@timestamp_original": "1561080591608",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 3,
+                "value": 0.507568463536464
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "9527797e378307e82ef575b7e8a5356d",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:52.609000",
+            "@timestamp_original": "1561080592609",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 4,
+                "value": 0.518927600399601
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "11e5c8e607c66e1978b1699f5ad6f543",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:53.610000",
+            "@timestamp_original": "1561080593610",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 5,
+                "value": 0.507437522477522
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "6987117fea0968c8f48590a87442f092",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:54.611000",
+            "@timestamp_original": "1561080594611",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 6,
+                "value": 0.503141018981019
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "0d883766183dcb9220dc45d791761d3e",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:55.612000",
+            "@timestamp_original": "1561080595612",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 7,
+                "value": 0.519238585414585
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "adddbbcf59f589d2b45c33ff31c83af4",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:56.613000",
+            "@timestamp_original": "1561080596613",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 8,
+                "value": 0.56846423976024
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "92aab2c4cf5004250e41c16377000ae2",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:57.614000",
+            "@timestamp_original": "1561080597614",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 9,
+                "value": 0.682112895104895
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "6e325ed4cd34ac299b1b35660f411557",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:58.615000",
+            "@timestamp_original": "1561080598615",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 10,
+                "value": 0.677202605394606
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "c7eb2c4b5e781691c944f84b4027ff3b",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:29:59.617000",
+            "@timestamp_original": "1561080599617",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 11,
+                "value": 0.680835321357285
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "c9948db2a60a2f7352453e05ac0b2eb9",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:30:00.618000",
+            "@timestamp_original": "1561080600618",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 12,
+                "value": 0.674952055944056
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    },
+    {
+        "_id": "b174c71dd8b76c60a760aa97c4960f91",
+        "_index": "pbench-unittests.v4.result-data.2019-06-21",
+        "_op_type": "create",
+        "_parent": "43dd88aeb972da30a94c7de403530469",
+        "_source": {
+            "@timestamp": "2019-06-21T01:30:01.619000",
+            "@timestamp_original": "1561080601619",
+            "iteration": {
+                "name": "1-tcp_stream-64B-1i",
+                "number": 1
+            },
+            "result": {
+                "@idx": 13,
+                "value": 0.680918057942058
+            },
+            "run": {
+                "id": "4b8da5832aa9c7c6a21dc74123b8968b",
+                "name": "uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Gb_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "uid": "client_hostname:25.25.10.19-server_hostname:25.25.10.153-server_port:20010"
+            }
+        },
+        "_type": "pbench-result-data"
+    }
+]
+Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "dee5686d933125874a47989dd8754acf",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "4.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-index",
+            "text": "pbench-index.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/TO-INDEX/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 252
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-index (status=0)
++++ Running pbench-index --tool-data
+Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "be2ab3a759dc3058c775a9475cbc9603",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "4.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "doctype": "start",
+            "name": "pbench-index-tool-data"
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
+len(actions) = 0
+[]
+Template:  pbench-unittests.v3.server-reports
+Template:  pbench-unittests.v3.tool-data-iostat
+Template:  pbench-unittests.v3.tool-data-mpstat
+Template:  pbench-unittests.v3.tool-data-pidstat
+Template:  pbench-unittests.v3.tool-data-proc-interrupts
+Template:  pbench-unittests.v3.tool-data-proc-vmstat
+Template:  pbench-unittests.v3.tool-data-prometheus-metrics
+Template:  pbench-unittests.v3.tool-data-vmstat
+Template:  pbench-unittests.v4.result-data
+Template:  pbench-unittests.v4.run
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "eab490a3573dab268ceb3eed683a278e",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": "4.0.0"
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-index-tool-data",
+            "text": "pbench-index-tool-data.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/TO-INDEX-TOOL/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz\n\n",
+            "total_chunks": 1,
+            "total_size": 267
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-index (status=0)
++++ Running unit test audit
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "fb8eea157f633b56122a0db0334f1218",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:00",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
+            "total_chunks": 1,
+            "total_size": 59
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished unit test audit (status=0)
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.25/var-www-html)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-7.25/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-7.25/pbench/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-7.25/pbench/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-7.25/pbench/public_html/users
+--- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.25/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.25/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.25/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.25/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.25/var-www-html-satellite)
+lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-7.25/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-7.25/pbench-satellite/public_html/results
+lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-7.25/pbench-satellite/public_html/static
+lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.25/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/test-7.25/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.25/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.25/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.25/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ pbench tree state (/var/tmp/pbench-test-server/test-7.25/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - archive/fs-version-001/rhel8-1
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/BACKED-UP
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/BACKUP-FAILED
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/BAD-MD5
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/COPIED-SOS
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/INDEXED
+lrwxrwxrwx        147 archive/fs-version-001/rhel8-1/INDEXED/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz -> /var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/SATELLITE-DONE
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/SATELLITE-MD5-FAILED
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/SATELLITE-MD5-PASSED
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/SYNCED
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-BACKUP
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-COPY-SOS
+lrwxrwxrwx        147 archive/fs-version-001/rhel8-1/TO-COPY-SOS/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz -> /var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-DELETE
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-INDEX-TOOL
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-SYNC
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-UNPACK
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TODO
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/UNPACKED
+lrwxrwxrwx         74 archive/fs-version-001/rhel8-1/UNPACKED/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz -> ../uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/WONT-INDEX
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/WONT-UNPACK
+-rw-rw-r--    8423968 archive/fs-version-001/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz
+-rw-rw-r--        106 archive/fs-version-001/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz.md5
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/rhel8-1
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i
+-rwxr-xr-x        406 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/client::25.25.10.19-server::25.25.10.153:20010--client_start.sh
+-rwxr-xr-x        217 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/client::25.25.10.19-server::25.25.10.153:20010--server_start.sh
+-rw-r--r--        428 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/client::25.25.10.19-server::25.25.10.153:20010--test_config.xml
+-rwxr-xr-x        209 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/process-iteration-samples.cmd
+lrwxrwxrwx          7 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/reference-result -> sample1
+-rw-r--r--     266548 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/result.json
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1
+-rw-r--r--      18029 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/client::25.25.10.19-server::25.25.10.153:20010--client_output.txt
+-rw-r--r--        693 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/client::25.25.10.19-server::25.25.10.153:20010--server.log
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/csv
+-rw-r--r--       9026 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/csv/uperf_Gb_sec.csv
+-rw-r--r--      45658 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/result.json
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1/turbostat/turbostat.cmd
+-rw-r--r--        163 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/uperf-average.txt
+-rwxr-xr-x        259 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/uperf-postprocess.cmd
+-rw-r--r--        654 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample1/uperf.html
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2
+-rw-r--r--      18035 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/client::25.25.10.19-server::25.25.10.153:20010--client_output.txt
+-rw-r--r--        693 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/client::25.25.10.19-server::25.25.10.153:20010--server.log
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/csv
+-rw-r--r--       8874 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/csv/uperf_Gb_sec.csv
+-rw-r--r--      45506 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/result.json
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-2
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-2/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-2/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-2/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-2/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-3
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-3/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-3/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-3/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1-3/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1/turbostat/turbostat.cmd
+-rw-r--r--        163 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/uperf-average.txt
+-rwxr-xr-x        259 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/uperf-postprocess.cmd
+-rw-r--r--        654 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample2/uperf.html
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3
+-rw-r--r--      18031 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/client::25.25.10.19-server::25.25.10.153:20010--client_output.txt
+-rw-r--r--        693 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/client::25.25.10.19-server::25.25.10.153:20010--server.log
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/csv
+-rw-r--r--       8874 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/csv/uperf_Gb_sec.csv
+-rw-r--r--      45506 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/result.json
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-2
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-2/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-2/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-2/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-2/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-3
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-3/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-3/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-3/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1-3/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/tools-default/rhel8-1/turbostat/turbostat.cmd
+-rw-r--r--        163 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/uperf-average.txt
+-rwxr-xr-x        259 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/uperf-postprocess.cmd
+-rw-r--r--        654 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample3/uperf.html
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4
+-rw-r--r--      18006 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/client::25.25.10.19-server::25.25.10.153:20010--client_output.txt
+-rw-r--r--        693 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/client::25.25.10.19-server::25.25.10.153:20010--server.log
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/csv
+-rw-r--r--       8826 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/csv/uperf_Gb_sec.csv
+-rw-r--r--      45458 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/result.json
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-2
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-2/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-2/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-2/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-2/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-3
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-3/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-3/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-3/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1-3/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/tools-default/rhel8-1/turbostat/turbostat.cmd
+-rw-r--r--        163 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/uperf-average.txt
+-rwxr-xr-x        259 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/uperf-postprocess.cmd
+-rw-r--r--        654 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample4/uperf.html
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5
+-rw-r--r--      18094 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/client::25.25.10.19-server::25.25.10.153:20010--client_output.txt
+-rw-r--r--        693 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/client::25.25.10.19-server::25.25.10.153:20010--server.log
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/csv
+-rw-r--r--       9010 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/csv/uperf_Gb_sec.csv
+-rw-r--r--      45642 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/result.json
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-2
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-2/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-2/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-2/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-2/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-3
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-3/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-3/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-3/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1-3/turbostat/turbostat.cmd
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1/turbostat
+-rw-r--r--        468 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1/turbostat/turbostat-stderr.txt
+-rw-r--r--          0 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1/turbostat/turbostat-stdout.txt
+-rwxr-xr-x        219 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/tools-default/rhel8-1/turbostat/turbostat.cmd
+-rw-r--r--        163 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/uperf-average.txt
+-rwxr-xr-x        259 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/uperf-postprocess.cmd
+-rw-r--r--        654 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/1-tcp_stream-64B-1i/sample5/uperf.html
+-rwxr-xr-x        394 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/generate-benchmark-summary.cmd
+-rw-r--r--        821 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/metadata.log
+-rwxr-xr-x        237 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/pbench-uperf.cmd
+-rw-r--r--       2229 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/result.csv
+-rw-r--r--      26682 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/result.html
+-rw-r--r--     310463 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/result.json
+-rw-r--r--      17201 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/result.txt
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg
+drwxrwxr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1
+drwxrwxr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-2
+-rwxrwxr-x       5031 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-2/block-params.log
+-rwxrwxr-x     184111 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-2/config-4.18.0-107.el8.x86_64
+-rwxrwxr-x        620 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-2/security-mitigation-data.txt
+-rwxrwxr-x    1365364 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-2/sosreport-rhel8-1-2-rhel8-1-2-pbench-2019-06-20-aszgbtp.tar.xz
+-rwxrwxr-x         33 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-2/sosreport-rhel8-1-2-rhel8-1-2-pbench-2019-06-20-aszgbtp.tar.xz.md5
+drwxrwxr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-3
+-rwxrwxr-x       5031 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-3/block-params.log
+-rwxrwxr-x     184111 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-3/config-4.18.0-107.el8.x86_64
+-rwxrwxr-x        620 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-3/security-mitigation-data.txt
+-rwxrwxr-x    1363404 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-3/sosreport-rhel8-1-3-rhel8-1-3-pbench-2019-06-20-ucaxqyb.tar.xz
+-rwxrwxr-x         33 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1-3/sosreport-rhel8-1-3-rhel8-1-3-pbench-2019-06-20-ucaxqyb.tar.xz.md5
+-rwxrwxr-x       5031 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1/block-params.log
+-rwxrwxr-x     184111 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1/config-4.18.0-107.el8.x86_64
+-rwxrwxr-x        620 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1/security-mitigation-data.txt
+-rwxrwxr-x    1431592 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1/sosreport-rhel8-1-rhel8-1-pbench-2019-06-20-xywwqpt.tar.xz
+-rwxrwxr-x         33 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/beg/rhel8-1/sosreport-rhel8-1-rhel8-1-pbench-2019-06-20-xywwqpt.tar.xz.md5
+drwxr-xr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end
+drwxrwxr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1
+drwxrwxr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-2
+-rwxrwxr-x       5031 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-2/block-params.log
+-rwxrwxr-x     184111 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-2/config-4.18.0-107.el8.x86_64
+-rwxrwxr-x        620 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-2/security-mitigation-data.txt
+-rwxrwxr-x    1367116 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-2/sosreport-rhel8-1-2-rhel8-1-2-pbench-2019-06-21-zethffp.tar.xz
+-rwxrwxr-x         33 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-2/sosreport-rhel8-1-2-rhel8-1-2-pbench-2019-06-21-zethffp.tar.xz.md5
+drwxrwxr-x          - public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-3
+-rwxrwxr-x       5031 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-3/block-params.log
+-rwxrwxr-x     184111 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-3/config-4.18.0-107.el8.x86_64
+-rwxrwxr-x        620 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-3/security-mitigation-data.txt
+-rwxrwxr-x    1365760 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-3/sosreport-rhel8-1-3-rhel8-1-3-pbench-2019-06-21-bewlwuk.tar.xz
+-rwxrwxr-x         33 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1-3/sosreport-rhel8-1-3-rhel8-1-3-pbench-2019-06-21-bewlwuk.tar.xz.md5
+-rwxrwxr-x       5031 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1/block-params.log
+-rwxrwxr-x     184111 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1/config-4.18.0-107.el8.x86_64
+-rwxrwxr-x        620 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1/security-mitigation-data.txt
+-rwxrwxr-x    1432508 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1/sosreport-rhel8-1-rhel8-1-pbench-2019-06-21-howvnoj.tar.xz
+-rwxrwxr-x         33 public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57/sysinfo/end/rhel8-1/sosreport-rhel8-1-rhel8-1-pbench-2019-06-21-howvnoj.tar.xz.md5
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/results/rhel8-1
+lrwxrwxrwx        138 public_html/results/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57 -> /var/tmp/pbench-test-server/test-7.25/pbench/public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-7.25/pbench-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-index
+drwxrwxr-x          - logs/pbench-index-tool-data
+-rw-rw-r--       3195 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       3439 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-unpack-tarballs
+-rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
+-rw-rw-r--        892 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-7.25/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.25/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
++++ pbench log file contents
+++++ pbench-local/logs
++++++ pbench-audit-server/pbench-audit-server.error
+----- pbench-audit-server/pbench-audit-server.error
++++++ pbench-audit-server/pbench-audit-server.log
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-index-tool-data/pbench-index-tool-data.log
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/TO-INDEX-TOOL/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz (size 8423968)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [6 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [3 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/TO-INDEX-TOOL/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz (size 8423968)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index-tool-data/pbench-index-tool-data.log
++++++ pbench-index/pbench-index.log
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
+1970-01-01T00:00:00.000000 INFO pbench-index.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
+1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/TO-INDEX/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz (size 8423968)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [6 sosreports processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [3 tools processed]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [56 table-of-contents documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [1810 result documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1867, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz: success
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.25/pbench/archive/fs-version-001/rhel8-1/TO-INDEX/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57.tar.xz (size 8423968)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index/pbench-index.log
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
++++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
+run-1970-01-01T00:00:00-UTC
+ln -s /var/tmp/pbench-test-server/test-7.25/pbench/public_html/incoming/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57 /var/tmp/pbench-test-server/test-7.25/pbench/public_html/results/rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57
+run-1970-01-01T00:00:00-UTC: rhel8-1/uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57: success - elapsed time (secs): 0 - size (bytes): 8423968
+run-1970-01-01T00:00:00-UTC: Processed 1 tarballs
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
+---- pbench-local/logs
+++++ pbench-satellite-local/logs
+---- pbench-satellite-local/logs
+--- pbench log file contents
