@@ -5731,8 +5731,8 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--       5085 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       6178 logs/pbench-index/pbench-index.log
+-rw-rw-r--       5253 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       6350 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--       1716 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -5804,7 +5804,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed.
+1970-01-01T00:00:00.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz(ea6b84aa5a882a4e42ee11f7798fb40b))
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [0 tools processed]
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
@@ -5818,7 +5818,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed.
+1970-01-01T00:00:00.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz(b683a7a6756abc8f9bff4bddb5679d2c))
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [0 tools processed]
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
@@ -5845,13 +5845,13 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed.
+1970-01-01T00:00:00.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz(ea6b84aa5a882a4e42ee11f7798fb40b))
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [0 tools processed]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [7 table-of-contents documents]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [0 result documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [27 result documents]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 35, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz: success
@@ -5865,13 +5865,13 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed.
+1970-01-01T00:00:00.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz(b683a7a6756abc8f9bff4bddb5679d2c))
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [0 tools processed]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [7 table-of-contents documents]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [0 result documents]
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [4625 result documents]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 4633, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz: success
