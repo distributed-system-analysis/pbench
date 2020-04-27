@@ -118,11 +118,13 @@ typeset -i nprocessed=0
 typeset -i nfailed_md5=0
 typeset -i nerrs=0
 
+syncerr=${tmp}/syncerrors
+
 # Fetch all the tarballs from remote host's archive
-pbench-remote-sync-package-tarballs ${satellite_config} ${tmp}/satellite.${remote_prefix}.tar
+pbench-remote-sync-package-tarballs ${satellite_config} ${tmp}/satellite.${remote_prefix}.tar ${syncerr}
 rc=$?
 if [[ $rc != 0 ]] ;then
-    log_exit "$PROG: pbench-remote-sync-package-tarballs: failed." 2
+    log_exit "FAILED: $(cat ${syncerr})" 2 "${mail_content}"
 fi
 
 if [ -s $tmp/satellite.$remote_prefix.tar ]; then

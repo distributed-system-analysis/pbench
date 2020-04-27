@@ -755,6 +755,9 @@ declare -A cmds=(
 
     # Test culling unpacked tar balls
     [test-27]="_run pbench-cull-unpacked-tarballs"
+
+    # Test ssh-error
+    [test-28]="_run pbench-sync-satellite satellite-one"
 )
 all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\+\)-\([0-9]\+\)/\1.\2/')
 
