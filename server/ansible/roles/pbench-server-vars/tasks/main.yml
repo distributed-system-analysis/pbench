@@ -194,5 +194,29 @@
     mailaddr: "{{ cmd_output.stdout_lines[0].strip() }}"
 
 - debug:
-    msg: "{{ pbench_group }}"
+    msg: "{{ mailaddr }}"
+    verbosity: 1
+
+# pbench version
+- name: fetch the pbench version
+  shell: "cat {{ pbench_server_install_dir }}/VERSION"
+  register: cmd_output
+
+- set_fact:
+    pbench_version: "{{ cmd_output.stdout_lines[0].strip() }}"
+
+- debug:
+    msg: "{{ pbench_version }}"
+    verbosity: 1
+
+# pbench SHA1
+- name: fetch the pbench SHA1
+  shell: "cat {{ pbench_server_install_dir }}/SHA1"
+  register: cmd_output
+
+- set_fact:
+    pbench_sha1: "{{ cmd_output.stdout_lines[0].strip() }}"
+
+- debug:
+    msg: "{{ pbench_sha1 }}"
     verbosity: 1
