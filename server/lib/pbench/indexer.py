@@ -553,14 +553,10 @@ class PbenchTemplates(object):
             ts_val = source["@timestamp"]
         except KeyError:
             self.counters["ts_missing_at_timestamp"] += 1
-            raise BadDate(
-                "missing @timestamp in a source document:" " {!r}".format(source)
-            )
+            raise BadDate(f"missing @timestamp in a source document: {source!r}")
         except TypeError as e:
             self.counters["bad_source"] += 1
-            raise Exception(
-                "Failed to generate index name, {!r}, source:" " {!r}".format(e, source)
-            )
+            raise Exception(f"Failed to generate index name, {e}, source: {source!r}")
         year, month, day = ts_val.split("T", 1)[0].split("-")[0:3]
         return template.format(
             prefix=self.idx_prefix,
@@ -712,12 +708,12 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
     def actions_tracking_closure(cl_actions):
         for cl_action in cl_actions:
             for field in ("_id", "_index", "_type"):
-                assert field in cl_action, "Action missing '{}' field:" " {!r}".format(
-                    field, cl_action
-                )
+                assert (
+                    field in cl_action
+                ), f"Action missing '{field}' field: {cl_action!r}"
             assert _op_type == cl_action["_op_type"], (
                 "Unexpected _op_type"
-                " value '{}' in action {!r}".format(cl_action["_op_type"], cl_action)
+                f""" value '{cl_action["_op_type"]}' in action {cl_action!r}"""
             )
 
             actions_deque.append((0, cl_action))  # Append to the right side ...
@@ -1561,7 +1557,7 @@ class ResultData(PbenchData):
                     results = json.load(fp)
             except Exception as e:
                 self.logger.warning(
-                    "result-data-indexing: encountered invalid" " JSON file, {}: {:r}",
+                    "result-data-indexing: encountered invalid JSON file, {}: {:r}",
                     result_json,
                     e,
                 )
@@ -1657,7 +1653,7 @@ class ResultData(PbenchData):
             bm_data = iter_data["parameters"]["benchmark"]
         except Exception as e:
             self.logger.warning(
-                "result-data-indexing: bad result data in JSON" " file, {}: {!r}",
+                "result-data-indexing: bad result data in JSON file, {}: {!r}",
                 result_json,
                 e,
             )
@@ -3243,7 +3239,7 @@ class ToolData(PbenchData):
                     payload = json.load(fp)
             except Exception as e:
                 self.logger.warning(
-                    "tool-data-indexing: encountered bad JSON" " file, {}: {:r}",
+                    "tool-data-indexing: encountered bad JSON file, {}: {:r}",
                     df["path"],
                     e,
                 )
@@ -4077,7 +4073,7 @@ class PbenchTarBall(object):
             section_items = self.mdconf.items(section)
         except NoSectionError:
             self.idxctx.logger.warning(
-                "No [{}] section in metadata.log: tool data will" " *not* be indexed",
+                "No [{}] section in metadata.log: tool data will *not* be indexed",
                 section,
             )
             return []
@@ -4419,7 +4415,7 @@ class PbenchTarBall(object):
                     path_els = dpath.split(os.path.sep)[1:-1]
                 if dpath in toc_dirs:
                     raise Exception(
-                        "Logic bomb! Found a directory entry that" " already exists!"
+                        "Logic bomb! Found a directory entry that already exists!"
                     )
                 toc_dirs[dpath] = _dict_const(
                     parent=parent,
