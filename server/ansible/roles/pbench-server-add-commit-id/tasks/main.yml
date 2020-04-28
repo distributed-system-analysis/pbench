@@ -1,0 +1,9 @@
+---
+- name: "Update pbench-server.cfg file with commit_id info."
+  ini_file:
+    path: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    section: pbench-server
+    option: commit-id
+    value: "{{ pbench_version }}-{{ pbench_sha1 }}"
+    backup: yes
+

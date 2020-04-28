@@ -13,3 +13,5 @@
     name: pbench-server-activate-create-results-dir-structure
 - import_role:
     name: pbench-server-activate-httpd-setup-restart
+- import_role:
+    name: pbench-server-add-commit-id
