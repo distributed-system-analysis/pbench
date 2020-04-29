@@ -511,9 +511,11 @@ class PbenchTemplates(object):
                     beg = _beg
                 end = _end
                 retries += _retries
-        self.logger.info(
-            "done templates (end ts: {}, duration: {:.2f}s,"
+        log_action = self.logger.warning if retries > 0 else self.logger.debug
+        log_action(
+            "done templates (start ts: {}, end ts: {}, duration: {:.2f}s,"
             " successes: {:d}, retries: {:d})",
+            pbench.tstos(beg),
             pbench.tstos(end),
             end - beg,
             successes,

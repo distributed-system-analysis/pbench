@@ -125,9 +125,9 @@ drwxrwxr-x          - archive.backup/controller
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        683 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        755 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
--rw-rw-r--       3189 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
+-rw-rw-r--       3261 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -189,8 +189,8 @@ Controller: controller
 	* No state directories found in this controller directory.
 
 end-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-9.3/pbench/archive/fs-version-001
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- start-run-1970-01-01T00:00:00-UTC
@@ -211,8 +211,8 @@ end-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test
 1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with S3: start
 1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with S3: end
 1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Sending report: start
-1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Sending report: end
 1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-run-1970-01-01T00:00:00-UTC
 ----- pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
