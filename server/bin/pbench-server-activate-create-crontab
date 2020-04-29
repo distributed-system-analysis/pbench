@@ -1,21 +1,27 @@
 #! /bin/bash
 
-prog=$(basename $0)
 # This script uses the pbench-server.cfg file just installed, to
 # figure out what tasks to add to the pbench crontab on this
 # machine. After creating the crontab, it does *not* activate it: that
 # is a separate manual step.
 
-usage="Usage: $prog <crontab-path>"
+prog=$(basename ${0})
 
-crontabpath=$1
+if [[ -z "${1}" ]]; then
+    printf -- "[%s] ERROR: missing crontab path directory argument\n" "${prog}" >&2
+    exit 1
+fi
+crontabpath="${1}"
 
-# crontab
-mkdir -p $crontabpath
-chmod 755 $crontabpath
-crontab=$crontabpath/crontab
+mkdir -p ${crontabpath}
+chmod 755 ${crontabpath}
+if [[ ${?} -ne 0 ]]; then
+    printf -- "[%s] ERROR: failed to properly create crontab path, '%s'\n" "${prog}" "${crontabpath}" >&2
+    exit 1
+fi
 
-> $crontab
+crontab="${crontabpath}/crontab"
+> ${crontab}
 
 if [ ! -f "$_PBENCH_SERVER_CONFIG" ] ;then
     echo "Config file $_PBENCH_SERVER_CONFIG does not exist"
