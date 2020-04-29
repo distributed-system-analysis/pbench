@@ -220,3 +220,15 @@
 - debug:
     msg: "{{ pbench_sha1 }}"
     verbosity: 1
+
+# pbench SEQNO
+- name: fetch the pbench SEQNO
+  shell: "cat {{ pbench_server_install_dir }}/SEQNO"
+  register: cmd_output
+
+- set_fact:
+    pbench_seqno: "{{ cmd_output.stdout_lines[0].strip() }}"
+
+- debug:
+    msg: "{{ pbench_seqno }}"
+    verbosity: 1
