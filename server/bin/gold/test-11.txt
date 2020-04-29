@@ -159,7 +159,7 @@ drwxrwxr-x          - archive.backup/controller
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC
@@ -167,7 +167,7 @@ drwxrwxr-x          - logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC
 -rw-rw-r--         60 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controller/fail-checks.log
 -rw-rw-r--         96 logs/pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controller/md5-checks.log
 -rw-rw-r--        218 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--        941 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--       1013 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -229,8 +229,8 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-sync-satellite/ONE/run-1970-01-01T00:00:00-UTC/controller/fail-checks.log
 pbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED
@@ -252,8 +252,8 @@ md5sum: WARNING: 1 computed checksum did NOT match
 run-1970-01-01T00:00:00-UTC: end - 1970-01-01T00:00:00-UTC
 run-1970-01-01T00:00:00-UTC: duration (secs): 0
 run-1970-01-01T00:00:00-UTC: Total 2 files processed, with 1 md5 failures and 0 errors
-1970-01-01T00:00:00.000000 INFO pbench-sync-satellite.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-sync-satellite.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-sync-satellite.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-sync-satellite.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-sync-satellite/pbench-sync-satellite.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

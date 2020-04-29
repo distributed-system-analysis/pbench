@@ -165,7 +165,7 @@ def main(options, name):
         # Exit early if we encounter any errors.
         return res
 
-    idxctx.logger.info("{}.{}: starting", name, idxctx.TS)
+    idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
 
     # find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
     tarballs = []
@@ -347,9 +347,10 @@ def main(options, name):
                 else:
                     beg, end, successes, duplicates, failures, retries = es_res
                     idxctx.logger.info(
-                        "done indexing (end ts: {}, duration:"
+                        "done indexing (start ts: {}, end ts: {}, duration:"
                         " {:.2f}s, successes: {:d}, duplicates: {:d},"
                         " failures: {:d}, retries: {:d})",
+                        tstos(beg),
                         tstos(end),
                         end - beg,
                         successes,

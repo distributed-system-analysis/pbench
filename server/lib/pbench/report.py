@@ -210,11 +210,23 @@ class Report(object):
                     self.es, _es_payload_gen(payload_gen), sys.stderr, self.logger
                 )
                 beg, end, successes, duplicates, failures, retries = es_res
-                do_log = self.logger.info if successes == 1 else self.logger.warning
-                do_log(
-                    "posted status (end ts: {}, duration: {:.2f}s,"
+                if failures > 0:
+                    log_action = self.logger.error
+                elif duplicates > 0 or retries > 0:
+                    log_action = self.logger.warning
+                else:
+                    assert (
+                        successes >= 1
+                        and duplicates == 0
+                        and failures == 0
+                        and retries == 0
+                    ), "Logic Bomb!"
+                    log_action = self.logger.debug
+                log_action(
+                    "posted status (start ts: {}, end ts: {}, duration: {:.2f}s,"
                     " successes: {:d}, duplicates: {:d}, failures: {:d},"
                     " retries: {:d})",
+                    pbench.tstos(beg),
                     pbench.tstos(end),
                     end - beg,
                     successes,

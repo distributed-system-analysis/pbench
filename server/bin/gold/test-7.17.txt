@@ -3715,14 +3715,14 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        365 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--       8719 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       3425 logs/pbench-index/pbench-index.log
+-rw-rw-r--       8863 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       3569 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--        910 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--        982 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -3772,16 +3772,16 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-audit-server.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX-TOOL/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz (size 31384)
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
@@ -3814,20 +3814,20 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool vmstat, gen unified begin for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _make_source_unified -- tool-data-indexing: tool vmstat, end unified for pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18/1/reference-result/tools-default/infra-node-2.scale-ci.example.com/vmstat
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [1980 tool data documents]
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1980, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1980, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz: success
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX-TOOL/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz (size 31384)
 1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: starting
+1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
-1970-01-01T00:00:00.000000 INFO pbench-index.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
-1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz (size 31384)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
@@ -3845,12 +3845,12 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [no result data sources]
 1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 26, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 26, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz: success
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.17/pbench/archive/fs-version-001/ansible-host/TO-INDEX/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18.tar.xz (size 31384)
 1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
 1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
-1970-01-01T00:00:00.000000 INFO pbench-index.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
@@ -3859,8 +3859,8 @@ run-1970-01-01T00:00:00-UTC
 ln -s /var/tmp/pbench-test-server/test-7.17/pbench/public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18 /var/tmp/pbench-test-server/test-7.17/pbench/public_html/results/ansible-host/test_glusterfs-storage-block/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18
 run-1970-01-01T00:00:00-UTC: ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18: success - elapsed time (secs): 0 - size (bytes): 31384
 run-1970-01-01T00:00:00-UTC: Processed 1 tarballs
-1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-unpack-tarballs.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
