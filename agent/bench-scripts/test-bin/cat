@@ -1,0 +1,20 @@
+#!/bin/bash
+
+prog="$(basename "${0}")"
+args=( "${@}" )
+lastidx=$((${#args[@]} - 1))
+# avoid "bad array subscript" error
+if [[ "${lastidx}" -lt 0 ]] ;then
+    exit 0
+fi
+
+if [[ "${prog}" == "cat" && "${args[0]}" == "/proc/cmdline" ]]; then
+    if [[ -z "${*}" ]]; then
+        echo "${0}" >> ${_testlog}
+    else
+        echo "${0} ${*}" >> ${_testlog}
+    fi
+    echo "intel_iommu=on"
+    exit 0
+fi
+${_real_cat} ${*}

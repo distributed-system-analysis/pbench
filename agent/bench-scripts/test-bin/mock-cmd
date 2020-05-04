@@ -23,5 +23,7 @@ elif [[ "${prog}" == "screen" && "${args[5]}" == "--start" ]]; then
     _dir="${args[6]}"
     mkdir ${_dir#*=}/${_tool}
     exit ${?}
+elif [[ "${prog}" == "cat" && "${args[0]}" == "/proc/cmdline" ]]; then
+    echo "intel_iommu=on"
 fi
 exit 0

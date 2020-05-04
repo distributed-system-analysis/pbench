@@ -1,0 +1,132 @@
++++ Running test-39 pbench-trafficgen
+tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: default
+found IOMMU option, continuing
+found dpdk-tools, continuing
+[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-39_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os_" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
+Total number of benchmark iterations: 3
+Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
+test sample 1 of 1
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+[pbench-tool-trigger]found trigger: tool-group:default start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
+Starting binary-search
+[pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/1-default/sample1
+Finished binary-search
+[pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/1-default/sample1
+exit code: 0
+Iteration 1-bidirectional-74B-1000flows-0.0pct_drop complete (1 of 3), with 1 pass and 0 failures
+Starting iteration[2-unidirectional-74B-1000flows-0.0pct_drop] (2 of 3)
+test sample 1 of 1
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+[pbench-tool-trigger]found trigger: tool-group:default start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
+Starting binary-search
+[pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/2-default/sample1
+Finished binary-search
+[pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/2-default/sample1
+exit code: 0
+Iteration 2-unidirectional-74B-1000flows-0.0pct_drop complete (2 of 3), with 1 pass and 0 failures
+Starting iteration[3-revunidirectional-74B-1000flows-0.0pct_drop] (3 of 3)
+test sample 1 of 1
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+[pbench-tool-trigger]found trigger: tool-group:default start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
+Starting binary-search
+[pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-default/sample1
+Finished binary-search
+[pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-default/sample1
+exit code: 0
+Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
+--- Finished test-39 pbench-trafficgen (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/.iterations
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
+/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
+/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
+/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
+/var/tmp/pbench-test-bench/pbench-agent/generate-benchmark-summary.cmd
+/var/tmp/pbench-test-bench/pbench-agent/metadata.log
+/var/tmp/pbench-test-bench/pbench-agent/pbench-trafficgen.cmd
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tool-triggers
+/var/tmp/pbench-test-bench/pbench-agent/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] dpdk-tools is installed
+[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-39_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os_" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
+[info][1900-01-01T00:00:00.000000] Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
+[info][1900-01-01T00:00:00.000000] test sample 1 of 1
+[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
+[info][1900-01-01T00:00:00.000000] Iteration 1-bidirectional-74B-1000flows-0.0pct_drop complete (1 of 3), with 1 pass and 0 failures
+[info][1900-01-01T00:00:00.000000] Starting iteration[2-unidirectional-74B-1000flows-0.0pct_drop] (2 of 3)
+[info][1900-01-01T00:00:00.000000] test sample 1 of 1
+[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
+[info][1900-01-01T00:00:00.000000] Iteration 2-unidirectional-74B-1000flows-0.0pct_drop complete (2 of 3), with 1 pass and 0 failures
+[info][1900-01-01T00:00:00.000000] Starting iteration[3-revunidirectional-74B-1000flows-0.0pct_drop] (3 of 3)
+[info][1900-01-01T00:00:00.000000] test sample 1 of 1
+[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
+[info][1900-01-01T00:00:00.000000] Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
+--- pbench.log file contents
++++ test-execution.log file contents
+./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --rate-unit=% --rate=100 --max-loss-pct=0.0 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json --output-dir=/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1
+./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --rate-unit=% --rate=100 --max-loss-pct=0.0 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json --output-dir=/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1
+./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --rate-unit=% --rate=100 --max-loss-pct=0.0 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json --output-dir=/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1
+./profile-builder.py --frame-size=74 --num-flows=1000 --rate=5000000 --use-src-ip-flows --use-dst-ip-flows --use-src-port-flows --use-dst-port-flows --use-protocol-flows --traffic-direction=bidirectional --measure-latency
+./profile-builder.py --frame-size=74 --num-flows=1000 --rate=5000000 --use-src-ip-flows --use-dst-ip-flows --use-src-port-flows --use-dst-port-flows --use-protocol-flows --traffic-direction=revunidirectional --measure-latency
+./profile-builder.py --frame-size=74 --num-flows=1000 --rate=5000000 --use-src-ip-flows --use-dst-ip-flows --use-src-port-flows --use-dst-port-flows --use-protocol-flows --traffic-direction=unidirectional --measure-latency
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary trafficgen --config=test-39 --traffic-generator=trex-txrx-profile --devices=0000:04:00.0,0000:04:00.1 --max-loss-pct=0.0 --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --skip-git-pull --skip-trex-server --run-dir=/var/tmp/pbench-test-bench/pbench-agent /var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop Mframes_sec 5 0 1 n y
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop Mframes_sec 5 0 1 n y
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop Mframes_sec 5 0 1 n y
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1 1-bidirectional-74B-1000flows-0.0pct_drop 0.0 unknown  default
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1 2-unidirectional-74B-1000flows-0.0pct_drop 0.0 unknown  default
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1 3-revunidirectional-74B-1000flows-0.0pct_drop 0.0 unknown  default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/cat /proc/cmdline
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent --sysinfo=none beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent --sysinfo=none beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=none --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent end
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/2-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/2-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/2-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-default/sample1
+--- test-execution.log file contents

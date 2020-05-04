@@ -38,8 +38,8 @@ def lookup_agent_configuration(filename=None):
     except configparser.Error as e:
         print(e)
         sys.exit(2)
-        
-    return filename
+
+    return config
 
 
 class AgentConfig:

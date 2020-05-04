@@ -24,8 +24,7 @@ then
     echo "                Setup has failed - could not determine the proper environment prefix: \"$prefix\"" >&2
     echo "                You will need to fix it before working with pbench." >&2
 else
-    pathins ${prefix}/common/bin
-
+    export PYTHONPATH=${prefix}/lib:${PYTHONPATH}
     export _PBENCH_AGENT_CONFIG=${prefix}/config/pbench-agent.cfg
 
     pathins ${prefix}/bench-scripts

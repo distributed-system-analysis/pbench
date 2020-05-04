@@ -1,0 +1,1 @@
+--traffic-generator=trex-txrx-profile --devices="0000:04:00.0,0000:04:00.1" --max-loss-pct=0.0 --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --skip-git-pull --skip-trex-server --run-dir=${_testdir}

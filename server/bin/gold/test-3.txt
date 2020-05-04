@@ -128,9 +128,6 @@ len(actions) = 1
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench/public_html/results
 --- Finished pbench-clean-up-dangling-results-links (status=1)
-+++ Running pbench-edit-prefixes
-pbench-edit-prefixes: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench/public_html/results
---- Finished pbench-edit-prefixes (status=1)
 +++ Running pbench-backup-tarballs
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1

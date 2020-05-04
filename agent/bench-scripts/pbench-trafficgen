@@ -25,7 +25,9 @@ script_path=`dirname $0`
 script_name=`basename $0`
 pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 benchmark_name="trafficgen"
-trafficgen_dir="/opt/trafficgen"
+if [[ -z "${trafficgen_dir}" ]]; then
+	trafficgen_dir="/opt/trafficgen"
+fi
 # source the base script
 . "$pbench_bin"/base
 
@@ -89,15 +91,95 @@ pre_sample_cmd=""
 traffic_profiles=""
 sysinfo="none"
 tool_period="binary-search" # can also be "repeat-final-validation"
+trafficgen_version="unknown"
 
 function kill_trex() {
+	if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]]; then
+		return 0
+	fi
+
 	# kill any existing trex server process
-	trex_pids=$(netstat -tanp | grep -E :4500\|:4501 | awk '{print $7}' | awk -F/ '{print $1}' | grep -v -- "-" | sort | uniq)
+	local trex_pids=$(netstat -tanp | grep -E :4500\|:4501 | awk '{print $7}' | awk -F/ '{print $1}' | grep -v -- "-" | sort | uniq)
 	if [ ! -z "$trex_pids" ]; then
 		echo "killing existing trex server"
 		kill ${trex_pids}
 		sleep 5
 	fi
+}
+
+function start_trex() {
+	if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]]; then
+		return 0
+	fi
+
+	local _skip_trex_install=${1}
+	local _trex_use_ht=${2}
+	local _trex_use_l2=${3}
+	local _devices=${4}
+
+	kill_trex
+
+	local trex_base_dir="/opt/trex"
+	local trex_dir="${trex_base_dir}/current"
+	if [ "${_skip_trex_install}" == "n" ]; then
+		if ! ${trafficgen_dir}/install-trex.sh --tmp-dir=${pbench_tmp} --base-dir=${trex_base_dir}; then
+			error_log "installation of trex failed."
+			exit 1
+		fi
+	fi
+
+	if ! ${trafficgen_dir}/launch-trex.sh --tmp-dir=${pbench_tmp} --trex-dir=${trex_dir} --use-ht="${_trex_use_ht}" --use-l2="${_trex_use_l2}" --devices="${_devices}"; then
+		error_log "failed to start trex."
+		exit 1
+	fi
+}
+
+function load_module() {
+	if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]]; then
+		return 0
+	fi
+
+	if [ ! -e /sys/module/$module ]; then
+		echo "attempting to load $module"
+		modprobe $module
+		if [ ! -e /sys/module/$module ]; then
+			error_log "could not load $module module, exiting"
+			exit 1
+		fi
+	fi
+}
+
+function configure_devices() {
+	if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]]; then
+		return 0
+	fi
+
+	local devices="${1}"
+
+	for dev in `echo $devices | sed -e s/,/" "/g`; do
+		echo "configuring device $dev"
+		if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
+			echo "device $dev already bound to vfio-pci"
+		else
+			if [ -e /sys/bus/pci/devices/$dev/driver ]; then
+				if dpdk-devbind -u $dev; then
+					dpdk-devbind -b vfio-pci $dev
+				else
+					error_log "could not unbind device, exiting"
+					exit 1
+				fi
+			else
+				dpdk-devbind -b vfio-pci $dev
+			fi
+		fi
+	done
+	for dev in `echo $devices | sed -e s/,/" "/g`; do
+		if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
+			echo "device $dev bound to vfio-pci"
+		else
+			echo "device $dev not bound to vfio-pci, exiting"
+		fi
+	done
 }
 
 function convert_number_range() {
@@ -635,13 +717,13 @@ fi
 if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" -o "$traffic_generator" == "trex-txrx-profile" ]; then
 	cmd="$cmd --traffic-generator=$traffic_generator --rate-tolerance=$rate_tolerance_pct"
 else
-	warn_log "The traffic engine is not valid: $traffic_generator"
+	error_log "The traffic engine is not valid: $traffic_generator"
 	exit 1
 fi
 
 for num_flow in `echo $num_flows | sed -e 's/,/ /g'`; do
 	if ! [ $num_flow -gt 0 -a $num_flow -le 16777216 ]; then
-		log_warn "This number of flows is invalid: $num_flow"
+		error_log "This number of flows is invalid: $num_flow"
 		exit 1
 	fi
 done
@@ -663,7 +745,7 @@ if ! echo "$flow_mods" | grep -e "^none$" -e ",none$" -e "^none," -e ",none,"; t
 			fi
 		done
 		if [ $found_flow_mod -eq 0 ]; then
-			warn_log "This flow_mod is invalid: $flow_mod"
+			error_log "This flow_mod is invalid: $flow_mod"
 			exit 1
 		fi
 	done
@@ -693,144 +775,117 @@ fi
 
 if [ "${postprocess_only}" == "n" ]; then
 	# Before running any tests, the following must be satisfied:
-	# -IOMMU must be enabled
+	# - IOMMU must be enabled
 	if cat /proc/cmdline | grep -q "intel_iommu=on"; then
 		echo "found IOMMU option, continuing"
 	else
-		warn_log "could not find IOMMU option, intel_iommu=on, in /proc/cmdline, exiting"
+		error_log "could not find IOMMU option, intel_iommu=on, in /proc/cmdline, exiting"
 		exit 1
 	fi
-	# -dpdk-tools package must be installed
+	# - dpdk-tools package must be installed
 	if check_install_rpm dpdk-tools; then
 		echo "found dpdk-tools, continuing"
 	else
-		warn_log "could not find dpdk-tools, exiting"
+		error_log "could not find dpdk-tools, exiting"
 		exit 1
 	fi
-	# -PCI devices bound to vfio-pci
+	# - PCI devices bound to vfio-pci
 	if [ -z "$devices" ]; then
-		warn_log "no devices were provided (--devices), exiting"
+		error_log "no devices were provided (--devices), exiting"
 		exit 1
 	fi
+	# - vfio and vfio_pci kernel modules must be loaded
 	for module in vfio vfio_pci; do
-		if [ ! -e /sys/module/$module ]; then
-			echo "attempting to load $module"
-			modprobe $module
-			if [ ! -e /sys/module/$module ]; then
-				error_log "could not load $module module, exiting"
-				exit 1
-			fi
-		fi
+		load_module ${module}
 	done
+
 	total_devices=$(echo ${devices} | sed -e "s/,/ /g" | wc -w)
 	if [ $(echo "${total_devices} % 2" | bc) != 0 ]; then
 		error_log "devices must be supplied in quantities of 2, exiting"
 		exit 1
-	else
-		total_device_pairs=$(echo "${total_devices} / 2" | bc)
-		if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
-			device_pair_index=0
-			cmd+=" --device-pairs="
-			for device in $(seq 1 2 ${total_devices}); do
-				device_a=$(( device - 1))
-				device_b=${device}
-				cmd+="${device_a}:${device_b}"
-				(( device_pair_index++ ))
-				if [ ${device_pair_index} -lt ${total_device_pairs} ]; then
-					cmd+=","
-				fi
-			done
-		else
-			if [ "${total_device_pairs}" -gt 1 ]; then
-				error_log "only the trex-txrx* traffic generators support more than 1 pair of devices, exiting"
-				exit 1
+	fi
+	total_device_pairs=$(echo "${total_devices} / 2" | bc)
+	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+		device_pair_index=0
+		cmd+=" --device-pairs="
+		for device in $(seq 1 2 ${total_devices}); do
+			device_a=$(( device - 1))
+			device_b=${device}
+			cmd+="${device_a}:${device_b}"
+			(( device_pair_index++ ))
+			if [ ${device_pair_index} -lt ${total_device_pairs} ]; then
+				cmd+=","
 			fi
+		done
+	else
+		if [ "${total_device_pairs}" -gt 1 ]; then
+			error_log "only the trex-txrx* traffic generators support more than 1 pair of devices, exiting"
+			exit 1
 		fi
 	fi
+
 	total_active_devices=$(echo ${active_devices} | sed -e "s/,/ /g" | wc -w)
 	if [ $(echo "${total_active_devices} % 2" | bc) -ne 0 ]; then
 		error_log "active devices must be supplied in quantities of 2, exiting"
 		exit 1
-	else
-		if $(echo $traffic_generator | grep -eq "^trex-txrx") && [ "${devices}" != "${active_devices}" ]; then
-			error_log "only the trex-txrx* traffic generators support --devices != --active-devices, exiting"
-			exit 1
-		else
-			if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
-				active_device_pair_index=0
-				cmd+=" --active-device-pairs="
-				active_device_state=0
-				active_devices_processed=0
-				for active_device in `echo $active_devices | sed -e s/,/" "/g`; do
-					device_index=0
-					active_device_index=-1
-					for device in `echo $devices | sed -e s/,/" "/g`; do
-						if [ "${device}" == "${active_device}" ]; then
-							active_device_index=${device_index}
-						fi
-						(( device_index++ ))
-					done
-					(( active_devices_processed++ ))
-					if [ ${active_device_index} -ne -1 ]; then
-						if [ ${active_device_state} -eq 0 ]; then
-							cmd+="${active_device_index}:"
-							(( active_device_state++ ))
-						elif [ ${active_device_state} -eq 1 ]; then
-							cmd+="${active_device_index}"
-							active_device_state=0
-							if [ ${active_devices_processed} -lt ${total_active_devices} ]; then
-								cmd+=","
-							fi
-						fi
-					else
-						error_log "couldn't find an active device [${active_device}] in the list of devices [${devices}], exiting"
-						exit 1
-					fi
-				done
-			fi
-		fi
 	fi
-	for dev in `echo $devices | sed -e s/,/" "/g`; do
-		echo "configuring device $dev"
-		if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
-			echo "device $dev already bound to vfio-pci"
-		else
-			if [ -e /sys/bus/pci/devices/$dev/driver ]; then
-				if dpdk-devbind -u $dev; then
-					dpdk-devbind -b vfio-pci $dev
-				else
-					log_warn "could not unbind device, exiting"
-					exit 1
+	if $(echo $traffic_generator | grep -Eq "^trex-txrx") && [ "${devices}" != "${active_devices}" ]; then
+		error_log "only the trex-txrx* traffic generators support --devices != --active-devices, exiting"
+		exit 1
+	fi
+	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
+		active_device_pair_index=0
+		cmd+=" --active-device-pairs="
+		active_device_state=0
+		active_devices_processed=0
+		for active_device in `echo $active_devices | sed -e s/,/" "/g`; do
+			device_index=0
+			active_device_index=-1
+			for device in `echo $devices | sed -e s/,/" "/g`; do
+				if [ "${device}" == "${active_device}" ]; then
+					active_device_index=${device_index}
 				fi
-			else
-				dpdk-devbind -b vfio-pci $dev
+				(( device_index++ ))
+			done
+			(( active_devices_processed++ ))
+			if [ ${active_device_index} -eq -1 ]; then
+				error_log "couldn't find an active device [${active_device}] in the list of devices [${devices}], exiting"
+				exit 1
 			fi
-		fi
-	done
-	for dev in `echo $devices | sed -e s/,/" "/g`; do
-		if /bin/ls /sys/module/vfio_pci/drivers/pci\:vfio-pci/ | grep -q "$dev"; then
-			echo "device $dev bound to vfio-pci"
-		else
-			echo "device $dev not bound to vfio-pci, exiting"
-		fi
-	done
+			if [ ${active_device_state} -eq 0 ]; then
+				cmd+="${active_device_index}:"
+				(( active_device_state++ ))
+			elif [ ${active_device_state} -eq 1 ]; then
+				cmd+="${active_device_index}"
+				active_device_state=0
+				if [ ${active_devices_processed} -lt ${total_active_devices} ]; then
+					cmd+=","
+				fi
+			fi
+		done
+	fi
+
+	# Ensure all specified devices are properly configured via dpdk.
+	configure_devices "${devices}"
 
 	if [ -d $trafficgen_dir ]; then
 		if [ $skip_git_pull == "n" ]; then
 			if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
 				echo "trafficgen is up to date"
+				trafficgen_version=$(git log --max-count=1 --pretty=%h)
 				popd >/dev/null
 			else
-				warn_log "could not get latest trafficgen"
+				error_log "could not pull latest trafficgen"
 				exit 1
 			fi
 		fi
 	else
 		if pushd /opt >/dev/null && git clone https://github.com/atheurer/trafficgen.git; then
-			echo "trafficgen is up to date"
+			trafficgen_version=$(git log --max-count=1 --pretty=%h)
+			echo "trafficgen cloned"
 			popd >/dev/null
 		else
-			warn_log "could not get latest trafficgen"
+			error_log "could not clone latest trafficgen"
 			exit 1
 		fi
 	fi
@@ -843,7 +898,7 @@ if [ "${postprocess_only}" == "n" ]; then
 			if ./setup.sh; then
 				echo "MoonGen build complete"
 			else
-				warn_log "could not build MoonGen"
+				error_log "could not build MoonGen"
 				exit 1
 			fi
 		fi
@@ -851,19 +906,7 @@ if [ "${postprocess_only}" == "n" ]; then
 
 	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
 		if [ $skip_trex_server == "n" ]; then
-			kill_trex
-
-			trex_base_dir="/opt/trex"
-			trex_dir="${trex_base_dir}/current"
-			if [ "${skip_trex_install}" == "n" ]; then
-				if ! ${trafficgen_dir}/install-trex.sh --tmp-dir=${pbench_tmp} --base-dir=${trex_base_dir}; then
-					exit 1
-				fi
-			fi
-
-			if ! ${trafficgen_dir}/launch-trex.sh --tmp-dir=${pbench_tmp} --trex-dir=${trex_dir} --use-ht=${trex_use_ht} --use-l2=${trex_use_l2} --devices=${devices}; then
-				exit 1
-			fi
+			start_trex "${skip_trex_install}" "${trex_use_ht}" "${trex_use_l2}" "${devices}"
 		fi
 	fi
 fi
@@ -938,11 +981,13 @@ if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ];
 		done
 	done
 else
-	for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
-		for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
-			for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
-				for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
-					((total_iterations++))
+	for rate in `echo $rates | sed -e s/,/" "/g`; do
+		for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
+			for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
+				for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
+					for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
+						((total_iterations++))
+					done
 				done
 			done
 		done
@@ -1031,6 +1076,7 @@ function inner_most_loop() {
 				iteration="${count}-${tmp_traffic_profile}-${max_loss_pct}pct_drop"
 				record_profile_iteration "${count}" "${tmp_traffic_profile}" "${max_loss_pct}pct_drop" "${iteration}"
 			fi
+			tt_iteration_dir="${benchmark_run_dir}/${count}-default"
 			iteration_dir="$benchmark_run_dir/$iteration"
 			mkdir -p $iteration_dir
 			benchmark_cmd_file="$iteration_dir/$benchmark_name.cmd"
@@ -1102,6 +1148,7 @@ function inner_most_loop() {
 						break
 					fi
 					benchmark_results_dir="$iteration_dir/sample$sample"
+					tt_benchmark_results_dir="${tt_iteration_dir}/sample${sample}"
 					if [ "$postprocess_only" != "y" ]; then
 						mkdir -p $benchmark_results_dir
 						echo "test sample $sample of $num_samples"
@@ -1111,16 +1158,33 @@ function inner_most_loop() {
 						if [ "$pre_benchmark_cmd" != "" ]; then
 							PBENCH_ITERATION=$iteration PBENCH_SAMPLE=$sample $pre_benchmark_cmd 2>&1 | tee -i $pre_benchmark_cmd_log
 						fi
-						$benchmark_cmd_file --output-dir=$benchmark_results_dir 2>&1 | pbench-tool-trigger "$iteration" "$benchmark_run_dir" $tool_group $sample | tee -i $result_file
+						${benchmark_cmd_file} --output-dir=${benchmark_results_dir} 2>&1 | pbench-tool-trigger "${count}" "${benchmark_run_dir}" ${tool_group} ${sample} | tee -i ${result_file}
 						rc=$?
 						echo "exit code: $rc"
 						if [ $rc -ne 0 ]; then
-							error_log "iteration $iteration sample $sample returned non-zero exit code"
-							pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
+							error_log "iteration ${iteration} sample ${sample} returned non-zero exit code"
+							pbench-stop-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
 						fi
 
-						if [ -e "$benchmark_results_dir/tools-default" ]; then
-							pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
+						if [[ -e "${tt_benchmark_results_dir}/tools-${tool_group}" ]]; then
+							# Post-process the collected tool data now
+							pbench-postprocess-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
+
+							# Move the tool data collected for the tool-group to its final resting place.
+							mv ${tt_benchmark_results_dir}/tools-${tool_group} ${benchmark_results_dir}/
+							if [[ ${?} -ne 0 ]]; then
+								error_log "INTERNAL ERROR: failed to move tool-trigger data, '${tt_benchmark_results_dir}/tools-${tool_group}' to '${benchmark_results_dir}'"
+								exit 1
+							fi
+							# The "tool-trigger" sample directory should be empty now.
+							rmdir ${tt_benchmark_results_dir}
+							if [[ ${?} -ne 0 ]]; then
+								error_log "INTERNAL ERROR: failed to remove tool-trigger results directory, '${tt_benchmark_results_dir}'"
+								exit 1
+							fi
+						else
+							msg="tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
+							echo "${msg}"; log "${msg}"
 						fi
 					else
 						if [[ ! -d $benchmark_results_dir ]]; then
@@ -1131,10 +1195,6 @@ function inner_most_loop() {
 						log "Not going to run $benchmark_name.  Only postprocesing existing data"
 					fi
 					if [ $rc -eq 0 ]; then
-						trafficgen_version="unknown"
-						if [ -d ${trafficgen_dir} ]; then
-							trafficgen_version=$(pushd ${trafficgen_dir} >/dev/null; git log --max-count=1 --pretty=%h; popd >/dev/null)
-						fi
 						echo "$script_path/postprocess/$benchmark_name-postprocess \"$benchmark_results_dir\" \"$iteration\" \"$max_loss_pct\" \"$trafficgen_version\" \"$tool_label_pattern\" \"$tool_group\"" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
 						chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
 						$benchmark_results_dir/$benchmark_name-postprocess.cmd 2>&1 | tee $benchmark_results_dir/$benchmark_name-postprocess.out || rc=1
@@ -1165,6 +1225,14 @@ function inner_most_loop() {
 			if [ $rc -eq 0 ]; then
 				echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
 				log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+			fi
+			if [[ "$postprocess_only" != "y" && -e "${tt_iteration_dir}" ]]; then
+				# Remove this iteration's "tool-trigger" directory.
+				rmdir ${tt_iteration_dir}
+				if [[ ${?} -ne 0 ]]; then
+					error_log "INTERNAL ERROR: failed to remove tool-trigger directory, '${tt_iteration_dir}'"
+					exit 1
+				fi
 			fi
 		else
 			echo "Skipping iteration $iteration ($count of $total_iterations)"

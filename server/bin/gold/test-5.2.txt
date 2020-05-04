@@ -224,8 +224,6 @@ len(actions) = 1
 --- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
-+++ Running pbench-edit-prefixes
---- Finished pbench-edit-prefixes (status=0)
 +++ Running pbench-backup-tarballs
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -663,9 +661,6 @@ drwxrwxr-x          - logs/pbench-copy-sosreports
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--        533 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--       1626 logs/pbench-dispatch/pbench-dispatch.log
-drwxrwxr-x          - logs/pbench-edit-prefixes
--rw-rw-r--          0 logs/pbench-edit-prefixes/pbench-edit-prefixes.error
--rw-rw-r--         90 logs/pbench-edit-prefixes/pbench-edit-prefixes.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        253 logs/pbench-index-tool-data/pbench-index-tool-data.log
@@ -936,12 +931,6 @@ run-1970-01-01T00:00:00-UTC: Processed 10 result tar balls, 7 successfully (0 pa
 1970-01-01T00:00:00.000000 INFO pbench-dispatch.indexer update_templates -- done templates (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 INFO pbench-dispatch.report post_status -- posted status (end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-dispatch/pbench-dispatch.log
-+++++ pbench-edit-prefixes/pbench-edit-prefixes.error
------ pbench-edit-prefixes/pbench-edit-prefixes.error
-+++++ pbench-edit-prefixes/pbench-edit-prefixes.log
-run-1970-01-01T00:00:00-UTC
-run-1970-01-01T00:00:00-UTC: Processed 0 edit-prefix requests
------ pbench-edit-prefixes/pbench-edit-prefixes.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
 1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- No tar balls found that need processing

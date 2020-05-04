@@ -100,7 +100,6 @@ function _run_allscripts {
     # These four are independent, running periodically to accomplish
     # their specific tasks.
     _run pbench-clean-up-dangling-results-links
-    _run pbench-edit-prefixes
     _run pbench-backup-tarballs
     _run pbench-verify-backup-tarballs
     # Invoke pbench-satellite-cleanup in the context of the satellite
