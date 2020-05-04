@@ -121,7 +121,7 @@ function _local_find {
 
 function _normalize_output {
     # Fix up tmp directory references
-    sed 's;tmp/pbench-\([-a-zA-Z0-9]*\)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $*
+    sed -E -e 's;tmp/pbench-([-a-zA-Z0-9]+)\.[0-9][0-9]*/;tmp/pbench-\1.NNNN/;' $*
 }
 
 function _save_tree {
@@ -212,17 +212,27 @@ function _dump_logs {
 }
 
 function _verify_output {
-    tname=$1
-    diff -c $_tdir/gold/${tname}.txt $_testout > $_testdiff 2>&1
-    if [[ $? -gt 0 ]]; then
+    tname=${1}
+    # Fix up "_id", "_parent", and "@generated-by" IDs using:
+    #   * 5ca1ab1e70015f100dedfab1ed0ff1ce
+    #    "scalable tools flooded fabled office"
+    #   * babb1e70015c01055a15ca1ab1eb0a75
+    #    "babble tools colossal scalable boats"
+    #   * 70015f01dedbadbeefc105edcafedead
+    #    "tools folded bad beef closed cafe dead"
+    sed -i -E -e 's/"_id": "[0-9a-f]+",/"_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",/' \
+              -e 's/"_parent": "[0-9a-f]+",/"_parent": "babb1e70015c01055a15ca1ab1eb0a75",/' \
+              -e 's/"@generated-by": "[0-9a-f]+",/"@generated-by": "70015f01dedbadbeefc105edcafedead",/' ${_testout}
+    diff -c ${_tdir}/gold/${tname}.txt ${_testout} > ${_testdiff} 2>&1
+    if [[ ${?} -gt 0 ]]; then
         let res=1
-        echo "FAIL" > $_testres
+        echo "FAIL" > ${_testres}
     else
         let res=0
-        echo "PASS" > $_testres
-        rm $_testout $_testdiff
+        echo "PASS" > ${_testres}
+        rm ${_testout} ${_testdiff}
     fi
-    return $res
+    return ${res}
 }
 
 function _setup_state {
@@ -304,7 +314,7 @@ function _setup_state {
     export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
     export PYTHONPATH="${_testopt}/lib:${_testopt}/common/lib:${PYTHONPATH}"
 
-    # Expected location of the final configuration files 
+    # Expected location of the final configuration files
     export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg
     export LOGSDIR=$_testdir_local/logs
     export SATCONFIG=$_testopt_sat/lib/config/pbench-server.cfg
@@ -734,13 +744,13 @@ declare -A cmds=(
     [test-26.1]="_run test_logger_type.py"
 
     # Test to Log messages on devlog
-    [test-26.2]="_run test_logger_type.py" 
+    [test-26.2]="_run test_logger_type.py"
 
     # Test to check error when logger_port and logger_host are not provided with hostport
     [test-26.3]="_run test_logger_type.py"
 
     # Test to Log messages on hostport with logger-host and logger_port
-    [test-26.4]="_run test_logger_type.py"  
+    [test-26.4]="_run test_logger_type.py"
 
 )
 all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\+\)-\([0-9]\+\)/\1.\2/')

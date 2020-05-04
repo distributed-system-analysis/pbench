@@ -4,7 +4,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "b93953b18f6989015766c339934a6c8e",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -43,7 +43,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "8aab70198482b229b068fa82873f594f",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -76,11 +76,11 @@ Index:  pbench-unittests.v4.run.2015-09 5
 len(actions) = 5
 [
     {
-        "_id": "90c3fceba53c859d87ad66edfcc1154e",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v4.run.2015-09",
         "_op_type": "create",
         "_source": {
-            "@generated-by": "8aab70198482b229b068fa82873f594f",
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@metadata": {
                 "controller_dir": "alphaville",
                 "file-date": "2019-03-07T02:10:59",
@@ -127,10 +127,10 @@ len(actions) = 5
         "_type": "pbench-run"
     },
     {
-        "_id": "3e0e0de056e264e28e8c1006f056827a",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v4.run.2015-09",
         "_op_type": "create",
-        "_parent": "90c3fceba53c859d87ad66edfcc1154e",
+        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
             "directory": "/",
@@ -150,10 +150,10 @@ len(actions) = 5
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "a0a07434a3076bd42690746fc9b196af",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v4.run.2015-09",
         "_op_type": "create",
-        "_parent": "90c3fceba53c859d87ad66edfcc1154e",
+        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
             "directory": "/sysinfo",
@@ -165,10 +165,10 @@ len(actions) = 5
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "955aaa81cd0dfd911547d68457b2718d",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v4.run.2015-09",
         "_op_type": "create",
-        "_parent": "90c3fceba53c859d87ad66edfcc1154e",
+        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
             "ancestor_path_elements": [
@@ -183,10 +183,10 @@ len(actions) = 5
         "_type": "pbench-run-toc-entry"
     },
     {
-        "_id": "c3cb43b5ae6ee4e2dbcc6feebed000d7",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v4.run.2015-09",
         "_op_type": "create",
-        "_parent": "90c3fceba53c859d87ad66edfcc1154e",
+        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
             "ancestor_path_elements": [
@@ -232,7 +232,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "723b4e112efe330670a2ad9eecae077f",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -271,7 +271,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "be2ab3a759dc3058c775a9475cbc9603",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -316,7 +316,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "ed2932e69592ac954382c0a79e2e4be6",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
@@ -346,7 +346,7 @@ Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
     {
-        "_id": "fb8eea157f633b56122a0db0334f1218",
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
         "_index": "pbench-unittests.v3.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
