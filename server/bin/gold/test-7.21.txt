@@ -16,11 +16,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-unpack-tarballs",
-            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 2 result tar balls, 2 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 2 result tar balls, 2 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
             "total_chunks": 1,
             "total_size": 162
         },
@@ -55,7 +55,7 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
             "name": "pbench-index"
         },
@@ -5258,11 +5258,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index",
-            "text": "pbench-index.run-1970-01-01T00:00:00-UTC - Indexed 2 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T19.49.39.tar.xz\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T20.04.29.tar.xz\n",
+            "text": "pbench-index.run-1970-01-01T00:00:42-UTC - Indexed 2 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T19.49.39.tar.xz\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T20.04.29.tar.xz\n",
             "total_chunks": 1,
             "total_size": 346
         },
@@ -5297,7 +5297,7 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
             "name": "pbench-index-tool-data"
         },
@@ -5354,11 +5354,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index-tool-data",
-            "text": "pbench-index-tool-data.run-1970-01-01T00:00:00-UTC - Indexed 2 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T19.49.39.tar.xz\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T20.04.29.tar.xz\n",
+            "text": "pbench-index-tool-data.run-1970-01-01T00:00:42-UTC - Indexed 2 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T19.49.39.tar.xz\n/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T20.04.29.tar.xz\n",
             "total_chunks": 1,
             "total_size": 366
         },
@@ -5384,11 +5384,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
         },
@@ -5785,115 +5785,115 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 2 tar balls
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz(ea6b84aa5a882a4e42ee11f7798fb40b))
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [0 tools processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz: success
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz(b683a7a6756abc8f9bff4bddb5679d2c))
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [0 tools processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz: success
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: indexed 2 (skipped 0) results, 0 errors
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 2 tar balls
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:42.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz(ea6b84aa5a882a4e42ee11f7798fb40b))
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [0 tools processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:42-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz: success
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:42.000000 WARNING pbench-index-tool-data.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz(b683a7a6756abc8f9bff4bddb5679d2c))
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [0 tools processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:42-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz: success
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: indexed 2 (skipped 0) results, 0 errors
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 2 tar balls
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz(ea6b84aa5a882a4e42ee11f7798fb40b))
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [0 tools processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [7 table-of-contents documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [27 result documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 35, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz: success
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz(b683a7a6756abc8f9bff4bddb5679d2c))
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [0 tools processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [7 table-of-contents documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [4625 result documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 4633, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz: success
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
-1970-01-01T00:00:00.000000 WARNING pbench-index.indexer dump_opctx -- ** Errors encountered while indexing: [{"counters": {"sample_missing_timeseries": 27}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz"}, {"counters": {"sample_missing_timeseries": 27}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz"}]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: indexed 2 (skipped 0) results, 0 errors
-1970-01-01T00:00:00.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 2 tar balls
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- open tar ball
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- generator setup
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- begin indexing
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz(ea6b84aa5a882a4e42ee11f7798fb40b))
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_tool_info -- end [0 tools processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [7 table-of-contents documents]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [27 result documents]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer make_all_actions -- end
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 35, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:42-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz: success
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T19.49.39.tar.xz (size 53736)
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- open tar ball
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- generator setup
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- begin indexing
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexer get_hosts -- No [tools] section in metadata.log: tool data will *not* be indexed (ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz(b683a7a6756abc8f9bff4bddb5679d2c))
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_tool_info -- end [0 tools processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [7 table-of-contents documents]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [4625 result documents]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer make_all_actions -- end
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 4633, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:42-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz: success
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/TO-INDEX/trafficgen_mock_2020.02.28T20.04.29.tar.xz (size 724228)
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexer dump_opctx -- ** Errors encountered while indexing: [{"counters": {"sample_missing_timeseries": 27}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T19.49.39.tar.xz"}, {"counters": {"sample_missing_timeseries": 27}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.21/pbench/archive/fs-version-001/ctlrA/trafficgen_mock_2020.02.28T20.04.29.tar.xz"}]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 2 (skipped 0) results, 0 errors
+1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
-run-1970-01-01T00:00:00-UTC
+run-1970-01-01T00:00:42-UTC
 ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/results/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T20.04.29
 ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T20.04.29 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/users/janedoe@example.com/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T20.04.29
-run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29: success - elapsed time (secs): 0 - size (bytes): 724228
+run-1970-01-01T00:00:42-UTC: ctlrA/trafficgen_mock_2020.02.28T20.04.29: success - elapsed time (secs): 0 - size (bytes): 724228
 ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/results/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T19.49.39
 ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/users/janedoe@example.com/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T19.49.39
-run-1970-01-01T00:00:00-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39: success - elapsed time (secs): 0 - size (bytes): 53736
-run-1970-01-01T00:00:00-UTC: Processed 2 tarballs
-1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39: success - elapsed time (secs): 0 - size (bytes): 53736
+run-1970-01-01T00:00:42-UTC: Processed 2 tarballs
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

@@ -177,7 +177,7 @@ def get_pbench_logger(caller, config):
         if not config._unittests:
             logfmt = "{asctime} {levelname} {process} {thread} {name}.{module} {funcName} {lineno} -- {message}"
         else:
-            logfmt = "1970-01-01T00:00:00.000000 {levelname} {name}.{module} {funcName} -- {message}"
+            logfmt = "1970-01-01T00:00:42.000000 {levelname} {name}.{module} {funcName} -- {message}"
         formatter = _PbenchLogFormatter(fmt=logfmt)
         handler.setFormatter(formatter)
         _handlers[caller] = handler
@@ -261,7 +261,7 @@ class PbenchConfig(object):
         if self._unittests:
 
             def mocked_time():
-                return 0
+                return 42
 
             global _time
             _time = mocked_time

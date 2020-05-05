@@ -12,12 +12,12 @@ function _dotouch() {
     return ${?}
 }
 
-_dotouch 01 pbench-satellite/archive/fs-version-001/controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz || exit ${?}
-_dotouch 02 pbench-satellite/archive/fs-version-001/controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz || exit ${?}
-_dotouch 03 pbench-satellite/archive/fs-version-001/controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz || exit ${?}
-_dotouch 04 pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz || exit ${?}
-_dotouch 05 pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz || exit ${?}
-_dotouch 06 pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz || exit ${?}
-_dotouch 07 pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz || exit ${?}
+_dotouch 01 pbench-satellite/archive/fs-version-001/controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz || exit ${?}
+_dotouch 02 pbench-satellite/archive/fs-version-001/controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz || exit ${?}
+_dotouch 03 pbench-satellite/archive/fs-version-001/controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz || exit ${?}
+_dotouch 04 pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz || exit ${?}
+_dotouch 05 pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz || exit ${?}
+_dotouch 06 pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz || exit ${?}
+_dotouch 07 pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz || exit ${?}
 
 exit ${?} 

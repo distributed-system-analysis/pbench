@@ -108,7 +108,7 @@ drwxrwxr-x          - tmp
 +++ pbench log file contents
 ++++ pbench-local/logs
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-1970-01-01T00:00:00.000000 ERROR pbench-backup-tarballs.pbench-backup-tarballs sanity_check -- The ARCHIVE directory /var/tmp/pbench-test-server/test-6.1/pbench/archive/fs-version-001, does not resolve /var/tmp/pbench-test-server/test-6.1/pbench/archive/fs-version-001 to a directory
+1970-01-01T00:00:42.000000 ERROR pbench-backup-tarballs.pbench-backup-tarballs sanity_check -- The ARCHIVE directory /var/tmp/pbench-test-server/test-6.1/pbench/archive/fs-version-001, does not resolve /var/tmp/pbench-test-server/test-6.1/pbench/archive/fs-version-001 to a directory
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
