@@ -127,6 +127,8 @@ len(actions) = 1
 --- Finished pbench-index (status=0)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
++++ Running pbench-cull-unpacked-tarballs
+--- Finished pbench-cull-unpacked-tarballs (status=4)
 +++ Running pbench-backup-tarballs
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -257,6 +259,8 @@ drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
 drwxrwxr-x          - logs/pbench-copy-sosreports
 -rw-rw-r--          0 logs/pbench-copy-sosreports/pbench-copy-sosreports.error
 -rw-rw-r--        635 logs/pbench-copy-sosreports/pbench-copy-sosreports.log
+drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
+-rw-rw-r--        219 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--        576 logs/pbench-dispatch/pbench-dispatch.log
@@ -347,6 +351,9 @@ run-1970-01-01T00:00:42-UTC: ending at 1970-01-01T00:00:42-UTC, processed 0 sosr
 1970-01-01T00:00:42.000000 DEBUG pbench-copy-sosreports.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-copy-sosreports.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-copy-sosreports/pbench-copy-sosreports.log
++++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
+1970-01-01T00:00:42.000000 ERROR pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- The configured USERS directory, /var/tmp/pbench-test-server/test-4/pbench/public_html/users, is not a valid directory
+----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 +++++ pbench-dispatch/pbench-dispatch.error
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
