@@ -14,11 +14,12 @@ MAILFROM=pbench@pbench.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-unpack-tarballs-medium.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-unpack-tarballs medium
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-unpack-tarballs-large.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-unpack-tarballs large
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-unpack-tarballs-huge.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-unpack-tarballs huge
-41 * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-copy-sosreports.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-copy-sosreports
+1 3 * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-audit-server.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-audit-server
+23 * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-copy-sosreports.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-copy-sosreports
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-index.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-index
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-index-tool-data.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-index --tool-data
-41 4 * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-backup-tarballs.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-backup-tarballs
-59 4 * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-verify-backup-tarballs.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-verify-backup-tarballs
+53 4 * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-backup-tarballs.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-backup-tarballs
+53 5 * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-verify-backup-tarballs.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-verify-backup-tarballs
 * * * * *  flock -n /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/locks/pbench-sync-satellite-ONE.lock /var/tmp/pbench-test-server/test-24/opt/pbench-server/bin/pbench-sync-satellite satellite-one
 ---- /var/tmp/pbench-test-server/test-24/opt/pbench-server/lib/crontab/crontab
 ++++ /var/tmp/pbench-test-server/test-24/opt/pbench-server-satellite/lib/crontab/crontab
