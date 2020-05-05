@@ -694,9 +694,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index",
-            "text": "pbench-index.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz\n\n",
+            "text": "pbench-index.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz\n",
             "total_chunks": 1,
-            "total_size": 269
+            "total_size": 268
         },
         "_type": "pbench-server-reports"
     }
@@ -778,9 +778,9 @@ len(actions) = 1
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index-tool-data",
-            "text": "pbench-index-tool-data.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz\n\n",
+            "text": "pbench-index-tool-data.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz\n",
             "total_chunks": 1,
-            "total_size": 284
+            "total_size": 283
         },
         "_type": "pbench-server-reports"
     }

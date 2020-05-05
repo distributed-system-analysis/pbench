@@ -493,21 +493,21 @@ def main(options, name):
                 if idx > 0:
                     print("\nIndexed Results\n===============", file=fp)
                     with open(indexed) as ifp:
-                        for line in ifp:
-                            print(line, file=fp)
+                        for line in sorted(ifp):
+                            print(line.strip(), file=fp)
                 if err > 0:
                     print(
                         "\nResults producing errors" "\n========================",
                         file=fp,
                     )
                     with open(erred) as efp:
-                        for line in efp:
-                            print(line, file=fp)
+                        for line in sorted(efp):
+                            print(line.strip(), file=fp)
                 if skp > 0:
                     print("\nSkipped Results\n===============", file=fp)
                     with open(skipped) as sfp:
-                        for line in sfp:
-                            print(line, file=fp)
+                        for line in sorted(sfp):
+                            print(line.strip(), file=fp)
             try:
                 report.post_status(tstos(idxctx.time()), "status", report_fname)
             except Exception:
