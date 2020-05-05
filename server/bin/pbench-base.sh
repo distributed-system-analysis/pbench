@@ -49,12 +49,12 @@ else
     # unit test regime
 
     function timestamp {
-        echo "1970-01-01T00:00:00-UTC"
+        echo "1970-01-01T00:00:42-UTC"
     }
 
     function timestamp-seconds-since-epoch {
-        # 2001/01/01T00:00:00
-        echo "978282000"
+        # 1970-01-01T00:00:42-UTC
+        echo "42"
     }
 
     function get-tempdir-name {

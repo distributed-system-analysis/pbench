@@ -16,11 +16,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-unpack-tarballs",
-            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
             "total_chunks": 1,
             "total_size": 162
         },
@@ -55,7 +55,7 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
             "name": "pbench-index"
         },
@@ -88,13 +88,13 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index",
-            "text": "pbench-index.run-1970-01-01T00:00:00-UTC - Indexed 0 results, skipped 1 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.3.tar.xz\n",
+            "text": "pbench-index.run-1970-01-01T00:00:42-UTC - Indexed 0 results, skipped 1 results\n\nSkipped Results\n===============\n/var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/TO-INDEX/test_7.3_2015.09.21T15.31.08.tar.xz\n",
             "total_chunks": 1,
-            "total_size": 216
+            "total_size": 236
         },
         "_type": "pbench-server-reports"
     }
@@ -120,11 +120,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
         },
@@ -175,7 +175,7 @@ drwxrwxr-x          - archive/fs-version-001/alphaville/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/alphaville/SYNCED
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-COPY-SOS
-lrwxrwxrwx         93 archive/fs-version-001/alphaville/TO-COPY-SOS/test-7.3.tar.xz -> /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/test-7.3.tar.xz
+lrwxrwxrwx        113 archive/fs-version-001/alphaville/TO-COPY-SOS/test_7.3_2015.09.21T15.31.08.tar.xz -> /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/test_7.3_2015.09.21T15.31.08.tar.xz
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX-TOOL
@@ -184,26 +184,26 @@ drwxrwxr-x          - archive/fs-version-001/alphaville/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/alphaville/TODO
 drwxrwxr-x          - archive/fs-version-001/alphaville/UNPACKED
-lrwxrwxrwx         18 archive/fs-version-001/alphaville/UNPACKED/test-7.3.tar.xz -> ../test-7.3.tar.xz
+lrwxrwxrwx         38 archive/fs-version-001/alphaville/UNPACKED/test_7.3_2015.09.21T15.31.08.tar.xz -> ../test_7.3_2015.09.21T15.31.08.tar.xz
 drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-INDEX.7
-lrwxrwxrwx         93 archive/fs-version-001/alphaville/WONT-INDEX.7/test-7.3.tar.xz -> /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/test-7.3.tar.xz
+lrwxrwxrwx        113 archive/fs-version-001/alphaville/WONT-INDEX.7/test_7.3_2015.09.21T15.31.08.tar.xz -> /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/test_7.3_2015.09.21T15.31.08.tar.xz
 drwxrwxr-x          - archive/fs-version-001/alphaville/WONT-UNPACK
--rw-rw-r--       1476 archive/fs-version-001/alphaville/test-7.3.tar.xz
--rw-rw-r--         50 archive/fs-version-001/alphaville/test-7.3.tar.xz.md5
+-rw-rw-r--       1492 archive/fs-version-001/alphaville/test_7.3_2015.09.21T15.31.08.tar.xz
+-rw-rw-r--         70 archive/fs-version-001/alphaville/test_7.3_2015.09.21T15.31.08.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/incoming/alphaville
-drwxrwxr-x          - public_html/incoming/alphaville/test-7.3
--rw-rw-r--        445 public_html/incoming/alphaville/test-7.3/metadata.log
-drwxrwxr-x          - public_html/incoming/alphaville/test-7.3/sysinfo
-drwxrwxr-x          - public_html/incoming/alphaville/test-7.3/sysinfo/foo
-drwxrwxr-x          - public_html/incoming/alphaville/test-7.3/sysinfo/foo/end
--rw-rw-r--        876 public_html/incoming/alphaville/test-7.3/sysinfo/foo/end/sosreport.tar.xz
--rw-rw-r--         51 public_html/incoming/alphaville/test-7.3/sysinfo/foo/end/sosreport.tar.xz.md5
+drwxrwxr-x          - public_html/incoming/alphaville/test_7.3_2015.09.21T15.31.08
+-rw-rw-r--        441 public_html/incoming/alphaville/test_7.3_2015.09.21T15.31.08/metadata.log
+drwxrwxr-x          - public_html/incoming/alphaville/test_7.3_2015.09.21T15.31.08/sysinfo
+drwxrwxr-x          - public_html/incoming/alphaville/test_7.3_2015.09.21T15.31.08/sysinfo/foo
+drwxrwxr-x          - public_html/incoming/alphaville/test_7.3_2015.09.21T15.31.08/sysinfo/foo/end
+-rw-rw-r--        876 public_html/incoming/alphaville/test_7.3_2015.09.21T15.31.08/sysinfo/foo/end/sosreport.tar.xz
+-rw-rw-r--         51 public_html/incoming/alphaville/test_7.3_2015.09.21T15.31.08/sysinfo/foo/end/sosreport.tar.xz.md5
 drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/results/alphaville
-lrwxrwxrwx         84 public_html/results/alphaville/test-7.3 -> /var/tmp/pbench-test-server/test-7.3/pbench/public_html/incoming/alphaville/test-7.3
+lrwxrwxrwx        104 public_html/results/alphaville/test_7.3_2015.09.21T15.31.08 -> /var/tmp/pbench-test-server/test-7.3/pbench/public_html/incoming/alphaville/test_7.3_2015.09.21T15.31.08
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/static/css
 drwxrwxr-x          - public_html/static/css/v0.2
@@ -232,10 +232,10 @@ drwxrwxr-x          - logs/pbench-audit-server
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        254 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       2137 logs/pbench-index/pbench-index.log
+-rw-rw-r--       2197 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--        800 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--        860 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -285,38 +285,38 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- No tar balls found that need processing
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- No tar balls found that need processing
 ----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.3.tar.xz (size 1476)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 WARNING pbench-index.pbench-index main -- The metadata.log file is curdled in tar ball: /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/test-7.3.tar.xz - error fetching required metadata.log fields, "empty pbench.script"
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/TO-INDEX/test-7.3.tar.xz (size 1476)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: indexed 0 (skipped 1) results, 0 errors
-1970-01-01T00:00:00.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/TO-INDEX/test_7.3_2015.09.21T15.31.08.tar.xz (size 1492)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- open tar ball
+1970-01-01T00:00:42.000000 WARNING pbench-index.pbench-index main -- The metadata.log file is curdled in tar ball: /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/test_7.3_2015.09.21T15.31.08.tar.xz - error fetching required metadata.log fields, "empty pbench.script"
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.3/pbench/archive/fs-version-001/alphaville/TO-INDEX/test_7.3_2015.09.21T15.31.08.tar.xz (size 1492)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 0 (skipped 1) results, 0 errors
+1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
-run-1970-01-01T00:00:00-UTC
-ln -s /var/tmp/pbench-test-server/test-7.3/pbench/public_html/incoming/alphaville/test-7.3 /var/tmp/pbench-test-server/test-7.3/pbench/public_html/results/alphaville/test-7.3
-run-1970-01-01T00:00:00-UTC: alphaville/test-7.3: success - elapsed time (secs): 0 - size (bytes): 1476
-run-1970-01-01T00:00:00-UTC: Processed 1 tarballs
-1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC
+ln -s /var/tmp/pbench-test-server/test-7.3/pbench/public_html/incoming/alphaville/test_7.3_2015.09.21T15.31.08 /var/tmp/pbench-test-server/test-7.3/pbench/public_html/results/alphaville/test_7.3_2015.09.21T15.31.08
+run-1970-01-01T00:00:42-UTC: alphaville/test_7.3_2015.09.21T15.31.08: success - elapsed time (secs): 0 - size (bytes): 1492
+run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

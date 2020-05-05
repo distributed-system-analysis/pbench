@@ -16,11 +16,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-server-prep-shim-002",
-            "text": "run-1970-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n",
+            "text": "run-1970-01-01T00:00:42-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.\n",
             "total_chunks": 1,
             "total_size": 137
         },
@@ -46,11 +46,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-sync-satellite",
-            "text": "pbench-sync-satellite.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 0 files, with 0 md5 failures and 0 errors.\n\nrun-1970-01-01T00:00:00-UTC: start - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: remote tarballs unpacked - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: end - 1970-01-01T00:00:00-UTC\nrun-1970-01-01T00:00:00-UTC: duration (secs): 0\nrun-1970-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors\n",
+            "text": "pbench-sync-satellite.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 0 files, with 0 md5 failures and 0 errors.\n\nrun-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: duration (secs): 0\nrun-1970-01-01T00:00:42-UTC: Total 0 files processed, with 0 md5 failures and 0 errors\n",
             "total_chunks": 1,
             "total_size": 570
         },
@@ -76,11 +76,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-dispatch",
-            "text": "pbench-dispatch.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates\n\n",
+            "text": "pbench-dispatch.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates\n\n",
             "total_chunks": 1,
             "total_size": 160
         },
@@ -118,11 +118,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-backup-tarballs",
-            "text": "pbench-backup-tarballs.py.1970-01-01T00:00:00-UTC(unit-test)\nTotal processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, S3 upload failures: 0, Quarantined: 0\n",
+            "text": "pbench-backup-tarballs.py.1970-01-01T00:00:42-UTC(unit-test)\nTotal processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, S3 upload failures: 0, Quarantined: 0\n",
             "total_chunks": 1,
             "total_size": 196
         },
@@ -148,11 +148,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-verify-backup-tarballs",
-            "text": "pbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC (unit-test) started at 1970-01-01T00:00:00-UTC\n\nComparing ARCHIVE with BACKUP\n-----------------------------\n\nComparing ARCHIVE with S3\n-------------------------\n\n\nPhases (started):\nArchive List Creation:       1970-01-01T00:00:00-UTC\nLocal Backup List Creation:  1970-01-01T00:00:00-UTC\nS3 List Creation:            1970-01-01T00:00:00-UTC\nArchive MD5 Checks:          1970-01-01T00:00:00-UTC\nLocal Backup MD5 Checks:     1970-01-01T00:00:00-UTC\n\npbench-verify-backup-tarballs.py.run-1970-01-01T00:00:00-UTC (unit-test) finished at 1970-01-01T00:00:00-UTC\n",
+            "text": "pbench-verify-backup-tarballs.py.run-1970-01-01T00:00:42-UTC (unit-test) started at 1970-01-01T00:00:42-UTC\n\nComparing ARCHIVE with BACKUP\n-----------------------------\n\nComparing ARCHIVE with S3\n-------------------------\n\n\nPhases (started):\nArchive List Creation:       1970-01-01T00:00:42-UTC\nLocal Backup List Creation:  1970-01-01T00:00:42-UTC\nS3 List Creation:            1970-01-01T00:00:42-UTC\nArchive MD5 Checks:          1970-01-01T00:00:42-UTC\nLocal Backup MD5 Checks:     1970-01-01T00:00:42-UTC\n\npbench-verify-backup-tarballs.py.run-1970-01-01T00:00:42-UTC (unit-test) finished at 1970-01-01T00:00:42-UTC\n",
             "total_chunks": 1,
             "total_size": 617
         },
@@ -297,11 +297,11 @@ drwxrwxr-x          - tmp
 +++ pbench log file contents
 ++++ pbench-local/logs
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-run-1970-01-01T00:00:00-UTC
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, S3 upload failures: 0, Quarantined: 0
-1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1970-01-01T00:00:00-UTC
+1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- start-run-1970-01-01T00:00:42-UTC
+1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 0, Local backup successes: 0, Local backup failures: 0, S3 upload successes: 0, S3 upload failures: 0, Quarantined: 0
+1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1970-01-01T00:00:42-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
 +++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 ----- pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
@@ -310,61 +310,61 @@ drwxrwxr-x          - tmp
 +++++ pbench-dispatch/pbench-dispatch.error
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log
-run-1970-01-01T00:00:00-UTC
-run-1970-01-01T00:00:00-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
-1970-01-01T00:00:00.000000 DEBUG pbench-dispatch.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-dispatch.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC
+run-1970-01-01T00:00:42-UTC: Processed 0 result tar balls, 0 successfully (0 partial), with 0 errors, and 0 duplicates
+1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-dispatch/pbench-dispatch.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
-1970-01-01T00:00:00.000000 ERROR pbench-index-tool-data.pbench-index main -- pbench-index-tool-data: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
+1970-01-01T00:00:42.000000 ERROR pbench-index-tool-data.pbench-index main -- pbench-index-tool-data: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 ----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- pbench-index: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
+1970-01-01T00:00:42.000000 ERROR pbench-index.pbench-index main -- pbench-index: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 ----- pbench-index/pbench-index.log
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
-run-1970-01-01T00:00:00-UTC
-run-1970-01-01T00:00:00-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
-1970-01-01T00:00:00.000000 DEBUG pbench-server-prep-shim-002.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-server-prep-shim-002.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC
+run-1970-01-01T00:00:42-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.
+1970-01-01T00:00:42.000000 DEBUG pbench-server-prep-shim-002.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-server-prep-shim-002.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 +++++ pbench-sync-satellite/ONE/change_state.log
 ----- pbench-sync-satellite/ONE/change_state.log
 +++++ pbench-sync-satellite/pbench-sync-satellite.error
 ----- pbench-sync-satellite/pbench-sync-satellite.error
 +++++ pbench-sync-satellite/pbench-sync-satellite.log
-run-1970-01-01T00:00:00-UTC: start - 1970-01-01T00:00:00-UTC
-run-1970-01-01T00:00:00-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:00-UTC
-run-1970-01-01T00:00:00-UTC: remote tarballs unpacked - 1970-01-01T00:00:00-UTC
-run-1970-01-01T00:00:00-UTC: end - 1970-01-01T00:00:00-UTC
-run-1970-01-01T00:00:00-UTC: duration (secs): 0
-run-1970-01-01T00:00:00-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
-1970-01-01T00:00:00.000000 DEBUG pbench-sync-satellite.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-sync-satellite.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC
+run-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC
+run-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC
+run-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC
+run-1970-01-01T00:00:42-UTC: duration (secs): 0
+run-1970-01-01T00:00:42-UTC: Total 0 files processed, with 0 md5 failures and 0 errors
+1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-sync-satellite/pbench-sync-satellite.log
 +++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
-1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- start-run-1970-01-01T00:00:00-UTC
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting archive list creation
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished archive list (<Status.SUCCESS: 10>)
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting local backup list creation
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished local backup list (<Status.SUCCESS: 10>)
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting S3 list creation
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs s3_entry_list_creation -- list_objects: got 0 objects
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished S3 list (<Status.SUCCESS: 10>)
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Checking MD5 signatures of archive
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished checking MD5 signatures of archive
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Checking MD5 signatures of local backup
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished checking MD5 signatures of local backup
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with BACKUP: start
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with BACKUP: end
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with S3: start
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with S3: end
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Sending report: start
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Sending report: end
-1970-01-01T00:00:00.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-run-1970-01-01T00:00:00-UTC
+1970-01-01T00:00:42.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- start-run-1970-01-01T00:00:42-UTC
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting archive list creation
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished archive list (<Status.SUCCESS: 10>)
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting local backup list creation
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished local backup list (<Status.SUCCESS: 10>)
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Starting S3 list creation
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs s3_entry_list_creation -- list_objects: got 0 objects
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished S3 list (<Status.SUCCESS: 10>)
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Checking MD5 signatures of archive
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished checking MD5 signatures of archive
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Checking MD5 signatures of local backup
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Finished checking MD5 signatures of local backup
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with BACKUP: start
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with BACKUP: end
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with S3: start
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with S3: end
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Sending report: start
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Sending report: end
+1970-01-01T00:00:42.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-run-1970-01-01T00:00:42-UTC
 ----- pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

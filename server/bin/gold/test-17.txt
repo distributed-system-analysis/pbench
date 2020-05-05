@@ -16,11 +16,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-unpack-tarballs-small",
-            "text": "pbench-unpack-tarballs-small.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 1 errors\nProcessed 4 result tar balls, 3 successfully, 0 warnings, 1 errors, and 0 duplicates\n\nrun-1970-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist\n",
+            "text": "pbench-unpack-tarballs-small.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 1 errors\nProcessed 4 result tar balls, 3 successfully, 0 warnings, 1 errors, and 0 duplicates\n\nrun-1970-01-01T00:00:42-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz does not exist\n",
             "total_chunks": 1,
             "total_size": 370
         },
@@ -46,11 +46,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
         },
@@ -101,29 +101,29 @@ drwxrwxr-x          - archive/fs-version-001/controller00/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller00/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-COPY-SOS
-lrwxrwxrwx        128 archive/fs-version-001/controller00/TO-COPY-SOS/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx        128 archive/fs-version-001/controller00/TO-COPY-SOS/benchmark-result-large_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-INDEX-TOOL
-lrwxrwxrwx        128 archive/fs-version-001/controller00/TO-INDEX/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx        128 archive/fs-version-001/controller00/TO-INDEX/benchmark-result-large_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller00/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller00/TODO
 drwxrwxr-x          - archive/fs-version-001/controller00/UNPACKED
-lrwxrwxrwx         52 archive/fs-version-001/controller00/UNPACKED/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-large_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx         52 archive/fs-version-001/controller00/UNPACKED/benchmark-result-large_1970-01-01T00:00:00.tar.xz -> ../benchmark-result-large_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller00/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller00/WONT-UNPACK
-lrwxrwxrwx         52 archive/fs-version-001/controller00/WONT-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz -> ../benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz
--rw-rw-r--       5920 archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
--rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz.md5
+lrwxrwxrwx         52 archive/fs-version-001/controller00/WONT-UNPACK/benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz -> ../benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz
+-rw-rw-r--       5920 archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz
+-rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller01
 drwxrwxr-x          - archive/fs-version-001/controller01/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller01/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller01/BAD-MD5
 drwxrwxr-x          - archive/fs-version-001/controller01/COPIED-SOS
--rw-rw-r--       3120 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
--rw-rw-r--         85 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
+-rw-rw-r--       3176 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1970-01-01T00:00:00.tar.xz
+-rw-rw-r--        103 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller01/INDEXED
 drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-DONE
 drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-MD5-FAILED
@@ -131,25 +131,25 @@ drwxrwxr-x          - archive/fs-version-001/controller01/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller01/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-COPY-SOS
-lrwxrwxrwx        129 archive/fs-version-001/controller01/TO-COPY-SOS/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx        129 archive/fs-version-001/controller01/TO-COPY-SOS/benchmark-result-medium_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-INDEX-TOOL
-lrwxrwxrwx        129 archive/fs-version-001/controller01/TO-INDEX/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx        129 archive/fs-version-001/controller01/TO-INDEX/benchmark-result-medium_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller01/TO-UNPACK
-lrwxrwxrwx         71 archive/fs-version-001/controller01/TO-UNPACK/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> ../DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx         71 archive/fs-version-001/controller01/TO-UNPACK/DUPLICATE__NAME.1.benchmark-result-medium_1970-01-01T00:00:00.tar.xz -> ../DUPLICATE__NAME.1.benchmark-result-medium_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/TODO
 drwxrwxr-x          - archive/fs-version-001/controller01/UNPACKED
-lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/benchmark-result-medium_1970-01-01T00:00:00.tar.xz -> ../benchmark-result-medium_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller01/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller01/WONT-UNPACK
--rw-rw-r--       3180 archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
--rw-rw-r--         85 archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
+-rw-rw-r--       3176 archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz
+-rw-rw-r--         85 archive/fs-version-001/controller01/benchmark-result-medium_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller02
 drwxrwxr-x          - archive/fs-version-001/controller02/.prefix
--rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1900-01-01T00:00:00.prefix
+-rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1970-01-01T00:00:00.prefix
 drwxrwxr-x          - archive/fs-version-001/controller02/BACKED-UP
 drwxrwxr-x          - archive/fs-version-001/controller02/BACKUP-FAILED
 drwxrwxr-x          - archive/fs-version-001/controller02/BAD-MD5
@@ -161,42 +161,42 @@ drwxrwxr-x          - archive/fs-version-001/controller02/SATELLITE-MD5-PASSED
 drwxrwxr-x          - archive/fs-version-001/controller02/SYNCED
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-BACKUP
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-COPY-SOS
-lrwxrwxrwx        128 archive/fs-version-001/controller02/TO-COPY-SOS/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx        128 archive/fs-version-001/controller02/TO-COPY-SOS/benchmark-result-small_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-INDEX-TOOL
-lrwxrwxrwx        128 archive/fs-version-001/controller02/TO-INDEX/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx        128 archive/fs-version-001/controller02/TO-INDEX/benchmark-result-small_1970-01-01T00:00:00.tar.xz -> /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller02/TODO
 drwxrwxr-x          - archive/fs-version-001/controller02/UNPACKED
-lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-small_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1970-01-01T00:00:00.tar.xz -> ../benchmark-result-small_1970-01-01T00:00:00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controller02/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller02/WONT-UNPACK
--rw-rw-r--        848 archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
--rw-rw-r--         84 archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz.md5
+-rw-rw-r--        848 archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz
+-rw-rw-r--         84 archive/fs-version-001/controller02/benchmark-result-small_1970-01-01T00:00:00.tar.xz.md5
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
 drwxrwxr-x          - public_html/incoming/controller00
-drwxrwxr-x          - public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
--rw-rw-r--       7300 public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00/lines.100.txt
+drwxrwxr-x          - public_html/incoming/controller00/benchmark-result-large_1970-01-01T00:00:00
+-rw-rw-r--       7300 public_html/incoming/controller00/benchmark-result-large_1970-01-01T00:00:00/lines.100.txt
 drwxrwxr-x          - public_html/incoming/controller01
-drwxrwxr-x          - public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
--rw-rw-r--       3650 public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00/lines.50.txt
--rw-rw-r--         38 public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00/metadata.log
+drwxrwxr-x          - public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00
+-rw-rw-r--       3650 public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00/lines.50.txt
+-rw-rw-r--         38 public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00/metadata.log
 drwxrwxr-x          - public_html/incoming/controller02
-drwxrwxr-x          - public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
--rw-rw-r--        730 public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00/lines.10.txt
+drwxrwxr-x          - public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00
+-rw-rw-r--        730 public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00/lines.10.txt
 drwxrwxr-x          - public_html/results
 drwxrwxr-x          - public_html/results/controller00
-lrwxrwxrwx        119 public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
+lrwxrwxrwx        119 public_html/results/controller00/benchmark-result-large_1970-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller00/benchmark-result-large_1970-01-01T00:00:00
 drwxrwxr-x          - public_html/results/controller01
 drwxrwxr-x          - public_html/results/controller01/prefix01
-lrwxrwxrwx        120 public_html/results/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
+lrwxrwxrwx        120 public_html/results/controller01/prefix01/benchmark-result-medium_1970-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00
 drwxrwxr-x          - public_html/results/controller02
 drwxrwxr-x          - public_html/results/controller02/prefix02
-lrwxrwxrwx        119 public_html/results/controller02/prefix02/benchmark-result-small_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
+lrwxrwxrwx        119 public_html/results/controller02/prefix02/benchmark-result-small_1970-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/static/css
 drwxrwxr-x          - public_html/static/css/v0.2
@@ -219,10 +219,9 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - public_html/users/user01
 drwxrwxr-x          - public_html/users/user01/controller01
 drwxrwxr-x          - public_html/users/user01/controller01/prefix01
-lrwxrwxrwx        120 public_html/users/user01/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
+lrwxrwxrwx        120 public_html/users/user01/controller01/prefix01/benchmark-result-medium_1970-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-17/pbench-local)
-drwxrwxr-x          - incoming
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
@@ -280,24 +279,24 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
-run-1970-01-01T00:00:00-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1900-01-01T00:00:00.tar.xz does not exist
+run-1970-01-01T00:00:42-UTC: symlink target for /var/tmp/pbench-test-server/test-17/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz does not exist
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
-run-1970-01-01T00:00:00-UTC
-ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
-ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/users/user01/controller01/prefix01/benchmark-result-medium_1900-01-01T00:00:00
-run-1970-01-01T00:00:00-UTC: controller01/benchmark-result-medium_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 3180
-ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller00/benchmark-result-large_1900-01-01T00:00:00
-run-1970-01-01T00:00:00-UTC: controller00/benchmark-result-large_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 5920
-ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller02/prefix02/benchmark-result-small_1900-01-01T00:00:00
-run-1970-01-01T00:00:00-UTC: controller02/benchmark-result-small_1900-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 848
-run-1970-01-01T00:00:00-UTC: Processed 3 tarballs
-1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs-small.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs-small.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC
+ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller01/prefix01/benchmark-result-medium_1970-01-01T00:00:00
+ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller01/benchmark-result-medium_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/users/user01/controller01/prefix01/benchmark-result-medium_1970-01-01T00:00:00
+run-1970-01-01T00:00:42-UTC: controller01/benchmark-result-medium_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 3176
+ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller00/benchmark-result-large_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller00/benchmark-result-large_1970-01-01T00:00:00
+run-1970-01-01T00:00:42-UTC: controller00/benchmark-result-large_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 5920
+ln -s /var/tmp/pbench-test-server/test-17/pbench/public_html/incoming/controller02/benchmark-result-small_1970-01-01T00:00:00 /var/tmp/pbench-test-server/test-17/pbench/public_html/results/controller02/prefix02/benchmark-result-small_1970-01-01T00:00:00
+run-1970-01-01T00:00:42-UTC: controller02/benchmark-result-small_1970-01-01T00:00:00: success - elapsed time (secs): 0 - size (bytes): 848
+run-1970-01-01T00:00:42-UTC: Processed 3 tarballs
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

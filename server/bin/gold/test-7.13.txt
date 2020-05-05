@@ -16,11 +16,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-unpack-tarballs",
-            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:00-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
             "total_chunks": 1,
             "total_size": 162
         },
@@ -55,7 +55,7 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
             "name": "pbench-index"
         },
@@ -5189,11 +5189,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index",
-            "text": "pbench-index.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz\n",
+            "text": "pbench-index.run-1970-01-01T00:00:42-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz\n",
             "total_chunks": 1,
             "total_size": 249
         },
@@ -5228,7 +5228,7 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
             "name": "pbench-index-tool-data"
         },
@@ -10763,11 +10763,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": "4.0.0"
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-index-tool-data",
-            "text": "pbench-index-tool-data.run-1970-01-01T00:00:00-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz\n",
+            "text": "pbench-index-tool-data.run-1970-01-01T00:00:42-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz\n",
             "total_chunks": 1,
             "total_size": 264
         },
@@ -10793,11 +10793,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
         },
@@ -11645,78 +11645,78 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3323572)
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [1 sosreports processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [1 tools processed]
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _stdout_keyval -- tool-data-indexing: tool proc-vmstat, stdout keyval start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat/proc-vmstat-stdout.txt
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.indexer _stdout_keyval -- tool-data-indexing: tool proc-vmstat, stdout keyval end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat/proc-vmstat-stdout.txt
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [73393 tool data documents]
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 73393, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:00-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz: success
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3323572)
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
-1970-01-01T00:00:00.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3323572)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [1 sosreports processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [1 tools processed]
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexer _stdout_procint -- tool-data-indexing: tool proc-interrupts, stdout procint end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/proc-interrupts-stdout.txt
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexer _stdout_keyval -- tool-data-indexing: tool proc-vmstat, stdout keyval start pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat/proc-vmstat-stdout.txt
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexer _stdout_keyval -- tool-data-indexing: tool proc-vmstat, stdout keyval end pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat/proc-vmstat-stdout.txt
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [73393 tool data documents]
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 73393, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:42-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz: success
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3323572)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: starting
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 10, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3323572)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- generator setup
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- begin indexing
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_sosreports -- end [1 sosreports processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_tool_info -- end [1 tools processed]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_run_action -- end
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [26 table-of-contents documents]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [no result data sources]
-1970-01-01T00:00:00.000000 DEBUG pbench-index.indexer make_all_actions -- end
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 27, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:00-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz: success
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3323572)
-1970-01-01T00:00:00.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
-1970-01-01T00:00:00.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:00-UTC: indexed 1 (skipped 0) results, 0 errors
-1970-01-01T00:00:00.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3323572)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- open tar ball
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- generator setup
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- begin indexing
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer make_all_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_run_action -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_sosreports -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_sosreports -- end [1 sosreports processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_tool_info -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_tool_info -- end [1 tools processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_run_action -- end
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [26 table-of-contents documents]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [no result data sources]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer make_all_actions -- end
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 27, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:42-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz: success
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.13/pbench/archive/fs-version-001/b03-h01-1029p/TO-INDEX/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19.tar.xz (size 3323572)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
-run-1970-01-01T00:00:00-UTC
+run-1970-01-01T00:00:42-UTC
 ln -s /var/tmp/pbench-test-server/test-7.13/pbench/public_html/incoming/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19 /var/tmp/pbench-test-server/test-7.13/pbench/public_html/results/b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19
-run-1970-01-01T00:00:00-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19: success - elapsed time (secs): 0 - size (bytes): 3323572
-run-1970-01-01T00:00:00-UTC: Processed 1 tarballs
-1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+run-1970-01-01T00:00:42-UTC: b03-h01-1029p/pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19: success - elapsed time (secs): 0 - size (bytes): 3323572
+run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

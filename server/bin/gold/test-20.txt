@@ -19,11 +19,11 @@ len(actions) = 1
                 "user_id": 44,
                 "version": ""
             },
-            "@timestamp": "1970-01-01T00:00:00",
+            "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
             "name": "pbench-audit-server",
-            "text": "pbench-audit-server.run-1970-01-01T00:00:00-UTC(unit-test)\n\nstart-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\nBad Controllers:\n\t-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt\n\t-rw-rw-r--          0 Mon Sep 24 14:38:32.0000000000 2018 wayward-file.txt\n\nController: controller.empty\n\t* No state directories found in this controller directory.\n\t* No tar ball files found in this controller directory.\n\nController: controller.unexp_state_dirs\n\t* Unexpected state directories found in this controller directory:\n\t  ++++++++++\n\t  an-unexpected\n\t  unexpected\n\t  ----------\n\t* No tar ball files found in this controller directory.\n\nController: controller.wont_index\n\t* No tar ball files found in this controller directory.\n\nController: controller00\n\t* Unexpected symlinks in controller directory:\n\t  ++++++++++\n\t  an-unexpected-symlink -> /dev/null\n\t  unexpected-symlink -> /dev/null\n\t  ----------\n\t* Unexpected files in controller directory:\n\t  ++++++++++\n\t  .prefix\n\t  unexpected-file\n\t  ----------\n\t* Prefix directory, .prefix, is not a directory!\n\nController: controller01\n\t* Unexpected file system objects in .prefix directory:\n\t  ++++++++++\n\t  a-unexpected\n\t  unexpected\n\t  ----------\n\t* Wrong prefix file names found in /.prefix directory:\n\t  ++++++++++\n\t  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz\n\t  ----------\n\nend-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\n\nstart-1970-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller00\n\tcontroller02\n\nIncoming issues for controller: controller02\n\tInvalid tar ball directories (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tnot-in-archive_1900-01-01T00:00:00\n\tEmpty tar ball directories:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tInvalid unpacking directories (missing tar ball):\n\t\tunpacking-not-in-archive_1900-01-01T00:00:00.unpack\n\tInvalid tar ball links:\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\t\ttarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss\n\t\ttarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss\n\nend-1970-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\n\nstart-1970-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller01\n\nResults issues for controller: controller00\n\tEmpty tar ball directories:\n\t\torphaned-prefix\n\nResults issues for controller: controller01\n\tTar ball links with unused prefix files:\n\t\ttarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with missing prefix files:\n\t\tmissing/prefix/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefix files:\n\t\tgood/prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss\n\tTar ball links with bad prefixes:\n\t\tbad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss\n\nResults issues for controller: controller02\n\tInvalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tdoes-not-exist-tar-ball-link_1900-01-01T00:00:00\n\tIncorrectly constructed tar ball links:\n\t\tbenchmark-result-small_1900-01-01T00:00:00\n\tTar ball links to invalid incoming location:\n\t\ttarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss\n\nend-1970-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\n\nstart-1970-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nResults issues for controller: userB/controllerU\n\tTar ball links not configured for this user:\n\t\ttarball-noUser_YYYY-MM-DDTHH-mm-ss\n\tTar ball links for the wrong user:\n\t\tprefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss\n\nend-1970-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n\nstart-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\nBad Controllers:\n\t-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt\n\t-rw-rw-r--          0 Mon Sep 24 14:38:32.0000000000 2018 wayward-file.txt\n\nController: controller.empty\n\t* No state directories found in this controller directory.\n\t* No tar ball files found in this controller directory.\n\nController: controller.unexp_state_dirs\n\t* Unexpected state directories found in this controller directory:\n\t  ++++++++++\n\t  an-unexpected\n\t  unexpected\n\t  ----------\n\t* No tar ball files found in this controller directory.\n\nController: controller.wont_index\n\t* No tar ball files found in this controller directory.\n\nController: controller00\n\t* Unexpected symlinks in controller directory:\n\t  ++++++++++\n\t  an-unexpected-symlink -> /dev/null\n\t  unexpected-symlink -> /dev/null\n\t  ----------\n\t* Unexpected files in controller directory:\n\t  ++++++++++\n\t  .prefix\n\t  unexpected-file\n\t  ----------\n\t* Prefix directory, .prefix, is not a directory!\n\nController: controller01\n\t* Unexpected file system objects in .prefix directory:\n\t  ++++++++++\n\t  a-unexpected\n\t  unexpected\n\t  ----------\n\t* Wrong prefix file names found in /.prefix directory:\n\t  ++++++++++\n\t  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1970.01.01T00.00.00.tar.xz\n\t  prefix.benchmark-result-medium_1970.01.01T00.00.00.tar.xz\n\t  ----------\n\nend-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001\n\n\nstart-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller00\n\tcontroller02\n\nIncoming issues for controller: controller02\n\tInvalid tar ball directories (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tnot-in-archive_1970.01.01T00.00.00\n\tEmpty tar ball directories:\n\t\tbenchmark-result-small_1970.01.01T00.00.00\n\tInvalid unpacking directories (missing tar ball):\n\t\tunpacking-not-in-archive_1970.01.01T00.00.00.unpack\n\tInvalid tar ball links:\n\t\tdoes-not-exist-tar-ball-link_1970.01.01T00.00.00\n\t\ttarball-bad-incoming-link_1970.01.01T00.00.00\n\t\ttarball-bad-incoming-unpack-dir_1970.01.01T00.00.00\n\nend-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming\n\n\nstart-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nControllers which do not have a /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001 directory:\n\tcontroller.mia\n\nControllers which are empty:\n\tcontroller.empty\n\nControllers which have unexpected objects:\n\tcontroller01\n\nResults issues for controller: controller00\n\tEmpty tar ball directories:\n\t\torphaned-prefix\n\nResults issues for controller: controller01\n\tTar ball links with unused prefix files:\n\t\ttarball-unused-prefix-file_1970.01.01T00.00.00\n\tTar ball links with missing prefix files:\n\t\tmissing/prefix/tarball-missing-prefix-file_1970.01.01T00.00.00\n\tTar ball links with bad prefix files:\n\t\tgood/prefix/tarball-bad-prefix-file_1970.01.01T00.00.00\n\tTar ball links with bad prefixes:\n\t\tbad/prefix/tarball-bad-prefix_1970.01.01T00.00.00\n\nResults issues for controller: controller02\n\tInvalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):\n\t\tdoes-not-exist-tar-ball-link_1970.01.01T00.00.00\n\tIncorrectly constructed tar ball links:\n\t\tbenchmark-result-small_1970.01.01T00.00.00\n\tTar ball links to invalid incoming location:\n\t\ttarball-bad-incoming-location_1970.01.01T00.00.00\n\nend-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results\n\n\nstart-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n\nUnexpected files found:\n\tan-unexpected-symlink\n\tunexpected-file\n\tunexpected-symlink\n\nResults issues for controller: userB/controllerU\n\tTar ball links not configured for this user:\n\t\ttarball-noUser_1970.01.01T00.00.00\n\tTar ball links for the wrong user:\n\t\tprefix0/tarball-userA_1970.01.01T00.00.00\n\nend-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users\n",
             "total_chunks": 1,
             "total_size": 4688
         },
@@ -104,74 +104,74 @@ drwxrwxr-x          - archive/fs-version-001/controller.wont_index/WONT-INDEX.9
 drwxrwxr-x          - archive/fs-version-001/controller00
 -rw-rw-r--          0 archive/fs-version-001/controller00/.prefix
 drwxrwxr-x          - archive/fs-version-001/controller00/UNPACKED
-lrwxrwxrwx         52 archive/fs-version-001/controller00/UNPACKED/benchmark-result-large_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-large_1900-01-01T00:00:00.tar.xz
+lrwxrwxrwx         52 archive/fs-version-001/controller00/UNPACKED/benchmark-result-large_1970.01.01T00.00.00.tar.xz -> ../benchmark-result-large_1970.01.01T00.00.00.tar.xz
 lrwxrwxrwx          9 archive/fs-version-001/controller00/an-unexpected-symlink -> /dev/null
--rw-rw-r--       5920 archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz
--rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1900-01-01T00:00:00.tar.xz.md5
+-rw-rw-r--       5920 archive/fs-version-001/controller00/benchmark-result-large_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         84 archive/fs-version-001/controller00/benchmark-result-large_1970.01.01T00.00.00.tar.xz.md5
 -rw-rw-r--          0 archive/fs-version-001/controller00/unexpected-file
 lrwxrwxrwx          9 archive/fs-version-001/controller00/unexpected-symlink -> /dev/null
 drwxrwxr-x          - archive/fs-version-001/controller01
 drwxrwxr-x          - archive/fs-version-001/controller01/.prefix
 -rw-rw-r--          0 archive/fs-version-001/controller01/.prefix/a-unexpected
--rw-rw-r--         12 archive/fs-version-001/controller01/.prefix/benchmark-result-medium_1900-01-01T00:00:00.tar.xz.prefix
--rw-rw-r--         13 archive/fs-version-001/controller01/.prefix/prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
--rw-rw-r--          0 archive/fs-version-001/controller01/.prefix/prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
---w--w----         12 archive/fs-version-001/controller01/.prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss.prefix
--rw-rw-r--         12 archive/fs-version-001/controller01/.prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss.prefix
--rw-rw-r--         14 archive/fs-version-001/controller01/.prefix/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss.prefix
+-rw-rw-r--         12 archive/fs-version-001/controller01/.prefix/benchmark-result-medium_1970.01.01T00.00.00.tar.xz.prefix
+-rw-rw-r--         13 archive/fs-version-001/controller01/.prefix/prefix.DUPLICATE__NAME.1.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--          0 archive/fs-version-001/controller01/.prefix/prefix.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
+--w--w----         12 archive/fs-version-001/controller01/.prefix/tarball-bad-prefix-file_1970.01.01T00.00.00.prefix
+-rw-rw-r--         12 archive/fs-version-001/controller01/.prefix/tarball-bad-prefix_1970.01.01T00.00.00.prefix
+-rw-rw-r--         14 archive/fs-version-001/controller01/.prefix/tarball-unused-prefix-file_1970.01.01T00.00.00.prefix
 -rw-rw-r--          0 archive/fs-version-001/controller01/.prefix/unexpected
--rw-rw-r--       3120 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
--rw-rw-r--         85 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
+-rw-rw-r--       3120 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--        103 archive/fs-version-001/controller01/DUPLICATE__NAME.1.benchmark-result-medium_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller01/UNPACKED
-lrwxrwxrwx         71 archive/fs-version-001/controller01/UNPACKED/DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> ../DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
-lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/benchmark-result-medium_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-medium_1900-01-01T00:00:00.tar.xz
-lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz
-lrwxrwxrwx         48 archive/fs-version-001/controller01/UNPACKED/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
-lrwxrwxrwx         57 archive/fs-version-001/controller01/UNPACKED/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz
-lrwxrwxrwx         56 archive/fs-version-001/controller01/UNPACKED/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--       3180 archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz
--rw-rw-r--         85 archive/fs-version-001/controller01/benchmark-result-medium_1900-01-01T00:00:00.tar.xz.md5
--rw-rw-r--        228 archive/fs-version-001/controller01/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         85 archive/fs-version-001/controller01/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
--rw-rw-r--        224 archive/fs-version-001/controller01/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         80 archive/fs-version-001/controller01/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
--rw-rw-r--        232 archive/fs-version-001/controller01/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         89 archive/fs-version-001/controller01/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
--rw-rw-r--        232 archive/fs-version-001/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         88 archive/fs-version-001/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
+lrwxrwxrwx         71 archive/fs-version-001/controller01/UNPACKED/DUPLICATE__NAME.1.benchmark-result-medium_1970.01.01T00.00.00.tar.xz -> ../DUPLICATE__NAME.1.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/benchmark-result-medium_1970.01.01T00.00.00.tar.xz -> ../benchmark-result-medium_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         53 archive/fs-version-001/controller01/UNPACKED/tarball-bad-prefix-file_1970.01.01T00.00.00.tar.xz -> ../tarball-bad-prefix-file_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         48 archive/fs-version-001/controller01/UNPACKED/tarball-bad-prefix_1970.01.01T00.00.00.tar.xz -> ../tarball-bad-prefix_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         57 archive/fs-version-001/controller01/UNPACKED/tarball-missing-prefix-file_1970.01.01T00.00.00.tar.xz -> ../tarball-missing-prefix-file_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         56 archive/fs-version-001/controller01/UNPACKED/tarball-unused-prefix-file_1970.01.01T00.00.00.tar.xz -> ../tarball-unused-prefix-file_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--       3180 archive/fs-version-001/controller01/benchmark-result-medium_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         85 archive/fs-version-001/controller01/benchmark-result-medium_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        224 archive/fs-version-001/controller01/tarball-bad-prefix-file_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         85 archive/fs-version-001/controller01/tarball-bad-prefix-file_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        220 archive/fs-version-001/controller01/tarball-bad-prefix_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         80 archive/fs-version-001/controller01/tarball-bad-prefix_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        228 archive/fs-version-001/controller01/tarball-missing-prefix-file_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         89 archive/fs-version-001/controller01/tarball-missing-prefix-file_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        228 archive/fs-version-001/controller01/tarball-unused-prefix-file_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         88 archive/fs-version-001/controller01/tarball-unused-prefix-file_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controller02
 drwxrwxr-x          - archive/fs-version-001/controller02/.prefix
--rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1900-01-01T00:00:00.prefix
+-rw-rw-r--          9 archive/fs-version-001/controller02/.prefix/benchmark-result-small_1970.01.01T00.00.00.prefix
 drwxrwxr-x          - archive/fs-version-001/controller02/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller02/UNPACKED
-lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1900-01-01T00:00:00.tar.xz -> ../benchmark-result-small_1900-01-01T00:00:00.tar.xz
--rw-rw-r--        848 archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz
--rw-rw-r--         84 archive/fs-version-001/controller02/benchmark-result-small_1900-01-01T00:00:00.tar.xz.md5
--rw-rw-r--        228 archive/fs-version-001/controller02/tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         87 archive/fs-version-001/controller02/tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
--rw-rw-r--        232 archive/fs-version-001/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         91 archive/fs-version-001/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
--rw-rw-r--        232 archive/fs-version-001/controller02/tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         93 archive/fs-version-001/controller02/tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
+lrwxrwxrwx         52 archive/fs-version-001/controller02/UNPACKED/benchmark-result-small_1970.01.01T00.00.00.tar.xz -> ../benchmark-result-small_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--        852 archive/fs-version-001/controller02/benchmark-result-small_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         84 archive/fs-version-001/controller02/benchmark-result-small_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        224 archive/fs-version-001/controller02/tarball-bad-incoming-link_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         87 archive/fs-version-001/controller02/tarball-bad-incoming-link_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        228 archive/fs-version-001/controller02/tarball-bad-incoming-location_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         91 archive/fs-version-001/controller02/tarball-bad-incoming-location_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        228 archive/fs-version-001/controller02/tarball-bad-incoming-unpack-dir_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         93 archive/fs-version-001/controller02/tarball-bad-incoming-unpack-dir_1970.01.01T00.00.00.tar.xz.md5
 drwxrwxr-x          - archive/fs-version-001/controllerU
 drwxrwxr-x          - archive/fs-version-001/controllerU/TO-INDEX
-lrwxrwxrwx         44 archive/fs-version-001/controllerU/TO-INDEX/tarball-noUser_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-noUser_YYYY-MM-DDTHH-mm-ss.tar.xz
-lrwxrwxrwx         43 archive/fs-version-001/controllerU/TO-INDEX/tarball-userA_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-userA_YYYY-MM-DDTHH-mm-ss.tar.xz
-lrwxrwxrwx         43 archive/fs-version-001/controllerU/TO-INDEX/tarball-userB_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-userB_YYYY-MM-DDTHH-mm-ss.tar.xz
-lrwxrwxrwx         43 archive/fs-version-001/controllerU/TO-INDEX/tarball-userC_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-userC_YYYY-MM-DDTHH-mm-ss.tar.xz
+lrwxrwxrwx         44 archive/fs-version-001/controllerU/TO-INDEX/tarball-noUser_1970.01.01T00.00.00.tar.xz -> ../tarball-noUser_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         43 archive/fs-version-001/controllerU/TO-INDEX/tarball-userA_1970.01.01T00.00.00.tar.xz -> ../tarball-userA_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         43 archive/fs-version-001/controllerU/TO-INDEX/tarball-userB_1970.01.01T00.00.00.tar.xz -> ../tarball-userB_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         43 archive/fs-version-001/controllerU/TO-INDEX/tarball-userC_1970.01.01T00.00.00.tar.xz -> ../tarball-userC_1970.01.01T00.00.00.tar.xz
 drwxrwxr-x          - archive/fs-version-001/controllerU/UNPACKED
-lrwxrwxrwx         44 archive/fs-version-001/controllerU/UNPACKED/tarball-noUser_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-noUser_YYYY-MM-DDTHH-mm-ss.tar.xz
-lrwxrwxrwx         43 archive/fs-version-001/controllerU/UNPACKED/tarball-userA_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-userA_YYYY-MM-DDTHH-mm-ss.tar.xz
-lrwxrwxrwx         43 archive/fs-version-001/controllerU/UNPACKED/tarball-userB_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-userB_YYYY-MM-DDTHH-mm-ss.tar.xz
-lrwxrwxrwx         43 archive/fs-version-001/controllerU/UNPACKED/tarball-userC_YYYY-MM-DDTHH-mm-ss.tar.xz -> ../tarball-userC_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--        228 archive/fs-version-001/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         76 archive/fs-version-001/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
--rw-rw-r--        260 archive/fs-version-001/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         75 archive/fs-version-001/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
--rw-rw-r--        260 archive/fs-version-001/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         75 archive/fs-version-001/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
--rw-rw-r--        256 archive/fs-version-001/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss.tar.xz
--rw-rw-r--         75 archive/fs-version-001/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss.tar.xz.md5
+lrwxrwxrwx         44 archive/fs-version-001/controllerU/UNPACKED/tarball-noUser_1970.01.01T00.00.00.tar.xz -> ../tarball-noUser_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         43 archive/fs-version-001/controllerU/UNPACKED/tarball-userA_1970.01.01T00.00.00.tar.xz -> ../tarball-userA_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         43 archive/fs-version-001/controllerU/UNPACKED/tarball-userB_1970.01.01T00.00.00.tar.xz -> ../tarball-userB_1970.01.01T00.00.00.tar.xz
+lrwxrwxrwx         43 archive/fs-version-001/controllerU/UNPACKED/tarball-userC_1970.01.01T00.00.00.tar.xz -> ../tarball-userC_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--        224 archive/fs-version-001/controllerU/tarball-noUser_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         76 archive/fs-version-001/controllerU/tarball-noUser_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        256 archive/fs-version-001/controllerU/tarball-userA_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         75 archive/fs-version-001/controllerU/tarball-userA_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        252 archive/fs-version-001/controllerU/tarball-userB_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         75 archive/fs-version-001/controllerU/tarball-userB_1970.01.01T00.00.00.tar.xz.md5
+-rw-rw-r--        256 archive/fs-version-001/controllerU/tarball-userC_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         75 archive/fs-version-001/controllerU/tarball-userC_1970.01.01T00.00.00.tar.xz.md5
 -rw-rw-r--          0 archive/fs-version-001/wayward-file.txt
 drwxrwxr-x          - public_html
 drwxrwxr-x          - public_html/incoming
@@ -179,41 +179,41 @@ lrwxrwxrwx          9 public_html/incoming/an-unexpected-symlink -> /dev/null
 drwxrwxr-x          - public_html/incoming/controller.empty
 drwxrwxr-x          - public_html/incoming/controller.mia
 drwxrwxr-x          - public_html/incoming/controller00
-drwxrwxr-x          - public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
-lrwxrwxrwx        113 public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00/benchmark-result-large_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00
--rw-rw-r--       7300 public_html/incoming/controller00/benchmark-result-large_1900-01-01T00:00:00/lines.100.txt
+drwxrwxr-x          - public_html/incoming/controller00/benchmark-result-large_1970.01.01T00.00.00
+lrwxrwxrwx        113 public_html/incoming/controller00/benchmark-result-large_1970.01.01T00.00.00/benchmark-result-large_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller00/benchmark-result-large_1970.01.01T00.00.00
+-rw-rw-r--       7300 public_html/incoming/controller00/benchmark-result-large_1970.01.01T00.00.00/lines.100.txt
 -rw-rw-r--          0 public_html/incoming/controller00/unexpected-file
 drwxrwxr-x          - public_html/incoming/controller01
-drwxrwxr-x          - public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
-lrwxrwxrwx        114 public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00/benchmark-result-medium_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00
--rw-rw-r--       3650 public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00/lines.50.txt
--rw-rw-r--         38 public_html/incoming/controller01/benchmark-result-medium_1900-01-01T00:00:00/metadata.log
-drwxrwxr-x          - public_html/incoming/controller01/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss
--rw-rw-r--          0 public_html/incoming/controller01/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss/empty
-drwxrwxr-x          - public_html/incoming/controller01/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss
--rw-rw-r--          0 public_html/incoming/controller01/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss/empty
-drwxrwxr-x          - public_html/incoming/controller01/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss
--rw-rw-r--          0 public_html/incoming/controller01/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss/empty
-drwxrwxr-x          - public_html/incoming/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss
--rw-rw-r--          0 public_html/incoming/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss/empty
+drwxrwxr-x          - public_html/incoming/controller01/benchmark-result-medium_1970.01.01T00.00.00
+lrwxrwxrwx        114 public_html/incoming/controller01/benchmark-result-medium_1970.01.01T00.00.00/benchmark-result-medium_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller01/benchmark-result-medium_1970.01.01T00.00.00
+-rw-rw-r--       3650 public_html/incoming/controller01/benchmark-result-medium_1970.01.01T00.00.00/lines.50.txt
+-rw-rw-r--         38 public_html/incoming/controller01/benchmark-result-medium_1970.01.01T00.00.00/metadata.log
+drwxrwxr-x          - public_html/incoming/controller01/tarball-bad-prefix-file_1970.01.01T00.00.00
+-rw-rw-r--          0 public_html/incoming/controller01/tarball-bad-prefix-file_1970.01.01T00.00.00/empty
+drwxrwxr-x          - public_html/incoming/controller01/tarball-bad-prefix_1970.01.01T00.00.00
+-rw-rw-r--          0 public_html/incoming/controller01/tarball-bad-prefix_1970.01.01T00.00.00/empty
+drwxrwxr-x          - public_html/incoming/controller01/tarball-missing-prefix-file_1970.01.01T00.00.00
+-rw-rw-r--          0 public_html/incoming/controller01/tarball-missing-prefix-file_1970.01.01T00.00.00/empty
+drwxrwxr-x          - public_html/incoming/controller01/tarball-unused-prefix-file_1970.01.01T00.00.00
+-rw-rw-r--          0 public_html/incoming/controller01/tarball-unused-prefix-file_1970.01.01T00.00.00/empty
 drwxrwxr-x          - public_html/incoming/controller02
-drwxrwxr-x          - public_html/incoming/controller02/benchmark-result-small_1900-01-01T00:00:00
-lrwxrwxrwx        119 public_html/incoming/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00
-drwxrwxr-x          - public_html/incoming/controller02/not-in-archive_1900-01-01T00:00:00
--rw-rw-r--          0 public_html/incoming/controller02/not-in-archive_1900-01-01T00:00:00/a-file
-lrwxrwxrwx        111 public_html/incoming/controller02/tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench-local/tmp/controller02/tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss
--rw-rw-r--          0 public_html/incoming/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss
-lrwxrwxrwx        122 public_html/incoming/controller02/tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller02/tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss
-drwxrwxr-x          - public_html/incoming/controller02/unpacking-not-in-archive_1900-01-01T00:00:00.unpack
+drwxrwxr-x          - public_html/incoming/controller02/benchmark-result-small_1970.01.01T00.00.00
+lrwxrwxrwx        119 public_html/incoming/controller02/does-not-exist-tar-ball-link_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller02/does-not-exist-tar-ball-link_1970.01.01T00.00.00
+drwxrwxr-x          - public_html/incoming/controller02/not-in-archive_1970.01.01T00.00.00
+-rw-rw-r--          0 public_html/incoming/controller02/not-in-archive_1970.01.01T00.00.00/a-file
+lrwxrwxrwx        111 public_html/incoming/controller02/tarball-bad-incoming-link_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench-local/tmp/controller02/tarball-bad-incoming-link_1970.01.01T00.00.00
+-rw-rw-r--          0 public_html/incoming/controller02/tarball-bad-incoming-location_1970.01.01T00.00.00
+lrwxrwxrwx        122 public_html/incoming/controller02/tarball-bad-incoming-unpack-dir_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench-local/incoming/controller02/tarball-bad-incoming-unpack-dir_1970.01.01T00.00.00
+drwxrwxr-x          - public_html/incoming/controller02/unpacking-not-in-archive_1970.01.01T00.00.00.unpack
 drwxrwxr-x          - public_html/incoming/controllerU
-drwxrwxr-x          - public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss
--rw-rw-r--          0 public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss/metadata.log
-drwxrwxr-x          - public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
--rw-rw-r--         36 public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss/metadata.log
-drwxrwxr-x          - public_html/incoming/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss
--rw-rw-r--         36 public_html/incoming/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss/metadata.log
-drwxrwxr-x          - public_html/incoming/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss
--rw-rw-r--         36 public_html/incoming/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss/metadata.log
+drwxrwxr-x          - public_html/incoming/controllerU/tarball-noUser_1970.01.01T00.00.00
+-rw-rw-r--          0 public_html/incoming/controllerU/tarball-noUser_1970.01.01T00.00.00/metadata.log
+drwxrwxr-x          - public_html/incoming/controllerU/tarball-userA_1970.01.01T00.00.00
+-rw-rw-r--         36 public_html/incoming/controllerU/tarball-userA_1970.01.01T00.00.00/metadata.log
+drwxrwxr-x          - public_html/incoming/controllerU/tarball-userB_1970.01.01T00.00.00
+-rw-rw-r--         36 public_html/incoming/controllerU/tarball-userB_1970.01.01T00.00.00/metadata.log
+drwxrwxr-x          - public_html/incoming/controllerU/tarball-userC_1970.01.01T00.00.00
+-rw-rw-r--         36 public_html/incoming/controllerU/tarball-userC_1970.01.01T00.00.00/metadata.log
 -rw-rw-r--          0 public_html/incoming/unexpected-file
 lrwxrwxrwx          9 public_html/incoming/unexpected-symlink -> /dev/null
 drwxrwxr-x          - public_html/results
@@ -225,27 +225,27 @@ drwxrwxr-x          - public_html/results/controller00/orphaned-prefix
 drwxrwxr-x          - public_html/results/controller01
 drwxrwxr-x          - public_html/results/controller01/bad
 drwxrwxr-x          - public_html/results/controller01/bad/prefix
-lrwxrwxrwx        115 public_html/results/controller01/bad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        115 public_html/results/controller01/bad/prefix/tarball-bad-prefix_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-bad-prefix_1970.01.01T00.00.00
 drwxrwxr-x          - public_html/results/controller01/good
 drwxrwxr-x          - public_html/results/controller01/good/prefix
-lrwxrwxrwx        120 public_html/results/controller01/good/prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        120 public_html/results/controller01/good/prefix/tarball-bad-prefix-file_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-bad-prefix-file_1970.01.01T00.00.00
 drwxrwxr-x          - public_html/results/controller01/missing
 drwxrwxr-x          - public_html/results/controller01/missing/prefix
-lrwxrwxrwx        124 public_html/results/controller01/missing/prefix/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss
-lrwxrwxrwx        123 public_html/results/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        124 public_html/results/controller01/missing/prefix/tarball-missing-prefix-file_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-missing-prefix-file_1970.01.01T00.00.00
+lrwxrwxrwx        123 public_html/results/controller01/tarball-unused-prefix-file_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller01/tarball-unused-prefix-file_1970.01.01T00.00.00
 -rw-rw-r--          0 public_html/results/controller01/unexpected-file
 drwxrwxr-x          - public_html/results/controller02
-lrwxrwxrwx        128 public_html/results/controller02/benchmark-result-small_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller02/benchmark-result-small-mismatch_1900-01-01T00:00:00
-lrwxrwxrwx        125 public_html/results/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller02/does-not-exist-tar-ball-link_1900-01-01T00:00:00
-lrwxrwxrwx        126 public_html/results/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller02/tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        128 public_html/results/controller02/benchmark-result-small_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller02/benchmark-result-small-mismatch_1970.01.01T00.00.00
+lrwxrwxrwx        125 public_html/results/controller02/does-not-exist-tar-ball-link_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller02/does-not-exist-tar-ball-link_1970.01.01T00.00.00
+lrwxrwxrwx        126 public_html/results/controller02/tarball-bad-incoming-location_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controller02/tarball-bad-incoming-location_1970.01.01T00.00.00
 drwxrwxr-x          - public_html/results/controllerU
 drwxrwxr-x          - public_html/results/controllerU/prefix0
-lrwxrwxrwx        109 public_html/results/controllerU/prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/results/controllerU/prefix0/tarball-userA_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userA_1970.01.01T00.00.00
 drwxrwxr-x          - public_html/results/controllerU/prefix1
-lrwxrwxrwx        109 public_html/results/controllerU/prefix1/tarball-userB_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/results/controllerU/prefix1/tarball-userB_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userB_1970.01.01T00.00.00
 drwxrwxr-x          - public_html/results/controllerU/prefix2
-lrwxrwxrwx        109 public_html/results/controllerU/prefix2/tarball-userC_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss
-lrwxrwxrwx        110 public_html/results/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/results/controllerU/prefix2/tarball-userC_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userC_1970.01.01T00.00.00
+lrwxrwxrwx        110 public_html/results/controllerU/tarball-noUser_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-noUser_1970.01.01T00.00.00
 -rw-rw-r--          0 public_html/results/unexpected-file
 lrwxrwxrwx          9 public_html/results/unexpected-symlink -> /dev/null
 drwxrwxr-x          - public_html/static
@@ -273,18 +273,18 @@ lrwxrwxrwx          9 public_html/users/unexpected-symlink -> /dev/null
 drwxrwxr-x          - public_html/users/userA
 drwxrwxr-x          - public_html/users/userA/controllerU
 drwxrwxr-x          - public_html/users/userA/controllerU/prefix0
-lrwxrwxrwx        109 public_html/users/userA/controllerU/prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/users/userA/controllerU/prefix0/tarball-userA_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userA_1970.01.01T00.00.00
 drwxrwxr-x          - public_html/users/userB
 drwxrwxr-x          - public_html/users/userB/controllerU
 drwxrwxr-x          - public_html/users/userB/controllerU/prefix0
-lrwxrwxrwx        109 public_html/users/userB/controllerU/prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userA_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/users/userB/controllerU/prefix0/tarball-userA_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userA_1970.01.01T00.00.00
 drwxrwxr-x          - public_html/users/userB/controllerU/prefix1
-lrwxrwxrwx        109 public_html/users/userB/controllerU/prefix1/tarball-userB_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userB_YYYY-MM-DDTHH-mm-ss
-lrwxrwxrwx        110 public_html/users/userB/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-noUser_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/users/userB/controllerU/prefix1/tarball-userB_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userB_1970.01.01T00.00.00
+lrwxrwxrwx        110 public_html/users/userB/controllerU/tarball-noUser_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-noUser_1970.01.01T00.00.00
 drwxrwxr-x          - public_html/users/userC
 drwxrwxr-x          - public_html/users/userC/controllerU
 drwxrwxr-x          - public_html/users/userC/controllerU/prefix2
-lrwxrwxrwx        109 public_html/users/userC/controllerU/prefix2/tarball-userC_YYYY-MM-DDTHH-mm-ss -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userC_YYYY-MM-DDTHH-mm-ss
+lrwxrwxrwx        109 public_html/users/userC/controllerU/prefix2/tarball-userC_1970.01.01T00.00.00 -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming/controllerU/tarball-userC_1970.01.01T00.00.00
 --- pbench tree state
 +++ pbench-local tree state (/var/tmp/pbench-test-server/test-20/pbench-local)
 drwxrwxr-x          - logs
@@ -341,7 +341,7 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 
-start-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
+start-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
 
 Bad Controllers:
 	-rw-rw-r--          0 Mon Sep 24 17:18:42.0000000000 2018 a-wayward-file.txt
@@ -383,14 +383,14 @@ Controller: controller01
 	  ----------
 	* Wrong prefix file names found in /.prefix directory:
 	  ++++++++++
-	  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
-	  prefix.benchmark-result-medium_1900-01-01T00:00:00.tar.xz
+	  prefix.DUPLICATE__NAME.1.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
+	  prefix.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
 	  ----------
 
-end-1970-01-01T00:00:00-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
+end-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001
 
 
-start-1970-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
+start-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 
 Unexpected files found:
 	an-unexpected-symlink
@@ -409,20 +409,20 @@ Controllers which have unexpected objects:
 
 Incoming issues for controller: controller02
 	Invalid tar ball directories (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):
-		not-in-archive_1900-01-01T00:00:00
+		not-in-archive_1970.01.01T00.00.00
 	Empty tar ball directories:
-		benchmark-result-small_1900-01-01T00:00:00
+		benchmark-result-small_1970.01.01T00.00.00
 	Invalid unpacking directories (missing tar ball):
-		unpacking-not-in-archive_1900-01-01T00:00:00.unpack
+		unpacking-not-in-archive_1970.01.01T00.00.00.unpack
 	Invalid tar ball links:
-		does-not-exist-tar-ball-link_1900-01-01T00:00:00
-		tarball-bad-incoming-link_YYYY-MM-DDTHH-mm-ss
-		tarball-bad-incoming-unpack-dir_YYYY-MM-DDTHH-mm-ss
+		does-not-exist-tar-ball-link_1970.01.01T00.00.00
+		tarball-bad-incoming-link_1970.01.01T00.00.00
+		tarball-bad-incoming-unpack-dir_1970.01.01T00.00.00
 
-end-1970-01-01T00:00:00-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
+end-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 
 
-start-1970-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
+start-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
 
 Unexpected files found:
 	an-unexpected-symlink
@@ -444,26 +444,26 @@ Results issues for controller: controller00
 
 Results issues for controller: controller01
 	Tar ball links with unused prefix files:
-		tarball-unused-prefix-file_YYYY-MM-DDTHH-mm-ss
+		tarball-unused-prefix-file_1970.01.01T00.00.00
 	Tar ball links with missing prefix files:
-		missing/prefix/tarball-missing-prefix-file_YYYY-MM-DDTHH-mm-ss
+		missing/prefix/tarball-missing-prefix-file_1970.01.01T00.00.00
 	Tar ball links with bad prefix files:
-		good/prefix/tarball-bad-prefix-file_YYYY-MM-DDTHH-mm-ss
+		good/prefix/tarball-bad-prefix-file_1970.01.01T00.00.00
 	Tar ball links with bad prefixes:
-		bad/prefix/tarball-bad-prefix_YYYY-MM-DDTHH-mm-ss
+		bad/prefix/tarball-bad-prefix_1970.01.01T00.00.00
 
 Results issues for controller: controller02
 	Invalid tar ball links (not in /var/tmp/pbench-test-server/test-20/pbench/archive/fs-version-001):
-		does-not-exist-tar-ball-link_1900-01-01T00:00:00
+		does-not-exist-tar-ball-link_1970.01.01T00.00.00
 	Incorrectly constructed tar ball links:
-		benchmark-result-small_1900-01-01T00:00:00
+		benchmark-result-small_1970.01.01T00.00.00
 	Tar ball links to invalid incoming location:
-		tarball-bad-incoming-location_YYYY-MM-DDTHH-mm-ss
+		tarball-bad-incoming-location_1970.01.01T00.00.00
 
-end-1970-01-01T00:00:00-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
+end-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/results
 
 
-start-1970-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
+start-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
 
 Unexpected files found:
 	an-unexpected-symlink
@@ -472,13 +472,13 @@ Unexpected files found:
 
 Results issues for controller: userB/controllerU
 	Tar ball links not configured for this user:
-		tarball-noUser_YYYY-MM-DDTHH-mm-ss
+		tarball-noUser_1970.01.01T00.00.00
 	Tar ball links for the wrong user:
-		prefix0/tarball-userA_YYYY-MM-DDTHH-mm-ss
+		prefix0/tarball-userA_1970.01.01T00.00.00
 
-end-1970-01-01T00:00:00-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:00.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+end-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-20/pbench/public_html/users
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

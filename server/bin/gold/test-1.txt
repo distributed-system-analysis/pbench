@@ -141,16 +141,16 @@ drwxrwxr-x          - tmp
 +++ pbench log file contents
 ++++ pbench-local/logs
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
-1970-01-01T00:00:00.000000 ERROR pbench-backup-tarballs.pbench-backup-tarballs sanity_check -- The ARCHIVE directory /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, does not resolve /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001 to a directory
+1970-01-01T00:00:42.000000 ERROR pbench-backup-tarballs.pbench-backup-tarballs sanity_check -- The ARCHIVE directory /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, does not resolve /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001 to a directory
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
-1970-01-01T00:00:00.000000 ERROR pbench-index-tool-data.pbench-index main -- pbench-index-tool-data: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
+1970-01-01T00:00:42.000000 ERROR pbench-index-tool-data.pbench-index main -- pbench-index-tool-data: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 ----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
-1970-01-01T00:00:00.000000 ERROR pbench-index.pbench-index main -- pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
+1970-01-01T00:00:42.000000 ERROR pbench-index.pbench-index main -- pbench-index: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 ----- pbench-index/pbench-index.log
 +++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
-1970-01-01T00:00:00.000000 ERROR pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- The setting for ARCHIVE in the config file is /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, but that is not a directory
+1970-01-01T00:00:42.000000 ERROR pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- The setting for ARCHIVE in the config file is /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, but that is not a directory
 ----- pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
