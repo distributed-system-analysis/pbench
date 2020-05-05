@@ -62,7 +62,7 @@ def sanity_check(lb_obj, s3_obj, config, logger):
         )
         return None, None
 
-    if not os.path.isdir(archive):
+    if not os.path.isdir(archivepath):
         logger.error(
             "The ARCHIVE directory {}, does not resolve {} to a directory",
             archive,
@@ -479,13 +479,11 @@ def backup_data(lb_obj, s3_obj, config, logger):
     )
 
 
-def main():
-    cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
-
+def main(cfg_name):
     if not cfg_name:
         print(
-            "{}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
-            " use --config <file> on the command line".format(_NAME_),
+            f"{_NAME_}: ERROR: No config file specified; set"
+            " _PBENCH_SERVER_CONFIG env variable",
             file=sys.stderr,
         )
         return 2
@@ -493,7 +491,7 @@ def main():
     try:
         config = PbenchConfig(cfg_name)
     except BadConfig as e:
-        print("{}: {}".format(_NAME_, e), file=sys.stderr)
+        print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
 
     logger = get_pbench_logger(_NAME_, config)
@@ -560,5 +558,6 @@ def main():
 
 
 if __name__ == "__main__":
-    status = main()
+    cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
+    status = main(cfg_name)
     sys.exit(status)
