@@ -22,6 +22,9 @@ pbench-index-tool-data: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-loca
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp (config file /var/tmp/pbench-test-server/test-0.2/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished pbench-clean-up-dangling-results-links (status=1)
++++ Running pbench-cull-unpacked-tarballs
+pbench-cull-unpacked-tarballs: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp
+--- Finished pbench-cull-unpacked-tarballs (status=2)
 +++ Running pbench-backup-tarballs
 pbench-backup-tarballs: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp
 --- Finished pbench-backup-tarballs (status=1)

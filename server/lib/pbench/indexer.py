@@ -64,6 +64,9 @@ except ImportError:
 # that generated the documents.
 VERSION = "4.0.0"
 
+# Standard normalized date/time format
+_STD_DATETIME_FMT = pbench._STD_DATETIME_FMT
+
 # Maximum length of messages logged by es_index()
 _MAX_ERRMSG_LENGTH = 16384
 
@@ -993,7 +996,7 @@ class PbenchData(object):
                 "{} ({!r}) is after the end of the"
                 " run ({})".format(ts, orig_ts, self.ptb.end_run_ts)
             )
-        return ts.strftime("%Y-%m-%dT%H:%M:%S.%f")
+        return ts.strftime(_STD_DATETIME_FMT)
 
     def generate_index_name(self, template_name, source, toolname=None):
         """Return a fully formed index name given its template, prefix, source
@@ -1215,7 +1218,7 @@ class ResultData(PbenchData):
 
     @staticmethod
     def _normalize_timestamp(ts_format, ts):
-        return datetime.strptime(ts, ts_format).strftime("%Y-%m-%dT%H:%M:%S.%f")
+        return datetime.strptime(ts, ts_format).strftime(_STD_DATETIME_FMT)
 
     def _make_user_benchmark_json(self):
         """Find all of the user-benchmark-result.csv files, and build up sample
@@ -3328,7 +3331,7 @@ class ToolData(PbenchData):
                     # so assume that payload_source[@timestamp] is already in
                     # the expected format; validate it.
                     try:
-                        ts = datetime.strptime(ts_val, "%Y-%m-%dT%H:%M:%S.%f")
+                        ts = datetime.strptime(ts_val, _STD_DATETIME_FMT)
                     except ValueError:
                         if not invalid_ts:
                             invalid_ts = True
@@ -3360,7 +3363,7 @@ class ToolData(PbenchData):
 
                 source = _dict_const()
                 # Convert the validated timestamp into ISO format.
-                source["@timestamp"] = ts.strftime("%Y-%m-%dT%H:%M:%S.%f")
+                source["@timestamp"] = ts.strftime(_STD_DATETIME_FMT)
                 source["@timestamp_original"] = str(ts_val)
                 # Add the run metadata
                 source["run"] = self.run_metadata
@@ -4204,7 +4207,7 @@ class PbenchTarBall(object):
     # conversions (e.g. Elasticsearch ignores it, and python std lib
     # does not offer a way to handle nanoseconds).
     _formats = [
-        "%Y-%m-%dT%H:%M:%S.%f",
+        _STD_DATETIME_FMT,
         "%Y%m%dT%H:%M:%S.%f",
         "%Y-%m-%dT%H:%M:%S",
         "%Y%m%dT%H:%M:%S",

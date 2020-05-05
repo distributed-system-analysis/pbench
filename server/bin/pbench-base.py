@@ -14,7 +14,6 @@ from pbench import BadConfig, PbenchConfig
 if __name__ != "__main__":
     sys.exit(1)
 
-
 _NAME_ = "pbench-base.py"
 
 parser = ArgumentParser(_NAME_)
@@ -49,7 +48,6 @@ if not parsed.cfg_name:
 else:
     config_name = parsed.cfg_name
 
-
 try:
     config = PbenchConfig(config_name)
 except BadConfig as e:
@@ -61,7 +59,8 @@ vars = sorted(
     [
         key
         for key in config.__dict__.keys()
-        if key not in ("files", "conf", "timestamp", "_unittests", "get")
+        if key
+        not in ("files", "conf", "timestamp", "_unittests", "_ref_datetime", "get")
     ]
 )
 for att in vars:

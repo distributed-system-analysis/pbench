@@ -15,7 +15,7 @@ user="${3}"
 
 # It generates a tarball-*.tar.xz and tarball-*.tar.xz.md5.
 
-tbname="tarball-${1}_YYYY-MM-DDTHH-mm-ss"
+tbname="tarball_${1}_1970.01.01T00.00.00"
 mkdir ${tbname}
 if [ -z "$prefix" -a -z "$user" ]; then
     touch ${tbname}/metadata.log

@@ -163,6 +163,18 @@ function do_work() {
             continue
         fi
 
+        pbench-check-tb-age ${link}
+        local status=${?}
+        if [[ ${status} -gt 0 ]]; then
+            log_info "${TS}: ${result} is older than the configured maximum age (status = ${status})" "${mail_content}"
+            nwarn=${nwarn}+1
+            hostname=$(basename $(dirname $(dirname ${result})))
+            mkdir -p ${ARCHIVE}/${hostname}/${linkerr}
+            move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for symlink"
+            if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
+            continue
+        fi
+
         basedir=$(dirname ${link})
         hostname=$(basename ${basedir})
 

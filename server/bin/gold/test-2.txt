@@ -100,6 +100,8 @@ pbench-copy-sosreports: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/p
 --- Finished pbench-index (status=3)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
++++ Running pbench-cull-unpacked-tarballs
+--- Finished pbench-cull-unpacked-tarballs (status=4)
 +++ Running pbench-backup-tarballs
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -228,6 +230,8 @@ drwxrwxr-x          - logs/pbench-backup-tarballs
 drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
+drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
+-rw-rw-r--        225 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--          0 logs/pbench-dispatch/pbench-dispatch.error
 -rw-rw-r--        576 logs/pbench-dispatch/pbench-dispatch.log
@@ -307,6 +311,9 @@ drwxrwxr-x          - tmp
 ----- pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 +++++ pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 ----- pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
++++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
+1970-01-01T00:00:42.000000 ERROR pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- The configured INCOMING directory, /var/tmp/pbench-test-server/test-2/pbench/public_html/incoming, is not a valid directory
+----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 +++++ pbench-dispatch/pbench-dispatch.error
 ----- pbench-dispatch/pbench-dispatch.error
 +++++ pbench-dispatch/pbench-dispatch.log

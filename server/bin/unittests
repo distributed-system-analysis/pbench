@@ -100,6 +100,7 @@ function _run_allscripts {
     # These four are independent, running periodically to accomplish
     # their specific tasks.
     _run pbench-clean-up-dangling-results-links
+    _run pbench-cull-unpacked-tarballs
     _run pbench-backup-tarballs
     _run pbench-verify-backup-tarballs
     # Invoke pbench-satellite-cleanup in the context of the satellite
@@ -752,6 +753,8 @@ declare -A cmds=(
     # Test to Log messages on hostport with logger-host and logger_port
     [test-26.4]="_run test_logger_type.py"
 
+    # Test culling unpacked tar balls
+    [test-27]="_run pbench-cull-unpacked-tarballs"
 )
 all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\+\)-\([0-9]\+\)/\1.\2/')
 

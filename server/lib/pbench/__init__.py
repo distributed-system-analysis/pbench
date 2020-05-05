@@ -15,6 +15,9 @@ from datetime import datetime, tzinfo, timedelta
 from functools import partial
 from configparser import ConfigParser, NoSectionError, NoOptionError
 
+# Standard normalized date/time format
+_STD_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f"
+
 
 class simple_utc(tzinfo):
     def tzname(self, *args, **kwargs):
@@ -261,10 +264,18 @@ class PbenchConfig(object):
         if self._unittests:
 
             def mocked_time():
-                return 42
+                return 42.00
 
             global _time
             _time = mocked_time
+
+            try:
+                ref_dt_str = self.conf.get("pbench-server", "debug_ref_datetime")
+            except Exception:
+                ref_dt_str = "1970-01-02T00:00:00.000000"
+            self._ref_datetime = datetime.strptime(ref_dt_str, _STD_DATETIME_FMT)
+        else:
+            self._ref_datetime = None
 
         # Constants
 
