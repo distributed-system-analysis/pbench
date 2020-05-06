@@ -1,1 +1,23 @@
-test-5.setup
+#!/bin/bash
+
+mkdir pbench-local/archive.backup || exit ${?}
+mkdir -p pbench-local/s3-backup/testbucket || exit ${?}
+
+# Make sure all the tar balls are ordered by modification time so we
+# have consistent and expected results from the unit tests.
+
+function _dotouch() {
+    #           CCYYMMDDhhmm.ss
+    touch    -t 201901011242.${1} ${2}
+    return ${?}
+}
+
+_dotouch 01 pbench-satellite/archive/fs-version-001/controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss.tar.xz || exit ${?}
+_dotouch 02 pbench-satellite/archive/fs-version-001/controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss.tar.xz || exit ${?}
+_dotouch 03 pbench-satellite/archive/fs-version-001/controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss.tar.xz || exit ${?}
+_dotouch 04 pbench-local/pbench-move-results-receive/fs-version-002/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS.tar.xz || exit ${?}
+_dotouch 05 pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS.tar.xz || exit ${?}
+_dotouch 06 pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS.tar.xz || exit ${?}
+_dotouch 07 pbench-local/pbench-move-results-receive/fs-version-002/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS.tar.xz || exit ${?}
+
+exit ${?} 

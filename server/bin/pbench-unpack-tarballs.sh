@@ -98,15 +98,16 @@ mail_content=${tmp}/mail_content.log
 index_content=${tmp}/index_mail_contents
 > ${index_content}
 
-# get the list of files we'll be operating on - sort them by size
+# The list of files we'll be operating on, when complete, sorted newest to
+# oldest by last modification time.
 list=${tmp}/${PROG}.list
 
 function gen_work_list() {
     SECONDS=0
     # Find all the links in all the ${ARCHIVE}/<controller>/${linksrc}
-    # directories, emitting a list of their full paths with the size in bytes
-    # of the file the link points to, and then sort them so that we process
-    # the smallest tar balls first.
+    # directories, emitting a list of their modification times, size in bytes,
+    # and full paths of the file the link points to, and then sort them so
+    # that we process the tar balls from newest to oldest.
     rm -f ${list}
     > ${list}.unsorted
     # First we find all the ${linksrc} directories
@@ -114,11 +115,11 @@ function gen_work_list() {
         # Find all the links in a given ${linksrc} directory that are links to
         # actual files (bad links are not emitted!).  For now, if it's a
         # duplicate name, just punt and avoid producing an error.
-        find -L ${linksrc_dir} -type f -name '*.tar.xz' ! -name 'DUPLICATE__NAME*' ${lb_arg} ${ub_arg} -printf "%CY-%Cm-%CdT%CT %s %p\n" 2>/dev/null >> ${list}.unsorted
+        find -L ${linksrc_dir} -type f -name '*.tar.xz' ! -name 'DUPLICATE__NAME*' ${lb_arg} ${ub_arg} -printf "%TY-%Tm-%TdT%TT %s %p\n" 2>/dev/null >> ${list}.unsorted
         if [[ ${lowerbound} == 0 ]]; then
             # Find all the links in the same ${linksrc} directory that don't
             # link to anything so that we can count them as errors below.
-            find -L $linksrc_dir -type l -name '*.tar.xz' ! -name 'DUPLICATE__NAME*' -printf "%CY-%Cm-%CdT%CT %s %p\n" 2>/dev/null >> ${list}.unsorted
+            find -L $linksrc_dir -type l -name '*.tar.xz' ! -name 'DUPLICATE__NAME*' -printf "%TY-%Tm-%TdT%TT %s %p\n" 2>/dev/null >> ${list}.unsorted
         fi
     done
     sort -k 1 -r ${list}.unsorted > ${list}
@@ -134,7 +135,7 @@ function move_symlink() {
     local linksrc="${3}"
     local linkdest="${4}"
     mv ${ARCHIVE}/${hostname}/${linksrc}/${resultname}.tar.xz ${ARCHIVE}/${hostname}/${linkdest}/${resultname}.tar.xz
-    status=${?}
+    local status=${?}
     if [[ ${status} -ne 0 ]]; then
         log_error "${TS}: Cannot move symlink ${ARCHIVE}/${hostname}/${resultname}.tar.xz from ${linksrc} to ${linkdest}: code ${status}" "${mail_content}"
     fi
@@ -143,6 +144,7 @@ function move_symlink() {
 
 function do_work() {
     SECONDS=0
+    local status=0
     local max_seconds=${1}
     while read date size result; do
         ntotal=${ntotal}+1
