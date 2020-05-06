@@ -1015,20 +1015,20 @@ run-1970-01-01T00:00:00-UTC: Total 3 files processed, with 0 md5 failures and 0 
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 run-1970-01-01T00:00:00-UTC
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerC/prefix0/prefix1/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss
-run-1970-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 228
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss
-run-1970-01-01T00:00:00-UTC: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 220
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss
-run-1970-01-01T00:00:00-UTC: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS
-run-1970-01-01T00:00:00-UTC: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 216
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS
+run-1970-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 212
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS
 run-1970-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS
 run-1970-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-w-dot-prefix_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 224
-ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS
-run-1970-01-01T00:00:00-UTC: controller-b-with-prefixes/tarball-0_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 212
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS
+run-1970-01-01T00:00:00-UTC: controller-g-normal/tarball-normal_YYYY.MM.DDTHH.MM.SS: success - elapsed time (secs): 0 - size (bytes): 216
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss
+run-1970-01-01T00:00:00-UTC: ONE::controllerA/tarball-simple1_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 224
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerC/prefix0/prefix1/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss
+run-1970-01-01T00:00:00-UTC: ONE::controllerC/tarball-simple0-prefix_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 228
+ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss
+run-1970-01-01T00:00:00-UTC: ONE::controllerB/tarball-simple2_YYYY-MM-DDTHH-mm-ss: success - elapsed time (secs): 0 - size (bytes): 220
 run-1970-01-01T00:00:00-UTC: Processed 7 tarballs
 1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs-small.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:00.000000 DEBUG pbench-unpack-tarballs-small.report post_status -- posted status (start ts: 1970-01-01T00:00:00-UTC, end ts: 1970-01-01T00:00:00-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
