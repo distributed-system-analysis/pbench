@@ -200,21 +200,21 @@ Then you construct a fio job file for your initial sequential tests, and this wi
 
     [global]
     # size of each FIO file (in MB)
-    size=$@
+    size=1GiB
     # do not use gettimeofday, much too expensive for KVM guests
     clocksource=clock_gettime
     # give fio workers some time to get launched on remote hosts
     startdelay=5
     # files accessed by fio are in this directory
-    directory=$@
+    directory=/mnt/fio/files
     # write fio latency logs in /var/tmp with "fio" prefix
-    write_lat_log=/var/tmp/fio
+    write_lat_log=fio
     # write a record to latency log once per second
     log_avg_msec=1000
     # write fio histogram logs in /var/tmp/ with "fio" prefix
-    write_hist_log=/var/tmp/fio
+    #write_hist_log=/var/tmp/fio
     # write histogram record once every 10 seconds
-    log_hist_msec=10
+    #log_hist_msec=10
     # only one process per host
     numjobs=1
     # do an fsync on file before closing it (has no effect for reads)
@@ -233,9 +233,9 @@ Then you construct a fio job file for your initial sequential tests, and this wi
 
 And you write it to a file named fio-sequential.job, then run it with a command like this one, which launches fio on 1K guests with json output format.
 
-    /usr/local/bin/fio --client-file=vms.list --pre-iteration-script=drop-cache.sh \
-       --rw=write,read -b 4,128,1024 -d /mnt/fio/files --max-jobs=1024 \
-       --output-format=json fio-sequential.job
+    pbench-fio --client-file=vms.list --pre-iteration-script=drop-cache.sh \
+       -t write,read -b 4,128,1024 -d /mnt/fio/files --numjobs=32 \
+       --job-file fio-sequential.job
 
 This will write the files in parallel to the mount point.  The sequential read test that follows can use the same job file.  The **--max-jobs** parameter should match the count of the number of records in the vms.list file (FIXME: is --max-jobs still needed?).
 
