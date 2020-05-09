@@ -15,7 +15,7 @@ from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
 
 from pbench import tstos, BadConfig, quarantine, rename_tb_link
-from pbench.indexer import (
+from pbench.lib.server.indexer import (
     IdxContext,
     ConfigFileError,
     BadDate,
@@ -28,7 +28,7 @@ from pbench.indexer import (
     TemplateError,
     VERSION,
 )
-from pbench.report import Report
+from pbench.lib.server.report import Report
 
 
 # Internal debugging flag.

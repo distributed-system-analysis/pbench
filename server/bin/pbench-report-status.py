@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 from socket import gethostname
 
 from pbench import BadConfig, PbenchConfig
-from pbench.report import Report
+from pbench.lib.server.report import Report
 
 if __name__ != "__main__":
     sys.exit(1)

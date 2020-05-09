@@ -38,7 +38,7 @@ except ImportError:
 
 
 try:
-    from pbench.mock import MockElasticsearch
+    from pbench.lib.server.mock import MockElasticsearch
 except ImportError:
     MockElasticsearch = None
 

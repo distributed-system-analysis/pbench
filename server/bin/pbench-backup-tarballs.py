@@ -6,7 +6,7 @@ import sys
 import glob
 import shutil
 import tempfile
-from pbench.s3backup import S3Config, Status, NoSuchKey
+from pbench.lib.server.s3backup import S3Config, Status, NoSuchKey
 
 from pbench import (
     PbenchConfig,
@@ -16,7 +16,7 @@ from pbench import (
     rename_tb_link,
     md5sum,
 )
-from pbench.report import Report
+from pbench.lib.server.report import Report
 
 
 _NAME_ = "pbench-backup-tarballs"

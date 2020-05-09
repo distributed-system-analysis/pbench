@@ -33,8 +33,8 @@ from pbench import (
     BadConfig,
     get_pbench_logger,
 )
-from pbench.indexer import _STD_DATETIME_FMT
-from pbench.report import Report
+from pbench.lib.server.indexer import _STD_DATETIME_FMT
+from pbench.lib.server.report import Report
 
 
 _NAME_ = "pbench-cull-unpacked-tarballs"

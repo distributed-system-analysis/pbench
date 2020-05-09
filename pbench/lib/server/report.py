@@ -11,7 +11,7 @@ import socket
 from configparser import Error as NoSectionError, NoOptionError
 
 import pbench
-from pbench.indexer import PbenchTemplates, get_es, es_index, _op_type
+from pbench.lib.server.indexer import PbenchTemplates, get_es, es_index, _op_type
 
 
 class Report(object):
