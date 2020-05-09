@@ -1,9 +1,9 @@
 import datetime
 import responses
 
-from agent.lib.pbench.config import AgentConfig
-from agent.lib.pbench.move_results import move_results
-from agent.lib.pbench.tests.common import MockDatetime, mock_agent_config
+from pbench.lib.agent.config import AgentConfig
+from pbench.lib.agent.move_results import move_results
+from pbench.test.agent.common import MockDatetime, mock_agent_config
 
 
 class TestMoveResults:

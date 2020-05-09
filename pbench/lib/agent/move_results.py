@@ -4,10 +4,10 @@ import os
 import sys
 import requests
 
-from agent.lib.pbench import logger
-from agent.lib.pbench.config import AgentConfig
-from agent.lib.pbench.make_result_tb import MakeResultTb
-from agent.lib.pbench.copy_result_tb import CopyResultTb
+from pbench.lib.agent import logger
+from pbench.lib.agent.config import AgentConfig
+from pbench.lib.agent.make_result_tb import MakeResultTb
+from pbench.lib.agent.copy_result_tb import CopyResultTb
 
 
 def move_results(_user, _prefix, _show_server):

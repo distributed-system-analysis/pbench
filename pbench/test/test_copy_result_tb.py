@@ -4,8 +4,8 @@ from tempfile import NamedTemporaryFile
 
 import responses
 
-from agent.lib.pbench.copy_result_tb import CopyResultTb
-from agent.lib.pbench.tests.common import tarball, bad_tarball
+from pbench.lib.agent.copy_result_tb import CopyResultTb
+from pbench.test.agent.common import tarball, bad_tarball
 
 
 class TestCopyResults:

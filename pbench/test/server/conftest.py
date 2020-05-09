@@ -2,9 +2,9 @@ import os
 import shutil
 import pytest
 
-from pbench_server.config import ServerConfig
-from pbench_server.pbench_server import create_app
-from pbench_server.tests.common import mock_get_config_prefix
+from pbench.lib.server.api.config import ServerConfig
+from pbench.cli.server.shell import create_app
+from pbench.test.server.common import mock_get_config_prefix
 
 
 @pytest.fixture(scope="session", autouse=True)
