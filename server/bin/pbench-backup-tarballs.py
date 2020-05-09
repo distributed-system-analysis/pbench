@@ -6,7 +6,7 @@ import sys
 import glob
 import shutil
 import tempfile
-from s3backup import S3Config, Status, NoSuchKey
+from pbench.s3backup import S3Config, Status, NoSuchKey
 
 from pbench import (
     PbenchConfig,

@@ -266,8 +266,6 @@ function _setup_state {
     let res=res+$?
     cp -a $_tdir/{unittests,getconf.py,pbench*} $_testopt_sat/bin
     let res=res+$?
-    cp -a $_tdir/../../lib/* $_testopt/common/lib
-    let res=res+$?
     cp -a $_tdir/../lib $_testopt
     let res=res+$?
     cp -a $_tdir/../lib $_testopt_sat
@@ -752,7 +750,7 @@ declare -A cmds=(
 
     # Test to Log messages on hostport with logger-host and logger_port
     [test-26.4]="_run test_logger_type.py"
-    [test-26.5]="_tun_test_logger_level.py"
+    [test-26.5]="_run_test_logger_level.py"
 
     # Test culling unpacked tar balls
     [test-27]="_run pbench-cull-unpacked-tarballs"

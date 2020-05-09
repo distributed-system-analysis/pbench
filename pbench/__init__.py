@@ -5,7 +5,6 @@ Simple module level convenience functions.
 import sys
 import os
 import logging
-import configtools
 import shutil
 import hashlib
 
@@ -14,6 +13,8 @@ from time import time as _time
 from datetime import datetime, tzinfo, timedelta
 from functools import partial
 from configparser import ConfigParser, NoSectionError, NoOptionError
+
+from pbench import configtools
 
 # Standard normalized date/time format
 _STD_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f"
