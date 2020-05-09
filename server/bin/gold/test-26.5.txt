@@ -1,3 +1,5 @@
++++ Running test_logger_level.py
+--- Finished test_logger_level.py (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1
@@ -87,6 +89,9 @@ drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - logs/pbench-logger-level-test
+-rw-rw-r--        388 logs/pbench-logger-level-test/pbench-logger-level-test.log
+-rw-rw-r--         71 logs/warn.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -137,6 +142,16 @@ drwxrwxr-x          - tmp
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
 ----- pbench-audit-server/pbench-audit-server.log
++++++ pbench-logger-level-test/pbench-logger-level-test.log
+1970-01-01T00:00:42.000000 WARNING pbench-logger-level-test.test_logger_level test_pbench_logger_level -- logging_level = WARNING
+1970-01-01T00:00:42.000000 ERROR pbench-logger-level-test.test_logger_level test_pbench_logger_level -- logging_level = ERROR
+1970-01-01T00:00:42.000000 CRITICAL pbench-logger-level-test.test_logger_level test_pbench_logger_level -- logging_level = CRITICAL
+----- pbench-logger-level-test/pbench-logger-level-test.log
++++++ warn.log
+logging_level = WARNING
+logging_level = ERROR
+logging_level = CRITICAL
+----- warn.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
