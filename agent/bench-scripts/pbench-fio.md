@@ -199,7 +199,8 @@ Now format the filesystems for each cinder volume and mount them:
 Then you construct a fio job file for your initial sequential tests, and this will also create the files for the subsequent tests.  certain parameters have to be specified with the string `$@` because pbench-fio wants to fill them in.   It might look something like this:
 
     [global]
-    # size of each FIO file (in MB)
+    # size of each FIO file (in MB).
+    # size = ( size of /dev/vdb ) / numjobs
     size=1GiB
     # do not use gettimeofday, much too expensive for KVM guests
     clocksource=clock_gettime
@@ -207,14 +208,14 @@ Then you construct a fio job file for your initial sequential tests, and this wi
     startdelay=5
     # files accessed by fio are in this directory
     directory=/mnt/fio/files
-    # write fio latency logs in /var/tmp with "fio" prefix
+    # write fio latency logs
     write_lat_log=fio
     # write a record to latency log once per second
     log_avg_msec=1000
     # write fio histogram logs in /var/tmp/ with "fio" prefix
-    #write_hist_log=/var/tmp/fio
+    write_hist_log=/var/tmp/fio
     # write histogram record once every 10 seconds
-    #log_hist_msec=10
+    log_hist_msec=10
     # only one process per host
     numjobs=1
     # do an fsync on file before closing it (has no effect for reads)
@@ -231,13 +232,13 @@ Then you construct a fio job file for your initial sequential tests, and this wi
     # do not create just one file at a time
     create_serialize=0
 
-And you write it to a file named fio-sequential.job, then run it with a command like this one, which launches fio on 1K guests with json output format.
+And you write it to a file named fio-sequential.job, then run it with a command like this one, which launches 4 fio jobs on each guests with json output format.
 
     pbench-fio --client-file=vms.list --pre-iteration-script=drop-cache.sh \
-       -t write,read -b 4,128,1024 -d /mnt/fio/files --numjobs=32 \
+       -t write,read -b 4,128,1024 -d /mnt/fio/files --numjobs=4 \
        --job-file fio-sequential.job
 
-This will write the files in parallel to the mount point.  The sequential read test that follows can use the same job file.  The **--max-jobs** parameter should match the count of the number of records in the vms.list file (FIXME: is --max-jobs still needed?).
+This will write the files in parallel to the mount point.  The sequential read test that follows can use the same job file.  
 
 Since we are using buffered I/O, we can usually get away with using a small transfer size, since the kernel will do prefetching, but there are exceptions, and you may need to vary the **bs** parameter.
 
