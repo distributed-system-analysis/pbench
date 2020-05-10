@@ -1,6 +1,6 @@
 import sys
 
-from pbench.lib.agent import logger
+import click
 
 
 def sysexit(code=1):
@@ -10,5 +10,5 @@ def sysexit(code=1):
 
 def sysexit_with_message(msg, code=1):
     """Exit with an error message"""
-    logger.error(msg)
+    click.secho(msg)
     sysexit(code)
