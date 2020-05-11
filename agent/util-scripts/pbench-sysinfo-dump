@@ -152,12 +152,12 @@ function collect_ara_data {
 
 function collect_stockpile_data {
 	# parse config
-	stockpile_path=$(getconf.py stockpile_path stockpile)
-	stockpile_user=$(getconf.py stockpile_user stockpile)
-	stockpile_local_remote_user=$(getconf.py local_remote_user stockpile)
-	stockpile_host_remote_user=$(getconf.py host_remote_user stockpile)
-	stockpile_output_path=$(getconf.py stockpile_output_path stockpile)
-	stockpile_log=$(getconf.py stockpile_log stockpile)
+	stockpile_path=$(pbench-config stockpile_path stockpile)
+	stockpile_user=$(pbench-config stockpile_user stockpile)
+	stockpile_local_remote_user=$(pbench-config local_remote_user stockpile)
+	stockpile_host_remote_user=$(pbench-config host_remote_user stockpile)
+	stockpile_output_path=$(pbench-config stockpile_output_path stockpile)
+	stockpile_log=$(pbench-config stockpile_log stockpile)
 
 	if [[ -z "$stockpile_path" ]]; then
 		stockpile_path=$pbench_install_dir

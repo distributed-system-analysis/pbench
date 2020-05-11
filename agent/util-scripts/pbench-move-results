@@ -89,7 +89,7 @@ if [[ -z "${controller}" ]]; then
 fi
 
 # ask the server where to send the tarballs
-results_webserver=$(getconf.py webserver results)
+results_webserver=$(pbench-config webserver results)
 if [[ -z "${results_webserver}" ]]; then
     error_log "ERROR: No web server host configured from which we can fetch the FQDN of the host to which we copy/move results"
     debug_log "\"webserver\" variable in \"results\" section not set"
@@ -107,7 +107,7 @@ fi
 # User-Agent HTTP header: <pbench-agent-ver-rel>:<FQDN>:<$USER>:<full path of this script>""
 user_agent="pbench-agent-${ver}-${rel}:$(hostname -f):${USER}:${script_name}"
 
-results_host_info_url=$(getconf.py host_info_url results)
+results_host_info_url=$(pbench-config host_info_url results)
 results_host_info=$(curl -s -A "${user_agent}" -L "${results_host_info_url}")
 if [[ -z "${results_host_info}" ]]; then
     error_log "ERROR: unable to determine results host info from ${results_host_info_url}"
