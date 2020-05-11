@@ -9,6 +9,7 @@ env:
   - TOXENV=server
   - TOXENV=pytest_agent
   - TOXENV=pytest_server
+  - TOXENV=functional
 before_install:
  - sudo apt-get update
 install:
