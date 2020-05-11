@@ -7,7 +7,7 @@ from flask_restful import Resource, abort, Api
 from werkzeug.utils import secure_filename
 
 from pbench import get_pbench_logger
-from pbench_server.config import ServerConfig
+from pbench.server.api.config import ServerConfig
 
 ALLOWED_EXTENSIONS = {"xz"}
 
