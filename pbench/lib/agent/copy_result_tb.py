@@ -4,8 +4,8 @@ from pathlib import Path
 
 import requests
 
-from agent.lib.pbench import logger
-from agent.lib.pbench.config import AgentConfig
+from pbench.lib.agent import logger
+from pbench.lib.agent.config import AgentConfig
 from werkzeug.utils import secure_filename
 
 

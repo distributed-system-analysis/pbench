@@ -4,9 +4,9 @@ import sys
 import tarfile
 import datetime
 
-from agent.lib.pbench import logger
-from agent.lib.pbench.add_metalog_option import add_metalog_option
-from agent.lib.pbench.config import AgentConfig
+from pbench.lib.agent import logger
+from pbench.lib.agent.add_metalog_option import add_metalog_option
+from pbench.lib.agent.config import AgentConfig
 from pathlib import Path
 from pbench.common import configtools
 
