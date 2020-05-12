@@ -1,9 +1,9 @@
 ---
-# Install pbench-server.repo
-- name: ensure we have the pbench-server.repo file properly in place
+# Install pbench.repo
+- name: ensure we have the pbench.repo file properly in place
   template:
-    src: etc/yum.repos.d/pbench-server.repo.j2
-    dest: /etc/yum.repos.d/pbench-server.repo
+    src: etc/yum.repos.d/pbench.repo.j2
+    dest: /etc/yum.repos.d/pbench.repo
     owner: root
     group: root
     mode: 0644

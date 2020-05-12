@@ -1,0 +1,29 @@
+---
+- name: create pbench group
+  group:
+    name: "{{ pbench_group }}"
+    state: present
+
+- name: create pbench user
+  user:
+    name: "{{ pbench_user }}"
+    comment: Pbench user
+    home: /home/{{ pbench_user }}
+    group: "{{ pbench_group }}"
+    state: present
+
+- name: relax perms on pbench home directory
+  file:
+    path: /home/{{ pbench_user }}
+    mode: 0755
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    state: directory
+
+- name: create .ssh subdir
+  file:
+    path: /home/{{ pbench_user }}/.ssh
+    mode: 0755
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    state: directory

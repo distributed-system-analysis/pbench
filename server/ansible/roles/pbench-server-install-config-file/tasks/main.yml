@@ -1,14 +1,14 @@
 ---
 # Install config file for pbench agent or server (the inventory file
-# specifies which through the configurl variable). Other variables
+# specifies which through the pbench_config_url variable). Other variables
 # are specified in the default vars of this role, but can be overridden
 # (if necessary) by specifying them in the inventory file.
 
 - name: install the config file
   get_url:
-    url: "{{ configurl }}/{{ item }}"
+    url: "{{ pbench_config_url }}/{{ item }}"
     dest: "{{ pbench_server_config_dest }}"
     mode: 0444
     owner: "{{ pbench_owner }}"
     group: "{{ pbench_group }}"
-  with_items: "{{ configfiles }}"
+  with_items: "{{ pbench_config_files }}"

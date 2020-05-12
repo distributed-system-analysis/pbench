@@ -1,0 +1,9 @@
+---
+- name: punch holes into the firewall for some services.
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+  with_items:
+    - http
+    - https
