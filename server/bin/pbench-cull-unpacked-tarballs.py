@@ -28,13 +28,11 @@ from argparse import ArgumentParser
 from configparser import ConfigParser, NoOptionError
 
 import pbench
-from pbench import (
-    PbenchConfig,
-    BadConfig,
-    get_pbench_logger,
-)
-from pbench.indexer import _STD_DATETIME_FMT
-from pbench.report import Report
+from pbench import PbenchConfig
+from pbench.common.exceptions import BadConfig
+from pbench.server.logger import get_pbench_logger
+from pbench.server.indexer import _STD_DATETIME_FMT
+from pbench.server.report import Report
 
 
 _NAME_ = "pbench-cull-unpacked-tarballs"
@@ -453,7 +451,7 @@ def main(options):
             file=tfp,
         )
         if total > 0:
-            print(f"\nActions Taken:", file=tfp)
+            print("\nActions Taken:", file=tfp)
         for act_set in actions_taken:
             print(
                 f"  - {act_set.name} ({act_set.errors:d} errors,"

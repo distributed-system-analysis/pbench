@@ -2,6 +2,7 @@
 Simple module level convenience functions.
 """
 
+from datetime import datetime
 import os
 
 from time import time as _time

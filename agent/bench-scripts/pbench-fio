@@ -22,7 +22,7 @@ if [[ -z "${ver}" ]]; then
 	error_log "pbench-fio: package version is missing in config file"
 	exit 1
 fi
-fio_server_port="$(getconf.py server_port fio)"
+fio_server_port="$(pbench-config server_port fio)"
 if [[ -z "${fio_server_port}" ]]; then
 	error_log "pbench-fio: server_port is missing in config file"
 	exit 1

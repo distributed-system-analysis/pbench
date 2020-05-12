@@ -5,6 +5,7 @@ from pbench.cli.agent import options
 from pbench.cli.agent.commands.log import add_metalog_option
 from pbench.cli.agent.commands.results import move_results
 
+
 #
 # log subcommand
 #

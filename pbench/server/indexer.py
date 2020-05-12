@@ -3516,7 +3516,7 @@ def search_by_ip(sos_d_list, ip):
             host_f = sos_d["hostname-f"]
         except KeyError:
             continue
-        for l in sos_d.values():
+        for l in sos_d.values():  # noqa:E741
             if not isinstance(l, list):
                 continue
             for d in l:
