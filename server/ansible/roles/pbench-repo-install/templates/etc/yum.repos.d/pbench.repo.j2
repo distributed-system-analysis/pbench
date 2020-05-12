@@ -1,7 +1,7 @@
 {% for repo in repos %}
 
 [copr-{{ repo.tag }}]
-name=Copr {{ repo.tag }} repo for pbench-server
+name=Copr {{ repo.tag }} repo
 baseurl={{ repo.baseurl }}
 skip_if_unavailable=True
 gpgcheck= {{ repo.gpgcheck }}
