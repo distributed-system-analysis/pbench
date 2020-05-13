@@ -9,11 +9,11 @@ from configparser import ConfigParser
 from optparse import OptionParser, make_option
 
 
-def uniq(l):
+def uniq(alist):
     # uniquify the list without scrambling it
     seen = set()
     seen_add = seen.add
-    return [x for x in l if x not in seen and not seen_add(x)]
+    return [el for el in alist if el not in seen and not seen_add(el)]
 
 
 def file_list(root):
@@ -168,8 +168,8 @@ def get(conf, option, sections):
     return None
 
 
-def print_list(l, sep):
-    print(sep.join([str(x) for x in l]))
+def print_list(alist, sep):
+    print(sep.join([str(el) for el in alist]))
 
 
 options = [

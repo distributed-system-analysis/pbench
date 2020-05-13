@@ -55,7 +55,7 @@ class _MockPutTemplate(object):
         name = kwargs["name"]
         assert (
             name not in self.mock_collected_templates
-        ), "Duplicate template name, '{}'".format(name, self.name)
+        ), f"Duplicate template name, '{name}'"
         self.mock_collected_templates[name] = kwargs["body"]
         return None
 
