@@ -3555,13 +3555,13 @@ def search_by_ip(sos_d_list, ip):
             host_f = sos_d["hostname-f"]
         except KeyError:
             continue
-        for l in sos_d.values():
-            if not isinstance(l, list):
+        for el in sos_d.values():
+            if not isinstance(el, list):
                 continue
-            for d in l:
-                if not isinstance(d, dict):
+            for sub_el in el:
+                if not isinstance(sub_el, dict):
                     continue
-                if ip == d["ipaddr"]:
+                if ip == sub_el["ipaddr"]:
                     return host_f
     return None
 

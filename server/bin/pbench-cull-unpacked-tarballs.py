@@ -453,7 +453,7 @@ def main(options):
             file=tfp,
         )
         if total > 0:
-            print(f"\nActions Taken:", file=tfp)
+            print("\nActions Taken:", file=tfp)
         for act_set in actions_taken:
             print(
                 f"  - {act_set.name} ({act_set.errors:d} errors,"

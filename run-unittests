@@ -1,4 +1,35 @@
 #!/bin/bash
 
-tox -e server
-tox -e agent
+prog="$(basename "${0}")"
+progdir="$(realpath -e $(dirname "${0}"))"
+
+# List of tox environments to run.
+tox_envs="lint agent server"
+
+for toxenv in ${tox_envs}; do
+    if [[ -d ${progdir}/.tox/${toxenv} ]]; then
+        rm -r ${progdir}/.tox/${toxenv}
+    fi
+done
+
+typeset -i errors=0
+for toxenv in ${tox_envs}; do
+    printf -- "#+++ (tox -e %s)\n" "${toxenv}"
+    tox -e ${toxenv}
+    tox_status=${?}
+    if [[ ${tox_status} -ne 0 ]]; then
+        printf -- "#--- (FAILED: %d)\n" "${tox_status}"
+        (( errors++ ))
+    else
+        printf -- "#--- (SUCCESS)\n"
+    fi
+    printf -- "\n\n"
+done
+
+if [[ ${errors} -gt 0 ]]; then
+    printf -- "\n\nUnit tests failed! (%d errors)\n" ${errors}
+    exit 1
+else
+    printf -- "\n\nUnit tests succeeded.\n"
+    exit 0
+fi
