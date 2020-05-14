@@ -79,6 +79,9 @@ class ActionSet(object):
     def set_name(self, name):
         self.name = name
 
+    def duration(self):
+        return self.end - self.start
+
 
 def fetch_username(tb_incoming_dir):
     """fetch_username - Return the pbench "run"'s "user" value from the
@@ -239,7 +242,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
     end = pbench._time()
     act_set = ActionSet(actions_taken, errors, start, end)
     if errors == 0:
-        duration = 0.0 if start < end else start - end
+        duration = 0.0 if end < start else end - start
         logger.info(
             "After {:0.2f} seconds, finished removal of unpacked tar ball"
             " directory, '{}'",
@@ -457,7 +460,7 @@ def main(options):
         for act_set in actions_taken:
             print(
                 f"  - {act_set.name} ({act_set.errors:d} errors,"
-                " {act_set.duration():0.2f} secs)",
+                f" {act_set.duration():0.2f} secs)",
                 file=tfp,
             )
             for act in act_set.actions:
