@@ -360,7 +360,9 @@ function verify_results {
                     prefix_file="$ARCHIVE/${controller}/.prefix/${tb}.prefix"
                     # Version 002 agents use the metadata log to store a
                     # prefix.
-                    prefix=$(getconf.py -C $INCOMING/${controller}/${tb}/metadata.log prefix run)
+                    __prefix=$(getconf.py -C $INCOMING/${controller}/${tb}/metadata.log prefix run)
+                    _prefix=${__prefix#/}
+                    prefix=${_prefix%/}
                     if [[ "${prefix_path}" == "." ]]; then
                         # No prefix, ensure it doesn't have a prefix in the
                         # metadata.log file or in a prefix file.
