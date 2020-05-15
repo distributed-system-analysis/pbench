@@ -19,7 +19,6 @@ import os
 import re
 
 # import shutil
-from pathlib import Path
 from datetime import datetime
 from argparse import ArgumentParser
 
@@ -169,37 +168,23 @@ def main(options):
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2
 
-    try:
-        archive_p = Path(config.ARCHIVE).resolve(strict=True)
-    except FileNotFoundError:
-        print(
-            f"The configured ARCHIVE directory, {config.ARCHIVE}, does not exist",
-            file=sys.stderr,
-        )
-        return 3
-
-    if not archive_p.is_dir():
-        print(
-            f"The configured ARCHIVE directory, {config.ARCHIVE}, is not a valid directory",
-            file=sys.stderr,
-        )
-        return 4
+    archive_p = config.ARCHIVE
 
     try:
-        incoming_p = Path(config.INCOMING).resolve(strict=True)
+        incoming_p = config.INCOMING.resolve(strict=True)
     except FileNotFoundError:
         print(
             f"The configured INCOMING directory, {config.INCOMING}, does not exist",
             file=sys.stderr,
         )
         return 5
-
-    if not incoming_p.is_dir():
-        print(
-            f"The configured INCOMING directory, {config.INCOMING}, is not a valid directory",
-            file=sys.stderr,
-        )
-        return 6
+    else:
+        if not incoming_p.is_dir():
+            print(
+                f"The configured INCOMING directory, {config.INCOMING}, is not a valid directory",
+                file=sys.stderr,
+            )
+            return 6
 
     _fmt = "%Y-%m-%d"
     try:

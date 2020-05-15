@@ -38,32 +38,24 @@ class PbenchServerConfig(PbenchConfig):
         super().__init__(cfg_name)
 
         # Now fetch some default common pbench settings that are required.
-        try:
-            self.TOP = Path(self.conf.get("pbench-server", "pbench-top-dir"))
-            if not self.TOP.is_dir():
-                raise BadConfig(f"Bad TOP={self.TOP}")
-            self.TMP = Path(self.conf.get("pbench-server", "pbench-tmp-dir"))
-            if not self.TMP.is_dir():
-                raise BadConfig(f"Bad TMP={self.TMP}")
-            self.LOGSDIR = Path(self.conf.get("pbench-server", "pbench-logs-dir"))
-            if not self.LOGSDIR.is_dir():
-                raise BadConfig(f"Bad LOGSDIR={self.LOGSDIR}")
-            self.BINDIR = Path(self.conf.get("pbench-server", "script-dir"))
-            if not self.BINDIR.is_dir():
-                raise BadConfig(f"Bad BINDIR={self.BINDIR}")
-            self.LIBDIR = Path(self.conf.get("pbench-server", "lib-dir"))
-            if not self.LIBDIR.is_dir():
-                raise BadConfig(f"Bad LIBDIR={self.LIBDIR}")
-            # the scripts may use this to send status messages
-            self.mail_recipients = self.conf.get("pbench-server", "mailto")
-            self.ARCHIVE = Path(self.conf.get("pbench-server", "pbench-archive-dir"))
-        except (NoOptionError, NoSectionError) as exc:
-            raise BadConfig(str(exc))
-        else:
-            self.INCOMING = self.TOP / "public_html" / "incoming"
-            # this is where the symlink forest is going to go
-            self.RESULTS = self.TOP / "public_html" / "results"
-            self.USERS = self.TOP / "public_html" / "users"
+        self.TOP = self._get_valid_dir_option("TOP", "pbench-server", "pbench-top-dir")
+        self.TMP = self._get_valid_dir_option("TMP", "pbench-server", "pbench-tmp-dir")
+        self.LOGSDIR = self._get_valid_dir_option(
+            "LOGSDIR", "pbench-server", "pbench-logs-dir"
+        )
+        self.BINDIR = self._get_valid_dir_option(
+            "BINDIR", "pbench-server", "script-dir"
+        )
+        self.LIBDIR = self._get_valid_dir_option("LIBDIR", "pbench-server", "lib-dir")
+        self.mail_recipients = self.conf.get("pbench-server", "mailto")
+        self.ARCHIVE = self._get_valid_dir_option(
+            "ARCHIVE", "pbench-server", "pbench-archive-dir"
+        )
+
+        self.INCOMING = self.TOP / "public_html" / "incoming"
+        # this is where the symlink forest is going to go
+        self.RESULTS = self.TOP / "public_html" / "results"
+        self.USERS = self.TOP / "public_html" / "users"
 
         try:
             self.PBENCH_ENV = self.conf.get("pbench-server", "environment")
@@ -124,6 +116,82 @@ class PbenchServerConfig(PbenchConfig):
             + " "
             + " ".join([f"WONT-INDEX.{i:d}" for i in range(1, 12)])
         )
+
+    def _get_conf(self, section, option):
+        """
+        _get_conf - get the option from the section, raising
+        BadConfig Error if it is empty, return the option value as a string.
+        """
+        try:
+            option_val = self.conf.get(section, option)
+        except (NoOptionError, NoSectionError) as exc:
+            raise BadConfig(str(exc))
+        else:
+            if not option_val:
+                raise BadConfig(f"option {option} in section {section} is empty")
+
+        return option_val
+
+    def get_conf(self, name, section, option, logger):
+        """
+        get_conf - get the option from the section, raising BadConfig Error
+        if it is empty, return the option value as a string.
+        """
+        try:
+            option_val = self._get_conf(section, option)
+        except BadConfig as exc:
+            logger.error("Bad {}= '({})'", name, exc)
+            return None
+
+        return option_val
+
+    def _get_valid_dir_option(self, req_val, section, option):
+        """_get_valid_dir_option - get the directory option from the
+        given section, raising BadConfig Error if the path is not resolved
+        or is not a directory, returning a Path directory object.
+        """
+        dir_val = self._get_conf(section, option)
+        dir_path = self._get_valid_path(req_val, dir_val, None)
+        if not dir_path:
+            raise BadConfig(f"Bad {req_val}={dir_val}")
+
+        return dir_path
+
+    def _get_valid_path(self, req_val, dir_val, logger):
+        """_get_valid_path - get realpath from the given path, raising
+        Error if the path is not resolved or is not a directory,
+        returning a Path directory object.
+        """
+        try:
+            dir_path = Path(dir_val).resolve(strict=True)
+        except FileNotFoundError:
+            if logger:
+                logger.error(
+                    "The {} directory, '{}', does not resolve to a real location",
+                    req_val,
+                    dir_val,
+                )
+            return None
+        else:
+            if not dir_path.is_dir():
+                if logger:
+                    logger.error(
+                        "The {} directory, does not resolve to a directory ('{}')",
+                        req_val,
+                        dir_path,
+                    )
+                return None
+        return dir_path
+
+    def get_valid_dir_option(self, req_val, dir_val, logger):
+        """get_valid_dir_option - get the directory path raising an Error
+        if it is not a directory, returning a Path directory object.
+        """
+        dir_path = self._get_valid_path(req_val, dir_val, logger)
+        if not dir_path:
+            return None
+
+        return dir_path
 
     def timestamp(self):
         """

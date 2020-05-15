@@ -3,6 +3,7 @@
 
 import os
 import sys
+from pathlib import Path
 from argparse import ArgumentParser
 
 # Export all the expected pbench config file attributes for the
@@ -28,18 +29,17 @@ parser.add_argument(
 )
 parsed, _ = parser.parse_known_args()
 
-_prog = os.path.basename(parsed.prog[0])
-_dir = os.path.dirname(parsed.prog[0])
+prog_path = Path(parsed.prog[0])
+_prog = prog_path.name
+_dir = prog_path.parent
 
 if not parsed.cfg_name:
     # pbench-base.py is not always invoked with -C or --config or the _PBENCH_SERVER_CONFIG
     # environment variable set.  Since we really need access to the config
     # file to operate, and we know the relative location of that config file,
     # we check to see if that exists before declaring a problem.
-    config_name = os.path.join(
-        os.path.dirname(_dir), "lib", "config", "pbench-server.cfg"
-    )
-    if not os.path.exists(config_name):
+    config_path = Path(_dir.parent, "lib", "config", "pbench-server.cfg")
+    if not config_path.exists():
         print(
             f"{_prog}: No config file specified: set _PBENCH_SERVER_CONFIG env variable or use"
             f" --config <file> on the command line",
@@ -47,12 +47,12 @@ if not parsed.cfg_name:
         )
         sys.exit(1)
 else:
-    config_name = parsed.cfg_name
+    config_path = Path(parsed.cfg_name)
 
 try:
-    config = PbenchServerConfig(config_name)
+    config = PbenchServerConfig(config_path)
 except BadConfig as e:
-    print(f"{_prog}: {e} (config file {config_name})", file=sys.stderr)
+    print(f"{_prog}: {e} (config file {config_path})", file=sys.stderr)
     sys.exit(1)
 
 # Exclude the "files" and "conf" attributes from being exported

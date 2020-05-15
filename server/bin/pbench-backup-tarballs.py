@@ -7,13 +7,13 @@ import glob
 import shutil
 import tempfile
 
+from pathlib import Path
 from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Status, NoSuchKey
 from pbench.server.utils import md5sum, rename_tb_link, quarantine
-
 
 _NAME_ = "pbench-backup-tarballs"
 
@@ -48,80 +48,42 @@ class Results:
 
 
 def sanity_check(lb_obj, s3_obj, config, logger):
-    # make sure archive is present
-    archive = config.ARCHIVE
-    archivepath = os.path.realpath(archive)
-
-    if not archivepath:
-        logger.error(
-            "The ARCHIVE directory {}, does not resolve to a real location", archive
-        )
-        return None, None
-
-    if not os.path.isdir(archivepath):
-        logger.error(
-            "The ARCHIVE directory {}, does not resolve {} to a directory",
-            archive,
-            archivepath,
-        )
-        return None, None
-
     # make sure the local backup directory is present
     backup = config.BACKUP
 
-    if len(backup) == 0:
+    if not backup:
         logger.error(
             "Unspecified backup directory, no pbench-backup-dir config in pbench-server section"
         )
         lb_obj = None
-
-    try:
-        os.mkdir(backup)
-    except FileExistsError:
-        # directory already exists, verify it
-        backuppath = os.path.realpath(backup)
-        if not backuppath:
+    else:
+        try:
+            os.mkdir(backup)
+        except FileExistsError:
+            # directory already exists, verify it
+            backuppath = config.get_valid_dir_option("BACKUP", backup, logger)
+            if not backuppath:
+                lb_obj = None
+        except Exception as exc:
             logger.error(
-                "The BACKUP directory {}, does not resolve to a real location", backup
-            )
-            lb_obj = None
-
-        if not os.path.isdir(backup):
-            logger.error(
-                "The BACKUP directory {}, does not resolve {} to a directory",
+                "os.mkdir: Unable to create backup destination directory: {} '{}'",
                 backup,
-                backuppath,
+                exc,
             )
             lb_obj = None
-    except Exception:
-        logger.error(
-            "os.mkdir: Unable to create backup destination directory: {}", backup
-        )
-        lb_obj = None
 
     # make sure the quarantine directory is present
     qdir = config.QDIR
 
-    if len(qdir) == 0:
+    if not qdir:
         logger.error(
             "Unspecified quarantine directory, no pbench-quarantine-dir config in pbench-server section"
         )
         lb_obj = None
-
-    qdirpath = os.path.realpath(qdir)
-    if not qdirpath:
-        logger.error(
-            "The QUARANTINE directory {}, does not resolve to a real location", qdir
-        )
-        lb_obj = None
-
-    if not os.path.isdir(qdir):
-        logger.error(
-            "The QUARANTINE path {}, resolves to {}" "which is not a directory",
-            qdir,
-            qdirpath,
-        )
-        lb_obj = None
+    else:
+        qdirpath = config.get_valid_dir_option("QUARANTINE", qdir, logger)
+        if not qdirpath:
+            lb_obj = None
 
     # make sure the S3 bucket is defined, exists and is accessible
     if s3_obj.bucket_name is None:
@@ -158,28 +120,25 @@ def backup_to_local(
         # for other errors where we still want to backup in S3.
         return Status.FAIL
 
-    backup_controller_path = os.path.join(lb_obj.backup_dir, controller)
+    backup_controller_path = Path(lb_obj.backup_dir, controller)
 
     # make sure the controller is present in local backup directory
-    try:
-        os.mkdir(backup_controller_path)
-    except FileExistsError:
-        # directory already exists, ignore
-        pass
-    except Exception:
-        logger.exception(
+    backup_controller_path.mkdir(exist_ok=True)
+
+    if not backup_controller_path.exists():
+        logger.error(
             "os.mkdir: Unable to create backup destination directory: {}",
             backup_controller_path,
         )
         return Status.FAIL
 
     # Check if tarball exists in local backup
-    backup_tar = os.path.join(backup_controller_path, resultname)
-    if os.path.exists(backup_tar) and os.path.isfile(backup_tar):
-        backup_md5 = os.path.join(backup_controller_path, f"{resultname}.md5")
+    backup_tar = backup_controller_path / resultname
+    if backup_tar.exists() and backup_tar.is_file():
+        backup_md5 = backup_controller_path / f"{resultname}.md5"
 
-        # check backup md5 file exist and it is a regular file
-        if os.path.exists(backup_md5) and os.path.isfile(backup_md5):
+        # check that the md5 file exists and it is a regular file
+        if backup_md5.exists() and backup_md5.is_file():
             pass
         else:
             # backup md5 file does not exist or it is not a regular file
@@ -188,7 +147,7 @@ def backup_to_local(
 
         # read backup md5 file
         try:
-            with open(backup_md5) as f:
+            with backup_md5.open() as f:
                 backup_md5_hex_value = f.readline().split(" ")[0]
         except Exception:
             # Could not read file
@@ -238,16 +197,16 @@ def backup_to_local(
                 )
 
                 # remove the copied md5 file from backup
-                bmd5_file = os.path.join(backup_controller_path, f"{resultname}.md5")
-                if os.path.exists(bmd5_file):
+                bmd5_file = backup_controller_path / f"{resultname}.md5"
+                if bmd5_file.exists():
                     try:
-                        os.remove(bmd5_file)
+                        bmd5_file.remove(bmd5_file)
                     except Exception:
                         logger.exception("Unable to remove: {}", bmd5_file)
             else:
                 tar_done = True
 
-        logger.debug("End local backup of {}.".format(tar))
+        logger.debug("End local backup of {}.", tar)
         if md5_done and tar_done:
             logger.info("Local backup of {}/{} successful", controller, resultname)
             return Status.SUCCESS
@@ -302,7 +261,7 @@ def backup_to_s3(
             _status = Status.FAIL
         return _status
 
-    size = s3_obj.getsize(tar)
+    size = s3_obj.getsize(str(tar))
     logger.debug("tarball: {}, size = {}", tar, size)
     with open(tar, "rb") as f:
         sts = s3_obj.put_tarball(
@@ -327,25 +286,29 @@ def backup_data(lb_obj, s3_obj, config, logger):
     for tb in sorted(tarlist):
         ntotal += 1
         # resolve the link
-        tar = os.path.realpath(tb)
+        try:
+            tar = Path(tb).resolve(strict=True)
+        except FileNotFoundError:
+            logger.error("Tarball link, '{}', does not resolve to a real location", tb)
 
         logger.debug("Start backup of {}.", tar)
         # check tarball exist and it is a regular file
-        if os.path.exists(tar) and os.path.isfile(tar):
+        if tar.exists() and tar.is_file():
             pass
         else:
             # tarball does not exist or it is not a regular file
             quarantine(qdir, logger, tb)
             nquaran += 1
             logger.error(
-                "Quarantine: {}, {} does not exist or it is not a regular file", tb, tar
+                "Quarantine: {}, {} does not exist or it is not a regular file",
+                tb,
+                tar,
             )
             continue
 
-        archive_md5 = f"{tar}.md5"
-
-        # check md5 file exist and it is a regular file
-        if os.path.exists(archive_md5) and os.path.isfile(archive_md5):
+        archive_md5 = Path(f"{tar}.md5")
+        # check that the md5 file exists and it is a regular file
+        if archive_md5.exists() and archive_md5.is_file():
             pass
         else:
             # md5 file does not exist or it is not a regular file
@@ -360,7 +323,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
 
         # read the md5sum from md5 file
         try:
-            with open(archive_md5) as f:
+            with archive_md5.open() as f:
                 archive_md5_hex_value = f.readline().split(" ")[0]
         except Exception:
             # Could not read file.
@@ -390,9 +353,9 @@ def backup_data(lb_obj, s3_obj, config, logger):
             )
             continue
 
-        resultname = os.path.basename(tar)
-        controller_path = os.path.dirname(tar)
-        controller = os.path.basename(controller_path)
+        resultname = tar.name
+        controller_path = tar.parent
+        controller = controller_path.name
 
         # This will handle all the local backup related
         # operations and count the number of successes and failures.
@@ -443,7 +406,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             s3_obj is None or s3_backup_result == Status.SUCCESS
         ):
             # Move tar ball symlink to its final resting place
-            rename_tb_link(tb, os.path.join(controller_path, _linkdest), logger)
+            rename_tb_link(tb, Path(controller_path, _linkdest), logger)
         else:
             # Do nothing when the backup fails, allowing us to retry on a
             # future pass.
@@ -509,7 +472,7 @@ def main(cfg_name):
 
     logger.info(result_string)
 
-    prog = os.path.basename(sys.argv[0])
+    prog = Path(sys.argv[0]).name
 
     # prepare and send report
     with tempfile.NamedTemporaryFile(mode="w+t", dir=config.TMP) as reportfp:

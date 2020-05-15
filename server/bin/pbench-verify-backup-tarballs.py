@@ -44,6 +44,7 @@ import sys
 import glob
 import errno
 import tempfile
+from pathlib import Path
 from enum import Enum
 
 from pbench.server import PbenchServerConfig
@@ -73,7 +74,7 @@ class BackupObject:
             self.s3_config_obj = dirname
             self.dirname = None
         else:
-            if not os.path.isdir(dirname):
+            if not Path(dirname).is_dir():
                 raise Exception(f"Bad {name}: {dirname}")
             self.dirname = dirname
             self.s3_config_obj = None
@@ -91,8 +92,9 @@ class BackupObject:
         self.missing_list = []
         self.error_list = []
         for tar in tarlist:
-            result_name = os.path.basename(tar)
-            controller = os.path.basename(os.path.dirname(tar))
+            tar = Path(tar)
+            result_name = tar.name
+            controller = tar.parent.name
             md5_file = f"{tar}.md5"
             try:
                 with open(md5_file) as k:
@@ -159,7 +161,7 @@ class BackupObject:
         # This function returns the count of results that failed the MD5 sum
         # check, and raises exceptions on failure.
 
-        self.indicator_file = os.path.join(self.tmpdir, f"list.{self.name}")
+        self.indicator_file = Path(self.tmpdir, f"list.{self.name}")
         self.indicator_file_ok = f"{self.indicator_file}.ok"
         self.indicator_file_fail = f"{self.indicator_file}.fail"
         self.nfailed_md5 = 0
@@ -167,7 +169,7 @@ class BackupObject:
             self.indicator_file_fail, "w"
         ) as f_fail:
             for tar in self.content_list:
-                md5_returned = md5sum(os.path.join(self.dirname, tar.name))
+                md5_returned = md5sum(Path(self.dirname, tar.name))
                 if tar.md5 == md5_returned:
                     f_ok.write(f"{tar.name}: {'OK'}\n")
                 else:
@@ -177,14 +179,14 @@ class BackupObject:
 
     def report_failed_md5(self, report):
         # Function to report the results that failed md5 sum check.
-        fail_f = self.indicator_file_fail
-        if os.path.exists(fail_f) and os.path.getsize(fail_f) > 0:
+        fail_f = Path(self.indicator_file_fail)
+        if fail_f.exists() and fail_f.stat().st_size > 0:
             report.write(
                 f"\nMD5 Errors ({self.name}): the calculated MD5 values of the following entries "
                 f"failed to match the stored MD5:\n"
             )
             try:
-                with open(fail_f) as f:
+                with fail_f.open() as f:
                     report.write(f.readline())
             except Exception:
                 # Could not open/read the file
@@ -288,29 +290,18 @@ def main():
 
     logger = get_pbench_logger(_NAME_, config)
 
-    archive = config.ARCHIVE
-    if not os.path.isdir(archive):
-        logger.error(
-            "The setting for ARCHIVE in the config file is {}, but that is"
-            " not a directory",
-            archive,
-        )
-        return 1
-
     # add a BACKUP field to the config object
     config.BACKUP = backup = config.conf.get("pbench-server", "pbench-backup-dir")
-    if len(backup) == 0:
+
+    if not backup:
         logger.error(
             "Unspecified backup directory, no pbench-backup-dir config in"
             " pbench-server section"
         )
         return 1
-    if not os.path.isdir(backup):
-        logger.error(
-            "The setting for BACKUP in the config file is {}, but that is"
-            " not a directory",
-            backup,
-        )
+
+    backuppath = config.get_valid_dir_option("BACKUP", backup, logger)
+    if not backuppath:
         return 1
 
     # instantiate the s3config class
@@ -320,7 +311,7 @@ def main():
     logger.info("start-{}", config.TS)
     start = config.timestamp()
 
-    prog = os.path.basename(sys.argv[0])
+    prog = Path(sys.argv[0]).name
 
     sts = 0
     # N.B. tmpdir is the pathname of the temp directory.
