@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
+from pbench.common.exceptions import BadConfig
 
 ALLOWED_EXTENSIONS = {"xz"}
 
@@ -41,7 +42,11 @@ def create_app():
         )
         sys.exit(1)
 
-    config = PbenchServerConfig(cfg_name)
+    try:
+        config = PbenchServerConfig(cfg_name)
+    except BadConfig as e:
+        print(f"{__name__}: {e} (config file {cfg_name})", file=sys.stderr)
+        sys.exit(1)
 
     app = Flask(__name__)
     api = Api(app)

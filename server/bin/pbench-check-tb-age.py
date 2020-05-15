@@ -12,6 +12,7 @@ A return value > 1 indicates some other error with the command.
 import sys
 import os
 import re
+from pathlib import Path
 from datetime import datetime
 from argparse import ArgumentParser
 from configparser import NoOptionError
@@ -34,8 +35,15 @@ def main(options):
             f"{_NAME_}: ERROR: No tar ball path specified", file=sys.stderr,
         )
         return 2
-    tb_path = os.path.realpath(options.tb_path)
-    tb_name = os.path.basename(tb_path)
+
+    try:
+        tb_path = Path(options.tb_path).resolve(strict=True)
+    except FileNotFoundError:
+        print(
+            f"The Tarball Path, '{options.tb_path}', does not resolve to a real location"
+        )
+    else:
+        tb_name = tb_path.name
 
     if not options.cfg_name:
         print(
@@ -51,40 +59,25 @@ def main(options):
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 4
 
-    archive = config.ARCHIVE
-    archive_p = os.path.realpath(archive)
-
-    if not archive_p:
-        print(
-            f"The configured ARCHIVE directory, {archive}, does not exist",
-            file=sys.stderr,
-        )
-        return 5
-
-    if not os.path.isdir(archive_p):
-        print(
-            f"The configured ARCHIVE directory, {archive}," " is not a valid directory",
-            file=sys.stderr,
-        )
-        return 6
+    archivepath = config.ARCHIVE
 
     incoming = config.INCOMING
-    incoming_p = os.path.realpath(incoming)
-
-    if not incoming_p:
+    try:
+        incomingpath = incoming.resolve(strict=True)
+    except FileNotFoundError:
         print(
             f"The configured INCOMING directory, {incoming}, does not exist",
             file=sys.stderr,
         )
         return 7
-
-    if not os.path.isdir(incoming_p):
-        print(
-            f"The configured INCOMING directory, {incoming},"
-            " is not a valid directory",
-            file=sys.stderr,
-        )
-        return 8
+    else:
+        if not incomingpath.is_dir():
+            print(
+                f"The configured INCOMING directory, {incoming},"
+                " is not a valid directory",
+                file=sys.stderr,
+            )
+            return 8
 
     # Fetch the configured maximum number of days a tar can remain "unpacked"
     # in the INCOMING tree.
@@ -105,11 +98,11 @@ def main(options):
         print(f"Unrecognized tar ball name format, {tb_name}", file=sys.stderr)
         return 11
 
-    if not tb_path.startswith(archive_p):
+    if not str(tb_path).startswith(str(archivepath)):
         print(f"Given tar ball, {tb_path}, not from the ARCHIVE tree", file=sys.stderr)
         return 12
 
-    if not os.path.exists(tb_path):
+    if not tb_path.exists():
         print(
             f"Given tar ball, {tb_path}, does not seem to exist in the ARCHIVE tree",
             file=sys.stderr,
@@ -141,10 +134,8 @@ def main(options):
     if timediff.days > max_unpacked_age:
         # Finally, make one last check to see if this tar ball
         # directory should be kept regardless of aging out.
-        controller_p = os.path.basename(os.path.dirname(tb_path))
-        if os.path.isfile(
-            os.path.join(incoming_p, controller_p, tb_name, ".__pbench_keep__")
-        ):
+        controller_p = tb_path.parent.name
+        if Path(incomingpath, controller_p, tb_name, ".__pbench_keep__").is_file():
             ret_val = 0
         else:
             ret_val = 1
@@ -155,7 +146,7 @@ def main(options):
 
 
 if __name__ == "__main__":
-    prog = os.path.basename(sys.argv[0])
+    prog = Path(sys.argv[0]).name
     parser = ArgumentParser(f"Usage: {prog} [--config <path-to-config-file>]")
     parser.add_argument("-C", "--config", dest="cfg_name", help="Specify config file")
     parser.add_argument("tb_path", help="Specify the full path of tar ball to check")

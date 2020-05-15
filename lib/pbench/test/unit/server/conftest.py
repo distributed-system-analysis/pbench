@@ -43,6 +43,8 @@ def setup(request, pytestconfig):
     pbench_bin.mkdir(parents=True, exist_ok=True)
     pbench_cfg = opt_pbench / "lib" / "config"
     pbench_cfg.mkdir(parents=True, exist_ok=True)
+    pbench_archive = srv_pbench / "archive" / "fs-version-001"
+    pbench_archive.mkdir(parents=True, exist_ok=True)
 
     # "Install" the default server configuration file.
     shutil.copyfile(

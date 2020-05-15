@@ -23,6 +23,7 @@ import os
 import re
 import shutil
 import tempfile
+from pathlib import Path
 from datetime import datetime
 from argparse import ArgumentParser
 from configparser import ConfigParser, NoOptionError
@@ -87,7 +88,7 @@ def fetch_username(tb_incoming_dir):
     """
     config = ConfigParser()
     try:
-        config.read(os.path.join(tb_incoming_dir, "metadata.log"))
+        config.read(Path(tb_incoming_dir, "metadata.log"))
     except Exception:
         return None
     try:
@@ -112,13 +113,13 @@ def remove_symlinks(tgt_p, tb_incoming_dir, logger, dry_run):
         # NOTE: we ignore any files found, as pbench-audit-server should flag
         # subject objects.
         for subdir_n in subdir_l:
-            full_p = os.path.join(dir_n, subdir_n)
+            full_p = Path(dir_n, subdir_n)
             try:
                 link = os.readlink(full_p)
             except OSError:
                 continue
             if os.path.realpath(link) == tb_incoming_dir:
-                act = Action("rm", full_p)
+                act = Action("rm", str(full_p))
                 # FIXME: Remember the path to the removed symbolic link, and
                 # remove any parent directories that become empty as a result
                 # of the symbolic link removal.
@@ -172,7 +173,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
     # symbolic links to the INCOMING directory location.  Once we find a
     # symbolic link (which will be returned in the list of sub-directories)
     errors, actions_taken = remove_symlinks(
-        os.path.join(results, controller_name), tb_incoming_dir, logger, dry_run
+        Path(results, controller_name), tb_incoming_dir, logger, dry_run
     )
     if errors > 0:
         # NOTE: dry-runs never produce errors, so no check is needed.
@@ -185,10 +186,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
     user_name = fetch_username(tb_incoming_dir)
     if user_name:
         errors, _actions_taken = remove_symlinks(
-            os.path.join(users, user_name, controller_name),
-            tb_incoming_dir,
-            logger,
-            dry_run,
+            Path(users, user_name, controller_name), tb_incoming_dir, logger, dry_run,
         )
         actions_taken.extend(_actions_taken)
         if errors > 0:
@@ -201,11 +199,10 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
     # Now that all RESULTS symbolic links and any USERS symbolic links to the
     # incoming directory have been removed, we can rename the directory (so it
     # is no longer visible to the web server) and then delete it.
-    deleten = f".delete.{os.path.basename(tb_incoming_dir)}"
-    dirn = os.path.dirname(tb_incoming_dir)
-    del_path = os.path.join(dirn, deleten)
+    tb_incoming_dir = Path(tb_incoming_dir)
+    del_path = Path(tb_incoming_dir.parent, f".delete.{tb_incoming_dir.name}")
 
-    act = Action("mv", tb_incoming_dir)
+    act = Action("mv", str(tb_incoming_dir))
     actions_taken.append(act)
     try:
         # First rename it to a temporary name so that it is immediately no
@@ -223,7 +220,7 @@ def remove_unpacked(tb_incoming_dir, controller_name, results, users, logger, dr
         act.set_status("fail")
     else:
         act.set_status("succ")
-        act = Action("rmtree", del_path)
+        act = Action("rmtree", str(del_path))
         actions_taken.append(act)
         try:
             if not dry_run:
@@ -288,10 +285,8 @@ def gen_list_unpacked_aged(incoming, archive, curr_dt, max_unpacked_age):
                         # flag this unwanted condition.
                         continue
                     # We have a tar ball directory name, validate it.
-                    tb_path = os.path.join(
-                        archive, c_entry.name, f"{entry.name}.tar.xz"
-                    )
-                    if not os.path.exists(tb_path):
+                    tb_path = Path(archive, c_entry.name, f"{entry.name}.tar.xz")
+                    if not tb_path.exists():
                         # NOTE: the pbench-audit-server should pick up and
                         # flag this unwanted condition.
                         continue
@@ -310,7 +305,7 @@ def gen_list_unpacked_aged(incoming, archive, curr_dt, max_unpacked_age):
                     if timediff.days > max_unpacked_age:
                         # Finally, make one last check to see if this tar ball
                         # directory should be kept regardless of aging out.
-                        if os.path.isfile(os.path.join(entry.path, ".__pbench_keep__")):
+                        if Path(entry.path, ".__pbench_keep__").is_file():
                             continue
                         yield entry.path, c_entry.name
 
@@ -332,57 +327,22 @@ def main(options):
 
     logger = get_pbench_logger(_NAME_, config)
 
-    archive = config.ARCHIVE
-    archive_p = os.path.realpath(archive)
-
-    if not archive_p:
-        logger.error("The configured ARCHIVE directory, {}, does not exist", archive)
-        return 3
-
-    if not os.path.isdir(archive_p):
-        logger.error(
-            "The configured ARCHIVE directory, {}, is not a valid directory", archive
-        )
-        return 4
+    archivepath = config.ARCHIVE
 
     incoming = config.INCOMING
-    incoming_p = os.path.realpath(incoming)
-
-    if not incoming_p:
-        logger.error("The configured INCOMING directory, {}, does not exist", incoming)
+    incomingpath = config.get_valid_dir_option("INCOMING", incoming, logger)
+    if not incomingpath:
         return 3
-
-    if not os.path.isdir(incoming_p):
-        logger.error(
-            "The configured INCOMING directory, {}, is not a valid directory", incoming
-        )
-        return 4
 
     results = config.RESULTS
-    results_p = os.path.realpath(results)
-
-    if not results_p:
-        logger.error("The configured RESULTS directory, {}, does not exist", results)
+    resultspath = config.get_valid_dir_option("RESULTS", results, logger)
+    if not resultspath:
         return 3
-
-    if not os.path.isdir(results_p):
-        logger.error(
-            "The configured RESULTS directory, {}, is not a valid directory", results
-        )
-        return 4
 
     users = config.USERS
-    users_p = os.path.realpath(users)
-
-    if not users_p:
-        logger.error("The configured USERS directory, {}, does not exist", users)
+    userspath = config.get_valid_dir_option("USERS", users, logger)
+    if not userspath:
         return 3
-
-    if not os.path.isdir(users_p):
-        logger.error(
-            "The configured USERS directory, {}, is not a valid directory", users
-        )
-        return 4
 
     # Fetch the configured maximum number of days a tar can remain "unpacked"
     # in the INCOMING tree.
@@ -418,7 +378,7 @@ def main(options):
     errors = 0
     start = pbench.server._time()
 
-    gen = gen_list_unpacked_aged(incoming_p, archive_p, curr_dt, max_unpacked_age)
+    gen = gen_list_unpacked_aged(incomingpath, archivepath, curr_dt, max_unpacked_age)
     if config._unittests:
         # force the generator and sort the list
         gen = sorted(list(gen))
@@ -427,14 +387,14 @@ def main(options):
         act_set = remove_unpacked(
             tb_incoming_dir,
             controller_name,
-            results_p,
-            users_p,
+            resultspath,
+            userspath,
             logger,
             options.dry_run,
         )
-        unpacked_dir_name = os.path.basename(tb_incoming_dir)
-        act_name = os.path.join(controller_name, unpacked_dir_name)
-        act_set.set_name(act_name)
+        unpacked_dir_name = Path(tb_incoming_dir).name
+        act_path = Path(controller_name, unpacked_dir_name)
+        act_set.set_name(act_path)
         actions_taken.append(act_set)
         if act_set.errors > 0:
             # Stop any further unpacked tar ball removal if an error is
@@ -469,11 +429,11 @@ def main(options):
                 assert act.noun.startswith(
                     public_html
                 ), f"Logic bomb! {act.noun} not in .../public_html/"
-                tgt = act.noun[len(public_html) + 1 :]
+                tgt = Path(act.noun[len(public_html) + 1 :])
                 if act.verb == "mv":
-                    name = os.path.basename(tgt)
-                    controller = os.path.dirname(tgt)
-                    ex_tgt = os.path.join(controller, f".delete.{name}")
+                    name = tgt.name
+                    controller = tgt.parent
+                    ex_tgt = controller / f".delete.{name}"
                     print(
                         f"      $ {act.verb} {tgt} {ex_tgt}  # {act.status}", file=tfp
                     )
