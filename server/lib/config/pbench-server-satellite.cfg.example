@@ -1,6 +1,5 @@
-# This file describes the elements of deploying the pbench background tools.
 [DEFAULT]
-# cvalues here override those in pbench-server-default.cfg.
+# The values here override those in pbench-server-default.cfg.
 # An installation will want to override at least the following:
 default-host = pbench-satellite.example.com
 install-dir = /opt/pbench-server
@@ -10,19 +9,19 @@ install-dir = /opt/pbench-server
 ###########################################################################
 [pbench-server]
 pbench-top-dir = /srv/pbench
-# For a satellite we override the default roles to only "prep" and "results"
-roles = pbench-prep, pbench-results
+# An example satellite might override the default roles to drop the backup role.
+roles = pbench-maintenance, pbench-prep, pbench-results
+# An example satellite that just unpacks and syncs
+dispatch-states = TO-UNPACK, TO-SYNC
 
 ###########################################################################
 # crontab roles
-#
-# For a satellite server we typically don't need to index results or handle
-# sosreports, so we override the tasks to drop those two.
 [pbench-results]
-user = %(default-user)s
-host = %(default-host)s
-mailfrom = %(user)s@%(host)s
-tasks = pbench-dispatch, pbench-unpack-tarballs
+# The results role on our example satellite does not need to copy sosreports,
+# index data, or cull unpacked tar balls, but we do need to make sure we run
+# sync-cleanup.  As a satellite, we also only need one process unpacking tar
+# balls.
+tasks = pbench-dispatch, pbench-unpack-tarballs, pbench-sync-cleanup
 
 ###########################################################################
 # The rest will come from the default config file.

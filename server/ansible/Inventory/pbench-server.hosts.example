@@ -18,6 +18,4 @@
 pbench_config_url = http://pbench.example.com/server/config/{{ cenv }}
 
 # list of config files to fetch
-pbench_config_files = '["pbench-server.cfg", "pbench-server-backup.cfg"]'
-
-
+pbench_config_files = '["pbench-server.cfg"]'
