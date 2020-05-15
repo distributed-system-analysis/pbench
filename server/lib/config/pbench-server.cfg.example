@@ -1,23 +1,18 @@
-# This file describes the elements of deploying the pbench background tools.
 [DEFAULT]
 # The values here override those in pbench-server-default.cfg.
 # An installation will want to override at least the following:
 default-host = pbench.example.com
 install-dir = /opt/pbench-server
 
+###########################################################################
+## Deployment section
+###########################################################################
 [pbench-server]
 pbench-top-dir = /srv/pbench
-pbench-local-dir = /srv/pbench-local
 # Backup dir may be remote NFS mounted
 pbench-backup-dir = /mnt/pbench.archive.backup
-
-[Indexing]
-# CHANGE ME!
-# host:port - both must be specified.
-server = elasticsearch.example.com:9280
-index_prefix = pbench
-index_version = 1
-bulk_action_count = 2000
+# Add role for sync'ing with satellites
+roles = pbench-maintenance, pbench-prep, pbench-results, pbench-backup, pbench-sync-satellites
 
 [pbench-server-backup]
 endpoint_url = <the URL of the S3 object store to be used>
@@ -25,18 +20,17 @@ access_key_id = <the S3 object store access key ID provided by an administrator>
 secret_access_key = <the S3 object store secret access key provided by an administrator>
 bucket_name = <the name of an S3 bucket which will contain all of the tar ball objects after they are backed up>
 
-###########################################################################
-# crontab roles
-#
-# In this example we extend the pbench-results role to include sync'ing with
-# remote satellite pbench servers.
-[pbench-results]
-tasks = pbench-dispatch, pbench-unpack-tarballs, pbench-copy-sosreports, pbench-index, pbench-sync-satellites
+[Indexing]
+# CHANGE ME!
+# host:port - both must be specified.
+server = elasticsearch.example.com:9280
+index_prefix = pbench
+bulk_action_count = 2000
 
 ###########################################################################
-# crontab tasks
-#
-# The definition of the crontab task for sync'ing satellite pbench servers.
+# crontab roles
+
+# The definition of the crontab role for sync'ing satellite pbench servers.
 [pbench-sync-satellites]
 host = %(default-host)s
 satellites = satellite-one, satellite-two

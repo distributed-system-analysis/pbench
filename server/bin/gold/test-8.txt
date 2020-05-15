@@ -7,6 +7,7 @@
 _PBENCH_SERVER_CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/config/pbench-server.cfg
 MAILTO=unit-test-user@example.com
 MAILFROM=pbench@pbench.example.com
+1 3 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-audit-server.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-audit-server
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-server-prep-shim-002
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-dispatch.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-dispatch
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-unpack-tarballs-small.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-unpack-tarballs small
@@ -14,10 +15,8 @@ MAILFROM=pbench@pbench.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-unpack-tarballs-large.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-unpack-tarballs large
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-unpack-tarballs-huge.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-unpack-tarballs huge
 1 2 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-cull-unpacked-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-cull-unpacked-tarballs
-1 3 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-audit-server.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-audit-server
 23 * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-copy-sosreports.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-copy-sosreports
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-index.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-index
-* * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-index-tool-data.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-index --tool-data
 53 4 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-backup-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-backup-tarballs
 53 5 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-verify-backup-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-verify-backup-tarballs
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-sync-satellite-ONE.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-sync-satellite satellite-one
@@ -26,6 +25,7 @@ MAILFROM=pbench@pbench.example.com
 _PBENCH_SERVER_CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config/pbench-server.cfg
 MAILTO=unit-test-user@example.com
 MAILFROM=pbench@pbench-satellite.example.com
+1 3 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-audit-server.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-audit-server
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-prep-002.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-prep-shim-002
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-dispatch.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-dispatch
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-unpack-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-unpack-tarballs
