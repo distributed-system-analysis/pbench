@@ -59,6 +59,10 @@ function _run_indexing {
     _run pbench-index --tool-data
 }
 
+function _run_re_indexing {
+    _run pbench-index --re-index
+}
+
 function _run_activate {
     # Testing the server activate script, which is used for every other
     # unit test as well is just a matter of emitting the resulting
@@ -689,6 +693,9 @@ declare -A cmds=(
     # Debug uperf indexing
     [test-7.25]="_run_indexing"
 
+    # Verify re-indexing
+    [test-7.26]="_run_re_indexing"
+
     # activation test
     [test-8]="_run_activate"
 
@@ -758,6 +765,12 @@ declare -A cmds=(
 
     # Test ssh-error
     [test-28]="_run pbench-sync-satellite satellite-one"
+
+    # Test pbench-reindex
+    [test-29.0]="_run pbench-reindex 1970-01-01"
+    [test-29.1]="_run pbench-reindex 1970-02-01 1970-02-XX"
+    [test-29.2]="_run pbench-reindex 1970-02-01 1970-02-28"
+    [test-29.3]="_run pbench-reindex --dry-run 1970-02-01 1970-02-28"
 )
 all_tests_sorted=$(for x in ${!cmds[@]} ;do echo $x ;done | sed 's/\./-/' | sort -n -t '-' -k 3 | sort -n -t '-' -k 2 --stable | sed 's/\(.*-[0-9]\+\)-\([0-9]\+\)/\1.\2/')
 

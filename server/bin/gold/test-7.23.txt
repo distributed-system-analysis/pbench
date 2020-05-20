@@ -1518,6 +1518,7 @@ drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TODO

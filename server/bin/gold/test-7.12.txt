@@ -4352,6 +4352,7 @@ drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/EC2::ip-172-31-52-154/TODO

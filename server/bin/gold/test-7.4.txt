@@ -420,6 +420,7 @@ drwxrwxr-x          - archive/fs-version-001/alphaville/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/alphaville/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/alphaville/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/alphaville/TODO

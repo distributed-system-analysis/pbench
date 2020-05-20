@@ -1,0 +1,215 @@
++++ Running pbench-reindex --dry-run 1970-02-01 1970-02-28
+Re-indexing tar balls in the range 1970-02-01 00:00:00 to 1970-02-28 00:00:00
+('ctlr-in-range', 'tarball_badstate_1970.02.28T23.59.59.tar.xz', 'badstate', '')
+('ctlr-in-range', 'tarball_exists_1970.02.28T00.00.00.tar.xz', 'exists', 'WARNING: TO-INDEX link already exists for /var/tmp/pbench-test-server/test-29.3/pbench/archive/fs-version-001/ctlr-in-range/tarball_exists_1970.02.28T00.00.00.tar.xz')
+('ctlr-in-range', 'tarball_exists_1970.02.28T23.59.59.tar.xz', 'exists', 'WARNING: TO-RE-INDEX link already exists for /var/tmp/pbench-test-server/test-29.3/pbench/archive/fs-version-001/ctlr-in-range/tarball_exists_1970.02.28T23.59.59.tar.xz')
+('ctlr-in-range', 'tarball_noop_1970.02.01T00.00.00.tar.xz', 'noop', '')
+('ctlr-in-range', 'tarball_not-unpacked_1970.02.14T00.00.00.tar.xz', 'not-unpacked', '')
+('ctlr-in-range', 'tarball_re-index_1970.02.14T12.42.42.tar.xz', 'succ', '')
+Run-time: 42.0 42.0 0.0
+--- Finished pbench-reindex (status=0)
++++ Running unit test audit
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:42",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-audit-server",
+            "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n\nstart-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-29.3/pbench/archive/fs-version-001\n\nBad Controllers:\n\t-rw-rw-r--          0 Wed May 27 00:52:20.0000000000 2020 bad-controller\n\nController: ctlr-out-of-range\n\t* No state directories found in this controller directory.\n\t* Unexpected files in controller directory:\n\t  ++++++++++\n\t  .ignore-me\n\t  ----------\n\nend-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-29.3/pbench/archive/fs-version-001\n",
+            "total_chunks": 1,
+            "total_size": 565
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished unit test audit (status=1)
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-29.3/var-www-html)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-29.3/pbench/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-29.3/pbench/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-29.3/pbench/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-29.3/pbench/public_html/users
+--- var/www/html tree state
++++ results host info (/var/tmp/pbench-test-server/test-29.3/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-29.3/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-29.3/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-29.3/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-29.3/var-www-html-satellite)
+lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-29.3/pbench-satellite/public_html/incoming
+drwxrwxr-x          - pbench-results-host-info.versioned
+lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
+-rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
+-rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
+lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-29.3/pbench-satellite/public_html/results
+lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-29.3/pbench-satellite/public_html/static
+lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-29.3/pbench-satellite/public_html/users
+--- var/www/html-satellite tree state
++++ results host info (/var/tmp/pbench-test-server/test-29.3/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-29.3/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-29.3/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-29.3/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
+--- results host info
++++ pbench tree state (/var/tmp/pbench-test-server/test-29.3/pbench)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+-rw-rw-r--          0 archive/fs-version-001/bad-controller
+drwxrwxr-x          - archive/fs-version-001/ctlr-in-range
+drwxrwxr-x          - archive/fs-version-001/ctlr-in-range/INDEXED
+lrwxrwxrwx         46 archive/fs-version-001/ctlr-in-range/INDEXED/tarball_badstate_1970.02.28T23.59.59.tar.xz -> ../tarball_badstate_1970.02.28T23.59.59.tar.xz
+lrwxrwxrwx         46 archive/fs-version-001/ctlr-in-range/INDEXED/tarball_re-index_1970.02.14T12.42.42.tar.xz -> ../tarball_re-index_1970.02.14T12.42.42.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlr-in-range/TO-INDEX
+drwxrwxr-x          - archive/fs-version-001/ctlr-in-range/TO-INDEX-TOOL
+lrwxrwxrwx         44 archive/fs-version-001/ctlr-in-range/TO-INDEX/tarball_exists_1970.02.28T00.00.00.tar.xz -> ../tarball_exists_1970.02.28T00.00.00.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlr-in-range/TO-RE-INDEX
+lrwxrwxrwx         44 archive/fs-version-001/ctlr-in-range/TO-RE-INDEX/tarball_exists_1970.02.28T23.59.59.tar.xz -> ../tarball_exists_1970.02.28T23.59.59.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlr-in-range/UNPACKED
+lrwxrwxrwx         42 archive/fs-version-001/ctlr-in-range/UNPACKED/tarball_noop_1970.02.01T00.00.00.tar.xz -> ../tarball_noop_1970.02.01T00.00.00.tar.xz
+lrwxrwxrwx         46 archive/fs-version-001/ctlr-in-range/UNPACKED/tarball_re-index_1970.02.14T12.42.42.tar.xz -> ../tarball_re-index_1970.02.14T12.42.42.tar.xz
+drwxrwxr-x          - archive/fs-version-001/ctlr-in-range/WONT-INDEX.8
+lrwxrwxrwx         46 archive/fs-version-001/ctlr-in-range/WONT-INDEX.8/tarball_badstate_1970.02.28T23.59.59.tar.xz -> ../tarball_badstate_1970.02.28T23.59.59.tar.xz
+-rw-rw-r--        260 archive/fs-version-001/ctlr-in-range/tarball_badstate_1970.02.28T23.59.59.tar.xz
+-rw-rw-r--         78 archive/fs-version-001/ctlr-in-range/tarball_badstate_1970.02.28T23.59.59.tar.xz.md5
+-rw-rw-r--        256 archive/fs-version-001/ctlr-in-range/tarball_exists_1970.02.28T00.00.00.tar.xz
+-rw-rw-r--         76 archive/fs-version-001/ctlr-in-range/tarball_exists_1970.02.28T00.00.00.tar.xz.md5
+-rw-rw-r--        260 archive/fs-version-001/ctlr-in-range/tarball_exists_1970.02.28T23.59.59.tar.xz
+-rw-rw-r--         76 archive/fs-version-001/ctlr-in-range/tarball_exists_1970.02.28T23.59.59.tar.xz.md5
+-rw-rw-r--        252 archive/fs-version-001/ctlr-in-range/tarball_noop_1970.02.01T00.00.00.tar.xz
+-rw-rw-r--         74 archive/fs-version-001/ctlr-in-range/tarball_noop_1970.02.01T00.00.00.tar.xz.md5
+-rw-rw-r--        260 archive/fs-version-001/ctlr-in-range/tarball_not-unpacked_1970.02.14T00.00.00.tar.xz
+-rw-rw-r--         82 archive/fs-version-001/ctlr-in-range/tarball_not-unpacked_1970.02.14T00.00.00.tar.xz.md5
+-rw-rw-r--        260 archive/fs-version-001/ctlr-in-range/tarball_re-index_1970.02.14T12.42.42.tar.xz
+-rw-rw-r--         78 archive/fs-version-001/ctlr-in-range/tarball_re-index_1970.02.14T12.42.42.tar.xz.md5
+drwxrwxr-x          - archive/fs-version-001/ctlr-out-of-range
+-rw-rw-r--          0 archive/fs-version-001/ctlr-out-of-range/.ignore-me
+-rw-rw-r--        260 archive/fs-version-001/ctlr-out-of-range/tarball_bad-date_1970.01.XXT00.00.00.tar.xz
+-rw-rw-r--         78 archive/fs-version-001/ctlr-out-of-range/tarball_bad-date_1970.01.XXT00.00.00.tar.xz.md5
+-rw-rw-r--        260 archive/fs-version-001/ctlr-out-of-range/tarball_bad-date_1970.42.42T00.00.00.tar.xz
+-rw-rw-r--         78 archive/fs-version-001/ctlr-out-of-range/tarball_bad-date_1970.42.42T00.00.00.tar.xz.md5
+-rw-rw-r--        224 archive/fs-version-001/ctlr-out-of-range/tarball_good-date_1970.01.01T00.00.00.tar.xz
+-rw-rw-r--         79 archive/fs-version-001/ctlr-out-of-range/tarball_good-date_1970.01.01T00.00.00.tar.xz.md5
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/incoming/ctlr-in-range
+drwxrwxr-x          - public_html/incoming/ctlr-in-range/tarball_badstate_1970.02.28T23.59.59
+-rw-rw-r--         30 public_html/incoming/ctlr-in-range/tarball_badstate_1970.02.28T23.59.59/metadata.log
+drwxrwxr-x          - public_html/incoming/ctlr-in-range/tarball_exists_1970.02.28T00.00.00
+-rw-rw-r--         30 public_html/incoming/ctlr-in-range/tarball_exists_1970.02.28T00.00.00/metadata.log
+drwxrwxr-x          - public_html/incoming/ctlr-in-range/tarball_exists_1970.02.28T23.59.59
+-rw-rw-r--         30 public_html/incoming/ctlr-in-range/tarball_exists_1970.02.28T23.59.59/metadata.log
+drwxrwxr-x          - public_html/incoming/ctlr-in-range/tarball_noop_1970.02.01T00.00.00
+-rw-rw-r--         30 public_html/incoming/ctlr-in-range/tarball_noop_1970.02.01T00.00.00/metadata.log
+drwxrwxr-x          - public_html/incoming/ctlr-in-range/tarball_re-index_1970.02.14T12.42.42
+-rw-rw-r--         30 public_html/incoming/ctlr-in-range/tarball_re-index_1970.02.14T12.42.42/metadata.log
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench tree state
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-29.3/pbench-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - logs/pbench-audit-server
+-rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
+-rw-rw-r--        943 logs/pbench-audit-server/pbench-audit-server.log
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-local tree state
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-29.3/pbench-satellite)
+drwxrwxr-x          - archive
+drwxrwxr-x          - archive/fs-version-001
+drwxrwxr-x          - public_html
+drwxrwxr-x          - public_html/incoming
+drwxrwxr-x          - public_html/results
+drwxrwxr-x          - public_html/static
+drwxrwxr-x          - public_html/static/css
+drwxrwxr-x          - public_html/static/css/v0.2
+drwxrwxr-x          - public_html/static/css/v0.2/css
+-rw-rw-r--        308 public_html/static/css/v0.2/css/pbench_utils.css
+drwxrwxr-x          - public_html/static/css/v0.3
+drwxrwxr-x          - public_html/static/css/v0.3/css
+-rw-rw-r--      11798 public_html/static/css/v0.3/css/LICENSE.TXT
+-rw-rw-r--       3663 public_html/static/css/v0.3/css/jschart.css
+drwxrwxr-x          - public_html/static/js
+drwxrwxr-x          - public_html/static/js/v0.2
+drwxrwxr-x          - public_html/static/js/v0.2/js
+-rw-rw-r--       9415 public_html/static/js/v0.2/js/app.js
+-rw-rw-r--       5556 public_html/static/js/v0.2/js/pbench_utils.js
+drwxrwxr-x          - public_html/static/js/v0.3
+drwxrwxr-x          - public_html/static/js/v0.3/js
+-rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
+-rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
+drwxrwxr-x          - public_html/users
+--- pbench-satellite tree state
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-29.3/pbench-satellite-local)
+drwxrwxr-x          - logs
+drwxrwxr-x          - pbench-move-results-receive
+drwxrwxr-x          - pbench-move-results-receive/fs-version-002
+drwxrwxr-x          - quarantine
+drwxrwxr-x          - quarantine/duplicates-002
+drwxrwxr-x          - quarantine/errors-002
+drwxrwxr-x          - quarantine/md5-002
+drwxrwxr-x          - tmp
+--- pbench-satellite-local tree state
++++ pbench log file contents
+++++ pbench-local/logs
++++++ pbench-audit-server/pbench-audit-server.error
+----- pbench-audit-server/pbench-audit-server.error
++++++ pbench-audit-server/pbench-audit-server.log
+
+start-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-29.3/pbench/archive/fs-version-001
+
+Bad Controllers:
+	-rw-rw-r--          0 Wed May 27 00:52:20.0000000000 2020 bad-controller
+
+Controller: ctlr-out-of-range
+	* No state directories found in this controller directory.
+	* Unexpected files in controller directory:
+	  ++++++++++
+	  .ignore-me
+	  ----------
+
+end-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-29.3/pbench/archive/fs-version-001
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-audit-server/pbench-audit-server.log
+---- pbench-local/logs
+++++ pbench-satellite-local/logs
+---- pbench-satellite-local/logs
+--- pbench log file contents

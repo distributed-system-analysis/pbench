@@ -59,6 +59,9 @@ def main(options, name):
            cfg_name              - Name of the configuration file to use
            dump_index_patterns   - Don't do any indexing, but just emit the
                                    list of index patterns that would be used
+           dump_templates        - Dump the templates that would be used
+           index_tool_data       - Index tool data only
+           re_index              - Consider tar balls marked for re-indexing
        All exceptions are caught and logged to syslog with the stacktrace of
        the exception in a sub-object of the logged JSON document.
 
@@ -95,28 +98,30 @@ def main(options, name):
          9 - Unable to update index templates in configured Elasticsearch
              instance
     """
+    _name_suf = "-tool-data" if options.index_tool_data else ""
+    _name_re = "-re" if options.re_index else ""
+    name = f"{name}{_name_re}{_name_suf}"
+
     if not options.cfg_name:
         print(
-            "{}: ERROR: No config file specified; set _PBENCH_SERVER_CONFIG env variable or"
-            " use --config <file> on the command line".format(name),
+            f"{name}: ERROR: No config file specified; set"
+            " _PBENCH_SERVER_CONFIG env variable or"
+            " use --config <file> on the command line",
             file=sys.stderr,
         )
         return 2
-
-    if options.index_tool_data:
-        name = "{}-tool-data".format(name)
 
     idxctx = None
     try:
         idxctx = IdxContext(options, name, _dbg=_DEBUG)
     except (ConfigFileError, ConfigParserError) as e:
-        print("{}: {}".format(name, e), file=sys.stderr)
+        print(f"{name}: {e}", file=sys.stderr)
         return 2
     except BadConfig as e:
-        print("{}: {}".format(name, e), file=sys.stderr)
+        print(f"{name}: {e}", file=sys.stderr)
         return 3
     except JsonFileError as e:
-        print("{}: {}".format(name, e), file=sys.stderr)
+        print(f"{name}: {e}", file=sys.stderr)
         return 8
 
     if options.dump_index_patterns:
@@ -127,6 +132,7 @@ def main(options, name):
         idxctx.templates.dump_templates()
         return 0
 
+    _re_idx = "RE-" if options.re_index else ""
     if options.index_tool_data:
         # The link source and destination for the operation of this script
         # when it only indexes tool data.
@@ -135,7 +141,7 @@ def main(options, name):
     else:
         # The link source and destination for the operation of this script
         # when it indexes run, table-of-contents, and result data.
-        linksrc = "TO-INDEX"
+        linksrc = f"TO-{_re_idx}INDEX"
         linkdest = "TO-INDEX-TOOL"
     # We only ever use a symlink'd error destination for indexing
     # problems.
@@ -528,13 +534,19 @@ if __name__ == "__main__":
         "Usage: {} [--config <path-to-config-file>] [--dump-index-patterns]"
         " [--dump_templates]".format(run_name)
     )
-    parser.add_argument("-C", "--config", dest="cfg_name", help="Specify config file")
-    parser.set_defaults(cfg_name=os.environ.get("_PBENCH_SERVER_CONFIG"))
+    parser.add_argument(
+        "-C",
+        "--config",
+        dest="cfg_name",
+        default=os.environ.get("_PBENCH_SERVER_CONFIG"),
+        help="Specify config file",
+    )
     parser.add_argument(
         "-I",
         "--dump-index-patterns",
         action="store_true",
         dest="dump_index_patterns",
+        default=False,
         help="Emit a list of index patterns used",
     )
     parser.add_argument(
@@ -542,15 +554,24 @@ if __name__ == "__main__":
         "--dump-templates",
         action="store_true",
         dest="dump_templates",
+        default=False,
         help="Emit the full JSON document for each index template used",
     )
-    parser.set_defaults(index_tool_data=False)
     parser.add_argument(
         "-T",
         "--tool-data",
         action="store_true",
         dest="index_tool_data",
+        default=False,
         help="Only index tool data, assumes run data already exists",
+    )
+    parser.add_argument(
+        "-R",
+        "--re-index",
+        action="store_true",
+        dest="re_index",
+        default=False,
+        help="Perform re-indexing of previously indexed data",
     )
     parsed = parser.parse_args()
     status = main(parsed, run_name)

@@ -181,6 +181,7 @@ drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/bad-controller/TODO

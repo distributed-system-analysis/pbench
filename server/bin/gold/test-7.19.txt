@@ -2262,6 +2262,7 @@ drwxrwxr-x          - archive/fs-version-001/perf122/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/perf122/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/perf122/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/perf122/TODO

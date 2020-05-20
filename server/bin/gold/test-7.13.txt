@@ -10854,6 +10854,7 @@ drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/b03-h01-1029p/TODO
