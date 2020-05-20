@@ -396,6 +396,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TODO
@@ -426,6 +427,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TODO
@@ -458,6 +460,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TODO
@@ -491,6 +494,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-DELET
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TODO
@@ -547,6 +551,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TODO
@@ -574,6 +579,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TODO

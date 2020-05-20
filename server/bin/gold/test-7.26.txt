@@ -1,34 +1,4 @@
-+++ Running pbench-unpack-tarballs
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": ""
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-unpack-tarballs",
-            "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
-            "total_chunks": 1,
-            "total_size": 162
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-unpack-tarballs (status=0)
-+++ Running pbench-index
++++ Running pbench-index --re-index
 Template:  pbench-unittests.v3.server-reports
 Template:  pbench-unittests.v3.tool-data-iostat
 Template:  pbench-unittests.v3.tool-data-mpstat
@@ -57,7 +27,7 @@ len(actions) = 1
             },
             "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
-            "name": "pbench-index"
+            "name": "pbench-index-re"
         },
         "_type": "pbench-server-reports"
     }
@@ -85,7 +55,7 @@ len(actions) = 21
             "@metadata": {
                 "controller_dir": "ctlrA",
                 "file-date": "2020-03-21T14:07:45",
-                "file-name": "/var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz",
+                "file-name": "/var/tmp/pbench-test-server/test-7.26/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz",
                 "file-size": 20848,
                 "md5": "38c50b45fa28a3958e4f4310abe19587",
                 "pbench-agent-version": "0.67-1g3fb4270c",
@@ -956,94 +926,10 @@ len(actions) = 1
             "@timestamp": "1970-01-01T00:00:42",
             "chunk_id": 1,
             "doctype": "status",
-            "name": "pbench-index",
-            "text": "pbench-index.run-1970-01-01T00:00:42-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz\n",
+            "name": "pbench-index-re",
+            "text": "pbench-index-re.run-1970-01-01T00:00:42-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.26/pbench/archive/fs-version-001/ctlrA/TO-RE-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz\n",
             "total_chunks": 1,
-            "total_size": 217
-        },
-        "_type": "pbench-server-reports"
-    }
-]
---- Finished pbench-index (status=0)
-+++ Running pbench-index --tool-data
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": "4.0.0"
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "doctype": "start",
-            "name": "pbench-index-tool-data"
-        },
-        "_type": "pbench-server-reports"
-    }
-]
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
-len(actions) = 0
-[]
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
-len(actions) = 1
-[
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
-        "_op_type": "create",
-        "_source": {
-            "@generated-by": {
-                "commit_id": "unit-test",
-                "group_id": 43,
-                "hostname": "example.com",
-                "pid": 42,
-                "user_id": 44,
-                "version": "4.0.0"
-            },
-            "@timestamp": "1970-01-01T00:00:42",
-            "chunk_id": 1,
-            "doctype": "status",
-            "name": "pbench-index-tool-data",
-            "text": "pbench-index-tool-data.run-1970-01-01T00:00:42-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/linpack_mock_2020.02.28T19.10.55.tar.xz\n",
-            "total_chunks": 1,
-            "total_size": 232
+            "total_size": 223
         },
         "_type": "pbench-server-reports"
     }
@@ -1079,63 +965,43 @@ len(actions) = 1
     }
 ]
 --- Finished unit test audit (status=0)
-+++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.22/var-www-html)
-lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-7.22/pbench/public_html/incoming
++++ var/www/html tree state (/var/tmp/pbench-test-server/test-7.26/var-www-html)
+lrwxrwxrwx         65 incoming -> /var/tmp/pbench-test-server/test-7.26/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        120 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-7.22/pbench/public_html/results
-lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-7.22/pbench/public_html/static
-lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-7.22/pbench/public_html/users
+lrwxrwxrwx         64 results -> /var/tmp/pbench-test-server/test-7.26/pbench/public_html/results
+lrwxrwxrwx         63 static -> /var/tmp/pbench-test-server/test-7.26/pbench/public_html/static
+lrwxrwxrwx         62 users -> /var/tmp/pbench-test-server/test-7.26/pbench/public_html/users
 --- var/www/html tree state
-+++ results host info (/var/tmp/pbench-test-server/test-7.22/var-www-html/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-7.22/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.22/pbench-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-7.22/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-7.26/var-www-html/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.26/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench.example.com:/var/tmp/pbench-test-server/test-7.26/pbench-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.26/var-www-html/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.22/var-www-html-satellite)
-lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-7.22/pbench-satellite/public_html/incoming
++++ var/www/html-satellite tree state (/var/tmp/pbench-test-server/test-7.26/var-www-html-satellite)
+lrwxrwxrwx         75 incoming -> /var/tmp/pbench-test-server/test-7.26/pbench-satellite/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
 lrwxrwxrwx         38 pbench-results-host-info.versioned/pbench-results-host-info.URL002 -> pbench-results-host-info.URL002.active
 -rw-rw-r--        140 pbench-results-host-info.versioned/pbench-results-host-info.URL002.active
 -rw-rw-r--         95 pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint
-lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-7.22/pbench-satellite/public_html/results
-lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-7.22/pbench-satellite/public_html/static
-lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.22/pbench-satellite/public_html/users
+lrwxrwxrwx         74 results -> /var/tmp/pbench-test-server/test-7.26/pbench-satellite/public_html/results
+lrwxrwxrwx         73 static -> /var/tmp/pbench-test-server/test-7.26/pbench-satellite/public_html/static
+lrwxrwxrwx         72 users -> /var/tmp/pbench-test-server/test-7.26/pbench-satellite/public_html/users
 --- var/www/html-satellite tree state
-+++ results host info (/var/tmp/pbench-test-server/test-7.22/var-www-html-satellite/pbench-results-host-info.versioned)
-/var/tmp/pbench-test-server/test-7.22/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.22/pbench-satellite-local/pbench-move-results-receive/fs-version-002
-/var/tmp/pbench-test-server/test-7.22/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
++++ results host info (/var/tmp/pbench-test-server/test-7.26/var-www-html-satellite/pbench-results-host-info.versioned)
+/var/tmp/pbench-test-server/test-7.26/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.active:pbench@pbench-satellite.example.com:/var/tmp/pbench-test-server/test-7.26/pbench-satellite-local/pbench-move-results-receive/fs-version-002
+/var/tmp/pbench-test-server/test-7.26/var-www-html-satellite/pbench-results-host-info.versioned/pbench-results-host-info.URL002.maint:MESSAGE===System Under Maintenance - please retry at a later time (unit-test-user@example.com)
 --- results host info
-+++ pbench tree state (/var/tmp/pbench-test-server/test-7.22/pbench)
++++ pbench tree state (/var/tmp/pbench-test-server/test-7.26/pbench)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - archive/fs-version-001/ctlrA
-drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKED-UP
-drwxrwxr-x          - archive/fs-version-001/ctlrA/BACKUP-FAILED
-drwxrwxr-x          - archive/fs-version-001/ctlrA/BAD-MD5
-drwxrwxr-x          - archive/fs-version-001/ctlrA/COPIED-SOS
-drwxrwxr-x          - archive/fs-version-001/ctlrA/INDEXED
-lrwxrwxrwx        113 archive/fs-version-001/ctlrA/INDEXED/linpack_mock_2020.02.28T19.10.55.tar.xz -> /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-DONE
-drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-FAILED
-drwxrwxr-x          - archive/fs-version-001/ctlrA/SATELLITE-MD5-PASSED
-drwxrwxr-x          - archive/fs-version-001/ctlrA/SYNCED
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-BACKUP
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-COPY-SOS
-lrwxrwxrwx        113 archive/fs-version-001/ctlrA/TO-COPY-SOS/linpack_mock_2020.02.28T19.10.55.tar.xz -> /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-DELETE
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-INDEX-TOOL
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-LINK
+lrwxrwxrwx         42 archive/fs-version-001/ctlrA/TO-INDEX-TOOL/linpack_mock_2020.02.28T19.10.55.tar.xz -> ../linpack_mock_2020.02.28T19.10.55.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-RE-INDEX
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-SYNC
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TO-UNPACK
-drwxrwxr-x          - archive/fs-version-001/ctlrA/TODO
 drwxrwxr-x          - archive/fs-version-001/ctlrA/UNPACKED
 lrwxrwxrwx         42 archive/fs-version-001/ctlrA/UNPACKED/linpack_mock_2020.02.28T19.10.55.tar.xz -> ../linpack_mock_2020.02.28T19.10.55.tar.xz
-drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-INDEX
-drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-UNPACK
 -rw-rw-r--      20848 archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz
 -rw-rw-r--         74 archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz.md5
 drwxrwxr-x          - public_html
@@ -1198,9 +1064,6 @@ drwxr-xr-x          - public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.5
 -rw-r--r--       6597 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/result.json
 -rw-r--r--       1488 public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55/result.txt
 drwxrwxr-x          - public_html/results
-drwxrwxr-x          - public_html/results/ctlrA
-drwxrwxr-x          - public_html/results/ctlrA/linpack-dev2
-lrwxrwxrwx        104 public_html/results/ctlrA/linpack-dev2/linpack_mock_2020.02.28T19.10.55 -> /var/tmp/pbench-test-server/test-7.22/pbench/public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55
 drwxrwxr-x          - public_html/static
 drwxrwxr-x          - public_html/static/css
 drwxrwxr-x          - public_html/static/css/v0.2
@@ -1220,23 +1083,14 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 -rw-rw-r--      11798 public_html/static/js/v0.3/js/LICENSE.TXT
 -rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
 drwxrwxr-x          - public_html/users
-drwxrwxr-x          - public_html/users/janedo@example.com
-drwxrwxr-x          - public_html/users/janedo@example.com/ctlrA
-drwxrwxr-x          - public_html/users/janedo@example.com/ctlrA/linpack-dev2
-lrwxrwxrwx        104 public_html/users/janedo@example.com/ctlrA/linpack-dev2/linpack_mock_2020.02.28T19.10.55 -> /var/tmp/pbench-test-server/test-7.22/pbench/public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55
 --- pbench tree state
-+++ pbench-local tree state (/var/tmp/pbench-test-server/test-7.22/pbench-local)
++++ pbench-local tree state (/var/tmp/pbench-test-server/test-7.26/pbench-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
-drwxrwxr-x          - logs/pbench-index
-drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--       3233 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       3780 logs/pbench-index/pbench-index.log
-drwxrwxr-x          - logs/pbench-unpack-tarballs
--rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--       1118 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+drwxrwxr-x          - logs/pbench-index-re
+-rw-rw-r--       3882 logs/pbench-index-re/pbench-index-re.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -1245,7 +1099,7 @@ drwxrwxr-x          - quarantine/errors-002
 drwxrwxr-x          - quarantine/md5-002
 drwxrwxr-x          - tmp
 --- pbench-local tree state
-+++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-7.22/pbench-satellite)
++++ pbench-satellite tree state (/var/tmp/pbench-test-server/test-7.26/pbench-satellite)
 drwxrwxr-x          - archive
 drwxrwxr-x          - archive/fs-version-001
 drwxrwxr-x          - public_html
@@ -1271,7 +1125,7 @@ drwxrwxr-x          - public_html/static/js/v0.3/js
 -rw-rw-r--     143934 public_html/static/js/v0.3/js/jschart.js
 drwxrwxr-x          - public_html/users
 --- pbench-satellite tree state
-+++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.22/pbench-satellite-local)
++++ pbench-satellite-local tree state (/var/tmp/pbench-test-server/test-7.26/pbench-satellite-local)
 drwxrwxr-x          - logs
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
@@ -1289,74 +1143,38 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
-+++++ pbench-index-tool-data/pbench-index-tool-data.log
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
-1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- open tar ball
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- generator setup
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- begin indexing
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_sosreports -- end [0 sosreports processed]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_info -- end [1 tools processed]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
-1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- run-1970-01-01T00:00:42-UTC: ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz: success
-1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- stopped processing list of tar balls
-1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: indexed 1 (skipped 0) results, 0 errors
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
------ pbench-index-tool-data/pbench-index-tool-data.log
-+++++ pbench-index/pbench-index.log
-1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
-1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
-1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls
-1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
-1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- open tar ball
-1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- generator setup
-1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- begin indexing
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer make_all_actions -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_run_action -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_sosreports -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_sosreports -- end [0 sosreports processed]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_tool_info -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_tool_info -- end [1 tools processed]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_run_action -- end
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [19 table-of-contents documents]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [6 result documents]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer make_all_actions -- end
-1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 26, duplicates: 0, failures: 0, retries: 0)
-1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- run-1970-01-01T00:00:42-UTC: ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz: success
-1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/TO-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexer dump_opctx -- ** Errors encountered while indexing: [{"counters": {"sample_missing_timeseries": 6}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.22/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz"}]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- stopped processing list of tar balls
-1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 1 (skipped 0) results, 0 errors
-1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
------ pbench-index/pbench-index.log
-+++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
------ pbench-unpack-tarballs/pbench-unpack-tarballs.error
-+++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
-run-1970-01-01T00:00:42-UTC
-ln -s /var/tmp/pbench-test-server/test-7.22/pbench/public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55 /var/tmp/pbench-test-server/test-7.22/pbench/public_html/results/ctlrA/linpack-dev2/linpack_mock_2020.02.28T19.10.55
-ln -s /var/tmp/pbench-test-server/test-7.22/pbench/public_html/incoming/ctlrA/linpack_mock_2020.02.28T19.10.55 /var/tmp/pbench-test-server/test-7.22/pbench/public_html/users/janedo@example.com/ctlrA/linpack-dev2/linpack_mock_2020.02.28T19.10.55
-run-1970-01-01T00:00:42-UTC: ctlrA/linpack_mock_2020.02.28T19.10.55: success - elapsed time (secs): 0 - size (bytes): 20848
-run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
------ pbench-unpack-tarballs/pbench-unpack-tarballs.log
++++++ pbench-index-re/pbench-index-re.log
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.pbench-index main -- pbench-index-re.run-1970-01-01T00:00:42-UTC: starting
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.pbench-index main -- Preparing to index 1 tar balls
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.pbench-index main -- update_templates [start]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.pbench-index main -- update_templates [end]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.pbench-index main -- start processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index-re.pbench-index main -- Starting /var/tmp/pbench-test-server/test-7.26/pbench/archive/fs-version-001/ctlrA/TO-RE-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.pbench-index main -- open tar ball
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.pbench-index main -- generator setup
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.pbench-index main -- begin indexing
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer make_all_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_run_action -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_sosreports -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_sosreports -- end [0 sosreports processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_tool_info -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_tool_info -- end [1 tools processed]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_run_action -- end
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_toc_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_toc_actions -- end [19 table-of-contents documents]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_result_data_actions -- start
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer mk_result_data_actions -- end [6 result documents]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.indexer make_all_actions -- end
+1970-01-01T00:00:42.000000 INFO pbench-index-re.pbench-index main -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 26, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-index-re.pbench-index main -- run-1970-01-01T00:00:42-UTC: ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz: success
+1970-01-01T00:00:42.000000 INFO pbench-index-re.pbench-index main -- Finished /var/tmp/pbench-test-server/test-7.26/pbench/archive/fs-version-001/ctlrA/TO-RE-INDEX/linpack_mock_2020.02.28T19.10.55.tar.xz (size 20848)
+1970-01-01T00:00:42.000000 WARNING pbench-index-re.indexer dump_opctx -- ** Errors encountered while indexing: [{"counters": {"sample_missing_timeseries": 6}, "object": "ResultData", "tbname": "/var/tmp/pbench-test-server/test-7.26/pbench/archive/fs-version-001/ctlrA/linpack_mock_2020.02.28T19.10.55.tar.xz"}]
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.pbench-index main -- stopped processing list of tar balls
+1970-01-01T00:00:42.000000 INFO pbench-index-re.pbench-index main -- pbench-index-re.run-1970-01-01T00:00:42-UTC: indexed 1 (skipped 0) results, 0 errors
+1970-01-01T00:00:42.000000 DEBUG pbench-index-re.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-index-re/pbench-index-re.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs

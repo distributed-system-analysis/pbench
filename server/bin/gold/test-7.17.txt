@@ -3556,6 +3556,7 @@ drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ansible-host/TODO

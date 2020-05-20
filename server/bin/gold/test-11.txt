@@ -107,6 +107,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controller/TODO

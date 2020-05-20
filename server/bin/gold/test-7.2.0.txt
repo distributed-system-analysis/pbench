@@ -180,6 +180,7 @@ drwxrwxr-x          - archive/fs-version-001/controller/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/controller/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller/TODO

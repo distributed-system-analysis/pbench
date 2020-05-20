@@ -8511,6 +8511,7 @@ drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/master_40gb/TODO

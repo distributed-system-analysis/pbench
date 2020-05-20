@@ -1604,6 +1604,7 @@ drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-DELETE
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-LINK
+drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-RE-INDEX
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/rhel8-1/TODO

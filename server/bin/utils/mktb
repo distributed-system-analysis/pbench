@@ -5,8 +5,15 @@ if [ -z "${1}" ]; then
     exit 1
 fi
 
+name="${1}"
 prefix="${2}"
 user="${3}"
+
+if [[ -z "${4}" ]]; then
+    _ts="1970.01.01T00.00.00"
+else
+    _ts="${4}"
+fi
 
 # A simple script to create a fake pbench tar ball.
 
@@ -15,13 +22,13 @@ user="${3}"
 
 # It generates a tarball-*.tar.xz and tarball-*.tar.xz.md5.
 
-tbname="tarball_${1}_1970.01.01T00.00.00"
+tbname="tarball_${name}_${_ts}"
 mkdir ${tbname}
-if [ -z "$prefix" -a -z "$user" ]; then
+if [ -z "${prefix}" -a -z "${user}" ]; then
     touch ${tbname}/metadata.log
-elif [ ! -z "$prefix" -a -z "$user" ]; then
+elif [ ! -z "${prefix}" -a -z "${user}" ]; then
     printf "[run]\nprefix = ${prefix}\n" > ${tbname}/metadata.log
-elif [ -z "$prefix" -a ! -z "$user" ]; then
+elif [ -z "${prefix}" -a ! -z "${user}" ]; then
     printf "[run]\nuser = ${user}\n" > ${tbname}/metadata.log
 else
     printf "[run]\nprefix = ${prefix}\nuser = ${user}\n" > ${tbname}/metadata.log
