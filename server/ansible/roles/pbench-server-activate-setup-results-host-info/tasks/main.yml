@@ -15,7 +15,6 @@
     group: "{{ pbench_group }}"
     mode:  0444
   with_items:
-    - "001"
     - "002"
 
 - name: "set up maint files"
@@ -26,7 +25,6 @@
     group: "{{ pbench_group }}"
     mode:  0444
   with_items:
-    - "001"
     - "002"
 
 - name: "set up links to the active files"
@@ -35,5 +33,4 @@
     src:  "{{ pbench_host_info_prefix | basename }}{{ item }}.active"
     state: link
   with_items:
-    - "001"
     - "002"
