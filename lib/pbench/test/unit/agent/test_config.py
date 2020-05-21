@@ -2,7 +2,7 @@ import pytest
 
 from pbench.agent.config import AgentConfig
 from pbench.common import exceptions
-from pbench.test.conftest import pbench_agent_config
+from pbench.test.unit.conftest import pbench_agent_config
 
 DEFAULT_CONFIG = """
 [pbench-agent]

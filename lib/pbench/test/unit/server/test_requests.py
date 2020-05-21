@@ -3,7 +3,7 @@ import os
 import pytest
 from werkzeug.utils import secure_filename
 
-from pbench.test.server.common import (
+from pbench.test.unit.server.common import (
     filename,
     temp_dir,
 )

@@ -4,7 +4,7 @@ import pytest
 
 from pbench.server.api.config import ServerConfig
 from pbench.server.api import create_app
-from pbench.test.server.common import mock_get_config_prefix
+from pbench.test.unit.server.common import mock_get_config_prefix
 
 
 @pytest.fixture(scope="session", autouse=True)

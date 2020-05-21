@@ -1,4 +1,4 @@
-from pbench.test.agent.cli.conftest import capture
+from pbench.test.unit.agent.cli.conftest import capture
 
 
 def test_pbench_cli():
