@@ -8,7 +8,7 @@ from pathlib import Path
 import requests
 from werkzeug.utils import secure_filename
 
-from pbench.agent import logger
+from pbench.agent.logger import logger
 from pbench.agent.config import AgentConfig
 from pbench.cli.agent.commands.log import add_metalog_option
 from pbench.common import configtools

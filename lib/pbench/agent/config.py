@@ -57,3 +57,9 @@ class AgentConfig:
 
     def get_results(self):
         return self.results
+
+    @property
+    def logdir(self):
+        """Return the pbench log_dir"""
+        return self.agent.get("pbench_log", None)
+

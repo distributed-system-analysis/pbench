@@ -7,3 +7,4 @@ werkzeug
 flask
 flask-restful
 click
+colorlog
