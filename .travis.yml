@@ -9,6 +9,7 @@ env:
   - TOXENV=server
   - TOXENV=py3-server
   - TOXENV=py3-agent
+  - TOXENV=py3-functional
 before_install:
  - sudo apt-get update
 install:
