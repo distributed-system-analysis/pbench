@@ -5,7 +5,7 @@ from tempfile import NamedTemporaryFile
 import responses
 
 from pbench.agent.results import CopyResultTb
-from pbench.test.agent.task.common import tarball, bad_tarball
+from pbench.test.unit.agent.task.common import tarball, bad_tarball
 
 
 class TestCopyResults:

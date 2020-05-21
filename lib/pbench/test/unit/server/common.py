@@ -1,5 +1,5 @@
 temp_dir = "/tmp/"
-filename = "./pbench/test/server/fixtures/upload/log.tar.xz"
+filename = "./lib/pbench/test/unit/server/fixtures/upload/log.tar.xz"
 
 
 def mock_get_config_prefix(app, *args, **kwargs):

@@ -3,7 +3,7 @@ import responses
 
 from pbench.agent.config import AgentConfig
 from pbench.cli.agent.commands.results import move_results
-from pbench.test.agent.task.common import MockDatetime, mock_agent_config
+from pbench.test.unit.agent.task.common import MockDatetime, mock_agent_config
 
 
 class TestMoveResults:
