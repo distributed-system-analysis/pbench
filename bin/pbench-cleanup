@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+
+import pathlib
+import sys
+
+import click
+
+from pbench.common.constants import NAME
+from pbench.agent.logger import logger
+from pbench.agent.config import AgentConfig
+from pbench.agent.utils import init_wrapper
+from pbench.agent.fs import removetree
+
+
+@click.command()
+def main():
+    try:
+        init_wrapper()
+
+        path = pathlib.Path(AgentConfig().rundir)
+        logger.info("Cleaning up %s", path)
+
+        # dont do anything if directory exists or directory is empty
+        if not path.exists() or not any(path.iterdir()):
+            sys.exit(1)
+
+        result = removetree(path)
+        sys.exit(result)
+    except Exception as ex:
+        logger.error("%s: Failed to delete %s: %s", NAME, path, ex)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
