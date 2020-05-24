@@ -1,12 +1,14 @@
 import configparser
+import errno
 import os
 import pathlib
 import sys
 
+import click
+
 from pbench.common import configtools
 from pbench.common import exceptions
-from pbench.common.constants import AGENT_PATH
-from pbench.agent.utils import error_out
+from pbench.common.constants import CONF_PATH
 
 AGENT_DEBUG = os.environ.get("AGENT_DEBUG", "False")
 
@@ -21,13 +23,14 @@ def lookup_agent_configuration(filename=None):
             # really need access to the config file to operate, and we
             # know the location of that config file
             # we check to see if that exists before declaring a problem.
-            filename = os.path.join(AGENT_PATH, "config/pbench-agent-default.cfg")
+            filename = os.path.join(CONF_PATH, "config/pbench-agent-default.cfg")
         else:
             filename = pbench_config
 
     path = pathlib.Path(filename)
     if not path.exists():
-        error_out(f"Unable to find configuration: {filename}")
+        click.secho(f"Unable to find configuration: {filename}")
+        sys.exit(1)
 
     config_files = configtools.file_list(filename)
     config_files.reverse()
@@ -36,9 +39,13 @@ def lookup_agent_configuration(filename=None):
         config = configparser.ConfigParser()
         config.read(config_files)
     except configparser.Error as e:
-        print(e)
-        sys.exit(2)
-
+        raise e
+    except IOError as err:
+        if err.errno == errno.ENOENT:
+            raise exceptions.ConfigFileNotFound()
+        if err.errno == errno.EACCES:
+            raise exceptions.ConfigFileAccessDenied()
+        raise
     return config
 
 
@@ -48,12 +55,43 @@ class AgentConfig:
         self.pbench_config = lookup_agent_configuration(self.cfg_name)
         try:
             self.agent = self.pbench_config["pbench-agent"]
-            self.results = self.pbench_config["results"]
         except KeyError:
             raise exceptions.BadConfig()
 
+        try:
+            self.results = self.pbench_config["results"]
+        except KeyError:
+            self.results = {}
+
     def get_agent(self):
+        """Return the agent section"""
         return self.agent
 
     def get_results(self):
+        """Return the results section"""
         return self.results
+
+    @property
+    def rundir(self):
+        """Return the pbench run_dir"""
+        return self.agent.get("pbench_run", "/var/lib/pbench-agent")
+
+    @property
+    def installdir(self):
+        """Return the pbench install-dir"""
+        return self.agent.get("install-dir", "/opt/pbench-agent")
+
+    @property
+    def logdir(self):
+        """Return the pbench log_dir"""
+        return self.agent.get("pbench_log", None)
+
+    @property
+    def user(self):
+        """Return the pbench user"""
+        return self.agent.get("pbench_user", "pbench")
+
+    @property
+    def group(self):
+        """Return the pbench group"""
+        return self.agent.get("pbench_group", "pbench")

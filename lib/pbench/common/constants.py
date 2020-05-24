@@ -1,3 +1,6 @@
 import os
+import sys
 
-AGENT_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../agent")
+NAME = os.path.basename(sys.argv[0])
+
+CONF_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../agent/")
