@@ -1,7 +1,4 @@
-import pytest
-
 from pbench.agent.config import AgentConfig
-from pbench.common import exceptions
 from pbench.test.unit.conftest import pbench_agent_config
 
 DEFAULT_CONFIG = """
@@ -10,16 +7,6 @@ run_dir = /tmp
 [results]
 user = pbench
 """
-
-
-def test_invalid_config(tmpdir):
-    config = """
-    [pbench-agent]
-    run_dir = /tmp
-    """
-    pbench_config = pbench_agent_config(tmpdir, config)
-    with pytest.raises(exceptions.BadConfig):
-        AgentConfig(str(pbench_config))
 
 
 def test_valid_config(tmpdir):

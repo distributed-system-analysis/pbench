@@ -1,28 +1,12 @@
-import sys
+import logging
 
-import click
+import six
 
-
-def init_context(context, config, debug):
-    context.obj = {}
-    context.obj["args"] = {}
-    context.obj["args"]["config"] = config
-    context.obj["args"]["debug"] = debug
-    return context
+from pbench.agent.logger import logger
 
 
-def error_out(msg):
-    click.secho(msg, fg="red")
-    sys.exit(1)
+def init_wrapper(self):
+    if six.PY2:
+        logger.error("Python3 is not installed")
 
-
-def error_warn(msg):
-    click.secho(msg, fg="yellow")
-
-
-def error_info(msg):
-    click.secho(msg, fg="green")
-
-
-def error_debug(msg):
-    click.secho(msg, fg="blue")
+    logging.getLogger("sh").setLevel(logging.WARNING)
