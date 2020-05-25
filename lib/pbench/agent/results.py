@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import os
+import re
 import sys
 import tarfile
 from pathlib import Path
@@ -10,8 +11,19 @@ from werkzeug.utils import secure_filename
 
 from pbench.agent.logger import logger
 from pbench.agent.config import AgentConfig
+from pbench.agent import fs
 from pbench.cli.agent.commands.log import add_metalog_option
 from pbench.common import configtools
+
+
+class Results:
+    def __init__(self):
+        self.config = AgentConfig()
+
+    def clear(self):
+        for path in Path(self.config.rundir).glob("*"):
+            if not re.search(r"(tmp|tools)", str(path.name)):
+                fs.removedir(path)
 
 
 class MakeResultTb:

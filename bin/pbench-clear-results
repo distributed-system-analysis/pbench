@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+import click
+
+from pbench.common.constants import NAME
+from pbench.agent.logger import logger
+from pbench.agent.results import Results
+from pbench.agent.utils import init_wrapper
+
+
+@click.command()
+def main():
+    try:
+        init_wrapper()
+        Results().clear()
+    except Exception as ex:
+        logger.error("%s: Failed to remove results: %s", NAME, ex)
+
+
+if __name__ == "__main__":
+    main()
