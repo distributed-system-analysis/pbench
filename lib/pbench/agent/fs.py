@@ -1,4 +1,7 @@
+import errno
+import grp
 import os
+import pwd
 import shutil
 
 from pbench.agent.logger import logger
@@ -32,3 +35,24 @@ def removedir(path):
 def removefile(path):
     """Remove a file safely given a path"""
     os.unlink(stringify_path(path))
+
+
+def copyfile(src, dest, perms=None, owner=None):
+    """Provide a safe wrapper for a given path, ownership and permissions"""
+    try:
+        shutil.copyfile(src, dest)
+        if owner:
+            user, group = owner
+            os.chown(dest, pwd.getpwnam(user).pw_uid, grp.getgrnam(group).gr_gid)
+        if perms:
+            os.chmod(dest, perms)
+    except shutil.Error:
+        raise
+    except shutil.SameFileError:
+        logger.error("%s and %s are the same file, doing nothing", src, dest)
+    except OSError as err:
+        if err.errno == errno.ENONENT:
+            # Ignore the exception if the path doesnt exist
+            pass
+        else:
+            raise

@@ -40,3 +40,13 @@ def test_removefile(tmpdir):
     assert f1.exists()
     fs.removefile(f1)
     assert f1.exists() is False
+
+
+def test_copyfile(tmpdir):
+    src = Path(tmpdir) / "bar"
+    src.write_text("")
+    dest = Path(tmpdir) / "foo"
+    dest.mkdir()
+
+    fs.copyfile(src, dest)
+    assert (dest / "bar").exists()

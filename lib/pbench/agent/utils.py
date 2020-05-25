@@ -7,7 +7,7 @@ from py._path.local import LocalPath
 from pbench.agent.logger import logger
 
 
-def init_wrapper(self):
+def init_wrapper():
     if six.PY2:
         logger.error("Python3 is not installed")
 

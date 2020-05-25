@@ -58,3 +58,10 @@ def pbench_config(pbench_conf):
     conf = configparser.ConfigParser()
     conf.read(pbench_conf)
     yield conf
+
+
+@pytest.helpers.register
+def get_pbench_config(f):
+    c = configparser.ConfigParser()
+    c.read(f)
+    return c

@@ -313,7 +313,6 @@ declare -A tools=(
     [test-11.14]="pbench-register-tool-set"
     [test-12]="pbench-clear-tools"
     [test-13]="pbench-postprocess-tools"
-    [test-14]="pbench-agent-config-activate"
     [test-15]="pbench-register-tool-trigger"
     [test-16]="pbench-list-triggers"
     [test-17]="pbench-list-triggers"
