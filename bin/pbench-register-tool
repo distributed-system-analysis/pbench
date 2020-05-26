@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+
+import click
+
+from pbench.common.constants import NAME
+from pbench.agent.logger import logger
+from pbench.cli import options
+from pbench.agent.tools import Tools
+from pbench.agent.utils import init_wrapper
+
+
+@click.command()
+@options.nameRegister
+@options.labelRegister
+@options.groupRegister
+@options.installRegister
+@options.testLabelregister
+@click.argument("tool_arg", nargs=-1, required=False, type=click.STRING)
+def main(name, labels_args, group, no_install, test_label, tool_arg):
+    try:
+        init_wrapper()
+
+        Tools().register(name, labels_args, group, no_install, test_label, tool_arg)
+    except Exception as ex:
+        logger.error("%s: Failed to register %s %s: %s", NAME, name, group, ex)
+
+
+if __name__ == "__main__":
+    main()

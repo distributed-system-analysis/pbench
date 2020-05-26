@@ -285,7 +285,6 @@ function _reset_state {
 let errs=0
 
 declare -A tools=(
-    [test-00]="pbench-register-tool"
     [test-01]="pbench-metadata-log"
     [test-02]="pbench-metadata-log"
     [test-03]="pbench-metadata-log"
@@ -336,12 +335,6 @@ declare -A tools=(
     [test-39]="pbench-copy-results"
     [test-40]="pbench-copy-results"
     [test-41]="pbench-copy-results"
-    [test-42]="pbench-register-tool"
-    [test-43]="pbench-register-tool"
-    [test-44]="pbench-register-tool"
-    [test-45]="pbench-register-tool"
-    [test-46]="pbench-register-tool"
-    [test-47]="pbench-register-tool"
     [test-48]="test-add-metalog-%-option"
     [test-49]="pbench-copy-results"
     [test-50]="test-pbench-metadata-log"

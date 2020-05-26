@@ -1,6 +1,7 @@
 import configparser
 import getpass
 import os
+import shutil
 
 import pytest
 
@@ -51,6 +52,15 @@ def create_agent_environment(pbench_run, pbench_installdir, pbench_conf, tmpdir)
     conf.set("pbench-agent", "pbench_log", "%s/pbench.log" % pbench_run.strpath)
 
     conf.write(open(pbench_conf, "w"))
+
+
+@pytest.fixture
+def install_tool_scripts(pbench_installdir):
+    tool_scripts = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "../../../agent/tool-scripts"
+    )
+    tool_dir = pbench_installdir / "tool-scripts"
+    shutil.copytree(tool_scripts, tool_dir)
 
 
 @pytest.fixture
