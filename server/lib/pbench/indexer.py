@@ -1350,6 +1350,17 @@ class ResultData(PbenchData):
                 sample_md = dict()
                 sample_md.update(base_sample_md)
                 sample_md["closest_sample"] = sample_obj.number
+                # There is only one row with a value, so it is also the mean, which
+                # also means there is zero standard deviation or standard deviation
+                # percent.
+                sample_md["mean"] = value = methods[columns[val_col]](row[val_col])
+                sample_md["stddev"] = 0
+                sample_md["stddevpct"] = 0
+                # We re-use the iteration name as the UID for the sample, since we
+                # only ever have one sample per iteration for user benchmark runs.
+                sample_md["uid"] = iter_obj.name
+                # The notion of role is not applicable to a user benchmark sample.
+                sample_md["role"] = "n/a"
                 start_time = self._normalize_timestamp(ts_format, row[start_ts_col])
                 sample_md["start"] = start_time
                 if end_ts_col:
@@ -1388,9 +1399,7 @@ class ResultData(PbenchData):
                 # Construct the result-data document.
                 sample_md = base_sample_md
                 # Add val columns
-                result = _dict_const(
-                    [("@idx", 0), ("value", methods[columns[val_col]](row[val_col]))]
-                )
+                result = _dict_const([("@idx", 0), ("value", value)])
                 source = _dict_const(
                     [
                         ("@timestamp", start_time),

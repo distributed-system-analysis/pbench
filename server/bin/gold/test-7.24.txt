@@ -543,11 +543,16 @@ len(actions) = 16
                 },
                 "closest_sample": 1,
                 "end": "2020-02-06T10:46:32.000000",
+                "mean": 382109,
                 "measurement_idx": 0,
                 "measurement_title": "Tpm",
                 "measurement_type": "number",
                 "name": "sample1",
-                "start": "2020-02-06T10:29:26.000000"
+                "role": "n/a",
+                "start": "2020-02-06T10:29:26.000000",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "1-10U"
             }
         },
         "_type": "pbench-result-data-sample"
@@ -624,11 +629,16 @@ len(actions) = 16
                 },
                 "closest_sample": 1,
                 "end": "2020-02-06T11:07:16.000000",
+                "mean": 657043,
                 "measurement_idx": 0,
                 "measurement_title": "Tpm",
                 "measurement_type": "number",
                 "name": "sample1",
-                "start": "2020-02-06T10:50:11.000000"
+                "role": "n/a",
+                "start": "2020-02-06T10:50:11.000000",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "2-20U"
             }
         },
         "_type": "pbench-result-data-sample"
