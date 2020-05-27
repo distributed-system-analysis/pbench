@@ -51,7 +51,7 @@ def copyfile(src, dest, perms=None, owner=None):
     except shutil.SameFileError:
         logger.error("%s and %s are the same file, doing nothing", src, dest)
     except OSError as err:
-        if err.errno == errno.ENONENT:
+        if err.errno == errno.ENOENT:
             # Ignore the exception if the path doesnt exist
             pass
         else:

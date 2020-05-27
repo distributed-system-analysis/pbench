@@ -46,7 +46,7 @@ def test_copyfile(tmpdir):
     src = Path(tmpdir) / "bar"
     src.write_text("")
     dest = Path(tmpdir) / "foo"
-    dest.mkdir()
+    dest.write_text("")
 
     fs.copyfile(src, dest)
-    assert (dest / "bar").exists()
+    assert dest.exists()
