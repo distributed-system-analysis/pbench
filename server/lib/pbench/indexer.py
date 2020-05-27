@@ -1356,11 +1356,11 @@ class ResultData(PbenchData):
                 sample_md["mean"] = value = methods[columns[val_col]](row[val_col])
                 sample_md["stddev"] = 0
                 sample_md["stddevpct"] = 0
+                # For now, the sample "role" is considered to be an aggregate value.
+                sample_md["role"] = "aggregate"
                 # We re-use the iteration name as the UID for the sample, since we
                 # only ever have one sample per iteration for user benchmark runs.
                 sample_md["uid"] = iter_obj.name
-                # The notion of role is not applicable to a user benchmark sample.
-                sample_md["role"] = "n/a"
                 start_time = self._normalize_timestamp(ts_format, row[start_ts_col])
                 sample_md["start"] = start_time
                 if end_ts_col:
