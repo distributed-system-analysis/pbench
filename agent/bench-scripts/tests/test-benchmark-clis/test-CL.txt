@@ -1510,7 +1510,7 @@ Bench Script: pbench-uperf --help
 				   If this is omitted, the server will listen on the local system
 				   loopback interface.
 	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
-	--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding
+	--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding
 				   For both options above, the order must correspond with the --clients/--servers list
 				   To omit a specific client/server from binding, use a value of -1.
 	--samples=int              the number of times each different test is run (to compute average &
@@ -1559,7 +1559,7 @@ Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 				   If this is omitted, the server will listen on the local system
 				   loopback interface.
 	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
-	--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding
+	--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding
 				   For both options above, the order must correspond with the --clients/--servers list
 				   To omit a specific client/server from binding, use a value of -1.
 	--samples=int              the number of times each different test is run (to compute average &
@@ -1610,7 +1610,7 @@ pbench-uperf --bad-to-the-bone
 				   If this is omitted, the server will listen on the local system
 				   loopback interface.
 	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
-	--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding
+	--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding
 				   For both options above, the order must correspond with the --clients/--servers list
 				   To omit a specific client/server from binding, use a value of -1.
 	--samples=int              the number of times each different test is run (to compute average &

@@ -92,7 +92,7 @@ function usage {
 	printf    "\t\t\t\t   If this is omitted, the server will listen on the local system\n"
 	printf    "\t\t\t\t   loopback interface.\n"
 	printf -- "\t--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding\n"
-	printf -- "\t--client-node[s]=str[,str]              An ordered list of rrclient NUMA nodes which should be used for CPU binding\n"
+	printf -- "\t--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding\n"
 	printf -- "\t\t\t\t   For both options above, the order must correspond with the --clients/--servers list\n"
 	printf -- "\t\t\t\t   To omit a specific client/server from binding, use a value of -1.\n"
 	printf -- "\t--samples=int              the number of times each different test is run (to compute average &\n"
@@ -542,22 +542,25 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								server_nr=1
 								# the following loop does all of the pre-benchmark execution work
 								for server in `echo $servers | sed -e s/,/" "/g`; do
-
 									client=`echo $clients | cut -d, -f$server_nr`
-									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
-									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
+									if [ -z "$client" ]; then
+										client="127.0.0.1"
+									fi
 									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
-									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
+
 									benchmark_client_cmd_file="$iteration_dir/$uperf_identifier--client_start.sh"
 									benchmark_server_cmd_file="$iteration_dir/$uperf_identifier--server_start.sh"
 									result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
 									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
+
+									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
 									gen_xml $server $protocol ${runtime_padded}s $message_size $instance $test_type >$xml_file
 
 									# construct the server command
 									benchmark_server_cmd="${benchmark_bin} -v -s -P $server_port > ${server_log} 2>&1"
 									# adjust server command for NUMA binding
+									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
 									if [ ! -z "$server_node" ]; then
 										if [ $server_node -ge 0 ]; then
 											benchmark_server_cmd="numactl --cpunodebind=$server_node bash -c \"$benchmark_server_cmd\""
@@ -574,6 +577,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									fi
 									benchmark_client_cmd="${benchmark_bin} -v -m $xml_file -R -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
 									# adjust client command for NUMA binding
+									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
 									if [ ! -z "$client_node" ]; then
 										if [ $client_node -ge 0 ]; then
 											benchmark_client_cmd="numactl --cpunodebind=$client_node bash -c \"$benchmark_client_cmd\""
@@ -603,6 +607,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 
 									((server_nr++))
 								done
+
 								pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
 								# start the uperf clients
@@ -610,45 +615,46 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								log "test sample $sample of $nr_samples"
 								server_nr=1
 								for server in `echo $servers | sed -e s/","/" "/g`; do
-									server_nodeinfo=""
-									client_nodeinfo=""
 									client=`echo $clients | cut -d, -f$server_nr`
-									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
-									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
-									if [ ! -z "$client_node" ]; then
-										if [ $client_node -ge 0 ]; then
-											client_nodeinfo="node[$client_node]"
-										fi
-									fi
-									if [ ! -z "$server_node" ]; then
-										if [ $server_node -ge 0 ]; then
-											server_nodeinfo="node[$server_node]"
-										fi
-									fi
 									if [ -z "$client" ]; then
 										client="127.0.0.1"
 									fi
 									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
+
 									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
 									benchmark_client_cmd_file="$iteration_dir/$uperf_identifier--client_start.sh"
-									#benchmark_server_cmd_file="$iteration_dir/$uperf_identifier--server_start.sh"
 									result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
-									#benchmark_client_cmd_file="$iteration_dir/uperf-client-$server:$server_port.cmd"
-									#result_file=$benchmark_results_dir/result-$server:$server_port.txt
+
+									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
+									client_nodeinfo=""
+									if [ ! -z "$client_node" ]; then
+										if [ $client_node -ge 0 ]; then
+											client_nodeinfo="node[$client_node]"
+										fi
+									fi
+									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
+									server_nodeinfo=""
+									if [ ! -z "$server_node" ]; then
+										if [ $server_node -ge 0 ]; then
+											server_nodeinfo="node[$server_node]"
+										fi
+									fi
 									debug_log "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 									echo "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
 
-									# using local clients
 									if [ -z "$clients" ]; then
+										# using local clients
 										debug_log "screen -dmS uperf-client $benchmark_client_cmd_file"
 										screen -dmS uperf-client $benchmark_client_cmd_file
-									else # using remote clients
+									else
+										# using remote clients
 										debug_log "ssh $ssh_opts $client screen -dmS uperf-client $benchmark_client_cmd_file"
 										ssh $ssh_opts $client "screen -dmS uperf-client $benchmark_client_cmd_file"
 									fi
 									((server_nr++))
 								done
+
 								sleep $runtime_padded
 
 								# stop tools and clean up
@@ -658,8 +664,12 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								server_nr=1
 								for server in `echo $servers | sed -e s/,/" "/g`; do
 									client=`echo $clients | cut -d, -f$server_nr`
+									if [ -z "$client" ]; then
+										client="127.0.0.1"
+									fi
 									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
+
 									stop_server $server $server_port 0
 									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
 									scp $scp_opts $server:$server_log $server_log >/dev/null
