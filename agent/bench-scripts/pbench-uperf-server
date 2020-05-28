@@ -1,0 +1,23 @@
+#!/bin/bash
+
+benchmark_bin="${1}"
+benchmark_results_dir="${2}"
+uperf_identifier="${3}"
+server_port="${4}"
+server_node="${5}"
+
+mkdir -p "${benchmark_results_dir}"
+if [[ ${?} -ne 0 ]]; then
+    printf -- "ERROR: failed to create benchmark results directory, '${benchmark_results_dir}'" >&2
+    exit 1
+fi
+
+_logfile="${benchmark_results_dir}/${uperf_identifier}--server.log"
+
+if [[ ! -z "${server_node}" && ${server_node} -ge 0 ]]; then
+    numanode_prefix="numactl --cpunodebind=${server_node} --"
+else
+    numanode_prefix=""
+fi
+
+${numanode_prefix} ${benchmark_bin} -v -s -P ${server_port} > ${_logfile} 2>&1

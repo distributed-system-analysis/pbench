@@ -27,7 +27,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 benchmark="uperf"
 benchmark_rpm=${benchmark}
 if [[ -z "$benchmark_bin" ]]; then
-    benchmark_bin=/usr/local/bin/$benchmark
+    benchmark_bin=/usr/local/bin/${benchmark}
 fi
 ver="$(getconf.py version uperf)"
 if [[ -z "${ver}" ]]; then
@@ -60,8 +60,8 @@ mode="loopback"
 servers=127.0.0.1
 server_base_port=20000
 port_number_gap=10
-postprocess_only=n
-log_response_times=n
+postprocess_only="n"
+log_response_times="n"
 start_iteration_num=1
 tar_nonref_data="n"
 keep_failed_tool_data="y"
@@ -97,7 +97,7 @@ function usage {
 	printf -- "\t\t\t\t   To omit a specific client/server from binding, use a value of -1.\n"
 	printf -- "\t--samples=int              the number of times each different test is run (to compute average &\n"
 	printf    "\t\t\t\t   standard deviations).\n"
-	printf -- "\t--max-failures=int         the maximum number of failures to get below stddev.\n"
+	printf -- "\t--max-failures=int         the maximum number of failures to get below stddev per iteration.\n"
 	printf -- "\t--max-stddev=int           the maximum percent stddev allowed to pass.\n"
 	printf -- "\t--postprocess-only=y|n     don't run the benchmark, but postprocess data from previous test.\n"
 	printf -- "\t--run-dir=str              optionally specify what directory should be used (usually only used\n"
@@ -463,7 +463,6 @@ function record_iteration {
 	local instance=$5
 	local iteration=$6
 
-	echo ${iteration} >> ${benchmark_iterations}
 	echo $count | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
 	echo $protocol | pbench-add-metalog-option ${mdlog} iterations/${iteration} protocol
 	echo $test_type | pbench-add-metalog-option ${mdlog} iterations/${iteration} test_type
@@ -478,7 +477,7 @@ mkdir -p $benchmark_run_dir/.running
 > ${benchmark_iterations}
 
 # save a copy of the command, in case the test needs to be reproduced or post-processed again
-echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
+echo "$script_name $pbench_cmd" > $benchmark_run_dir/$script_name.cmd
 chmod +x $benchmark_run_dir/$script_name.cmd
 
 ## Run the benchmark and start/stop perf analysis tools
@@ -486,11 +485,19 @@ chmod +x $benchmark_run_dir/$script_name.cmd
 total_iterations=0
 for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
-		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
-			for instance in `echo $instances | sed -e s/,/" "/g`; do
-				((total_iterations++))
-			done
-		done
+		case $test_type in
+			rr|stream|maerts|bidirec)
+				for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
+					for instance in `echo $instances | sed -e s/,/" "/g`; do
+						((total_iterations++))
+						echo "${total_iterations}" "${protocol}" "${test_type}" "${message_size}" "${instance}" >> ${benchmark_iterations}
+					done
+				done
+			;;
+			*)
+			error_log "$script_name: test type \"$test_type\" is not supported"
+			;;
+		esac
 	done
 done
 
@@ -500,235 +507,267 @@ pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 # on abnormal exit, make sure that the metadata log exists and is complete.
 trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
-# start the server processes
-count=1
-for protocol in `echo $protocols | sed -e s/,/" "/g`; do
-	for test_type in `echo $test_types | sed -e s/,/" "/g`; do
-		case $test_type in
-			rr)
-			primary_metric="trans_sec"
-			;;
-			stream|maerts|bidirec)
-			primary_metric="Gb_sec"
-			;;
-			*)
-			error_log "$script_name: test type \"$test_type\" is not suported"
-			continue
-			;;
-		esac
-		for message_size in `echo $message_sizes | sed -e s/,/" "/g`; do
-			for instance in `echo $instances | sed -e s/,/" "/g`; do
-				if [ $count -ge $start_iteration_num ]; then
-					echo "Starting iteration $iteration ($count of $total_iterations)"
-					log "Starting iteration $iteration ($count of $total_iterations)"
-					iteration="${count}-${protocol}_${test_type}-${message_size}B-${instance}i"
-					record_iteration ${count} ${protocol} ${test_type} ${message_size} ${instance} ${iteration}
-					iteration_dir="$benchmark_run_dir/$iteration"
-					result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
-					failures=0
-					while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
-						if [[ $failures -gt 0 ]]; then
-							echo "Restarting iteration $iteration ($count of $total_iterations)"
-							log "Restarting iteration $iteration ($count of $total_iterations)"
-						fi
-						if [ $postprocess_only == "n" ]; then
-							mkdir -p $iteration_dir
-						fi
-						# each attempt at a test config requires multiple samples to get stddev
-						for sample in `seq 1 $nr_samples`; do
-							benchmark_results_dir="$iteration_dir/sample$sample"
-							if [ "$postprocess_only" != "y" ]; then
-								mkdir -p $benchmark_results_dir
-								server_nr=1
-								# the following loop does all of the pre-benchmark execution work
-								for server in `echo $servers | sed -e s/,/" "/g`; do
-									client=`echo $clients | cut -d, -f$server_nr`
-									if [ -z "$client" ]; then
-										client="127.0.0.1"
-									fi
-									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
-									uperf_identifier="client::$client-server::$server:$server_port"
+function construct_iteration {
+	# construct_iteration - construct the uperf test XML for the given iteration
+	#
+	# One XML file is created for every client/server pair
+	local iteration_dir="${1}"
+	local protocol="${2}"
+	local message_size="${3}"
+	local instance="${4}"
+	local test_type="${5}"
 
-									benchmark_client_cmd_file="$iteration_dir/$uperf_identifier--client_start.sh"
-									benchmark_server_cmd_file="$iteration_dir/$uperf_identifier--server_start.sh"
-									result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
-									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
+	local server=""
+	local client=""
 
-									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
-									gen_xml $server $protocol ${runtime_padded}s $message_size $instance $test_type >$xml_file
+	# the following loop does all of the pre-benchmark execution work
+	local server_nr=1
+	for server in `echo $servers | sed -e s/,/" "/g`; do
+		client=`echo $clients | cut -d, -f$server_nr`
+		if [ -z "$client" ]; then
+			client="127.0.0.1"
+		fi
+		local server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
+		local uperf_identifier="client::$client-server::$server:$server_port"
 
-									# construct the server command
-									benchmark_server_cmd="${benchmark_bin} -v -s -P $server_port > ${server_log} 2>&1"
-									# adjust server command for NUMA binding
-									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
-									if [ ! -z "$server_node" ]; then
-										if [ $server_node -ge 0 ]; then
-											benchmark_server_cmd="numactl --cpunodebind=$server_node bash -c \"$benchmark_server_cmd\""
-										fi
-									fi
+		local xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
+		gen_xml ${server} ${protocol} ${runtime_padded}s ${message_size} ${instance} ${test_type} > ${xml_file}
 
-									# create a server command file, to be used for debugging purposes or to run this uperf command later [without pbench]
-									echo "$benchmark_server_cmd" >$benchmark_server_cmd_file
-									chmod +x $benchmark_server_cmd_file
-
-									# construct the client command
-									if [ "$log_response_times" == "y" ]; then
-										resp_opt=" -X $benchmark_results_dir/$uperf_identifier--response-times.txt"
-									fi
-									benchmark_client_cmd="${benchmark_bin} -v -m $xml_file -R -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
-									# adjust client command for NUMA binding
-									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
-									if [ ! -z "$client_node" ]; then
-										if [ $client_node -ge 0 ]; then
-											benchmark_client_cmd="numactl --cpunodebind=$client_node bash -c \"$benchmark_client_cmd\""
-										fi
-									fi
-
-									# create the client command file, to be used for debugging purposes or to run this uperf command later [without pbench]
-									echo "$benchmark_client_cmd" >$benchmark_client_cmd_file
-									chmod +x $benchmark_client_cmd_file
-
-									# prepare test files and dirs if using remote clients
-									if [ ! -z "$clients" ]; then
-										ssh $ssh_opts $client mkdir -p $benchmark_results_dir
-										scp $scp_opts $xml_file $client:$xml_file >/dev/null
-										scp $scp_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
-										ssh $ssh_opts $client "systemctl stop firewalld"
-									fi
-
-									# prepare test files and dirs on servers
-									ssh $ssh_opts $server mkdir -p $benchmark_results_dir
-									scp $scp_opts $benchmark_server_cmd_file $server:$benchmark_server_cmd_file >/dev/null
-
-									# start the uperf server(s)
-									stop_server $server $server_port 1
-									ssh $ssh_opts $server "systemctl stop firewalld"
-									ssh $ssh_opts $server "screen -dmS uperf-server $benchmark_server_cmd_file"
-
-									((server_nr++))
-								done
-
-								pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
-
-								# start the uperf clients
-								echo "test sample $sample of $nr_samples"
-								log "test sample $sample of $nr_samples"
-								server_nr=1
-								for server in `echo $servers | sed -e s/","/" "/g`; do
-									client=`echo $clients | cut -d, -f$server_nr`
-									if [ -z "$client" ]; then
-										client="127.0.0.1"
-									fi
-									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
-									uperf_identifier="client::$client-server::$server:$server_port"
-
-									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
-									benchmark_client_cmd_file="$iteration_dir/$uperf_identifier--client_start.sh"
-									result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
-
-									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
-									client_nodeinfo=""
-									if [ ! -z "$client_node" ]; then
-										if [ $client_node -ge 0 ]; then
-											client_nodeinfo="node[$client_node]"
-										fi
-									fi
-									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
-									server_nodeinfo=""
-									if [ ! -z "$server_node" ]; then
-										if [ $server_node -ge 0 ]; then
-											server_nodeinfo="node[$server_node]"
-										fi
-									fi
-									debug_log "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
-									echo "client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
-
-									if [ -z "$clients" ]; then
-										# using local clients
-										debug_log "screen -dmS uperf-client $benchmark_client_cmd_file"
-										screen -dmS uperf-client $benchmark_client_cmd_file
-									else
-										# using remote clients
-										debug_log "ssh $ssh_opts $client screen -dmS uperf-client $benchmark_client_cmd_file"
-										ssh $ssh_opts $client "screen -dmS uperf-client $benchmark_client_cmd_file"
-									fi
-									((server_nr++))
-								done
-
-								sleep $runtime_padded
-
-								# stop tools and clean up
-								pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
-								pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
-
-								server_nr=1
-								for server in `echo $servers | sed -e s/,/" "/g`; do
-									client=`echo $clients | cut -d, -f$server_nr`
-									if [ -z "$client" ]; then
-										client="127.0.0.1"
-									fi
-									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
-									uperf_identifier="client::$client-server::$server:$server_port"
-
-									stop_server $server $server_port 0
-									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
-									scp $scp_opts $server:$server_log $server_log >/dev/null
-									if [ ! -z "$clients" ]; then
-										result_file="$benchmark_results_dir/$uperf_identifier--client_output.txt"
-										scp $scp_opts $client:$result_file $result_file >/dev/null
-									fi
-									((server_nr++))
-								done
-							else # only postprocessing
-								let fail_num=$failures+1
-								set -x
-								if [ ! -e $iteration_dir -a -e $iteration_dir-fail$fail_num ]; then
-									mv $iteration_dir-fail$fail_num $iteration_dir
-								fi
-								set +x
-								pushd $iteration_dir >/dev/null
-								if [ ! -e sample$sample -a -e sample$sample.tar.xz ]; then
-									tar Jxf sample$sample.tar.xz && /bin/rm -rf sample$sample.tar.xz
-								fi
-								popd >/dev/null
-								if [[ ! -d $benchmark_results_dir ]]; then
-									error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
-									continue
-								fi
-								echo "Not going to run uperf.  Only postprocesing existing data"
-								log "Not going to run uperf.  Only postprocesing existing data"
-							fi
-							echo "$script_path/postprocess/$benchmark-postprocess \"$benchmark_results_dir\" \"$protocol\" \"$message_size\" \"$instance\" \"$test_type\" \"$clients\" \"$servers\" \"$tool_label_pattern\" \"$tool_group\" \"${ver}\"" >"$benchmark_results_dir/$benchmark-postprocess.cmd"
-							chmod +x "$benchmark_results_dir/$benchmark-postprocess.cmd"
-							$benchmark_results_dir/$benchmark-postprocess.cmd
-						done
-						echo "$script_path/postprocess/process-iteration-samples \"$iteration_dir\" \"$primary_metric\" \"$maxstddevpct\" \"$failures\" \"$max_failures\" \"$tar_nonref_data\" \"$keep_failed_tool_data\"" >"$iteration_dir/process-iteration-samples.cmd"
-						chmod +x "$iteration_dir/process-iteration-samples.cmd"
-						$iteration_dir/process-iteration-samples.cmd
-						fail=$?
-						if [ $fail -ne 0 ]; then
-							((failures++))
-						fi
-						if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
-							break
-						fi
-					done # break out of this loop only if the $result_stddevpct & $eff_stddevpct lower than $maxstddevpct
-					echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-					log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-				else
-					echo "Skipping iteration $iteration ($count of $total_iterations)"
-					log "Skipping iteration $iteration ($count of $total_iterations)"
-				fi
-				last_test_type="$test_type"
-				let count=$count+1 # now we can move to the next iteration
-			done
-		done
+		if [[ "${client}" != "localhost" && "${client}" != "127.0.0.1" ]]; then
+			# Copy XML file remotely.
+			scp ${scp_opts} ${xml_file} ${client}:${xml_file} > /dev/null
+		fi
+		((server_nr++))
 	done
-done
-echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
-chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
-$benchmark_run_dir/generate-benchmark-summary.cmd
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
-rmdir $benchmark_run_dir/.running
+	return 0
+}
+
+function run_uperf {
+	local benchmark_results_dir="${1}"
+
+	# Start the local/remote uperf servers.
+	local server_nr=1
+	for server in `echo $servers | sed -e s/,/" "/g`; do
+		local client=`echo $clients | cut -d, -f$server_nr`
+		if [ -z "$client" ]; then
+			client="127.0.0.1"
+		fi
+		local server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
+		local uperf_identifier="client::$client-server::$server:$server_port"
+
+		local server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
+
+		# start the uperf server(s)
+		stop_server ${server} ${server_port} 1
+		if [[ "${server}" != "localhost" && "${server}" != "127.0.0.1" ]]; then
+			ssh ${ssh_opts} ${server} "screen -dmS uperf-server ${script_path}/pbench-uperf-server \"${benchmark_bin}\" \"${benchmark_results_dir}\" \"${uperf_identifier}\" \"${server_port}\" \"${server_node}\""
+		else
+			screen -dmS uperf-server ${script_path}/pbench-uperf-server "${benchmark_bin}" "${benchmark_results_dir}" "${uperf_identifier}" "${server_port}" "${server_node}"
+		fi
+		((server_nr++))
+	done
+
+	# Tools are started before the clients are started.
+	pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
+
+	local _msg="test sample $sample of $nr_samples"
+	echo "${_msg}"; log "${_msg}"
+
+	# Start the uperf clients
+	server_nr=1
+	for server in `echo $servers | sed -e s/","/" "/g`; do
+		local client=`echo $clients | cut -d, -f$server_nr`
+		if [ -z "$client" ]; then
+			client="127.0.0.1"
+		fi
+		server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
+		uperf_identifier="client::$client-server::$server:$server_port"
+
+		local client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
+		local client_nodeinfo=""
+		if [ ! -z "$client_node" ]; then
+			if [ $client_node -ge 0 ]; then
+				client_nodeinfo="node[$client_node]"
+			fi
+		fi
+		local server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
+		local server_nodeinfo=""
+		if [ ! -z "$server_node" ]; then
+			if [ $server_node -ge 0 ]; then
+				server_nodeinfo="node[$server_node]"
+			fi
+		fi
+		_msg="client[$client]${client_nodeinfo}protocol[$protocol]test[$test_type]instances[$instance]size[$message_size] <-> server[$server]${server_nodeinfo}"
+		echo "${_msg}"; debug_log "${_msg}"
+
+		if [[ "${client}" != "localhost" && "${client}" != "127.0.0.1" ]]; then
+			# Remote client
+			debug_log "ssh ${ssh_opts} ${client} screen -dmS uperf-client ${script_path}/pbench-uperf-client \"${benchmark_bin}\" \"${benchmark_results_dir}\" \"${uperf_identifier}\" \"${server_port}\" \"${xml_file}\" \"${log_response_times}\" \"${client_node}\""
+			ssh ${ssh_opts} ${client} "screen -dmS uperf-client ${script_path}/pbench-uperf-client \"${benchmark_bin}\" \"${benchmark_results_dir}\" \"${uperf_identifier}\" \"${server_port}\" \"${xml_file}\" \"${log_response_times}\" \"${client_node}\""
+		else
+			# Local client
+			debug_log "screen -dmS uperf-client ${script_path}/pbench-uperf-client \"${benchmark_bin}\" \"${benchmark_results_dir}\" \"${uperf_identifier}\" \"${server_port}\" \"${xml_file}\" \"${log_response_times}\" \"${client_node}\""
+			screen -dmS uperf-client ${script_path}/pbench-uperf-client "${benchmark_bin}" "${benchmark_results_dir}" "${uperf_identifier}" "${server_port}" "${xml_file}" "${log_response_times}" "${client_node}"
+		fi
+		((server_nr++))
+	done
+
+	sleep ${runtime_padded}
+
+	# stop tools and clean up
+	pbench-stop-tools --group=${tool_group} --dir=${benchmark_results_dir}
+	pbench-postprocess-tools --group=${tool_group} --dir=${benchmark_results_dir}
+
+	server_nr=1
+	for server in `echo $servers | sed -e s/,/" "/g`; do
+		client=`echo $clients | cut -d, -f$server_nr`
+		if [[ -z "$client" ]]; then
+			client="127.0.0.1"
+		fi
+		server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
+		uperf_identifier="client::$client-server::$server:$server_port"
+
+		stop_server ${server} ${server_port} 0
+
+		if [[ "${server}" != "localhost" && "${server}" != "127.0.0.1" ]]; then
+			server_log="${benchmark_results_dir}/${uperf_identifier}--server.log"
+			scp ${scp_opts} ${server}:${server_log} ${server_log} > /dev/null
+		fi
+
+		if [[ "${client}" != "localhost" && "${client}" != "127.0.0.1" ]]; then
+			result_file="${benchmark_results_dir}/${uperf_identifier}--client_output.txt"
+			scp ${scp_opts} ${client}:${result_file} ${result_file} > /dev/null
+		fi
+		((server_nr++))
+	done
+}
+
+# start the server processes
+while IFS=" " read -r count protocol test_type message_size instance _remainder; do
+	iteration="${count}-${protocol}_${test_type}-${message_size}B-${instance}i"
+	if [[ ${count} -lt ${start_iteration_num} ]]; then
+		_msg="Skipping iteration ${iteration} (${count} of ${total_iterations})"
+		echo "${_msg}"; log "${_msg}"
+		let count=${count}+1
+		continue
+	fi
+	iteration_dir="$benchmark_run_dir/$iteration"
+	if [ $postprocess_only == "n" ]; then
+		mkdir -p $iteration_dir
+		if [[ ${?} -ne 0 ]]; then
+			error_log "Unable to create iteration directory, '${iteration_dir}'; skipping"
+			continue
+		fi
+		record_iteration "${count}" "${protocol}" "${test_type}" "${message_size}" "${instance}" "${iteration}"
+		construct_iteration "${iteration_dir}" "${protocol}" "${test_type}" "${message_size}" "${instance}"
+	fi
+
+	case $test_type in
+	rr)
+		primary_metric="trans_sec"
+		;;
+	stream|maerts|bidirec)
+		primary_metric="Gb_sec"
+		;;
+	*)
+		error_log "INTERNAL ERROR: unsupported test type, '${test_type}', propagated to iteration list."
+		exit 1
+		;;
+	esac
+
+	failures=0
+	failed=1
+	while [[ ${failed} == 1 && ${failures} < ${max_failures} ]]; do
+		if [[ ${failures} -gt 0 ]]; then
+			_msg="Restarting"
+		else
+			_msg="Starting"
+		fi
+		_msg="${_msg} iteration $iteration ($count of $total_iterations)"
+		echo "${_msg}"; log "${_msg}"
+
+		# each attempt at a test config requires multiple samples to get stddev
+		for sample in {1..${nr_samples}}; do
+			benchmark_results_dir="${iteration_dir}/sample${sample}"
+			if [[ "$postprocess_only" != "y" ]]; then
+				mkdir -p ${benchmark_results_dir}
+				if [[ ${?} -ne 0 ]]; then
+					error_log "Unable to create benchmark results directory, '${benchmark_results_dir}'; skipping"
+					continue
+				fi
+				# run_uperf is responsible for starting and stopping the tools
+				run_uperf
+			else
+				# only postprocessing
+				_msg="Not going to run uperf.  Only postprocesing existing data"
+				echo "${_msg}"; log "${_msg}"
+
+				if [[ ! -d ${benchmark_results_dir} ]]; then
+					# We don't have an existing sample directory, look for the
+					# first failed iteration we can find.
+					#
+					# NOTE: This sequence of code is a bit subtle and relies on
+					# behaviors taken by postprocess/process-iteration-samples.
+					# The behavior of process-iteration-samples is to create a
+					# tar ball of the failed sample, sampleN.tar.xz, and remove
+					# the sample directory.  Further, if enough samples have
+					# failed, the entire iteration is moved to the side with
+					# the suffice ${iteration_dir}-failN, where N is the number
+					# of failures that have occurred.
+					let fail_num=${failures}+1
+					if [[ ! -e ${iteration_dir} && -e ${iteration_dir}-fail${fail_num} ]]; then
+						# If we only have failed iterations then we restore
+						# the failed iteration for re-processing.
+						mv ${iteration_dir}-fail${fail_num} ${iteration_dir}
+					fi
+					pushd ${iteration_dir} > /dev/null
+					if [[ ${?} -eq 0 ]]; then
+						if [[ ! -e ./sample${sample} && -e sample${sample}.tar.xz ]]; then
+							# If the existing iteration, or the
+							# restored failed iteration, have a sample
+							# which was tar'd up, restore it before
+							# continuing with post-processing
+							tar Jxf sample${sample}.tar.xz
+							if [[ ${?} -ne 0 ]]; then
+								# Only delete the saved sample if
+								# it was successfully unpacked.
+								/bin/rm -rf sample${sample}.tar.xz
+							fi
+						fi
+						popd >/dev/null
+					fi
+				fi
+			fi
+			if [[ ! -d ${benchmark_results_dir} ]]; then
+				error_log "Results directory ${benchmark_results_dir} does not exist, skipping post-processing"
+			else
+				echo "${script_path}/postprocess/${benchmark-postprocess} \"${benchmark_results_dir}\" \"${protocol}\" \"${message_size}\" \"${instance}\" \"${test_type}\" \"${clients}\" \"${servers}\" \"${tool_label_pattern}\" \"${tool_group}\" \"${ver}\"" > "${benchmark_results_dir}/${benchmark}-postprocess.cmd"
+				chmod +x "${benchmark_results_dir}/${benchmark}-postprocess.cmd"
+				${benchmark_results_dir}/${benchmark}-postprocess.cmd
+			fi
+		done
+
+		echo "${script_path}/postprocess/process-iteration-samples \"${iteration_dir}\" \"${primary_metric}\" \"${maxstddevpct}\" \"${failures}\" \"${max_failures}\" \"${tar_nonref_data}\" \"${keep_failed_tool_data}\"" > "${iteration_dir}/process-iteration-samples.cmd"
+		chmod +x "${iteration_dir}/process-iteration-samples.cmd"
+		${iteration_dir}/process-iteration-samples.cmd
+		fail=${?}
+		if [[ ${fail} -eq 0 ]]; then
+			# Iteration processing was successful, we are done with this iteration.
+			failed=0
+		else
+			((failures++))
+		fi
+	done
+	_msg="Iteration, ${iteration}, complete (${count} of ${total_iterations}), with 1 pass and ${failures} failure(s)"
+	echo "${_msg}"; log "${_msg}"
+done
+
+echo "${script_path}/postprocess/generate-benchmark-summary \"${benchmark}\" \"${orig_cmd}\" \"${benchmark_run_dir}\"" > "${benchmark_run_dir}/generate-benchmark-summary.cmd"
+chmod +x "${benchmark_run_dir}/generate-benchmark-summary.cmd"
+${benchmark_run_dir}/generate-benchmark-summary.cmd
+
+pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} end
+pbench-collect-sysinfo --group=${tool_group} --dir=${benchmark_run_dir} --sysinfo=${sysinfo} end
+
+rmdir ${benchmark_run_dir}/.running
