@@ -1,0 +1,31 @@
+#!/bin/bash
+
+benchmark_bin="${1}"
+benchmark_results_dir="${2}"
+uperf_identifier="${3}"
+server_port="${4}"
+xml_file="${5}"
+log_response_times="${6}"
+client_node="${7}"
+
+mkdir -p "${benchmark_results_dir}"
+if [[ ${?} -ne 0 ]]; then
+    printf -- "ERROR: failed to create benchmark results directory, '${benchmark_results_dir}'" >&2
+    exit 1
+fi
+
+_logfile="${benchmark_results_dir}/${uperf_identifier}--client_output.txt"
+
+if [[ ! -z "${client_node}" && ${server_node} -ge 0 ]]; then
+    numanode_prefix="numactl --cpunodebind=${client_node} --"
+else
+    numanode_prefix=""
+fi
+
+if [[ "${log_response_times}" == "y" ]]; then
+    resp_opt="-X ${benchmark_results_dir}/${uperf_identifier}--response-times.txt"
+else
+    resp_opt=""
+fi
+
+${benchmark_bin} -v -m ${xml_file} -R -a -i 1 ${resp_opt} -P ${server_port} > ${_logfile} 2>&1
