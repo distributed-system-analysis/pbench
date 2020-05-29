@@ -89,7 +89,7 @@ for ldir in $LINKDIRS; do printf "\t  ${ldir}\n"; done | sort > ${linkdirs}
 function verify_subdirs {
     directories_arg=${1}
 
-    let cnt=0
+    local let cnt=0
 
     if [[ -s ${directories_arg} ]]; then
         grep -vE "(_QUARANTINED|WONT-INDEX)" ${directories_arg} > ${directories_arg}.linkdirs
@@ -113,7 +113,7 @@ function verify_tarball_names {
     unexpected_objects_arg=${2}
     tarballs_arg=${3}
 
-    let cnt=0
+    local let cnt=0
 
     if [[ -s ${unexpected_symlinks_arg} ]]; then
         printf "\t* Unexpected symlinks in controller directory:\n"
@@ -150,7 +150,7 @@ function verify_prefixes {
         return 1
     fi
 
-    let cnt=0
+    local let cnt=0
 
     > ${non_prefixes}
     > ${wrong_prefixes}
@@ -187,7 +187,7 @@ function verify_prefixes {
 function verify_incoming {
     controllers_arg=${1}
 
-    let cnt=0
+    local let cnt=0
 
     while read controller ;do
         if [[ ! -d $ARCHIVE/${controller} ]]; then
@@ -282,7 +282,7 @@ function verify_results {
         results_hierarchy=$USERS/${user_arg}
     fi
 
-    let cnt=0
+    local let cnt=0
 
     while read controller ;do
         if [[ ! -d $ARCHIVE/${controller} ]]; then
@@ -508,7 +508,7 @@ function verify_controllers {
         return 1
     fi
 
-    let cnt=0
+    local let cnt=0
 
     # Find all the normal controller directories, ignoring the "." (current)
     # directory (if the $hierarchy_root directory resolves to "."), and
@@ -605,7 +605,7 @@ function verify_controllers {
 }
 
 function verify_users {
-    let cnt=0
+    local let cnt=0
 
     # The $USERS hierarchy should only contain directories at the first
     # level, which themselves should be just like a sub-set of the
@@ -641,7 +641,7 @@ function verify_users {
 }
 
 function verify_archive {
-    let cnt=0
+    local let cnt=0
 
     # Find all the non-directory files at the same level of the controller
     # directories and report them, keeping them in sorted order by name, and

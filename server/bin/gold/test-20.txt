@@ -30,7 +30,7 @@ len(actions) = 1
         "_type": "pbench-server-reports"
     }
 ]
---- Finished unit test audit (status=2)
+--- Finished unit test audit (status=4)
 +++ var/www/html tree state (/var/tmp/pbench-test-server/test-20/var-www-html)
 lrwxrwxrwx         63 incoming -> /var/tmp/pbench-test-server/test-20/pbench/public_html/incoming
 drwxrwxr-x          - pbench-results-host-info.versioned
