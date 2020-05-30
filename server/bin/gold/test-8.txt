@@ -19,7 +19,6 @@ MAILFROM=pbench@pbench.example.com
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-index.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-index
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-re-index.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-index --re-index
 53 4 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-backup-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-backup-tarballs
-53 5 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-verify-backup-tarballs.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-verify-backup-tarballs
 * * * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-sync-satellite-ONE.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-sync-satellite satellite-one
 ---- /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
 ++++ /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/crontab/crontab
