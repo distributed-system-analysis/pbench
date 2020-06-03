@@ -1,0 +1,17 @@
+#!/usr/bin/python
+
+import click
+
+from pbench.agent.tools import Tools
+from pbench.cli.agent import options
+
+
+@click.command()
+@options.clearName
+@options.clearGroup
+def main(name=None, group=None):
+    Tools().clear(name, group)
+
+
+if __name__ == "__main__":
+    main()

@@ -6,6 +6,30 @@ AGENT_CONFIG = lookup_agent_configuration()
 
 
 #
+# pbench-clear-tools
+#
+def clearGroup(f):
+    return click.option(
+        "-g",
+        "--group",
+        "group",
+        default="default",
+        help="the group from which tools should be removed"
+        "(the default group is 'default')",
+    )(f)
+
+
+def clearName(f):
+    return click.option(
+        "-n",
+        "--name",
+        "name",
+        help="a specific tool to be removed."
+        "If no tool is specified, all tools in the group are removed",
+    )(f)
+
+
+#
 # Agent options
 #
 def pbench_upload_user(f):
