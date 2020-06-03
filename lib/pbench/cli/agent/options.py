@@ -30,6 +30,21 @@ def clearName(f):
 
 
 #
+# pbench-list-tools
+#
+def listName(f):
+    return click.option(
+        "-n", "--name", "name", help="List the perftool groups wich str is used"
+    )(f)
+
+
+def listGroup(f):
+    return click.option(
+        "-g", "--group", "group", help="List the tools used in this str"
+    )(f)
+
+
+#
 # Agent options
 #
 def pbench_upload_user(f):

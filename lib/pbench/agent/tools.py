@@ -1,6 +1,7 @@
 import pathlib
 import sys
 
+from pbench.agent.logger import logger
 from pbench.agent.utils import init_wrapper
 from pbench.agent.config import AgentConfig
 
@@ -46,3 +47,36 @@ class Tools:
         except FileNotFoundError:
             # If the tool doesnt exist in the group silently ignore it
             pass
+
+    def list(self, name=None, group=None):
+        def _groups(group):
+            return [p.name for p in self.rundir.glob(f"tools-{group}/*")]
+
+        def _print(label, results):
+            if len(results) != 0:
+                print("%s: %s" % (label, ", ".join(results)))
+
+        if name and group:
+            logger.error("You cannot specify both group and name")
+            sys.exit(1)
+
+        if self.rundir.exists():
+            if name:
+                _print(
+                    name,
+                    [
+                        p.parent.name.split("tools-")[1]
+                        for p in self.rundir.rglob(f"tools-*/{name}")
+                    ],
+                )
+            elif group:
+                if self.verify_tool_group(group):
+                    _print(
+                        group, [p.name for p in self.rundir.rglob(f"tools-{group}/*")]
+                    )
+            elif group is None and name is None:
+                if len(self.groups) == 0:
+                    sys.exit(1)
+
+                for group in self.groups:
+                    print("%s: %s" % (group, ", ".join(_groups(group))))
