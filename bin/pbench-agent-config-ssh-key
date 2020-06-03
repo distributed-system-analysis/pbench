@@ -1,30 +1,15 @@
 #!/usr/bin/env python3
 
-import pathlib
 import click
 
-from pbench.common.constants import NAME
-from pbench.agent.fs import copyfile
-from pbench.agent.logger import logger
-from pbench.agent.config import AgentConfig
-from pbench.agent.utils import init_wrapper
+from pbench.agent.paths import Paths
 
 
 @click.command()
 @click.argument("configfile", type=click.Path(exists=True))
 @click.argument("keyfile", type=click.Path(exists=True))
 def main(configfile, keyfile):
-    try:
-        init_wrapper()
-
-        config = AgentConfig(configfile)
-        user = config.user
-        group = config.group
-        dest = pathlib.Path(config.installdir, "id_rsa")
-
-        copyfile(keyfile, dest, owner=(user, group))
-    except Exception as ex:
-        logger.error("%s: Failed to copy ssh key %s: %s", NAME, keyfile, ex)
+    Paths(configfile).config_ssh(keyfile)
 
 
 if __name__ == "__main__":

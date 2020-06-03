@@ -1,32 +1,14 @@
 #!/usr/bin/env python3
 
-import pathlib
-import sys
-
 import click
 
-from pbench.common.constants import NAME
-from pbench.agent.fs import copyfile
-from pbench.agent.logger import logger
-from pbench.agent.config import AgentConfig
-from pbench.agent.utils import init_wrapper
+from pbench.agent.paths import Paths
 
 
 @click.command()
 @click.argument("configfile", type=click.Path(exists=True))
 def main(configfile):
-    try:
-        init_wrapper()
-        dest = pathlib.Path(AgentConfig(configfile).installdir, "config")
-        if not dest.exists():
-            # silently fail if pbench-ageht is not configured properly
-            sys.exit(1)
-        copyfile(configfile, dest.joinpath("pbench-agent.cfg"))
-    except Exception as ex:
-        logger.error(
-            "%s: Failed to copy configuration file %s: %s", NAME, configfile, ex
-        )
-        sys.exit(1)
+    Paths().config_activate(configfile)
 
 
 if __name__ == "__main__":

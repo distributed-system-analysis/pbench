@@ -18,3 +18,4 @@ ChangeLog
 .pytest_cache/
 .venv
 .vscode
+*.pyc

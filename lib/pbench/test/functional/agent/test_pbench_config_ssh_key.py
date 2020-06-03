@@ -22,6 +22,8 @@ def test_pbench_config_ssh_key(
 
     command = ["pbench-agent-config-ssh-key", pbench_conf, fake_key]
     out, err, exitcode = pytest.helpers.capture(command)
+    print(err.decode("utf-8"))
+    print(out.decode("utf-8"))
     assert exitcode == 0
     fake_key = pbench_installdir / "id_rsa"
     assert fake_key.exists() is True
