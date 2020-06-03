@@ -68,6 +68,13 @@ def testLabelregister(f):
 
 
 #
+# pbench-list-triggers
+#
+def listTrigger(f):
+    return click.option("-g", "--group", help="list the triggers used by this group")(f)
+
+
+#
 # Agent options
 #
 def pbench_upload_user(f):

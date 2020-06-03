@@ -1,0 +1,16 @@
+#!/usr/bin/python
+
+import click
+
+from pbench.agent.trigger import Trigger
+from pbench.cli.agent import options
+
+
+@click.command()
+@options.listTrigger
+def main(group):
+    Trigger().list(group)
+
+
+if __name__ == "__main__":
+    main()
