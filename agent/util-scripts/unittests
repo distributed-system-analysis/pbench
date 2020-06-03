@@ -295,7 +295,6 @@ declare -A tools=(
     [test-08]="pbench-stop-tools"
     [test-09]="pbench-stop-tools"
     [test-10]="pbench-stop-tools"
-    [test-11]="pbench-register-tool-set"
     [test-11.1]="pbench-register-tool-set"
     [test-11.2]="pbench-register-tool-set"
     [test-11.3]="pbench-register-tool-set"

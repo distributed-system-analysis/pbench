@@ -45,6 +45,29 @@ def listGroup(f):
 
 
 #
+# pbench-register-tool
+#
+def nameRegister(f):
+    return click.option("-n", "--name",)(f)
+
+
+def labelRegister(f):
+    return click.option("-l", "--label", "--labels", "labels_args")(f)
+
+
+def groupRegister(f):
+    return click.option("-g", "--group", "group", default="default")(f)
+
+
+def installRegister(f):
+    return click.option("--no-install/--install", default=True)(f)
+
+
+def testLabelregister(f):
+    return click.option("--test-label/--no-test-label", default=False)(f)
+
+
+#
 # Agent options
 #
 def pbench_upload_user(f):
