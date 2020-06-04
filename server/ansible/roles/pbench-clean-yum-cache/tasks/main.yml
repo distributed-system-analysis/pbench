@@ -1,0 +1,4 @@
+---
+- name: Clean yum cache
+  command: yum clean all
+

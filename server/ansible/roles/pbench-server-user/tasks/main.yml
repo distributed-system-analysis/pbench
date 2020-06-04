@@ -27,3 +27,12 @@
     owner: "{{ pbench_user }}"
     group: "{{ pbench_group }}"
     state: directory
+
+- name: set SELinux context on /home/<pbench>/.ssh
+  sefcontext:
+    target: /home/{{ pbench_user }}/.ssh
+    setype: ssh_home_t
+    state: present
+
+- name: restore SELinux context
+  command: restorecon -R -v /home/{{ pbench_user }}/.ssh
