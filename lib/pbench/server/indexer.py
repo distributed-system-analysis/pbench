@@ -41,8 +41,8 @@ from pbench.common.exceptions import (
     BadIterationName,
     BadSampleName,
 )
+from pbench.common.logger import get_pbench_logger
 from pbench.server.utils import tstos
-from pbench.server.logger import get_pbench_logger
 
 try:
     from elasticsearch1 import Elasticsearch, helpers, exceptions as es_excs
