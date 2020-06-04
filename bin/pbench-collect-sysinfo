@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+
+import sys
+
+import click
+
+from pbench.cli.agent import options
+from pbench.agent.sysinfo import Sysinfo
+
+
+@click.command()
+@options.sysinfoDir
+@options.groupSysinfo
+@options.sysSysinfo
+@options.sysOptions
+@options.checkSysinfo
+@click.argument("name", required=False)
+def main(sysinfo_dir, group, sysinfo, check, options, name):
+    s = Sysinfo(group, sysinfo_dir, sysinfo)
+    if options:
+        s.show_options()
+        sys.exit(0)
+
+    if check:
+        s.check()
+        sys.exit(0)
+
+    s.collect(name)
+
+
+if __name__ == "__main__":
+    main()

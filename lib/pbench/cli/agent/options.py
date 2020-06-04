@@ -1,6 +1,7 @@
 import click
 
 from pbench.agent.config import AGENT_DEBUG, lookup_agent_configuration
+from pbench.agent.sysinfo import SYSINFO_OPTS_AVAILABLE
 
 AGENT_CONFIG = lookup_agent_configuration()
 
@@ -87,6 +88,49 @@ def startTrigger(f):
 
 def stopTrigger(f):
     return click.option("--stop-trigger")(f)
+
+
+#
+# pbench-collect-sysinfo
+#
+def sysinfoDir(f):
+    return click.option(
+        "-d",
+        "--dir",
+        "sysinfo_dir",
+        help=f"a directory where the benchmark will store and process data",
+        type=click.Path(exists=True),
+        required=False,
+    )(f)
+
+
+def groupSysinfo(f):
+    return click.option(
+        "-g",
+        "--group",
+        default="default",
+        help="a tool group used in a benchmark (the default group is 'default')",
+    )(f)
+
+
+def sysSysinfo(f):
+    return click.option(
+        "--sysinfo",
+        help="comma seperated values of system infrmation to be collected"
+        f'availablle: {" ".join(str(x) for x in SYSINFO_OPTS_AVAILABLE)}',
+    )(f)
+
+
+def checkSysinfo(f):
+    return click.option(
+        "--check/--no-check",
+        help="checks if sysinfo is set to one of the accepted values",
+        default=False,
+    )(f)
+
+
+def sysOptions(f):
+    return click.option("--options/--no-options", default=False,)(f)
 
 
 #

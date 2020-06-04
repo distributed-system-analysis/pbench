@@ -313,14 +313,6 @@ declare -A tools=(
     [test-19]="test-tool-trigger"
     [test-20]="pbench-postprocess-tools"
     [test-22]="pbench-metadata-log"
-    [test-23]="pbench-collect-sysinfo"
-    [test-24]="pbench-collect-sysinfo"
-    [test-25]="pbench-collect-sysinfo"
-    [test-26]="pbench-collect-sysinfo"
-    [test-27]="pbench-collect-sysinfo"
-    [test-28]="pbench-collect-sysinfo"
-    [test-29]="pbench-collect-sysinfo"
-    [test-30]="pbench-collect-sysinfo"
     [test-31]="pbench-copy-results"
     [test-32]="pbench-copy-results"
     [test-39]="pbench-copy-results"
@@ -374,13 +366,6 @@ declare -A options=(
     [test-21]="--remote=fubar2"
     [test-22]="--dir=${_testdir}/mock-run end"
     [test-23]="--help"
-    [test-24]="--options"
-    [test-25]="--check --sysinfo=all"
-    [test-26]="--check --sysinfo=none"
-    [test-27]="--check --sysinfo=default"
-    [test-28]="--check --sysinfo=block,libvirt,kernel_config,sos,topology"
-    [test-29]="--check --sysinfo=block,sos,bad,topology"
-    [test-30]="--check --sysinfo=libvirt,default,kernel_config,all,topology,none"
     [test-31]="--prefix=foo/bar --user=ndk"
     [test-32]="--help"
     [test-34]="--help"
@@ -409,7 +394,6 @@ declare -A expected_status=(
     [test-11.11]=1
     [test-12]=1
     [test-13]=2
-    [test-29]=1
     [test-35]=1
     [test-36]=1
     [test-37]=1

@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+import click
+
+
+@click.command()
+@click.argument("sysinfo")
+@click.argument("sysinfo_dir")
+@click.argument("label")
+def main(sysinfo, sysinfo_dir, label):
+    s = sysinfo(sysinfo, sysinfo_dir)
+    s.dump(label)
+
+
+if __name__ == "__main__":
+    main()
