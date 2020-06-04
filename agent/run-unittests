@@ -1,78 +1,63 @@
 #!/bin/bash
 
-dir=$(dirname $0)
-let sts=0
+prog="$(basename "${0}")"
+progdir="$(realpath -e $(dirname "${0}"))"
+
+# List of tox environments to run.
+tox_envs="py3-agent datalog postprocess tool-scripts util-scripts bench-scripts"
+
+for toxenv in ${tox_envs}; do
+    if [[ -d ${progdir}/.tox/${toxenv} ]]; then
+        rm -r ${progdir}/.tox/${toxenv}
+    fi
+    tox -e ${toxenv} > /var/tmp/toxenv-${toxenv}.out 2>&1 & echo ${!} > /var/tmp/toxenv-${toxenv}.pid
+done
 
 function tail_and_wait {
-    pid=$1
-    name=$2
-    file=$3
-    printf -- "+++ ${name} Unit Tests +++\n\n"
+    local name="${1}"
+    local pid="$(cat /var/tmp/toxenv-${toxenv}.pid)"
+    local file="/var/tmp/toxenv-${toxenv}.out"
+    local status=""
+
+    printf -- "+++ Tox Env ${name} Tests +++\n\n"
 
     tail -n 9999999 -f ${file} --pid ${pid}
-    if [[ $? -ne 0 ]]; then
+    if [[ ${?} -ne 0 ]]; then
         printf -- "tail -f ${file} --pid ${pid} failed\n" >&2
         return 1
     fi
     wait ${pid}
-    let tw_sts=$?
-    if [[ $tw_sts -ne 0 ]]; then
-	status="FAILED"
+    local let tw_sts=${?}
+    if [[ ${tw_sts} -ne 0 ]]; then
+        status="FAILED"
     else
-	status="SUCCEEDED"
+        status="SUCCEEDED"
     fi
     rm -f ${file}
 
-    printf -- "\n--- ${name} Unit Tests ($status) ---\n"
-    return $tw_sts
+    printf -- "\n--- Tox Env ${name} Tests ($status) ---\n"
+
+    return ${tw_sts}
 }
 
-trap "kill -KILL -$$ > /dev/null 2>&1" INT TERM QUIT
+typeset -i errors=0
+for toxenv in ${tox_envs}; do
+    printf -- "#+++ (tox -e %s)\n" "${toxenv}"
+    tail_and_wait ${toxenv}
+    tox_status=${?}
+    if [[ ${tox_status} -ne 0 ]]; then
+        printf -- "#--- (FAILED: %d)\n" "${tox_status}"
+        (( errors++ ))
+    else
+        printf -- "#--- (SUCCESS)\n"
+    fi
+    printf -- "\n\n"
+done
 
-> /var/tmp/agent.tool-scripts.dl.out
-$dir/tool-scripts/datalog/unittests > /var/tmp/agent.tool-scripts.dl.out 2>&1 < /dev/null &
-tdpid=$!
-
-> /var/tmp/agent.tool-scripts.pp.out
-$dir/tool-scripts/postprocess/unittests > /var/tmp/agent.tool-scripts.pp.out 2>&1 < /dev/null &
-tppid=$!
-
-> /var/tmp/agent.tool-scripts.out
-$dir/tool-scripts/unittests > /var/tmp/agent.tool-scripts.out 2>&1 < /dev/null &
-tspid=$!
-
-> /var/tmp/agent.util-scripts.out
-$dir/util-scripts/unittests > /var/tmp/agent.util-scripts.out 2>&1 < /dev/null &
-upid=$!
-
-> /var/tmp/agent.bench-scripts.out
-$dir/bench-scripts/unittests > /var/tmp/agent.bench-scripts.out 2>&1 < /dev/null &
-bpid=$!
-
-tail_and_wait $tdpid 'Agent tool-scripts/datalog' /var/tmp/agent.tool-scripts.dl.out
-let sts=sts+$?
-
-printf -- "\n\n\n"
-
-tail_and_wait $tppid 'Agent tool-scripts/postprocess' /var/tmp/agent.tool-scripts.pp.out
-let sts=sts+$?
-
-printf -- "\n\n\n"
-
-tail_and_wait $tspid 'Agent tool-scripts' /var/tmp/agent.tool-scripts.out
-let sts=sts+$?
-
-printf -- "\n\n\n"
-
-tail_and_wait $upid 'Agent util-scripts' /var/tmp/agent.util-scripts.out
-let sts=sts+$?
-
-printf -- "\n\n\n"
-
-tail_and_wait $bpid 'Agent bench-scripts' /var/tmp/agent.bench-scripts.out
-let sts=sts+$?
-
-if [ $sts -gt 0 ]; then
-    echo "Agent unit tests FAILED"
+if [[ ${errors} -gt 0 ]]; then
+    printf -- "\n\nTests failed! (%d errors)\n" ${errors}
+    exit 1
+else
+    printf -- "\n\nTests succeeded.\n"
+    exit 0
 fi
-exit $sts
