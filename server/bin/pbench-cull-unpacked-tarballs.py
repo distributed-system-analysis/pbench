@@ -30,7 +30,7 @@ from configparser import ConfigParser, NoOptionError
 import pbench
 from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
-from pbench.server.logger import get_pbench_logger
+from pbench.common.logger import get_pbench_logger
 from pbench.server.indexer import _STD_DATETIME_FMT
 from pbench.server.report import Report
 

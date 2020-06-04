@@ -48,7 +48,7 @@ from enum import Enum
 
 from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
-from pbench.server.logger import get_pbench_logger
+from pbench.common.logger import get_pbench_logger
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Entry
 from pbench.server.utils import md5sum
