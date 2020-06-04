@@ -3,19 +3,25 @@
 # combinations of RHEL7, RHEL8, or (supported) Fedora
 # versions. Installing on more than one server (e.g.  on a master as
 # well as a satellite server) is possible by overriding variables
-# per host (e.g. satellite servers do not do backups, so the variable
-# `configfiles' can be redefined to contain just one element).
+# per host.
 
 [servers]
 <pbench-server-host>
-<pbench-server-satellite-host>   pbench_config_files='["pbench-server.cfg"]'
+<pbench-server-satellite-host> cenv=satellite
 
 [servers:vars]
+
+# Where the RPMs are built - this is not a real account - make your own.
+
+# This is used to create the /etc/yum.repos.d/pbench.repo file.
+pbench_repo_url_prefix = https://copr-be.cloud.fedoraproject.org/results/some_fedora_copr_user
+
 # pbench_config_url should be set once for a new environment by an administrator
 # to provide access to the config files for whatever server environment(s)
 # are needed.
-# from where to fetch config files
+
+# This tells where to fetch config files from.
 pbench_config_url = http://pbench.example.com/server/config/{{ cenv }}
 
-# list of config files to fetch
+# List of config files to fetch.
 pbench_config_files = '["pbench-server.cfg"]'
