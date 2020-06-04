@@ -4,18 +4,46 @@ prog="$(basename "${0}")"
 progdir="$(realpath -e $(dirname "${0}"))"
 
 # List of tox environments to run.
-tox_envs="lint py3-agent agent py3-server server py3-functional"
+tox_envs="lint py3-agent datalog postprocess tool-scripts util-scripts bench-scripts py3-server server py3-functional"
 
 for toxenv in ${tox_envs}; do
     if [[ -d ${progdir}/.tox/${toxenv} ]]; then
         rm -r ${progdir}/.tox/${toxenv}
     fi
+    tox -e ${toxenv} > /var/tmp/toxenv-${toxenv}.out 2>&1 & echo ${!} > /var/tmp/toxenv-${toxenv}.pid
 done
+
+function tail_and_wait {
+    local name="${1}"
+    local pid="$(cat /var/tmp/toxenv-${toxenv}.pid)"
+    local file="/var/tmp/toxenv-${toxenv}.out"
+    local status=""
+
+    printf -- "+++ Tox Env ${name} Tests +++\n\n"
+
+    tail -n 9999999 -f ${file} --pid ${pid}
+    if [[ ${?} -ne 0 ]]; then
+        printf -- "tail -f ${file} --pid ${pid} failed\n" >&2
+        return 1
+    fi
+    wait ${pid}
+    local let tw_sts=${?}
+    if [[ ${tw_sts} -ne 0 ]]; then
+        status="FAILED"
+    else
+        status="SUCCEEDED"
+    fi
+    rm -f ${file}
+
+    printf -- "\n--- Tox Env ${name} Tests ($status) ---\n"
+
+    return ${tw_sts}
+}
 
 typeset -i errors=0
 for toxenv in ${tox_envs}; do
     printf -- "#+++ (tox -e %s)\n" "${toxenv}"
-    tox -e ${toxenv}
+    tail_and_wait ${toxenv}
     tox_status=${?}
     if [[ ${tox_status} -ne 0 ]]; then
         printf -- "#--- (FAILED: %d)\n" "${tox_status}"
@@ -27,9 +55,9 @@ for toxenv in ${tox_envs}; do
 done
 
 if [[ ${errors} -gt 0 ]]; then
-    printf -- "\n\nUnit tests failed! (%d errors)\n" ${errors}
+    printf -- "\n\nTests failed! (%d errors)\n" ${errors}
     exit 1
 else
-    printf -- "\n\nUnit tests succeeded.\n"
+    printf -- "\n\nTests succeeded.\n"
     exit 0
 fi

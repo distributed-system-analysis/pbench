@@ -5,10 +5,14 @@ python:
 env:
  matrix:
   - TOXENV=lint
-  - TOXENV=agent
-  - TOXENV=server
-  - TOXENV=py3-server
   - TOXENV=py3-agent
+  - TOXENV=datalog
+  - TOXENV=postprocess
+  - TOXENV=tool-scripts 
+  - TOXENV=util-scripts 
+  - TOXENV=bench-scripts
+  - TOXENV=py3-server
+  - TOXENV=server
   - TOXENV=py3-functional
 before_install:
  - sudo apt-get update
