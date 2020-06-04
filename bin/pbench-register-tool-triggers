@@ -1,0 +1,18 @@
+#!/usr/bin/python
+
+import click
+
+from pbench.agent.trigger import Trigger
+from pbench.cli.agent import options
+
+
+@click.command()
+@options.registerTrigger
+@options.startTrigger
+@options.stopTrigger
+def main(group, start_trigger, stop_trigger):
+    Trigger().register(group, start_trigger, stop_trigger)
+
+
+if __name__ == "__main__":
+    main()

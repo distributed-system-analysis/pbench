@@ -75,6 +75,21 @@ def listTrigger(f):
 
 
 #
+# pbench-register-triggers
+#
+def registerTrigger(f):
+    return click.option("-g", "--group", default="default")(f)
+
+
+def startTrigger(f):
+    return click.option("--start-trigger")(f)
+
+
+def stopTrigger(f):
+    return click.option("--stop-trigger")(f)
+
+
+#
 # Agent options
 #
 def pbench_upload_user(f):
