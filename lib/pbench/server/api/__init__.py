@@ -5,7 +5,7 @@ from flask import request, jsonify, Flask
 from flask_restful import Resource, abort, Api
 from werkzeug.utils import secure_filename
 
-from pbench.server.logger import get_pbench_logger
+from pbench.common.logger import get_pbench_logger
 from pbench.server.api.config import ServerConfig
 
 ALLOWED_EXTENSIONS = {"xz"}
