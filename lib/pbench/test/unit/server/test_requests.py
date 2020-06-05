@@ -14,7 +14,10 @@ class TestHostInfo:
     def test_host_info(client):
         response = client.get(f"{client.config['REST_URI']}/host_info")
         assert response.status_code == 200
-        assert response.json.get("message") == "pbench@pbench.example.com" ":/tmp/-002"
+        assert (
+            response.json.get("message")
+            == "pbench@pbench.example.com:./srv/pbench/pbench-move-results-receive/fs-version-002"
+        )
 
 
 class TestUpload:

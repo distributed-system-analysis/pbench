@@ -16,10 +16,8 @@ from datetime import datetime
 from argparse import ArgumentParser
 from configparser import NoOptionError
 
-from pbench import (
-    PbenchConfig,
-    BadConfig,
-)
+from pbench import BadConfig
+from pbench.server import PbenchServerConfig
 
 
 _NAME_ = "pbench-check-tb_age"
@@ -48,7 +46,7 @@ def main(options):
         return 3
 
     try:
-        config = PbenchConfig(options.cfg_name)
+        config = PbenchServerConfig(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 4
