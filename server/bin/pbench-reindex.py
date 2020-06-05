@@ -23,11 +23,9 @@ from pathlib import Path
 from datetime import datetime
 from argparse import ArgumentParser
 
-import pbench
-from pbench import (
-    PbenchConfig,
-    BadConfig,
-)
+from pbench import BadConfig
+import pbench.server
+from pbench.server import PbenchServerConfig
 
 
 _NAME_ = "pbench-reindex"
@@ -166,7 +164,7 @@ def main(options):
         return 1
 
     try:
-        config = PbenchConfig(options.cfg_name)
+        config = PbenchServerConfig(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2
@@ -222,14 +220,14 @@ def main(options):
     print(f"Re-indexing tar balls in the range {oldest_dt} to {newest_dt}")
 
     actions = []
-    start = pbench._time()
+    start = pbench.server._time()
     for _val in gen_reindex_list(archive_p, oldest_dt, newest_dt):
         controller_name, tb_name = _val
         act_set = reindex(
             controller_name, tb_name, archive_p, incoming_p, options.dry_run
         )
         actions.append(act_set)
-    end = pbench._time()
+    end = pbench.server._time()
 
     for act_set in sorted(actions):
         print(f"{act_set!r}")

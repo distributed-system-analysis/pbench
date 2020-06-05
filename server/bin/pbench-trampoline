@@ -16,7 +16,7 @@ else
 fi
 if [[ -e ${_dirname}/${_basename}.py ]]; then
     # We don't use pbench-base.py to invoke python programs, they can use the
-    # PbenchConfig class directly.
+    # PbenchServerConfig class directly.
     ${_pythoncmd} ${_dirname}/${_basename}.py ${@}
 else
     export PROG=${_basename}

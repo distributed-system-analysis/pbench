@@ -11,8 +11,8 @@ import socket
 from configparser import Error as NoSectionError, NoOptionError
 
 from pbench.common.logger import get_pbench_logger
+from pbench.server import tstos
 from pbench.server.indexer import PbenchTemplates, get_es, es_index, _op_type
-from pbench.server.utils import tstos
 
 
 class Report:

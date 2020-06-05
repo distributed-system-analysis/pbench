@@ -1,11 +1,8 @@
-from datetime import datetime, tzinfo, timedelta
 from functools import partial
 import hashlib
 import os
 import sys
 import shutil
-
-from pbench import _time
 
 
 def rename_tb_link(tb, dest, logger):
@@ -42,24 +39,6 @@ def md5sum(filename):
         for buf in iter(partial(f.read, 128), b""):
             d.update(buf)
     return d.hexdigest()
-
-
-class simple_utc(tzinfo):
-    def tzname(self, *args, **kwargs):
-        return "UTC"
-
-    def utcoffset(self, dt):
-        return timedelta(0)
-
-    def dst(self, dt):
-        return timedelta(0)
-
-
-def tstos(ts=None):
-    if ts is None:
-        ts = _time()
-    dt = datetime.utcfromtimestamp(ts).replace(tzinfo=simple_utc())
-    return dt.strftime("%Y-%m-%dT%H:%M:%S-%Z")
 
 
 def quarantine(dest, logger, *files):
