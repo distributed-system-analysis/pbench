@@ -7,7 +7,7 @@ import glob
 import shutil
 import tempfile
 
-from pbench import PbenchConfig
+from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server.report import Report
@@ -471,7 +471,7 @@ def main(cfg_name):
         return 2
 
     try:
-        config = PbenchConfig(cfg_name)
+        config = PbenchServerConfig(cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1

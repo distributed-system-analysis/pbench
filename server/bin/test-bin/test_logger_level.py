@@ -5,7 +5,7 @@ import logging
 import os
 import sys
 
-from pbench import PbenchConfig
+from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 
@@ -46,7 +46,7 @@ def mock_the_handler(logger, logging_level, fname):
 
 def test_pbench_logger_level():
 
-    config = PbenchConfig(cfg_name)
+    config = PbenchServerConfig(cfg_name)
     logger = get_pbench_logger(_NAME_, config)
 
     logging_level = config.get("logging", "logging_level")
