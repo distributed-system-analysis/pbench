@@ -24,6 +24,7 @@ from pbench.common.exceptions import (
     JsonFileError,
     TemplateError,
 )
+from pbench.server import tstos
 from pbench.server.indexer import (
     IdxContext,
     PbenchTarBall,
@@ -31,7 +32,7 @@ from pbench.server.indexer import (
     VERSION,
 )
 from pbench.server.report import Report
-from pbench.server.utils import tstos, rename_tb_link, quarantine
+from pbench.server.utils import rename_tb_link, quarantine
 
 
 # Internal debugging flag.

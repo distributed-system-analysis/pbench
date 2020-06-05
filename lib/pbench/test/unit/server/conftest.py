@@ -2,9 +2,7 @@ import os
 import shutil
 import pytest
 
-from pbench.server.api.config import ServerConfig
 from pbench.server.api import create_app
-from pbench.test.unit.server.common import mock_get_config_prefix
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -13,8 +11,19 @@ def setup(request):
     print("Test SETUP")
     os.makedirs("./srv/pbench/tmp", exist_ok=True)
     os.makedirs("./srv/pbench/logs", exist_ok=True)
+    os.makedirs(
+        "./srv/pbench/pbench-move-results-receive/fs-version-002", exist_ok=True
+    )
     os.makedirs("./opt/pbench-server/bin", exist_ok=True)
-    os.makedirs("./opt/pbench-server/lib", exist_ok=True)
+    os.makedirs("./opt/pbench-server/lib/config", exist_ok=True)
+    shutil.copyfile(
+        "./server/lib/config/pbench-server-default.cfg",
+        "./opt/pbench-server/lib/config/pbench-server-default.cfg",
+    )
+    shutil.copyfile(
+        "./lib/pbench/test/unit/config/pbench-server.cfg",
+        "./opt/pbench-server/lib/config/pbench-server.cfg",
+    )
 
     def teardown():
         """Test package teardown"""
@@ -27,8 +36,10 @@ def setup(request):
 
 @pytest.fixture
 def client(monkeypatch):
+    monkeypatch.setenv(
+        "_PBENCH_SERVER_CONFIG", "./opt/pbench-server/lib/config/pbench-server.cfg"
+    )
     app = create_app()
-    monkeypatch.setattr(ServerConfig, "get_server_config", mock_get_config_prefix(app))
     app.testing = True
     """A test client for the app."""
     app_client = app.test_client()

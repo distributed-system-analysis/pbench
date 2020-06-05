@@ -7,9 +7,9 @@ from argparse import ArgumentParser
 
 # Export all the expected pbench config file attributes for the
 # existing shell scripts.  This maintains the single-source-of-
-# truth for those definitions in the PbenchConfig class, but
+# truth for those definitions in the PbenchServerConfig class, but
 # still accessible to all pbench bash shell scripts.
-from pbench import PbenchConfig
+from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig
 
 if __name__ != "__main__":
@@ -50,7 +50,7 @@ else:
     config_name = parsed.cfg_name
 
 try:
-    config = PbenchConfig(config_name)
+    config = PbenchServerConfig(config_name)
 except BadConfig as e:
     print(f"{_prog}: {e} (config file {config_name})", file=sys.stderr)
     sys.exit(1)
@@ -66,7 +66,7 @@ vars = sorted(
 )
 for att in vars:
     try:
-        os.environ[att] = getattr(config, att)
+        os.environ[att] = str(getattr(config, att))
     except AttributeError:
         print(
             f'{_prog}: Missing internal pbench attribute, "{att}", in configuration',
