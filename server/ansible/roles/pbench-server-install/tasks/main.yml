@@ -1,6 +1,6 @@
 ---
 - import_role:
-    pbench-clean-yum-cache
+    name: pbench-clean-yum-cache
 
 - name: ensure the pbench-server RPM is installed
   package:
