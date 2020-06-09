@@ -1,0 +1,9 @@
+---
+- name: Change ownership of the installed tree
+  file:
+    path: "{{ pbench_server_install_dir }}"
+    state: directory
+    recurse: yes
+    owner: "{{ pbench_owner }}"
+    group: "{{ pbench_group }}"
+

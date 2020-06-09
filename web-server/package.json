@@ -1,0 +1,25 @@
+{
+  "name": "pbench-web-server",
+  "version": "1.0.0",
+  "description": "JS and CSS for pbench results visualization",
+  "main": "index.js",
+  "dependencies": {
+    "c3": "^0.4.11",
+    "d3": "^3.5.17",
+    "d3-queue": "^3.0.1",
+    "fastdom": "^1.0.3",
+    "function-bind": "^1.1.0",
+    "nvd3": "^1.8.2",
+    "save-svg-as-png": "^1.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrew Theurer, Karl Rister",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/distributed-system-analysis/pbench.git"
+  },
+  "license": "GPL-3.0"
+}

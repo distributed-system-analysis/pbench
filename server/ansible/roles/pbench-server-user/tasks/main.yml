@@ -27,3 +27,19 @@
     owner: "{{ pbench_user }}"
     group: "{{ pbench_group }}"
     state: directory
+
+- name: set SELinux context on /home/<pbench>/.ssh
+  sefcontext:
+    target: /home/{{ pbench_user }}/.ssh
+    setype: ssh_home_t
+    state: present
+
+- name: restore SELinux context
+  command: restorecon -R -v /home/{{ pbench_user }}/.ssh
+
+- name: change ownership of config file(s) now that we have a user
+  file:
+    path: "{{ pbench_server_config_dest }}/{{ item }}"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+  with_items: "{{ pbench_config_files }}"

@@ -28,9 +28,9 @@
   copy:
     src:  "{{ tempdir_1.path }}/{{ item }}"
     dest: "{{ pbench_server_config_dest }}"
-    mode: 0444
-    owner: "{{ pbench_owner }}"
-    group: "{{ pbench_group }}"
+    mode: 0644
+    owner: root
+    group: root
   with_items: "{{ pbench_config_files }}"
 
 - name: delete local temp dir
