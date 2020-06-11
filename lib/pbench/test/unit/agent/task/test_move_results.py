@@ -1,19 +1,17 @@
+import os
 import datetime
 import responses
 
-from pbench.agent.config import AgentConfig
 from pbench.cli.agent.commands.results import move_results
-from pbench.test.unit.agent.task.common import MockDatetime, mock_agent_config
+from pbench.test.unit.agent.task.common import MockDatetime
 
 
 class TestMoveResults:
     @staticmethod
     @responses.activate
     def test_move_results(monkeypatch):
-        monkeypatch.setenv("pbench_tmp", "/tmp")
         monkeypatch.setenv("full_hostname", "localhost")
         monkeypatch.setattr(datetime, "datetime", MockDatetime)
-        monkeypatch.setattr(AgentConfig, "get_agent", mock_agent_config)
 
         responses.add(
             responses.GET,
@@ -25,8 +23,10 @@ class TestMoveResults:
             responses.POST, "http://pbench.example.com/api/v1/upload", status=200
         )
 
+        ctx = {"args": {"config": os.environ["_PBENCH_AGENT_CONFIG"]}}
+
         try:
-            move_results("pbench", "", True)
+            move_results(ctx, "pbench", "", True)
         except SystemExit:
             assert False
         assert True

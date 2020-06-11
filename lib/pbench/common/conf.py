@@ -17,9 +17,10 @@ def get_pbench_config():
 
 
 def main():
+    prog = os.path.basename(sys.argv[0])
     opts, args = configtools.parse_args(
         configtools.options,
-        usage="Usage: getconf.py [options] <item>|-a <section> [<section> ...]",
+        usage=f"Usage: {prog} [options] <item>|-a <section> [<section> ...]",
     )
     conf, files = configtools.init(opts, get_pbench_config())
     status = configtools.main(conf, args, opts, files)

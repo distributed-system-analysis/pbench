@@ -3,56 +3,70 @@ import hashlib
 import os
 import sys
 import tarfile
+import errno
 from pathlib import Path
 
 import requests
 from werkzeug.utils import secure_filename
 
-from pbench.agent import logger
-from pbench.agent.config import AgentConfig
 from pbench.cli.agent.commands.log import add_metalog_option
 from pbench.common import configtools
 
 
 class MakeResultTb:
-    def __init__(self, result_dir, target_dir, user, prefix, _logger=None):
-        self.result_dir = result_dir
-        self.target_dir = target_dir
+    def __init__(self, result_dir, target_dir, user, prefix, config, logger):
+        assert (
+            config and logger
+        ), f"config, '{config!r}', and/or logger, '{logger!r}', not provided"
+        if not result_dir:
+            logger.error("Result directory not provided")
+            sys.exit(1)
+        if not target_dir:
+            logger.error("Target directory not provided")
+            sys.exit(1)
+        try:
+            self.result_dir = Path(result_dir).resolve(strict=True)
+        except FileNotFoundError:
+            logger.error("Invalid result directory provided: {}", result_dir)
+            sys.exit(1)
+        else:
+            if not self.result_dir.is_dir():
+                logger.error("Invalid result directory provided: {}", result_dir)
+                sys.exit(1)
+        try:
+            self.target_dir = Path(target_dir).resolve(strict=True)
+        except FileNotFoundError:
+            logger.error("Invalid target directory provided: {}", target_dir)
+            sys.exit(1)
+        else:
+            if not self.target_dir.is_dir():
+                logger.error("Invalid target directory provided: {}", target_dir)
+                sys.exit(1)
         self.user = user
         self.prefix = prefix
-        self.logger = logger if not _logger else _logger
+        self.config = config
+        self.logger = logger
 
     def make_result_tb(self):
-        config = AgentConfig()
-
-        if not os.path.exists(self.result_dir):
-            self.logger.error("Invalid result directory provided: %s" % self.result_dir)
-            sys.exit(1)
-
-        if not os.path.exists(self.target_dir):
-            self.logger.error("Invalid target directory provided: %s" % self.target_dir)
-            sys.exit(1)
-
-        full_result_dir = os.path.realpath(self.result_dir)
-        pbench_run_name = os.path.basename(self.result_dir)
-        if os.path.exists(f"{full_result_dir}.copied"):
-            self.logger.debug("Already copied %s" % self.result_dir)
+        if os.path.exists(f"{self.result_dir}.copied"):
+            self.logger.debug("Already copied {}", self.result_dir)
             sys.exit(0)
 
-        if os.path.exists(f"{full_result_dir}/.running"):
+        pbench_run_name = self.result_dir.name
+        if os.path.exists(f"{self.result_dir}/.running"):
             self.logger.debug(
-                "The benchmark is still running in %s - skipping" % pbench_run_name
-            )
-            self.logger.debug(
-                "If that is not true, rmdir %s/.running, and try again"
-                % pbench_run_name
+                "The benchmark is still running in {} - skipping; if that is"
+                " not true, rmdir {}/.running, and try again",
+                pbench_run_name,
+                pbench_run_name,
             )
             sys.exit(0)
 
-        md_log = f"{full_result_dir}/metadata.log"
-        if not os.path.exists(md_log):
+        try:
+            md_log = Path(self.result_dir, "metadata.log").resolve(strict=True)
+        except FileNotFoundError:
             self.logger.debug(
-                "The %s/metadata.log file seems to be missing", pbench_run_name
+                "The {}/metadata.log file seems to be missing", pbench_run_name
             )
             sys.exit(0)
 
@@ -61,12 +75,12 @@ class MakeResultTb:
         conf_md, _ = configtools.init(opts, None)
         md_config = conf_md["pbench"]
         res_name = md_config.get("name")
-        pbench_run = config.agent.get("pbench_run")
         if res_name != pbench_run_name:
             self.logger.warning(
-                "The run in directory %s/%s "
-                "has an unexpected metadata name, '%s' - skipping"
-                % (pbench_run, pbench_run_name, res_name)
+                "The run in directory {}"
+                " has an unexpected metadata name, '{}' - skipping",
+                self.config.pbench_run / pbench_run_name,
+                res_name,
             )
             sys.exit(1)
 
@@ -76,12 +90,9 @@ class MakeResultTb:
         if self.prefix:
             add_metalog_option(md_log, "run", "prefix", self.prefix)
 
-        result_size = sum(
-            file.stat().st_size for file in Path(full_result_dir).rglob("*")
-        )
+        result_size = sum(f.stat().st_size for f in self.result_dir.rglob("*"))
         self.logger.debug(
-            "preparing to tar up %s bytes of data from %s"
-            % (result_size, full_result_dir)
+            "preparing to tar up {} bytes of data from {}", result_size, self.result_dir
         )
         add_metalog_option(md_log, "run", "raw_size", f"{result_size}")
 
@@ -90,70 +101,94 @@ class MakeResultTb:
             md_log, "pbench", "tar-ball-creation-timestamp", f"{timestamp}"
         )
 
-        tarball = os.path.join(self.target_dir, f"{pbench_run_name}.tar.xz")
-        files = [os.path.realpath(file) for file in Path(full_result_dir).rglob("*")]
+        tarball = self.target_dir / f"{pbench_run_name}.tar.xz"
         try:
             with tarfile.open(tarball, mode="x:xz") as tar:
-                for f in files:
-                    tar.add(f)
+                for f in self.result_dir.rglob("*"):
+                    tar.add(os.path.realpath(f))
         except tarfile.TarError:
             self.logger.error(
-                "tar ball creation failed for %s, skipping" % self.result_dir
+                "tar ball creation failed for {}, skipping", self.result_dir
             )
-            if os.path.exists(tarball):
-                os.remove(tarball)
+            try:
+                tarball.unlink()
+            except OSError as exc:
+                if exc.errno != errno.ENOENT:
+                    self.logger.error("error removing failed tar ball, {}", tarball)
             sys.exit(1)
 
         self.make_md5sum(tarball)
 
-        return tarball
+        # The contract with the caller is to just return the full path to the
+        # created tar ball.
+        return str(tarball)
 
     def make_md5sum(self, tarball):
-        tarball_md5 = f"{tarball}.md5.check"
+        tarball_md5 = Path(f"{tarball}.md5")
         try:
             hash_md5 = hashlib.md5()
-            with open(tarball, "rb") as tar:
+            with tarball.open("rb") as tar:
                 for chunk in iter(lambda: tar.read(4096), b""):
                     hash_md5.update(chunk)
 
-            with open(tarball_md5, "w") as md5:
-                md5.write(hash_md5.hexdigest())
+            with tarball_md5.open("w") as md5:
+                md5.write(f"{tarball.name} {hash_md5.hexdigest()}\n")
         except Exception:
-            self.logger.error("md5sum failed for %s, skipping" % tarball)
-            if os.path.exists(tarball):
-                os.remove(tarball)
-            if os.path.exists(tarball_md5):
-                os.remove(tarball_md5)
+            self.logger.error("md5sum failed for {}, skipping", tarball)
+            try:
+                tarball.unlink()
+            except OSError as exc:
+                if exc.errno != errno.ENOENT:
+                    self.logger.error("error removing failed tar ball, {}", tarball)
+            try:
+                tarball_md5.unlink()
+            except OSError as exc:
+                if exc.errno != errno.ENOENT:
+                    self.logger.error(
+                        "error removing failed tar ball MD5, {}", tarball_md5
+                    )
             sys.exit(1)
 
 
 class CopyResultTb:
-    def __init__(self, tarball, path, _logger=None):
-        config = AgentConfig()
-        server_rest_url = config.results.get("server_rest_url")
+    chunk_size = 4096
 
-        self.tarball = tarball
-        self.path = path
-        self.chunk_size = 4096
-        self.logger = logger if not _logger else _logger
+    def __init__(self, tarball, config, logger):
+        if not os.path.exists(tarball):
+            logger.error("tarball does not exist, '{}'", tarball)
+            sys.exit(1)
+        tarball_md5 = f"{tarball}.md5"
+        if not os.path.exists(tarball_md5):
+            logger.error("tarball's .md5 does not exist, '{}'", tarball_md5)
+            sys.exit(1)
+        self.tarball = Path(tarball)
+        self.tarball_md5 = Path(tarball_md5)
+        self.logger = logger
+        server_rest_url = config.results.get("server_rest_url")
         self.upload_url = f"{server_rest_url}/upload"
-        self.controller_dir = os.path.dirname(self.tarball)
-        self.controller = os.path.basename(self.controller_dir)
 
     def read_in_chunks(self, file_object):
-        while True:
-            data = file_object.read(self.chunk_size)
-            if not data:
-                break
+        data = file_object.read(self.chunk_size)
+        while data:
             yield data
+            data = file_object.read(self.chunk_size)
 
-    def post_file(self, file):
-        filename = secure_filename(os.path.join(self.path, file))
-        with open(f"{os.path.join(self.path, file)}.md5.check", "r") as _check:
-            md5sum = _check.read()
+    def copy_result_tb(self):
+        files = [f for f in self.tarball.parent.iterdir() if f.is_file()]
+        file_count = len(files)
+        if file_count != 2:
+            self.logger.error(
+                "(internal): unexpected file count, {}, associated with tarball, '{}'",
+                file_count,
+                self.tarball,
+            )
+            sys.exit(1)
+
+        with open(self.tarball_md5, "r") as md5fp:
+            md5sum = md5fp.read()
+        filename = secure_filename(str(self.tarball))
         headers = {"filename": filename, "md5sum": md5sum}
-        content_path = os.path.abspath(file)
-        with open(content_path, "rb") as f:
+        with self.tarball.open("rb") as f:
             try:
                 response = requests.post(
                     self.upload_url, data=self.read_in_chunks(f), headers=headers
@@ -163,27 +198,8 @@ class CopyResultTb:
                 self.logger.exception("There was something wrong with your request")
                 sys.exit(1)
         if not response.status_code == 200:
-            self.logger.error("There was something wrong with your request")
-            self.logger.error("Error code: %s" % response.status_code)
-            sys.exit(1)
-
-    def copy_result_tb(self):
-        if not os.path.exists(self.tarball):
-            self.logger.error("tarball does not exist, %s" % self.tarball)
-            sys.exit(1)
-        if not os.path.exists(f"{self.tarball}.md5.check"):
             self.logger.error(
-                "tarball's .md5.check does not exist, %s.md5.check" % self.tarball
+                "There was something wrong with your request, error code: '{}'",
+                response.status_code,
             )
             sys.exit(1)
-
-        files = [file for file in Path(self.controller_dir).iterdir() if file.is_file()]
-        file_count = len(files)
-        if file_count != 2:
-            self.logger.error(
-                "(internal): unexpected file count, %s, associated with tarball, %s"
-                % (file_count, self.tarball)
-            )
-            sys.exit(1)
-
-        self.post_file(self.tarball)

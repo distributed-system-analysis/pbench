@@ -2,7 +2,6 @@ from configparser import NoOptionError, NoSectionError
 from datetime import datetime
 import logging
 from logging import handlers
-import os
 
 
 class _Message:
@@ -129,15 +128,14 @@ def get_pbench_logger(caller, config):
             logging_level = config.default_logging_level
         pbench_logger.setLevel(logging_level)
 
-        logdir = os.path.join(config.LOGSDIR, caller)
-        try:
-            os.mkdir(logdir)
-        except FileExistsError:
-            # directory already exists, ignore
-            pass
-
         if config.logger_type == "file":
-            handler = logging.FileHandler(os.path.join(logdir, "{}.log".format(caller)))
+            logdir = config.LOGSDIR / caller
+            try:
+                logdir.mkdir()
+            except FileExistsError:
+                # directory already exists, ignore
+                pass
+            handler = logging.FileHandler(logdir / f"{caller}.log")
         elif config.logger_type == "devlog":
             handler = handlers.SysLogHandler(address="/dev/log")
         elif (
