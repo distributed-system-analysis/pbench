@@ -56,10 +56,10 @@ class PbenchServerConfig(PbenchConfig):
                 raise BadConfig(f"Bad LIBDIR={self.LIBDIR}")
             # the scripts may use this to send status messages
             self.mail_recipients = self.conf.get("pbench-server", "mailto")
+            self.ARCHIVE = Path(self.conf.get("pbench-server", "pbench-archive-dir"))
         except (NoOptionError, NoSectionError) as exc:
             raise BadConfig(str(exc))
         else:
-            self.ARCHIVE = Path(self.conf.get("pbench-server", "pbench-archive-dir"))
             self.INCOMING = self.TOP / "public_html" / "incoming"
             # this is where the symlink forest is going to go
             self.RESULTS = self.TOP / "public_html" / "results"
