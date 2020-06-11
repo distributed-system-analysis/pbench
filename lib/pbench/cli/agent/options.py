@@ -1,8 +1,5 @@
+import os
 import click
-
-from pbench.agent.config import AGENT_DEBUG, lookup_agent_configuration
-
-AGENT_CONFIG = lookup_agent_configuration()
 
 
 #
@@ -32,7 +29,7 @@ def pbench_agent_config(f):
     return click.option(
         "-C",
         "--config",
-        default=AGENT_CONFIG,
+        default=os.environ.get("_PBENCH_AGENT_CONFIG"),
         help=(
             "Path to a pbench-agent config. If provided pbench will load "
             "this config file first. By default is looking for config in "
@@ -45,6 +42,6 @@ def pbench_agent_debug(f):
     """Turn on/off debug"""
     return click.option(
         "--debug",
-        default=AGENT_DEBUG,
+        default=False,
         help="Enable or disable debug mode. Default is disabled",
     )(f)
