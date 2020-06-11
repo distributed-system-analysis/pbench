@@ -1,3 +1,4 @@
-import os
-
-AGENT_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../agent")
+DEFAULT_PBENCH_AGENT_RUN_DIR = "/var/lib/pbench-agent"
+DEFAULT_PBENCH_AGENT_INSTALL_DIR = "/opt/pbench-agent"
+DEFAULT_SCP_OPTS = "-o StrictHostKeyChecking=no"
+DEFAULT_SSH_OPTS = DEFAULT_SCP_OPTS
