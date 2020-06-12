@@ -46,26 +46,36 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/reference-result
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample-runs-summary.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample5
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample5/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample5/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample5/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample5/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample5/result.txt
@@ -76,26 +86,36 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/reference-result
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample-runs-summary.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4/tools-default
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5/client-1
+/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5/client-2
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5/result-1-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5/result-2-127.0.0.1.txt
 /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5/result.txt
@@ -162,26 +182,26 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/dbench-postprocess /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3 dbench- default
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/dbench-postprocess /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4 dbench- default
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/dbench-postprocess /var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5 dbench- default
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample5/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=0 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5/client-1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample1/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample2/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample3/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample4/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/1-24thread/sample5/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample1/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample2/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample3/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample4/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/numactl --cpunodebind=1 bash -c /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00/2-48thread/sample5/client-2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00 --sysinfo=default beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/dbench_test-02_1900.01.01T00.00.00 --sysinfo=default end
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
