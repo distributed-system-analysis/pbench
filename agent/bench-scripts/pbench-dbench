@@ -38,7 +38,6 @@ ver=4.00
 
 export benchmark_run_dir=""
 config=""
-dir="/tmp"
 loadfile="/usr/local/share/doc/dbench/loadfiles/client.txt"
 warmup=15
 nr_samples=5
@@ -265,7 +264,7 @@ else
 	# We have an explicit run directory provided by --run-dir, so warn
 	# the user if they also used --config
 	if [[ ! -z "$config" ]]; then
-		warn_log "[$script_name] ignoring --config=\"$config\" in favor of --rundir=\"$benchmark_run_dir\""
+		warn_log "[$script_name] ignoring --config=\"$config\" in favor of --run-dir=\"$benchmark_run_dir\""
 	fi
 	benchmark_fullname="$(basename $benchmark_run_dir)"
 fi
@@ -353,7 +352,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 						benchmark_client_cmd_file="$iteration_dir/dbench-$client_nr-$client.cmd"
 
 						# construct the client command
-						benchmark_client_cmd="$benchmark_bin --machine-readable --directory=$dir/$client_nr --timelimit=$runtime --warmup=$warmup --loadfile $loadfile $thread_count"
+						benchmark_client_cmd="$benchmark_bin --machine-readable --directory=$benchmark_results_dir/client-$client_nr --timelimit=$runtime --warmup=$warmup --loadfile $loadfile $thread_count"
 						# adjust client command for NUMA binding
 						if [ ! -z "$client_node" ]; then
 							if [ $client_node -ge 0 ]; then
@@ -368,10 +367,10 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 						# prepare test files and dirs if using remote clients
 						if [ "$client" != "127.0.0.1" ]; then
 							ssh $ssh_opts $client mkdir -p $benchmark_results_dir
-							ssh $ssh_opts $client mkdir -p $dir/$client_nr
+							ssh $ssh_opts $client mkdir -p $benchmark_results_dir/client-$client_nr
 							scp $scp_opts $benchmark_client_cmd_file $client:$benchmark_client_cmd_file >/dev/null
 						else
-							mkdir -p $dir/$client_nr
+							mkdir -p $benchmark_results_dir/client-$client_nr
 						fi
 
 						((client_nr++))
