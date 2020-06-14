@@ -43,4 +43,30 @@ def activate(debug, config):
         sys.exit(1)
 
 
+@click.command(help="copy ssh key file")
+@click.pass_context
+@click.argument("config", type=click.Path(exists=True))
+@click.argument("keyfile", type=click.Path(exists=True))
+def ssh(debug, config, keyfile):
+    c = AgentConfig(config)
+
+    # Initialize an environment
+    initialize(c)
+
+    try:
+        src = Path(keyfile)
+        dest = Path(c.installdir, "id_rsa")
+
+        if not dest.exists():
+            try:
+                shutil.copy(src, dest)
+            except Exception as ex:
+                logger.error("Failed to copy ssh key %s: %s", src, ex)
+                sys.exit(1)
+    except Exception as ex:
+        logger.error("Failed copy ssh key %s: %s", src, ex)
+        sys.exit(1)
+
+
 config.add_command(activate)
+config.add_command(ssh)
