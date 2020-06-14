@@ -9,8 +9,6 @@ from pbench.common import configtools
 from pbench.common import exceptions
 from pbench.common.constants import AGENT_PATH
 
-AGENT_DEBUG = os.environ.get("AGENT_DEBUG", "False")
-
 
 def lookup_agent_configuration(filename=None):
     """Return config file PATH"""
@@ -58,3 +56,11 @@ class AgentConfig:
 
     def get_results(self):
         return self.results
+
+    @property
+    def installdir(self):
+        return pathlib.Path(self.agent.get("install-dir", "/opt/pbench-agent"))
+
+    @property
+    def rundir(self):
+        return pathlib.Path(self.agent.get("pbench_run", "/var/lib/pbench-agent"))

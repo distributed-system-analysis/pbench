@@ -2,6 +2,8 @@ import click
 import click_completion
 import pbr.version
 
+from pbench.cli.agent.commands import config
+
 click_completion.init()
 
 
@@ -22,3 +24,7 @@ def main(ctxt, debug):
     ctxt.obj = {}
     ctxt.obj["args"] = {}
     ctxt.obj["args"]["debug"] = debug
+
+
+# Include additional subcommands
+main.add_command(config.config)
