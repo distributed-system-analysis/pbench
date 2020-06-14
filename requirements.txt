@@ -12,3 +12,5 @@ redis
 python-pidfile
 python-daemon
 bottle
+pbr
+click_completion

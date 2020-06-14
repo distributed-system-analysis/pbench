@@ -2,6 +2,17 @@ import os
 import click
 
 
+class CliContext:
+    def __init__(self):
+        self.config = None
+
+    def initialize(self):
+        pass
+
+
+pass_cli_context = click.make_pass_decorator(CliContext, ensure=True)
+
+
 #
 # Agent options
 #
