@@ -9,7 +9,7 @@ from pbench.agent.logger import logger
 tools_group_prefix = "tools-v1"
 
 
-def init_wrapper(config):
+def initialize(config):
     """Initialize agent envrionment before running a command
 
     :param config: a configparser object
