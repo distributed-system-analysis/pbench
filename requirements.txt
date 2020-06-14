@@ -7,3 +7,5 @@ werkzeug
 flask
 flask-restful
 click
+pbr
+click_completion
