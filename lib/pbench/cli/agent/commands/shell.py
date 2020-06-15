@@ -3,6 +3,7 @@ import click_completion
 import pbr.version
 
 from pbench.cli.agent.commands import config
+from pbench.cli.agent.commands import cleanup
 
 click_completion.init()
 
@@ -28,3 +29,4 @@ def main(ctxt, debug):
 
 # Include additional subcommands
 main.add_command(config.config)
+main.add_command(cleanup.cleanup)

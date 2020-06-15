@@ -1,3 +1,5 @@
+import os
+
 import click
 
 
@@ -9,7 +11,7 @@ def pbench_agent_config(f):
     return click.option(
         "-C",
         "--config",
-        default="_PBENCH_AGENT_CONFIG",
+        default=lambda: os.environ.get("_PBENCH_AGENT_CONFIG", ""),
         help=(
             "Path to a pbench-agent config. If provided pbench will load "
             "this config file first. By default is looking for config in "
