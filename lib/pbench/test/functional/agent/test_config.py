@@ -50,3 +50,44 @@ def test_misssing_config():
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"'CONFIG': Path 'foo' does not exist.\n" in err
     assert exitcode == 2
+
+
+def test_pbench_ssh_key_help():
+    command = ["pbench", "config", "ssh", "--help"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert exitcode == 0
+    assert b"--help" in out
+
+
+def test_pbench_ssh_key_invalid_option():
+    command = ["pbench", "config", "ssh", "-foo"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert exitcode == 2
+
+
+def test_ssh_key(pbench_config_activate_init, pbench_installdir, pbench_conf, tmpdir):
+    key = tmpdir / "ssh.key"
+    key.write("")
+
+    conf = pbench_installdir / "id_rsa"
+    command = ["pbench", "config", "ssh", pbench_conf, key]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert exitcode == 0
+    assert conf.exists() is True
+
+
+def test_ssh_key_missing_key(
+    pbench_config_activate_init, pbench_installdir, pbench_conf
+):
+    conf = pbench_installdir / "id_rsa"
+    command = ["pbench", "config", "ssh", pbench_conf, "/foo"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert exitcode == 2
+    assert conf.exists() is False
+
+
+def test_missing_key_config():
+    command = ["pbench", "config", "ssh", "/config", "/foo"]
+    out, err, exitcode = pytest.helpers.capture(command)
+    assert exitcode == 2
+    assert b"'CONFIG': Path '/config' does not exist.\n" in err
