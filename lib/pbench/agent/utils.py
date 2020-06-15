@@ -31,8 +31,7 @@ def initialize(config):
             # the pbench temporary directory is always relative to pbench run
             pbench_tmp.mkdir(parents=True, exists_ok=True)
     else:
-        logger.error("the provided pbench run directory %s does not exist.", pbench_run)
-        sys.exit(1)
+        sys.exit(0)
     pbench_install_dir = pathlib.Path(config.installdir)
     if not pbench_install_dir.exists():
         logger.error(
