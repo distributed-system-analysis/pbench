@@ -9,3 +9,4 @@ flask-restful
 click
 pbr
 click_completion
+numpy
