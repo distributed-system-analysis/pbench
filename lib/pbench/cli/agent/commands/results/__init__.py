@@ -2,7 +2,7 @@ import os
 import sys
 import requests
 
-from pbench.agent import logger
+from pbench.agent.logger import logger
 from pbench.agent.config import AgentConfig
 from pbench.agent.results import MakeResultTb, CopyResultTb
 
