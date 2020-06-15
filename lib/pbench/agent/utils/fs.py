@@ -1,3 +1,4 @@
+import fnmatch
 import os
 from pathlib import Path
 import shutil
@@ -52,3 +53,18 @@ def rm(d, errors):
     except Exception as ex:
         errors.append("Failed to remove file %s: %s", d, ex)
     return errors
+
+
+def find_dirs(pattern, path):
+    """Find directories given a pattern and path
+
+    :param pattern: Pattern to search for
+    :param path: Path to search
+    """
+    dir_names = []
+    for pathname, subdirs, files in os.walk(path):
+        dir_names += [
+            os.path.join(pathname, filename)
+            for filename in fnmatch.filter(subdirs, pattern)
+        ]
+    return dir_names
