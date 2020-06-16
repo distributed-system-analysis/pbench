@@ -7,7 +7,7 @@ import json
 from collections import Counter
 
 
-class MockElasticsearch(object):
+class MockElasticsearch:
     """A simple mock for the V1 Elasticsearch client object. We really just
     duck-type it, only providing names for attributes we use.  It is not complete
     by any stretch of the imagination.
@@ -30,12 +30,12 @@ class MockElasticsearch(object):
         self.mockstrm = _MockObject(streaming_bulk=self.msb.streaming_bulk)
 
 
-class _MockObject(object):
+class _MockObject:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
 
-class _MockPutTemplate(object):
+class _MockPutTemplate:
     def __init__(self):
         self.mock_collected_templates = {}
 
@@ -75,7 +75,7 @@ class _MockPutTemplate(object):
         sys.stdout.flush()
 
 
-class _MockStreamingBulk(object):
+class _MockStreamingBulk:
     """Mock out helpers.streaming_bulk for unit testing purposes.
 
     Construct this object passing it the maximum number of actions we should

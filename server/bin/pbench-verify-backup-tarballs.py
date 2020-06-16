@@ -62,7 +62,7 @@ class Status(Enum):
     FAIL = 20
 
 
-class BackupObject(object):
+class BackupObject:
     def __init__(self, name, dirname, tmpdir, logger):
         self.name = name
         self.description = self.name

@@ -30,7 +30,7 @@ class MockGetObjectException(Exception):
     pass
 
 
-class Entry(object):
+class Entry:
     """An Entry object consists of a name (of an S3 object) and the MD5
     value of that object. It is used to create an object with the name
     and MD5 value, so that it can be compared with other similar
@@ -49,7 +49,7 @@ class Entry(object):
         return "{} :: {}".format(self.name, self.md5)
 
 
-class S3Config(object):
+class S3Config:
 
     GB = 1024 ** 3
     MB = 1024 ** 2
@@ -249,7 +249,7 @@ class S3Config(object):
 # abstract connector class
 
 
-class Connector(object):
+class Connector:
     def __init__(self):
         pass
 
