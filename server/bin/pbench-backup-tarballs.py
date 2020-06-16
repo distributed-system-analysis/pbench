@@ -23,13 +23,13 @@ _linkdestfail = "BACKUP-FAILED"
 _linkdest = "BACKED-UP"
 
 
-class LocalBackupObject(object):
+class LocalBackupObject:
     def __init__(self, config):
         self.backup_dir = config.BACKUP
         self.qdir = config.QDIR
 
 
-class Results(object):
+class Results:
     def __init__(
         self,
         ntotal=0,
