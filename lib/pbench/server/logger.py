@@ -5,7 +5,7 @@ from logging import handlers
 import os
 
 
-class _Message(object):
+class _Message:
     """An object that stores a format string, expected to be using the
     "brace" style formatting, and the arguments object which will be used
     to satisfy the formats.
