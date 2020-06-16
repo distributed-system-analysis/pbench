@@ -41,7 +41,7 @@ tb_pat_r = r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d
 tb_pat = re.compile(tb_pat_r)
 
 
-class Action(object):
+class Action:
     """Action - A simple class to track individual actions taken towards the
     removal of a unpacked tar ball.
 
@@ -62,7 +62,7 @@ class Action(object):
         self.status = status
 
 
-class ActionSet(object):
+class ActionSet:
     """ActionSet - A simple class to track a set of actions taken, how many
     errors occurred, when they started and when they stopped.
     """

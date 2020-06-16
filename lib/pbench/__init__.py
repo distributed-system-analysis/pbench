@@ -17,7 +17,7 @@ from pbench.server.utils import tstos
 _STD_DATETIME_FMT = "%Y-%m-%dT%H:%M:%S.%f"
 
 
-class PbenchConfig(object):
+class PbenchConfig:
     """A simple class to wrap a ConfigParser object using the configtools
        style of multiple configuration files.
     """

@@ -15,7 +15,7 @@ from pbench.server.logger import get_pbench_logger
 from pbench.server.utils import tstos
 
 
-class Report(object):
+class Report:
     """Encapsulation of server-side reporting information for recording who,
     what, when, and how of a component's operation.
     """
