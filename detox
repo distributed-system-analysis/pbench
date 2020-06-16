@@ -1,0 +1,4 @@
+#!/bin/bash
+
+target="${1}"
+find ${target} -type f -path '*/__pycache__/*' -name '*.py[c|o]' -delete
