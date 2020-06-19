@@ -20,6 +20,7 @@ from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server.report import Report
 from pbench.server.utils import md5sum, quarantine
+from pbench.server.tarball_state import TarState
 
 
 _NAME_ = "pbench-server-prep-shim-002"
@@ -131,8 +132,6 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
         controller = tbdir.name
         dest = archive / controller
 
-        print("stat type ======= ", type(stat))
-        print("stat ============ ", stat)
         stat.append(
             {
                 resultname: {
@@ -245,13 +244,9 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
         logger.info(f"{tb.name}: OK")
 
         stat[len(stat) - 1][resultname]["status"] = "PASSED"
-        print(
-            "\n\n\n\n\n\n\n\n\nstatstat ===== ",
-            stat[len(stat) - 1][resultname]["status"],
-            "\n\n\n\n\n\n\n",
-        )
 
-    print("\n\n\n\n\n\nstat ============== ", stat, "\n\n\n\n")
+    # print("\n\n\n\n\n\nstat ============== ", stat, "\n\n\n\n")
+    TarState(stat)
 
     return Results(
         nstatus=nstatus,
