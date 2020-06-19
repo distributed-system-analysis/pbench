@@ -25,7 +25,7 @@ from pbench.server.utils import md5sum, quarantine
 _NAME_ = "pbench-server-prep-shim-002"
 
 
-class Results(object):
+class Results:
     def __init__(
         self, nstatus="", ntotal=0, ntbs=0, nquarantined=0, ndups=0, nerrs=0,
     ):
@@ -111,6 +111,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
     logger.info("{}", config.TS)
     list_check.sort()
     nstatus = ""
+    stat = list()
 
     ntotal = ntbs = nerrs = nquarantined = ndups = 0
 
@@ -129,6 +130,19 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
 
         controller = tbdir.name
         dest = archive / controller
+
+        print("stat type ======= ", type(stat))
+        print("stat ============ ", stat)
+        stat.append(
+            {
+                resultname: {
+                    "Name": resultname,
+                    "controller": controller,
+                    "script": _NAME_,
+                    "status": "FAILED",
+                }
+            }
+        )
 
         if all([(dest / resultname).is_file(), (dest / tbmd5.name).is_file()]):
             errorfile.write(f"{config.TS}: Duplicate: {tb} duplicate name\n")
@@ -229,6 +243,15 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
 
         nstatus = f"{nstatus}{config.TS}: processed {tb}\n"
         logger.info(f"{tb.name}: OK")
+
+        stat[len(stat) - 1][resultname]["status"] = "PASSED"
+        print(
+            "\n\n\n\n\n\n\n\n\nstatstat ===== ",
+            stat[len(stat) - 1][resultname]["status"],
+            "\n\n\n\n\n\n\n",
+        )
+
+    print("\n\n\n\n\n\nstat ============== ", stat, "\n\n\n\n")
 
     return Results(
         nstatus=nstatus,
