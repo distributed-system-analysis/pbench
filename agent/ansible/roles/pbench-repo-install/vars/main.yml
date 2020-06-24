@@ -1,5 +1,5 @@
 ---
-distro: "{{ 'epel' if ansible_distribution == 'RedHat'
+distro: "{{ 'epel' if ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
           else
             'fedora' if ansible_distribution == 'Fedora'
           else

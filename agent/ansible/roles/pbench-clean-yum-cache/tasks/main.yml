@@ -1,6 +1,8 @@
 ---
 - name: Clean yum cache
   command: yum clean all
+  args:
+    warn: False
 
 - name: Delete /var/yum/cache directory
   file:

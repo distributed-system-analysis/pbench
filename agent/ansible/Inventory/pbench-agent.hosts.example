@@ -16,12 +16,12 @@ host3       ansible_python_interpreter=/usr/bin/python3
 pbench_repo_url_prefix = https://copr-be.cloud.fedoraproject.org/results/<EXAMPLE_USER>
 
 # where to get the key
-pbench_key_url = http://EXAMPLE.COM/PATH/TO/agent/{{ cenv }}/ssh
+pbench_key_url = http://EXAMPLE.COM/PATH/TO/agent/{{ pbench_configuration_environment }}/ssh
 # where to put it
 pbench_key_dest = /opt/pbench-agent/
 
 # where to get the config file
-pbench_config_url = http://EXAMPLE.COM/PATH/TO/agent/{{ cenv }}/config
+pbench_config_url = http://EXAMPLE.COM/PATH/TO/agent/{{ pbench_configuration_environment }}/config
 # where to put it
 pbench_config_dest = /opt/pbench-agent/config/
 
