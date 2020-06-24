@@ -2,9 +2,11 @@
 - import_role:
     name: pbench-clean-yum-cache
 
-- name: "Install the agent RPM"
+- name: "Install RPMs"
   package:
-    name: pbench-agent
+    name: "{{ item }}"
     state: latest
-
+  with_items:
+    - pbench-agent
+    - pbench-sysstat
 
