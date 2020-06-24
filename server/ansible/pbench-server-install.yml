@@ -6,6 +6,7 @@
   become_user: root
 
   vars:
+    pbench_configuration_environment: "{{ cenv | 'production' }}"
     package_state: "latest"
     apache_options: "+Indexes +FollowSymLinks"
 

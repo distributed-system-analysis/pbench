@@ -21,7 +21,7 @@ pbench_repo_url_prefix = https://copr-be.cloud.fedoraproject.org/results/some_fe
 # are needed.
 
 # This tells where to fetch config files from.
-pbench_config_url = http://pbench.example.com/server/config/{{ cenv }}
+pbench_config_url = http://pbench.example.com/server/config/{{ pbench_configuration_environment }}
 
 # List of config files to fetch.
 pbench_config_files = '["pbench-server.cfg"]'
