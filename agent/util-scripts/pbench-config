@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+# PBR Generated from 'console_scripts'
+
+import sys
+
+from pbench.cli.getconf import main
+
+
+if __name__ == "__main__":
+    sys.exit(main())
