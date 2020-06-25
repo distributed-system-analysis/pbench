@@ -8,7 +8,7 @@
   # The default value ('production') can be overriddent by cenv, a host-specific
   # inventory variable.
   vars:
-    pbench_configuration_environment: "{{ cenv | 'production' }}"
+    pbench_configuration_environment: "{{ cenv | default('production') }}"
 
   roles:
     - pbench-agent-config-install
