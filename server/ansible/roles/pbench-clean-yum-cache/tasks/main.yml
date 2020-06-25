@@ -4,9 +4,9 @@
   args:
     warn: False
 
-- name: Delete /var/yum/cache directory
+- name: Delete /var/cache/yum directory
   file:
-    path: /var/yum/cache
+    path: /var/cache/yum
     state: absent
 
 
