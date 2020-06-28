@@ -27,7 +27,7 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 benchmark="uperf"
 benchmark_rpm=${benchmark}
 if [[ -z "$benchmark_bin" ]]; then
-    benchmark_bin=/usr/local/bin/$benchmark
+    benchmark_bin=/usr/bin/$benchmark
 fi
 ver="$(getconf.py version uperf)"
 if [[ -z "${ver}" ]]; then
