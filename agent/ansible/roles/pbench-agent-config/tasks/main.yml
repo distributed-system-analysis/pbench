@@ -1,0 +1,45 @@
+---
+# pbench agent configuration
+- name: create pbench group
+  group:
+    name: "{{ pbench_group }}"
+    state: present
+
+- name: create pbench user
+  user:
+    name: "{{ pbench_owner }}"
+    comment: Pbench user
+    home: /home/{{ pbench_owner }}
+    group: "{{ pbench_group }}"
+    state: present
+
+- name: Change ownership of the installed tree
+  file:
+    path: "{{ pbench_agent_install_dir }}"
+    state: directory
+    recurse: yes
+    owner: "{{ pbench_owner }}"
+    group: "{{ pbench_group }}"
+
+- name: "pbench agent configuration - install config file(s)"
+  include_role:
+    name: pbench-agent-files-install
+  vars:
+    source: "{{ pbench_config_url }}"
+    dest: "{{ pbench_config_dest }}"
+    mode: "0644"
+    owner: "{{ pbench_owner }}"
+    group: "{{ pbench_group }}"
+    files: "{{ pbench_config_files }}"
+
+- name: "pbench agent configuration - install ssh key"
+  include_role:
+    name: pbench-agent-files-install
+  vars:
+    source: "{{ pbench_key_url }}"
+    dest: "{{ pbench_key_dest }}"
+    mode: "0600"
+    owner: "{{ pbench_owner }}"
+    group: "{{ pbench_group }}"
+    files: id_rsa
+
