@@ -11,6 +11,4 @@
     pbench_configuration_environment: "{{ cenv | default('production') }}"
 
   roles:
-    - pbench-agent-config-install
-    - pbench-agent-key-install
-
+    - pbench-agent-config

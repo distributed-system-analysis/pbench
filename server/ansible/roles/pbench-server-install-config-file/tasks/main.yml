@@ -6,6 +6,7 @@
 
 - name: create temp dir to store the config locally
   delegate_to: localhost
+  become: no
   tempfile:
     state: directory
     prefix: "{{ inventory_hostname }}-"
@@ -13,12 +14,14 @@
 
 - name: relax perms
   delegate_to: localhost
+  become: no
   file:
     path: "{{ tempdir_1.path }}"
     mode: 0755
 
 - name: install the config file locally
   delegate_to: localhost
+  become: no
   get_url:
     url: "{{ pbench_config_url }}/{{ item }}"
     dest: "{{ tempdir_1.path }}/{{ item }}"

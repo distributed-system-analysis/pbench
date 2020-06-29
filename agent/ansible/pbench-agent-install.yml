@@ -13,6 +13,4 @@
   roles:
     - pbench-repo-install
     - pbench-agent-install
-    - pbench-agent-config-install
-    - pbench-agent-key-install
-
+    - pbench-agent-config
