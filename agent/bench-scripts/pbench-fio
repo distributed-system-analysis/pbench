@@ -14,17 +14,21 @@ benchmark="fio"
 benchmark_rpm=${benchmark}
 export benchmark_run_dir=""
 # allow unit tests to override
-if [[ -z "$benchmark_bin" ]]; then
-	benchmark_bin=/usr/local/bin/$benchmark
+if [[ -z "${benchmark_bin}" ]]; then
+        benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
+	if [[ -z "${benchmark_bin}" ]]; then
+		error_log "[${script_name}] ${benchmark} executable not found on PATH=${PATH}"
+		exit 1
+	fi
 fi
-ver="$(pbench-config version fio)"
+ver="$(pbench-config version ${benchmark})"
 if [[ -z "${ver}" ]]; then
-	error_log "pbench-fio: package version is missing in config file"
+	error_log "${script_name}: package version is missing in config file"
 	exit 1
 fi
-fio_server_port="$(pbench-config server_port fio)"
+fio_server_port="$(pbench-config server_port ${benchmark})"
 if [[ -z "${fio_server_port}" ]]; then
-	error_log "pbench-fio: server_port is missing in config file"
+	error_log "${script_name}: server_port is missing in config file"
 	exit 1
 fi
 
