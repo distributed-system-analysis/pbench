@@ -36,8 +36,20 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 benchmark_rpm=$script_name
 benchmark="netperf"
-benchmark_bin=/usr/bin/$benchmark
-ver=2.7.0
+if [[ -z "${benchmark_bin}" ]]; then
+        benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
+	if [[ -z "${benchmark_bin}" ]]; then
+		error_log "[${script_name}] ${benchmark} executable not found on PATH=${PATH}"
+		exit 1
+	fi
+fi
+ver="$(pbench-config version ${benchmark})"
+if [[ -z "${ver}" ]]; then
+	error_log "${script_name}: package version is missing in config file"
+	exit 1
+fi
+
+# Formatting spacing for output report.
 spacing=25
 
 # Every bench-script follows a similar sequence:

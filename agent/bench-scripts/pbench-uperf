@@ -26,10 +26,14 @@ pbench_bin="`cd ${script_path}/..; /bin/pwd`"
 
 benchmark="uperf"
 benchmark_rpm=${benchmark}
-if [[ -z "$benchmark_bin" ]]; then
-    benchmark_bin=/usr/bin/$benchmark
+if [[ -z "${benchmark_bin}" ]]; then
+	benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
+	if [[ -z "${benchmark_bin}" ]]; then
+		error_log "${script_name}: ${benchmark} executable not found on PATH=${PATH}"
+		exit 1
+	fi
 fi
-ver="$(pbench-config version uperf)"
+ver="$(pbench-config version ${benchmark})"
 if [[ -z "${ver}" ]]; then
         error_log "${script_name}: package version is missing in config file"
         exit 1

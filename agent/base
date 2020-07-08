@@ -268,6 +268,12 @@ function generate_inventory {
     fi
 }
 
+function resolve_benchmark_bin {
+    # Encapsulation of method for resolving the actual benchmark
+    # binary.
+    which --skip-alias --skip-functions "${1}"
+}
+
 if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]] ;then
     # For unit tests, we use a mock kill:
     # disable the built-in.
