@@ -3330,7 +3330,7 @@ Template: pbench-unittests.v4.result-data
 
 
 
-Template: pbench-unittests.v4.run
+Template: pbench-unittests.v5.run
 
 {
     "mappings": {
@@ -3339,7 +3339,7 @@ Template: pbench-unittests.v4.run
                 "enabled": false
             },
             "_meta": {
-                "version": "4"
+                "version": "5"
             },
             "date_detection": false,
             "properties": {
@@ -3559,7 +3559,7 @@ Template: pbench-unittests.v4.run
                 "enabled": false
             },
             "_meta": {
-                "version": "4"
+                "version": "5"
             },
             "_parent": {
                 "type": "pbench-run"
@@ -3616,7 +3616,7 @@ Template: pbench-unittests.v4.run
                     "type": "string"
                 },
                 "parent": {
-                    "analyzer": "path_analyzer",
+                    "index": "not_analyzed",
                     "type": "string"
                 }
             }
@@ -3648,7 +3648,7 @@ Template: pbench-unittests.v4.run
             }
         }
     },
-    "template": "pbench-unittests.v4.run.*"
+    "template": "pbench-unittests.v5.run.*"
 }
 
 --- Finished pbench-index (status=0)

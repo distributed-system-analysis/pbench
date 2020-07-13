@@ -38,7 +38,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
@@ -71,14 +71,14 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v4.result-data.2020-01-19 15338
-Index:  pbench-unittests.v4.run.2020-01 92
+Index:  pbench-unittests.v5.run.2020-01 92
 len(actions) = 30
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -121,7 +121,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -200,7 +200,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -238,7 +238,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -307,7 +307,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -326,7 +326,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -390,7 +390,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -476,7 +476,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -525,7 +525,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -609,7 +609,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -628,7 +628,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -648,7 +648,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -692,7 +692,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -730,7 +730,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -799,7 +799,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2020-01",
+        "_index": "pbench-unittests.v5.run.2020-01",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -1326,7 +1326,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
@@ -1365,7 +1365,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
@@ -1398,7 +1398,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 len(actions) = 0
 []
 Template:  pbench-unittests.v3.server-reports
@@ -1410,7 +1410,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [

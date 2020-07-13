@@ -2,7 +2,7 @@
     "pbench-run": {
         "_all" : {"enabled" : false},
         "_meta": {
-            "version": "4"
+            "version": "5"
         },
         "date_detection": false,
         "properties": {
