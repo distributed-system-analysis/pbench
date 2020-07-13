@@ -38,7 +38,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
@@ -71,18 +71,18 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 A source does not conform to mapping: key 'uperf_servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
 A source does not conform to mapping: key 'uperf_clients' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
 A source does not conform to mapping: key 'uperf__servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
 A source does not conform to mapping: key 'benchmark' has bad mapping
 Index:  pbench-unittests.v4.result-data.2018-10-04 724
-Index:  pbench-unittests.v4.run.2018-10 64
+Index:  pbench-unittests.v5.run.2018-10 64
 len(actions) = 30
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -156,7 +156,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -221,7 +221,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -273,7 +273,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -328,7 +328,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -363,7 +363,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -382,7 +382,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -402,7 +402,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -460,7 +460,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -533,7 +533,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -647,7 +647,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -706,7 +706,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -771,7 +771,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -823,7 +823,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -937,7 +937,7 @@ len(actions) = 30
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.run.2018-10",
+        "_index": "pbench-unittests.v5.run.2018-10",
         "_op_type": "create",
         "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
@@ -1528,7 +1528,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
@@ -1567,7 +1567,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
@@ -1600,7 +1600,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v3.tool-data-iostat.2018-10-04 558
 Index:  pbench-unittests.v3.tool-data-mpstat.2018-10-04 930
 Index:  pbench-unittests.v3.tool-data-pidstat.2018-10-04 1386
@@ -10008,7 +10008,7 @@ Template:  pbench-unittests.v3.tool-data-proc-vmstat
 Template:  pbench-unittests.v3.tool-data-prometheus-metrics
 Template:  pbench-unittests.v3.tool-data-vmstat
 Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v4.run
+Template:  pbench-unittests.v5.run
 Index:  pbench-unittests.v3.server-reports.1970-01 1
 len(actions) = 1
 [
