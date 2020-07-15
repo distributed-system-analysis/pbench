@@ -52,6 +52,7 @@
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.log
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-default
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-default

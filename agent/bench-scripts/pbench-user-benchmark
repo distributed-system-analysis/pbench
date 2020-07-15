@@ -300,6 +300,9 @@ declare -a parts
 # the while loop sub-shell does not share FD 0 (stdin) with the executed
 # benchmark script. Otherwise, benchmarks messing around with FD 0 can lead to
 # problems.
+
+pbench-init-tools --group=${tool_group} --dir=${benchmark_run_dir}
+
 while read -u 3 line; do
 	# Current line number, starting from 1 (not zero)
 	(( lineno++ ))
@@ -333,6 +336,8 @@ done 3< ${benchmark_run_dir}/iteration.lis
 if [[ ${iter_num} -eq 1 ]]; then
 	warn_log "[${script_name}]: iteration file did not contain any iterations!"
 fi
+
+pbench-end-tools --group=${tool_group} --dir=${benchmark_run_dir}
 
 # Now that we have finished running all the iterations, create the
 # reference-result symlinks.

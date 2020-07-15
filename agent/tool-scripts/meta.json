@@ -1,0 +1,47 @@
+{
+	"transient":{
+		"blktrace": null,
+		"bpftrace": null,
+		"cpuacct": null,
+		"disk": null,
+		"dm-cache": null,
+		"docker": null,
+		"docker-info": null,
+		"external-data-source": null,
+		"haproxy-ocp": null,
+		"iostat": null,
+		"jmap": null,
+		"jstack": null,
+		"kvm-spinlock": null,
+		"kvmstat": null,
+		"kvmtrace": null,
+		"lockstat": null,
+		"mpstat": null,
+		"numastat": null,
+		"oc": null,
+		"openvswitch": null,
+		"pcp": null,
+		"perf": null,
+		"pidstat": null,
+		"pprof": null,
+		"proc-interrupts": null,
+		"proc-sched_debug": null,
+		"proc-vmstat": null,
+		"prometheus-metrics": null,
+		"qemu-migrate": null,
+		"rabbit": null,
+		"sar": null,
+		"strace": null,
+		"sysfs": null,
+		"systemtap": null,
+		"tcpdump": null,
+		"turbostat": null,
+		"user-tool": null,
+		"virsh-migrate": null,
+		"vmstat": null
+	},
+
+	"persistent":{
+		"node-exporter": {"collector": "prometheus", "port": "9100"}
+	}
+}

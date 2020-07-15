@@ -32,6 +32,8 @@ import redis
 
 from pbench.agent.tool_data_sink import main as tds_main
 from pbench.agent.tool_meister import main as tm_main
+from pbench.agent import PbenchAgentConfig
+from pbench.agent.modules import metaclass
 
 
 # Port number is "One Tool" in hex 0x17001
@@ -369,10 +371,32 @@ def main(argv):
         ), f"bad channel: {resp!r}"
         assert resp["data"] == 1, f"bad data: {resp!r}"
 
+    # 2.5. Add tool metadata json to redis
+    try:
+        inst_dir = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"]).pbench_install_dir
+    except BadConfig as exc:
+        logger.error("%s", exc)
+        return 1
+    except Exception:
+        logger.error("Unexpected error encountered logging pbench agent configuration: '%s'", exc)
+        return 1
+
+    try:
+        tm_start_path = Path(inst_dir).resolve(strict=True)
+    except FileNotFoundError:
+        logger.error("Unable to determine proper installation directory, '%s' not found", inst_dir)
+        return 1
+    except Exception as exc:
+        logger.exception("Unexpected error encountered resolving installation directory: '%s'", exc)
+        return 1
+    tool_metadata = metaclass.ToolMetadata("json", tm_start_path, logger)
+    tool_metadata.loadIntoRedis(redis_server)
+
+
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process
     tds_param_key = "tds-{}".format(group)
-    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir)
+    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group)
     try:
         redis_server.set(tds_param_key, json.dumps(tds, sort_keys=True))
     except Exception:
