@@ -169,7 +169,7 @@ INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /tool-data/9e243dae
 INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /tool-data/9e243daecdc01b52d608090bb1c49d95/remote_b.example.com HTTP/1.1" 200 0
 INFO pbench-tool-data-sink log_request -- 127.0.0.1 - - "PUT /tool-data/9e243daecdc01b52d608090bb1c49d95/remote_c.example.com HTTP/1.1" 200 0
 INFO pbench-tool-data-sink main -- Remove pid file ... (pbench-tool-data-sink.pid)
-INFO pbench-tool-data-sink main -- params_key (tds-lite): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan"}'
+INFO pbench-tool-data-sink main -- params_key (tds-lite): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "group": "lite"}'
 INFO pbench-tool-data-sink run -- Bottle web server exited
 INFO pbench-tool-data-sink run -- Running Bottle web server ...
 --- mock-run/tm/pbench-tool-data-sink.log file contents

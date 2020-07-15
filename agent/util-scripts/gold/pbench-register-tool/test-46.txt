@@ -33,6 +33,7 @@ Available tools:
 	kvmtrace
 	lockstat
 	mpstat
+	node-exporter
 	numastat
 	oc
 	openvswitch
