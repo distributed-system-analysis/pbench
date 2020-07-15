@@ -372,7 +372,7 @@ def main(argv):
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process
     tds_param_key = "tds-{}".format(group)
-    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir)
+    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group)
     try:
         redis_server.set(tds_param_key, json.dumps(tds, sort_keys=True))
     except Exception:

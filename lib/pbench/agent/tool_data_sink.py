@@ -16,6 +16,8 @@ import hashlib
 import json
 import logging
 import os
+import shutil
+import socket
 import subprocess
 import sys
 import tempfile
@@ -111,6 +113,130 @@ class DataSinkWsgiServer(ServerAdapter):
             self._server.shutdown()
 
 
+class BaseCollector:
+    allowed_tools = {"noop-collector": None}
+
+    def __init__(self, benchmark_run_dir, host_tools_dict, logger):
+        self.run = None
+        self.benchmark_run_dir = str(benchmark_run_dir)
+        self.host_tools_dict = host_tools_dict
+        self.logger = logger
+        self.abort_launch = True
+
+    def launch(self):
+        pass
+
+    def terminate(self):
+        if self.abort_launch:
+            return 0
+
+        self.run.terminate()
+        self.run.wait()
+        return 1
+
+
+class PromCollector(BaseCollector):
+    allowed_tools = {"node-exporter": "9100"}
+
+    def __init__(self, benchmark_run_dir, host_tools_dict, logger):
+        super().__init__(benchmark_run_dir, host_tools_dict, logger)
+        self.volume = self.benchmark_run_dir + "/prom_vol"
+
+    def launch(self):
+
+        if self.host_tools_dict:
+            self.abort_launch = False
+        else:
+            return 0
+
+        config = open("prometheus.yml", "w")
+
+        config.write("global:\n  scrape_interval: 1s\n  evaluation_interval: 1s\n\n")
+        # config.write("alerting:\n  alertmanagers:\n  - static_configs:\n    - targets:\n\nrule_files:\n\n")
+        config.write(
+            "scrape_configs:\n  - job_name: 'prometheus'\n    static_configs:\n    - targets: ['localhost:9090']\n\n"
+        )
+
+        for host in self.host_tools_dict:
+            if host.startswith("local"):
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.connect(("8.8.8.8", 80))
+                host_ip = str(s.getsockname()[0])
+                s.close()
+            else:
+                host_ip = host
+
+            for tool in self.host_tools_dict[host]:
+                port = PromCollector.allowed_tools[tool]
+                config.write(
+                    "  - job_name: '{}_{}'\n    static_configs:\n    - targets: ['{}:{}']\n\n".format(
+                        host_ip, tool, host_ip, port
+                    )
+                )
+
+        config.close()
+
+        prom_logs = open("prom.log", "w")
+
+        if self.abort_launch:
+            prom_logs.write("Prometheus launch aborted, no persistent tools registered")
+            prom_logs.close()
+            return 0
+
+        args = ["podman", "pull", "prom/prometheus"]
+        prom_pull = subprocess.Popen(
+            args, stdout=prom_logs, stderr=prom_logs
+        )  # , stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        prom_pull.wait()
+
+        os.mkdir(self.volume)
+        args = ["chmod", "777", self.volume]
+        volume_dir = subprocess.Popen(args)
+        volume_dir.wait()
+
+        args = [
+            "podman",
+            "run",
+            "-p",
+            "9090:9090",
+            "-v",
+            f"{self.volume}:/prometheus:Z",
+            "-v",
+            f"{self.benchmark_run_dir}/tm/prometheus.yml:/etc/prometheus/prometheus.yml:Z",
+            "prom/prometheus",
+        ]
+        self.run = subprocess.Popen(
+            args, stdout=prom_logs, stderr=prom_logs
+        )  # , stdout =subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+        prom_logs.close()
+
+        return 1
+
+    def terminate(self):
+        if super().terminate() == 0:
+            return 0
+
+        self.logger.debug("PROM TERMINATED")
+
+        os.mkdir(str(self.benchmark_run_dir) + "/prom_data")
+
+        args = [
+            "tar",
+            "-zcvf",
+            f"{self.benchmark_run_dir}/prom_data/prometheus_data.tar.gz",
+            "-C",
+            f"{self.benchmark_run_dir}/",
+            "prom_vol",
+        ]
+        data_store = subprocess.Popen(args)
+        data_store.wait()
+
+        shutil.rmtree(self.volume)
+
+        return 1
+
+
 class ToolDataSink(Bottle):
     """ToolDataSink - sub-class of Bottle representing state for tracking data
     sent from tool meisters via an HTTP PUT method.
@@ -119,12 +245,13 @@ class ToolDataSink(Bottle):
     class Terminate(Exception):
         pass
 
-    def __init__(self, redis_server, channel, benchmark_run_dir, logger):
+    def __init__(self, redis_server, channel, benchmark_run_dir, tool_group, logger):
         super(ToolDataSink, self).__init__()
         # Save external state
         self.redis_server = redis_server
         self.channel = channel
         self.benchmark_run_dir = benchmark_run_dir
+        self.tool_group = tool_group
         self.logger = logger
         # Initialize internal state
         self._hostname = os.environ["full_hostname"]
@@ -132,6 +259,7 @@ class ToolDataSink(Bottle):
         self.tool_data_ctx = None
         self.directory = None
         self._data = None
+        self._prom_server = None
         self._tm_tracking = None
         self._lock = Lock()
         self._cv = Condition(lock=self._lock)
@@ -280,14 +408,41 @@ class ToolDataSink(Bottle):
             assert pids["ds"]["hostname"] == self._hostname, f"what? {pids['ds']!r}"
             for tm in pids["tm"]:
                 assert tm["kind"] == "tm", f"what? {tm!r}"
+                # Fetch all the tool data for this Tool Meister.
+                tm_name = tm["hostname"]
+                tools_json_str_raw = self.redis_server.get(
+                    f"tm-{self.tool_group}-{tm_name}"
+                )
+                tools_json_str = tools_json_str_raw.decode("utf-8")
+                tools = json.loads(tools_json_str)["tools"]
+                noop_tools = []
+                persistent_tools = []
+                transient_tools = []
+                for tool_name in tools.keys():
+                    if tool_name in PromCollector.allowed_tools:
+                        persistent_tools.append(tool_name)
+                    elif tool_name in BaseCollector.allowed_tools:
+                        noop_tools.append(tool_name)
+                    else:
+                        transient_tools.append(tool_name)
+                tm["noop_tools"] = noop_tools
+                tm["persistent_tools"] = persistent_tools
+                tm["transient_tools"] = transient_tools
+
                 if tm["hostname"] == self._hostname:
                     # The "localhost" tool meister instance does not send data
                     # to the tool data sink, it just writes it locally.
-                    continue
-                # The `posted` field is "dormant" to start (as set below),
-                # "waiting" when we transition to the "send" state, "dormant"
-                # when we receive data from the target Tool Meister host.
-                tm["posted"] = "dormant"
+                    tm["posted"] = None
+                elif not transient_tools:
+                    # Only Tool Meisters with at least one transient tool will
+                    # send data to a data sink, so ignore those Tool Meisters
+                    # without any.
+                    tm["posted"] = None
+                else:
+                    # The `posted` field is "dormant" to start (as set below),
+                    # "waiting" when we transition to the "send" state, "dormant"
+                    # when we receive data from the target Tool Meister host.
+                    tm["posted"] = "dormant"
                 tms[tm["hostname"]] = tm
         return tms
 
@@ -304,6 +459,8 @@ class ToolDataSink(Bottle):
         done = False
         while not done:
             for hostname, tm in self._tm_tracking.items():
+                if tm["posted"] is None:
+                    continue
                 if tm["posted"] == "waiting":
                     # Don't bother checking any other Tool Meister when we
                     # have at least one that has not sent any data.
@@ -331,6 +488,8 @@ class ToolDataSink(Bottle):
         if self._tm_tracking is None:
             return
         for hostname, tm in self._tm_tracking.items():
+            if tm["posted"] is None:
+                continue
             assert (
                 tm["posted"] == curr
             ), f"_change_tm_tracking unexpected tm posted value, {tm!r}"
@@ -398,7 +557,23 @@ class ToolDataSink(Bottle):
 
         # Transition to "send" state should reset self._tm_tracking
         with self._lock:
-            if self.state == "send":
+            if self.state == "init":
+                prom_tool_dict = {}
+                for tm in self._tm_tracking:
+                    prom_tools = self._tm_tracking[tm]["persistent_tools"]
+                    if len(prom_tools) > 0:
+                        prom_tool_dict[self._tm_tracking[tm]["hostname"]] = prom_tools
+                self.logger.debug(prom_tool_dict)
+
+                if prom_tool_dict:
+                    self._prom_server = PromCollector(
+                        self.benchmark_run_dir, prom_tool_dict, self.logger
+                    )
+                    self._prom_server.launch()
+            elif self.state == "end":
+                if self._prom_server:
+                    self._prom_server.terminate()
+            elif self.state == "send":
                 self._change_tm_tracking("dormant", "waiting")
                 # The Tool Data Sink cannot send success until all the Tool
                 # Meisters have sent their collected data, so wait for all the
@@ -687,6 +862,7 @@ def main(argv):
         params = json.loads(params_str)
         channel = params["channel"]
         benchmark_run_dir = Path(params["benchmark_run_dir"]).resolve(strict=True)
+        tool_group = params["group"]
     except Exception as ex:
         logger.error("Unable to fetch and decode parameter key, %s: %s", param_key, ex)
         return 5
@@ -723,6 +899,7 @@ def main(argv):
             logger.debug("constructing Redis() object")
             try:
                 redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+
             except Exception as e:
                 logger.error(
                     "Unable to connect to redis server, %s:%s: %s",
@@ -734,7 +911,9 @@ def main(argv):
             else:
                 logger.debug("constructed Redis() object")
 
-            tds_app = ToolDataSink(redis_server, channel, benchmark_run_dir, logger)
+            tds_app = ToolDataSink(
+                redis_server, channel, benchmark_run_dir, tool_group, logger
+            )
             tds_app.execute()
         except OSError as exc:
             if exc.errno == errno.EADDRINUSE:

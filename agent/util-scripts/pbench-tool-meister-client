@@ -25,7 +25,7 @@ tm_channel = "tool-meister-chan"
 cl_channel = "tool-meister-client"
 
 # List of allowed actions
-allowed_actions = ("start", "stop", "send", "kill")
+allowed_actions = ("end", "init", "send", "start", "stop", "kill")
 
 
 def main(argv):

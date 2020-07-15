@@ -1,5 +1,12 @@
 +++ Running test-09 pbench-kill-tools --group=barfoo
 ERROR: required directory argument missing.
+The following are required:
+
+	-g str --group=str, str = a tool group used in a benchmark
+	                          (the default group is 'default')
+
+	-d str --dir=str, str = a directory where pbench-kill-tools
+	                        will store and process data
 --- Finished test-09 pbench-kill-tools (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
