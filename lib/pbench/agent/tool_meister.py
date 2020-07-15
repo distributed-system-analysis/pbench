@@ -113,27 +113,6 @@ class PermaTool:
             self.process = subprocess.Popen(
                 args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
             )
-        elif self.name == "dcgm":
-            os.environ["PYTHONPATH"] = (
-                self.install_path
-                + "/bindings:"
-                + self.install_path
-                + "/bindings/common"
-            )
-
-            if not os.path.isfile(
-                self.install_path + "/samples/scripts/dcgm_prometheus.py"
-            ):
-                self.logger.info(
-                    self.install_path
-                    + "/samples/scripts/dcgm_prometheus.py"
-                    + " does not exist"
-                )
-                self.failure = True
-                return 0
-
-            args = [f"python2 {self.install_path}/samples/scripts/dcgm_prometheus.py"]
-            self.process = subprocess.Popen(args, shell=True)
         else:
             self.logger.error("INVALID PERMA TOOL NAME")
             self.failure = True
@@ -363,7 +342,7 @@ class ToolMeister(object):
 
     def __init__(self, pbench_bin, params, redis_server, logger):
         self.logger = logger
-        self.persist_tools = ["node-exporter", "dcgm"]
+        self.persist_tools = ["node-exporter"]
         self.pbench_bin = pbench_bin
         ret_val = self.fetch_params(params)
         (

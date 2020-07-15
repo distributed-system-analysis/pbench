@@ -136,7 +136,7 @@ class BaseCollector:
 
 
 class PromCollector(BaseCollector):
-    allowed_tools = {"node-exporter": "9100", "dcgm": "8000"}
+    allowed_tools = {"node-exporter": "9100"}
 
     def __init__(self, benchmark_run_dir, host_tools_dict, logger):
         super().__init__(benchmark_run_dir, host_tools_dict, logger)
