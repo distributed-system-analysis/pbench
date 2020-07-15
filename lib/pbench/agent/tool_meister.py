@@ -59,6 +59,7 @@ import pidfile
 import redis
 
 from pbench.server.utils import md5sum
+import pbench.agent.toolmetadata as toolmetadata
 
 
 # Path to external tar executable.
@@ -70,6 +71,67 @@ client_channel = "tool-meister-client"
 
 class ToolException(Exception):
     pass
+
+
+class PersistentTool:
+    def __init__(self, name, tool_opts, logger):
+        self.name = name
+        self.tool_opts = tool_opts.split(" ")
+        self.logger = logger
+        self.install_path = None
+
+        # Looking for required --inst option
+        # Reformatting appropriately if found
+        for opt in self.tool_opts:
+            if opt.startswith("--inst="):
+                if opt[len(opt) - 1] == "\n":
+                    self.install_path = opt[7 : len(opt) - 1]
+                else:
+                    self.install_path = opt[7:]
+                self.logger.debug("FOUND")
+            else:
+                self.logger.debug("NOT FOUND SOMEHOW")
+
+        self.process = None
+        self.failure = False
+
+    def start(self):
+        if self.install_path is None:
+            self.failure = True
+            self.logger.error(
+                "NO INSTALL PATH PROPERLY GIVEN AS PERSISTENT TOOL OPTION, see /opt/pbench-agent/nodexporter --help"
+            )
+            return
+
+        if self.name == "node-exporter":
+            self.logger.debug(self.install_path)
+
+            if not os.path.isfile(self.install_path + "/node_exporter"):
+                self.logger.info(
+                    self.install_path + "/node_exporter" + " does not exist"
+                )
+                self.failure = True
+                return 0
+
+            args = [self.install_path + "/node_exporter"]
+            self.process = subprocess.Popen(
+                args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
+            )
+        else:
+            self.logger.error("INVALID PERSISTENT TOOL NAME")
+            self.failure = True
+            return 0
+
+        return 1
+
+    def stop(self):
+        if not self.failure:
+            self.process.terminate()
+            self.process.wait()
+            return 1
+
+        self.logger.error("Nothing to terminate")
+        return 0
 
 
 class Tool(object):
@@ -284,6 +346,10 @@ class ToolMeister(object):
 
     def __init__(self, pbench_bin, params, redis_server, logger):
         self.logger = logger
+        self.tool_metadata = toolmetadata.ToolMetadata(
+            "redis", redis_server, self.logger
+        )
+        self.persist_tools = self.tool_metadata.getPersistentTools()
         self.pbench_bin = pbench_bin
         ret_val = self.fetch_params(params)
         (
@@ -295,6 +361,7 @@ class ToolMeister(object):
             self._tools,
         ) = ret_val
         self._running_tools = dict()
+        self._persistent_tools = dict()
         self._rs = redis_server
         logger.debug("pubsub")
         self._pubsub = self._rs.pubsub()
@@ -315,14 +382,18 @@ class ToolMeister(object):
         ), f"Unexpected 'channel': {resp!r}"
         assert resp["data"] == 1, f"Unexpected 'data': {resp!r}"
         logger.debug("next done")
-        # We start in the "idle" state.
-        self.state = "idle"
-        self._valid_states = frozenset(["idle", "running"])
+        # We start in the "startup" state, waiting for first "init" action.
+        self.state = "startup"
+        self._valid_states = frozenset(["startup", "idle", "running", "shutdown"])
         self._state_trans = {
+            "end": {"curr": "idle", "next": "shutdown", "action": self.end_tools},
+            "init": {"curr": "startup", "next": "idle", "action": self.init_tools},
             "start": {"curr": "idle", "next": "running", "action": self.start_tools},
             "stop": {"curr": "running", "next": "idle", "action": self.stop_tools},
         }
-        self._valid_actions = frozenset(["start", "stop", "send", "terminate"])
+        self._valid_actions = frozenset(
+            ["end", "init", "send", "start", "stop", "terminate"]
+        )
         for key in self._state_trans.keys():
             assert (
                 key in self._valid_actions
@@ -476,6 +547,38 @@ class ToolMeister(object):
                 ret_val = 0
         return ret_val
 
+    def init_tools(self, data):
+        """init_tools - setup all registered tools which have data collectors.
+
+        The Tool Data Sink will be setting up the actual processes which
+        collect data from these tools.
+        """
+        failures = 0
+        tool_cnt = 0
+        for name, tool_opts in self._tools.items():
+            if name not in self.persist_tools:
+                continue
+            tool_cnt += 1
+            try:
+                persistent_tool = PersistentTool(name, tool_opts, self.logger)
+                persistent_tool.start()
+
+                self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
+            except Exception:
+                self.logger.exception(
+                    "Failed to init PersistentTool %s running in background", name
+                )
+                failures += 1
+                continue
+            else:
+                self._persistent_tools[name] = persistent_tool
+        if failures > 0:
+            msg = f"{failures} of {tool_cnt} persistent tools failed to start"
+            self._send_client_status(msg)
+        else:
+            self._send_client_status("success")
+        return failures
+
     def start_tools(self, data):
         """start_tools - start all registered tools executing in the background
 
@@ -552,6 +655,8 @@ class ToolMeister(object):
         failures = 0
         tool_cnt = 0
         for name, tool_opts in sorted(self._tools.items()):
+            if name in self.persist_tools:
+                continue
             tool_cnt += 1
             try:
                 tool = Tool(
@@ -572,10 +677,7 @@ class ToolMeister(object):
             else:
                 self._running_tools[name] = tool
         if failures > 0:
-            if failures == tool_cnt:
-                msg = "failure"
-            else:
-                msg = f"{failures} of {tool_cnt} tools failed to start"
+            msg = f"{failures} of {tool_cnt} tools failed to start"
             self._send_client_status(msg)
         else:
             self._send_client_status("success")
@@ -590,11 +692,13 @@ class ToolMeister(object):
         """
         failures = 0
         for name in sorted(self._tools.keys()):
+            if name in self.persist_tools:
+                continue
             try:
                 tool = self._running_tools[name]
             except KeyError:
                 self.logger.error(
-                    "INTERNAL ERROR - tool %s not found in list of running tools", name,
+                    "INTERNAL ERROR - tool %s not found in list of running tools", name
                 )
                 failures += 1
                 continue
@@ -628,12 +732,16 @@ class ToolMeister(object):
             return False
 
         failures = 0
+        tool_cnt = 0
         for name in sorted(self._tools.keys()):
+            if name in self.persist_tools:
+                continue
+            tool_cnt += 1
             try:
                 tool = self._running_tools[name]
             except KeyError:
                 self.logger.error(
-                    "INTERNAL ERROR - tool %s not found in list of running tools", name,
+                    "INTERNAL ERROR - tool %s not found in list of running tools", name
                 )
                 failures += 1
                 continue
@@ -649,6 +757,8 @@ class ToolMeister(object):
         # Clean up the running tools data structure explicitly ahead of
         # potentially receiving another start tools.
         for name in sorted(self._tools.keys()):
+            if name in self.persist_tools:
+                continue
             try:
                 del self._running_tools[name]
             except KeyError:
@@ -664,9 +774,11 @@ class ToolMeister(object):
         self._directory = None
         self._tool_dir = None
 
-        self._send_client_status(
-            "success" if failures == 0 else "failures stopping tools"
-        )
+        if failures > 0:
+            msg = f"{failures} of {tool_cnt} failed stopping tools"
+            self._send_client_status(msg)
+        else:
+            self._send_client_status("success")
         return failures
 
     def send_tools(self, data):
@@ -679,6 +791,11 @@ class ToolMeister(object):
         payload matches what was previously provided to a "start tools"
         action.
         """
+
+        if len(set(self._tools.keys()) - set(self.persist_tools)) == 0:
+            self._send_client_status("success")
+            return 0
+
         directory = data["directory"]
         try:
             tool_dir = self.directories[directory]
@@ -768,7 +885,10 @@ class ToolMeister(object):
                         headers = {"md5sum": tar_md5}
                         directory_bytes = data["directory"].encode("utf-8")
                         tool_data_ctx = hashlib.md5(directory_bytes).hexdigest()
-                        url = f"http://{self._controller}:8080/tool-data/{tool_data_ctx}/{self._hostname}"
+                        url = (
+                            f"http://{self._controller}:8080/tool-data"
+                            f"/{tool_data_ctx}/{self._hostname}"
+                        )
                         sent = False
                         retries = 200
                         while not sent:
@@ -808,7 +928,8 @@ class ToolMeister(object):
                                         shutil.rmtree(parent_dir)
                                     except Exception:
                                         self.logger.exception(
-                                            "Failed to remove tool data hierarchy, '%s'",
+                                            "Failed to remove tool data"
+                                            " hierarchy, '%s'",
                                             parent_dir,
                                         )
                                         failures += 1
@@ -838,12 +959,44 @@ class ToolMeister(object):
                     )
             except Exception as exc:
                 self.logger.warning(
-                    "unexpected error removing tools tar ball, '%s': %s", tar_file, exc,
+                    "unexpected error removing tools tar ball, '%s': %s", tar_file, exc
                 )
 
         self._send_client_status(
             "success" if failures == 0 else "failures sending tool data"
         )
+        return failures
+
+    def end_tools(self, data):
+        """end_tools - stop all the persistent data collection tools.
+        """
+        failures = 0
+        tool_cnt = 0
+        for name in self._tools.keys():
+            if name not in self.persist_tools:
+                continue
+            tool_cnt += 1
+            try:
+                persistent_tool = self._persistent_tools[name]
+            except KeyError:
+                self.logger.error(
+                    "INTERNAL ERROR - tool %s not in list of persistent tools", name,
+                )
+                failures += 1
+                continue
+            try:
+                persistent_tool.stop()
+            except Exception:
+                self.logger.exception(
+                    "Failed to stop persistent tool %s running in background", name
+                )
+                failures += 1
+
+        if failures > 0:
+            msg = f"{failures} of {tool_cnt} failed stopping persistent tools"
+            self._send_client_status(msg)
+        else:
+            self._send_client_status("success")
         return failures
 
 
