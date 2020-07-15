@@ -52,6 +52,7 @@
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.log
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-default-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-default
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-default
@@ -74,7 +75,7 @@ Hit Ctrl-C to quit.
 
 --- mock-run/tm/pbench-tool-data-sink.err file contents
 +++ mock-run/tm/pbench-tool-data-sink.log file contents
-INFO pbench-tool-data-sink main -- params_key (tds-default): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan"}'
+INFO pbench-tool-data-sink main -- params_key (tds-default): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "group": "default"}'
 INFO pbench-tool-data-sink run -- Running Bottle web server ...
 INFO pbench-tool-data-sink execute -- Terminate bottle server
 INFO pbench-tool-data-sink run -- Bottle web server exited

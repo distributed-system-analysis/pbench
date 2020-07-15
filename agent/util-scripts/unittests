@@ -374,6 +374,8 @@ declare -A tools=(
     [test-58]="pbench-stop-tools"
     [test-59]="pbench-postprocess-tools"
     [test-60]="pbench-send-tools"
+    [test-61]="pbench-init-tools"
+    [test-62]="pbench-end-tools"
 )
 
 declare -A options=(
@@ -448,6 +450,8 @@ declare -A options=(
     [test-58]="--group=default --dir=42-iter/sample42"
     [test-59]="--group=foobar --dir=42-iter/sample42"
     [test-60]="--group=default --dir=42-iter/sample42"
+    [test-61]="--group=default --dir=${_testdir}/mock-run"
+    [test-62]="--group=default --dir=${_testdir}/mock-run"
 )
 
 declare -A expected_status=(
@@ -485,6 +489,8 @@ declare -A pre_hooks=(
     [test-47]='mkdir ${_testdir}/tmp; printf -- "# good list with no labels\none.example.com\ntwo.example.com\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
     [test-48]='mkdir ${_testdir}/tmp; printf -- "%s\n" "30%" > ${_testdir}/tmp/foo.txt'
     [test-55]='pbench-register-tool --name=mpstat --remote=localhost > /dev/null; mkdir ${_testdir}/mock-run'
+    [test-61]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
+    [test-62]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client; mkdir -p ${_testdir}/mock-run/tools-default'
 )
 
 declare -A post_hooks=(
@@ -494,6 +500,8 @@ declare -A post_hooks=(
     [test-19]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-56]='sort ${_testdir}/mock-run/tm/pbench-tool-data-sink.log > ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted; mv ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted ${_testdir}/mock-run/tm/pbench-tool-data-sink.log; sort ${_testlog} > ${_testlog}.sorted; mv ${_testlog}.sorted ${_testlog}'
     [test-57]='sort ${_testdir}/mock-run/tm/pbench-tool-data-sink.log > ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted; mv ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted ${_testdir}/mock-run/tm/pbench-tool-data-sink.log; sort ${_testlog} > ${_testlog}.sorted; mv ${_testlog}.sorted ${_testlog}'
+    [test-61]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
+    [test-62]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
 )
 
 tests="${*}"

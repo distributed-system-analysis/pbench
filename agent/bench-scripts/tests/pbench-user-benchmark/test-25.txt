@@ -29,6 +29,8 @@ Running user-benchmark-script no-file for iteration 1-default
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-25_1900.01.01T00.00.00 --sysinfo=default end
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-end-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-25_1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-init-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-25_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-25_1900.01.01T00.00.00 beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-25_1900.01.01T00.00.00 end
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/pbench-user-benchmark_test-25_1900.01.01T00.00.00/1-default/sample1

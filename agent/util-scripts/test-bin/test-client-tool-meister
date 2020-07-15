@@ -68,6 +68,13 @@ if [[ ${status} -ne 0 ]]; then
     exit 1
 fi
 
+_timeout pbench-init-tools --group="${group}" --dir="${benchmark_run_dir}"
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "ERROR - \"pbench-init-tools\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+    exit 1
+fi
+
 sample="sample42"
 iterations="0-iter-zero 1-iter-one"
 
@@ -111,6 +118,13 @@ if [[ "${3}" == "delayed-send" ]]; then
             exit 1
         fi
     done
+fi
+
+_timeout pbench-end-tools --group="${group}" --dir="${benchmark_run_dir}"
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "ERROR - \"pbench-end-tools\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+    exit 1
 fi
 
 _timeout pbench-tool-meister-stop
