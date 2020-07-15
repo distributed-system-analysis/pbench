@@ -347,10 +347,14 @@ def main(argv):
     #   - FIXME: use podman to start a tool-data-sink container
     tds_param_key = "tds-{}".format(group)
 <<<<<<< HEAD
+<<<<<<< HEAD
     tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group)
 =======
     tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir)
 >>>>>>> First pass implementation of the "Tool Meister"
+=======
+    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group)
+>>>>>>> Prometheus/Node_Exporter Full V1 Integration Commit
     try:
         redis_server.set(tds_param_key, json.dumps(tds, sort_keys=True))
     except Exception:

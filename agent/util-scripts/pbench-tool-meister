@@ -382,6 +382,64 @@ class PermaTool:
         return 0
 
 
+class PermaTool:
+    def __init__(self, name, tool_opts, logger):
+        self.name = name
+        self.tool_opts = tool_opts.split(" ")
+        self.logger = logger
+        self.install_path = None
+        for opt in self.tool_opts:
+            if opt.startswith("--inst="):
+                if opt[len(opt) - 1] == "\n":
+                    self.install_path = opt[7 : len(opt) - 1]
+                else:
+                    self.install_path = opt[7:]
+                self.logger.debug("FOUND")
+            else:
+                self.logger.debug("NOT FOUND SOMEHOW")
+        self.process = None
+        self.failure = False
+
+    def start(self):
+        if self.install_path is None:
+            self.failure = True
+            self.logger.error(
+                "NO INSTALL PATH PROPERLY GIVEN AS PERMATOOL OPTION, see /opt/pbench-agent/nodexporter --help"
+            )
+            return
+
+        if self.name == "node-exporter":
+            self.logger.debug(self.install_path)
+            # args = ["/usr/bin/screen", "-dmS", "node-exp-screen", self.install_path + "/node_exporter"]
+
+            if not os.path.isfile(self.install_path + "/node_exporter"):
+                self.logger.info(
+                    self.install_path + "/node_exporter" + " does not exist"
+                )
+                self.failure = True
+                return 0
+
+            args = [self.install_path + "/node_exporter"]
+            self.process = subprocess.Popen(
+                args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
+            )
+        else:
+            self.logger.error("INVALID PERMA TOOL NAME")
+            self.failure = True
+            return 0
+
+        return 1
+
+    def stop(self):
+        if not self.failure:
+            self.process.terminate()
+            self.process.wait()
+            return 1
+
+        self.logger.error("Nothing to terminate")
+        return 0
+
+
 class Tool(object):
     """Encapsulates all the state needed to manage a tool running as a background
     process.
