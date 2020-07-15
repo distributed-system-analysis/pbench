@@ -298,6 +298,10 @@ while (scalar @param_sets > 0) {
         push(@iterations_labels, $iteration_label);
     }
 
+    if (! $pp_only) {
+    	system("pbench-init-tools --group=" . $tool_group . " --dir=" . $base_bench_dir);
+    }
+
     for (my $index=0; $index<@iterations; $index++) {
         my $iteration_params = $iterations[$index];
         my $iteration_label = $iterations_labels[$index];
@@ -389,6 +393,8 @@ while (scalar @param_sets > 0) {
         print BULK_FH "echo Sample processing complete!\n";
         close(BULK_FH);
         system(". ./bulk-sample.sh");
+    } else {
+	system("pbench-end-tools --group=" . $tool_group . " --dir=" . $base_bench_dir);
     }
     $run_doc{'run'}{'end'} = int time * 1000; # time in milliseconds
     put_json_file(\%run_doc, $es_dir . "/run/run" . $run_part . "-" . $run_doc{'run'}{'id'} . ".json");
