@@ -112,7 +112,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
     logger.info("{}", config.TS)
     list_check.sort()
     nstatus = ""
-    stat = list()
+    tbstat = TarState(config, _NAME_)
 
     ntotal = ntbs = nerrs = nquarantined = ndups = 0
 
@@ -132,16 +132,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
         controller = tbdir.name
         dest = archive / controller
 
-        stat.append(
-            {
-                resultname: {
-                    "Name": resultname,
-                    "controller": controller,
-                    "script": _NAME_,
-                    "status": "FAILED",
-                }
-            }
-        )
+        tbstat.generateDict(resultname, controller)
 
         if all([(dest / resultname).is_file(), (dest / tbmd5.name).is_file()]):
             errorfile.write(f"{config.TS}: Duplicate: {tb} duplicate name\n")
@@ -242,11 +233,9 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
 
         nstatus = f"{nstatus}{config.TS}: processed {tb}\n"
         logger.info(f"{tb.name}: OK")
+        tbstat.passedtb(resultname)
 
-        stat[len(stat) - 1][resultname]["status"] = "PASSED"
-
-    # print("\n\n\n\n\n\nstat ============== ", stat, "\n\n\n\n")
-    TarState(stat)
+    tbstat.postreport(config.TS)
 
     return Results(
         nstatus=nstatus,
