@@ -1,0 +1,32 @@
+#!/usr/bin/python3
+# -*- mode: python -*-
+
+import os
+import sys
+import logging
+
+PROG = os.path.basename(sys.argv[0])
+logger = logging.getLogger(PROG)
+logger.setLevel(logging.DEBUG)
+sh = logging.StreamHandler()
+sh.setLevel(logging.DEBUG)
+shf = logging.Formatter("%(message)s")
+sh.setFormatter(shf)
+logger.addHandler(sh)
+
+if len(sys.argv) != 2 or sys.argv[1] != "--help":
+    logger.info(
+        "This script is deprecated, please run it with --help for info on registering the tool."
+    )
+    logger.info(
+        "Run /opt/pbench-agent/tool-scripts/node-exporter --help for more info."
+    )
+    exit(0)
+
+if sys.argv[1] == "--help":
+    logger.info("Options:")
+    logger.info(
+        "--inst=</path/to/node_exporter/dir> (required; to create the path of the executable, '/node-exporter' will be appended)"
+    )
+    logger.info("Installation Guide: github.com/prometheus/node_exporter")
+    logger.info("Soon to come: metric enabling/disabling")

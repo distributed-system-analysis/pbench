@@ -1,0 +1,16 @@
++++ Running test-61 pbench-init-tools --group=default --dir=/var/tmp/pbench-test-utils/pbench/mock-run
+--- Finished test-61 pbench-init-tools (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/mock-run
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-default
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat:
+--interval=3
+--- pbench tree state
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-tool-meister-client default /var/tmp/pbench-test-utils/pbench/mock-run/tools-default init
+--- test-execution.log file contents

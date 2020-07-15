@@ -124,6 +124,7 @@
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.log
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite
