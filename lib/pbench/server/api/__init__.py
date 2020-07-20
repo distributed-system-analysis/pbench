@@ -1,9 +1,10 @@
 import os
 import sys
 import hashlib
+import requests
 
 from pathlib import Path
-from flask import request, jsonify, Flask
+from flask import request, jsonify, Flask, make_response
 from flask_restful import Resource, abort, Api
 from werkzeug.utils import secure_filename
 
@@ -28,6 +29,8 @@ def allowed_file(filename):
 def register_endpoints(api, app):
     api.add_resource(Upload, f"{app.config['REST_URI']}/upload")
     api.add_resource(HostInfo, f"{app.config['REST_URI']}/host_info")
+    api.add_resource(Elasticsearch, f"{app.config['REST_URI']}/elasticsearch")
+    api.add_resource(GraphQL, f"{app.config['REST_URI']}/graphql")
 
 
 def create_app():
@@ -52,8 +55,9 @@ def create_app():
     api = Api(app)
 
     app.logger = get_pbench_logger(__name__, config)
-
     app.config_server = config.conf["pbench-server"]
+    app.config_elasticsearch = config.conf["elasticsearch"]
+    app.config_graphql = config.conf["graphql"]
 
     prdp = app.config_server.get("pbench-receive-dir-prefix")
     try:
@@ -73,6 +77,103 @@ def create_app():
     register_endpoints(api, app)
 
     return app
+
+
+def _build_cors_preflight_response():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "*")
+    response.headers.add("Access-Control-Allow-Methods", "*")
+    return response
+
+
+def _corsify_actual_response(response):
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
+
+
+class GraphQL(Resource):
+    def post(self):
+        global app
+        graphQL = app.config_graphql.get("server")
+        json_data = request.get_json()
+
+        if not json_data:
+            app.logger.debug("Invalid query object")
+            abort(400, message="Invalid query object in request")
+
+        try:
+            # query GraphQL
+            response = requests.post(graphQL, json=json_data)
+
+            # construct response object
+            response = make_response(response.text)
+            response = _corsify_actual_response(response)
+        except Exception:
+            app.logger.exception("There was something wrong with the POST request.")
+            abort(500, message="There was something wrong with your graphql request")
+        response.status_code = 200
+        return response
+
+    # From the client side, an OPTIONS request is initiated before every POST to request CORS.
+    # On the server side, the server must specify the response headers to grant CORS accordingly.
+
+    def options(self):
+        try:
+            response = _build_cors_preflight_response()
+        except Exception:
+            app.logger.exception("There was something wrong with the OPTIONS request.")
+            abort(400, message="There was something wrong with your request")
+        response.status_code = 200
+        return response
+
+
+class Elasticsearch(Resource):
+    def post(self):
+        global app
+        elasticsearch = app.config_elasticsearch.get("server")
+        json_data = request.get_json()
+        if not json_data:
+            app.logger.debug("Invalid json object")
+            abort(400, message="Invalid json object in request")
+
+        if not json_data["indices"]:
+            app.logger.debug("Missing path")
+            abort(400, message="Missing path in request")
+
+        try:
+            # query ElasticSearch
+            json_data = request.get_json()
+            if "params" in json_data:
+                url = f"{elasticsearch}{json_data['indices']}?{json_data['params']}"
+            else:
+                url = f"{elasticsearch}{json_data['indices']}"
+
+            if "payload" in json_data:
+                response = requests.post(url, json=json_data["payload"])
+            else:
+                response = requests.get(url)
+
+            # construct response object
+            response = make_response(response.text)
+            response = _corsify_actual_response(response)
+        except Exception:
+            app.logger.exception("There was something wrong with the POST request.")
+            abort(500, message="There was something wrong with your download request")
+        response.status_code = 200
+        return response
+
+    # From the client side, an OPTIONS request is initiated before every POST to request CORS.
+    # On the server side, the server must specify the response headers to grant CORS accordingly.
+
+    def options(self):
+        try:
+            response = _build_cors_preflight_response()
+        except Exception:
+            app.logger.exception("There was something wrong with the OPTIONS request.")
+            abort(400, message="There was something wrong with your request")
+        response.status_code = 200
+        return response
 
 
 class HostInfo(Resource):

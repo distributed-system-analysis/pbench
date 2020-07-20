@@ -74,6 +74,16 @@ class PbenchServerConfig(PbenchConfig):
         else:
             self._unittests = bool(self._unittests)
 
+        try:
+            self.elasticsearch = self.conf.get("elasticsearch", "server")
+        except (NoOptionError, NoSectionError):
+            self.elasticsearch = ""
+
+        try:
+            self.graphql = self.conf.get("graphql", "server")
+        except (NoOptionError, NoSectionError):
+            self.graphql = ""
+
         if self._unittests:
 
             def mocked_time():
