@@ -19,6 +19,42 @@ class TestHostInfo:
         assert response.json.get("message") == expected_message
 
 
+class TestDownload:
+    @staticmethod
+    def test_json_object(client):
+        response = client.post(f"{client.config['REST_URI']}/elasticsearch")
+        assert response.status_code == 400
+        assert response.json.get("message") == "Invalid json object in request"
+
+    @staticmethod
+    def test_empty_url_path(client):
+        response = client.post(
+            f"{client.config['REST_URI']}/elasticsearch", json={"indices": ""}
+        )
+        assert response.status_code == 400
+        assert response.json.get("message") == "Missing path in request"
+
+    @staticmethod
+    def test_invalid_url_path(client):
+        response = client.post(
+            f"{client.config['REST_URI']}/elasticsearch",
+            json={"indices": "some_invalid_url"},
+        )
+        assert response.status_code == 500
+        assert (
+            response.json.get("message")
+            == "There was something wrong with your download request"
+        )
+
+
+class TestGraphQL:
+    @staticmethod
+    def test_json_object(client):
+        response = client.post(f"{client.config['REST_URI']}/graphql")
+        assert response.status_code == 400
+        assert response.json.get("message") == "Invalid query object in request"
+
+
 class TestUpload:
     @staticmethod
     def test_missing_filename_header_upload(client):
