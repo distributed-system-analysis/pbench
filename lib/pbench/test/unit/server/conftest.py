@@ -12,6 +12,12 @@ install-dir = {TMP}/opt/pbench-server
 [pbench-server]
 pbench-top-dir = {TMP}/srv/pbench
 
+[elasticsearch]
+server = http://elasticsearch.perf.lab.eng.bos.redhat.com:9280
+
+[graphql]
+server = http://graphql.perf.lab.eng.bos.redhat.com:4466
+
 ###########################################################################
 # The rest will come from the default config file.
 [config]
