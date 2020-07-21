@@ -12,6 +12,7 @@ from configparser import Error as NoSectionError, NoOptionError
 
 from pbench.common.logger import get_pbench_logger
 from pbench.server import tstos
+from pbench.server.utils import md5sum
 from pbench.server.indexer import PbenchTemplates, get_es, es_index, _op_type
 
 
@@ -102,17 +103,19 @@ class TarState:
 
         return
 
-    def generateDict(self, tbname, controller):
-        timestamp = tbname.rsplit("_", 1)[1][:-7]
+    def generateDict(self, tbname):
+        timestamp = tbname.name.rsplit("_", 1)[1][:-7]
         generateDict = {
-            "name": tbname,
-            "controller": controller,
+            "name": tbname.name,
+            "controller": tbname.parent.name,
+            "md5": md5sum(tbname),
+            "size": os.stat(tbname).st_size,
             "script": self.name,
             "status": "FAILED",
             "creation_ts": timestamp,
         }
 
-        source = {tbname: generateDict}
+        source = {tbname.name: generateDict}
         self.listofdict.append(source)
         return
 
@@ -148,7 +151,7 @@ class TarState:
                 "@timestamp": timestamp_noutc,
                 "@generated-by": self.generated_by,
                 "tarball-status": self.listofdict,
-                "doctype": "status",
+                "doctype": "report",
             }
 
             payload_gen = self._gen_no_json_payload(base_source)

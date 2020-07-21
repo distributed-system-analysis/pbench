@@ -14,6 +14,7 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Status, NoSuchKey
 from pbench.server.utils import md5sum, rename_tb_link, quarantine
+from pbench.server.tarball_state import TarState
 
 _NAME_ = "pbench-backup-tarballs"
 
@@ -282,6 +283,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
 
     tarlist = glob.iglob(os.path.join(config.ARCHIVE, "*", _linksrc, "*.tar.xz"))
     ntotal = nbackup_success = nbackup_fail = ns3_success = ns3_fail = nquaran = 0
+    tbstat = TarState(config, _NAME_)
 
     for tb in sorted(tarlist):
         ntotal += 1
@@ -290,6 +292,8 @@ def backup_data(lb_obj, s3_obj, config, logger):
             tar = Path(tb).resolve(strict=True)
         except FileNotFoundError:
             logger.error("Tarball link, '{}', does not resolve to a real location", tb)
+
+        tbstat.generateDict(Path(tar))
 
         logger.debug("Start backup of {}.", tar)
         # check tarball exist and it is a regular file
@@ -405,6 +409,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         if local_backup_result == Status.SUCCESS and (
             s3_obj is None or s3_backup_result == Status.SUCCESS
         ):
+            tbstat.passedtb(Path(tar).name)
             # Move tar ball symlink to its final resting place
             rename_tb_link(tb, Path(controller_path, _linkdest), logger)
         else:
@@ -413,6 +418,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             pass
         logger.debug("End backup of {}.", tar)
 
+    tbstat.postreport(config.TS)
     return Results(
         ntotal=ntotal,
         nbackup_success=nbackup_success,

@@ -132,7 +132,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
         controller = tbdir.name
         dest = archive / controller
 
-        tbstat.generateDict(resultname, controller)
+        tbstat.generateDict(tb)
 
         if all([(dest / resultname).is_file(), (dest / tbmd5.name).is_file()]):
             errorfile.write(f"{config.TS}: Duplicate: {tb} duplicate name\n")
