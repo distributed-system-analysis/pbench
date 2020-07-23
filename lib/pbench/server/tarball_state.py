@@ -110,13 +110,23 @@ class TarState:
             "controller": tbname.parent.name,
             "md5": md5sum(tbname),
             "size": os.stat(tbname).st_size,
-            "script": self.name,
+            "operator": self.name,
             "status": "FAILED",
+            "operation": None,
             "creation_ts": timestamp,
         }
 
         source = {tbname.name: generateDict}
         self.listofdict.append(source)
+        return
+
+    def tbfailure(self, tbname, qdir, reason):
+        operation = {
+            "operation": "quarantine",
+            "quarantine_dir": str(qdir),
+            "information": reason,
+        }
+        self.listofdict[-1][tbname]["operation"] = operation
         return
 
     def passedtb(self, tbname):

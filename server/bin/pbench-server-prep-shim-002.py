@@ -99,7 +99,9 @@ def md5_check(tb, tbmd5, logger):
     return (archive_md5_hex_value, archive_tar_hex_value)
 
 
-def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorfile):
+def process_tb(
+    config, logger, receive_dir, qdir_md5, duplicates, tbstat, errors, errorfile
+):
 
     # Check for results that are ready for processing: version 002 agents
     # upload the MD5 file as xxx.md5.check and they rename it to xxx.md5
@@ -112,7 +114,6 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
     logger.info("{}", config.TS)
     list_check.sort()
     nstatus = ""
-    tbstat = TarState(config, _NAME_)
 
     ntotal = ntbs = nerrs = nquarantined = ndups = 0
 
@@ -137,6 +138,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
         if all([(dest / resultname).is_file(), (dest / tbmd5.name).is_file()]):
             errorfile.write(f"{config.TS}: Duplicate: {tb} duplicate name\n")
             quarantine((duplicates / controller), logger, tb, tbmd5)
+            tbstat.tbfailure(resultname, (duplicates / controller), "Duplicate")
             ndups += 1
             continue
 
@@ -152,6 +154,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
             logger.info("{}: FAILED", tb.name)
             logger.info("md5sum: WARNING: 1 computed checksum did NOT match")
             quarantine((qdir_md5 / controller), logger, tb, tbmd5)
+            tbstat.tbfailure(resultname, (qdir_md5 / controller), "md5sum: Failed")
             nquarantined += 1
             continue
 
@@ -164,6 +167,9 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
         except Exception:
             logger.error("{}: Error in creating TODO directory.", config.TS)
             quarantine(os.path.join(errors, controller), logger, tb, tbmd5)
+            tbstat.tbfailure(
+                resultname, (errors / controller), "Error in creating TODO"
+            )
             nerrs += 1
             continue
 
@@ -182,6 +188,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
                     "{}: Warning: cleanup of copy failure failed itself.", config.TS
                 )
             quarantine((errors / controller), logger, tb, tbmd5)
+            tbstat.tbfailure(resultname, (errors / controller), "Error in copying .md5")
             nerrs += 1
             continue
 
@@ -203,6 +210,9 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
                     "{}: Warning: cleanup of copy failure failed itself.", config.TS
                 )
             quarantine((errors / controller), logger, tb, tbmd5)
+            tbstat.tbfailure(
+                resultname, (errors / controller), "Error in moving tarball"
+            )
             nerrs += 1
             continue
 
@@ -226,6 +236,9 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
             quarantine(
                 (errors / controller), logger, (dest / tb), (dest / tbmd5),
             )
+            tbstat.tbfailure(
+                resultname, (errors / controller), "Error in Symlink creation"
+            )
             nerrs += 1
             continue
 
@@ -234,8 +247,6 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
         nstatus = f"{nstatus}{config.TS}: processed {tb}\n"
         logger.info(f"{tb.name}: OK")
         tbstat.passedtb(resultname)
-
-    tbstat.postreport(config.TS)
 
     return Results(
         nstatus=nstatus,
@@ -287,9 +298,13 @@ def main(cfg_name):
         if qdir_md5 is None or duplicates is None or errors is None:
             return 1
 
+        tbstat = TarState(config, _NAME_)
+
         counts = process_tb(
-            config, logger, receive_dir, qdir_md5, duplicates, errors, error_f
+            config, logger, receive_dir, qdir_md5, duplicates, tbstat, errors, error_f
         )
+
+        tbstat.postreport(config.TS)
 
     result_string = (
         f"{config.TS}: Processed {counts.ntotal} entries,"
