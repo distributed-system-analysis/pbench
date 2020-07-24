@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
 
 # base: contains the base functions and environment variables needed to use
 #       the pbench-agent.
@@ -25,7 +25,7 @@ fi
 if [[ -z "$pbench_run" ]]; then
     pbench_run=$(pbench-config pbench_run pbench-agent)
     if [[ -z "$pbench_run" ]]; then
-	pbench_run=/var/lib/pbench-agent
+        pbench_run=/var/lib/pbench-agent
     fi
     export pbench_run
 else
@@ -49,7 +49,7 @@ export pbench_tmp
 if [[ -z "$pbench_log" ]]; then
     pbench_log=$(pbench-config pbench_log pbench-agent)
     if [[ -z "$pbench_log" ]]; then
-	pbench_log=$pbench_run/pbench.log
+        pbench_log=$pbench_run/pbench.log
     fi
     export pbench_log
 fi
@@ -57,7 +57,7 @@ fi
 if [[ -z "$pbench_install_dir" ]]; then
     pbench_install_dir=$(pbench-config install-dir pbench-agent)
     if [[ -z "$pbench_install_dir" ]]; then
-	pbench_install_dir=/opt/pbench-agent
+        pbench_install_dir=/opt/pbench-agent
     fi
     if [[ ! -d $pbench_install_dir ]]; then
         echo "[ERROR] pbench installation directory, ${pbench_install_dir}, does not exist" >&2
@@ -73,12 +73,12 @@ TS_FORMAT="%FT%H:%M:%S"
 
 if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
     function timestamp {
-	# use ns in the timestamp
-	echo "$(date --utc +"${TS_FORMAT}.%N")"
+        # use ns in the timestamp
+        echo "$(date --utc +"${TS_FORMAT}.%N")"
     }
 else
     function timestamp {
-	echo "1900-01-01T00:00:00.000000"
+        echo "1900-01-01T00:00:00.000000"
     }
 fi
 
@@ -103,7 +103,7 @@ export _pbench_debug_mode=0
 function debug_log {
     local log_date=$(timestamp)
     if [[ "${_pbench_debug_mode}" != "0" ]]; then
-	echo "[debug][${log_date}] $*"
+        echo "[debug][${log_date}] $*"
     fi
     echo "[debug][${log_date}] $*" >> ${pbench_log}
 }
@@ -115,9 +115,9 @@ if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
     # date may be set "accidentally" so add a var with an unlikely name
     # to check whether we need to set it.
     if [[ -z "$date" || -z "$_PBENCH_DATE_SET" ]]; then
-	# don't use ns in the date
-	export date=$(date --utc +"${TS_FORMAT}")
-	export _PBENCH_DATE_SET=1
+        # don't use ns in the date
+        export date=$(date --utc +"${TS_FORMAT}")
+        export _PBENCH_DATE_SET=1
     fi
     # don't use colons and dashes in the date suffix
     export date_suffix=$(date --date ${date} --utc +"%Y.%m.%dT%H.%M.%S")
@@ -174,26 +174,25 @@ if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
         local copr_name=$2
 
         if is_fedora ; then
-  	    dnf copr enable ${copr_user}/${copr_name}
+            dnf copr enable ${copr_user}/${copr_name}
         else
-  	    if is_redhat ; then
-    	      	rhel_version=$(get_redhat_version)
-    	      	rhel_major=${rhel_version%.*}
-    	      	cd /etc/yum.repos.d/
-    	      	local copr_url=https://copr.fedorainfracloud.org
-    	      	local repo_file=${copr_user}-${copr_name}-epel-${rhel_major}.repo
-
-    	      	[[ ! -f ${repo_file} ]] && wget -c ${copr_url}/coprs/${copr_user}/${copr_name}/repo/epel-${rhel_major}/${repo_file}
-  	    else
-  	        echo "Unsupported distribution"
-  	    fi
+            if is_redhat ; then
+                rhel_version=$(get_redhat_version)
+                rhel_major=${rhel_version%.*}
+                cd /etc/yum.repos.d/
+                local copr_url=https://copr.fedorainfracloud.org
+                local repo_file=${copr_user}-${copr_name}-epel-${rhel_major}.repo
+                [[ ! -f ${repo_file} ]] && wget -c ${copr_url}/coprs/${copr_user}/${copr_name}/repo/epel-${rhel_major}/${repo_file}
+            else
+                echo "Unsupported distribution"
+            fi
         fi
     }
 else
     function check_enable_copr {
-	echo $1
-	#$2 is the version which will vary
-	return 0
+        echo $1
+        #$2 is the version which will vary
+        return 0
     }
 fi
 
@@ -203,14 +202,14 @@ function check_install_rpm {
     require-rpm "${_n}" "${_v}"
     local rc=${?}
     if [[ ! -z "${_v}" ]]; then
-	_rpm="${_n}-${_v}"
+        _rpm="${_n}-${_v}"
     else
-	_rpm="${_n}"
+        _rpm="${_n}"
     fi
     if [[ ${rc} -ne 0 ]]; then
-	error_log "[check_install_rpm] ${_rpm} is not installed"
+        error_log "[check_install_rpm] ${_rpm} is not installed"
     else
-	debug_log "[check_install_rpm] ${_rpm} is installed"
+        debug_log "[check_install_rpm] ${_rpm} is installed"
     fi
     return ${rc}
 }
@@ -218,14 +217,14 @@ function check_install_rpm {
 function verify_tool_group {
     local group=$1
     if [[ -z "$group" ]]; then
-	error_log "Bad argument to verify_tool_group"
-	exit 1
+        error_log "Bad argument to verify_tool_group"
+        exit 1
     fi
     # Ensure we have a tools group directory to work with
     local tool_group_dir="$pbench_run/tools-$group"
     if [[ ! -d "$tool_group_dir" ]]; then
         printf -- "\t${script_name}: invalid --tool-group option (\"$group\"), directory not found: $tool_group_dir\n"
-	return 1
+        return 1
     fi
     return 0
 }
@@ -254,19 +253,19 @@ function verify_common_bench_script_options {
 
 # generate inventory file with controller and remotes
 function generate_inventory {
-	local component=$1
-	if [[ $component == "stockpile" ]]; then
-		echo "[stockpile]"
-		echo $HOSTNAME
-		echo "[all]"
-		echo $HOSTNAME
-		ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
-	else
-		echo "[controller]"
-		echo $HOSTNAME
-		echo "[remote]"
-		ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
-	fi
+    local component=$1
+    if [[ $component == "stockpile" ]]; then
+        echo "[stockpile]"
+        echo $HOSTNAME
+        echo "[all]"
+        echo $HOSTNAME
+        ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
+    else
+        echo "[controller]"
+        echo $HOSTNAME
+        echo "[remote]"
+        ls $tools_group_dir | awk -F@ '/^remote/ {print $2};'
+    fi
 }
 
 if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]] ;then
