@@ -417,9 +417,13 @@ def main(options):
     actions_taken = []
     errors = 0
     start = pbench.server._time()
-    for tb_incoming_dir, controller_name in gen_list_unpacked_aged(
-        incoming_p, archive_p, curr_dt, max_unpacked_age
-    ):
+
+    gen = gen_list_unpacked_aged(incoming_p, archive_p, curr_dt, max_unpacked_age)
+    if config._unittests:
+        # force the generator and sort the list
+        gen = sorted(list(gen))
+
+    for tb_incoming_dir, controller_name in gen:
         act_set = remove_unpacked(
             tb_incoming_dir,
             controller_name,
@@ -455,7 +459,7 @@ def main(options):
         )
         if total > 0:
             print("\nActions Taken:", file=tfp)
-        for act_set in actions_taken:
+        for act_set in sorted(actions_taken, key=lambda a: a.name):
             print(
                 f"  - {act_set.name} ({act_set.errors:d} errors,"
                 f" {act_set.duration():0.2f} secs)",
