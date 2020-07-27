@@ -117,6 +117,22 @@ class PersistentTool:
             self.process = subprocess.Popen(
                 args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
             )
+        elif self.name == "dcgm":
+            os.environ["PYTHONPATH"] = (
+                self.install_path
+                + "/bindings:"
+                + self.install_path
+                + "/bindings/common"
+            )
+
+            script_path = self.install_path + "/samples/scripts/dcgm_prometheus.py"
+            if not os.path.isfile(script_path):
+                self.logger.info(script_path + " does not exist")
+                self.failure = True
+                return 0
+
+            args = [f"python2 {script_path}"]
+            self.process = subprocess.Popen(args, shell=True)
         else:
             self.logger.error("INVALID PERSISTENT TOOL NAME")
             self.failure = True
