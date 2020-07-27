@@ -19,6 +19,7 @@ Available tools:
 	blktrace
 	bpftrace
 	cpuacct
+	dcgm
 	disk
 	dm-cache
 	docker
