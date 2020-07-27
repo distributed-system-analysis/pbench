@@ -423,6 +423,27 @@ class PermaTool:
             self.process = subprocess.Popen(
                 args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
             )
+        elif self.name == "dcgm":
+            os.environ["PYTHONPATH"] = (
+                self.install_path
+                + "/bindings:"
+                + self.install_path
+                + "/bindings/common"
+            )
+
+            if not os.path.isfile(
+                self.install_path + "/samples/scripts/dcgm_prometheus.py"
+            ):
+                self.logger.info(
+                    self.install_path
+                    + "/samples/scripts/dcgm_prometheus.py"
+                    + " does not exist"
+                )
+                self.failure = True
+                return 0
+
+            args = [f"python2 {self.install_path}/samples/scripts/dcgm_prometheus.py"]
+            self.process = subprocess.Popen(args, shell=True)
         else:
             self.logger.error("INVALID PERMA TOOL NAME")
             self.failure = True
