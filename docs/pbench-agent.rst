@@ -183,23 +183,7 @@ the workflow becomes:
    user-benchmark --config=foo -- myscript.sh
    move-results
 
-See *What does ``--config`` do?* for more information on that.
-
-First steps with remote hosts and user-benchmark
-------------------------------------------------
-
-Running a multihost benchmark involves registering the tools on all the
-hosts, but assuming you have a script that will execute your benchmark
-that can be used with ``user-benchmark``, the workflow is not much
-different:
-
-::
-
-   for host in $hosts ;do
-       register-tool-set --remote=$host
-   done
-   user-benchmark --config=foo -- myscript.sh
-   move-results
+See for host in $hosts ;do register-tool-set --remote=$host done user-benchmark --config=foo -- myscript.sh move-results 
 
 Apart from having to register the collection tools on **all** the hosts,
 the rest is the same: ``user-benchmark`` will start the collection tools
@@ -278,29 +262,11 @@ unregister it and register it again with different options:
    register-tool --name=perf -- --record-opts="record -a --freq=200"
 
 Tools can be also be registered, started and stopped on remote hosts
-(see the ``--remote`` option described in *What does ``--remote`` do?*).
-
-Available benchmark scripts
-===========================
-
-Pbench provides a set of pre-packaged script to run some common
-benchmarks using the collection tools and other facilities that pbench
-provides. These are found in the ``bench-scripts`` directory of the
-pbench installation (``/opt/pbench-agent/bench-scripts`` by default).
-The current set consists of
-
--  ``pbench_dbench``
--  ``pbench_fio``
--  ``pbench_linpack``
--  ``pbench_migrate``
--  ``pbench_tpcc``
--  ``pbench_uperf``
--  ``user-benchmark`` (see *Running pbench collection tools with an
-   arbitrary benchmark* below for more on this)
+(see the ``--remote`` option described in Running pbench collection tools with an arbitrary benchmark below for more on this)
 
 Note that in many of these scripts the default tool group is hard-wired:
 if you want them to run a different tool group, you need to edit the
-script [4]_.
+script [5]_.
 
 Utility scripts
 ===============
@@ -369,47 +335,8 @@ The third set is for handling the results and doing cleanup:
    register any tools again.
 
 ``register-tool-set``, ``register-tool`` and ``unregister-tool`` can
-also take a ``--remote`` option (see *What does ``--remote`` do?*) in
-order to allow the starting/stopping of tools and the postprocessing of
-results on multiple remote hosts.
+also take a ``--remote`` option (see Benchmark scripts options). 
 
-There is also a set of miscellaneous tools for doing various and sundry
-things - although the name of the script indicates its purpose, if you
-want more information on these, read the code :-)
-
--  avg-stddev
--  bind-ethernet-ints-to-node
--  check-vcpu-prio.sh
--  cpu-hog
--  disable-ht
--  log-timestamp
--  offline-node-cpus
--  set-vcpu-prio-rt.sh
--  sync-clocks
--  wait-until-sshable
-
-Second steps
-============
-
-WARNING: It is **highly** recommended that you use one of the
-``pbench_<benchmark>`` scripts for running your benchmark. If one does
-not exist already, you might be able to use the ``user_benchmark``
-script to run your own script. The advantage is that these scripts
-already embody some conventions that pbench and associated tools depend
-on, e.g. using a timestamp in the name of the results directory to make
-the name unique. If you cannot use ``user_benchmark`` and a
-``pbench_<benchmark>`` script does not exist already, consider writing
-one or helping us write one. The more we can encapsulate all these
-details into generally useful tools, the easier it will be for
-everybody: people running it will not need to worry about all these
-details and people maintaining the system will not have to fix stuff
-because the script broke some assumptions. The easiest way to do so is
-to crib an existing ``pbench_<benchmark>`` script, e.g ``pbench_fio``.
-
-Once collection tools have been registered, the work flow of a benchmark
-script is as follows:
-
--  Process options (see *Benchmark scripts options*).
 -  Check that the necessary prerequisites are installed and if not,
    install them.
 -  Iterate over some set of benchmark characteristics (e.g.
@@ -448,25 +375,10 @@ Benchmark scripts options
 -------------------------
 
 Generally speaking, benchmark scripts do not take any pbench-specific
-options except ``--config`` (see *What does ``--config`` do?* below).
-Other options tend to be benchmark-specific [5]_.
+options except ``--config`` (see register-tool --name=blktrace [--remote=foo] -- --devices=/dev/sda,/dev/sdb 
 
-Collection tools options
-------------------------
-
-``--help`` can be used to trigger the usage message on all of the tools
-(even though it's an invalid option for many of them). Here is a list of
-gotcha's:
-
--  blktrace: you need to pass ``--devices=/dev/sda,/dev/sdb`` when you
-   register the tool:
-
-   ::
-
-      register-tool --name=blktrace [--remote=foo] -- --devices=/dev/sda,/dev/sdb
-
-   There is no default and leaving it empty causes errors in
-   postprocessing (this should be flagged).
+There is no default and leaving it empty causes errors in
+postprocessing (this should be flagged).
 
 Utility script options
 ----------------------
@@ -630,7 +542,7 @@ becomes more manual. The workflow is:
 Customizing
 ===========
 
-Some characteristics [6]_ of pbench are specified in config files and
+Some characteristics [4]_ of pbench are specified in config files and
 can be customized by adding your own config file to override the default
 settings.
 
@@ -678,7 +590,7 @@ may be useful in certain isolated cases.
 Register tools
 --------------
 
-Some tools have **required** options [7]_ and you **have** to specify
+Some tools have **required** options [9]_ and you **have** to specify
 them when you register the tool. One example is the ``blktrace`` tool
 which requires a ``--devices=/dev/sda,dev/sdb=`` argument.
 ``register-tool-set`` knows about such options for the default set of
@@ -770,7 +682,7 @@ hierarchy. Direct access to ``incoming/`` is now deprecated (and will
 eventually go away).
 
 The advantage is that the ``results/`` hierarchy can be manipulated to
-change one's view of the results [8]_, while leaving the ``incoming/``
+change one's view of the results [10]_, while leaving the ``incoming/``
 hierarchy intact, so that tools manipulating it can assume a fixed
 structure.
 
@@ -1106,7 +1018,7 @@ What does ``--name`` do?
 This option is recognized by ``register-tool`` and ``unregister-tool``:
 it specifies the name of the tool that is to be (un)registered.
 ``list-tools`` with the ``--name`` option list all the groups that
-contain the named tool [9]_.
+contain the named tool [8]_.
 
 What does ``--config`` do?
 --------------------------
@@ -1395,22 +1307,31 @@ Footnotes
    without notice.
 
 .. [4]
-   That will be handled by a configuration file in the future.
-
-.. [5]
-   It is probably better to bundle these options in a configuration
-   file, but that's still WIP.
-
-.. [6]
    Only a few such characteristics exist today, but the plan is to move
    more hardwired things into the config files from the scripts. If you
    need to override some setting and have to modify scripts in order to
    do so, let us know: that's a good candidate for the config file.
 
+.. [5]
+   That will be handled by a configuration file in the future.
+
+.. [6]
+   It is probably better to bundle these options in a configuration
+   file, but that's still WIP.
+
 .. [7]
-   Yes, I know: it's an oxymoron.
+   There is work-in-progress to provide a higher-level interface for this.
 
 .. [8]
+   A list of available tools in a specific group can be obtained with
+   the ``--group`` option of ``list-tools``; unfortunately, there is no
+   option to list all available tools - the current workaround is to
+   check the contents of ``/opt/pbench-agent/tool-scripts``.
+
+.. [9]
+   Yes, I know: it's an oxymoron.
+
+.. [10]
    E.g. A performance engineer was NFS-mounting the ``incoming/``
    hierarchy, grouping his results under separate subdirectories for
    fio, iozone and smallfile, and grouping them further under
@@ -1424,10 +1345,4 @@ Footnotes
    ``incoming/`` hierarchy is modified, which makes the writing of tools
    to extract data harder: they have to figure out arbitrary changes,
    instead of being able to assume a fixed structure.
-
-.. [9]
-   A list of available tools in a specific group can be obtained with
-   the ``--group`` option of ``list-tools``; unfortunately, there is no
-   option to list all available tools - the current workaround is to
-   check the contents of ``/opt/pbench-agent/tool-scripts``.
 

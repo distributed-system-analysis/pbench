@@ -84,7 +84,7 @@ I could find was the fkrull/deadsnakes PPA which provides unofficial
 packages of more recent python versions.
 
 To install configtools and elasticsearch in the python3.4 package
-directory, we have to install pip3, using easy\ :sub:`install3`, which
+directory, we have to install pip3, using easy_install3, which
 in turn is installed using python3-setuptools. The packages are
 installed under python3.2 however, so we copy them to the python3.4
 directory by hand. We also symlink /usr/bin/python3 to the python3.4
