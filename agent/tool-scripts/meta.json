@@ -42,6 +42,7 @@
 	},
 
 	"persistent":{
-		"node-exporter": {"collector": "prometheus", "port": "9100"}
+		"node-exporter": {"collector": "prometheus", "port": "9100"},
+		"dcgm": {"collector": "prometheus", "port": "8000"}
 	}
 }

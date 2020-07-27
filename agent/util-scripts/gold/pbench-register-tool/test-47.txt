@@ -56,6 +56,7 @@ Available tools:
 	virsh-migrate
 	vmstat
 	node-exporter
+	dcgm
 
 For a list of tool specific options, run:
 	/var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/<tool-name> --help
