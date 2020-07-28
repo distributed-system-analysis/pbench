@@ -4,7 +4,7 @@
 name=Copr {{ repo.tag }} repo
 baseurl={{ repo.baseurl }}
 skip_if_unavailable=True
-gpgcheck= {{ repo.gpgcheck }}
+gpgcheck={{ repo.gpgcheck }}
 gpgkey={{ repo.gpgkey }}
 enabled={{ repo.enabled }}
 enabled_metadata=1
