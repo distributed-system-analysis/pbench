@@ -1,0 +1,21 @@
+#!/bin/bash
+
+distro="${1}"
+tag="${2}"
+
+if [[ "${tag}" == "major-latest" ]]; then
+    tag="$(grep latest ${distro}-tags.lis | awk '{print $1}')"
+elif [[ "${tag}" == "major-minor-latest" ]]; then
+    tag="$(grep latest ${distro}-tags.lis | awk '{print $2}')"
+fi
+
+tags_file="${distro}-tags.lis"
+githash="$(grep -v -E "^v" ${tags_file})"
+
+function tagit {
+    buildah tag ${1}:${githash} ${1}:${tag}
+}
+
+for image in base tools workloads all; do
+    tagit pbench-agent-${image}-${distro}
+done
