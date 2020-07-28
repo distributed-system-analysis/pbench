@@ -61,3 +61,27 @@ Yes, we are using GitHub [Projects](https://github.com/distributed-system-analys
 Please find projects covering the [Agent](https://github.com/distributed-system-analysis/pbench/projects/2),
 [Server](https://github.com/distributed-system-analysis/pbench/projects/3), and a project that is named
 the same as the current [milestone](https://github.com/distributed-system-analysis/pbench/milestones).
+
+## Pbench Release Tag Scheme (GitHub)
+We employ a simple major, minor, release, build (optional) scheme for tagging
+starting with the `v0.70.0` release (`v<Major>.<Minor>.<Release>[-<Build>]`).
+Prior to the v0.70.0 release, the scheme used was mostly `v<Major>.<Minor>`,
+where we only had minor releases (`Major = 0`).
+
+The practice of using `-agent` or `-server` is also ending with the `v0.70.0`
+release.
+
+### Container Image Tags
+This same GitHub "tag" scheme is used with tags applied to container images
+we build, with the following exceptions for tag names:
+
+  * `latest` - always points to the "latest" container image pushed to a
+    repository
+
+  * `v<Major>-latest` - always points to the "latest" `Major` released
+    image
+
+  * `v<Major>.<Minor>-latest` - always points to the "latest" release
+    for `Major`.`Minor` released images
+
+  * `<SHA1 git hash>` (9 characters) - commit hash of the checked out code
