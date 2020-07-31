@@ -4,7 +4,7 @@
 # start: systemctl start pbench-server
 
 [Unit]
-Description = PBench Daemon
+Description = Pbench Daemon
 Documentation = https://github.com/distributed-system-analysis/pbench
 After=network.target httpd.service
 
