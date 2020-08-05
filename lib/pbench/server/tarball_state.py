@@ -16,6 +16,27 @@ from pbench.server.utils import md5sum
 from pbench.server.indexer import PbenchTemplates, get_es, es_index, _op_type
 
 
+passed_state = {
+    "TO-BACKUP": "BACKED-UP",
+    "To-UNPACK": "UNPACKED",
+    "TO-INDEX": "INDEXED",
+    "TO-RE-INDEX": "INDEXED",
+    "TO-COPY-SOS": "COPIED-SOS",
+    "TO-DELETE": "DELETED",
+    "TO-SYNC": "SYNCED",
+}
+
+failed_state = {
+    "TO-BACKUP": "BACKUP-FAILED",
+    "To-UNPACK": "WONT-UNPACK",
+    "TO-INDEX": "WONT-INDEX",
+    "TO-RE-INDEX": "WONT-INDEX",
+    "TO-COPY-SOS": "WONT-COPY-SOS",
+    "TO-DELETE": "WONT-DELETE",
+    "TO-SYNC": "WONT-SYNC",
+}
+
+
 class TarState:
     """Encapsulation of server-side reporting information for recording who,
     what, when, and how of a component's operation.
@@ -110,7 +131,7 @@ class TarState:
             "controller": tbname.parent.name,
             "md5": md5sum(tbname),
             "size": os.stat(tbname).st_size,
-            "state": state if state else None,
+            "initial-state": state if state else None,
             "operator": self.name,
             "status": "FAILED",
             "operation": None,
@@ -127,11 +148,23 @@ class TarState:
             "quarantine_dir": str(qdir),
             "information": reason,
         }
-        self.listofdict[-1][tbname]["operation"] = operation
+        try:
+            self.listofdict[-1][tbname]["operation"] = operation
+            state = self.listofdict[-1][tbname]["initial-state"]
+            if state:
+                self.listofdict[-1][tbname]["final-state"] = failed_state[state]
+        except KeyError as e:
+            print("Failed: ", e)
         return
 
     def passedtb(self, tbname):
-        self.listofdict[-1][tbname]["status"] = "PASSED"
+        try:
+            self.listofdict[-1][tbname]["status"] = "PASSED"
+            state = self.listofdict[-1][tbname]["initial-state"]
+            if state:
+                self.listofdict[-1][tbname]["final-state"] = passed_state[state]
+        except KeyError as e:
+            print("Failed: ", e)
         return
 
     @staticmethod
@@ -150,6 +183,9 @@ class TarState:
         yield self._make_json_payload(base_source)
 
     def postreport(self, timestamp):
+
+        if not len(self.listofdict):
+            return self.tracking_id
 
         try:
             if timestamp.startswith("run-"):
