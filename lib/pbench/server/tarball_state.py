@@ -103,13 +103,14 @@ class TarState:
 
         return
 
-    def generateDict(self, tbname):
+    def generateDict(self, tbname, state=False):
         timestamp = tbname.name.rsplit("_", 1)[1][:-7]
         generateDict = {
             "name": tbname.name,
             "controller": tbname.parent.name,
             "md5": md5sum(tbname),
             "size": os.stat(tbname).st_size,
+            "state": state if state else None,
             "operator": self.name,
             "status": "FAILED",
             "operation": None,
