@@ -26,6 +26,8 @@ let res=res+${?}
 cp -L ${_tdir}/../base ${_testopt}/
 let res=res+${?}
 cp -rL ${_tdir}/../config/* ${_testopt}/config/
+# rename pbench-agent.cfg - we need to process it for each test but it gets cleaned up after each test.
+mv ${_testopt}/config/pbench-agent.cfg ${_testopt}/config/pbench-agent.cfg.orig
 let res=res+${?}
 cp -a ${_tdir}/{require-rpm,pbench-*} ${_testopt}/util-scripts/
 let res=res+${?}
@@ -216,7 +218,7 @@ function _setup_state {
     tst=${1}
     tool=${2}
 
-    sed "s;/opt/pbench-agent;${_testopt};" ${_testopt}/config/pbench-agent.cfg.example > ${_testopt}/config/pbench-agent.cfg
+    sed "s;/opt/pbench-agent;${_testopt};" ${_testopt}/config/pbench-agent.cfg.orig > ${_testopt}/config/pbench-agent.cfg
     if [[ ${?} -ne 0 ]]; then
         echo "ERROR: failed to create default pbench-agent.cfg" >&2
         exit 1
