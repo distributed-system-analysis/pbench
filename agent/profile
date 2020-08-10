@@ -1,35 +1,43 @@
 # -*- mode: shell-script -*-
-prefix=/opt/pbench-agent
 
-if [[ ! -f ${prefix}/profile ]]
-then
-    if [[ -f ${PWD}/profile ]]
-    then
-	prefix=$PWD
-    else
-	# last ditch attempt
-	prefix=$TOP
-    fi
-fi
-
-pathins() {
-    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-        PATH="$1:$PATH"
+function _pbench_pathins() {
+    if [[ -d "$1" ]] && [[ ":${PATH:-}:" != *":$1:"* ]] ; then
+        PATH="$1${PATH:+:$PATH}"
     fi
 }
 
-if [[ ! -f ${prefix}/util-scripts/pbench-register-tool-set ]]
-then
-    echo "*** WARNING *** Something wrong in the pbench base profile:" >&2
-    echo "                Setup has failed - could not determine the proper environment prefix: \"$prefix\"" >&2
-    echo "                You will need to fix it before working with pbench." >&2
-else
-    export PYTHONPATH=${prefix}/lib:${PYTHONPATH}
-    export _PBENCH_AGENT_CONFIG=${prefix}/config/pbench-agent.cfg
+function _pbench_setup() {
+    local prefix=/opt/pbench-agent
 
-    pathins ${prefix}/bench-scripts
-    pathins ${prefix}/util-scripts
-fi
+    if [[ ! -f ${prefix}/profile ]]
+    then
+	if [[ -f ${PWD}/profile ]]
+	then
+	    prefix=$PWD
+	else
+	    # last ditch attempt
+	    prefix=$TOP
+	fi
+    fi
 
-unset prefix
-unset -f pathins
+    if [[ ! -f ${prefix}/util-scripts/pbench-register-tool-set ]]
+    then
+	echo "*** WARNING *** Something wrong in the pbench base profile:" >&2
+	echo "                Setup has failed - could not determine the proper environment prefix: \"$prefix\"" >&2
+	echo "                You will need to fix it before working with pbench." >&2
+    else
+	local pdir=${prefix}/lib
+	if [[  ":${PYTHONPATH:-}:" != *":${pdir}:"* ]] ; then
+	    export PYTHONPATH=$pdir${PYTHONPATH:+:$PYTHONPATH}
+	fi
+	export _PBENCH_AGENT_CONFIG=${prefix}/config/pbench-agent.cfg
+
+	_pbench_pathins "${prefix}/bench-scripts"
+	_pbench_pathins "${prefix}/util-scripts"
+    fi
+}
+
+_pbench_setup
+
+unset -f _pbench_pathins
+unset -f _pbench_setup
