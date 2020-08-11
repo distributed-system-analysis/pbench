@@ -141,6 +141,7 @@ function gen_xml {
 		echo "    <transaction duration=\"$runtime\">"
 		echo "      <flowop type=\"write\" options=\"size=$size\"/>"
 		echo "      <flowop type=\"read\"  options=\"size=$size\"/>"
+		echo "    </transaction>"
 		echo "    <transaction iterations=\"1\">"
 		echo "      <flowop type=\"disconnect\" />"
 		echo "    </transaction>"
