@@ -12,20 +12,41 @@ host3       ansible_python_interpreter=/usr/bin/python3
 # This section contains site-specific variables. An admin should
 # modify these settings and provide the resulting file as a site-specific
 # example. Once that is done, users should *NOT* have to modify this section at all.
+
+# All but two of the variables below are given default values that should serve most
+# users, but they can be overridden explicitly by uncommenting them and giving them
+# appropriate values.
+
+# The two variables pbench_key_url and pbench_config_url are *not* defaulted: they
+# are specific to a particular environment and they *have* to be defined (here or
+# elsewhere) by the user.
+
 [servers:vars]
-pbench_repo_url_prefix = https://copr-be.cloud.fedoraproject.org/results/<EXAMPLE_USER>
+# We assume that the COPR convention of repo naming is followed. Obviously if the repo
+# is in COPR that assumption holds, but if you decide to use a different repo, you have
+# to follow the convention (or change the pbench-agent-install role).
+# The convention is that the repo name consists of the prefix defined here (or in the
+# defaults of the pbench-agent-install role), followed by a distro designation:
+#     fedora-NN   for Fedora distros
+#     epel-7      for RHEL7 and CentOS 7 distros
+#     epel-8      for RHEL8 and CentOS 8 distros
 
-# where to get the key
+# If you use a COPR repo but under a different user name, you can override the fedoraproject_username
+# variable only and leave the prefix alone.
+# fedoraproject_username = <EXAMPLE_USER>
+# pbench_repo_url_prefix = https://copr-be.cloud.fedoraproject.org/results/{{ fedoraproject_username }}
+
+# Where to get the key - you need to change this appropriately for your environment.
 pbench_key_url = http://EXAMPLE.COM/PATH/TO/agent/{{ pbench_configuration_environment }}/ssh
-# where to put it
-pbench_key_dest = /opt/pbench-agent/
 
-# where to get the config file
+# Where to put it
+# pbench_key_dest = /opt/pbench-agent/
+
+# Where to get the config file - you need to change this appropriately for your environment.
 pbench_config_url = http://EXAMPLE.COM/PATH/TO/agent/{{ pbench_configuration_environment }}/config
-# where to put it
-pbench_config_dest = /opt/pbench-agent/config/
 
-pbench_config_files = '["pbench-agent.cfg"]'
+# Where to put it.
+# pbench_config_dest = /opt/pbench-agent/config/
 
-owner = pbench
-group = pbench
+# List of config files to install.
+# pbench_config_files = '["pbench-agent.cfg"]'

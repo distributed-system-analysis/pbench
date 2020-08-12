@@ -1,4 +1,7 @@
 ---
+fedoraproject_username: ndokos
+pbench_repo_url_prefix: https://copr-be.cloud.fedoraproject.org/results/{{ fedoraproject_username }}
+ 
 repos:
   - tag: pbench
     baseurl: "{{ pbench_repo_url_prefix }}/pbench/{{ distrodir }}"
