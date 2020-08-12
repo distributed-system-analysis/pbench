@@ -11,6 +11,8 @@
     pbench_configuration_environment: "{{ cenv | default('production') }}"
 
   roles:
+    # uncomment the following line and run with -v to debug the settings of some variables.
+    # - debug-vars
     - pbench-repo-install
     - pbench-agent-install
     - pbench-agent-config
