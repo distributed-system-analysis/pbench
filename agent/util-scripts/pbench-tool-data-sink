@@ -415,13 +415,13 @@ class ToolDataSink(Bottle):
                 noop_tools = []
                 persistent_tools = []
                 transient_tools = []
-                for tool_name, tool in tools.items():
+                for tool_name, tool_data in tools.items():
                     if tool_name in PromCollector.allowed_tools:
-                        persistent_tools.append(tool)
+                        persistent_tools.append(tool_name)
                     elif tool_name in BaseCollector.allowed_tools:
-                        noop_tools.append(tool)
+                        noop_tools.append(tool_name)
                     else:
-                        transient_tools.append(tool)
+                        transient_tools.append(tool_name)
                 tm["noop_tools"] = noop_tools
                 tm["persistent_tools"] = persistent_tools
                 tm["transient_tools"] = transient_tools

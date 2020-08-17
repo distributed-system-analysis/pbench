@@ -774,6 +774,8 @@ class ToolMeister(object):
         # Clean up the running tools data structure explicitly ahead of
         # potentially receiving another start tools.
         for name in sorted(self._tools.keys()):
+            if name in self.prom_tools:
+                continue
             try:
                 del self._running_tools[name]
             except KeyError:
