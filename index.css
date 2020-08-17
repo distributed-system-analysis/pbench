@@ -1,0 +1,147 @@
+body, #startBtn{
+   font-family: 'Work Sans';font-size: 22px;
+}
+
+.title{
+  padding-left: var(--pf-global--spacer--xl);
+  margin: var(--pf-global--spacer--2xl);
+  margin-bottom: 0px;
+  padding-right: var(--pf-global--spacer--xl);
+}
+
+ul.landingPageQue{
+   list-style: disc;
+}
+    
+li.PbenchQueItem {
+   position: relative;
+   margin: 0;
+   padding-bottom: 1em;
+   padding-left: 30px;
+}
+    
+li.PbenchQueItem.lineRequired:before {
+   background-color: #1bc1c9;
+   width: 2px;
+   content: '';
+   position: absolute;
+   top: 5px;
+   bottom: -5px;
+   left: 5px;
+}
+    
+li.PbenchQueItem::after {
+   content: '';
+   position: absolute;
+   background-image: url("./images/list.svg");
+   background-repeat: no-repeat;
+   background-size: contain;
+   left: 2px;
+   top: 2px;
+   width: 12px;
+   height: 12px;
+}
+
+.callout_card{
+  padding: var( --pf-global--spacer--2xl );
+  text-align: center;
+  box-shadow: var(--pf-global--BoxShadow--md-bottom);
+  margin: var( --pf-global--spacer--xl ) 0 var( --pf-global--spacer--xl ) 0;
+}
+
+#navlogo{
+   height: 44px;
+   margin-left: 60px;
+   margin-top: 16px;
+   margin-bottom: 16px;
+}
+.contrib{
+  padding-left: var( --pf-global--spacer--xl );
+  font-family: Work Sans;
+  text-align: justify;
+  margin-left: var( --pf-global--spacer--2xl);
+ }
+ 
+ .quoteBox{
+   margin: 0 8% 20px 3%;
+   background-color:#F5F5F5;
+   padding: 48px;
+ }
+ 
+ .quote-left{
+   font-size: 24px;
+   color: #1BC1C9;
+ }
+ 
+ p.quote{
+   font-size: 24px;
+   font-weight: 300;
+ }
+ 
+ p.credit{
+   font-size: 16px;
+   float: right;
+ }
+
+ .div1{
+   background-image: url(./images/CollectionAgent.png);
+ }
+ 
+ .div2{
+   background-image: url(./images/BackgroundTasks.png);
+ }
+ 
+ .div3{
+   background-image: url(./images/WebServer.png);
+ }
+
+ .hero_header{
+   text-align: center;
+ }
+
+ .hero_subtitle{
+   text-align: center;
+ }
+
+ .vertical-btn {
+  text-align: center;
+}
+
+#startBtn{
+  margin-right: 22px;
+}
+
+button.pf-c-button.pf-m-link{
+  color: #ffffff;
+  font-family: Work Sans;
+  font-size: var(--pf-global--FontSize--xl);
+}
+
+.landingCard{
+  background: white;
+  margin-top: var(--pf-global--spacer--xl);
+  padding: var(--pf-global--spacer--lg);
+}
+
+.recentMeetCard{
+  margin-left: var( --pf-global--spacer--2xl );
+    padding-left: var(--pf-global--spacer--xl);
+}
+
+
+.viewDemoLink{
+  margin-bottom: var(--pf-global--spacer--2xl);
+}
+
+.pf-c-card__header.pf-c-title.pf-m-md.landingImageDiv.div1{
+  height: 250px;
+  margin-top: var(--pf-global--spacer--xl);
+  margin: var(--pf-global--spacer--lg);
+}
+
+
+.quickLinkDiv{
+  margin-top: 16px;
+  margin-bottom: 10px;
+  bottom: 0;
+}
