@@ -54,7 +54,7 @@
             </div>
         </header>
         <main role="main" class="pf-c-page__main" tabindex="-1" style="background-color: white;">
-            <div class="content">
+            <!-- <div class="content">
                 <div class="tab">
                     <div class="pf-c-tabs" id="primary" style="align-items: center;margin-left: 10%;">
                     <ul class="pf-c-tabs__list pf-l-flex" style="width: 100%;">
@@ -67,13 +67,13 @@
                     </ul>
                     </div>
                 </div>
-                <div>
+                <div> -->
                     <div id="guide" class="tabcontent" style="display:block">
                     <div class="section">
                         <div class="pf-l-grid pf-m-all-12-col-on-sm pf-m-all-12-col-on-md pf-m-all-12-col-on-lg pf-m-all-12-col-on-xl" style="margin-bottom: -30px;">
                             <div class="pf-l-grid__item pf-m-3-col-on-sm pf-m-3-col-on-lg pf-m-3-col-on-xl pf-m-offset-1-col" id="agentUserGuideToc" style="height: fit-content;">
                                 <div class="pf-c-page__sidebar">
-                                    <div class="pf-c-page__sidebar-body contactLink" ><a href="#what">What is pbench?</a></div>
+                                    <div class="pf-c-page__sidebar-body contactLink" ><a href="#what">What is Pbench?</a></div>
                                     <div class="pf-c-page__sidebar-body contactLink" ><a href="#how">TL;DR - How to set up pbench and run a benchmark</a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#install">How to install</a></div>
                                     <!-- <div class="pf-c-page__sidebar-body contactLink"><a>First steps</a></div>
@@ -110,15 +110,15 @@
                                     <section>
                                         <div class="section_card">
                                             <div id="what" class="section_cardbody">
-                                                <p class="cardHeader">What is pbench?</p>
-                                                <p class="info_text" style="text-align:justify">PBench is a harness that allows data collection from a 
-                                                    variety of tools while running a benchmark. PBench has some built-in script
+                                                <p class="cardHeader">What is Pbench?</p>
+                                                <p class="info_text" style="text-align:justify">Pbench is a harness that allows data collection from a 
+                                                    variety of tools while running a benchmark. Pbench has some built-in script
                                                     that run some common benchmarks, but the data collection can be run separately as well with a benchmark
-                                                    that is not built-in to pbench, or a pbench script can be written for the benchmark. Such contributions are
+                                                    that is not built-in to Pbench, or a Pbench script can be written for the benchmark. Such contributions are
                                                     more than welcome!</p>
                                             </div>
                                             <div id="how" class="section_cardbody">
-                                                <p  class="cardHeader">TL;DR - How to set up pbench and run a benchmark </p>
+                                                <p  class="cardHeader">TL;DR - How to set up Pbench and run a benchmark </p>
                                                 <p class="info_text" style="text-align:justify">Prerequisite: Somebody has already done the server setup.</p>
                                                 <p class="info_text" style="text-align:justify">
                                                     The following steps assume that only a single node participates in the benchmark run. If you want a multi-node setup, you have to read up on the --remote options of various commands (in particular, pbench-register-tool-set):
@@ -216,8 +216,8 @@
                                             </div>
                                             <div id="availablescript" class="section_cardbody">
                                                 <p class="cardHeader">Available benchmark scripts</p>
-                                                <p class="info_text" style="text-align:justify">PBench provides a set of pre-packaged script to run some common benchmarks using the collection tools and other facilities
-                                                    that pbench provides. These are found in the bench-scripts directory of the pbench installation (/opt/pbench-agent/bench-scripts by default). The current set includes:
+                                                <p class="info_text" style="text-align:justify">Pbench provides a set of pre-packaged script to run some common benchmarks using the collection tools and other facilities
+                                                    that pbench provides. These are found in the bench-scripts directory of the Pbench installation (/opt/pbench-agent/bench-scripts by default). The current set includes:
                                                 </p>
                                                 <div class="info_text" style="text-align:justify">
                                                     <li> pbench-dbench </li>
@@ -413,7 +413,7 @@
                                                     This section is needed as preparation for the <a href="#secondstep">Second steps</a> section below.
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
-                                                    PBench uses a bunch of utility scripts to do common operations. There is a common set of options
+                                                    Pbench uses a bunch of utility scripts to do common operations. There is a common set of options
                                                     for some of these: --name to specify a tool, --group to specify a tool group, --with-options to list 
                                                     or pass options to a tool, --remote to operate on a remote host (see entries in the <a href="learn.html">FAQ section</a> for more details on these options).
                                                 </p>
@@ -583,7 +583,7 @@
                                                 </p>
                                             </div>
                                             <div id="runningtools" class="section_cardbody">
-                                                <p class="cardHeader">Running pbench collection tools with an arbitrary benchmark
+                                                <p class="cardHeader">Running Pbench collection tools with an arbitrary benchmark
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
                                                     If you want to take advantage of pbench's data collection and other goodies, but your benchmark 
@@ -677,7 +677,7 @@
                                             <div id="customizing" class="section_cardbody">
                                                 <p class="cardHeader">Customizing</p>
                                                 <p class="info_text" style="text-align:justify">
-                                                    Some characteristics of pbench are specified in config files and can be customized by adding your own config file to override the default settings.
+                                                    Some characteristics of Pbench are specified in config files and can be customized by adding your own config file to override the default settings.
                                                     TBD
                                                 </p>
                                             </div>
@@ -691,7 +691,7 @@
                                                 </p>
                                                 <p class="subCardHeader" id="seeResult">Where to go to see results</p>
                                                 <p class="info_text" style="text-align:justify">
-                                                    Where pbench-move/copy-results copies the results is site-dependent. Check with the admin who set up the pbench server and provided you with the configuration file for the pbench-agent installation.
+                                                    Where pbench-move/copy-results copies the results is site-dependent. Check with the admin who set up the Pbench server and provided you with the configuration file for the pbench-agent installation.
                                                 </p>
                                             </div>
                                             <div id="advanced" class="section_cardbody">
@@ -751,7 +751,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="notes" class="tabcontent">
+                <!-- <div id="notes" class="tabcontent">
                     <div class="section">
                         <div class="pf-c-accordion accor_card">
                             <div class="accordionCard">
@@ -766,7 +766,7 @@
                                         <p class="info_text" style="text-align: justify">This a bug fix release. It include a fix for uperf 
                                             (PR<a href="https://github.com/distributed-system-analysis/pbench/pull/1712">#1712</a>) 
                                             and some fixes to the ansible playbooks/roles.</p>     
-                                        <!-- <p class="c_snip"></p> -->
+                                            <p class="c_snip"></p>
                                     </div>
                                 </div>
                             </div>
@@ -840,7 +840,7 @@
                                                 (the Software Collections Library package) and the associated rh-python36 package. If you are running
                                                 pbench-agent, all of that should stay invisible in the background: you should not even notice. But if 
                                                 there are problems, it helps to know what's going on underneath in order to debug and fix any problems.
-                                                <!-- See Python3 on RHEL7 for some tips if you have problems. -->
+                                               
                                             </li>
                                             <li>
                                                 pbench-agent scripts no longer install packages behind the scenes. We used to check for and install 
@@ -1269,7 +1269,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
             <div class="section">
                 <span class="footer">
                 <p class="darkFoot">2020 Pbench | Privacy Statement</p>

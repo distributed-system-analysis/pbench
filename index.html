@@ -7,13 +7,9 @@
       <meta name="description" content="">
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link href="./css/style.css" rel="stylesheet">
+      <link href="./index.css" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400&display=swap" rel="stylesheet">
    </head>
-   <style>
-      body, #startBtn{
-      font-family: 'Work Sans';font-size: 22px;
-      }
-   </style>
    <body>
       <div class="pf-c-page">
          <header role="banner" class="pf-c-page__header header">
@@ -62,24 +58,53 @@
                      <p class="hero_header">Pbench</p>
                      <div style="margin-bottom:var(--pf-global--spacer--xl);">
                         <p class="hero_subtitle">
-                           A benchmarking and performance 
+                           A benchmarking and performance analysis framework
                         </p>
-                        <p class="hero_subtitle">analysis framework</p>
                      </div>
-                     <br>         
-                     <button class="pf-c-button pf-m-primary" id="startBtn" type="button" data-sender="ScrollToMatch" onclick="window.location.href = 'start.html'">Get Started</button>
+                     <br>  
+                     <div class="vertical-btn">
+                        <button class="pf-c-button pf-m-primary" id="startBtn" type="button" data-sender="ScrollToMatch" onclick="window.location.href = 'start.html'">Get Started</button>
+                        <span>
+                           <button class="pf-c-button pf-m-link" id="contribBtn" type="button" 
+                              onclick="window.open('https://github.com/distributed-system-analysis/pbench','_blank','resizable=yes')"
+                              style="padding-left: 0px;" >
+                              <span class="pf-c-button__icon">
+                                 <i class="fas fa-pencil-alt"></i>
+                              </span>
+                              <span class="pf-c-button__text">Contribute a Pbench script</span>
+                           </button>
+                        </span>
+                     </div>      
+                     <div class="landingCard">
+                        <div class="pf-l-grid pf-m-all-6-col-on-sm pf-m-all-6-col-on-md pf-m-all-6-col-on-lg pf-m-all-6-col-on-xl">
+                           <div class="pf-l-grid__item">
+                              <p class="cardHeader"><b>Pbench is...</b></p>
+                              <p class="cardHeader" style="text-align:justify">Pbench is a harness that allows data collection from a 
+                              variety of tools while running a benchmark.</p>
+                              <p class="cardHeader"><b>Pbench has...</b></p>
+                              <p class="cardHeader" style="text-align:justify">
+                              Pbench has some built-in script
+                              that run some common benchmarks, but the data collection can be run separately as well with a benchmark
+                              that is not built-in to pbench, or a pbench script can be written for the benchmark. Such contributions are
+                              more than welcome!
+                              </p>
+                           </div>
+                           <div class="pf-l-grid__item" class="landingImg">
+                              <div class="pf-c-card__header pf-c-title pf-m-md landingImageDiv div1">
+                                 <p class="cardHeader"><b>Placeholder Image</b></p>
+                              </div>
+                           </div>
+                        </div>
+                     </div> 
                   </div>
                   <div class="logodiv">
                   </div>
 			   </header>
-			   <div style="border-bottom: 3px solid var(--pf-global--primary-color--100);">
+			   <div>
                <div class="section" id="cards" data-receiver="ScrollToMatch">
                   <div class="pf-c-card callout_card">
-                     <div class="pf-c-card__header pf-c-title pf-m-md">
-                        <h1 class="pf-c-title pf-m-2xl callout_header" style="text-align: left;margin-left: 30px;"> Three subsystems for big results.</h1>
-                     </div>
                      <div class="pf-c-card__body">
-                        <div class="pf-l-grid pf-m-all-12-col-on-sm pf-m-all-12-col-on-md pf-m-all-4-col-on-lg pf-m-all-4-col-on-xl">
+                        <div class="pf-l-grid pf-m-all-12-col-on-sm pf-m-all-8-col-on-md pf-m-all-4-col-on-lg pf-m-all-3-col-on-xl">
                            <div class="pf-l-grid__item">
                               <div class="card pf-c-card" id="firstGrid">
                                  <div class="pf-c-card__header pf-c-title pf-m-md imageDiv div1">
@@ -91,9 +116,9 @@
                                        configuration of those systems, their logs, and specified telemetry from 
                                        various tools (sar, vmstat, perf, etc).</p>
                                     <div class="quickLinkDiv">
-                                       <p class="quickLink"><a >Quick Link 1</a></p>
-                                       <p class="quickLink"><a >Quick Link 2</a></p>
-                                       <p class="quickLink"><a >Quick Link 3</a></p>
+                                       <!-- <p class="quickLink"><a >Quick Link 1</a></p> -->
+                                       <p class="quickLink"><a href="https://distributed-system-analysis.github.io/pbench/doc/agent/installation.html">Installation</a></p>
+                                       <p class="quickLink"><a href="https://github.com/distributed-system-analysis/pbench/tree/master/agent">Source Code</a></p>
                                     </div>
                                  </div>
                               </div>
@@ -107,11 +132,11 @@
                                     <p class="cardText">The second sub-system included here is sever, or "back-ground tasks", which
                                        is responsible for achieving result tar balls, indexing them, and unpacking them 
                                        for display.</p>
-                                    <div class="quickLinkDiv">
+                                    <!-- <div class="quickLinkDiv">
                                        <p class="quickLink"><a >Quick Link 1</a></p>
                                        <p class="quickLink"><a >Quick Link 2</a></p>
                                        <p class="quickLink"><a >Quick Link 3</a></p>
-                                    </div>
+                                    </div> -->
                                  </div>
                               </div>
                            </div>
@@ -124,11 +149,11 @@
                                     <p class="cardText">Lastly is the Dahboard used to display various graphs and results, and any 
                                        other content generated by the background tasks, or by the pbench-agent during
                                        benchmark and tool post-processing steps.`</p>
-                                    <div class="quickLinkDiv">
+                                    <!-- <div class="quickLinkDiv">
                                        <p class="quickLink"><a >Quick Link 1</a></p>
                                        <p class="quickLink"><a >Quick Link 2</a></p>
                                        <p class="quickLink"><a >Quick Link 3</a></p>
-                                    </div>
+                                    </div> -->
                                  </div>
                               </div>
                            </div>
@@ -137,48 +162,52 @@
                   </div>
                </div>
                <div class="pf-l-grid pf-m-all-6-col-on-sm pf-m-all-4-col-on-md pf-m-all-2-col-on-lg pf-m-all-1-col-on-xl">
-                  <div class="pf-l-grid__item pf-m-10-col-on-sm pf-m-6-col-on-lg pf-m-6-col-on-xl">
+                  <div class="pf-l-grid__item pf-m-12-col-on-sm pf-m-8-col-on-lg pf-m-8-col-on-xl">
                      <div class="info_text contrib">
                         <p>
-                           Pbench is a harness that allows data collection from a variety of tools while running a benchmark. 
-                           Pbench has some built-in script that run some common benchmarks, but the data collection can be run separately 
-                           as well with a benchmark that is not built-in to pbench, or a pbench script can be written for the benchmark.
+                           <ul class="PbenchQue">
+                              <li class="PbenchQueItem lineRequired"><b>How is it installed?</b><br>
+                                 Instructions on installing pbench-agent, and other components, can be found in the "How to Install" section of the <a href="./start.html">Getting Started Section</a>.
+                                 For Fedora, CentOS, and RHEL users, we have made available COPR builds for the pbench-agent, configtools, pbench-server and some benchmarks packages.
+                              </li>
+                              <li class="PbenchQueItem lineRequired">
+                                 <b>How do I use pbench?</b><br>
+                                 Refer to this <a href="start.html">Getting Started Guide</a><br>
+                                 TL;DR? See Section 4 of the Getting Started Guide for a super quick set of introductory steps.
+                              </li>
+                              <li class="PbenchQueItem">
+                                 <b>Where is the source kept?</b><br>
+                                 The latest source code is at https://github.com/distributed-system-analysis/pbench.
+                                 <br>
+                                 The release notes are <a href="http://distributed-system-analysis.github.io/pbench/doc/release-notes/RELEASE-NOTES.html.">here</a>.
+                              </li>
+                           </ul>
                         </p>
-                        <span>
-                        <button class="pf-c-button pf-m-link" type="button" 
-                           onclick="window.open('https://github.com/distributed-system-analysis/pbench','_blank','resizable=yes')"
-                           style="padding-left: 0px;" >
-                        <span class="pf-c-button__icon">
-                        <i class="fas fa-pencil-alt"></i>
-                        </span>
-                        <span class="pf-c-button__text">Contribute a Pbench script</span>
-                        </button>
-                        </span>
                      </div>
                   </div>
-                  <div class="pf-l-grid__item pf-m-10-col-on-sm pf-m-6-col-on-lg pf-m-6-col-on-xl">
-                     <div class="quoteBox">
+                  <div class="pf-l-grid__item pf-m-12-col-on-sm pf-m-10-col-on-lg pf-m-10-col-on-xl">
+                     <!-- <div class="quoteBox">
                         <p class="quote"><i class="fas fa-quote-left quote-left"></i>&nbsp; Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
                            tempor incididunt ut labore et dolore magna aliqua.</p>
                         <p class="credit">
                            <i>Someone Important</i>
                         </p>
-                     </div>
+                     </div> -->
                   </div>
                </div>
-               <div style="margin-left: var( --pf-global--spacer--3xl );">
+               <div class="recentMeetCard">
                   <p class="cardHeader"  id="homeDemo"><b>Recent meetings, presentations, and demos</b></p>
-                  <div class="pf-l-grid pf-m-all-12-col-on-sm pf-m-all-12-col-on-md pf-m-all-12-col-on-lg pf-m-all-12-col-on-xl"
+                  <div class="pf-l-grid pf-m-all-8-col-on-sm pf-m-all-6-col-on-md pf-m-all-4-col-on-lg pf-m-all-3-col-on-xl"
                   style="margin-left: -30px;">
-                     <div class="pf-l-grid__item pf-m-6-col-on-sm pf-m-4-col-on-lg pf-m-3-col-on-xl">
+                     <div class="pf-l-grid__item">
                         <div class="pf-c-card card demoCard">
                            <div class="pf-c-card__header" style="padding: 16px;">
-                              <p class="videoHeaderNew"><a href="learn.html">Distributed system analysis made easy with PBench</a></p>
-                              <p class="videoLabelNew">03rd June 2020</p>
+                              <p class="videoHeaderNew"><a href="learn.html">Distributed system analysis made easy with Pbench</a></p>
+                              <p class="videoLabelNew">3rd June 2020</p>
                            </div>
                         </div>
                      </div>
-                     <div class="pf-l-grid__item pf-m-6-col-on-sm pf-m-4-col-on-lg pf-m-3-col-on-xl">
+                     <div class="pf-l-grid__item">
                         <div class="pf-c-card card demoCard">
                            <div class="pf-c-card__header" style="padding: 16px;">
                               <p class="videoHeaderNew"><a href="learn.html">Using Pbench to debug Performance Problems</a></p>
@@ -186,7 +215,7 @@
                            </div>
                         </div>
                      </div>
-                     <div class="pf-l-grid__item pf-m-6-col-on-sm pf-m-4-col-on-lg pf-m-3-col-on-xl">
+                     <div class="pf-l-grid__item">
                         <div class="pf-c-card card demoCard">
                            <div class="pf-c-card__header" style="padding: 16px;">
                               <p class="videoHeaderNew"><a href="learn.html">Distributed System Analysis using Pbench Tool</a></p>
@@ -194,20 +223,19 @@
                            </div>
                         </div>
                      </div>
-                     <p class="viewDemoLink" >
-                        <a href="learn.html" style="text-decoration: none;">View all &nbsp;<i class="fas fa-arrow-right" style="color: var(--pf-global--link--Color);"></i></a></p>
-                    </p>
                   </div>
+                  <p class="viewDemoLink" >
+                     <a href="learn.html" style="text-decoration: none;">View all &nbsp;<i class="fas fa-arrow-right linkSymbol" style="color: var(--pf-global--link--Color);"></i></a></p>
+                 </p>
                </div>
 				</div>
-			   	<div class="cardHeader pyramid">
+			   <!-- <div class="cardHeader pyramid">
 					<b><h1 style="font-weight: bold; margin-bottom: 1%;">Food pyramid of Pbench graphic</h1></b>
 					<p class="cardText">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
 						 tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
 						 exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. </p>
 					<img src="./images/pyramid.png" style="margin-top: 2%;">
-			 	</div>
-            </div>
+			 	</div> -->
             <span class="footer">
                <p class="darkFoot">2020 Pbench | Privacy Statement</p>
                <p class="lightFoot">Code licensed under a thing, site under a thing</p>

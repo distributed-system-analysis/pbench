@@ -103,7 +103,7 @@
 											<p class="info_text" style="text-align:justify">
 												Visit the Results URL in your browser to see the results: the URL depends on who the server is; assuming that the server is "pbench.example.com" and assuming you ran the 
 												above on a host named "myhost", the results will be found at (N.B.: this is a fake link serving as an example only - talk to your local administrator to find out what server
-												to use to get to pbench results): 
+												to use to get to Pbench results): 
 												<a href="#">http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>
 											</p>
 										</div>
@@ -138,7 +138,7 @@
 										<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
 											<div class="pf-c-accordion__expanded-content-body">
 												<p class="info_text" style="text-align:justify">
-													The pbench agent requires the installation of some generic bits, but it also requires some localization: it needs to know where
+													The Pbench agent requires the installation of some generic bits, but it also requires some localization: it needs to know where
 													 to send the results for storage and analysis and it needs to be able to authenticate to the storage server.</p>
 													<p class="info_text"  style="text-align:justify">
 													The generic bits are packaged as an RPM, available from COPR (https://copr.fedorainfracloud.org/). We try to build a new release 
@@ -165,7 +165,7 @@
 										<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
 											<div class="pf-c-accordion__expanded-content-body">
 												<p class="info_text"  style="text-align:justify">
-													You will need to install both the external repo and (if applicable) the internal repo on every machine where you are planning to run pbench (including VMs). N.B. These steps must be run as root.
+													You will need to install both the external repo and (if applicable) the internal repo on every machine where you are planning to run Pbench (including VMs). N.B. These steps must be run as root.
 													</p>
 													<p class="info_text"  style="text-align:justify"><b>External repo : </b></p>
 													<p class="info_text"  style="text-align:justify">If your system supports dnf, then you can copy the repo locally with:</p>
@@ -175,8 +175,8 @@
 													<p class="info_text"  style="text-align:justify">If all else fails, you can manually download the repo, by visiting <a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">https://copr.fedorainfracloud.org/coprs/ndokos/pbench/</a>
 													   and clicking on the appropriate repo (Epel 6, Epel 7, Fedora XX). Save it into /etc/yum.repos.d/ndokos-pbench.repo.</p>
 													<p class="info_text"  style="text-align:justify"><b>Internal Repo : </b></p>
-													<p class="info_text"  style="text-align:justify">Refer to your local installation guide or ask your local pbench guru for help.</p>
-													<p class="info_text"  style="text-align:justify">If there is no such repo, you will need to install the pbench-agent RPM and then manually install the config file and the pbench private key which will allow you to send results to the server. Refer to Installing pbench-agent below.</p>
+													<p class="info_text"  style="text-align:justify">Refer to your local installation guide or ask your local Pbench guru for help.</p>
+													<p class="info_text"  style="text-align:justify">If there is no such repo, you will need to install the pbench-agent RPM and then manually install the config file and the Pbench private key which will allow you to send results to the server. Refer to Installing pbench-agent below.</p>
 											</div>
 										</div>
 									</div>
@@ -231,7 +231,7 @@
 													<p class="info_text"  style="text-align:justify">The ssh key pair can be generated with:</p>
 													<p class="c_snip">ssh-keygen -t rsa</p>
 													<p class="info_text"  style="text-align:justify">and an empty passphrase. The private key has to be made available to users so they can complete 
-													their installation of pbench-agent as described above. The public key should be added to the authorized-keys file of the pbench user on the server where the results are copied.</p>
+													their installation of pbench-agent as described above. The public key should be added to the authorized-keys file of the Pbench user on the server where the results are copied.</p>
 											</div>
 										</div>
 									</div>
@@ -252,7 +252,7 @@
 									</p>
 									<p class="c_snip">pbench-register-tool-set</p>
 									<p class="info_text"  style="text-align:justify">
-									You can then run a built-in benchmark by invoking its pbench script - pbench will install the benchmark if necessary1:
+									You can then run a built-in benchmark by invoking its Pbench script - Pbench will install the benchmark if necessary1:
 									</p>
 									<p class="c_snip">pbench-fio</p>
 									<p class="info_text"  style="text-align:justify">
@@ -355,7 +355,7 @@
 												you make. So it is strongly recommended that you invoke <span class="c_snip_inline">pbench-kill-tools</span> before you start your run:
 											</p>
 											<p class="c_snip">pbench-kill-tools --group=$group</p>
-											<p class="info_text" style="text-align:justify">If you run pbench from your own script, you should add a signal handler to do this:</p>
+											<p class="info_text" style="text-align:justify">If you run Pbench from your own script, you should add a signal handler to do this:</p>
 											<p class="c_snip">trap "pbench-kill-tools --group=$group" EXIT INT QUIT</p>
 										</div>
 									</div>

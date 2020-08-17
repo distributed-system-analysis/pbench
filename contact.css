@@ -1,0 +1,51 @@
+body, .pf-c-button, .pf-m-primary{
+    font-family: 'Work Sans';font-size: 22px;
+}
+
+.contact_card_logo{
+  width: 70px;
+  height: auto;
+}
+
+.contact_cards{
+  padding: var(--pf-global--spacer--3xl);
+  margin-bottom: 100px;
+}
+
+.contactCard{
+  margin: 4%;
+  min-height: 150px;
+}
+.contact_card_item1{
+  width: 30%;
+  height: 100%;
+  float: left;
+  margin-top: 0.7%;
+  padding-left: 6%;
+}
+.contact_card_item2{
+  width: 70%;
+  height: auto;
+  margin-left: 30%;
+}
+
+.contact_card_header{
+  font-size: 20px;
+  text-align: left;
+  margin-left: 30%;
+}
+
+.contactLink, .contactLink ul li{
+  text-align: justify;
+  font-size: var(--pf-global--FontSize--sm);
+  color: var(--pf-global--primary-color--100);
+  margin-top: 4%;
+  text-decoration: none;
+}
+
+.contactLink a{
+  font-size: var(--pf-global--FontSize--md);
+  font-family: Work Sans;
+  text-decoration: none;
+  padding-right: var(--pf-global--spacer--xl);
+}
