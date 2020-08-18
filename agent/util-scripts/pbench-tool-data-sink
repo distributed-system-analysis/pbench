@@ -266,7 +266,10 @@ class ToolDataSink(Bottle):
             method="PUT",
             callback=self.put_document,
         )
-        self._server = DataSinkWsgiServer(host="localhost", port=8080, logger=logger)
+        if self._hostname == "testhost.example.com":
+            self._server = DataSinkWsgiServer(host="localhost", port=8080, logger=logger)
+        else:
+            self._server = DataSinkWsgiServer(host=self._hostname, port=8080, logger=logger)
         # Setup the Redis server channel subscription
         logger.debug("pubsub")
         self._pubsub = redis_server.pubsub()
