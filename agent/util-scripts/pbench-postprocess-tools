@@ -108,6 +108,10 @@ for dirent in $(/bin/ls -1 ${tool_group_dir}); do
 				# Ignore unrecognized tools
 				continue
 			fi
+			if [[ "${filent}" == "node-exporter" || "${filent}" == "dcgm" || "${filent}" == "pcp" ]]; then
+                                # To be removed when converted to python
+                                continue
+			fi
 			${pbench_bin}/tool-scripts/${filent} --postprocess --dir=${host_tool_output_dir} "${tool_opts[@]}" >> ${host_tool_output_dir}/postprocess.log 2>&1
 			if [[ ${?} -ne 0 ]]; then
 				cat ${host_tool_output_dir}/postprocess.log >&2

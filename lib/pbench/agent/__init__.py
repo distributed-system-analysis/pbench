@@ -8,6 +8,9 @@ from pbench.common.constants import (
     DEFAULT_PBENCH_AGENT_INSTALL_DIR,
     DEFAULT_SCP_OPTS,
     DEFAULT_SSH_OPTS,
+    DEFAULT_PROM_REG,
+    DEFAULT_PMLOGGER_REG,
+    DEFAULT_PMCD_REG,
 )
 
 
@@ -81,6 +84,27 @@ class PbenchAgentConfig(PbenchConfig):
             )
         except (NoOptionError, NoSectionError):
             self.scp_opts = DEFAULT_SCP_OPTS
+
+        try:
+            self.prom_reg = self.conf.get(
+                "container-registry", "prometheus", fallback=DEFAULT_PROM_REG
+            )
+        except (NoOptionError, NoSectionError):
+            self.prom_reg = DEFAULT_PROM_REG
+
+        try:
+            self.pmlogger_reg = self.conf.get(
+                "container-registry", "pcp_pmlogger", fallback=DEFAULT_PMLOGGER_REG
+            )
+        except (NoOptionError, NoSectionError):
+            self.pmlogger_reg = DEFAULT_PMLOGGER_REG
+
+        try:
+            self.pmcd_reg = self.conf.get(
+                "container-registry", "pcp_pmcd", fallback=DEFAULT_PMCD_REG
+            )
+        except (NoOptionError, NoSectionError):
+            self.pmcd_reg = DEFAULT_PMCD_REG
 
         try:
             self._unittests = self.conf.get("pbench-agent", "debug_unittest")

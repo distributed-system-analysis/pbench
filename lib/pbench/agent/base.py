@@ -62,6 +62,15 @@ class BaseCommand(metaclass=abc.ABCMeta):
         self.scp_opts = self.config.scp_opts
         os.environ["scp_opts"] = self.scp_opts
 
+        self.prom_reg = self.config.prom_reg
+        os.environ["prom_reg"] = self.prom_reg
+
+        self.pmlogger_reg = self.config.pmlogger_reg
+        os.environ["pmlogger_reg"] = self.pmlogger_reg
+
+        self.pmcd_reg = self.config.pmcd_reg
+        os.environ["pmcd_reg"] = self.pmcd_reg
+
         os.environ["_pbench_debug_mode"] = "0"
         if os.environ.get("_PBENCH_UNIT_TESTS"):
             self.date = "1900-01-01T00:00:00"

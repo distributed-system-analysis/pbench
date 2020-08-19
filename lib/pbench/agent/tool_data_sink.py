@@ -19,7 +19,10 @@ import os
 import subprocess
 import sys
 import tempfile
+import socket
+import time
 
+from datetime import datetime
 from distutils.spawn import find_executable
 from http import HTTPStatus
 from pathlib import Path
@@ -194,12 +197,6 @@ class PromCollector(BaseCollector):
         self.volume = self.tool_group_dir / "prometheus"
 
     def launch(self):
-        if not find_executable("podman"):
-            self.logger.error(
-                "Podman is not installed on this system (required by some registered tools, aborting launch)"
-            )
-            return 0
-
         tool_context = []
         with open("prometheus.yml", "w") as config:
             for host in self.host_tools_dict:
@@ -213,15 +210,22 @@ class PromCollector(BaseCollector):
                 tool_context = {"tools": tool_context}
                 yml = _create_from_template("prometheus.yml", tool_context, self.logger)
                 config.write(yml)
+            else:
+                return 0
 
         with open("prom.log", "w") as prom_logs:
-            if not tool_context:
-                prom_logs.write(
-                    "Prometheus launch aborted, no persistent tools registered"
+            try:
+                prom_reg = PbenchAgentConfig(
+                    os.environ["_PBENCH_AGENT_CONFIG"]
+                ).prom_reg
+            except Exception as exc:
+                self.logger.error(
+                    "Unexpected error encountered logging pbench agent configuration: '%s'",
+                    exc,
                 )
                 return 0
 
-            args = ["podman", "pull", "quay.io/prometheus/prometheus"]
+            args = ["podman", "pull", prom_reg]
             try:
                 prom_pull = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
                 prom_pull.wait()
@@ -245,7 +249,9 @@ class PromCollector(BaseCollector):
                 f"{self.volume}:/prometheus:Z",
                 "-v",
                 f"{self.benchmark_run_dir}/tm/prometheus.yml:/etc/prometheus/prometheus.yml:Z",
-                "quay.io/prometheus/prometheus",
+                "--network",
+                "host",
+                prom_reg,
             ]
             try:
                 self.run = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
@@ -259,7 +265,7 @@ class PromCollector(BaseCollector):
         if super().terminate() == 0:
             return 0
 
-        self.logger.debug("PROM TERMINATED")
+        self.logger.debug("Prometheus terminated")
 
         args = [
             "tar",
@@ -271,6 +277,128 @@ class PromCollector(BaseCollector):
             "-C",
             f"{self.tool_group_dir}/",
             "prometheus",
+        ]
+        data_store = subprocess.Popen(args)
+        data_store.wait()
+
+        return 1
+
+
+class PCPCollector(BaseCollector):
+    """Persistent tool data collector for tools compatible with Prometheus"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.volume = self.tool_group_dir / "pcp"
+        self.podname = None
+
+    def __test_conn(self):
+        test = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        for host in self.host_tools_dict:
+            counter = 0
+            while counter < 3:
+                check = (host, 44321)
+                if test.connect_ex(check) == 0:
+                    break
+                else:
+                    counter += 1
+                    if counter == 3:
+                        self.logger.error(f"{host} pmcd unreachable")
+                time.sleep(1)
+        return 1
+
+    def launch(self):
+        pcp_remote_config = self.benchmark_run_dir / "tm" / "remote"
+        with open(pcp_remote_config, "w") as remote:
+            for host in self.host_tools_dict:
+                remote.write(
+                    f"{host} n n PCP_LOG_DIR/pmlogger/{host} -r -T24h10m -c config.{host}\n"
+                )
+
+        if not self.host_tools_dict:
+            return 0
+
+        with open("pcp.log", "w") as pcp_logs:
+            try:
+                pcp_reg = PbenchAgentConfig(
+                    os.environ["_PBENCH_AGENT_CONFIG"]
+                ).pmlogger_reg
+            except Exception as exc:
+                self.logger.error(
+                    "Unexpected error encountered logging pbench agent configuration: '%s'",
+                    exc,
+                )
+                return 0
+
+            args = ["podman", "pull", pcp_reg]
+            try:
+                pcp_pull = subprocess.Popen(args, stdout=pcp_logs, stderr=pcp_logs)
+                pcp_pull.wait()
+            except Exception as exc:
+                self.logger.error("Podman pull process failed: '%s'", exc)
+                return 0
+
+            try:
+                os.mkdir(self.volume)
+                os.chmod(self.volume, 0o777)
+            except Exception as exc:
+                self.logger.error("Volume creation failed: '%s'", exc)
+                return 0
+            self.podname = "collector" + datetime.now().strftime("%m-%d-%y-%H-%M-%S")
+            args = [
+                "podman",
+                "run",
+                "--systemd",
+                "always",
+                "-v",
+                f"{self.volume}:/var/log/pcp/pmlogger:Z",
+                "-v",
+                f"{pcp_remote_config}:/etc/pcp/pmlogger/control.d/remote:Z",
+                "--network",
+                "host",
+                "--name",
+                self.podname,
+                pcp_reg,
+            ]
+            try:
+                self.__test_conn()
+                self.run = subprocess.Popen(args, stdout=pcp_logs, stderr=pcp_logs)
+            except Exception as exc:
+                self.logger.error("Podman run process failed: '%s'", exc)
+                self.run = None
+                self.podname = None
+                return 0
+        return 1
+
+    def terminate(self):
+        if self.podname:
+            args = [
+                "podman",
+                "kill",
+                self.podname,
+            ]
+            try:
+                pcp_kill = subprocess.Popen(args)
+                pcp_kill.wait()
+            except Exception as exc:
+                self.logger.error("Podman kill process failed: '%s'", exc)
+                return 0
+
+        if super().terminate() == 0:
+            return 0
+
+        self.logger.debug("Pmlogger terminated")
+
+        args = [
+            "tar",
+            "--remove-files",
+            "--exclude",
+            "pcp/pcp_data.tar.gz",
+            "-zcvf",
+            f"{self.volume}/pcp_data.tar.gz",
+            "-C",
+            f"{self.tool_group_dir}/",
+            "pcp",
         ]
         data_store = subprocess.Popen(args)
         data_store.wait()
@@ -310,6 +438,7 @@ class ToolDataSink(Bottle):
         self.tool_metadata = toolmetadata.ToolMetadata("redis", redis_server, logger)
         self._data = None
         self._prom_server = None
+        self._pcp_server = None
         self._tm_tracking = None
         self._lock = Lock()
         self._cv = Condition(lock=self._lock)
@@ -564,7 +693,7 @@ class ToolDataSink(Bottle):
                 tm["transient_tools"] = transient_tools
 
                 if tm["hostname"] == self._hostname:
-                    # The "localhost" tool meister instance does not send data
+                    # The localhost" tool meister instance does not send data
                     # to the tool data sink, it just writes it locally.
                     tm["posted"] = None
                 elif not transient_tools:
@@ -696,16 +825,26 @@ class ToolDataSink(Bottle):
         with self._lock:
             if self.state == "init":
                 prom_tool_dict = {}
+                pcp_tool_dict = {}
                 for tm in self._tm_tracking:
                     prom_tools = []
+                    pcp_tools = []
                     persist_tools = self._tm_tracking[tm]["persistent_tools"]
                     for tool in persist_tools:
                         tool_data = self.tool_metadata.getProperties(tool)
                         if tool_data["collector"] == "prometheus":
                             prom_tools.append(tool)
+                        elif tool_data["collector"] == "pcp":
+                            if self._tm_tracking[tm]["transient_tools"]:
+                                pcp_tools = self._tm_tracking[tm]["transient_tools"]
+                            else:
+                                pcp_tools = ["base_pcp"]
                     if len(prom_tools) > 0:
                         prom_tool_dict[self._tm_tracking[tm]["hostname"]] = prom_tools
+                    if len(pcp_tools) > 0:
+                        pcp_tool_dict[self._tm_tracking[tm]["hostname"]] = pcp_tools
                 self.logger.debug(prom_tool_dict)
+                self.logger.debug(pcp_tool_dict)
 
                 if prom_tool_dict:
                     self._prom_server = PromCollector(
@@ -716,9 +855,21 @@ class ToolDataSink(Bottle):
                         self.tool_metadata,
                     )
                     self._prom_server.launch()
+
+                if pcp_tool_dict:
+                    self._pcp_server = PCPCollector(
+                        self.benchmark_run_dir,
+                        self.tool_group,
+                        pcp_tool_dict,
+                        self.logger,
+                        self.tool_metadata,
+                    )
+                    self._pcp_server.launch()
             elif self.state == "end":
                 if self._prom_server:
                     self._prom_server.terminate()
+                if self._pcp_server:
+                    self._pcp_server.terminate()
             elif self.state in self._data_states:
                 self._change_tm_tracking("dormant", "waiting")
                 # The Tool Data Sink cannot send success until all the Tool
@@ -980,19 +1131,25 @@ def main(argv):
         logger.error("External 'tar' executable not found")
         return 2
 
+    if not os.environ.get("_PBENCH_UNIT_TESTS") and not find_executable("podman"):
+        logger.error(
+            "Podman is not installed on this system (required by some tools, aborting launch)"
+        )
+        return 3
+
     try:
         redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
     except Exception as e:
         logger.error(
             "Unable to connect to redis server, %s:%s: %s", redis_host, redis_port, e
         )
-        return 3
+        return 4
 
     try:
         params_raw = redis_server.get(param_key)
         if params_raw is None:
             logger.error('Parameter key, "%s" does not exist.', param_key)
-            return 4
+            return 5
         logger.debug("params_key (%s): %r", param_key, params_raw)
         params_str = params_raw.decode("utf-8")
         # The expected parameters for this "data-sink" is what "channel" to
@@ -1010,14 +1167,14 @@ def main(argv):
         tool_group = params["group"]
     except Exception as ex:
         logger.error("Unable to fetch and decode parameter key, %s: %s", param_key, ex)
-        return 5
+        return 6
     else:
         if not benchmark_run_dir.is_dir():
             logger.error(
                 "Run directory argument, %s, must be a real directory.",
                 benchmark_run_dir,
             )
-            return 6
+            return 7
         logger.debug("Tool Data Sink parameters check out, daemonizing ...")
         redis_server.connection_pool.disconnect()
         del redis_server
@@ -1051,7 +1208,7 @@ def main(argv):
                     redis_port,
                     e,
                 )
-                return 7
+                return 8
             else:
                 logger.debug("constructed Redis() object")
 
