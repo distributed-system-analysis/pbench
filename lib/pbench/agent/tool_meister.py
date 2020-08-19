@@ -61,6 +61,39 @@ import redis
 from pbench.common.utils import md5sum
 import pbench.agent.toolmetadata as toolmetadata
 
+import ansible.constants as C
+from ansible.executor.task_queue_manager import TaskQueueManager
+from ansible.inventory.manager import InventoryManager
+from ansible.parsing.dataloader import DataLoader
+from ansible.playbook.play import Play
+from ansible.vars.manager import VariableManager
+
+# ansible constants
+ANSIBLE_CONF = "/etc/ansible/ansible.cfg"
+ANSIBLE_ROLES_PATH = "/etc/ansible/roles"
+PLAYBOOK_PATH = ""
+TOOLS_PMDA_MAPPING = {
+    "bpftrace": ["bpftrace"],
+    "cpuacct": ["cgroup"],
+    "disk": ["disk"],
+    "dmcache": ["disk", "dmcache"],
+    "docker": ["docker"],
+    "iostat": ["disk", "kernel"],
+    "kvmstat": ["kvm"],
+    "mpstat": ["kernel"],
+    "numastat": ["mem"],
+    "openvswitch": ["openvswitch"],
+    "pidstat": ["proc", "kernel"],
+    "proc-interrupts": ["kernel"],
+    "proc-sched_debug": ["proc"],
+    "proc-vmstat": ["mem"],
+    "qemu-migrate": ["libvirt"],
+    "rabbitmq": ["rabbitmq"],
+    "tcpdump": ["network"],
+    "turbostat": ["hinv"],
+    "virsh-migrate": ["libvirt"],
+    "vmstat": ["mem"],
+}
 
 # Path to external tar executable.
 tar_path = None
@@ -71,6 +104,243 @@ client_channel = "tool-meister-client"
 
 class ToolException(Exception):
     pass
+
+
+class PCPTools:
+    """ class for initializing, starting and stopping pcp tools """
+
+    def __init__(self, hosts, tool_pmda, logger):
+        """ constructor """
+        # store external variables
+        self.hosts = hosts
+        self.logger = logger
+        self.tool_pmda = tool_pmda
+        # initialize internal variables
+        self.roles_path = None
+        # first find the roles path
+        self.find_roles_path()
+        # second find if performance co-pilot role has been installed or not
+        # install if not
+        self.downloaded_role = False
+        self.download_role()
+
+        # ansible part
+        # initialize needed objects
+        self.loader = (
+            DataLoader()
+        )  # Takes care of finding and reading yaml, json and ini files
+        self.passwords = dict(vault_pass="secret")
+
+        self.sources = ",".join(self.hosts)
+
+        # create inventory, use path to host config file as source or hosts in a comma separated string
+        self.inventory = InventoryManager(loader=self.loader, sources=self.sources)
+
+        # variable manager takes care of merging all the different sources to give you a unified view of variables available in each context
+        self.variable_manager = VariableManager(
+            loader=self.loader, inventory=self.inventory
+        )
+
+    def find_roles_path(self):
+        """ find where roles are stored """
+        temp = None
+        resp = None
+
+        try:
+            with open(ANSIBLE_CONF, mode="r") as conf_file:
+                temp = conf_file.read()
+                self.logger.debug("contents of ansible conf file:%s", temp)
+        except FileNotFoundError:
+            self.logger.exception("ansible conf file does not exist")
+
+        for line in temp.split("\n"):
+            if "roles_path" in line:
+                resp = line
+
+        if resp is not None:
+            self.roles_path = resp.split("=")[-1].strip()
+            self.logger.debug("roles path:%s", self.roles_path)
+        else:
+            self.roles_path = ANSIBLE_ROLES_PATH
+            self.logger.error("not able to find roles path. setting it to default")
+
+    def download_role(self):
+        """ Download role if it does not exist in the localhost """
+        # build command for finding contents of roles path folder
+        command = "ls -lA " + self.roles_path
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
+        stdout, stderr = out.communicate()
+        # decode the output
+        output = stdout.decode()
+        self.logger.debug(
+            "output from command:%s is:%s\n and stderr:%s",
+            command,
+            stdout.decode(),
+            stderr,
+        )
+
+        # find if the required role exists or not
+        for line in output:
+            if "performancecopilot.pcp" in line:
+                # if it exists, return. Dont have to proceed
+                return
+
+        # given role does not exist. We have to download it from ansible galaxy
+        command = "ansible-galaxy install performancecopilot.pcp"
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
+        stdout, stderr = out.communicate()
+        # decode stderr
+        output_err = stderr
+        self.logger.debug(
+            "output from command:%s is:%s\n and stderr:%s",
+            command,
+            stdout.decode(),
+            stderr,
+        )
+
+        if output_err is not None:
+            self.logger.error("not able to download role. error:%s", output_err)
+
+        # was able to download successfully. set value to true
+        self.downloaded_role = True
+
+    def delete_role(self):
+        """ delete the downloaded role """
+        # create command to remove role
+        command = "ansible-galaxy remove performancecopilot.pcp"
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
+        stdout, stderr = out.communicate()
+        # decode stderr
+        output_err = stderr
+        self.logger.debug(
+            "output from command:%s is:%s\n and stderr:%s",
+            command,
+            stdout.decode(),
+            stderr,
+        )
+
+        if output_err is not None:
+            self.logger.error("not able to download role. error:%s", output_err)
+
+    def start(self):
+        """ start pcp tools """
+        self.logger.info("starting pcp tools")
+
+        # instantiate task queue manager, which takes care of forking and setting up all objects to iterate over host list and tasks
+        # IMPORTANT: This also adds library dirs paths to the module loader
+        # IMPORTANT: and so it must be initialized before calling `Play.load()`.
+        tqm = TaskQueueManager(
+            inventory=self.inventory,
+            variable_manager=self.variable_manager,
+            loader=self.loader,
+            passwords=self.passwords,
+        )
+        # create data structure that represents our play, including tasks, this is basically what our YAML loader does internally.
+        play_source = dict(
+            name="pcp start",
+            hosts=self.hosts,
+            gather_facts="yes",
+            become=True,
+            become_method="su",
+            become_user="root",
+            roles=["performancecopilot.pcp"],
+            vars=dict(pcp_optional_agents=self.tool_pmda,),
+        )
+
+        self.logger.debug("play source for starting pcp tools:%s", play_source)
+
+        # Create play object, playbook objects use .load instead of init or new methods,
+        # this will also automatically create the task objects from the info provided in play_source
+        play = Play().load(
+            play_source, variable_manager=self.variable_manager, loader=self.loader
+        )
+
+        # Actually run it
+        try:
+            tqm.run(play)
+            # most interesting data for a play is actually sent to the callback's methods
+        finally:
+            # we always need to cleanup child procs and the structures we use to communicate with them
+            tqm.cleanup()
+            if self.loader:
+                self.loader.cleanup_all_tmp_files()
+
+        # Remove ansible tmpdir
+        shutil.rmtree(C.DEFAULT_LOCAL_TMP, True)
+        # pcp tools started
+        self.logger.info("pcp tools started")
+
+    def stop(self):
+        """ stop pcp tools """
+        self.logger.info("stopping pcp tools")
+
+        # instantiate task queue manager, which takes care of forking and setting up all objects to iterate over host list and tasks
+        # IMPORTANT: This also adds library dirs paths to the module loader
+        # IMPORTANT: and so it must be initialized before calling `Play.load()`.
+        tqm = TaskQueueManager(
+            inventory=self.inventory,
+            variable_manager=self.variable_manager,
+            loader=self.loader,
+            passwords=self.passwords,
+        )
+
+        # create data structure that represents our play, including tasks, this is basically what our YAML loader does internally.
+        play_source = dict(
+            name="pcp stop",
+            hosts=self.hosts,
+            gather_facts="no",
+            become="true",
+            become_method="su",
+            become_user="root",
+            tasks=[
+                dict(
+                    action=dict(
+                        module="command", args=dict(cmd="systemctl disable pmcd ")
+                    )
+                ),
+                dict(
+                    action=dict(
+                        module="command", args=dict(cmd="systemctl disable pmie ")
+                    )
+                ),
+                dict(
+                    action=dict(
+                        module="command", args=dict(cmd="systemctl disable pmlogger ")
+                    )
+                ),
+            ],
+        )
+
+        self.logger.debug("play source for stopping pcp tools:%s", play_source)
+
+        # Create play object, playbook objects use .load instead of init or new methods,
+        # this will also automatically create the task objects from the info provided in play_source
+        play = Play().load(
+            play_source, variable_manager=self.variable_manager, loader=self.loader
+        )
+
+        # Actually run it
+        try:
+            tqm.run(play)
+            # most interesting data for a play is actually sent to the callback's methods
+        finally:
+            # we always need to cleanup child procs and the structures we use to communicate with them
+            tqm.cleanup()
+            if self.loader:
+                self.loader.cleanup_all_tmp_files()
+
+        # Remove ansible tmpdir
+        shutil.rmtree(C.DEFAULT_LOCAL_TMP, True)
+        # pcp tools stopped. remove role if it was downloaded
+        if self.downloaded_role:
+            self.delete_role()
+        self.logger.info("pcp tools stopped")
 
 
 class PersistentTool:
@@ -377,6 +647,7 @@ class ToolMeister(object):
             self._hostname,
             self._tools,
         ) = ret_val
+        self.pcp_tool = None
         self._running_tools = dict()
         self._persistent_tools = dict()
         self._rs = redis_server
@@ -571,9 +842,13 @@ class ToolMeister(object):
         """
         failures = 0
         tool_cnt = 0
+        pcp_pmda_list = []
         for name, tool_opts in self._tools.items():
-            if name not in self.persist_tools:
-                continue
+            if name not in self.prom_tools:
+                if name in TOOLS_PMDA_MAPPING.keys():
+                    pcp_pmda_list += TOOLS_PMDA_MAPPING[name]
+                else:
+                    continue
             tool_cnt += 1
             try:
                 persistent_tool = PersistentTool(name, tool_opts, self.logger)
@@ -588,6 +863,20 @@ class ToolMeister(object):
                 continue
             else:
                 self._persistent_tools[name] = persistent_tool
+
+        # initialize and start pcp tools
+        if len(pcp_pmda_list) > 0:
+            raw_json = self.redis_server.get(f"tds-{self.tool_group}")
+            json = raw_json.decode("utf-8")
+            hosts = json["host_tools_dict"].keys()
+            # remove duplicates from pcp_pmda_list
+            pcp_pmda_list = list(dict.fromkeys(pcp_pmda_list))
+            self.logger.debug("list of hosts:%s", hosts)
+
+            self.pcp_tool = PCPTools(hosts, pcp_pmda_list, self.logger)
+            self.pcp_tool.start()
+            self.logger.info("started pcp tools")
+
         if failures > 0:
             msg = f"{failures} of {tool_cnt} persistent tools failed to start"
             self._send_client_status(msg)
@@ -671,7 +960,9 @@ class ToolMeister(object):
         failures = 0
         tool_cnt = 0
         for name, tool_opts in sorted(self._tools.items()):
-            if name in self.persist_tools:
+            if name in self.prom_tools:
+                continue
+            if name in TOOLS_PMDA_MAPPING.keys():
                 continue
             tool_cnt += 1
             try:
@@ -708,7 +999,9 @@ class ToolMeister(object):
         """
         failures = 0
         for name in sorted(self._tools.keys()):
-            if name in self.persist_tools:
+            if name in self.prom_tools:
+                continue
+            if name in self.pcp_tool:
                 continue
             try:
                 tool = self._running_tools[name]
@@ -750,7 +1043,9 @@ class ToolMeister(object):
         failures = 0
         tool_cnt = 0
         for name in sorted(self._tools.keys()):
-            if name in self.persist_tools:
+            if name in self.prom_tools:
+                continue
+            if name in TOOLS_PMDA_MAPPING.keys():
                 continue
             tool_cnt += 1
             try:
@@ -773,8 +1068,6 @@ class ToolMeister(object):
         # Clean up the running tools data structure explicitly ahead of
         # potentially receiving another start tools.
         for name in sorted(self._tools.keys()):
-            if name in self.persist_tools:
-                continue
             try:
                 del self._running_tools[name]
             except KeyError:
@@ -807,11 +1100,6 @@ class ToolMeister(object):
         payload matches what was previously provided to a "start tools"
         action.
         """
-
-        if len(set(self._tools.keys()) - set(self.persist_tools)) == 0:
-            self._send_client_status("success")
-            return 0
-
         directory = data["directory"]
         try:
             tool_dir = self.directories[directory]
@@ -985,10 +1273,14 @@ class ToolMeister(object):
 
     def end_tools(self, data):
         """end_tools - stop all the persistent data collection tools."""
+        # stop pcp tools
+        self.pcp_tool.stop()
+        self.logger.info("ended pcp tools")
+
         failures = 0
         tool_cnt = 0
         for name in self._tools.keys():
-            if name not in self.persist_tools:
+            if name not in self.prom_tools:
                 continue
             tool_cnt += 1
             try:
@@ -1094,22 +1386,16 @@ def main(argv):
         redis_server.connection_pool.disconnect()
         del redis_server
 
-    # Before we daemonize, flush any data written to stdout or stderr.
-    sys.stderr.flush()
-    sys.stdout.flush()
-
     ret_val = 0
     pidfile_name = f"{param_key}.pid"
     pfctx = pidfile.PIDFile(pidfile_name)
-    with open(f"{param_key}.out", "w") as sofp, open(
-        f"{param_key}.err", "w"
-    ) as sefp, daemon.DaemonContext(
-        stdout=sofp,
-        stderr=sefp,
+    with daemon.DaemonContext(
+        stdout=sys.stdout,
+        stderr=sys.stderr,
         working_directory=os.getcwd(),
         umask=0o022,
         pidfile=pfctx,
-        files_preserve=[fh.stream.fileno()],
+        files_preserve=[sys.stdout, sys.stderr, fh.stream.fileno()],
     ):
         try:
             # Previously we validated the tool meister parameters, and in
