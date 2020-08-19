@@ -1,0 +1,24 @@
+#!/usr/bin/python3
+# -*- mode: python -*-
+
+import sys
+import os
+import logging
+
+PROG = os.path.basename(sys.argv[0])
+logger = logging.getLogger(PROG)
+logger.setLevel(logging.DEBUG)
+sh = logging.StreamHandler()
+sh.setLevel(logging.DEBUG)
+shf = logging.Formatter("%(message)s")
+sh.setFormatter(shf)
+logger.addHandler(sh)
+
+if len(sys.argv) != 2 or sys.argv[1] != "--help":
+    logger.info("This script is deprecated, please run it with --help for info on registering the tool.")
+    logger.info("Run /opt/pbench-agent/tool-scripts/pcptool --help for more info.")
+    exit(0)
+
+if sys.argv[1] == "--help":
+    logger.info("Options:")
+    logger.info("--inst=<LOCATION OF pcptool INSTALL> (required)")

@@ -345,16 +345,12 @@ def main(argv):
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process
     #   - FIXME: use podman to start a tool-data-sink container
+    host_tools_dict = dict()
+    for host in tool_group.hostnames.keys():
+        host_tools_dict[host] = tool_group.get_tools(host)
+
     tds_param_key = "tds-{}".format(group)
-<<<<<<< HEAD
-<<<<<<< HEAD
-    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group)
-=======
-    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir)
->>>>>>> First pass implementation of the "Tool Meister"
-=======
-    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group)
->>>>>>> Prometheus/Node_Exporter Full V1 Integration Commit
+    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group, host_tools_dict=host_tools_dict)
     try:
         redis_server.set(tds_param_key, json.dumps(tds, sort_keys=True))
     except Exception:
@@ -392,11 +388,8 @@ def main(argv):
     failures = 0
     successes = 0
     tool_meister_cmd = "pbench-tool-meister"
-<<<<<<< HEAD
     # NOTE: it is assumed that the location of the pbench-tool-meister command
     # is the same on the local host as it is on any remote host.
-=======
->>>>>>> First pass implementation of the "Tool Meister"
     tool_meister_cmd_path = _prog_dir / tool_meister_cmd
     ssh_cmd = "ssh"
     ssh_path = find_executable(ssh_cmd)

@@ -39,6 +39,7 @@ Available tools:
 	oc
 	openvswitch
 	pcp
+	pcptool
 	perf
 	pidstat
 	pprof
