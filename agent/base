@@ -126,6 +126,30 @@ if [[ -z "$scp_opts" ]]; then
     export scp_opts
 fi
 
+if [[ -z "$prom_reg" ]]; then
+    prom_reg=$(pbench-config prometheus container-registry)
+    if [[ -z "$prom_reg" ]]; then
+        prom_reg='quay.io/prometheus/prometheus'
+    fi
+    export prom_reg
+fi
+
+if [[ -z "$pmlogger_reg" ]]; then
+    pmlogger_reg=$(pbench-config pcp_pmlogger container-registry)
+    if [[ -z "$pmlogger_reg" ]]; then
+        pmlogger_reg='quay.io/pbench/pcp-pmlogger'
+    fi
+    export pmlogger_reg
+fi
+
+if [[ -z "$pmcd_reg" ]]; then
+    pmcd_reg=$(pbench-config pcp_pmcd container-registry)
+    if [[ -z "$pmcd_reg" ]]; then
+        pmcd_reg='quay.io/pbench/pcp-pmcd'
+    fi
+    export pmcd_reg
+fi
+
 function is_redhat() {
     grep -q 'Red Hat' /etc/redhat-release
     return $?

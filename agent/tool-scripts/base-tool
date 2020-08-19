@@ -91,9 +91,6 @@ oc)
 	longoptions="${longoptions},components:"
 	tool_package_name="atomic-openshift-clients"
 	;;
-pcp)
-	tool_package_name="pcp-system-tools"
-	;;
 perf)
 	def_record_opts="-a --freq=100"
 	record_opts="${def_record_opts}"
@@ -595,7 +592,7 @@ install)
 		return ${rc}
 	}
 	case "${tool}" in
-	bpftrace|haproxy-ocp|iostat|kvmtrace|mpstat|oc|pcp|perf|pidstat|pprof|prometheus-metrics|sar|turbostat)
+	bpftrace|haproxy-ocp|iostat|kvmtrace|mpstat|oc|perf|pidstat|pprof|prometheus-metrics|sar|turbostat)
 		require_rpm ${tool_package_name} ${tool_package_ver}
 		rc=${?}
 		;;
@@ -651,7 +648,7 @@ start)
 	oc)
 		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${components}"
 		;;
-	openvswitch|pcp)
+	openvswitch)
 		tool_cmd="${datalog_path}/${tool}-datalog ${tool_output_dir} ${interval}"
 		;;
 	perf)
@@ -811,7 +808,7 @@ stop)
 				fi
 				rc=${?}
 				;;
-			blktrace|bpftrace|iostat|mpstat|pcp|sar|systemtap|tcpdump|turbostat|vmstat)
+			blktrace|bpftrace|iostat|mpstat|sar|systemtap|tcpdump|vmstat)
 				safe_kill "${tool_name}" "${pid}"
 				rc=${?}
 				;;

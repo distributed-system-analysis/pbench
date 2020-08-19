@@ -1,1 +1,17 @@
-base-tool
+#!/usr/bin/python3
+# -*- mode: python -*-
+
+import sys
+import os
+
+PROG = os.path.basename(sys.argv[0])
+
+if len(sys.argv) != 2 or sys.argv[1] != "--help":
+    print(f"{PROG}: This script is deprecated, please run it with --help for info on registering the tool.", file=sys.stderr)
+    print(f"{PROG}: Run /opt/pbench-agent/tool-scripts/pcp --help for more info.", file=sys.stderr)
+    sys.exit(1)
+
+if sys.argv[1] == "--help":
+    print(f"{PROG}: Options:", file=sys.stdout)
+    print(f"{PROG}: No tool-specific options currently", file=sys.stdout)
+

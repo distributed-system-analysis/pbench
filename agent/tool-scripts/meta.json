@@ -20,7 +20,6 @@
 		"numastat": null,
 		"oc": null,
 		"openvswitch": null,
-		"pcp": null,
 		"perf": null,
 		"pidstat": null,
 		"pprof": null,
@@ -43,6 +42,7 @@
 
 	"persistent":{
 		"node-exporter": {"collector": "prometheus", "port": "9100"},
-		"dcgm": {"collector": "prometheus", "port": "8000"}
+		"dcgm": {"collector": "prometheus", "port": "8000"},
+		"pcp": {"collector": "pcp", "port": "44321"}
 	}
 }

@@ -161,7 +161,6 @@ tool-datalogs = \
 	numastat-datalog \
 	oc-datalog \
 	openvswitch-datalog \
-	pcp-datalog \
 	perf-datalog \
 	pidstat-convert \
 	pidstat-datalog \
@@ -197,7 +196,6 @@ tool-postprocess = \
 	mpstat-stop-postprocess \
 	numastat-postprocess \
 	openvswitch-postprocess \
-	pcp-postprocess \
 	perf-stop-postprocess \
 	pidstat-postprocess \
 	pidstat-postprocess-cdm \

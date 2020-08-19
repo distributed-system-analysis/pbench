@@ -48,6 +48,7 @@ import sys
 import tempfile
 import time
 
+from datetime import datetime
 from distutils.spawn import find_executable
 from pathlib import Path
 
@@ -58,6 +59,7 @@ from daemon import DaemonContext
 from redis.connection import SERVER_CLOSED_CONNECTION_ERROR
 
 import pbench.agent.toolmetadata as toolmetadata
+from pbench.agent import PbenchAgentConfig
 
 from pbench.common.utils import md5sum
 
@@ -137,10 +139,11 @@ class PersistentTool:
                 self.logger.debug("NOT FOUND SOMEHOW")
 
         self.process = None
+        self.podname = None
         self.failure = False
 
     def start(self):
-        if self.install_path is None:
+        if self.install_path is None and not self.name == "pcp":
             self.failure = True
             self.logger.error(
                 "No install path properly given as persistent tool option, see /opt/pbench-agent/nodexporter --help"
@@ -177,6 +180,45 @@ class PersistentTool:
 
             args = [f"python2 {script_path}"]
             self.process = subprocess.Popen(args, shell=True)
+        elif self.name == "pcp":
+            self.logger.debug("PMCD STARTUP")
+            try:
+                pcp_reg = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"]).pmcd_reg
+            except Exception as exc:
+                self.logger.error(
+                    "Unexpected error encountered logging pbench agent configuration: '%s'",
+                    exc,
+                )
+                self.failure = True
+                return 0
+
+            with open("pcp-meister.log", "w") as pcp_logs:
+                args = ["podman", "pull", pcp_reg]
+                try:
+                    pcp_pull = subprocess.Popen(args, stdout=pcp_logs, stderr=pcp_logs)
+                    pcp_pull.wait()
+                except Exception as exc:
+                    self.logger.error("Podman pull process failed: '%s'", exc)
+                    self.failure = True
+                    return 0
+                self.podname = "exposer" + datetime.now().strftime("%m-%d-%y-%H-%M-%S")
+                args = [
+                    "podman",
+                    "run",
+                    "--network",
+                    "host",
+                    "--name",
+                    self.podname,
+                    pcp_reg,
+                ]
+                try:
+                    self.process = subprocess.Popen(
+                        args, stdout=pcp_logs, stderr=pcp_logs
+                    )
+                except Exception as exc:
+                    self.logger.error("Podman run process failed: '%s'", exc)
+                    self.failure = True
+                    return 0
         else:
             self.logger.error("Invalid persistent tool name")
             self.failure = True
@@ -186,6 +228,18 @@ class PersistentTool:
 
     def stop(self):
         if not self.failure:
+            if self.name == "pcp":
+                args = [
+                    "podman",
+                    "kill",
+                    self.podname,
+                ]
+                try:
+                    pcp_kill = subprocess.Popen(args)
+                    pcp_kill.wait()
+                except Exception as exc:
+                    self.logger.error("Podman kill process failed: '%s'", exc)
+                    return 0
             self.process.terminate()
             self.process.wait()
             return 1
@@ -1421,6 +1475,13 @@ def main(argv):
         print("External 'pbench-sysinfo-dump' executable not found.", file=sys.stderr)
         return 3
 
+    if not os.environ.get("_PBENCH_UNIT_TESTS") and not find_executable("podman"):
+        print(
+            "Podman is not installed on this system (required by some tools, aborting launch)",
+            file=sys.stderr,
+        )
+        return 4
+
     try:
         redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
     except Exception as exc:
@@ -1428,13 +1489,13 @@ def main(argv):
             f"Unable to construct Redis client, {redis_host}:{redis_port}: {exc}",
             file=sys.stderr,
         )
-        return 4
+        return 5
 
     try:
         params_raw = redis_server.get(param_key)
         if params_raw is None:
             print(f'Parameter key, "{param_key}" does not exist.', file=sys.stderr)
-            return 5
+            return 6
         params_str = params_raw.decode("utf-8")
         params = json.loads(params_str)
         # Validate the tool meister parameters without constructing an object
@@ -1446,7 +1507,7 @@ def main(argv):
             f"Unable to fetch and decode parameter key, '{param_key}': {exc}",
             file=sys.stderr,
         )
-        return 6
+        return 7
 
     if daemonize == "yes":
         ret_val = daemon(
