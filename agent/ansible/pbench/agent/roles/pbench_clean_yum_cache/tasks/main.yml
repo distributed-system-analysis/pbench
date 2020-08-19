@@ -8,5 +8,3 @@
   file:
     path: /var/cache/yum
     state: absent
-
-

@@ -23,7 +23,7 @@
 
 - name: "pbench agent configuration - install config file(s)"
   include_role:
-    name: pbench-agent-files-install
+    name: pbench_agent_files_install
   vars:
     source: "{{ pbench_config_url }}"
     dest: "{{ pbench_config_dest }}"
@@ -34,7 +34,7 @@
 
 - name: "pbench agent configuration - install ssh key"
   include_role:
-    name: pbench-agent-files-install
+    name: pbench_agent_files_install
   vars:
     source: "{{ pbench_key_url }}"
     dest: "{{ pbench_key_dest }}"
@@ -42,4 +42,3 @@
     owner: "{{ pbench_owner }}"
     group: "{{ pbench_group }}"
     files: id_rsa
-

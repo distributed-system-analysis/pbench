@@ -1,6 +1,6 @@
 ---
 - import_role:
-    name: pbench-clean-yum-cache
+    name: pbench_clean_yum_cache
 
 - name: "Install RPMs"
   package:
@@ -9,4 +9,3 @@
   with_items:
     - pbench-agent
     - pbench-sysstat
-

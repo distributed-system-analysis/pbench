@@ -1,14 +1,13 @@
 ---
 - name: install pbench-agent config and key files
   hosts: servers
-  remote_user: root
   become: yes
   become_user: root
 
-  # The default value ('production') can be overriddent by cenv, a host-specific
+  # The default value ('production') can be overridden by cenv, a host-specific
   # inventory variable.
   vars:
     pbench_configuration_environment: "{{ cenv | default('production') }}"
 
   roles:
-    - pbench-agent-config
+    - pbench_agent_config
