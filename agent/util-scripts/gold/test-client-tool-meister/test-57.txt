@@ -260,7 +260,7 @@ INFO pbench-tool-meister main -- Remove pid file ... (tm-lite-testhost.example.c
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh remote_a.example.com pbench-tool-meister testhost.example.com 17001 tm-lite-remote_a.example.com
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh remote_b.example.com pbench-tool-meister testhost.example.com 17001 tm-lite-remote_b.example.com
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh remote_c.example.com pbench-tool-meister testhost.example.com 17001 tm-lite-remote_c.example.com
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh remote_a.example.com /usr/bin/screen -dm nohup pbench-tool-meister testhost.example.com 17001 tm-lite-remote_a.example.com
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh remote_b.example.com /usr/bin/screen -dm nohup pbench-tool-meister testhost.example.com 17001 tm-lite-remote_b.example.com
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh remote_c.example.com /usr/bin/screen -dm nohup pbench-tool-meister testhost.example.com 17001 tm-lite-remote_c.example.com
 --- test-execution.log file contents

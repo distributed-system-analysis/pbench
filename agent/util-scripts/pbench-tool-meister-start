@@ -390,10 +390,13 @@ def main(argv):
     args = [
         ssh_cmd,
         "<host replace me>",
+        "/usr/bin/screen",
+        "-dm",
+        "nohup",
         tool_meister_cmd,
         full_hostname,
         str(redis_port),
-        "<tm param key>",
+        "<tm param key>"
     ]
     ssh_pids = []
     for host in tool_group.hostnames.keys():
@@ -446,7 +449,7 @@ def main(argv):
                     failures += 1
             continue
         args[1] = host
-        args[5] = tm_param_key
+        args[8] = tm_param_key
         logger.debug(
             "starting remote tool meister, ssh_path=%r args=%r", ssh_path, args
         )
