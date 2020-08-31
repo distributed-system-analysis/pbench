@@ -543,22 +543,15 @@ def _get_es_hosts(config, logger):
     Return list of dicts (a single dict for now) - that's what ES is expecting.
     """
     try:
-        URL = config.get("Indexing", "server")
-    except NoSectionError:
+        host = config.get("elasticsearch", "host")
+        port = config.get("elasticsearch", "port")
+    except (NoSectionError, NoOptionError):
         logger.warning(
-            "Need an [Indexing] section with host and port defined"
-            " in {} configuration file",
+            "Failed to find an [elasticsearch] section with host and port defined"
+            " in {} configuration file.",
             " ".join(config.files),
         )
         return None
-    except NoOptionError:
-        try:
-            host = config.get("Indexing", "host")
-            port = config.get("Indexing", "port")
-        except NoOptionError:
-            return None
-    else:
-        host, port = URL.rsplit(":", 1)
     timeoutobj = Timeout(total=1200, connect=10, read=_read_timeout)
     return [
         dict(host=host, port=port, timeout=timeoutobj),

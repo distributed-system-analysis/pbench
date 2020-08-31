@@ -1,9 +1,15 @@
+"""
+Pbench Server API module -
+Provides middleware for remote clients, either the associated Pbench
+Dashboard or any number of pbench agent users.
+"""
+
 import os
 import sys
 import hashlib
+from pathlib import Path
 import requests
 
-from pathlib import Path
 from flask import request, jsonify, Flask, make_response
 from flask_restful import Resource, abort, Api
 from werkzeug.utils import secure_filename
@@ -18,6 +24,7 @@ app = None
 
 
 def allowed_file(filename):
+    """Check if the file has the correct extension."""
     try:
         fn = filename.rsplit(".", 1)[1].lower()
     except IndexError:
@@ -27,6 +34,9 @@ def allowed_file(filename):
 
 
 def register_endpoints(api, app):
+    """Register flask endpoints with the corresponding resource classes
+    to make the APIs active."""
+
     api.add_resource(Upload, f"{app.config['REST_URI']}/upload")
     api.add_resource(HostInfo, f"{app.config['REST_URI']}/host_info")
     api.add_resource(Elasticsearch, f"{app.config['REST_URI']}/elasticsearch")
@@ -34,6 +44,8 @@ def register_endpoints(api, app):
 
 
 def create_app():
+    """Create Flask app with defined resource endpoints."""
+
     global app
 
     cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
@@ -60,10 +72,18 @@ def create_app():
     app.config_graphql = config.conf["graphql"]
 
     prdp = app.config_server.get("pbench-receive-dir-prefix")
+    if not prdp:
+        app.logger.error("Missing config variable for pbench-receive-dir-prefix")
+        sys.exit(1)
     try:
         upload_directory = Path(f"{prdp}-002").resolve(strict=True)
+    except FileNotFoundError:
+        app.logger.exception("pbench-receive-dir-prefix does not exist on the host")
+        sys.exit(1)
     except Exception:
-        app.logger.error("Missing config variable for pbench-receive-dir-prefix")
+        app.logger.exception(
+            "Exception occurred during setting up the upload directory on the host"
+        )
         sys.exit(1)
     else:
         app.upload_directory = upload_directory
@@ -81,7 +101,7 @@ def create_app():
 
 def _build_cors_preflight_response():
     response = make_response()
-    response.headers.add("Access-Control-Allow-Origin", "*")
+    response = _corsify_actual_response(response)
     response.headers.add("Access-Control-Allow-Headers", "*")
     response.headers.add("Access-Control-Allow-Methods", "*")
     return response
@@ -92,15 +112,39 @@ def _corsify_actual_response(response):
     return response
 
 
-class GraphQL(Resource):
+class CorsOptionsRequest:
+    """
+    From the client side, an OPTIONS request is initiated before every POST to request CORS.
+    On the server side, the server must specify the response headers to grant CORS accordingly.
+    """
+
+    def __init__(self, options_exception_msg):
+        self.options_exception_msg = options_exception_msg
+
+    def options(self):
+        try:
+            response = _build_cors_preflight_response()
+        except Exception:
+            app.logger.exception(self.options_exception_msg)
+            abort(400, message=self.options_exception_msg)
+        response.status_code = 200
+        return response
+
+
+class GraphQL(Resource, CorsOptionsRequest):
+    """GraphQL API for post request via server."""
+
+    def __init__(self):
+        CorsOptionsRequest.__init__(self, "Bad options request for the GraphQL query")
+
     def post(self):
         global app
-        graphQL = app.config_graphql.get("server")
-        json_data = request.get_json()
+        graphQL = f"{app.config_graphql.get('host')}:{app.config_graphql.get('port')}"
+        json_data = request.get_json(silent=True)
 
         if not json_data:
-            app.logger.debug("Invalid query object")
-            abort(400, message="Invalid query object in request")
+            app.logger.error("GraphQL: Invalid json object %s", request.url)
+            abort(400, message="GraphQL: Invalid json object in request")
 
         try:
             # query GraphQL
@@ -109,69 +153,98 @@ class GraphQL(Resource):
             # construct response object
             response = make_response(response.text)
             response = _corsify_actual_response(response)
+
+        except requests.exceptions.ConnectionError:
+            app.logger.exception("Connection refused during the GraphQL post request")
+            abort(500, message="Network problem, could not post to GraphQL Endpoint")
+        except requests.exceptions.Timeout:
+            app.logger.exception("Connection timed out during the GraphQL post request")
+            abort(
+                500, message="Connection timed out, could not post to GraphQL Endpoint"
+            )
+        except requests.exceptions.InvalidURL:
+            app.logger.exception("Invalid url during the GraphQL post request")
+            abort(
+                500, message="Invalid GraphQL url, could not complete the post request"
+            )
         except Exception:
-            app.logger.exception("There was something wrong with the POST request.")
-            abort(500, message="There was something wrong with your graphql request")
+            app.logger.exception("Exception occurred during the GraphQL post request")
+            abort(500, message="Could not post to GraphQL endpoint")
+
         response.status_code = 200
         return response
 
-    # From the client side, an OPTIONS request is initiated before every POST to request CORS.
-    # On the server side, the server must specify the response headers to grant CORS accordingly.
 
-    def options(self):
-        try:
-            response = _build_cors_preflight_response()
-        except Exception:
-            app.logger.exception("There was something wrong with the OPTIONS request.")
-            abort(400, message="There was something wrong with your request")
-        response.status_code = 200
-        return response
+class Elasticsearch(Resource, CorsOptionsRequest):
+    """Elasticsearch API for post request via server."""
 
+    def __init__(self):
+        CorsOptionsRequest.__init__(
+            self, "Bad options request for the Elasticsearch query"
+        )
 
-class Elasticsearch(Resource):
     def post(self):
         global app
-        elasticsearch = app.config_elasticsearch.get("server")
-        json_data = request.get_json()
+        elasticsearch = f"{app.config_elasticsearch.get('host')}:{app.config_elasticsearch.get('port')}"
+        json_data = request.get_json(silent=True)
         if not json_data:
-            app.logger.debug("Invalid json object")
-            abort(400, message="Invalid json object in request")
+            app.logger.error(
+                "Elasticsearch: Invalid json object. Query: %s", request.url
+            )
+            abort(400, message="Elasticsearch: Invalid json object in request")
 
         if not json_data["indices"]:
-            app.logger.debug("Missing path")
-            abort(400, message="Missing path in request")
+            app.logger.error("Elasticsearch: Missing indices path in the post request")
+            abort(400, message="Missing indices path in the Elasticsearch request")
 
         try:
-            # query ElasticSearch
-            json_data = request.get_json()
+            # query Elasticsearch
             if "params" in json_data:
-                url = f"{elasticsearch}{json_data['indices']}?{json_data['params']}"
+                url = f"{elasticsearch}/{json_data['indices']}?{json_data['params']}"
             else:
-                url = f"{elasticsearch}{json_data['indices']}"
+                url = f"{elasticsearch}/{json_data['indices']}"
 
             if "payload" in json_data:
                 response = requests.post(url, json=json_data["payload"])
             else:
+                app.logger.info(
+                    "No payload found in Elasticsearch post request json data"
+                )
                 response = requests.get(url)
 
             # construct response object
             response = make_response(response.text)
             response = _corsify_actual_response(response)
-        except Exception:
-            app.logger.exception("There was something wrong with the POST request.")
-            abort(500, message="There was something wrong with your download request")
-        response.status_code = 200
-        return response
 
-    # From the client side, an OPTIONS request is initiated before every POST to request CORS.
-    # On the server side, the server must specify the response headers to grant CORS accordingly.
-
-    def options(self):
-        try:
-            response = _build_cors_preflight_response()
+        except requests.exceptions.ConnectionError:
+            app.logger.exception(
+                "Connection refused during the Elasticsearch post request"
+            )
+            abort(
+                500, message="Network problem, could not post to Elasticsearch Endpoint"
+            )
+        except requests.exceptions.Timeout:
+            app.logger.exception(
+                "Connection timed out during the Elasticsearch post request"
+            )
+            abort(
+                500,
+                message="Connection timed out, could not post to Elasticsearch Endpoint",
+            )
+        except requests.exceptions.InvalidURL:
+            app.logger.exception("Invalid url during the Elasticsearch post request")
+            abort(
+                500,
+                message="Invalid Elasticsearch url, could not complete the post request",
+            )
         except Exception:
-            app.logger.exception("There was something wrong with the OPTIONS request.")
-            abort(400, message="There was something wrong with your request")
+            app.logger.exception(
+                "Exception occurred during the Elasticsearch post request"
+            )
+            abort(
+                500, message="Could not post to Elasticsearch endpoint",
+            )
+
         response.status_code = 200
         return response
 
@@ -187,9 +260,7 @@ class HostInfo(Resource):
                 )
             )
         except Exception:
-            app.logger.exception(
-                "There was something wrong constructing the host info."
-            )
+            app.logger.exception("There was something wrong constructing the host info")
             abort(500, message="There was something wrong with your request")
         response.status_code = 200
         return response
