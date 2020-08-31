@@ -18,3 +18,5 @@ ChangeLog
 .pytest_cache/
 .venv
 .vscode
+Pipfile
+Pipfile.lock
