@@ -75,12 +75,14 @@ class PbenchServerConfig(PbenchConfig):
             self._unittests = bool(self._unittests)
 
         try:
-            self.elasticsearch = self.conf.get("elasticsearch", "server")
+            self.elasticsearch = f"{self.conf.get('elasticsearch', 'host')}:{self.conf.get('elasticsearch', 'port')}"
         except (NoOptionError, NoSectionError):
             self.elasticsearch = ""
 
         try:
-            self.graphql = self.conf.get("graphql", "server")
+            self.graphql = (
+                f"{self.conf.get('graphql', 'host')}:{self.conf.get('graphql', 'port')}"
+            )
         except (NoOptionError, NoSectionError):
             self.graphql = ""
 

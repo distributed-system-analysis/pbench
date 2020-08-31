@@ -34,6 +34,15 @@ server = elasticsearch.example.com:9280
 index_prefix = pbench
 bulk_action_count = 2000
 
+[elasticsearch]
+host = elasticsearch.example.com
+port = 0000
+
+# These should be overridden in the env-specific config file.
+[graphql]
+host = graphql.example.com
+port = 0000
+
 ###########################################################################
 # crontab roles
 

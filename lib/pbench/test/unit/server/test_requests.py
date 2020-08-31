@@ -19,12 +19,15 @@ class TestHostInfo:
         assert response.json.get("message") == expected_message
 
 
-class TestDownload:
+class TestElasticsearch:
     @staticmethod
     def test_json_object(client):
         response = client.post(f"{client.config['REST_URI']}/elasticsearch")
         assert response.status_code == 400
-        assert response.json.get("message") == "Invalid json object in request"
+        assert (
+            response.json.get("message")
+            == "Elasticsearch: Invalid json object in request"
+        )
 
     @staticmethod
     def test_empty_url_path(client):
@@ -32,18 +35,20 @@ class TestDownload:
             f"{client.config['REST_URI']}/elasticsearch", json={"indices": ""}
         )
         assert response.status_code == 400
-        assert response.json.get("message") == "Missing path in request"
+        assert (
+            response.json.get("message")
+            == "Missing indices path in the Elasticsearch request"
+        )
 
     @staticmethod
-    def test_invalid_url_path(client):
+    def test_bad_request(client):
         response = client.post(
             f"{client.config['REST_URI']}/elasticsearch",
             json={"indices": "some_invalid_url"},
         )
         assert response.status_code == 500
         assert (
-            response.json.get("message")
-            == "There was something wrong with your download request"
+            response.json.get("message") == "Could not post to Elasticsearch endpoint"
         )
 
 
@@ -52,7 +57,7 @@ class TestGraphQL:
     def test_json_object(client):
         response = client.post(f"{client.config['REST_URI']}/graphql")
         assert response.status_code == 400
-        assert response.json.get("message") == "Invalid query object in request"
+        assert response.json.get("message") == "GraphQL: Invalid json object in request"
 
 
 class TestUpload:
