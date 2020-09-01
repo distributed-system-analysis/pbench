@@ -361,7 +361,7 @@ class ToolMeister(object):
 
     def __init__(self, pbench_bin, params, redis_server, logger):
         self.logger = logger
-        self.prom_tools = ["node-exporter", "dcgm"]
+        self.persist_tools = ["node-exporter", "dcgm"]
         self.pbench_bin = pbench_bin
         ret_val = self.fetch_params(params)
         (
@@ -581,7 +581,7 @@ class ToolMeister(object):
         failures = 0
         tool_cnt = 0
         for name, tool_opts in self._tools.items():
-            if name not in self.prom_tools:
+            if name not in self.persist_tools:
                 continue
             tool_cnt += 1
             try:
@@ -678,7 +678,7 @@ class ToolMeister(object):
         failures = 0
         tool_cnt = 0
         for name, tool_opts in sorted(self._tools.items()):
-            if name in self.prom_tools:
+            if name in self.persist_tools:
                 continue
             tool_cnt += 1
             try:
@@ -709,7 +709,7 @@ class ToolMeister(object):
     def _wait_for_tools(self):
         failures = 0
         for name in sorted(self._tools.keys()):
-            if name in self.prom_tools:
+            if name in self.persist_tools:
                 continue
             try:
                 tool = self._running_tools[name]
@@ -751,7 +751,7 @@ class ToolMeister(object):
         failures = 0
         tool_cnt = 0
         for name in sorted(self._tools.keys()):
-            if name in self.prom_tools:
+            if name in self.persist_tools:
                 continue
             tool_cnt += 1
             try:
@@ -774,7 +774,7 @@ class ToolMeister(object):
         # Clean up the running tools data structure explicitly ahead of
         # potentially receiving another start tools.
         for name in sorted(self._tools.keys()):
-            if name in self.prom_tools:
+            if name in self.persist_tools:
                 continue
             try:
                 del self._running_tools[name]
@@ -808,6 +808,11 @@ class ToolMeister(object):
         payload matches what was previously provided to a "start tools"
         action.
         """
+
+        if len(set(self._tools.keys()) - set(self.persist_tools)) == 0:
+            self._send_client_status("success")
+            return 0
+
         directory = data["directory"]
         if self._hostname == self._controller:
             try:
@@ -998,7 +1003,7 @@ class ToolMeister(object):
         failures = 0
         tool_cnt = 0
         for name in self._tools.keys():
-            if name not in self.prom_tools:
+            if name not in self.persist_tools:
                 continue
             tool_cnt += 1
             try:
