@@ -14,6 +14,7 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Status, NoSuchKey
 from pbench.server.utils import md5sum, rename_tb_link, quarantine
+from pbench.server.tarball_state import TarState
 
 _NAME_ = "pbench-backup-tarballs"
 
@@ -282,6 +283,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
 
     tarlist = glob.iglob(os.path.join(config.ARCHIVE, "*", _linksrc, "*.tar.xz"))
     ntotal = nbackup_success = nbackup_fail = ns3_success = ns3_fail = nquaran = 0
+    tbstat = TarState(config, _NAME_)
 
     for tb in sorted(tarlist):
         ntotal += 1
@@ -290,6 +292,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             tar = Path(tb).resolve(strict=True)
         except FileNotFoundError:
             logger.error("Tarball link, '{}', does not resolve to a real location", tb)
+        tbstat.generateDict(Path(tar), _linksrc)
 
         logger.debug("Start backup of {}.", tar)
         # check tarball exist and it is a regular file
@@ -298,6 +301,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         else:
             # tarball does not exist or it is not a regular file
             quarantine(qdir, logger, tb)
+            tbstat.tbfailure(tar.name, qdir, "Tarball does not exist")
             nquaran += 1
             logger.error(
                 "Quarantine: {}, {} does not exist or it is not a regular file",
@@ -313,6 +317,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         else:
             # md5 file does not exist or it is not a regular file
             quarantine(qdir, logger, tb)
+            tbstat.tbfailure(tar.name, qdir, "md5 file does not exist")
             nquaran += 1
             logger.error(
                 "Quarantine: {}, {} does not exist or it is not a regular file",
@@ -328,6 +333,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         except Exception:
             # Could not read file.
             quarantine(qdir, logger, tb)
+            tbstat.tbfailure(tar.name, qdir, "md5sum from .md5 could not be read")
             nquaran += 1
             logger.exception("Quarantine: {}, Could not read {}", tb, archive_md5)
             continue
@@ -338,6 +344,9 @@ def backup_data(lb_obj, s3_obj, config, logger):
         except Exception:
             # Could not read file.
             quarantine(qdir, logger, tb)
+            tbstat.tbfailure(
+                tar.name, qdir, "md5sum sum from Tarball could not be read"
+            )
             nquaran += 1
             logger.exception("Quarantine: {}, Could not read {}", tb, tar)
             continue
@@ -345,6 +354,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
         if archive_tar_hex_value != archive_md5_hex_value:
             quarantine(qdir, logger, tb)
             nquaran += 1
+            tbstat.tbfailure(tar.name, qdir, "Md5sum does not match")
             logger.error(
                 "Quarantine: {}, md5sum of {} does not match with its md5 file {}",
                 tb,
@@ -375,6 +385,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             nbackup_success += 1
         elif local_backup_result == Status.FAIL:
             nbackup_fail += 1
+            tbstat.tbfailure(tar.name, qdir, "backup to local Failed")
         else:
             assert (
                 False
@@ -397,14 +408,15 @@ def backup_data(lb_obj, s3_obj, config, logger):
             ns3_success += 1
         elif s3_backup_result == Status.FAIL:
             ns3_fail += 1
+            tbstat.tbfailure(tar.name, qdir, "backup to s3 Failed")
         else:
             assert (
                 False
             ), f"Impossible situation, s3_backup_result = {s3_backup_result!r}"
-
         if local_backup_result == Status.SUCCESS and (
             s3_obj is None or s3_backup_result == Status.SUCCESS
         ):
+            tbstat.passedtb(Path(tb).name)
             # Move tar ball symlink to its final resting place
             rename_tb_link(tb, Path(controller_path, _linkdest), logger)
         else:
@@ -413,6 +425,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             pass
         logger.debug("End backup of {}.", tar)
 
+    tbstat.postreport(config.TS)
     return Results(
         ntotal=ntotal,
         nbackup_success=nbackup_success,
