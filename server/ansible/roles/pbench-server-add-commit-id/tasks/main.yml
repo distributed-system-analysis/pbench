@@ -3,7 +3,7 @@
   ini_file:
     path: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     section: pbench-server
-    option: commit-id
+    option: commit_id
     value: "{{ pbench_version }}-{{ pbench_seqno }}{{ pbench_sha1 }}"
     backup: yes
 
