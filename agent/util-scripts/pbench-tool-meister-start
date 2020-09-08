@@ -371,7 +371,8 @@ def main(argv):
 
     # 2.5. Add tool metadata json to redis
     #FIXME: ABSOLUTE PATH IS BAD (also add try/catch)
-    with open('/opt/pbench-agent/tool-scripts/meta.json') as json_file:
+    with Path("/opt/pbench-agent", "tool-scripts", "meta.json").open("r") as json_file:
+        #with open('/opt/pbench-agent/tool-scripts/meta.json') as json_file:
         metadata = json.load(json_file)
         redis_server.set("tool-metadata", json.dumps(metadata))
 
