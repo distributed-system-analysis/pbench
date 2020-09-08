@@ -369,6 +369,12 @@ def main(argv):
         ), f"bad channel: {resp!r}"
         assert resp["data"] == 1, f"bad data: {resp!r}"
 
+    # 2.5. Add tool metadata json to redis
+    #FIXME: ABSOLUTE PATH IS BAD (also add try/catch)
+    with open('/opt/pbench-agent/tool-scripts/meta.json') as json_file:
+        metadata = json.load(json_file)
+        redis_server.set("tool-metadata", json.dumps(metadata))
+
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process
     tds_param_key = "tds-{}".format(group)

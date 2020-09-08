@@ -361,9 +361,10 @@ class ToolMeister(object):
         else:
             return benchmark_run_dir, channel, controller, group, hostname, tools
 
-    def __init__(self, pbench_bin, params, redis_server, logger):
+    def __init__(self, pbench_bin, params, redis_server, tool_metadata, logger):
         self.logger = logger
-        self.persist_tools = ["node-exporter", "dcgm"]
+        self.persist_tools = ["node-exporter", "dcgm"] #DEPRICATED SOON
+        self.tool_metadata = tool_metadata
         self.pbench_bin = pbench_bin
         ret_val = self.fetch_params(params)
         (
@@ -1137,8 +1138,16 @@ def main(argv):
             #   a. handle graceful termination (TERM, INT, QUIT)
             #   b. log operational state (HUP maybe?)
 
+            #ADDING METADATA GRAB HERE
+            meta_raw = redis_server.get("tool-metadata")
+            if params_raw is None:
+                logger.error('Metadata was never loaded.')
+            meta_str = meta_raw.decode("utf-8")
+            tool_metadata = json.loads(meta_str)
+            logger.info(f"Metadata: {tool_metadata}")
+
             try:
-                tm = ToolMeister(pbench_bin, params, redis_server, logger)
+                tm = ToolMeister(pbench_bin, params, redis_server, tool_metadata, logger)
             except Exception:
                 logger.exception(
                     "Unable to construct the ToolMeister object with params, %r",
