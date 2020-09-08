@@ -1,4 +1,5 @@
 import errno
+from jinja2 import Environment, FileSystemLoader
 import json
 import logging
 import os
@@ -15,17 +16,6 @@ from pbench.agent.tools import ToolGroup
 # Port number is "One Tool" in hex 0x17001
 # FIXME: move to common area
 redis_port = 17001
-
-# Redis server configuration template for pbench's use
-redis_conf_tmpl = """bind {hostnames}
-daemonize yes
-dir {tm_dir}
-dbfilename pbench-redis.rdb
-logfile {tm_dir}/redis.log
-loglevel notice
-pidfile {tm_dir}/redis_{redis_port:d}.pid
-port {redis_port:d}
-"""
 
 # FIXME: this should be moved to a shared area
 channel = "tool-meister-chan"
@@ -95,9 +85,15 @@ class StartMixIn:
         # Create the Redis Server pbench-specific configuration file
         redis_conf = tm_dir / "redis.conf"
         redis_pid = tm_dir / f"redis_{redis_port:d}.pid"
+        file_loader = FileSystemLoader(
+            os.path.join(os.path.dirname(__file__), "templates")
+        )
+        env = Environment(loader=file_loader, keep_trailing_newline=True)
+        template = env.get_template("redis.template")
+        output = template.render(params)
         try:
             with redis_conf.open("w") as fp:
-                fp.write(redis_conf_tmpl.format(**params))
+                fp.write(output)
         except Exception:
             logger.exception("failed to create redis server configuration")
             return 1

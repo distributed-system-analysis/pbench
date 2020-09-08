@@ -1,0 +1,8 @@
+bind {{ hostnames }}
+daemonize yes
+dir {{ tm_dir }}
+dbfilename pbench-redis.rdb
+logfile {{ tm_dir }}/redis.log
+loglevel notice
+pidfile {{ tm_dir }}/redis_{{ redis_port }}.pid
+port {{ redis_port }}
