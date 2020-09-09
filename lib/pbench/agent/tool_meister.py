@@ -67,6 +67,50 @@ tar_path = None
 # FIXME: The client response channel should be in a shared constants module.
 client_channel = "tool-meister-client"
 
+class ToolMetadata:
+    def __init__(self, redis_server = None, install_path = None):
+        if not redis_server and not install_path:
+            print("Defaulting to /opt/pbench-agent")
+            self.mode = "json"
+            self.json = Path("/opt/pbench-agent", "tool-scripts", "meta.json")
+        elif redis_server:
+            self.mode = "redis"
+            self.redis_server = redis_server
+        else:
+            self.mode = "json"
+            self.json = Path(install_path, "tool-scripts", "meta.json")
+        self.data = None
+
+    #TODO: ADD BETTER ERROR CHECKING TO THIS METHOD
+    def getFullData(self):
+        if self.data:
+            return self.data
+
+        if self.mode == "json":
+            with self.json.open("r") as json_file:
+                metadata = json.load(json_file)
+                self.data = metadata
+        elif self.mode == "redis":
+            meta_raw = self.redis_server.get("tool-metadata")
+            if meta_raw is None:
+                print('Metadata was never loaded.')
+            meta_str = meta_raw.decode("utf-8")
+            metadata = json.loads(meta_str)
+            self.data = metadata
+        return self.data
+
+    def getPersistentTools(self):
+        if not self.data:
+            self.getFullData()
+
+        return list(self.data["persistent"].keys())
+
+    def getTransientTools(self):
+        if not self.data:
+            self.getFullData()
+
+        return list(self.data["transient"].keys())
+
 
 class ToolException(Exception):
     pass
@@ -361,10 +405,9 @@ class ToolMeister(object):
         else:
             return benchmark_run_dir, channel, controller, group, hostname, tools
 
-    def __init__(self, pbench_bin, params, redis_server, tool_metadata, logger):
+    def __init__(self, pbench_bin, params, redis_server, persist_tools, logger):
         self.logger = logger
-        self.persist_tools = ["node-exporter", "dcgm"] #DEPRICATED SOON
-        self.tool_metadata = tool_metadata
+        self.persist_tools = persist_tools
         self.pbench_bin = pbench_bin
         ret_val = self.fetch_params(params)
         (
@@ -1138,16 +1181,17 @@ def main(argv):
             #   a. handle graceful termination (TERM, INT, QUIT)
             #   b. log operational state (HUP maybe?)
 
-            #ADDING METADATA GRAB HERE
-            meta_raw = redis_server.get("tool-metadata")
-            if params_raw is None:
-                logger.error('Metadata was never loaded.')
-            meta_str = meta_raw.decode("utf-8")
-            tool_metadata = json.loads(meta_str)
+            #TEST
+            meta_class = ToolMetadata(redis_server=redis_server)
+            tool_metadata = meta_class.getFullData()
+            transient_tools = meta_class.getTransientTools()
+            persist_tools = meta_class.getPersistentTools()
             logger.info(f"Metadata: {tool_metadata}")
+            logger.info(f"Transient: {transient_tools}")
+            logger.info(f"Persistent: {persist_tools}")
 
             try:
-                tm = ToolMeister(pbench_bin, params, redis_server, tool_metadata, logger)
+                tm = ToolMeister(pbench_bin, params, redis_server, persist_tools, logger)
             except Exception:
                 logger.exception(
                     "Unable to construct the ToolMeister object with params, %r",
