@@ -8,12 +8,6 @@ import time
 
 import redis
 
-# port number is "One Tool" in hex 0x17001
-# FIXME: move to common area
-redis_port = 17001
-# FIXME: this should be moved to a shared area
-channel = "tool-meister-chan"
-
 
 class StopMixIn:
     def __init__(self, context):
@@ -40,10 +34,12 @@ class StopMixIn:
             return 1
 
         try:
-            redis_server = redis.Redis(host="localhost", port=redis_port, db=0)
+            redis_server = redis.Redis(host="localhost", port=self.redis_port, db=0)
         except Exception as e:
             logger.error(
-                "Unable to connect to redis server, localhost:%d: %r", redis_port, e
+                "Unable to connect to redis server, localhost:%d: %r",
+                self.redis_port,
+                e,
             )
             return 2
 
@@ -67,11 +63,13 @@ class StopMixIn:
 
         ret_val = 0
 
-        logger.debug("terminating %d pids at localhost:%d", expected_pids, redis_port)
+        logger.debug(
+            "terminating %d pids at localhost:%d", expected_pids, self.redis_port
+        )
         terminate_msg = dict(action="terminate", group=None, directory=None)
         try:
             num_present = redis_server.publish(
-                channel, json.dumps(terminate_msg, sort_keys=True)
+                self.channel, json.dumps(terminate_msg, sort_keys=True)
             )
         except Exception:
             logger.exception("Failed to publish terminate message")
@@ -108,7 +106,7 @@ class StopMixIn:
             # All was good so far, so we can terminate the redis server.
             try:
                 redis_server_pid_file = os.path.join(
-                    benchmark_run_dir, "tm", "redis_{:d}.pid".format(redis_port)
+                    benchmark_run_dir, "tm", "redis_{:d}.pid".format(self.redis_port)
                 )
                 try:
                     with open(redis_server_pid_file, "r") as fp:

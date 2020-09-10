@@ -13,12 +13,6 @@ import redis
 
 from pbench.agent.tools import ToolGroup
 
-# Port number is "One Tool" in hex 0x17001
-# FIXME: move to common area
-redis_port = 17001
-
-# FIXME: this should be moved to a shared area
-channel = "tool-meister-chan"
 
 # Maximum time to wait for the Redis server to respond.
 REDIS_MAX_WAIT = 60
@@ -77,14 +71,18 @@ class StartMixIn:
             hostnames = "localhost"
         else:
             hostnames = f"localhost {self.full_hostname}"
-        params = {"hostnames": hostnames, "tm_dir": tm_dir, "redis_port": redis_port}
+        params = {
+            "hostnames": hostnames,
+            "tm_dir": tm_dir,
+            "redis_port": self.redis_port,
+        }
 
         # 2. Start the Redis Server (config of port from agent config)
         #   - the Redis Server is requested to create the PID file
 
         # Create the Redis Server pbench-specific configuration file
         redis_conf = tm_dir / "redis.conf"
-        redis_pid = tm_dir / f"redis_{redis_port:d}.pid"
+        redis_pid = tm_dir / f"redis_{self.redis_port:d}.pid"
         file_loader = FileSystemLoader(
             os.path.join(os.path.dirname(__file__), "templates")
         )
@@ -117,9 +115,9 @@ class StartMixIn:
 
         try:
             timeout = time.time() + REDIS_MAX_WAIT
-            started_channel = "{}-start".format(channel)
+            started_channel = "{}-start".format(self.channel)
             redis_connection_state = "connecting"
-            redis_server = redis.Redis(host="localhost", port=redis_port, db=0)
+            redis_server = redis.Redis(host="localhost", port=self.redis_port, db=0)
             pubsub = redis_server.pubsub()
             while redis_connection_state == "connecting":
                 try:
@@ -138,7 +136,7 @@ class StartMixIn:
             logger.error(
                 "Unable to connect to redis server, %s:%d: %r",
                 "localhost",
-                redis_port,
+                self.redis_port,
                 exc,
             )
             return self.kill_redis_server(redis_pid)
@@ -154,7 +152,7 @@ class StartMixIn:
         #   - leave a PID file for the tool data sink process
         #   - FIXME: use podman to start a tool-data-sink container
         tds_param_key = "tds-{}".format(self.context.group)
-        tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir)
+        tds = dict(channel=self.channel, benchmark_run_dir=benchmark_run_dir)
         try:
             redis_server.set(tds_param_key, json.dumps(tds, sort_keys=True))
         except Exception:
@@ -171,7 +169,7 @@ class StartMixIn:
                 data_sink_path,
                 data_sink,
                 "localhost",
-                str(redis_port),
+                str(self.redis_port),
                 tds_param_key,
             )
         except Exception:
@@ -202,7 +200,7 @@ class StartMixIn:
             "<host replace me>",
             tool_meister_cmd,
             self.full_hostname,
-            str(redis_port),
+            str(self.redis_port),
             "<tm param key>",
         ]
         ssh_pids = []
@@ -218,7 +216,7 @@ class StartMixIn:
                 )
             tm = dict(
                 benchmark_run_dir=benchmark_run_dir,
-                channel=channel,
+                channel=self.channel,
                 controller=_controller,
                 group=self.context.group,
                 hostname=host,
@@ -240,7 +238,7 @@ class StartMixIn:
                         tool_meister_cmd_path,
                         tool_meister_cmd,
                         "localhost",
-                        str(redis_port),
+                        str(self.redis_port),
                         tm_param_key,
                     )
                 except Exception:
@@ -321,7 +319,7 @@ class StartMixIn:
             )
             try:
                 ret = redis_server.publish(
-                    channel, json.dumps(terminate_msg, sort_keys=True)
+                    self.channel, json.dumps(terminate_msg, sort_keys=True)
                 )
             except Exception:
                 logger.exception("Failed to publish terminate message")
