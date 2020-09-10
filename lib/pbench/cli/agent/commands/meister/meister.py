@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- mode: python -*-
 
 """pbench-tool-meister
@@ -204,8 +203,3 @@ def main(redis_host, redis_port, param_key):
                 logger.exception("Failed to remove pid file %s", pidfile_name)
 
     return ret_val
-
-
-if __name__ == "__main__":
-    status = main()
-    sys.exit(status)

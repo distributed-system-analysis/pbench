@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- mode: python -*-
 
 """pbench-tool-meister-client
@@ -208,8 +207,3 @@ def main(group, directory, action):
     pubsub.close()
 
     return ret_val
-
-
-if __name__ == "__main__":
-    status = main()
-    sys.exit(status)

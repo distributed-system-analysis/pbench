@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Example curl command sequence
 #
 #   $ md5sum tool-data.tar.xz > tool-data.tar.xz.md5
@@ -144,8 +142,3 @@ def main(redis_host, redis_port, param_key):
                 logger.exception("Failed to remove pid file %s", pidfile_name)
 
     return 0
-
-
-if __name__ == "__main__":
-    status = main()
-    sys.exit(status)
