@@ -167,7 +167,7 @@ class ClientMixIn:
                     ret_val = 1
                 else:
                     if kind == "ds":
-                        assert hostname != "ds", f"Logic Bomb! FIXME"
+                        assert hostname != "ds", "Logic Bomb! FIXME"
                         hostname = "ds"
                     else:
                         if hostname not in tracking:

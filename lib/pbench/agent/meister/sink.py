@@ -79,7 +79,7 @@ class DataSinkWsgiServer(ServerAdapter):
         self._logger = logger
 
     def run(self, app):
-        assert self._server is None, f"'run' method called twice"
+        assert self._server is None, "'run' method called twice"
         self._logger.debug("Making tool data sink WSGI server ...")
         self._server = make_server(self.host, self.port, app, **self.options)
         self._logger.debug("Running tool data sink WSGI server ...")
@@ -278,7 +278,7 @@ class ToolDataSink(Bottle):
         we are expecting to hear from all registered tool meisters.
         """
         assert self.state == "send", f"expected state 'send' not '{self.state}'"
-        assert self._tm_tracking is not None, f"Logic bomb! self._tm_tracking is None"
+        assert self._tm_tracking is not None, "Logic bomb! self._tm_tracking is None"
 
         done = False
         while not done:
