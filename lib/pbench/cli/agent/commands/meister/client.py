@@ -14,6 +14,8 @@ import sys
 import click
 import redis
 
+from pbench.cli.agent import CliContext, pass_cli_context
+
 # FIXME: move to common area
 redis_host = "localhost"
 # Port number is "One Tool" in hex 0x17001
@@ -27,11 +29,45 @@ cl_channel = "tool-meister-client"
 allowed_actions = ("start", "stop", "send", "kill")
 
 
+def group_option(f):
+    def callback(ctx, param, value):
+        clictx = ctx.ensure_object(CliContext)
+        clictx.group = value
+        return value
+
+    return click.argument(
+        "group", required=True, callback=callback, expose_value=False,
+    )(f)
+
+
+def directory_option(f):
+    def callback(ctx, param, value):
+        clictx = ctx.ensure_object(CliContext)
+        clictx.directory = value
+        return value
+
+    return click.argument(
+        "directory", required=True, callback=callback, expose_value=False,
+    )(f)
+
+
+def action_option(f):
+    def callback(ctx, param, value):
+        clictx = ctx.ensure_object(CliContext)
+        clictx.action = value
+        return value
+
+    return click.argument(
+        "operation", required=True, callback=callback, expose_value=False,
+    )(f)
+
+
 @click.command(help="")
-@click.argument("group", required=True)
-@click.argument("directory", required=True)
-@click.argument("action", required=True)
-def main(group, directory, action):
+@group_option
+@directory_option
+@action_option
+@pass_cli_context
+def main(ctxt):
     """Main program for the tool meister client."""
     PROG = os.path.basename(sys.argv[0])
     logger = logging.getLogger(PROG)
@@ -47,12 +83,12 @@ def main(group, directory, action):
     sh.setFormatter(shf)
     logger.addHandler(sh)
 
-    if action not in allowed_actions:
+    if ctxt.action not in allowed_actions:
         raise Exception(
-            f"Unrecognized action, '{action}', allowed actions are:"
+            f"Unrecognized action, '{ctxt.action}', allowed actions are:"
             f" {allowed_actions}"
         )
-    elif action == "kill":
+    elif ctxt.action == "kill":
         # FIXME: we need to implement the gritty method of killing all the
         # tool meisters, locally and remotely, and ensuring they are all
         # properly shut down.
@@ -130,7 +166,7 @@ def main(group, directory, action):
     # The caller of tool-meister-client must be sure the directory argument
     # is accessible by the tool-data-sink.
     logger.debug("publish %s", tm_channel)
-    msg = dict(action=action, group=group, directory=directory)
+    msg = dict(action=ctxt.action, group=ctxt.group, directory=ctxt.directory)
     try:
         num_present = redis_server.publish(tm_channel, json.dumps(msg))
     except Exception:

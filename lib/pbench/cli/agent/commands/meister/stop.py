@@ -17,6 +17,8 @@ import time
 import click
 import redis
 
+from pbench.cli.agent import pass_cli_context
+
 # port number is "One Tool" in hex 0x17001
 # FIXME: move to common area
 redis_port = 17001
@@ -38,7 +40,8 @@ def is_running(pid):
 
 
 @click.command(help="")
-def main():
+@pass_cli_context
+def main(ctxt):
     """Main program for the tool meister stop.
 
     This simply sends the "terminate" message to the redis server so that all

@@ -30,6 +30,7 @@ import click
 import redis
 
 from pbench.agent.tools import ToolGroup
+from pbench.cli.agent import CliContext, pass_cli_context
 
 # Port number is "One Tool" in hex 0x17001
 # FIXME: move to common area
@@ -142,9 +143,25 @@ def kill_redis_server(pid_file):
             return 1
 
 
+def group_option(f):
+    def callback(ctx, param, value):
+        clictx = ctx.ensure_object(CliContext)
+        clictx.group = value
+        return value
+
+    return click.argument(
+        "group",
+        default="default",
+        required=True,
+        callback=callback,
+        expose_value=False,
+    )(f)
+
+
 @click.command(help="")
-@click.argument("group", default="default", required=True)
-def main(group):
+@group_option
+@pass_cli_context
+def main(ctxt):
     """Main program for the tool meister start.
     """
     _prog = Path(sys.argv[0])
@@ -164,7 +181,7 @@ def main(group):
 
     # 1. Load the tool group data given the tool group argument
     try:
-        tool_group = ToolGroup(group)
+        tool_group = ToolGroup(ctxt.group)
     except Exception:
         logger.exception("failed to load tool group data")
         return 1
@@ -263,7 +280,7 @@ def main(group):
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process
     #   - FIXME: use podman to start a tool-data-sink container
-    tds_param_key = "tds-{}".format(group)
+    tds_param_key = "tds-{}".format(ctxt.group)
     tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir)
     try:
         redis_server.set(tds_param_key, json.dumps(tds, sort_keys=True))
@@ -328,11 +345,11 @@ def main(group):
             benchmark_run_dir=benchmark_run_dir,
             channel=channel,
             controller=_controller,
-            group=group,
+            group=ctxt.group,
             hostname=host,
             tools=tools,
         )
-        tm_param_key = "tm-{}-{}".format(group, host)
+        tm_param_key = "tm-{}-{}".format(ctxt.group, host)
         try:
             redis_server.set(tm_param_key, json.dumps(tm, sort_keys=True))
         except Exception:
@@ -422,7 +439,7 @@ def main(group):
 
     if failures > 0:
         logger.info("terminating tool meister startup due to failures")
-        terminate_msg = dict(action="terminate", group=group, directory=None)
+        terminate_msg = dict(action="terminate", group=ctxt.group, directory=None)
         try:
             ret = redis_server.publish(
                 channel, json.dumps(terminate_msg, sort_keys=True)

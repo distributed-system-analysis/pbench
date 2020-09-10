@@ -48,13 +48,48 @@ import pidfile
 import redis
 
 from pbench.agent.meister import Terminate, ToolMeister
+from pbench.cli.agent import CliContext, pass_cli_context
+
+
+def _redis_host(f):
+    def callback(ctx, param, value):
+        clictx = ctx.ensure_object(CliContext)
+        clictx.redis_host = value
+        return value
+
+    return click.argument(
+        "redis_host", required=True, callback=callback, expose_value=False,
+    )(f)
+
+
+def _redis_port(f):
+    def callback(ctx, param, value):
+        clictx = ctx.ensure_object(CliContext)
+        clictx.redis_port = value
+        return value
+
+    return click.argument(
+        "redis_port", required=True, callback=callback, expose_value=False,
+    )(f)
+
+
+def _param_key(f):
+    def callback(ctx, param, value):
+        clictx = ctx.ensure_object(CliContext)
+        clictx.param_key = value
+        return value
+
+    return click.argument(
+        "param_key", required=True, callback=callback, expose_value=False,
+    )(f)
 
 
 @click.command(help="")
-@click.argument("redis_host", required=True)
-@click.argument("redis_port", required=True)
-@click.argument("param_key", required=True)
-def main(redis_host, redis_port, param_key):
+@_redis_host
+@_redis_port
+@_param_key
+@pass_cli_context
+def main(ctxt):
     """Main program for the Tool Meister.
 
     This function is the simple driver for the tool meister behaviors,
@@ -71,7 +106,7 @@ def main(redis_host, redis_port, param_key):
     pbench_bin = os.environ["pbench_install_dir"]
 
     logger = logging.getLogger(PROG)
-    fh = logging.FileHandler(f"{param_key}.log")
+    fh = logging.FileHandler(f"{ctxt.param_key}.log")
     if os.environ.get("_PBENCH_UNIT_TESTS"):
         fmtstr = "%(levelname)s %(name)s %(funcName)s -- %(message)s"
     else:
@@ -90,19 +125,22 @@ def main(redis_host, redis_port, param_key):
     logger.setLevel(log_level)
 
     try:
-        redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+        redis_server = redis.Redis(host=ctxt.redis_host, port=ctxt.redis_port, db=0)
     except Exception as e:
         logger.error(
-            "Unable to construct Redis client, %s:%s: %s", redis_host, redis_port, e
+            "Unable to construct Redis client, %s:%s: %s",
+            ctxt.redis_host,
+            ctxt.redis_port,
+            e,
         )
         return 3
 
     try:
-        params_raw = redis_server.get(param_key)
+        params_raw = redis_server.get(ctxt.param_key)
         if params_raw is None:
-            logger.error('Parameter key, "%s" does not exist.', param_key)
+            logger.error('Parameter key, "%s" does not exist.', ctxt.param_key)
             return 4
-        logger.info("params_key (%s): %r", param_key, params_raw)
+        logger.info("params_key (%s): %r", ctxt.param_key, params_raw)
         params_str = params_raw.decode("utf-8")
         params = json.loads(params_str)
         # Validate the tool meister parameters without constructing an object
@@ -111,7 +149,7 @@ def main(redis_host, redis_port, param_key):
         ToolMeister.fetch_params(params)
     except Exception as exc:
         logger.error(
-            "Unable to fetch and decode parameter key, '%s': %s", param_key, exc
+            "Unable to fetch and decode parameter key, '%s': %s", ctxt.param_key, exc
         )
         return 5
     else:
@@ -123,10 +161,10 @@ def main(redis_host, redis_port, param_key):
     sys.stdout.flush()
 
     ret_val = 0
-    pidfile_name = f"{param_key}.pid"
+    pidfile_name = f"{ctxt.param_key}.pid"
     pfctx = pidfile.PIDFile(pidfile_name)
-    with open(f"{param_key}.out", "w") as sofp, open(
-        f"{param_key}.err", "w"
+    with open(f"{ctxt.param_key}.out", "w") as sofp, open(
+        f"{ctxt.param_key}.err", "w"
     ) as sefp, daemon.DaemonContext(
         stdout=sofp,
         stderr=sefp,
@@ -146,12 +184,14 @@ def main(redis_host, redis_port, param_key):
                 # NOTE: we have to recreate the connection to the redis
                 # service since all open file descriptors were closed as part
                 # of the daemonizing process.
-                redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+                redis_server = redis.Redis(
+                    host=ctxt.redis_host, port=ctxt.redis_port, db=0
+                )
             except Exception as e:
                 logger.error(
                     "Unable to connect to redis server, %s:%s: %s",
-                    redis_host,
-                    redis_port,
+                    ctxt.redis_host,
+                    ctxt.redis_port,
                     e,
                 )
                 return 6
