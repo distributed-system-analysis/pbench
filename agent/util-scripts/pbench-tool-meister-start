@@ -24,6 +24,7 @@ import os
 import signal
 import sys
 import time
+import pathlib
 
 from distutils.spawn import find_executable
 from pathlib import Path
@@ -370,9 +371,8 @@ def main(argv):
         assert resp["data"] == 1, f"bad data: {resp!r}"
 
     # 2.5. Add tool metadata json to redis
-    #FIXME: ABSOLUTE PATH IS BAD (also add try/catch)
-    with Path("/opt/pbench-agent", "tool-scripts", "meta.json").open("r") as json_file:
-        #with open('/opt/pbench-agent/tool-scripts/meta.json') as json_file:
+    tm_start_path = pathlib.Path(__file__).parent.absolute()
+    with Path(tm_start_path, "..", "tool-scripts", "meta.json").open("r") as json_file:
         metadata = json.load(json_file)
         redis_server.set("tool-metadata", json.dumps(metadata))
 

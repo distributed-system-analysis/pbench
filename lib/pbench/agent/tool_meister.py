@@ -68,9 +68,10 @@ tar_path = None
 client_channel = "tool-meister-client"
 
 class ToolMetadata:
-    def __init__(self, redis_server = None, install_path = None):
+    def __init__(self, logger, redis_server = None, install_path = None):
+        self.logger = logger
         if not redis_server and not install_path:
-            print("Defaulting to /opt/pbench-agent")
+            self.logger.debug("Defaulting to /opt/pbench-agent")
             self.mode = "json"
             self.json = Path("/opt/pbench-agent", "tool-scripts", "meta.json")
         elif redis_server:
@@ -81,35 +82,44 @@ class ToolMetadata:
             self.json = Path(install_path, "tool-scripts", "meta.json")
         self.data = None
 
-    #TODO: ADD BETTER ERROR CHECKING TO THIS METHOD
     def getFullData(self):
         if self.data:
             return self.data
 
         if self.mode == "json":
+            if not os.path.isfile(self.json):
+                self.logger.exception('There is no tool-scripts/meta.json in given install dir')
+                return None
             with self.json.open("r") as json_file:
                 metadata = json.load(json_file)
                 self.data = metadata
         elif self.mode == "redis":
             meta_raw = self.redis_server.get("tool-metadata")
             if meta_raw is None:
-                print('Metadata was never loaded.')
+                self.logger.exception('Metadata was never loaded into redis')
+                return None
             meta_str = meta_raw.decode("utf-8")
             metadata = json.loads(meta_str)
             self.data = metadata
         return self.data
 
-    def getPersistentTools(self):
+    def __dataCheck(self):
         if not self.data:
-            self.getFullData()
+            if not self.getFullData():
+                self.logger.exception(f"Unable to access data through {self.mode}")
+                return 0
+        else:
+                return 1
 
-        return list(self.data["persistent"].keys())
+    def getPersistentTools(self):
+        if self.__dataCheck():
+            return list(self.data["persistent"].keys())
+        return None
 
     def getTransientTools(self):
-        if not self.data:
-            self.getFullData()
-
-        return list(self.data["transient"].keys())
+        if self.__dataCheck():
+            return list(self.data["transient"].keys())
+        return None
 
 
 class ToolException(Exception):
@@ -1182,13 +1192,21 @@ def main(argv):
             #   b. log operational state (HUP maybe?)
 
             #TEST
-            meta_class = ToolMetadata(redis_server=redis_server)
+            #meta_class = ToolMetadata(logger, install_path = "broken")
+            #tool_metadata = meta_class.getFullData()
+            #transient_tools = meta_class.getTransientTools()
+            #persist_tools = meta_class.getPersistentTools()
+            #logger.info(f"Metadata JSON: {tool_metadata}")
+            #logger.info(f"Transient JSON: {transient_tools}")
+            #logger.info(f"Persistent JSON: {persist_tools}")
+
+            meta_class = ToolMetadata(logger, redis_server=redis_server)
             tool_metadata = meta_class.getFullData()
             transient_tools = meta_class.getTransientTools()
             persist_tools = meta_class.getPersistentTools()
-            logger.info(f"Metadata: {tool_metadata}")
-            logger.info(f"Transient: {transient_tools}")
-            logger.info(f"Persistent: {persist_tools}")
+            logger.debug(f"Metadata REDIS: {tool_metadata}")
+            logger.debug(f"Transient REDIS: {transient_tools}")
+            logger.debug(f"Persistent REDIS: {persist_tools}")
 
             try:
                 tm = ToolMeister(pbench_bin, params, redis_server, persist_tools, logger)
