@@ -42,8 +42,8 @@ import json
 import logging
 import os
 import sys
-from distutils.spawn import find_executable
 
+import click
 import daemon
 import pidfile
 import redis
@@ -51,7 +51,11 @@ import redis
 from pbench.agent.meister import Terminate, ToolMeister
 
 
-def main(argv):
+@click.command(help="")
+@click.argument("redis_host", required=True)
+@click.argument("redis_port", required=True)
+@click.argument("param_key", required=True)
+def main(redis_host, redis_port, param_key):
     """Main program for the Tool Meister.
 
     This function is the simple driver for the tool meister behaviors,
@@ -64,22 +68,8 @@ def main(argv):
     Returns 0 on success, > 0 when an error occurs.
 
     """
-    PROG = os.path.basename(argv[0])
-    pbench_bin = os.path.dirname(os.path.dirname(argv[0]))
-
-    try:
-        redis_host = argv[1]
-        redis_port = argv[2]
-        param_key = argv[3]
-    except IndexError as e:
-        print(f"Invalid arguments: {e}", file=sys.stderr)
-        return 1
-
-    global tar_path
-    tar_path = find_executable("tar")
-    if tar_path is None:
-        print(f"External 'tar' executable not found.", file=sys.stderr)
-        return 2
+    PROG = os.path.basename(sys.argv[0])
+    pbench_bin = os.environ["pbench_install_dir"]
 
     logger = logging.getLogger(PROG)
     fh = logging.FileHandler(f"{param_key}.log")
@@ -217,5 +207,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    status = main(sys.argv)
+    status = main()
     sys.exit(status)

@@ -15,6 +15,7 @@ import signal
 import sys
 import time
 
+import click
 import redis
 
 # port number is "One Tool" in hex 0x17001
@@ -37,7 +38,8 @@ def is_running(pid):
     return True
 
 
-def main(argv):
+@click.command(help="")
+def main():
     """Main program for the tool meister stop.
 
     This simply sends the "terminate" message to the redis server so that all
@@ -51,7 +53,7 @@ def main(argv):
     by ssh'ing into all the local/remote hosts and inspecting the system for
     any lingering processes.
     """
-    PROG = os.path.basename(argv[0])
+    PROG = os.path.basename(sys.argv[0])
     logger = logging.getLogger(PROG)
     if os.environ.get("_PBENCH_TOOL_MEISTER_STOP_LOG_LEVEL") == "debug":
         log_level = logging.DEBUG
@@ -166,5 +168,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    status = main(sys.argv)
+    status = main()
     sys.exit(status)

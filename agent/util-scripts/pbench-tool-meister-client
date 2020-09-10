@@ -12,6 +12,7 @@ import logging
 import os
 import sys
 
+import click
 import redis
 
 # FIXME: move to common area
@@ -27,10 +28,13 @@ cl_channel = "tool-meister-client"
 allowed_actions = ("start", "stop", "send", "kill")
 
 
-def main(argv):
-    """Main program for the tool meister client.
-    """
-    PROG = os.path.basename(argv[0])
+@click.command(help="")
+@click.argument("group", required=True)
+@click.argument("directory", required=True)
+@click.argument("action", required=True)
+def main(group, directory, action):
+    """Main program for the tool meister client."""
+    PROG = os.path.basename(sys.argv[0])
     logger = logging.getLogger(PROG)
 
     if os.environ.get("_PBENCH_TOOL_MEISTER_CLIENT_LOG_LEVEL") == "debug":
@@ -44,29 +48,16 @@ def main(argv):
     sh.setFormatter(shf)
     logger.addHandler(sh)
 
-    try:
-        group = argv[1]
-    except IndexError:
-        raise Exception("Missing group argument")
-    try:
-        directory = argv[2]
-    except IndexError:
-        raise Exception("Missing directory argument")
-    try:
-        action = argv[3]
-    except IndexError:
-        raise Exception("Missing action argument")
-    else:
-        if action not in allowed_actions:
-            raise Exception(
-                f"Unrecognized action, '{action}', allowed actions are:"
-                f" {allowed_actions}"
-            )
-        elif action == "kill":
-            # FIXME: we need to implement the gritty method of killing all the
-            # tool meisters, locally and remotely, and ensuring they are all
-            # properly shut down.
-            return 0
+    if action not in allowed_actions:
+        raise Exception(
+            f"Unrecognized action, '{action}', allowed actions are:"
+            f" {allowed_actions}"
+        )
+    elif action == "kill":
+        # FIXME: we need to implement the gritty method of killing all the
+        # tool meisters, locally and remotely, and ensuring they are all
+        # properly shut down.
+        return 0
 
     logger.debug("constructing Redis() object")
     try:
@@ -220,5 +211,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    status = main(sys.argv)
+    status = main()
     sys.exit(status)

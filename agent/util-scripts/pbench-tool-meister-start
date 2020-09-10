@@ -27,6 +27,7 @@ import time
 from distutils.spawn import find_executable
 from pathlib import Path
 
+import click
 import redis
 
 from pbench.agent.tools import ToolGroup
@@ -142,10 +143,12 @@ def kill_redis_server(pid_file):
             return 1
 
 
-def main(argv):
+@click.command(help="")
+@click.argument("group", default="default", required=True)
+def main(group):
     """Main program for the tool meister start.
     """
-    _prog = Path(argv[0])
+    _prog = Path(sys.argv[0])
     _prog_dir = _prog.parent
     PROG = _prog.name
     logger = logging.getLogger(PROG)
@@ -159,11 +162,6 @@ def main(argv):
     shf = logging.Formatter("%(message)s")
     sh.setFormatter(shf)
     logger.addHandler(sh)
-
-    try:
-        group = argv[1]
-    except IndexError:
-        group = "default"
 
     # 1. Load the tool group data given the tool group argument
     try:
@@ -461,5 +459,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    status = main(sys.argv)
+    status = main()
     sys.exit(status)
