@@ -43,6 +43,7 @@ import click
 
 from pbench.agent.meister.base import MeisterCommand
 from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli.agent.options import common_options
 
 
 class Meister(MeisterCommand):
@@ -87,6 +88,7 @@ def _param_key(f):
 
 
 @click.command(help="")
+@common_options
 @_redis_host
 @_redis_port
 @_param_key

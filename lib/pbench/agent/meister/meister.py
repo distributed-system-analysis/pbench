@@ -28,7 +28,6 @@ class MeisterMixIn:
 
         """
         PROG = os.path.basename(sys.argv[0])
-        pbench_bin = os.environ["pbench_install_dir"]
 
         logger = logging.getLogger(PROG)
         fh = logging.FileHandler(f"{self.context.param_key}.log")
@@ -134,7 +133,9 @@ class MeisterMixIn:
                 #   b. log operational state (HUP maybe?)
 
                 try:
-                    tm = ToolMeister(pbench_bin, params, redis_server, logger)
+                    tm = ToolMeister(
+                        self.pbench_install_dir, params, redis_server, logger
+                    )
                 except Exception:
                     logger.exception(
                         "Unable to construct the ToolMeister object with params, %r",

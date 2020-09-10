@@ -63,8 +63,6 @@ class StartMixIn:
 
         try:
             benchmark_run_dir = os.environ["benchmark_run_dir"]
-            hostname = os.environ["hostname"]
-            full_hostname = os.environ["full_hostname"]
         except Exception:
             logger.exception("failed to fetch parameters from the environment")
             return 1
@@ -76,19 +74,19 @@ class StartMixIn:
             except Exception:
                 logger.exception("failed to create the local tool meister directory")
                 return 1
-        if not full_hostname or not hostname:
+        if not self.full_hostname or not self.hostname:
             logger.error(
                 "ERROR - hostname ('%s') and full_hostname ('%s') environment"
                 " variables are required",
-                hostname,
-                full_hostname,
+                self.hostname,
+                self.full_hostname,
             )
             return 1
         if os.environ.get("_PBENCH_UNIT_TESTS"):
             # FIXME: this is an artifact of the unit test environment.
             hostnames = "localhost"
         else:
-            hostnames = f"localhost {full_hostname}"
+            hostnames = f"localhost {self.full_hostname}"
         params = {"hostnames": hostnames, "tm_dir": tm_dir, "redis_port": redis_port}
 
         # 2. Start the Redis Server (config of port from agent config)
@@ -207,20 +205,20 @@ class StartMixIn:
             ssh_cmd,
             "<host replace me>",
             tool_meister_cmd,
-            full_hostname,
+            self.full_hostname,
             str(redis_port),
             "<tm param key>",
         ]
         ssh_pids = []
         for host in tool_group.hostnames.keys():
             tools = tool_group.get_tools(host)
-            if host == full_hostname:
-                _controller = full_hostname
+            if host == self.full_hostname:
+                _controller = self.full_hostname
             else:
                 _controller = (
                     "localhost"
                     if os.environ.get("_PBENCH_UNIT_TESTS")
-                    else full_hostname
+                    else self.full_hostname
                 )
             tm = dict(
                 benchmark_run_dir=benchmark_run_dir,
@@ -238,7 +236,7 @@ class StartMixIn:
                     "failed to create tool meister parameter key in redis server"
                 )
                 return self.kill_redis_server(redis_pid)
-            if host == full_hostname:
+            if host == self.full_hostname:
                 logger.debug("starting localhost tool meister")
                 try:
                     retcode = os.spawnl(

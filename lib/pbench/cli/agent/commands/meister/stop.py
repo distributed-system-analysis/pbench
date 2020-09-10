@@ -11,6 +11,7 @@ import sys
 import click
 
 from pbench.cli.agent import pass_cli_context
+from pbench.cli.agent.options import common_options
 from pbench.agent.meister.base import MeisterCommand
 
 
@@ -23,6 +24,7 @@ class Stop(MeisterCommand):
 
 
 @click.command(help="")
+@common_options
 @pass_cli_context
 def main(ctxt):
     """Main program for the tool meister stop.

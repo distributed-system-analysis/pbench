@@ -20,8 +20,9 @@ import sys
 
 import click
 
-from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.agent.meister.base import MeisterCommand
+from pbench.cli.agent import CliContext, pass_cli_context
+from pbench.cli.agent.options import common_options
 
 
 class Start(MeisterCommand):
@@ -48,6 +49,7 @@ def group_option(f):
 
 
 @click.command(help="")
+@common_options
 @group_option
 @pass_cli_context
 def main(ctxt):

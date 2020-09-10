@@ -34,7 +34,6 @@ class StopMixIn:
         logger.addHandler(sh)
 
         try:
-            full_hostname = os.environ["full_hostname"]
             benchmark_run_dir = os.environ["benchmark_run_dir"]
         except Exception:
             logger.exception("failed to fetch parameters from the environment")
@@ -99,7 +98,7 @@ class StopMixIn:
                 time.sleep(0.1)
         if "tm" in tm_pids:
             for tm in tm_pids["tm"]:
-                if tm["hostname"] == full_hostname:
+                if tm["hostname"] == self.full_hostname:
                     pid = tm["pid"]
                     logger.debug("waiting for local tool-meister (%d) to exit", pid)
                     while self.is_running(pid):

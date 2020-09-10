@@ -52,10 +52,6 @@ class PbenchAgentConfig(PbenchConfig):
                     "pbench installation directory,"
                     f" '{self.pbench_install_dir}', does not exist"
                 )
-            try:
-                self.pbench_tmp.mkdir(parents=True, exist_ok=True)
-            except OSError as exc:
-                raise BadConfig(str(exc))
             self.pbench_bspp_dir = (
                 self.pbench_install_dir / "bench-scripts" / "postprocess"
             )
