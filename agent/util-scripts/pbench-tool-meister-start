@@ -24,12 +24,12 @@ import os
 import signal
 import sys
 import time
-
 from distutils.spawn import find_executable
 from pathlib import Path
 
 import redis
 
+from pbench.agent.tools import ToolGroup
 
 # Port number is "One Tool" in hex 0x17001
 # FIXME: move to common area
@@ -51,83 +51,6 @@ channel = "tool-meister-chan"
 
 # Maximum time to wait for the Redis server to respond.
 REDIS_MAX_WAIT = 60
-
-
-class ToolGroup(object):
-    tg_prefix = "tools-v1"
-
-    def __init__(self, group):
-        self.group = group
-        _pbench_run = os.environ["pbench_run"]
-        self.tg_dir = Path(_pbench_run, f"{self.tg_prefix}-{self.group}").resolve(
-            strict=True
-        )
-        if not self.tg_dir.is_dir():
-            raise Exception(
-                f"bad tool group, {group}: directory {self.tg_dir} does not exist"
-            )
-
-        # __trigger__
-        try:
-            _trigger = (self.tg_dir / "__trigger__").read_text()
-        except OSError as ex:
-            if ex.errno != errno.ENOENT:
-                raise
-            # Ignore missing trigger file
-            self.trigger = None
-        else:
-            if len(_trigger) == 0:
-                # Ignore empty trigger file contents
-                self.trigger = None
-            else:
-                self.trigger = _trigger
-
-        # toolnames - Dict with tool name as the key, dictionary with host
-        # names and parameters for each host
-        self.toolnames = {}
-        # hostnames - Dict with host name as the key, dictionary with tool
-        # names and parameters for each tool
-        self.hostnames = {}
-        self.labels = {}
-        for hdirent in os.listdir(self.tg_dir):
-            if hdirent == "__trigger__":
-                # Ignore handled above
-                continue
-            if not (self.tg_dir / hdirent).is_dir():
-                # Ignore wayward non-directory files
-                continue
-            # We assume this directory is a hostname.
-            host = hdirent
-            if host not in self.hostnames:
-                self.hostnames[host] = {}
-            for tdirent in os.listdir(self.tg_dir / host):
-                if tdirent == "__label__":
-                    self.labels[host] = (self.tg_dir / host / tdirent).read_text()
-                    continue
-                if tdirent.endswith("__noinstall__"):
-                    # FIXME: ignore "noinstall" for now, tools are going to be
-                    # in containers so this does not make sense going forward.
-                    continue
-                tool = tdirent
-                tool_opts = (self.tg_dir / host / tool).read_text()
-                if tool not in self.toolnames:
-                    self.toolnames[tool] = {}
-                self.toolnames[tool][host] = tool_opts
-
-    def get_tools(self, host):
-        """Given a target host, return a dictionary with the list of tool names
-        as keys, and the values being their options for that host.
-        """
-        tools = dict()
-        for tool, opts in self.toolnames.items():
-            try:
-                host_opts = opts[host]
-            except KeyError:
-                # This host does not have this tool registered, ignore.
-                pass
-            else:
-                tools[tool] = host_opts
-        return tools
 
 
 def wait_for_subs(chan, expected_tms, logger):

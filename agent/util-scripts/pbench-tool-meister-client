@@ -14,7 +14,6 @@ import sys
 
 import redis
 
-
 # FIXME: move to common area
 redis_host = "localhost"
 # Port number is "One Tool" in hex 0x17001

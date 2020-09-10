@@ -17,7 +17,6 @@ import time
 
 import redis
 
-
 # port number is "One Tool" in hex 0x17001
 # FIXME: move to common area
 redis_port = 17001
