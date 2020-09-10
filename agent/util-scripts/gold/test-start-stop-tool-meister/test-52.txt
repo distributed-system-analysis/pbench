@@ -65,9 +65,9 @@ port 17001
 +++ mock-run/tm/tm-mygroup-testhost.example.com.err file contents
 --- mock-run/tm/tm-mygroup-testhost.example.com.err file contents
 +++ mock-run/tm/tm-mygroup-testhost.example.com.log file contents
-INFO pbench-tool-meister main -- params_key (tm-mygroup-testhost.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "testhost.example.com", "group": "mygroup", "hostname": "testhost.example.com", "tools": {"mpstat": ""}}'
-INFO pbench-tool-meister main -- terminating
-INFO pbench-tool-meister main -- Remove pid file ... (tm-mygroup-testhost.example.com.pid)
+INFO pbench-tool-meister meister -- params_key (tm-mygroup-testhost.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "testhost.example.com", "group": "mygroup", "hostname": "testhost.example.com", "tools": {"mpstat": ""}}'
+INFO pbench-tool-meister meister -- terminating
+INFO pbench-tool-meister meister -- Remove pid file ... (tm-mygroup-testhost.example.com.pid)
 --- mock-run/tm/tm-mygroup-testhost.example.com.log file contents
 +++ mock-run/tm/tm-mygroup-testhost.example.com.out file contents
 --- mock-run/tm/tm-mygroup-testhost.example.com.out file contents

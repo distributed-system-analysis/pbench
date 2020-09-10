@@ -195,7 +195,7 @@ port 17001
 +++ mock-run/tm/tm-lite-remote_a.example.com.err file contents
 --- mock-run/tm/tm-lite-remote_a.example.com.err file contents
 +++ mock-run/tm/tm-lite-remote_a.example.com.log file contents
-INFO pbench-tool-meister main -- params_key (tm-lite-remote_a.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "localhost", "group": "lite", "hostname": "remote_a.example.com", "tools": {"mpstat": ""}}'
+INFO pbench-tool-meister meister -- params_key (tm-lite-remote_a.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "localhost", "group": "lite", "hostname": "remote_a.example.com", "tools": {"mpstat": ""}}'
 INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com 
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com 
 INFO pbench-tool-meister wait -- waiting for stop mpstat
@@ -204,15 +204,15 @@ INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbe
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com 
 INFO pbench-tool-meister wait -- waiting for stop mpstat
 INFO pbench-tool-meister send_tools -- remote_a.example.com: send_tools completed lite /var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_a.example.com
-INFO pbench-tool-meister main -- terminating
-INFO pbench-tool-meister main -- Remove pid file ... (tm-lite-remote_a.example.com.pid)
+INFO pbench-tool-meister meister -- terminating
+INFO pbench-tool-meister meister -- Remove pid file ... (tm-lite-remote_a.example.com.pid)
 --- mock-run/tm/tm-lite-remote_a.example.com.log file contents
 +++ mock-run/tm/tm-lite-remote_a.example.com.out file contents
 --- mock-run/tm/tm-lite-remote_a.example.com.out file contents
 +++ mock-run/tm/tm-lite-remote_b.example.com.err file contents
 --- mock-run/tm/tm-lite-remote_b.example.com.err file contents
 +++ mock-run/tm/tm-lite-remote_b.example.com.log file contents
-INFO pbench-tool-meister main -- params_key (tm-lite-remote_b.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "localhost", "group": "lite", "hostname": "remote_b.example.com", "tools": {"mpstat": ""}}'
+INFO pbench-tool-meister meister -- params_key (tm-lite-remote_b.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "localhost", "group": "lite", "hostname": "remote_b.example.com", "tools": {"mpstat": ""}}'
 INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com 
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com 
 INFO pbench-tool-meister wait -- waiting for stop mpstat
@@ -221,15 +221,15 @@ INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbe
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com 
 INFO pbench-tool-meister wait -- waiting for stop mpstat
 INFO pbench-tool-meister send_tools -- remote_b.example.com: send_tools completed lite /var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_b.example.com
-INFO pbench-tool-meister main -- terminating
-INFO pbench-tool-meister main -- Remove pid file ... (tm-lite-remote_b.example.com.pid)
+INFO pbench-tool-meister meister -- terminating
+INFO pbench-tool-meister meister -- Remove pid file ... (tm-lite-remote_b.example.com.pid)
 --- mock-run/tm/tm-lite-remote_b.example.com.log file contents
 +++ mock-run/tm/tm-lite-remote_b.example.com.out file contents
 --- mock-run/tm/tm-lite-remote_b.example.com.out file contents
 +++ mock-run/tm/tm-lite-remote_c.example.com.err file contents
 --- mock-run/tm/tm-lite-remote_c.example.com.err file contents
 +++ mock-run/tm/tm-lite-remote_c.example.com.log file contents
-INFO pbench-tool-meister main -- params_key (tm-lite-remote_c.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "localhost", "group": "lite", "hostname": "remote_c.example.com", "tools": {"mpstat": ""}}'
+INFO pbench-tool-meister meister -- params_key (tm-lite-remote_c.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "localhost", "group": "lite", "hostname": "remote_c.example.com", "tools": {"mpstat": ""}}'
 INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com 
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com 
 INFO pbench-tool-meister wait -- waiting for stop mpstat
@@ -238,15 +238,15 @@ INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbe
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com 
 INFO pbench-tool-meister wait -- waiting for stop mpstat
 INFO pbench-tool-meister send_tools -- remote_c.example.com: send_tools completed lite /var/tmp/tm.lite.NNNNN.nnnnnnnn/remote_c.example.com
-INFO pbench-tool-meister main -- terminating
-INFO pbench-tool-meister main -- Remove pid file ... (tm-lite-remote_c.example.com.pid)
+INFO pbench-tool-meister meister -- terminating
+INFO pbench-tool-meister meister -- Remove pid file ... (tm-lite-remote_c.example.com.pid)
 --- mock-run/tm/tm-lite-remote_c.example.com.log file contents
 +++ mock-run/tm/tm-lite-remote_c.example.com.out file contents
 --- mock-run/tm/tm-lite-remote_c.example.com.out file contents
 +++ mock-run/tm/tm-lite-testhost.example.com.err file contents
 --- mock-run/tm/tm-lite-testhost.example.com.err file contents
 +++ mock-run/tm/tm-lite-testhost.example.com.log file contents
-INFO pbench-tool-meister main -- params_key (tm-lite-testhost.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "testhost.example.com", "group": "lite", "hostname": "testhost.example.com", "tools": {"iostat": "", "mpstat": ""}}'
+INFO pbench-tool-meister meister -- params_key (tm-lite-testhost.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "testhost.example.com", "group": "lite", "hostname": "testhost.example.com", "tools": {"iostat": "", "mpstat": ""}}'
 INFO pbench-tool-meister start -- iostat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-iostat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com 
 INFO pbench-tool-meister start -- mpstat: start_tool -- /usr/bin/screen -dmS pbench-tool-lite-mpstat /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com 
 INFO pbench-tool-meister stop -- iostat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com 
@@ -261,8 +261,8 @@ INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils
 INFO pbench-tool-meister wait -- waiting for stop iostat
 INFO pbench-tool-meister wait -- waiting for stop mpstat
 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-lite/testhost.example.com
-INFO pbench-tool-meister main -- terminating
-INFO pbench-tool-meister main -- Remove pid file ... (tm-lite-testhost.example.com.pid)
+INFO pbench-tool-meister meister -- terminating
+INFO pbench-tool-meister meister -- Remove pid file ... (tm-lite-testhost.example.com.pid)
 --- mock-run/tm/tm-lite-testhost.example.com.log file contents
 +++ mock-run/tm/tm-lite-testhost.example.com.out file contents
 --- mock-run/tm/tm-lite-testhost.example.com.out file contents
