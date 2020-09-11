@@ -88,6 +88,9 @@ class BaseCommand(metaclass=abc.ABCMeta):
         }
         for k, v in pbench_env.items():
             os.environ[k] = v
+    
+    def tool_group_dir(self, group):
+        return Path(self.pbench_run, f"tools-v1-{group}")
 
     @abc.abstractclassmethod
     def execute(self):

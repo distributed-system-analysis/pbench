@@ -3,6 +3,7 @@ START FOO:STOP FOO
 --- Finished test-18 pbench-list-triggers (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-default
 /var/tmp/pbench-test-utils/pbench/tools-v1-default/__trigger__
@@ -29,3 +30,5 @@ START DEFAULT:STOP DEFAULT
 START FOO:STOP FOO
 === /var/tmp/pbench-test-utils/pbench/tools-v1-foo/testhost.example.com/iostat:
 --- pbench tree state
++++ pbench.log file contents
+--- pbench.log file contents
