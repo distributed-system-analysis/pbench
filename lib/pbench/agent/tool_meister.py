@@ -88,7 +88,7 @@ class ToolMetadata:
 
         if self.mode == "json":
             if not os.path.isfile(self.json):
-                self.logger.exception('There is no tool-scripts/meta.json in given install dir')
+                self.logger.error('There is no tool-scripts/meta.json in given install dir')
                 return None
             with self.json.open("r") as json_file:
                 metadata = json.load(json_file)
@@ -96,7 +96,7 @@ class ToolMetadata:
         elif self.mode == "redis":
             meta_raw = self.redis_server.get("tool-metadata")
             if meta_raw is None:
-                self.logger.exception('Metadata was never loaded into redis')
+                self.logger.error('Metadata was never loaded into redis')
                 return None
             meta_str = meta_raw.decode("utf-8")
             metadata = json.loads(meta_str)
@@ -106,10 +106,9 @@ class ToolMetadata:
     def __dataCheck(self):
         if not self.data:
             if not self.getFullData():
-                self.logger.exception(f"Unable to access data through {self.mode}")
+                self.logger.error(f"Unable to access data through {self.mode}")
                 return 0
-        else:
-                return 1
+        return 1
 
     def getPersistentTools(self):
         if self.__dataCheck():
@@ -415,9 +414,10 @@ class ToolMeister(object):
         else:
             return benchmark_run_dir, channel, controller, group, hostname, tools
 
-    def __init__(self, pbench_bin, params, redis_server, persist_tools, logger):
+    def __init__(self, pbench_bin, params, redis_server, logger):
         self.logger = logger
-        self.persist_tools = persist_tools
+        self.tool_metadata = ToolMetadata(self.logger, redis_server=redis_server)
+        self.persist_tools = self.tool_metadata.getPersistentTools()
         self.pbench_bin = pbench_bin
         ret_val = self.fetch_params(params)
         (
@@ -1191,25 +1191,8 @@ def main(argv):
             #   a. handle graceful termination (TERM, INT, QUIT)
             #   b. log operational state (HUP maybe?)
 
-            #TEST
-            #meta_class = ToolMetadata(logger, install_path = "broken")
-            #tool_metadata = meta_class.getFullData()
-            #transient_tools = meta_class.getTransientTools()
-            #persist_tools = meta_class.getPersistentTools()
-            #logger.info(f"Metadata JSON: {tool_metadata}")
-            #logger.info(f"Transient JSON: {transient_tools}")
-            #logger.info(f"Persistent JSON: {persist_tools}")
-
-            meta_class = ToolMetadata(logger, redis_server=redis_server)
-            tool_metadata = meta_class.getFullData()
-            transient_tools = meta_class.getTransientTools()
-            persist_tools = meta_class.getPersistentTools()
-            logger.debug(f"Metadata REDIS: {tool_metadata}")
-            logger.debug(f"Transient REDIS: {transient_tools}")
-            logger.debug(f"Persistent REDIS: {persist_tools}")
-
             try:
-                tm = ToolMeister(pbench_bin, params, redis_server, persist_tools, logger)
+                tm = ToolMeister(pbench_bin, params, redis_server, logger)
             except Exception:
                 logger.exception(
                     "Unable to construct the ToolMeister object with params, %r",
