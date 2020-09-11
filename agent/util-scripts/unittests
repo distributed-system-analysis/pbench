@@ -427,7 +427,7 @@ declare -A options=(
     [test-31]="--prefix=foo/bar --user=ndk"
     [test-32]="--help"
     [test-34]="--help"
-    [test-35]="--group=default --start-trigger=\"START:DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
+    [test-35]='--group=default --start-trigger="START:DEFAULT" --stop-trigger="STOP DEFAULT"'
     [test-36]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP:DEFAULT\""
     [test-37]="--prefix="
     [test-38]="--user="

@@ -1,5 +1,5 @@
 +++ Running test-15 pbench-register-tool-trigger --group=default --start-trigger="START DEFAULT" --stop-trigger="STOP DEFAULT"
-tool trigger strings for start: "START DEFAULT" and for stop: "STOP DEFAULT" are now registered for tool group: "default"
+tool trigger strings for start: "START DEFAULT" and for stop: "START DEFAULT" are now registered for tool group: "default"
 --- Finished test-15 pbench-register-tool-trigger (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

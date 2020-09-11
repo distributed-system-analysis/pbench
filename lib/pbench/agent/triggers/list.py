@@ -19,7 +19,3 @@ class ListMixIn:
                 tg_dir = tg_dir / "__trigger__"
                 if tg_dir.exists():
                     print("%s: %s" % (name, tg_dir.read_text().strip()))
-    
-    @property
-    def groups(self):
-        return [p for p in self.pbench_run.glob('tools-v1-*')]

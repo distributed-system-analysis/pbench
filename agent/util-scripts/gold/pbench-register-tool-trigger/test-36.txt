@@ -3,7 +3,6 @@ pbench-register-tool-trigger: the stop trigger cannot have a colon in it: "STOP:
 --- Finished test-36 pbench-register-tool-trigger (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
-/var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-default
 /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/pidstat
