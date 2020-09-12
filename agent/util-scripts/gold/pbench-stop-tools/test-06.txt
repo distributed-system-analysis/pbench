@@ -8,7 +8,6 @@
 /var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-default/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-default/testhost.example.com/iostat
 /var/tmp/pbench-test-utils/pbench/42-iter/sample42/tools-default/testhost.example.com/iostat/iostat-stdout.txt
-/var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-default
 /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/kvmstat
@@ -16,5 +15,5 @@
 --interval="30"
 --- pbench tree state
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-tool-meister-client default 42-iter/sample42/tools-default stop
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=42-iter/sample42
 --- test-execution.log file contents

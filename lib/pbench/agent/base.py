@@ -91,6 +91,10 @@ class BaseCommand(metaclass=abc.ABCMeta):
     
     def tool_group_dir(self, group):
         return Path(self.pbench_run, f"tools-v1-{group}")
+    
+    @property
+    def groups(self):
+        return [p for p in self.pbench_run.glob('tools-v1-*')]
 
     @abc.abstractclassmethod
     def execute(self):

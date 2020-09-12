@@ -1,7 +1,9 @@
 +++ Running test-09 pbench-kill-tools --group=barfoo
-ERROR: required directory argument missing.
---- Finished test-09 pbench-kill-tools (status=1)
+Usage: pbench-kill-tools [OPTIONS]
+Try 'pbench-kill-tools --help' for help.
+
+Error: Missing option '-g' / '--dir'.
+--- Finished test-09 pbench-kill-tools (status=2)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
-/var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state

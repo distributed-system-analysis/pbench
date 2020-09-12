@@ -1,7 +1,9 @@
 +++ Running test-10 pbench-kill-tools --dir=barfoo
-	pbench-kill-tools: invalid --group option ("default"), directory not found: /var/tmp/pbench-test-utils/pbench/tools-v1-default
 --- Finished test-10 pbench-kill-tools (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
++++ pbench.log file contents
+--- pbench.log file contents
