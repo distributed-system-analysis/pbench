@@ -1,0 +1,16 @@
++++ Running test-12 pbench-clear-tools 
+[36mAll tools removed from fubar[0m
+[36mRemoved "mpstat" from host, "testhost.example.com", in tools group, "default"[0m
+[36mAll tools removed from testhost.example.com[0m
+--- Finished test-12 pbench-clear-tools (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+--- pbench tree state
++++ pbench.log file contents
+[INFO][1900-01-01T00:00:00.000000] All tools removed from fubar
+[INFO][1900-01-01T00:00:00.000000] Removed "mpstat" from host, "testhost.example.com", in tools group, "default"
+[INFO][1900-01-01T00:00:00.000000] All tools removed from testhost.example.com
+--- pbench.log file contents

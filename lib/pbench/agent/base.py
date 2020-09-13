@@ -95,6 +95,9 @@ class BaseCommand(metaclass=abc.ABCMeta):
     @property
     def groups(self):
         return [p for p in self.pbench_run.glob('tools-v1-*')]
+    
+    def remotes(self, dir):
+        return [p for p in dir.iterdir() if p.name != "__trigger__"]
 
     @abc.abstractclassmethod
     def execute(self):
