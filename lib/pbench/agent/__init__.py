@@ -23,6 +23,7 @@ class PbenchAgentConfig(PbenchConfig):
             # Provide a few convenience attributes.
             self.agent = self.conf["pbench-agent"]
             self.results = self.conf["results"]
+            self.pbench_conf = cfg_name
             # Now fetch some default common pbench settings that are required.
             self.pbench_run = Path(
                 self.conf.get(
