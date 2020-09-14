@@ -42,7 +42,7 @@
 	},
 
 	"persistent":{
-		"node-exporter": null,
-		"dcgm": null
+		"node-exporter": "prometheus",
+		"dcgm": "prometheus"
 	}
 }

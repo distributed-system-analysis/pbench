@@ -22,6 +22,10 @@ import subprocess
 import sys
 import tempfile
 
+#import importlib
+#toolmeister = importlib.import_module("pbench-tool-meister")
+from modules import metaclass
+
 from distutils.spawn import find_executable
 from http import HTTPStatus
 from pathlib import Path
