@@ -57,6 +57,7 @@ function crontab_header() {
     local mailfrom mailto
 
     echo "_PBENCH_SERVER_CONFIG=$_PBENCH_SERVER_CONFIG" >> $crontab
+    echo "PYTHONPATH=$(pbench-config lib-dir pbench-server)" >> $crontab
 
     mailto=$(pbench-config mailto pbench-server)
     if [ -z "$mailto" ] ;then
