@@ -19,9 +19,10 @@ INSTALLOPTS = --directory
 	install-dirs \
 	install-v0.2 \
 	install-v0.3 \
+	install-makefile \
 	clean
 
-install: install-dirs install-v0.2 install-v0.3
+install: install-dirs install-v0.2 install-v0.3 install-makefile
 	${COPY} package.json ${DESTDIR}
 	${COPY} VERSION ${DESTDIR}
 
@@ -43,6 +44,15 @@ install-v0.3:
 	${COPY} v0.3/LICENSE.TXT ${DESTDIR}/js/v0.3
 	${COPY} v0.3/css/* ${DESTDIR}/css/v0.3
 	${COPY} v0.3/js/* ${DESTDIR}/js/v0.3
+
+install-makefile:
+	${COPY} Makefile ${DESTDIR}
+
+# This is used by the spec file: it just copies the installed structure over without
+# any modifications.
+clone:
+	${INSTALL} ${INSTALLOPTS} ${DESTDIR}
+	${COPY} -r . ${DESTDIR}
 
 clean:
 	rm -rf ${DESTDIR}

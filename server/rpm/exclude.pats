@@ -1,0 +1,10 @@
+gold
+samples
+state/
+unittests
+test-bin
+bin/Makefile
+bin/es
+bin/utils
+lib/pbench/mock.py
+ansible/
