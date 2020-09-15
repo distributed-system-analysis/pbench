@@ -1,6 +1,8 @@
+# DESTDIR *must* be overwritten from the command line
+DESTDIR=/dev/null
+
 # settings - hardwired, but they could be set from the config file or
 # from the command line.
-DESTDIR=/opt/pbench-server
 OWNER=pbench
 GROUP=pbench
 
@@ -10,60 +12,21 @@ LIBDIR=${DESTDIR}/lib
 
 # commands used below
 COPY    = cp -a
+RM      = rm
 CHOWN   = chown -R ${OWNER}.${GROUP}
+LINK	= ln -s
 INSTALL = install
 #INSTALLOPTS = --mode 755 --directory --owner=${OWNER} --group=${GROUP}
 INSTALLOPTS = --directory
 
-# all the scripts that's fit to install
-binbase = \
-	pbench-base.py\
-	pbench-base.sh
-
-# pbench-server-activate-create-crontab is needed by the ansible installation playbook.
-# pbench-remote*, pbench-satelliter-state-change.py and pbench-server-set-result-state
-# are needed on satellites, but we install them everywhere.
-bintools = \
-	pbench-trampoline\
-	pbench-pp-status\
-	pbench-server-activate-create-crontab\
-	pbench-remote-satellite-state-change\
-	pbench-remote-sync-package-tarballs\
-	pbench-satellite-state-change.py\
-	pbench-server-set-result-state\
-	getconf.py
-
-# All of these should be linked to pbench-trampoline.
-# In addition, each one has a companion (either .sh or .py)
-# which needs to be installed as well.
-binlinks = \
-	pbench-audit-server\
-	pbench-backup-tarballs\
-	pbench-check-tb-age\
-	pbench-clean-up-dangling-results-links\
-	pbench-copy-sosreports\
-	pbench-cull-unpacked-tarballs\
-	pbench-dispatch\
-	pbench-index\
-	pbench-reindex\
-	pbench-report-status\
-	pbench-satellite-cleanup\
-	pbench-satellite-state-change\
-	pbench-server-prep-shim-002\
-	pbench-sync-package-tarballs\
-	pbench-sync-satellite\
-	pbench-unpack-tarballs\
-	pbench-verify-backup-tarballs\
-
 # targets
 .PHONY: install \
 	install-dirs \
-	install-bin install-binbase install-bintools install-binscripts \
+	install-bin \
 	install-lib \
-	install-configtools \
-	install-build-artifacts
+	install-server-lib \
 
-install: install-dirs install-bin install-lib
+install: install-dirs install-python3-setup
 	${COPY} VERSION ${DESTDIR}
 
 install-dirs:
@@ -71,43 +34,25 @@ install-dirs:
 	${INSTALL} ${INSTALLOPTS} ${BINDIR}
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/crontab
-	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/configtools
+	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/pbench
+	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/pbench/cli
 
-install-bin: install-binbase install-bintools install-binscripts install-configtools
+install-python3-setup: install-bin install-lib
+	mkdir -p ${DESTDIR}/python3
+	${COPY} requirements.txt ${DESTDIR}
+	(cd ..; SKIP_GENERATE_AUTHORS=1 SKIP_WRITE_GIT_CHANGELOG=1 python3 setup.py install --prefix=${DESTDIR}/python3)
+	${COPY} ${DESTDIR}/python3/bin/pbench-config ${DESTDIR}/python3/bin/pbench-server ${BINDIR}/
+	${RM} -r ${DESTDIR}/python3
+	${COPY} ../lib/pbench ${LIBDIR}/
+	${RM} -r $$(find ${LIBDIR} -name __pycache__) ${LIBDIR}/pbench/test ${LIBDIR}/pbench/agent ${LIBDIR}/pbench/cli/agent
 
-install-binbase:
-	for f in ${binbase} ;do \
-	    ${COPY} bin/$$f ${BINDIR} \
-	;done
-
-install-bintools:
-	for f in ${bintools} ;do \
-	    ${COPY} bin/$$f ${BINDIR} \
-	;done
-
-install-binscripts:
-	cd bin; \
-	for f in ${binlinks} ;do \
-	    ${COPY} $$f ${BINDIR}; \
-	    if [ -e $$f.sh ] ;then \
-	        ${COPY} $$f.sh ${BINDIR} \
-	    ;elif [ -e $$f.py ] ;then \
-	        ${COPY} $$f.py ${BINDIR} \
-	    ;fi \
-	;done
+install-bin:
+	${COPY} bin/pbench-* ${BINDIR}/
+	for i in pbench-server-activate pbench-server-activate-create-results-dir-structure pbench-server-activate-setup-results-host-info pbench-server-activate-setup-web-server pbench-server-activate-start-httpd pbench-server-config-activate ;do rm ${BINDIR}/$${i} ;done
 
 install-lib:
-	${COPY} -r lib ${DESTDIR}
-
-install-configtools:
-	${COPY} -r ../lib/configtools ${LIBDIR}
-
-# SHA1 and SEQNO - these are used when building an RPM only
-# so we provide a target for the spec file to invoke. This
-# is *NOT* meant to be invoked interactively.
-install-build-artifacts:
-	${COPY} ../SHA1 ${DESTDIR}
-	${COPY} ../SEQNO ${DESTDIR}
+	${COPY} lib ${DESTDIR}
+	${RM} ${DESTDIR}/lib/config/nginx.conf.example
 
 clean:
-	rm -rf ${DESTDIR}
+	${RM} -rf ${DESTDIR}

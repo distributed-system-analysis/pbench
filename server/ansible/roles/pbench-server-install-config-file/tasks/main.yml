@@ -38,6 +38,7 @@
 
 - name: delete local temp dir
   delegate_to: localhost
+  become: no
   file:
     state: absent
     path: "{{ tempdir_1.path }}"
