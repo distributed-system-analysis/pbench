@@ -5,6 +5,7 @@
 /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-server-activate /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config/pbench-server.cfg
 ++++ /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
 _PBENCH_SERVER_CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/config/pbench-server.cfg
+PYTHONPATH=/var/tmp/pbench-test-server/test-8/opt/pbench-server/lib
 MAILTO=unit-test-user@example.com
 MAILFROM=pbench@pbench.example.com
 1 3 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/locks/pbench-audit-server.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server/bin/pbench-audit-server
@@ -23,6 +24,7 @@ MAILFROM=pbench@pbench.example.com
 ---- /var/tmp/pbench-test-server/test-8/opt/pbench-server/lib/crontab/crontab
 ++++ /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/crontab/crontab
 _PBENCH_SERVER_CONFIG=/var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/config/pbench-server.cfg
+PYTHONPATH=/var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib
 MAILTO=unit-test-user@example.com
 MAILFROM=pbench@pbench-satellite.example.com
 1 3 * * *  flock -n /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/lib/locks/pbench-audit-server.lock /var/tmp/pbench-test-server/test-8/opt/pbench-server-satellite/bin/pbench-audit-server
