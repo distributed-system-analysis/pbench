@@ -3,6 +3,7 @@ __pycache__
 *.swp
 unittests.log
 run-unittests.log
+build
 dist
 *~
 ????-*.patch
