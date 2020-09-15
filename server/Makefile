@@ -30,8 +30,7 @@ bintools = \
 	pbench-remote-satellite-state-change\
 	pbench-remote-sync-package-tarballs\
 	pbench-satellite-state-change.py\
-	pbench-server-set-result-state\
-	getconf.py
+	pbench-server-set-result-state
 
 # All of these should be linked to pbench-trampoline.
 # In addition, each one has a companion (either .sh or .py)
@@ -55,15 +54,25 @@ binlinks = \
 	pbench-unpack-tarballs\
 	pbench-verify-backup-tarballs\
 
+setupfiles = \
+	setup.py \
+	setup.cfg \
+	requirements.txt \
+	README.md
+
 # targets
 .PHONY: install \
 	install-dirs \
 	install-bin install-binbase install-bintools install-binscripts \
 	install-lib \
-	install-configtools \
+	install-server-lib \
+	install-makefile \
+	install-pbench-scripts \
 	install-build-artifacts
 
-install: install-dirs install-bin install-lib
+install-all: install install-server-lib
+
+install: install-dirs install-bin install-lib install-makefile install-pbench-scripts
 	${COPY} VERSION ${DESTDIR}
 
 install-dirs:
@@ -71,9 +80,9 @@ install-dirs:
 	${INSTALL} ${INSTALLOPTS} ${BINDIR}
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/crontab
-	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/configtools
+	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/pbench
 
-install-bin: install-binbase install-bintools install-binscripts install-configtools
+install-bin: install-binbase install-bintools install-binscripts
 
 install-binbase:
 	for f in ${binbase} ;do \
@@ -99,15 +108,40 @@ install-binscripts:
 install-lib:
 	${COPY} -r lib ${DESTDIR}
 
-install-configtools:
-	${COPY} -r ../lib/configtools ${LIBDIR}
+# copy enough to be able to run setup again in the destination directory
+install-server-lib:
+	${COPY} -r ../lib/pbench/common ../lib/pbench/__init__.py ../lib/pbench/server ../lib/pbench/cli  ${DESTDIR}/lib/pbench
+	${COPY} ../lib/pbench.egg-info/PKG-INFO ${DESTDIR}
+	for f in ${setupfiles} ;do \
+	    ${COPY} ../$$f ${DESTDIR} \
+	;done
+
+install-extra: install-setup-files install-build-artifacts
+
+install-setup-files:
+	for f in ${setupfiles} ;do \
+	    ${COPY} $$f ${DESTDIR} \
+	;done
+
+install-makefile:
+	${COPY} Makefile ${DESTDIR}
+
+# fix the shebang: rpmbuild does not like unversioned python
+install-pbench-scripts:
+	if [ -f ../bin/pbench-config ] ;then \
+	    sed '1s;.*python$$;#!/usr/bin/env python3;' ../bin/pbench-config > ${DESTDIR}/bin/pbench-config; \
+	    sed '1s;.*python$$;#!/usr/bin/env python3;' ../bin/pbench-server > ${DESTDIR}/bin/pbench-server \
+	;else \
+	    ${COPY} bin/pbench-config ${BINDIR}; \
+	    ${COPY} bin/pbench-server ${BINDIR} \
+	;fi
 
 # SHA1 and SEQNO - these are used when building an RPM only
 # so we provide a target for the spec file to invoke. This
 # is *NOT* meant to be invoked interactively.
 install-build-artifacts:
-	${COPY} ../SHA1 ${DESTDIR}
-	${COPY} ../SEQNO ${DESTDIR}
+	${COPY} SHA1 ${DESTDIR}
+	${COPY} SEQNO ${DESTDIR}
 
 clean:
 	rm -rf ${DESTDIR}
