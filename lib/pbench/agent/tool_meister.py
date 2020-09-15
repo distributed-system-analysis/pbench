@@ -68,6 +68,7 @@ tar_path = None
 # FIXME: The client response channel should be in a shared constants module.
 client_channel = "tool-meister-client"
 
+
 class ToolException(Exception):
     pass
 

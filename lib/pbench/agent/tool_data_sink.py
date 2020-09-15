@@ -22,8 +22,6 @@ import subprocess
 import sys
 import tempfile
 
-#import importlib
-#toolmeister = importlib.import_module("pbench-tool-meister")
 from modules import metaclass
 
 from distutils.spawn import find_executable
@@ -120,11 +118,12 @@ class DataSinkWsgiServer(ServerAdapter):
 class BaseCollector:
     allowed_tools = {"noop-collector": None}
 
-    def __init__(self, benchmark_run_dir, host_tools_dict, logger):
+    def __init__(self, benchmark_run_dir, host_tools_dict, logger, tool_metadata):
         self.run = None
         self.benchmark_run_dir = str(benchmark_run_dir)
         self.host_tools_dict = host_tools_dict
         self.logger = logger
+        self.tool_metadata = tool_metadata
         self.abort_launch = True
 
     def launch(self):
@@ -140,10 +139,9 @@ class BaseCollector:
 
 
 class PromCollector(BaseCollector):
-    allowed_tools = {"node-exporter": "9100", "dcgm": "8000"}
 
-    def __init__(self, benchmark_run_dir, host_tools_dict, logger):
-        super().__init__(benchmark_run_dir, host_tools_dict, logger)
+    def __init__(self, benchmark_run_dir, host_tools_dict, logger, tool_metadata):
+        super().__init__(benchmark_run_dir, host_tools_dict, logger, tool_metadata)
         self.volume = self.benchmark_run_dir + "/prom_vol"
 
     def launch(self):
@@ -161,6 +159,7 @@ class PromCollector(BaseCollector):
             "scrape_configs:\n  - job_name: 'prometheus'\n    static_configs:\n    - targets: ['localhost:9090']\n\n"
         )
 
+        persistent_data = self.tool_metadata.getPersistentTools()
         for host in self.host_tools_dict:
             if host.startswith("local"):
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -171,7 +170,7 @@ class PromCollector(BaseCollector):
                 host_ip = host
 
             for tool in self.host_tools_dict[host]:
-                port = PromCollector.allowed_tools[tool]
+                port = persistent_data[tool]["port"]
                 config.write(
                     "  - job_name: '{}_{}'\n    static_configs:\n    - targets: ['{}:{}']\n\n".format(
                         host_ip, tool, host_ip, port
@@ -262,6 +261,7 @@ class ToolDataSink(Bottle):
         self.state = None
         self.tool_data_ctx = None
         self.directory = None
+        self.tool_metadata = metaclass.ToolMetadata(self.logger, redis_server=redis_server)
         self._data = None
         self._prom_server = None
         self._tm_tracking = None
@@ -423,11 +423,11 @@ class ToolDataSink(Bottle):
                 persistent_tools = []
                 transient_tools = []
                 for tool_name in tools.keys():
-                    if tool_name in PromCollector.allowed_tools:
+                    if tool_name in self.tool_metadata.getPersistentTools().keys():
                         persistent_tools.append(tool_name)
                     elif tool_name in BaseCollector.allowed_tools:
                         noop_tools.append(tool_name)
-                    else:
+                    elif tool_name in self.tool_metadata.getTransientTools().keys():
                         transient_tools.append(tool_name)
                 tm["noop_tools"] = noop_tools
                 tm["persistent_tools"] = persistent_tools
@@ -562,16 +562,21 @@ class ToolDataSink(Bottle):
         # Transition to "send" state should reset self._tm_tracking
         with self._lock:
             if self.state == "init":
+                persistent_data = self.tool_metadata.getPersistentTools()
                 prom_tool_dict = {}
                 for tm in self._tm_tracking:
-                    prom_tools = self._tm_tracking[tm]["persistent_tools"]
+                    prom_tools = []
+                    persist_tools = self._tm_tracking[tm]["persistent_tools"]
+                    for tool in persist_tools:
+                        if persistent_data[tool]["collector"] == "prometheus":
+                            prom_tools.append(tool)
                     if len(prom_tools) > 0:
                         prom_tool_dict[self._tm_tracking[tm]["hostname"]] = prom_tools
                 self.logger.debug(prom_tool_dict)
 
                 if prom_tool_dict:
                     self._prom_server = PromCollector(
-                        self.benchmark_run_dir, prom_tool_dict, self.logger
+                        self.benchmark_run_dir, prom_tool_dict, self.logger, self.tool_metadata
                     )
                     self._prom_server.launch()
             elif self.state == "end":
