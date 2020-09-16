@@ -1,7 +1,0 @@
-# {{ distro }} pbench-agent workloads image
-FROM quay.io/pbench/pbench-agent-base-{{ distro }}:latest
-
-# Install all the RPMs required for workloads.
-RUN {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} install -y {% if distro == 'centos-8' %}--enablerepo PowerTools {% endif %}--enablerepo copr-pbench fio uperf && \
-    {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} -y clean all && \
-    rm -rf /var/cache/yum

@@ -2,7 +2,7 @@
 FROM docker.io/library/{{ distro_image }}
 
 # Install the appropriate pbench repository file for {{ distro_image_name }}.
-COPY ./pbench.repo /etc/yum.repos.d/pbench.repo
+COPY ./{{ pbench_repo_file }} /etc/yum.repos.d/pbench.repo
 
 # Install the pbench-agent RPM, which should have all its dependencies enumerated;
 # ... and make sure we have a proper pbench-agent.cfg file in place;
