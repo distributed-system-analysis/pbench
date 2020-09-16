@@ -1,4 +1,6 @@
 +++ Running test-42 pbench-register-tool --name=vmstat --group=default --no-install -- --interval=42
+/var/tmp/pbench-test-utils/opt/pbench-agent/base: line 142: pbench-config: command not found
+/var/tmp/pbench-test-utils/opt/pbench-agent/base: line 150: pbench-config: command not found
 "vmstat" tool is now registered for host "testhost.example.com" in group "default"
 --- Finished test-42 pbench-register-tool (status=0)
 +++ pbench tree state

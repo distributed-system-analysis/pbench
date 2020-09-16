@@ -1,7 +1,7 @@
 +++ Running test-43 pbench-register-tool --name=turbostat --no-install --remotes=one.example.com,localhost,testhost.example.com,two.example.com
-"turbostat" tool is now registered for host "testhost.example.com" in group "default"
-"turbostat" tool is now registered for host "one.example.com" in group "default"
-"turbostat" tool is now registered for host "two.example.com" in group "default"
+[36m"turbostat" tool is now registered for host "one.example.com" in group "default"[0m
+[36m"turbostat" tool is now registered for host "testhost.example.com" in group "default"[0m
+[36m"turbostat" tool is now registered for host "two.example.com" in group "default"[0m
 --- Finished test-43 pbench-register-tool (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -22,10 +22,7 @@
 === /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/turbostat:
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] tool_opts: ""
-[debug][1900-01-01T00:00:00.000000] The remote host you have provided, localhost, matches a local interface, so we will register this tool locally only
-[debug][1900-01-01T00:00:00.000000] The remote host you have provided, testhost.example.com, matches a local interface, and has already been registered locally
-[info][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "testhost.example.com" in group "default"
-[info][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "one.example.com" in group "default"
-[info][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "two.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "one.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "testhost.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "two.example.com" in group "default"
 --- pbench.log file contents

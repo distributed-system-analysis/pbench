@@ -1,5 +1,5 @@
 +++ Running test-00 pbench-register-tool --name=mpstat --group=default -- --interval=10
-"mpstat" tool is now registered for host "testhost.example.com" in group "default"
+[36m"mpstat" tool is now registered for host "testhost.example.com" in group "default"[0m
 --- Finished test-00 pbench-register-tool (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -12,6 +12,5 @@
 --interval=10
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
-[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "default"
 --- pbench.log file contents

@@ -1,7 +1,7 @@
 +++ Running test-45 pbench-register-tool --name=mpstat --no-install --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis
-"mpstat" tool is now registered for host "one.example.com" in group "default"
-"mpstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
-"mpstat" tool is now registered for host "three.example.com" in group "default"
+[36m"mpstat" tool is now registered for host "one.example.com" in group "default"[0m
+[36m"mpstat" tool is now registered for host "two.example.com", with label "labelTwo" in group "default"[0m
+[36m"mpstat" tool is now registered for host "three.example.com" in group "default"[0m
 --- Finished test-45 pbench-register-tool (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -32,8 +32,7 @@ two.example.com,labelTwo
 three.example.com
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] tool_opts: ""
-[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "one.example.com" in group "default"
-[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "two.example.com", with label "labelTwo", in group "default"
-[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "three.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "one.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "two.example.com", with label "labelTwo" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "three.example.com" in group "default"
 --- pbench.log file contents
