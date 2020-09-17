@@ -7,6 +7,7 @@ colorlog
 elasticsearch1==1.10.0
 flask
 flask-restful
+gitpython
 gunicorn
 pyesbulk
 python-daemon
