@@ -365,7 +365,7 @@ class ToolMeister(object):
     def __init__(self, pbench_bin, params, redis_server, logger):
         self.logger = logger
         self.tool_metadata = metaclass.ToolMetadata(self.logger, redis_server=redis_server)
-        self.persist_tools = list(self.tool_metadata.getPersistentTools().keys())
+        self.persist_tools = self.tool_metadata.getPersistentTools()
         self.pbench_bin = pbench_bin
         ret_val = self.fetch_params(params)
         (

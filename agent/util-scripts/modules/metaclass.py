@@ -45,10 +45,18 @@ class ToolMetadata:
 
     def getPersistentTools(self):
         if self.__dataCheck():
-            return self.data["persistent"]
+            return list(self.data["persistent"].keys())
         return None
 
     def getTransientTools(self):
         if self.__dataCheck():
-            return self.data["transient"]
+            return list(self.data["transient"].keys())
+        return None
+
+    def getProperties(self, tool):
+        if tool in self.data["persistent"].keys():
+            return self.data["persistent"][tool]
+        elif tool in self.data["transient"].keys():
+            return self.data["transient"][tool]
+        
         return None

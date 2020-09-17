@@ -159,7 +159,6 @@ class PromCollector(BaseCollector):
             "scrape_configs:\n  - job_name: 'prometheus'\n    static_configs:\n    - targets: ['localhost:9090']\n\n"
         )
 
-        persistent_data = self.tool_metadata.getPersistentTools()
         for host in self.host_tools_dict:
             if host.startswith("local"):
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -170,7 +169,7 @@ class PromCollector(BaseCollector):
                 host_ip = host
 
             for tool in self.host_tools_dict[host]:
-                port = persistent_data[tool]["port"]
+                port = self.tool_metadata.getProperties(tool)["port"]
                 config.write(
                     "  - job_name: '{}_{}'\n    static_configs:\n    - targets: ['{}:{}']\n\n".format(
                         host_ip, tool, host_ip, port
@@ -423,11 +422,11 @@ class ToolDataSink(Bottle):
                 persistent_tools = []
                 transient_tools = []
                 for tool_name in tools.keys():
-                    if tool_name in self.tool_metadata.getPersistentTools().keys():
+                    if tool_name in self.tool_metadata.getPersistentTools():
                         persistent_tools.append(tool_name)
                     elif tool_name in BaseCollector.allowed_tools:
                         noop_tools.append(tool_name)
-                    elif tool_name in self.tool_metadata.getTransientTools().keys():
+                    elif tool_name in self.tool_metadata.getTransientTools():
                         transient_tools.append(tool_name)
                 tm["noop_tools"] = noop_tools
                 tm["persistent_tools"] = persistent_tools
@@ -562,13 +561,13 @@ class ToolDataSink(Bottle):
         # Transition to "send" state should reset self._tm_tracking
         with self._lock:
             if self.state == "init":
-                persistent_data = self.tool_metadata.getPersistentTools()
                 prom_tool_dict = {}
                 for tm in self._tm_tracking:
                     prom_tools = []
                     persist_tools = self._tm_tracking[tm]["persistent_tools"]
                     for tool in persist_tools:
-                        if persistent_data[tool]["collector"] == "prometheus":
+                        tool_data = self.tool_metadata.getProperties(tool)
+                        if tool_data["collector"] == "prometheus":
                             prom_tools.append(tool)
                     if len(prom_tools) > 0:
                         prom_tool_dict[self._tm_tracking[tm]["hostname"]] = prom_tools
