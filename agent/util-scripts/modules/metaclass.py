@@ -4,7 +4,7 @@ import os
 
 
 class ToolMetadata:
-    def __init__(self, logger, redis_server = None, install_path = None):
+    def __init__(self, logger, redis_server=None, install_path=None):
         self.logger = logger
         if not redis_server and not install_path:
             self.logger.debug("Defaulting to /opt/pbench-agent")
