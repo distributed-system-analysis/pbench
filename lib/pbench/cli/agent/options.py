@@ -25,6 +25,7 @@ def _pbench_agent_config(f):
             return value
         except Exception as ex:
             click.secho(f"Failed to load {value}: {ex}")
+
         return value
 
     return click.option(

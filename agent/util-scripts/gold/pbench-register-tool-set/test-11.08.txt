@@ -1,4 +1,5 @@
 +++ Running test-11.08 pbench-register-tool-set --remotes=one.example.com,two.example.com --labels=labelOne
+[01;31mThe number of labels given, "labelOne", does not match the number of remotes given, "one.example.com,two.example.com"[0m
 [error][1900-01-01T00:00:00.000000] The number of labels given, " --labels=labelOne", does not match the number of remotes given, " --remotes=one.example.com,two.example.com"
 usage:
 pbench-register-tool-set --toolset=<tool-set> [--group=<group-name>] [--interval=<interval>] [--no-install] [--remotes=<remote-host>[,<remote-host>]] [--labels=<label>[,<label>]]
@@ -23,5 +24,6 @@ Available tool sets from /var/tmp/pbench-test-utils/opt/pbench-agent/config/pben
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
+[ERROR][1900-01-01T00:00:00.000000] The number of labels given, "labelOne", does not match the number of remotes given, "one.example.com,two.example.com"
 [error][1900-01-01T00:00:00.000000] The number of labels given, " --labels=labelOne", does not match the number of remotes given, " --remotes=one.example.com,two.example.com"
 --- pbench.log file contents

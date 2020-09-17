@@ -2,9 +2,10 @@ from pbench.agent.base import BaseCommand
 from pbench.agent.tools.clear import ClearMixIn
 from pbench.agent.tools.list import ListMixIn
 from pbench.agent.tools.register import RegisterMixIn
+from pbench.agent.tools.toolset import ToolSetMixIn
 
 
-class ToolCommand(BaseCommand, ClearMixIn, ListMixIn, RegisterMixIn):
+class ToolCommand(BaseCommand, ClearMixIn, ListMixIn, RegisterMixIn, ToolSetMixIn):
     def __init__(self, context):
         super(ToolCommand, self).__init__(context)
 

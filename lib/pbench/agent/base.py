@@ -88,14 +88,14 @@ class BaseCommand(metaclass=abc.ABCMeta):
         }
         for k, v in pbench_env.items():
             os.environ[k] = v
-    
+
     def tool_group_dir(self, group):
         return Path(self.pbench_run, f"tools-v1-{group}")
-    
+
     @property
     def groups(self):
-        return [p for p in self.pbench_run.glob('tools-v1-*')]
-    
+        return [p for p in self.pbench_run.glob("tools-v1-*")]
+
     def remotes(self, dir):
         return [p for p in dir.iterdir() if p.name != "__trigger__"]
 

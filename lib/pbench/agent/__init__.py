@@ -45,19 +45,20 @@ class PbenchAgentConfig(PbenchConfig):
                     fallback=DEFAULT_PBENCH_AGENT_INSTALL_DIR,
                 )
             )
-        except (NoOptionError, NoSectionError, KeyError) as exc:
-            raise BadConfig(f"{exc}: {self.files}")
-        else:
-            if not self.pbench_install_dir.is_dir():
-                raise BadConfig(
-                    "pbench installation directory,"
-                    f" '{self.pbench_install_dir}', does not exist"
-                )
-            self.pbench_bspp_dir = (
-                self.pbench_install_dir / "bench-scripts" / "postprocess"
+        except (NoOptionError, NoSectionError, KeyError):
+            self.pbench_install_dir = Path(DEFAULT_PBENCH_AGENT_INSTALL_DIR)
+            self.pbench_run = Path(DEFAULT_PBENCH_AGENT_RUN_DIR)
+            self.pbench_tmp = self.pbench_run / "tmp"
+            self.pbench_log = self.pbench_run / "pbench.log"
+
+        if not self.pbench_install_dir.is_dir():
+            raise BadConfig(
+                "pbench installation directory,"
+                f" '{self.pbench_install_dir}', does not exist"
             )
-            self.pbench_lib_dir = self.pbench_install_dir / "lib"
-            self.LOGSDIR = self.pbench_log
+        self.pbench_bspp_dir = self.pbench_install_dir / "bench-scripts" / "postprocess"
+        self.pbench_lib_dir = self.pbench_install_dir / "lib"
+        self.LOGSDIR = self.pbench_log
 
         try:
             self.ssh_opts = self.conf.get(

@@ -1,6 +1,6 @@
 +++ Running test-11.10 pbench-register-tool-set --toolset=other
-"pidstat" tool is now registered for host "testhost.example.com" in group "default"
-"sar" tool is now registered for host "testhost.example.com" in group "default"
+[36m"pidstat" tool is now registered for host "testhost.example.com" in group "default"[0m
+[36m"sar" tool is now registered for host "testhost.example.com" in group "default"[0m
 --- Finished test-11.10 pbench-register-tool-set (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -16,8 +16,6 @@
 --interval=3
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=30"
-[info][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "testhost.example.com" in group "default"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[info][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "testhost.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "testhost.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "testhost.example.com" in group "default"
 --- pbench.log file contents

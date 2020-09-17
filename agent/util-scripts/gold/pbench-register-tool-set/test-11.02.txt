@@ -1,8 +1,8 @@
 +++ Running test-11.02 pbench-register-tool-set --interval=10
-"mpstat" tool is now registered for host "testhost.example.com" in group "default"
-"vmstat" tool is now registered for host "testhost.example.com" in group "default"
-"iostat" tool is now registered for host "testhost.example.com" in group "default"
-"perf" tool is now registered for host "testhost.example.com" in group "default"
+[36m"mpstat" tool is now registered for host "testhost.example.com" in group "default"[0m
+[36m"vmstat" tool is now registered for host "testhost.example.com" in group "default"[0m
+[36m"iostat" tool is now registered for host "testhost.example.com" in group "default"[0m
+[36m"perf" tool is now registered for host "testhost.example.com" in group "default"[0m
 --- Finished test-11.02 pbench-register-tool-set (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -24,12 +24,8 @@
 --interval=10
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
-[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "default"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
-[info][1900-01-01T00:00:00.000000] "vmstat" tool is now registered for host "testhost.example.com" in group "default"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=10"
-[info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "default"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts='record -a --freq=100'"
-[info][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "testhost.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "vmstat" tool is now registered for host "testhost.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "default"
+[INFO][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "testhost.example.com" in group "default"
 --- pbench.log file contents

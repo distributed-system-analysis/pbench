@@ -1,12 +1,12 @@
 +++ Running test-11.12 pbench-register-tool-set --group=other --no-install
-"sar" tool is now registered for host "testhost.example.com" in group "other"
-"iostat" tool is now registered for host "testhost.example.com" in group "other"
-"mpstat" tool is now registered for host "testhost.example.com" in group "other"
-"pidstat" tool is now registered for host "testhost.example.com" in group "other"
-"proc-vmstat" tool is now registered for host "testhost.example.com" in group "other"
-"proc-interrupts" tool is now registered for host "testhost.example.com" in group "other"
-"turbostat" tool is now registered for host "testhost.example.com" in group "other"
-"perf" tool is now registered for host "testhost.example.com" in group "other"
+[36m"sar" tool is now registered for host "testhost.example.com" in group "other"[0m
+[36m"iostat" tool is now registered for host "testhost.example.com" in group "other"[0m
+[36m"mpstat" tool is now registered for host "testhost.example.com" in group "other"[0m
+[36m"pidstat" tool is now registered for host "testhost.example.com" in group "other"[0m
+[36m"proc-vmstat" tool is now registered for host "testhost.example.com" in group "other"[0m
+[36m"proc-interrupts" tool is now registered for host "testhost.example.com" in group "other"[0m
+[36m"turbostat" tool is now registered for host "testhost.example.com" in group "other"[0m
+[36m"perf" tool is now registered for host "testhost.example.com" in group "other"[0m
 --- Finished test-11.12 pbench-register-tool-set (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -48,20 +48,12 @@
 --interval=3
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[info][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "testhost.example.com" in group "other"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "other"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "other"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=30"
-[info][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "testhost.example.com" in group "other"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[info][1900-01-01T00:00:00.000000] "proc-vmstat" tool is now registered for host "testhost.example.com" in group "other"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[info][1900-01-01T00:00:00.000000] "proc-interrupts" tool is now registered for host "testhost.example.com" in group "other"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
-[info][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "testhost.example.com" in group "other"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts='record -a --freq=100'"
-[info][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "testhost.example.com" in group "other"
+[INFO][1900-01-01T00:00:00.000000] "sar" tool is now registered for host "testhost.example.com" in group "other"
+[INFO][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "other"
+[INFO][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "other"
+[INFO][1900-01-01T00:00:00.000000] "pidstat" tool is now registered for host "testhost.example.com" in group "other"
+[INFO][1900-01-01T00:00:00.000000] "proc-vmstat" tool is now registered for host "testhost.example.com" in group "other"
+[INFO][1900-01-01T00:00:00.000000] "proc-interrupts" tool is now registered for host "testhost.example.com" in group "other"
+[INFO][1900-01-01T00:00:00.000000] "turbostat" tool is now registered for host "testhost.example.com" in group "other"
+[INFO][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "testhost.example.com" in group "other"
 --- pbench.log file contents
