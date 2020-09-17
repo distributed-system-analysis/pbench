@@ -6,6 +6,7 @@ click
 elasticsearch
 flask
 flask-restful
+gitpython
 python-daemon
 python-pidfile
 redis
