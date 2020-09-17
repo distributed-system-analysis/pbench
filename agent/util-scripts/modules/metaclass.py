@@ -1,4 +1,7 @@
+from pathlib import Path
 import json
+import os
+
 
 class ToolMetadata:
     def __init__(self, logger, redis_server = None, install_path = None):
@@ -58,5 +61,4 @@ class ToolMetadata:
             return self.data["persistent"][tool]
         elif tool in self.data["transient"].keys():
             return self.data["transient"][tool]
-        
         return None
