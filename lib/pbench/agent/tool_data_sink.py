@@ -260,7 +260,7 @@ class ToolDataSink(Bottle):
         self.state = None
         self.tool_data_ctx = None
         self.directory = None
-        self.tool_metadata = metaclass.ToolMetadata(self.logger, redis_server=redis_server)
+        self.tool_metadata = metaclass.ToolMetadata("redis", redis_server, logger)
         self._data = None
         self._prom_server = None
         self._tm_tracking = None
