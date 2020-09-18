@@ -10,8 +10,10 @@ else
     latest="-v"
 fi
 
+githash="$(grep -v -E "^v" ${tags_file})"
+
 function apply_tag {
-    buildah tag ${1} ${1}:${2}
+    buildah tag ${1}:${githash} ${1}:${2}
 }
 
 for tag in $(grep -E "^v" ${tags_file} | grep ${latest} latest); do

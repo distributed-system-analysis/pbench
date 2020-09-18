@@ -9,8 +9,11 @@ elif [[ "${tag}" == "major-minor-latest" ]]; then
     tag="$(grep latest ${distro}-tags.lis | awk '{print $2}')"
 fi
 
+tags_file="${distro}-tags.lis"
+githash="$(grep -v -E "^v" ${tags_file})"
+
 function tagit {
-    buildah tag ${1} ${1}:${tag}
+    buildah tag ${1}:${githash} ${1}:${tag}
 }
 
 for image in base tools workloads all; do
