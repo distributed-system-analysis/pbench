@@ -32,6 +32,10 @@ all: centos-8-all-tagged centos-7-all-tagged fedora-32-all-tagged fedora-31-all-
 
 latest: centos-8-latest centos-7-latest fedora-32-latest fedora-31-latest
 
+major: centos-8-major centos-7-major fedora-32-major fedora-31-major
+
+major-minor: centos-8-major-minor centos-7-major-minor fedora-32-major-minor fedora-31-major-minor
+
 #+
 # For the following rule patterns, the "%" represents, or represents
 # the "distribution" name, as derived from the "all" target's *-distro
@@ -80,6 +84,12 @@ latest: centos-8-latest centos-7-latest fedora-32-latest fedora-31-latest
 
 %-latest: %-tags.lis
 	./tagit ${@:-latest=} latest
+
+%-major: %-tags.lis
+	./tagit ${@:-major=} major-latest
+
+%-major-minor: %-tags.lis
+	./tagit ${@:-major-minor=} major-minor-latest
 
 #+
 # For the following rules, the various CentOS "base" images need a maping

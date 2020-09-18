@@ -3,6 +3,12 @@
 distro="${1}"
 tag="${2}"
 
+if [[ "${tag}" == "major-latest" ]]; then
+    tag="$(grep latest ${distro}-tags.lis | awk '{print $1}')"
+elif [[ "${tag}" == "major-minor-latest" ]]; then
+    tag="$(grep latest ${distro}-tags.lis | awk '{print $2}')"
+fi
+
 function tagit {
     buildah tag ${1} ${1}:${tag}
 }
