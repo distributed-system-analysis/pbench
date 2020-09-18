@@ -21,3 +21,5 @@
     name: pbench-server-add-commit-id
 - import_role:
     name: pbench-server-change-ownership
+- import_role:
+    name: pbench-server-systemd-service

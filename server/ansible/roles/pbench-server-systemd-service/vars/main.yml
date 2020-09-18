@@ -1,0 +1,6 @@
+---
+pbench_server_service_file_suffix: "{{ 'rhel7' if ansible_distribution_major_version == '7' and 
+                                                  (ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS') 
+                                       else 'default' }}"
+
+pbench_server_service_file:  /opt/pbench-server/lib/systemd/pbench-server.service.{{ pbench_server_service_file_suffix }}
