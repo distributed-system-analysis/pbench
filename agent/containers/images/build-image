@@ -1,0 +1,9 @@
+#!/bin/bash
+
+image="${1}"
+distro="${2}"
+tags_file="${3}"
+
+githash="$(grep -v -E "^v" ${tags_file})"
+
+buildah bud -f ${distro_image}.Dockerfile -t pbench-agent-${image}-${distro}:${githash} .

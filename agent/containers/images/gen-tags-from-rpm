@@ -15,10 +15,15 @@ if [[ -z "${version_string}" ]]; then
     printf -- "Failed to fetch pbench-agent.noarch version string from '%s/pbench/%s-%s'\n" "${url_prefix}" "${dist}" "${arch}" >&2
     exit 1
 fi
+
 # 0.69.3-1
 ver="${version_string%g*}"
 major="${ver%%.*}"
 major_minor="${ver%.*}"
 commit_id="${version_string#*g}"
-printf -- "%s v%s v%s-latest v%s-latest\n" "${commit_id}" "${ver}" "${major}" "${major_minor}"
+
+printf -- "%s\n" "${commit_id}"
+printf -- "v%s\n" "${ver}"
+printf -- "v%s-latest v%s-latest\n" "${major}" "${major_minor}"
+
 exit 0
