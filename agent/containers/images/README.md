@@ -82,7 +82,7 @@ already.  The push targets are:
  * `push` - pushes all the images by their `<git commit ID>` tag,
    and their RPM version tag
 
- * `push-latest` - pushes all the iamges by their `latest` tage
+ * `push-latest` - pushes all the images by their `latest` tag
 
  * `push-major` - pushes all the images by their `v<Major>-latest`
    tag
