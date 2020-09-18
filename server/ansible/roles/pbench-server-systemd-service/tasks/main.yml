@@ -1,0 +1,16 @@
+---
+# install the service file into the systemd directory
+# refresh daemon, enable and start service
+
+- name: install the service file
+  copy:
+    remote_src: yes
+    src: "{{ pbench_server_service_file }}"
+    dest: /etc/systemd/system/pbench-server.service
+
+- name: pbench-server service setup with systemd
+  systemd:
+    name: pbench-server
+    state: started
+    daemon_reload: yes
+    enabled: yes
