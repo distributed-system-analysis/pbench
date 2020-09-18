@@ -30,6 +30,8 @@ _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 # Default we build images the following distributions:
 all: centos-8-all-tagged centos-7-all-tagged fedora-32-all-tagged fedora-31-all-tagged
 
+latest: centos-8-latest centos-7-latest fedora-32-latest fedora-31-latest
+
 #+
 # For the following rule patterns, the "%" represents, or represents
 # the "distribution" name, as derived from the "all" target's *-distro
@@ -71,6 +73,13 @@ all: centos-8-all-tagged centos-7-all-tagged fedora-32-all-tagged fedora-31-all-
 
 %-tags.lis:
 	./gen-tags-from-rpm "${URL_PREFIX}" "${@:-tags.lis=}" "${_ARCH}" > ${@}
+
+#+
+# Simple pattern rule label the current RPM version the latest.
+#-
+
+%-latest: %-tags.lis
+	./tagit ${@:-latest=} latest
 
 #+
 # For the following rules, the various CentOS "base" images need a maping

@@ -6,4 +6,4 @@ tags_file="${3}"
 
 githash="$(grep -v -E "^v" ${tags_file})"
 
-buildah bud -f ${distro_image}.Dockerfile -t pbench-agent-${image}-${distro}:${githash} .
+buildah bud -f ${distro}-${image}.Dockerfile -t pbench-agent-${image}-${distro}:${githash} .

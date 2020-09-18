@@ -1,0 +1,12 @@
+#!/bin/bash
+
+distro="${1}"
+tag="${2}"
+
+function tagit {
+    buildah tag ${1} ${1}:${tag}
+}
+
+for image in base tools workloads all; do
+    tagit pbench-agent-${image}-${distro}
+done
