@@ -15,6 +15,7 @@ import socket
 import sys
 import tarfile
 import errno
+from pathlib import Path
 from collections import Counter
 from configparser import ConfigParser
 from configparser import Error as ConfigParserError
@@ -141,9 +142,9 @@ class PbenchTemplates:
 
     def __init__(self, basepath, idx_prefix, logger, known_tool_handlers=None, _dbg=0):
         # Where to find the mappings
-        MAPPING_DIR = os.path.join(os.path.dirname(basepath), "lib", "mappings")
+        MAPPING_DIR = Path(os.path.dirname(basepath), "lib", "mappings")
         # Where to find the settings
-        SETTING_DIR = os.path.join(os.path.dirname(basepath), "lib", "settings")
+        SETTING_DIR = Path(os.path.dirname(basepath), "lib", "settings")
 
         self.versions = {}
         self.templates = {}
@@ -154,7 +155,7 @@ class PbenchTemplates:
 
         # Pbench report status mapping and settings.
         server_reports_mappings = {}
-        mfile = os.path.join(MAPPING_DIR, "server-reports.json")
+        mfile = Path(MAPPING_DIR, "server-reports.json")
         key, mapping = self._fetch_mapping(mfile)
         try:
             idxver = mapping["_meta"]["version"]
@@ -170,7 +171,7 @@ class PbenchTemplates:
             )
         server_reports_mappings[key] = mapping
         server_reports_settings = self._load_json(
-            os.path.join(SETTING_DIR, "server-reports.json")
+            Path(SETTING_DIR, "server-reports.json")
         )
 
         ip = self.index_patterns["server-reports"]
@@ -194,7 +195,7 @@ class PbenchTemplates:
         # only one settings file below.
         run_mappings = {}
         idxver = None
-        for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "run*.json")):
+        for mapping_fn in MAPPING_DIR.glob("run*.json"):
             key, mapping = self._fetch_mapping(mapping_fn)
             try:
                 idxver_val = mapping["_meta"]["version"]
@@ -218,7 +219,7 @@ class PbenchTemplates:
                     )
                 )
             run_mappings[key] = mapping
-        run_settings = self._load_json(os.path.join(SETTING_DIR, "run.json"))
+        run_settings = self._load_json(Path(SETTING_DIR, "run.json"))
 
         ip = self.index_patterns["run-data"]
         idxname = ip["idxname"]
@@ -243,7 +244,7 @@ class PbenchTemplates:
 
         # Next we load all the result-data mappings and settings.
         result_mappings = {}
-        mfile = os.path.join(MAPPING_DIR, "result-data.json")
+        mfile = Path(MAPPING_DIR, "result-data.json")
         key, mapping = self._fetch_mapping(mfile)
         try:
             idxver = mapping["_meta"]["version"]
@@ -258,7 +259,7 @@ class PbenchTemplates:
                 )
             )
         result_mappings[key] = mapping
-        mfile = os.path.join(MAPPING_DIR, "result-data-sample.json")
+        mfile = Path(MAPPING_DIR, "result-data-sample.json")
         key, mapping = self._fetch_mapping(mfile)
         try:
             idxver = mapping["_meta"]["version"]
@@ -273,7 +274,7 @@ class PbenchTemplates:
                 )
             )
         result_mappings[key] = mapping
-        result_settings = self._load_json(os.path.join(SETTING_DIR, "result-data.json"))
+        result_settings = self._load_json(Path(SETTING_DIR, "result-data.json"))
 
         ip = self.index_patterns["result-data"]
         idxname = ip["idxname"]
@@ -292,14 +293,12 @@ class PbenchTemplates:
 
         # Now for the tool data mappings. First we fetch the base skeleton they
         # all share.
-        skel = self._load_json(os.path.join(MAPPING_DIR, "tool-data-skel.json"))
+        skel = self._load_json(Path(MAPPING_DIR, "tool-data-skel.json"))
         ip = self.index_patterns["tool-data"]
 
         # Next we load all the tool fragments
         tool_mapping_frags = {}
-        for mapping_fn in glob.iglob(
-            os.path.join(MAPPING_DIR, "tool-data-frag-*.json")
-        ):
+        for mapping_fn in MAPPING_DIR.glob("tool-data-frag-*.json"):
             m = self._fpat.match(os.path.basename(mapping_fn))
             toolname = m.group("toolname")
             if self.known_tool_handlers is not None:
@@ -327,7 +326,7 @@ class PbenchTemplates:
             del mapping["_meta"]
             tool_mapping_frags[toolname] = mapping
             self.versions[ip["idxname"].format(tool=toolname)] = idxver
-        tool_settings = self._load_json(os.path.join(SETTING_DIR, "tool-data.json"))
+        tool_settings = self._load_json(Path(SETTING_DIR, "tool-data.json"))
 
         for toolname, frag in tool_mapping_frags.items():
             tool_skel = copy.deepcopy(skel)
@@ -796,6 +795,8 @@ class ResultData(PbenchData):
         # Check to see if this is a "known" user benchmark.
         self.user_benchmark = ResultData._known_user_benchmark(ptb)
 
+        self.RESULTS_TYPE = ["latency", "resource", "throughput"]
+
     @staticmethod
     def _get_result_json_dirs(ptb):
         """
@@ -875,7 +876,7 @@ class ResultData(PbenchData):
         find all the user-benchmark-result.csv files to be indexed.
         """
         idxctx = ptb.idxctx
-        ubm_name = os.path.join(
+        ubm_name = Path(
             ptb.extracted_root, ptb.dirname, "user-benchmark-name.txt"
         )
         try:
@@ -1061,7 +1062,7 @@ class ResultData(PbenchData):
                 [("name", iter_obj.name), ("number", iter_obj.number)]
             )
             for sample_obj in self.ptb.get_samples(iter_obj):
-                csv_name = os.path.join(sample_obj.path, "user-benchmark-result.csv")
+                csv_name = Path(sample_obj.path, "user-benchmark-result.csv")
                 try:
                     with open(csv_name, "r") as fp:
                         csv_reader = csv.DictReader(fp)
@@ -1324,116 +1325,109 @@ class ResultData(PbenchData):
         We only process the top-level result.json file since it has all the
         data we need in one place.
         """
-        for dirname in self.json_dirs:
-            if dirname.startswith("sample"):
-                # sample result.json - we ignore each sample result.json since
-                # each sample is contained in the experiment level
-                # result.json.
-                continue
-            elif dirname != self.ptb.dirname:
-                # iteration result.json - there is no value in processing the
-                # result.json file at the iteration level because everything
-                # it contains is also in the experiment level's result.json.
-                continue
+        result_json = Path(
+            self.ptb.extracted_root, self.ptb.dirname, "result.json"
+        ).resolve(strict=True)
+        try:
+            # Read the file and interpret it as a JSON document.
+            with open(result_json) as fp:
+                results = json.load(fp)
+        except Exception as e:
+            self.logger.warning(
+                "result-data-indexing: encountered invalid JSON file," " {}: {:r} ({})",
+                result_json,
+                e,
+                self.ptb._tbctx,
+            )
+            self.counters["not_valid_json_file"] += 1
+            return
 
-            result_json = os.path.join(self.ptb.extracted_root, dirname, "result.json")
+        # The outer results object should be an array of iterations. Probe
+        # to see if that is true.
+        if not isinstance(results, list):
+            self.logger.warning(
+                "result-data-indexing: encountered unexpected"
+                " JSON file format, %s ({})",
+                result_json,
+                self.ptb._tbctx,
+            )
+            return
+
+        for iteration in results:
             try:
-                # Read the file and interpret it as a JSON document.
-                with open(result_json) as fp:
-                    results = json.load(fp)
-            except Exception as e:
+                iter_number = iteration["iteration_number"]
+                iter_name = iteration["iteration_name"]
+                iter_data = iteration["iteration_data"]
+            except KeyError:
                 self.logger.warning(
-                    "result-data-indexing: encountered invalid JSON file,"
-                    " {}: {:r} ({})",
-                    result_json,
-                    e,
-                    self.ptb._tbctx,
-                )
-                self.counters["not_valid_json_file"] += 1
-                continue
-
-            # The outer results object should be an array of iterations. Probe
-            # to see if that is true.
-            if not isinstance(results, list):
-                self.logger.warning(
-                    "result-data-indexing: encountered unexpected"
-                    " JSON file format, %s ({})",
+                    "result-data-indexing: could not find"
+                    " iteration data in JSON file, {} ({})",
                     result_json,
                     self.ptb._tbctx,
                 )
+                self.counters["missing_iteration"] += 1
                 continue
-
-            for iteration in results:
+            try:
+                iter_name_fmt = iteration["iteration_name_format"]
+            except KeyError:
+                iter_name_fmt = None
+            # Validate the iteration name by looking for the iteration
+            # directory on disk.
+            if iter_name_fmt:
                 try:
-                    iter_number = iteration["iteration_number"]
-                    iter_name = iteration["iteration_name"]
-                    iter_data = iteration["iteration_data"]
-                except KeyError:
+                    iter_name = iter_name_fmt % (int(iter_number), iter_name)
+                except (ValueError, TypeError) as exc:
                     self.logger.warning(
-                        "result-data-indexing: could not find"
-                        " iteration data in JSON file, {} ({})",
+                        "result-data-indexing: encountered bad"
+                        " iteration name format '{}' in JSON file,"
+                        " {}: {} ({})",
+                        iteration["iteration_name_format"],
+                        result_json,
+                        exc,
+                        self.ptb._tbctx,
+                    )
+                    self.counters["bad_iteration_name_fmt"] += 1
+                    continue
+                iter_dir = Path(
+                    self.ptb.extracted_root, self.ptb.dirname, iter_name
+                )
+                if not iter_dir.is_dir():
+                    self.logger.warning(
+                        "result-data-indexing: formatted iteration"
+                        " name '{}' in JSON file, {}, does not"
+                        " exist as a directory ({})",
+                        iter_name,
                         result_json,
                         self.ptb._tbctx,
                     )
-                    self.counters["missing_iteration"] += 1
+                    self.counters["bad_iteration_name"] += 1
                     continue
-                try:
-                    iter_name_fmt = iteration["iteration_name_format"]
-                except KeyError:
-                    iter_name_fmt = None
-                # Validate the iteration name by looking for the iteration
-                # directory on disk.
-                if iter_name_fmt:
-                    try:
-                        iter_name = iter_name_fmt % (int(iter_number), iter_name)
-                    except (ValueError, TypeError) as exc:
+            else:
+                iter_dir = Path(
+                    self.ptb.extracted_root, self.ptb.dirname, iter_name
+                )
+                if not iter_dir.is_dir():
+                    iter_name = "{:d}-{}".format(iter_number, iter_name)
+                    iter_dir = Path(
+                        self.ptb.extracted_root, self.ptb.dirname, iter_name
+                    )
+                    if not iter_dir.is_dir():
                         self.logger.warning(
                             "result-data-indexing: encountered bad"
-                            " iteration name format '{}' in JSON file,"
-                            " {}: {} ({})",
-                            iteration["iteration_name_format"],
-                            result_json,
-                            exc,
-                            self.ptb._tbctx,
-                        )
-                        self.counters["bad_iteration_name_fmt"] += 1
-                        continue
-                    iter_dir = os.path.join(self.ptb.extracted_root, dirname, iter_name)
-                    if not os.path.isdir(iter_dir):
-                        self.logger.warning(
-                            "result-data-indexing: formatted iteration"
-                            " name '{}' in JSON file, {}, does not"
-                            " exist as a directory ({})",
-                            iter_name,
+                            " iteration name '{}' in JSON file, {},"
+                            " does not exist as a directory ({})",
+                            iteration["iteration_name"],
                             result_json,
                             self.ptb._tbctx,
                         )
                         self.counters["bad_iteration_name"] += 1
                         continue
-                else:
-                    iter_dir = os.path.join(self.ptb.extracted_root, dirname, iter_name)
-                    if not os.path.isdir(iter_dir):
-                        iter_name = "{:d}-{}".format(iter_number, iter_name)
-                        iter_dir = os.path.join(
-                            self.ptb.extracted_root, dirname, iter_name
-                        )
-                        if not os.path.isdir(iter_dir):
-                            self.logger.warning(
-                                "result-data-indexing: encountered bad"
-                                " iteration name '{}' in JSON file, {},"
-                                " does not exist as a directory ({})",
-                                iteration["iteration_name"],
-                                result_json,
-                                self.ptb._tbctx,
-                            )
-                            self.counters["bad_iteration_name"] += 1
-                            continue
-                # Generate JSON documents for each iteration using the
-                # iteration metadata name and number.
-                for src, _id, _parent, _type in self._handle_iteration(
-                    iter_data, iter_name, iter_number, result_json
-                ):
-                    yield src, _id, _parent, _type
+            # Generate JSON documents for each iteration using the
+            # iteration metadata name and number.
+            for src, _id, _parent, _type in self._handle_iteration(
+                iter_data, iter_name, iter_number, result_json
+            ):
+                yield src, _id, _parent, _type
         return
 
     def _handle_iteration(self, iter_data, iter_name, iter_number, result_json):
@@ -1566,7 +1560,7 @@ class ResultData(PbenchData):
             # FIXME: this is a "traffigen" specific field; we take care of
             # this here because we don't have a mechanism for source-data-
             # specific transformations external to the code.
-            bm_md["trafficgen_uid_tmpl"] = bm_md["trafficgen_uid"]
+            bm_md["uid_tmpl"] = bm_md["trafficgen_uid"]
         except KeyError:
             # Ignore a missing 'trafficgen_uid' field
             pass
@@ -1574,8 +1568,8 @@ class ResultData(PbenchData):
             # Now that we have a proper "template" field, generate the actual
             # UID from the template using the existing metadata we have
             # collected.
-            bm_md["trafficgen_uid"] = ResultData.expand_template(
-                bm_md["trafficgen_uid_tmpl"], bm_md, run=self.run_metadata
+            bm_md["uid"] = ResultData.expand_template(
+                bm_md["uid_tmpl"], bm_md, run=self.run_metadata
             )
 
         iteration = _dict_const(
@@ -1597,8 +1591,8 @@ class ResultData(PbenchData):
         # array of result data for the given sample.  And iteration can have
         # N samples, so we yield N sample documents, each followed by M result
         # data documents.
-        for source, _parent, _type in ResultData.gen_sources(
-            self, iter_data, iteration, self.mk_abs_timestamp_millis
+        for source, _parent, _type in self.gen_sources(
+            iter_data, iteration, self.mk_abs_timestamp_millis
         ):
             yield source, PbenchData.make_source_id(
                 source, _parent=_parent
@@ -1690,8 +1684,7 @@ class ResultData(PbenchData):
             result_el["mean"] = mean_val
         return result_el, samples
 
-    @staticmethod
-    def gen_sources(obj, results, iteration, cvt_ts):
+    def gen_sources(self, results, iteration, cvt_ts):
         """Generate actual source documents from the given results object.
 
         This generator yields: source, parent_id, doc_type
@@ -1702,7 +1695,7 @@ class ResultData(PbenchData):
         run_md_subset = _dict_const(
             [("id", iteration["run"]["id"]), ("name", iteration["run"]["name"])]
         )
-        for result_type in ["latency", "resource", "throughput"]:
+        for result_type in self.RESULTS_TYPE:
             try:
                 result_type_results = results[result_type]
             except KeyError:
@@ -1738,12 +1731,12 @@ class ResultData(PbenchData):
                         try:
                             tseries = sample["timeseries"]
                         except KeyError:
-                            obj.counters["sample_missing_timeseries"] += 1
+                            self.counters["sample_missing_timeseries"] += 1
                             tseries = None
                         else:
                             del sample["timeseries"]
                             if not tseries:
-                                obj.counters["sample_empty_timeseries"] += 1
+                                self.counters["sample_empty_timeseries"] += 1
                         if tseries:
                             start = tseries[0]
                             end = tseries[-1]
@@ -1751,23 +1744,23 @@ class ResultData(PbenchData):
                                 start_ts = cvt_ts(start["date"])
                                 end_ts = cvt_ts(end["date"])
                             except KeyError:
-                                obj.counters["timeseries_missing_date"] += 1
+                                self.counters["timeseries_missing_date"] += 1
                                 # FIXME: Hack
-                                start_ts = obj.ptb.start_run
+                                start_ts = self.ptb.start_run
                                 tseries = start = end = None
                             except BadDate:
                                 # Ignore entire sample if start/end timestamps
                                 # are bad.  Already counted.
-                                obj.counters["timeseries_bad_dates"] += 1
+                                self.counters["timeseries_bad_dates"] += 1
                                 # FIXME: Hack
-                                start_ts = obj.ptb.start_run
+                                start_ts = self.ptb.start_run
                                 tseries = start = end = None
                             else:
                                 sample_md["start"] = start_ts
                                 sample_md["end"] = end_ts
                         else:
                             # FIXME: Hack
-                            start_ts = obj.ptb.start_run
+                            start_ts = self.ptb.start_run
                             start = end = None
                         # Now we can emit the sample document knowing the
                         # ID of its iteration parent document.
@@ -3016,7 +3009,7 @@ class ToolData(PbenchData):
                 )
                 self.counters["unrecognized_subformat"] += 1
                 continue
-            path = os.path.join(self.ptb.extracted_root, output_file["path"])
+            path = Path(self.ptb.extracted_root, output_file["path"])
             with open(path, "r") as file_object:
                 for record in func(self, file_object, converter, output_file["path"]):
                     source_id = PbenchData.make_source_id(record)
@@ -3037,7 +3030,7 @@ class ToolData(PbenchData):
         """
         for df in self.files:
             try:
-                with open(os.path.join(self.ptb.extracted_root, df["path"])) as fp:
+                with open(Path(self.ptb.extracted_root, df["path"])) as fp:
                     payload = json.load(fp)
             except Exception as e:
                 self.logger.warning(
@@ -3164,7 +3157,7 @@ class ToolData(PbenchData):
         Fetch the list of .csv files for this tool, fetch their headers, and
         return a dictionary mapping their column headers to their field names.
         """
-        path = os.path.join(basepath, "csv")
+        path = Path(basepath, "csv")
         paths = ptb.gen_files_by_partial_path(path)
         datafiles = []
         for p in paths:
@@ -3197,7 +3190,7 @@ class ToolData(PbenchData):
             assert handler_rec is not None, "Logic bomb! handler_rec is None"
             datafile = _dict_const(path=p, basename=fname, handler_rec=handler_rec)
             datafile["reader"] = reader = csv.reader(
-                open(os.path.join(ptb.extracted_root, p))
+                open(Path(ptb.extracted_root, p))
             )
             datafile["header"] = next(reader)
             datafiles.append(datafile)
@@ -3209,7 +3202,7 @@ class ToolData(PbenchData):
         Fetch the list of json files for this tool, and return a list of dicts
         containing their metadata.
         """
-        path = os.path.join(basepath, "json")
+        path = Path(basepath, "json")
         paths = ptb.gen_files_by_partial_path(path)
         datafiles = []
         for p in paths:
@@ -3225,7 +3218,7 @@ class ToolData(PbenchData):
         containing their metadata.
         """
         stdout_file = "{0}-stdout.txt".format(tool)
-        path = os.path.join(basepath, stdout_file)
+        path = Path(basepath, stdout_file)
         paths = ptb.gen_files_by_partial_path(path)
         datafiles = []
         for p in paths:
@@ -3563,7 +3556,7 @@ class Iteration:
                     self.number = 1
                 else:
                     raise BadIterationName(self.name)
-        self.path = os.path.join(ptb.extracted_root, ptb.dirname, self.name)
+        self.path = Path(ptb.extracted_root, ptb.dirname, self.name)
         self.md = iter_dict
 
 
@@ -3587,7 +3580,7 @@ class Sample:
                 self.number = 1
             else:
                 raise BadSampleName(name)
-        self.path = os.path.join(iteration.path, name)
+        self.path = Path(iteration.path, name)
 
 
 class PbenchTarBall:
@@ -3638,11 +3631,11 @@ class PbenchTarBall:
             )
 
         self.extracted_root = extracted_root
-        if not os.path.isdir(os.path.join(self.extracted_root, self.dirname)):
+        if not Path(self.extracted_root, self.dirname).is_dir():
             raise UnsupportedTarballFormat(
                 '{} - extracted tar ball directory "{}" does not'
                 " exist.".format(
-                    self.tbname, os.path.join(self.extracted_root, self.dirname)
+                    self.tbname, Path(self.extracted_root, self.dirname)
                 )
             )
         # Open the MD5 file of the tar ball and read the MD5 sum from it.
@@ -3650,7 +3643,7 @@ class PbenchTarBall:
         # Construct the @metadata and run metadata dictionaries from the
         # metadata.log file.
         self.mdconf = ConfigParser()
-        mdf = os.path.join(self.extracted_root, metadata_log_path)
+        mdf = Path(self.extracted_root, metadata_log_path)
         try:
             # Read and parse the metadata.log file.
             self.mdconf.read(mdf)
@@ -3808,7 +3801,7 @@ class PbenchTarBall:
         pattern.
         """
         for member in self.members:
-            if member.isfile() and member.name.find(path) >= 0:
+            if member.isfile() and member.name.find(str(path)) >= 0:
                 yield member.name
 
     _iter_num_pat = re.compile(r"(?P<num>^[1-9][0-9]*)-")
@@ -4051,7 +4044,7 @@ class PbenchTarBall:
         for x in sosreports:
             # x is the *sosreport*.tar.xz.md5 filename
             sos = x[: x.rfind(".md5")]
-            md5f = os.path.join(self.extracted_root, x)
+            md5f = Path(self.extracted_root, x)
             try:
                 with open(md5f, "r") as fp:
                     md5_val = fp.read()[:-1]
@@ -4064,7 +4057,7 @@ class PbenchTarBall:
                 )
                 continue
             ret_val = hostnames_if_ip_from_sosreport(
-                os.path.join(self.extracted_root, sos)
+                Path(self.extracted_root, sos)
             )
             # get hostname (short and FQDN) from sosreport
             d = _dict_const()
