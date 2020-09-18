@@ -1,0 +1,12 @@
+#!/bin/bash
+
+imageName="${1}"
+tags_file="${2}"
+
+function apply_tag {
+    buildah tag ${1} ${1}:${2}
+}
+
+for tag in $(cat ${tags_file}); do
+    apply_tag ${imageName} ${tag}
+done

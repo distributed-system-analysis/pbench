@@ -1,3 +1,4 @@
 *.Dockerfile
 *.repo
 *.yml
+*-tags.lis
