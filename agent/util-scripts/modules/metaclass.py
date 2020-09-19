@@ -3,21 +3,26 @@ import json
 import os
 
 
+class BadConstruction(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return repr(self.msg)
+
+
 class ToolMetadata:
     def __init__(self, mode, context, logger):
         self.logger = logger
         if mode not in ("redis", "json"):
-            raise Exception()
+            raise (BadConstruction("Mode was not 'json' or 'redis'"))
         if not context:
-            raise Exception()
+            raise (BadConstruction("No proper context given"))
         self.mode = mode
         if mode == "redis":
             self.redis_server = context
             self.json_file = None
         else:
-            if not self.mode == "json":
-                self.mode = json
-                self.logger.debug("Defaulting mode to json")
             self.redis_server = None
             json_path = Path(context, "tool-scripts", "meta.json")
             try:
@@ -26,12 +31,9 @@ class ToolMetadata:
                 raise Exception(f"missing {json_path}")
             except Exception:
                 raise
-        self.data = None
+        self.data = self.__getInitialData()
 
-    def getFullData(self):
-        if self.data:
-            return self.data
-
+    def __getInitialData(self):
         if self.mode == "json":
             if not os.path.isfile(self.json):
                 self.logger.error(
@@ -40,7 +42,6 @@ class ToolMetadata:
                 return None
             with self.json.open("r") as json_file:
                 metadata = json.load(json_file)
-                self.data = metadata
         elif self.mode == "redis":
             try:
                 meta_raw = self.redis_server.get("tool-metadata")
@@ -49,17 +50,21 @@ class ToolMetadata:
                     return None
                 meta_str = meta_raw.decode("utf-8")
                 metadata = json.loads(meta_str)
-                self.data = metadata
             except Exception:
                 self.logger.error("Failure to reach redis server")
-        return self.data
+        return metadata
 
     def __dataCheck(self):
         if not self.data:
-            if not self.getFullData():
+            if not self.__getInitialData():
                 self.logger.error(f"Unable to access data through {self.mode}")
                 return 0
         return 1
+
+    def getFullData(self):
+        if self.__dataCheck():
+            return self.data
+        return None
 
     def getPersistentTools(self):
         if self.__dataCheck():

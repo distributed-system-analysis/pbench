@@ -22,6 +22,9 @@ import subprocess
 import sys
 import tempfile
 
+cwd = os.getcwd()
+sys.path.append(cwd)
+
 from modules import metaclass
 
 from distutils.spawn import find_executable
