@@ -22,11 +22,6 @@ import subprocess
 import sys
 import tempfile
 
-cwd = os.getcwd()
-sys.path.append(cwd)
-
-from modules import metaclass
-
 from distutils.spawn import find_executable
 from http import HTTPStatus
 from pathlib import Path
@@ -38,6 +33,8 @@ import pidfile
 import redis
 
 from bottle import Bottle, ServerAdapter, request, abort
+
+from pbench.agent.modules import metaclass
 
 
 # Read in 64 KB chunks off the wire for HTTP PUT requests.
@@ -142,7 +139,6 @@ class BaseCollector:
 
 
 class PromCollector(BaseCollector):
-
     def __init__(self, benchmark_run_dir, host_tools_dict, logger, tool_metadata):
         super().__init__(benchmark_run_dir, host_tools_dict, logger, tool_metadata)
         self.volume = self.benchmark_run_dir + "/prom_vol"
@@ -578,7 +574,10 @@ class ToolDataSink(Bottle):
 
                 if prom_tool_dict:
                     self._prom_server = PromCollector(
-                        self.benchmark_run_dir, prom_tool_dict, self.logger, self.tool_metadata
+                        self.benchmark_run_dir,
+                        prom_tool_dict,
+                        self.logger,
+                        self.tool_metadata,
                     )
                     self._prom_server.launch()
             elif self.state == "end":

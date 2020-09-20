@@ -51,18 +51,16 @@ import sys
 import tempfile
 import time
 
-cwd = os.getcwd()
-sys.path.append(cwd)
-
 from distutils.spawn import find_executable
 from pathlib import Path
-from modules import metaclass
 
 import daemon
 import pidfile
 import redis
 
 from pbench.server.utils import md5sum
+from pbench.agent.modules import metaclass
+
 
 # Path to external tar executable.
 tar_path = None

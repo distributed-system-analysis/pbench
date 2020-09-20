@@ -25,17 +25,14 @@ import signal
 import sys
 import time
 
-cwd = os.getcwd()
-sys.path.append(cwd)
-
 from distutils.spawn import find_executable
 from pathlib import Path
-from modules import metaclass
 
 import redis
 
 from pbench.agent.tool_data_sink import main as tds_main
 from pbench.agent.tool_meister import main as tm_main
+from pbench.agent.modules import metaclass
 
 
 # Port number is "One Tool" in hex 0x17001
@@ -374,7 +371,9 @@ def main(argv):
         assert resp["data"] == 1, f"bad data: {resp!r}"
 
     # 2.5. Add tool metadata json to redis
-    tm_start_path = Path(Path(__file__).resolve(), "..", "..", "tool-scripts", "meta.json").resolve(strict=True)
+    tm_start_path = Path(
+        Path(__file__).resolve(), "..", "..", "tool-scripts", "meta.json"
+    ).resolve(strict=True)
     tool_metadata = metaclass.ToolMetadata("redis", redis_server, logger)
     tool_metadata.loadIntoRedis(tm_start_path)
 
