@@ -1,5 +1,5 @@
 +++ Running test-59 pbench-postprocess-tools --group=foobar --dir=42-iter/sample42
-[error][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] expected tool output directory, "42-iter/sample42/tools-foobar", does not exist
+[01;31m[pbench-postprocess-tools] expected tool output directory, "42-iter/sample42/tools-foobar", does not exist[0m
 --- Finished test-59 pbench-postprocess-tools (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -18,5 +18,5 @@ bar
 --interval=10
 --- pbench tree state
 +++ pbench.log file contents
-[error][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] expected tool output directory, "42-iter/sample42/tools-foobar", does not exist
+[ERROR][1900-01-01T00:00:00.000000] [pbench-postprocess-tools] expected tool output directory, "42-iter/sample42/tools-foobar", does not exist
 --- pbench.log file contents

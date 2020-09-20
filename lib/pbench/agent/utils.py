@@ -2,6 +2,7 @@ import logging
 import os
 
 import colorlog
+import sh
 
 
 def setup_logging(name=None, debug=False, logfile=None):
@@ -58,3 +59,24 @@ def setup_logging(name=None, debug=False, logfile=None):
     log.addHandler(stream_handler)
 
     return log
+
+
+def run_command(command, *args, **kwargs):
+    """Helper method to shell out and execute a command through sh
+
+    :param cmd: Passed sh.Command instance
+    :param args: Optional command args
+    :param bg: background process, true is default
+    :param out: filepointer to save the output of the command to
+    """
+    out = kwargs.pop("logfile", None)
+
+    if kwargs:
+        raise Exception("Got an unknown keyworkd args: %s", kwargs)
+
+    try:
+        output = command(*args, _out=out)
+    except sh.CommandNotFound as ex:
+        raise Exception("Command not found: %s", ex)
+
+    return output
