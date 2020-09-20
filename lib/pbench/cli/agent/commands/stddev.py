@@ -3,7 +3,8 @@ import click
 import numpy as np
 
 
-@click.command("values", nargs=-1, type=click.FLOAT)
+@click.command()
+@click.argument("values", nargs=-1, type=click.FLOAT)
 def main(values):
     values = list(values)
     avg = np.average(values)

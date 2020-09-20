@@ -1,6 +1,7 @@
-import click
+from configparser import ConfigParser, NoSectionError
+import sys
 
-from pbench.cli.agent.commands.log import add_metalog_option
+import click
 
 
 @click.command()
@@ -8,4 +9,14 @@ from pbench.cli.agent.commands.log import add_metalog_option
 @click.argument("section")
 @click.argument("option")
 def main(lfile, section, option):
-    add_metalog_option(lfile, section, option)
+    config = ConfigParser()
+    config.read(lfile)
+    # python3
+    # config[section][option] = ', '.join(sys.stdin.read().split())
+    sin = sys.stdin.read().replace("%", "%%")
+    try:
+        config.set(section, option, ", ".join(sin.split()))
+    except NoSectionError:
+        config.add_section(section)
+        config.set(section, option, ", ".join(sin.split()))
+    config.write(open(lfile, "w"))
