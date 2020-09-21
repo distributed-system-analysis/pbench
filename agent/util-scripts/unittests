@@ -21,7 +21,7 @@ export _testdir=${_testroot}/pbench
 # Copy util-scripts execution environment to _testroot
 _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p ${_testopt}/config ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
+mkdir -p ${_testopt}/config ${_testopt}/util-scripts/tool-meister ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
 let res=res+${?}
 cp -L ${_tdir}/../base ${_testopt}/
 let res=res+${?}
@@ -30,6 +30,8 @@ cp -rL ${_tdir}/../config/* ${_testopt}/config/
 mv ${_testopt}/config/pbench-agent.cfg ${_testopt}/config/pbench-agent.cfg.orig
 let res=res+${?}
 cp -a ${_tdir}/{require-rpm,pbench-*} ${_testopt}/util-scripts/
+let res=res+${?}
+cp -a ${_tdir}/tool-meister/pbench-* ${_testopt}/util-scripts/tool-meister/
 let res=res+${?}
 scripts="${_tdir}/../tool-scripts/*"
 for script in ${scripts}; do

@@ -860,8 +860,9 @@ def main(argv):
     Returns 0 on success, > 0 when an error occurs.
 
     """
-    PROG = os.path.basename(argv[0])
-    pbench_bin = os.path.dirname(os.path.dirname(argv[0]))
+    _prog = Path(argv[0])
+    PROG = _prog.name
+    pbench_bin = _prog.parent.parent.parent
 
     try:
         redis_host = argv[1]
@@ -874,7 +875,7 @@ def main(argv):
     global tar_path
     tar_path = find_executable("tar")
     if tar_path is None:
-        print(f"External 'tar' executable not found.", file=sys.stderr)
+        print("External 'tar' executable not found.", file=sys.stderr)
         return 2
 
     logger = logging.getLogger(PROG)

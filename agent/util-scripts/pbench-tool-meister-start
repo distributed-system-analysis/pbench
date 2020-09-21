@@ -30,6 +30,9 @@ from pathlib import Path
 
 import redis
 
+from pbench.agent.tool_data_sink import main as tds_main
+from pbench.agent.tool_meister import main as tm_main
+
 
 # Port number is "One Tool" in hex 0x17001
 # FIXME: move to common area
@@ -232,11 +235,24 @@ def kill_redis_server(pid_file):
             return 1
 
 
+def waitpid(pid):
+    """Wrapper for os.waitpid()
+
+    Returns the exit status of the given process ID.
+
+    Raises an exception if the final exit PID is different from the given PID.
+    """
+    exit_pid, _exit_status = os.waitpid(pid, 0)
+    if pid != exit_pid:
+        raise Exception(f"Logic bomb!  exit pid, {exit_pid}, does not match pid, {pid}")
+    exit_status = os.WEXITSTATUS(_exit_status)
+    return exit_status
+
+
 def main(argv):
     """Main program for the tool meister start.
     """
     _prog = Path(argv[0])
-    _prog_dir = _prog.parent
     PROG = _prog.name
     logger = logging.getLogger(PROG)
     if os.environ.get("_PBENCH_TOOL_MEISTER_START_LOG_LEVEL") == "debug":
@@ -355,7 +371,6 @@ def main(argv):
 
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process
-    #   - FIXME: use podman to start a tool-data-sink container
     tds_param_key = "tds-{}".format(group)
     tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir)
     try:
@@ -365,45 +380,42 @@ def main(argv):
             "failed to create tool data sink parameter key in redis server"
         )
         return kill_redis_server(redis_pid)
-    data_sink = "pbench-tool-data-sink"
-    data_sink_path = _prog_dir / data_sink
     logger.debug("starting tool data sink")
     try:
-        retcode = os.spawnl(
-            os.P_WAIT,
-            data_sink_path,
-            data_sink,
-            "localhost",
-            str(redis_port),
-            tds_param_key,
-        )
+        pid = os.fork()
+        if pid == 0:
+            # In the child: the main() of the Tool Data Sink module will not
+            # return here since it will daemonize itself and this child pid
+            # will be replaced by a new pid.
+            status = tds_main(
+                ["pbench-tool-data-sink", "localhost", str(redis_port), tds_param_key]
+            )
+            sys.exit(status)
+        else:
+            # In the parent: wait for the child to finish daemonizing itself.
+            retcode = waitpid(pid)
+            if retcode != 0:
+                logger.error(
+                    "failed to create pbench data sink, daemonized; return code: %d",
+                    retcode,
+                )
     except Exception:
         logger.exception("failed to create pbench data sink, daemonized")
         return kill_redis_server(redis_pid)
-    else:
-        if retcode != 0:
-            logger.error(
-                "failed to create pbench data sink, daemonized; return code: %d",
-                retcode,
-            )
-            return kill_redis_server(redis_pid)
 
     # 4. Start all the local and remote tool meister processes
     #   - leave a PID file on each local/remote host
-    #   - FIXME: use podman on the remote hosts to start a tool meister
-    #            container
     failures = 0
     successes = 0
-    tool_meister_cmd = "pbench-tool-meister"
+    tool_meister_cmd = _prog.parent / "tool-meister" / "pbench-tool-meister"
     # NOTE: it is assumed that the location of the pbench-tool-meister command
     # is the same on the local host as it is on any remote host.
-    tool_meister_cmd_path = _prog_dir / tool_meister_cmd
     ssh_cmd = "ssh"
     ssh_path = find_executable(ssh_cmd)
     args = [
         ssh_cmd,
         "<host replace me>",
-        tool_meister_cmd,
+        str(tool_meister_cmd),
         full_hostname,
         str(redis_port),
         "<tm param key>",
@@ -436,34 +448,41 @@ def main(argv):
         if host == full_hostname:
             logger.debug("starting localhost tool meister")
             try:
-                retcode = os.spawnl(
-                    os.P_WAIT,
-                    tool_meister_cmd_path,
-                    tool_meister_cmd,
-                    "localhost",
-                    str(redis_port),
-                    tm_param_key,
-                )
+                pid = os.fork()
+                if pid == 0:
+                    # In the child: the main() of the Tool Meister module will
+                    # not return here since it will daemonize itself and this
+                    # child pid will be replaced by a new pid.
+                    status = tm_main(
+                        [
+                            str(tool_meister_cmd),
+                            "localhost",
+                            str(redis_port),
+                            tm_param_key,
+                        ]
+                    )
+                    sys.exit(status)
+                else:
+                    # In the parent: wait for the child to finish daemonizing
+                    # itself.
+                    retcode = waitpid(pid)
+                    if retcode != 0:
+                        logger.error(
+                            "failed to create localhost tool meister,"
+                            " daemonized; return code: %d",
+                            retcode,
+                        )
             except Exception:
                 logger.exception("failed to create localhost tool meister, daemonized")
                 failures += 1
             else:
-                if retcode == 0:
-                    successes += 1
-                else:
-                    logger.error(
-                        "failed to create localhost tool meister,"
-                        " daemonized; return code: %d",
-                        retcode,
-                    )
-                    failures += 1
+                successes += 1
             continue
         args[1] = host
         args[5] = tm_param_key
         logger.debug(
             "starting remote tool meister, ssh_path=%r args=%r", ssh_path, args
         )
-        # FIXME: should we consider using Ansible instead?
         try:
             pid = os.spawnv(os.P_NOWAIT, ssh_path, args)
         except Exception:
