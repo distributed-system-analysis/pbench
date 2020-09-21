@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 import click
-import six
 
 
 class BaseCommand(metaclass=abc.ABCMeta):
@@ -15,9 +14,6 @@ class BaseCommand(metaclass=abc.ABCMeta):
     def __init__(self, context):
         self.context = context
 
-        if six.PY2:
-            click.secho("python3 required, either directly or through SCL", err="red")
-            sys.exit(1)
         self.config = self.context.config
 
         # very first thing to do is figure out which pbench we are
@@ -49,7 +45,8 @@ class BaseCommand(metaclass=abc.ABCMeta):
             )
             sys.exit(1)
         self.pbench_bspp_dir = os.environ.get(
-            "pbench_bspp_dir", (self.pbench_install_dir / "bench-scripts/postprocess")
+            "pbench_bspp_dir",
+            (self.pbench_install_dir / "bench-scripts" / "postprocess"),
         )
         self.pbench_lib_dir = Path(
             os.environ.get("pbench_lib_dir", self.config.pbench_lib_dir)

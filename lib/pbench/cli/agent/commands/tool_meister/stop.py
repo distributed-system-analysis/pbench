@@ -12,12 +12,12 @@ import click
 
 from pbench.cli.agent import pass_cli_context
 from pbench.cli.agent.options import common_options
-from pbench.agent.meister.base import MeisterCommand
+from pbench.agent.tool_meister.base import MeisterCommand
 
 
 class Stop(MeisterCommand):
     def __init__(self, context):
-        super(Stop, self).__init__(context)
+        super().__init__(context)
 
     def execute(self):
         return self.stop()

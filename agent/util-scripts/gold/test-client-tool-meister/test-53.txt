@@ -68,7 +68,7 @@
 [info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "default"
 --- pbench.log file contents
 +++ mock-run/tm/pbench-tool-data-sink.err file contents
-Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class 'pbench.agent.meister.sink.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
+Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class 'pbench.agent.tool_meister.sink.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
 Listening on http://0.0.0.0:8080/
 Hit Ctrl-C to quit.
 

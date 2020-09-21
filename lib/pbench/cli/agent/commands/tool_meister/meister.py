@@ -41,14 +41,14 @@ import sys
 
 import click
 
-from pbench.agent.meister.base import MeisterCommand
+from pbench.agent.tool_meister.base import MeisterCommand
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.options import common_options
 
 
 class Meister(MeisterCommand):
     def __init__(self, context):
-        super(Meister, self).__init__(context)
+        super().__init__(context)
 
     def execute(self):
         return self.meister()

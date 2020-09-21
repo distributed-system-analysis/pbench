@@ -7,7 +7,7 @@ import daemon
 import pidfile
 import redis
 
-from pbench.agent.meister import Terminate, ToolMeister
+from pbench.agent.tool_meister import Terminate, ToolMeister
 
 
 class MeisterMixIn:

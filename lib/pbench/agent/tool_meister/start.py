@@ -1,5 +1,4 @@
 import errno
-from jinja2 import Environment, FileSystemLoader
 import json
 import logging
 import os
@@ -10,9 +9,9 @@ from distutils.spawn import find_executable
 from pathlib import Path
 
 import redis
+from jinja2 import Environment, FileSystemLoader
 
 from pbench.agent.tools import ToolGroup
-
 
 # Maximum time to wait for the Redis server to respond.
 REDIS_MAX_WAIT = 60

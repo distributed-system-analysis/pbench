@@ -21,7 +21,7 @@ import daemon
 import pidfile
 import redis
 
-from pbench.agent.meister.sink import ToolDataSink
+from pbench.agent.tool_meister.sink import ToolDataSink
 
 
 @click.command(help="")

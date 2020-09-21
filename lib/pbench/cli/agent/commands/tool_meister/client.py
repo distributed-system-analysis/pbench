@@ -10,14 +10,14 @@ import sys
 
 import click
 
-from pbench.agent.meister.base import MeisterCommand
+from pbench.agent.tool_meister.base import MeisterCommand
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.options import common_options
 
 
 class Client(MeisterCommand):
     def __init__(self, context):
-        super(Client, self).__init__(context)
+        super().__init__(context)
 
         # FIXME: move to common area
         self.redis_host = "localhost"
