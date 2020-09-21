@@ -3,5 +3,8 @@ default, none, all, block, libvirt, kernel_config, security_mitigations, sos, to
 --- Finished test-24 pbench-collect-sysinfo (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
++++ pbench.log file contents
+--- pbench.log file contents

@@ -44,7 +44,7 @@ class PostprocessMixIn:
                         sh.Command(tool),
                         "--postprocess",
                         f"--dir={host_tool_output_dir}",
-                        logfile=logfile,
+                        out=logfile,
                     )
                     if result.exit_code != 0:
                         print(logfile.read_text())

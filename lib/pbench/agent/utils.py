@@ -66,10 +66,9 @@ def run_command(command, *args, **kwargs):
 
     :param cmd: Passed sh.Command instance
     :param args: Optional command args
-    :param bg: background process, true is default
     :param out: filepointer to save the output of the command to
     """
-    out = kwargs.pop("logfile", None)
+    out = kwargs.pop("out", None)
 
     if kwargs:
         raise Exception("Got an unknown keyworkd args: %s", kwargs)
