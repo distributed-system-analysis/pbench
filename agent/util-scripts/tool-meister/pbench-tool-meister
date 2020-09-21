@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+"""Simple command-line wrapper to keep the tool meister from being in the CLI
+command set, while still allowing it to be invoked remotely via SSH by
+internal code.
+"""
+
+import sys
+
+from pbench.agent.tool_meister import main
+
+
+status = main(sys.argv)
+sys.exit(status)
