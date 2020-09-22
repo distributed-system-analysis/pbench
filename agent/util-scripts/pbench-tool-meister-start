@@ -371,11 +371,16 @@ def main(argv):
         assert resp["data"] == 1, f"bad data: {resp!r}"
 
     # 2.5. Add tool metadata json to redis
-    tm_start_path = Path(
-        Path(__file__).resolve(), "..", "..", "tool-scripts", "meta.json"
-    ).resolve(strict=True)
-    tool_metadata = metaclass.ToolMetadata("redis", redis_server, logger)
-    tool_metadata.loadIntoRedis(tm_start_path)
+    try:
+        tm_start_path = Path(
+            Path(__file__).resolve(), "..", ".."
+        ).resolve(strict=True)
+    except FileNotFoundError:
+        raise Exception(f"missing {tm_start_path}")
+    except Exception:
+        raise
+    tool_metadata = metaclass.ToolMetadata("json", tm_start_path, logger)
+    tool_metadata.loadIntoRedis(redis_server)
 
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process

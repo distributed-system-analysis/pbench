@@ -46,7 +46,7 @@ class ToolMetadata:
             try:
                 meta_raw = self.redis_server.get("tool-metadata")
                 if meta_raw is None:
-                    self.logger.error("Metadata was never loaded into redis")
+                    self.logger.error("Metadata has not been loaded into redis yet")
                     return None
                 meta_str = meta_raw.decode("utf-8")
                 metadata = json.loads(meta_str)
@@ -56,7 +56,8 @@ class ToolMetadata:
 
     def __dataCheck(self):
         if not self.data:
-            if not self.__getInitialData():
+            self.data == self.__getInitialData()
+            if not self.data:
                 self.logger.error(f"Unable to access data through {self.mode}")
                 return 0
         return 1

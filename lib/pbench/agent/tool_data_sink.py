@@ -118,9 +118,10 @@ class DataSinkWsgiServer(ServerAdapter):
 class BaseCollector:
     allowed_tools = {"noop-collector": None}
 
-    def __init__(self, benchmark_run_dir, host_tools_dict, logger, tool_metadata):
+    def __init__(self, benchmark_run_dir, tool_group, host_tools_dict, logger, tool_metadata):
         self.run = None
-        self.benchmark_run_dir = str(benchmark_run_dir)
+        self.benchmark_run_dir = benchmark_run_dir
+        self.tool_group = tool_group
         self.host_tools_dict = host_tools_dict
         self.logger = logger
         self.tool_metadata = tool_metadata
@@ -139,9 +140,9 @@ class BaseCollector:
 
 
 class PromCollector(BaseCollector):
-    def __init__(self, benchmark_run_dir, host_tools_dict, logger, tool_metadata):
-        super().__init__(benchmark_run_dir, host_tools_dict, logger, tool_metadata)
-        self.volume = self.benchmark_run_dir + "/prom_vol"
+    def __init__(self, benchmark_run_dir, tool_group, host_tools_dict, logger, tool_metadata):
+        super().__init__(benchmark_run_dir, tool_group, host_tools_dict, logger, tool_metadata)
+        self.volume = self.benchmark_run_dir / "prom_vol"
 
     def launch(self):
 
@@ -220,12 +221,12 @@ class PromCollector(BaseCollector):
 
         self.logger.debug("PROM TERMINATED")
 
-        os.mkdir(str(self.benchmark_run_dir) + "/prom_data")
+        os.mkdir(self.benchmark_run_dir / f"tools-{self.tool_group}" / "prometheus")
 
         args = [
             "tar",
             "-zcvf",
-            f"{self.benchmark_run_dir}/prom_data/prometheus_data.tar.gz",
+            f"{self.benchmark_run_dir}/tools-{self.tool_group}/prometheus/prometheus_data.tar.gz",
             "-C",
             f"{self.benchmark_run_dir}/",
             "prom_vol",
@@ -575,6 +576,7 @@ class ToolDataSink(Bottle):
                 if prom_tool_dict:
                     self._prom_server = PromCollector(
                         self.benchmark_run_dir,
+                        self.tool_group,
                         prom_tool_dict,
                         self.logger,
                         self.tool_metadata,
