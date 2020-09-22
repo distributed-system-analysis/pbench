@@ -11,3 +11,5 @@ dist
 *.egg-info
 .tox
 .eggs
+Pipfile
+Pipfile.lock
