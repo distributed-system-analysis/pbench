@@ -20,7 +20,7 @@ if [[ ${?} -ne 0 ]]; then
 	exit 1
 fi
 
-dirs="$(find -mindepth 1 -type d)"
+dirs="$(find -mindepth 1 -type d | sort)"
 if [[ -z "${dirs}" ]]; then
 	printf -- "%s: CPU accounting appears disabled, no sub-directories found\n" "${PROG}" >&2
 	exit 1
