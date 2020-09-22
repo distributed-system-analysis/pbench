@@ -353,6 +353,8 @@ declare -A tools=(
     [test-48]="test-add-metalog-%-option"
     [test-49]="pbench-copy-results"
     [test-50]="test-pbench-metadata-log"
+    [test-51]="pbench-start-tools"
+    [test-52]="pbench-register-tool"
 )
 
 declare -A options=(
@@ -421,6 +423,8 @@ declare -A options=(
     [test-46]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-47]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis --labels=labelOne,labelTwo"
     [test-49]="--prefix=foo/bar3% --user=ndk20%"
+    [test-51]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample --group=default"
+    [test-52]="--name=tcpdump --group=default --no-install -- --interface=br1 --packets=1000"
 )
 
 declare -A expected_status=(
