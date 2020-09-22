@@ -30,7 +30,7 @@ function register {
     else
         local remote_arg=" --remote ${2}"
     fi
-    pbench-register-tool --group "${group}" --name ${1}${remote_arg}
+    pbench-register-tool --group "${group}" --name ${1}${remote_arg} -- --interval=42 --options=forty-two
     status=${?}
     if [[ ${status} -ne 0 ]]; then
         printf -- "ERROR - \"pbench-register-tool --group %s --name %s\" failed to execute successfully (exit code: %s)\n" "${group}" "${1}${remote_arg}" "${status}" >&2
