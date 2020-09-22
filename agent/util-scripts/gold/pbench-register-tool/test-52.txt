@@ -1,0 +1,17 @@
++++ Running test-52 pbench-register-tool --name=tcpdump --group=default --no-install -- --interface=br1 --packets=1000
+tcpdump tool is now registered in group default
+--- Finished test-52 pbench-register-tool (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-default/tcpdump
+=== /var/tmp/pbench-test-utils/pbench/tools-default/tcpdump:
+--interface=br1
+--packets=1000
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interface=br1 --packets=1000"
+[info][1900-01-01T00:00:00.000000] tcpdump tool is now registered in group default
+--- pbench.log file contents

@@ -1,0 +1,33 @@
++++ Running test-51 pbench-start-tools --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample --group=default
+--- Finished test-51 pbench-start-tools (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/mock-run
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/.screen.d
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/.screen.d/default-tcpdump
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/.screen.d/default-tcpdump/command
+/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default/tcpdump
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tools-default
+/var/tmp/pbench-test-utils/pbench/tools-default/tcpdump
+=== /var/tmp/pbench-test-utils/pbench/tools-default/tcpdump:
+--interface=br1
+--packets=1000
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]started: --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample --group=default
+[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]started: --dir /var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample --group default
+[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/tcpdump --kill --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default --interface=br1 --packets=1000
+[debug][1900-01-01T00:00:00.000000] [pbench-kill-tools]completed: 
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/tcpdump --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default --interface=br1 --packets=1000
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools] "#!/bin/bash  screen -dm -L -S "pbench-tool-default-tcpdump" /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/tcpdump --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default --interface=br1"
+[debug][1900-01-01T00:00:00.000000] [pbench-start-tools]completed: 
+--- pbench.log file contents
++++ test-execution.log file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -ls
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/screen -dm -L -S pbench-tool-default-tcpdump /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/tcpdump --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/mock-iteration/mock-sample/tools-default --interface=br1
+--- test-execution.log file contents
