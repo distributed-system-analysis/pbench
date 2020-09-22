@@ -6,7 +6,7 @@ COPY ./{{ pbench_repo_file }} /etc/yum.repos.d/pbench.repo
 
 # Install the pbench-agent RPM, which should have all its dependencies enumerated;
 # ... and make sure we have a proper pbench-agent.cfg file in place;
-# ... and finally, ensure the proper pbench-agent environment variables are setup.
+# ... and finally, ensure the proper pbench-agent environment variables are set up.
 RUN \
 {% if distro_image.startswith('centos') %}
     {{ pkgmgr }} install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ distro_image.split(':', 1)[1] }}.noarch.rpm && \
@@ -18,5 +18,4 @@ RUN \
     {{ pkgmgr }} install -y {% if distro_image == 'centos:8' %}--enablerepo PowerTools {% endif %}--enablerepo copr-pbench pbench-agent && \
     {{ pkgmgr }} -y clean all && \
     rm -rf /var/cache/yum && \
-    cp -a /opt/pbench-agent/config/pbench-agent.cfg.example /opt/pbench-agent/config/pbench-agent.cfg && \
-    source /etc/profile.d/pbench-agent.sh 
+    cp -a /opt/pbench-agent/config/pbench-agent.cfg.example /opt/pbench-agent/config/pbench-agent.cfg

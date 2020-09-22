@@ -65,9 +65,8 @@ push-major: centos-8-push-major centos-7-push-major fedora-32-push-major fedora-
 push-major-minor: centos-8-push-major-minor centos-7-push-major-minor fedora-32-push-major-minor fedora-31-push-major-minor
 
 #+
-# For the following rule patterns, the "%" represents, or represents
-# the "distribution" name, as derived from the "all" target's *-distro
-# list.
+# For the following rule patterns, the "%" represents the "distribution" name,
+# as derived from the "all" target's *-distro list.
 #-
 
 %-all-tagged: %-all %-tags.lis
@@ -137,12 +136,12 @@ push-major-minor: centos-8-push-major-minor centos-7-push-major-minor fedora-32-
 	./gen-tags-from-rpm "${URL_PREFIX}" "${@:-tags.lis=}" "${_ARCH}" > ${@}
 
 #+
-# For the following rules, the various CentOS "base" images need a maping
-# between the # distribution name and the repo name, which for CentOS images
-# is "epel".  And for both CentOS and Fedora the distribution image reference
-# the package manager (dnf vs yum), and image name also require a mapping
-# (e.g. centos-7 -> yum, centos:7, CentOS 7, fedora-32 -> dnf, fedora:32,
-# Fedora 32).
+# For the following rules, the various CentOS "base" images need a mapping
+# between the distribution name and the repo name, which for CentOS images
+# is "epel".  And for both CentOS and Fedora, the distribution image
+# reference, the package manager (dnf vs yum), and image name, also require
+# mappings (e.g. centos-7 -> yum, centos:7, CentOS 7, fedora-32 -> dnf,
+# fedora:32, Fedora 32).
 #-
 centos-8-base.Dockerfile: Dockerfile.base.j2 epel-8-pbench.repo
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=epel-8-pbench.repo -D pkgmgr=dnf -D distro_image=centos:8 -D distro_image_name="CentOS 8" -o $@
@@ -156,7 +155,7 @@ fedora-32-base.Dockerfile: Dockerfile.base.j2 fedora-32-pbench.repo
 fedora-31-base.Dockerfile: Dockerfile.base.j2 fedora-31-pbench.repo
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-31-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:31 -D distro_image_name="Fedora 31" -o $@
 
-# Rule pattern dependencies on non-patterned targets have to be setup
+# Rule pattern dependencies on non-patterned targets have to be set up
 # separately for some reason.
 %.repo: ${_REPO_TEMPLATE} 
 

@@ -1,6 +1,6 @@
 # Build Requirements
 
-Container image building requires the both the `buildah` and `jinja2` CLI
+Container image building requires both the `buildah` and `jinja2` CLI
 commands to be present.
 
 On Fedora 31 and later systems, use the following command to install the
@@ -14,7 +14,7 @@ required CLI interface RPMs:
     built RPMs in an accessible yum/dnf set of repos
 
   * We currently only support container images built from `x86_64`
-    archtecture RPMs
+    architecture RPMs
 
 # How to Use
 
@@ -58,7 +58,7 @@ Two tags are always applied to an image that is built, the `<git
 commit ID>` derived from the RPM version, and the version string of
 the RPM itself (without the trailing commit ID).
 
-Once can add additional local tags using the following targets when
+One can add additional local tags using the following targets when
 appropriate (these tags are not automatically applied at build time):
 
  * `tag-latest` - adds the `latest` label to the images with the
@@ -76,7 +76,7 @@ tagged images to a non-local container image repository.  By default
 we use `docker://quay.io/pbench` (you can override that via an
 environment variable).  We have separate push targets to allow the
 administrator of the container image repository to label the images
-based what they have built in relation to what has been published
+based on what they have built in relation to what has been published
 already.  The push targets are:
 
  * `push` - pushes all the images by their `<git commit ID>` tag,
