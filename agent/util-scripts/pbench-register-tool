@@ -212,7 +212,7 @@ if [[ ${remotes_arg::1} == "@" ]]; then
 		usage >&2
 		exit 1
 	fi
-	declare -A remotes_A
+	declare -a remotes_A
 	declare -A labels_A
 	idx=0
 	lineno=0
@@ -289,7 +289,7 @@ fi
 # The remainder of ${@} is now tool-specific options. The best way to not
 # mess up arguments seems to be using an array.
 idx=0
-declare -A tool_opts
+declare -a tool_opts
 while [[ -n "${1}" ]]; do
 	tool_opts[${idx}]="${1}"
 	let idx=${idx}+1
@@ -313,7 +313,7 @@ local_interfaces="${local_ips} ${hostname} ${full_hostname} localhost"
 idx=0
 local_hostname=""
 local_label=""
-declare -A remotes
+declare -a remotes
 for (( i=0; ${i} < ${#remotes_A[@]}; i++ )); do
 	remote="${remotes_A[${i}]}"
 	for local_interface in ${local_interfaces}; do

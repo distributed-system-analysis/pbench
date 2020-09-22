@@ -102,14 +102,27 @@ class ToolGroup(object):
                 self.hostnames[host] = {}
             for tdirent in os.listdir(self.tg_dir / host):
                 if tdirent == "__label__":
-                    self.labels[host] = (self.tg_dir / host / tdirent).read_text()
+                    self.labels[host] = (
+                        (self.tg_dir / host / tdirent).read_text().strip()
+                    )
                     continue
                 if tdirent.endswith("__noinstall__"):
                     # FIXME: ignore "noinstall" for now, tools are going to be
                     # in containers so this does not make sense going forward.
                     continue
+                # This directory entry is the name of a tool.
                 tool = tdirent
-                tool_opts = (self.tg_dir / host / tool).read_text()
+                tool_opts_raw_lines = (
+                    (self.tg_dir / host / tool).read_text().split("\n")
+                )
+                tool_opts_lines = []
+                for line_raw in tool_opts_raw_lines:
+                    line = line_raw.strip()
+                    if not line:
+                        # Ignore blank lines
+                        continue
+                    tool_opts_lines.append(line)
+                tool_opts = " ".join(tool_opts_lines)
                 if tool not in self.toolnames:
                     self.toolnames[tool] = {}
                 self.toolnames[tool][host] = tool_opts
