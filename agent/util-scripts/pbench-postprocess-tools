@@ -28,13 +28,13 @@ debug_log "[$script_name]started: $@"
 
 opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "$@");
 if [ $? -ne 0 ]; then
-	printf "\n"
-	printf "$script_name: you specified an invalid option\n\n"
-	printf "The following are required:\n\n"
+	printf -- "\n"
+	printf -- "%s: you specified an invalid option\n\n" "${script_name}"
+	printf -- "The following are required:\n\n"
 	printf -- "\t-g str --group=str, str = a tool group used in a benchmark\n"
 	printf -- "\t                          (the default group is 'default')\n"
-	printf "\n"
-	printf -- "\t-d str --dir=str, str = a directory where the $script_name\n"
+	printf -- "\n"
+	printf -- "\t-d str --dir=str, str = a directory where the %s\n" "${script_name}"
 	printf -- "\t                        will store and process data\n"
 	exit 1
 fi
@@ -163,7 +163,7 @@ for this_tool_file in `/bin/ls $tool_group_dir`; do
 				exit ${rc}
 			fi
 			screen_cmd="${screen_dir}/command"
-			printf -- "#!/bin/bash\n\nscreen -dm -L -S \"${screen_name}\" ${pbench_bin}/tool-scripts/${name} --${action} --dir=${tool_output_dir} ${tool_opts[@]}\n" > ${screen_cmd}
+			printf -- "#!/bin/bash\n\nscreen -dm -L -S \"%s\" %s/tool-scripts/%s --%s --dir=%s %s\n" "${screen_name}" "${pbench_bin}" "${name}" "${action}" "${tool_output_dir}" "$(echo ${tool_opts[@]})" > ${screen_cmd}
 			chmod +x ${screen_cmd}
 			debug_log "[${script_name}] \"$(cat ${screen_cmd} | tr '\n' ' ')\""
 			(cd ${screen_dir}; ${screen_cmd})
