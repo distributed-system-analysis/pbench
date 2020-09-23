@@ -1,0 +1,56 @@
+#! /bin/bash
+
+cur_dir=${PWD}
+if [[ ! -x ${cur_dir}/unittests ]]; then
+    printf -- "ERROR: ${cur_dir} is not where a 'unittests' executable lives.\n" >&2
+    exit 1
+fi
+
+export _GF="/tmp/gold_files.$$"
+
+trap "rm -f ${_GF}" INT EXIT
+
+function _do_update {
+    > ${_GF}
+    ls -1 gold/test-${1}.txt gold/${1}.txt gold/*/test-${1}.txt gold/*/${1}.txt tests/*/test-${1}.txt tests/*/${1}.txt > ${_GF} 2> /dev/null
+    cnt="$(wc -l ${_GF} | awk '{print $1}')"
+    if [[ ${cnt} < 1 ]]; then
+        printf -- "ERROR: ${1} is not a recognized test.\n" >&2
+        exit 1
+    fi
+    if [[ ${cnt} > 1 ]]; then
+        printf -- "ERROR: ${1} is not a unique test name.\n" >&2
+        exit 1
+    fi
+
+    gold_file="$(cat ${_GF})"
+    _path=$(dirname "${gold_file}")
+    _name=$(basename "${gold_file}")
+    _name=${_name%.*}
+
+    dir_name="$(basename "${cur_dir}")"
+    if [[ "${dir_name}" == "bench-scripts" ]]; then
+        _tstdir=bench
+        _suffix="_output.txt"
+    elif [[ "${dir_name}" == "util-scripts" ]]; then
+        _tstdir=utils
+        _suffix="_output.txt"
+    elif [[ "${dir_name}" == "bin" ]]; then
+        _tstdir=server
+        _suffix="/output.txt"
+    else
+        printf -- "ERROR: unrecognized test environment: ${cur_dir}\n" >&2
+        exit 1
+    fi
+    _test_out="/var/tmp/pbench-test-${_tstdir}/${_name}${_suffix}"
+
+    if [[ -e ${_test_out} ]]; then
+        mv ${_test_out} ${_path}/${_name}.txt && git add ${_path}/${_name}.txt && rm -f $(dirname ${_test_out})/output.diff $(dirname ${_test_out})/result.txt && rmdir $(dirname ${_test_out}) 2> /dev/null
+    else
+        echo "Bad argument ${1}: test output ${_test_out} does not exist" >&2; exit 1
+    fi
+}
+
+for arg in ${*}; do
+    _do_update ${arg}
+done
