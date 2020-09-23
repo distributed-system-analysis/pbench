@@ -32,6 +32,10 @@ import redis
 
 from pbench.agent.tool_data_sink import main as tds_main
 from pbench.agent.tool_meister import main as tm_main
+<<<<<<< HEAD
+from pbench.agent import PbenchAgentConfig
+=======
+>>>>>>> Still rebase?
 from pbench.agent.modules import metaclass
 
 
@@ -372,13 +376,12 @@ def main(argv):
 
     # 2.5. Add tool metadata json to redis
     try:
-        tm_start_path = Path(
-            Path(__file__).resolve(), "..", ".."
-        ).resolve(strict=True)
+        inst_dir = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"]).pbench_install_dir
+        tm_start_path = Path(inst_dir).resolve(strict=True)
     except FileNotFoundError:
-        raise Exception(f"missing {tm_start_path}")
-    except Exception:
-        raise
+        logger.error("Unable to determine proper installation directory, {inst_dir} not found")
+    except Exception as exc:
+        loger.exception(f"Failed to resolve expected installation: {exc}")
     tool_metadata = metaclass.ToolMetadata("json", tm_start_path, logger)
     tool_metadata.loadIntoRedis(redis_server)
 

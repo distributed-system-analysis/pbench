@@ -16,7 +16,6 @@ import hashlib
 import json
 import logging
 import os
-import shutil
 import socket
 import subprocess
 import sys
@@ -72,8 +71,7 @@ class DataSinkWsgiServer(ServerAdapter):
             _logger = logger
 
             def log_error(self, format_str, *args):
-                """log_error - log the error message with the client address
-                """
+                """log_error - log the error message with the client address"""
                 self._logger.error(
                     "%s - - %s", self.address_string(), format_str % args
                 )
@@ -87,8 +85,7 @@ class DataSinkWsgiServer(ServerAdapter):
                 )
 
             def log_request(self, code="-", size="-"):
-                """log_request - log the request as an informational message.
-                """
+                """log_request - log the request as an informational message."""
                 if isinstance(code, HTTPStatus):
                     code = code.value
                 self._logger.info(
@@ -118,13 +115,16 @@ class DataSinkWsgiServer(ServerAdapter):
 class BaseCollector:
     allowed_tools = {"noop-collector": None}
 
-    def __init__(self, benchmark_run_dir, tool_group, host_tools_dict, logger, tool_metadata):
+    def __init__(
+        self, benchmark_run_dir, tool_group, host_tools_dict, logger, tool_metadata
+    ):
         self.run = None
         self.benchmark_run_dir = benchmark_run_dir
         self.tool_group = tool_group
         self.host_tools_dict = host_tools_dict
         self.logger = logger
-        self.tool_metadata = tool_metadata
+        self.tool_metadata = tool_metadata        
+        self.tool_group_dir = self.benchmark_run_dir / f"tools-{self.tool_group}"
         self.abort_launch = True
 
     def launch(self):
@@ -140,9 +140,9 @@ class BaseCollector:
 
 
 class PromCollector(BaseCollector):
-    def __init__(self, benchmark_run_dir, tool_group, host_tools_dict, logger, tool_metadata):
-        super().__init__(benchmark_run_dir, tool_group, host_tools_dict, logger, tool_metadata)
-        self.volume = self.benchmark_run_dir / "prom_vol"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.volume = self.tool_group_dir / "prometheus"
 
     def launch(self):
 
@@ -188,7 +188,7 @@ class PromCollector(BaseCollector):
         args = ["podman", "pull", "prom/prometheus"]
         prom_pull = subprocess.Popen(
             args, stdout=prom_logs, stderr=prom_logs
-        )  # , stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        )
         prom_pull.wait()
 
         os.mkdir(self.volume)
@@ -209,7 +209,7 @@ class PromCollector(BaseCollector):
         ]
         self.run = subprocess.Popen(
             args, stdout=prom_logs, stderr=prom_logs
-        )  # , stdout =subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        )
 
         prom_logs.close()
 
@@ -221,20 +221,19 @@ class PromCollector(BaseCollector):
 
         self.logger.debug("PROM TERMINATED")
 
-        os.mkdir(self.benchmark_run_dir / f"tools-{self.tool_group}" / "prometheus")
-
         args = [
             "tar",
+            "--remove-files",
+            "--exclude",
+            "prometheus/prometheus_data.tar.gz",
             "-zcvf",
-            f"{self.benchmark_run_dir}/tools-{self.tool_group}/prometheus/prometheus_data.tar.gz",
+            f"{self.volume}/prometheus_data.tar.gz",
             "-C",
-            f"{self.benchmark_run_dir}/",
-            "prom_vol",
+            f"{self.tool_group_dir}/",
+            "prometheus",
         ]
         data_store = subprocess.Popen(args)
         data_store.wait()
-
-        shutil.rmtree(self.volume)
 
         return 1
 
@@ -299,8 +298,7 @@ class ToolDataSink(Bottle):
         self.web_server_thread = None
 
     def run(self):
-        """run - Start the Bottle web server running and the watcher thread.
-        """
+        """run - Start the Bottle web server running and the watcher thread."""
         self.logger.info("Running Bottle web server ...")
         try:
             super().run(server=self._server)
@@ -310,8 +308,7 @@ class ToolDataSink(Bottle):
             self.logger.info("Bottle web server exited")
 
     def execute(self):
-        """execute - Start the Bottle web server running and the watcher thread.
-        """
+        """execute - Start the Bottle web server running and the watcher thread."""
         self.web_server_thread = Thread(target=self.run)
         self.web_server_thread.start()
         self.logger.debug("web server 'run' thread started, processing payloads ...")
@@ -428,6 +425,10 @@ class ToolDataSink(Bottle):
                         noop_tools.append(tool_name)
                     elif tool_name in self.tool_metadata.getTransientTools():
                         transient_tools.append(tool_name)
+                    else:
+                        self.logger.error(
+                            f"Registered tool {tool_name} is not recognized in tool metadata"
+                        )
                 tm["noop_tools"] = noop_tools
                 tm["persistent_tools"] = persistent_tools
                 tm["transient_tools"] = transient_tools
