@@ -17,8 +17,7 @@ if [[ ${?} -ne 0 ]]; then
 fi
 
 if ! grep -q debugfs /proc/mounts; then
-        printf -- "%s: required debugfs not mounted\n" "${PROG}" >&2
-        exit 1
+        printf -- "%s: debugfs not mounted, kernel perf data may be incomplete\n" "${PROG}" >&2
 fi
 
 if [[ "${1}" == "record" ]]; then
