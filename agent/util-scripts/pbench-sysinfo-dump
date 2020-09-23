@@ -85,45 +85,41 @@ function collect_block {
 }
 
 function collect_sos {
-	_name="pbench-$(hostname -f)"
-	debug_log "[$script_name]collecting sosreport"
 	read sos_ver sos_ver_minor sos_ver_subminor <<< `rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $1" "$2" "$3}'`
 	if [[ "$sos_ver" -ge 3 ]]; then
 		_quiet="--quiet"
-		_block="-o block"
-		_processor="-o processor"
+		if [[ "$sos_ver_minor" -ge 6 || ( "$sos_ver_minor" -eq 5 && ! -z "$sos_ver_subminor" ) ]]; then
+			_modules="date host release"
+		else
+			_modules="general lsbrelease"
+		fi
+		_modules="${_modules} block processor"
 		if [[ "$sos_ver_minor" -ge 4 ]]; then
 			# ref for plugin collectd: https://github.com/sosreport/sos/pull/866
-			_collectd="-o collectd"
-		else
-			_collectd=""
+			_modules="${_modules} collectd"
 		fi
 		if [[ "$sos_ver_minor" -eq 0 ]]; then
-			# No tuned plug-in in sosreport v3.0
-			_tuned=""
-		else
 			# tuned plug-in in sosreport v3.1+
-			_tuned="-o tuned"
-		fi
-		if [[ "$sos_ver_minor" -ge 6 || ( "$sos_ver_minor" -eq 5 && ! -z "$sos_ver_subminor" ) ]]; then
-			_general="-o date -o host"
-			_release="-o release"
-		else
-			_general="-o general"
-			_release="-o lsbrelease"
+			_modules="${_modules} tuned"
 		fi
 	else
 		_quiet=""
-		_block=""
-		_processor=""
-		_tuned=""
-		_collectd=""
-		_general="-o general"
-		_release="-o lsbrelease"
+		_modules="general lsbrelease"
 	fi
-	sosreport ${_general} -o kernel -o filesys -o devicemapper -o system -o memory \
-	    -o hardware -o networking ${_release} ${_block} ${_processor} ${_tuned} \
-	    ${_collectd} --batch ${_quiet} --tmp-dir=${dir} --name "${_name}" > ${dir}/sosreport-${_name}.log 2>&1
+	_modules="${_modules} kernel filesys devicemapper system memory hardware networking"
+
+	_name="pbench-$(hostname -f)"
+	_cmd="${dir}/sosreport-${_name}.cmd"
+	printf -- "sosreport" > ${_cmd}
+	for mod in ${_modules}; do
+		printf -- " -o %s" "${mod}" >> ${_cmd}
+	done
+	printf -- "--batch%s --tmp-dir=\"%s\" --name \"%s\"" "${_quiet}" "${dir}" "${_name}" >> ${_cmd}
+	chmod +x ${_cmd}
+
+	debug_log "[${script_name}]collecting sosreport"
+	${_cmd} > ${dir}/sosreport-${_name}.log 2>&1
+
 	# The latest version of sosreport (3.6 right now) generates different names
 	# for the sosreport tar balls, inserting a short hostname before the label.
 	# Since older versions of sosreport did not do that, we use a wildcard
