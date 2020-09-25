@@ -246,8 +246,8 @@
 					</h3>
 					<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
 						<div class="pf-c-accordion__expanded-content-body">
-							<p class="info_text" style="text-align: justify">pbench can register tools on remote hosts, start them and stop them remotely and gather up the results from the remote hosts for post-processing. The model is that one has a controller or orchestrator and a bunch of remote hosts that participate in the benchmark run.</p>
-							<p class="info_text" style="text-align: justify">The pbench setup is as follows: pbench-register-tool-set or pbench-register-tool is called on the controller with the --remote option, once for each remote host:</p>
+							<p class="info_text" style="text-align: justify">Pbench can register tools on remote hosts, start them and stop them remotely and gather up the results from the remote hosts for post-processing. The model is that one has a controller or orchestrator and a bunch of remote hosts that participate in the benchmark run.</p>
+							<p class="info_text" style="text-align: justify">The Pbench setup is as follows: pbench-register-tool-set or pbench-register-tool is called on the controller with the --remote option, once for each remote host:</p>
 							<p class="c_snip">for remote in $remotes ;do<br>
 								&nbsp;&nbsp; pbench-register-tool-set --remote=$remote --label=foo --group=$group<br>
 							done</p>
@@ -336,7 +336,7 @@
 								&nbsp;&nbsp; &nbsp;&nbsp;;;<br>
 								esac
 							</p>
-							<p class="info_text" style="text-align: justify">Finally, there is the post-processing tool: the simplest thing to do is nothing. That's currently the case for the <a href="https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/kvm-spinlock">turbostat</a> post-processing tool, but ideally it should produce a JSON file with the data points and an HTML file that uses the nv3 library to plot the data graphically in a browser. See the <a href="https://github.com/distributed-system-analysis/pbench/tree/master/agent/tool-scripts/postprocess">postprocess</a> directory for examples, e.g. <a href="https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/postprocess/iostat-postprocess">iostat postprocessing tool.</a></p>
+							<p class="info_text" style="text-align: justify">Finally, there is the post-processing tool: the simplest thing to do is nothing. That's currently the case for the <a href="https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/postprocess/turbostat-postprocess">turbostat</a> post-processing tool, but ideally it should produce a JSON file with the data points and an HTML file that uses the nv3 library to plot the data graphically in a browser. See the <a href="https://github.com/distributed-system-analysis/pbench/tree/master/agent/tool-scripts/postprocess">postprocess</a> directory for examples, e.g. <a href="https://github.com/distributed-system-analysis/pbench/blob/master/agent/tool-scripts/postprocess/iostat-postprocess">iostat postprocessing tool.</a></p>
 						</div>
 					</div>
 				</div>

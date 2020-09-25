@@ -112,7 +112,7 @@
                                             <div id="what" class="section_cardbody">
                                                 <p class="cardHeader">What is Pbench?</p>
                                                 <p class="info_text" style="text-align:justify">Pbench is a harness that allows data collection from a 
-                                                    variety of tools while running a benchmark. Pbench has some built-in script
+                                                    variety of tools while running a benchmark. Pbench has some built-in scripts
                                                     that run some common benchmarks, but the data collection can be run separately as well with a benchmark
                                                     that is not built-in to Pbench, or a Pbench script can be written for the benchmark. Such contributions are
                                                     more than welcome!</p>
@@ -131,14 +131,14 @@
                                                         Customize the agent for your server environment. This will vary from installation to installation, but it fundamentally involves copying two files that should 
                                                         be made available to you somehow by an admin type: an ssh private key file to allow the client(s) to send results to the server and a configuration file that should be 
                                                         installed in "/opt/pbench-agent/config/pbench-agent.cfg" . There is an example configuration file in that location, but you need the "real" one for your environment. Among other 
-                                                        things, the config file specifies who the server is.
+                                                        things, the config file specifies the IP or hostname of the server.
                                                     </li>
                                                 </div>
                                                 <div class="info_text" style="text-align:justify">
                                                     <li>
                                                         Run your benchmark with a default set of tools:
                                                         <p class="c_snip">
-                                                            /etc/profile.d/pbench-agent.sh&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # or log out and log back in
+                                                            . /etc/profile.d/pbench-agent.sh &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # or log out and log back in
                                                             <br>pbench-register-tool-set
                                                             <br>pbench-user-benchmark -C test1 -- ./your_cmd.sh
                                                             <br>pbench-move-results
@@ -147,7 +147,7 @@
                                                 </div> 
                                                 <div class="info_text" style="text-align:justify">
                                                     <li>
-                                                        Visit the Results URL in your browser to see the results: the URL depends on who the server is; assuming that the server is "pbench.example.com" and assuming you ran the above
+                                                        Visit the Results URL in your browser to see the results: the URL depends on the server hostname or IP"; assuming that the server is "pbench.example.com" and assuming you ran the above
                                                         on a host named "myhost", the results will be found at (<b>N.B.:</b> this is a fake link serving as an example only - talk to your local administrator to find out what server to use
                                                         to get to pbench results):<a>http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>.
                                                     </li>
@@ -216,7 +216,7 @@
                                             </div>
                                             <div id="availablescript" class="section_cardbody">
                                                 <p class="cardHeader">Available benchmark scripts</p>
-                                                <p class="info_text" style="text-align:justify">Pbench provides a set of pre-packaged script to run some common benchmarks using the collection tools and other facilities
+                                                <p class="info_text" style="text-align:justify">Pbench provides a set of pre-packaged scripts to run some common benchmarks using the collection tools and other facilities
                                                     that pbench provides. These are found in the bench-scripts directory of the Pbench installation (/opt/pbench-agent/bench-scripts by default). The current set includes:
                                                 </p>
                                                 <div class="info_text" style="text-align:justify">
@@ -576,7 +576,7 @@
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
                                                     <b>--remote</b>
-                                                    <br>specify a remote host on which a collection tools (or set of collection tools) is to be registered:
+                                                    <br>specify a remote host on which a collection tool (or set of collection tools) is to be registered:
                                                     <p class="c_snip">
                                                         pbench-register-tool --name=< tool > --remote=< host >
                                                     </p>
@@ -587,7 +587,7 @@
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
                                                     If you want to take advantage of pbench's data collection and other goodies, but your benchmark 
-                                                    is not part of the set above (see Available benchmark scripts), or you want to run it differently so that 
+                                                    is not part of the set above (see <a href="#availablescript">Available benchmark scripts</a>), or you want to run it differently so that 
                                                     the pre-packaged script does not work for you, that's no problem (but, if possible, heed the WARNING above). 
                                                     The various pbench phases can be run separately and you can fit your benchmark into the appropriate slot:
                                                 </p>
@@ -658,7 +658,7 @@
                                                         <br>&nbsp;&nbsp;&nbsp;&nbsp;pbench-register-tool-set --remote=$host
                                                         <br>done
                                                     </p>
-                                                    <li>Invoke pbench-user-benchmark with your workload generator as argument: that will start the collection tools on all the hosts and then run your workload generator; when that finished, it will stop the 
+                                                    <li>Invoke pbench-user-benchmark with your workload generator as argument: that will start the collection tools on all the hosts and then run your workload generator; when that finishes, it will stop the 
                                                     collection tools on all the hosts and then run the postprocessing phase which will gather the data from all the remote hosts and run the postprocessing tools on everything.</li>
                                                     <li>Run pbench-copy-results or pbench-move-results to upload the data to the results server.</li>
                                                 </div>
