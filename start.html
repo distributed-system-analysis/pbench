@@ -89,13 +89,13 @@
 								</div>
 								<div class="pf-c-card next_card">
 									<div class="pf-c-card__body">
-										<p class="cardText" style="text-align: center;">Install the agent</p>
+										<button class="pf-c-button pf-m-inline pf-m-link pf-m-small info_text" type="button" onClick="openTab(event, 'install')" style="text-align: center;">Install the agent</button>
 										<p class="info_text" style="text-align:justify">Customize the agent for your server environment. This will vary from installation to installation, but it fundamentally involves copying two files that should be 
 											made available to you somehow by an admin type: an ssh private key file to allow the client(s) to send results to the server and a configuration file that should be 
 											installed in /opt/pbench-agent/config/pbench-agent.cfg. There is an example configuration file in that location, but you need the "real" one for your environment. Among other things, the config file specifies who the server is.</p>
 											<p class="info_text" style="text-align:justify">Run your benchmark with a default set of tools:</p>
 											<p class="c_snip">
-												etc/profile.d/pbench-agent.sh  &nbsp; &nbsp; #or log out and log back in<br></br>
+												. /etc/profile.d/pbench-agent.sh  &nbsp; &nbsp; #or log out and log back in<br></br>
 												pbench-register-tool-set<br></br>
 												pbench-user-benchmark -C test1 -- ./your_cmd.sh<br></br>
 												pbench-move-results
