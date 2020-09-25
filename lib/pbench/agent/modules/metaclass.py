@@ -14,8 +14,10 @@ class BadConstruction(Exception):
 class ToolMetadata:
     def __init__(self, mode, context, logger):
         self.logger = logger
-        if mode not in ("redis", "json"):
-            raise (BadConstruction("Mode was not 'json' or 'redis'"))
+        assert mode in (
+            "redis",
+            "json",
+        ), f"Logic bomb! Unexpected mode, {mode}, encountered constructing tool meta data"
         if not context:
             raise (BadConstruction("No proper context given"))
         self.mode = mode

@@ -32,10 +32,7 @@ import redis
 
 from pbench.agent.tool_data_sink import main as tds_main
 from pbench.agent.tool_meister import main as tm_main
-<<<<<<< HEAD
 from pbench.agent import PbenchAgentConfig
-=======
->>>>>>> Still rebase?
 from pbench.agent.modules import metaclass
 
 
