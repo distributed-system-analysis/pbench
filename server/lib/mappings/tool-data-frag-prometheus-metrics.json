@@ -1,130 +1,130 @@
 {
     "_meta": {
-        "version": "3"
+        "version": "4"
     },
     "properties": {
         "@idx": {
             "type": "long"
         },
         "quantiles": {
-            "type": "string"
+            "type": "text"
         },
         "count": {
             "type": "long"
         },
         "buckets": {
-            "type": "string"
+            "type": "text"
         },
         "metric": {
-            "type": "string", "index": "not_analyzed"
+            "type": "keyword"
         },
         "labels": {
             "properties": {
                 "scope": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "client": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "minor": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "contentType": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "type": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "goVersion": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "kind": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "version": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "namespace": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "operation": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "username": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "verb": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "volume_plugin": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "gitTreeState": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "name": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "rejected": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "major": {
                     "type": "long"
                 },
                 "persistentvolumeclaim": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "gitVersion": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "platform": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "host": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "operation_name": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "subresource": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "resource": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "code": {
                     "type": "long"
                 },
                 "operation_type": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "url": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "compiler": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "gitCommit": {
-                    "type": "string"
+                    "type": "text"
                 },
                 "buildDate": {
                     "format": "dateOptionalTime",
                     "type": "date"
                 },
                 "method": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "requestKind": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "group": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "handler": {
-                    "type": "string", "index": "not_analyzed"
+                    "type": "keyword"
                 },
                 "request": {
-                    "type": "string"
+                    "type": "text"
                 }
             }
         },
@@ -135,7 +135,7 @@
             "type": "double"
         },
         "type": {
-            "type": "string", "index": "not_analyzed"
+            "type": "keyword"
         }
     }
 }

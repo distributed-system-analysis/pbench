@@ -1,744 +1,690 @@
 {
-    "pbench-result-data-sample": {
-        "_all" : {"enabled" : false},
-        "_meta": {
-            "version": "4"
+    "_meta": {
+        "version": "5"
+    },
+    "date_detection": false,
+    "properties": {
+        "@timestamp": {
+            "type": "date",
+            "format": "dateOptionalTime"
         },
-        "date_detection": false,
-        "properties": {
-            "@timestamp": {
-                "type": "date",
-                "format": "dateOptionalTime"
-            },
-            "@timestamp_original": {
-                "type": "string"
-            },
-            "@generated-by": {
-                "type": "string",
-                "index": "not_analyzed"
-            },
-            "run": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "controller": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "user": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "script": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "config": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "date": {
-                        "type": "date"
-                    },
-                    "start": {
-                        "type": "date"
-                    },
-                    "end": {
-                        "type": "date"
-                    },
-                    "toolsgroup": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    }
+        "@timestamp_original": {
+            "type": "text"
+        },
+        "@generated-by": {
+            "type": "keyword"
+        },
+        "run": {
+            "properties": {
+                "id": {
+                    "type": "keyword"
+                },
+                "controller": {
+                    "type": "keyword"
+                },
+                "user": {
+                    "type": "keyword"
+                },
+                "name": {
+                    "type": "keyword"
+                },
+                "script": {
+                    "type": "keyword"
+                },
+                "config": {
+                    "type": "keyword"
+                },
+                "date": {
+                    "type": "date"
+                },
+                "start": {
+                    "type": "date"
+                },
+                "end": {
+                    "type": "date"
+                },
+                "toolsgroup": {
+                    "type": "keyword"
                 }
-            },
-            "iteration": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "number": {
-                        "type": "long"
-                    }
+            }
+        },
+        "iteration": {
+            "properties": {
+                "name": {
+                    "type": "keyword"
+                },
+                "number": {
+                    "type": "long"
                 }
-            },
-            "sample": {
-                "properties": {
-                    "@idx": {
-                        "type": "long"
-                    },
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "measurement_type": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "measurement_idx": {
-                        "type": "long"
-                    },
-                    "measurement_title": {
-                        "type": "string"
-                    },
-                    "category": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "client_hostname": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "closest_sample": {
-                        "type": "long"
-                    },
-                    "closest_sample_raw": {
-                        "type": "string"
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "end": {
-                        "type": "date"
-                    },
-                    "field": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "group": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "Hammerdb-tpcc": {
-                        "properties": {
-                            "Users": {
-                                "type": "long"
-                            }
+            }
+        },
+        "sample": {
+            "properties": {
+                "@idx": {
+                    "type": "long"
+                },
+                "name": {
+                    "type": "keyword"
+                },
+                "measurement_type": {
+                    "type": "keyword"
+                },
+                "measurement_idx": {
+                    "type": "long"
+                },
+                "measurement_title": {
+                    "type": "text"
+                },
+                "category": {
+                    "type": "keyword"
+                },
+                "client_hostname": {
+                    "type": "keyword"
+                },
+                "closest_sample": {
+                    "type": "long"
+                },
+                "closest_sample_raw": {
+                    "type": "text"
+                },
+                "description": {
+                    "type": "text"
+                },
+                "end": {
+                    "type": "date"
+                },
+                "field": {
+                    "type": "keyword"
+                },
+                "group": {
+                    "type": "keyword"
+                },
+                "Hammerdb-tpcc": {
+                    "properties": {
+                        "Users": {
+                            "type": "long"
                         }
-                    },
-                    "mean": {
-                        "type": "double"
-                    },
-                    "mean_raw": {
-                        "type": "string"
-                    },
-                    "pgid": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "role": {
-                        "type": "string"
-                    },
-                    "rx_port": {
-                        "type": "string"
-                    },
-                    "server_hostname": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "server_port": {
-                        "type": "string"
-                    },
-                    "skip_aggregate": {
-                        "type": "long"
-                    },
-                    "start": {
-                        "type": "date"
-                    },
-                    "stddev": {
-                        "type": "double"
-                    },
-                    "stddevpct": {
-                        "type": "double"
-                    },
-                    "tx_port": {
-                        "type": "string"
-                    },
-                    "uid": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "uid_tmpl": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "value": {
-                        "type": "double"
                     }
+                },
+                "mean": {
+                    "type": "double"
+                },
+                "mean_raw": {
+                    "type": "text"
+                },
+                "pgid": {
+                    "type": "keyword"
+                },
+                "role": {
+                    "type": "text"
+                },
+                "rx_port": {
+                    "type": "text"
+                },
+                "server_hostname": {
+                    "type": "keyword"
+                },
+                "server_port": {
+                    "type": "text"
+                },
+                "skip_aggregate": {
+                    "type": "long"
+                },
+                "start": {
+                    "type": "date"
+                },
+                "stddev": {
+                    "type": "double"
+                },
+                "stddevpct": {
+                    "type": "double"
+                },
+                "tx_port": {
+                    "type": "text"
+                },
+                "uid": {
+                    "type": "keyword"
+                },
+                "uid_tmpl": {
+                    "type": "keyword"
+                },
+                "value": {
+                    "type": "double"
                 }
-            },
-            "benchmark": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "version": {
-                        "type": "string"
-                    },
-                    "active_device_pairs": {
-                        "type": "string"
-                    },
-                    "alignment_values": {
-                        "type": "string"
-                    },
-                    "binary": {
-                        "type": "string"
-                    },
-                    "bs": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "clients": {
-                        "type": "string",
-                        "analyzer": "comma_analyzer"
-                    },
-                    "claimed_dev_pairs": {
-                        "type": "nested",
-                        "properties": {
-                            "dev_pair": {
-                                "type": "string"
-                            },
-                            "rx": {
-                                "type": "long"
-                            },
-                            "tx": {
-                                "type": "long"
-                            }
+            }
+        },
+        "benchmark": {
+            "properties": {
+                "name": {
+                    "type": "keyword"
+                },
+                "version": {
+                    "type": "text"
+                },
+                "active_device_pairs": {
+                    "type": "text"
+                },
+                "alignment_values": {
+                    "type": "text"
+                },
+                "binary": {
+                    "type": "text"
+                },
+                "bs": {
+                    "type": "keyword"
+                },
+                "clients": {
+                    "type": "text",
+                    "analyzer": "comma_analyzer"
+                },
+                "claimed_dev_pairs": {
+                    "type": "nested",
+                    "properties": {
+                        "dev_pair": {
+                            "type": "text"
+                        },
+                        "rx": {
+                            "type": "long"
+                        },
+                        "tx": {
+                            "type": "long"
                         }
-                    },
-                    "clocksource": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "device_pairs": {
-                        "type": "string",
-                        "analyzer": "comma_analyzer"
-                    },
-                    "direct": {
-                        "type": "string"
-                    },
-                    "disable_upward_search": {
-                        "type": "boolean"
-                    },
-                    "duplicate_packet_failure_mode": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "enable_flow_cache": {
-                        "type": "boolean"
-                    },
-                    "enable_trex_profiler": {
-                        "type": "boolean"
-                    },
-                    "filename": {
-                        "type": "string"
-                    },
-                    "frame_size": {
-                        "type": "long"
-                    },
-                    "Hammerdb-tpcc": {
-                        "properties": {
-                            "Cpus": {
-                                "type": "long"
-                            },
-                            "DBVer": {
-                                "type": "string"
-                            },
-                            "Database": {
-                                "type": "string",
-                                "index": "not_analyzed"
-                            },
-                            "Hostname": {
-                                "type": "string",
-                                "index": "not_analyzed"
-                            },
-                            "Kernel": {
-                                "type": "string"
-                            },
-                            "Memory": {
-                                "type": "long"
-                            },
-                            "StorageType": {
-                                "type": "string",
-                                "index": "not_analyzed"
-                            }
+                    }
+                },
+                "clocksource": {
+                    "type": "keyword"
+                },
+                "device_pairs": {
+                    "type": "text",
+                    "analyzer": "comma_analyzer"
+                },
+                "direct": {
+                    "type": "text"
+                },
+                "disable_upward_search": {
+                    "type": "boolean"
+                },
+                "duplicate_packet_failure_mode": {
+                    "type": "keyword"
+                },
+                "enable_flow_cache": {
+                    "type": "boolean"
+                },
+                "enable_trex_profiler": {
+                    "type": "boolean"
+                },
+                "filename": {
+                    "type": "text"
+                },
+                "frame_size": {
+                    "type": "long"
+                },
+                "Hammerdb-tpcc": {
+                    "properties": {
+                        "Cpus": {
+                            "type": "long"
+                        },
+                        "DBVer": {
+                            "type": "text"
+                        },
+                        "Database": {
+                            "type": "keyword"
+                        },
+                        "Hostname": {
+                            "type": "keyword"
+                        },
+                        "Kernel": {
+                            "type": "text"
+                        },
+                        "Memory": {
+                            "type": "long"
+                        },
+                        "StorageType": {
+                            "type": "keyword"
                         }
-                    },
-                    "instances": {
-                        "type": "long"
-                    },
-                    "iodepth": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "iodepth_batch": {
-                        "type": "string"
-                    },
-                    "iodepth_batch_complete_min": {
-                        "type": "string"
-                    },
-                    "ioengine": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "kmp_affinity": {
-                        "type": "string"
-                    },
-                    "latency_rate": {
-                        "type": "long"
-                    },
-                    "leading_dimensions": {
-                        "type": "string"
-                    },
-                    "loaded_traffic_profile": {
-                        "properties": {
-                            "streams": {
-                                "type": "nested",
-                                "properties": {
-                                    "direction": {
-                                        "type": "string"
-                                    },
-                                    "duration": {
-                                        "type": "string"
-                                    },
-                                    "enabled": {
-                                        "type": "boolean"
-                                    },
-                                    "flow_mods": {
-                                        "properties": {
-                                            "ip": {
-                                                "properties": {
-                                                    "dst": {
-                                                        "type": "boolean"
-                                                    },
-                                                    "src": {
-                                                        "type": "boolean"
-                                                    }
+                    }
+                },
+                "instances": {
+                    "type": "long"
+                },
+                "iodepth": {
+                    "type": "keyword"
+                },
+                "iodepth_batch": {
+                    "type": "text"
+                },
+                "iodepth_batch_complete_min": {
+                    "type": "text"
+                },
+                "ioengine": {
+                    "type": "keyword"
+                },
+                "kmp_affinity": {
+                    "type": "text"
+                },
+                "latency_rate": {
+                    "type": "long"
+                },
+                "leading_dimensions": {
+                    "type": "text"
+                },
+                "loaded_traffic_profile": {
+                    "properties": {
+                        "streams": {
+                            "type": "nested",
+                            "properties": {
+                                "direction": {
+                                    "type": "text"
+                                },
+                                "duration": {
+                                    "type": "text"
+                                },
+                                "enabled": {
+                                    "type": "boolean"
+                                },
+                                "flow_mods": {
+                                    "properties": {
+                                        "ip": {
+                                            "properties": {
+                                                "dst": {
+                                                    "type": "boolean"
+                                                },
+                                                "src": {
+                                                    "type": "boolean"
                                                 }
-                                            },
-                                            "mac": {
-                                                "properties": {
-                                                    "dst": {
-                                                        "type": "boolean"
-                                                    },
-                                                    "src": {
-                                                        "type": "boolean"
-                                                    }
-                                                }
-                                            },
-                                            "port": {
-                                                "properties": {
-                                                    "dst": {
-                                                        "type": "boolean"
-                                                    },
-                                                    "src": {
-                                                        "type": "boolean"
-                                                    }
-                                                }
-                                            },
-                                            "protocol": {
-                                                "type": "boolean"
                                             }
+                                        },
+                                        "mac": {
+                                            "properties": {
+                                                "dst": {
+                                                    "type": "boolean"
+                                                },
+                                                "src": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "port": {
+                                            "properties": {
+                                                "dst": {
+                                                    "type": "boolean"
+                                                },
+                                                "src": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        },
+                                        "protocol": {
+                                            "type": "boolean"
                                         }
-                                    },
-                                    "flow_offset": {
-                                        "type": "long"
-                                    },
-                                    "flows": {
-                                        "type": "long"
-                                    },
-                                    "frame_size": {
-                                        "type": "long"
-                                    },
-                                    "frame_type": {
-                                        "type": "string",
-                                        "index": "not_analyzed"
-                                    },
-                                    "latency": {
-                                        "type": "boolean"
-                                    },
-                                    "latency_only": {
-                                        "type": "boolean"
-                                    },
-                                    "offset": {
-                                        "type": "long"
-                                    },
-                                    "profile_id": {
-                                        "type": "long"
-                                    },
-                                    "protocol": {
-                                        "type": "string",
-                                        "index": "not_analyzed"
-                                    },
-                                    "rate": {
-                                        "type": "long"
-                                    },
-                                    "repeat": {
-                                        "type": "boolean"
-                                    },
-                                    "repeat_delay": {
-                                        "type": "string"
-                                    },
-                                    "repeat_flows": {
-                                        "type": "boolean"
-                                    },
-                                    "stream_id": {
-                                        "type": "boolean"
-                                    },
-                                    "stream_types": {
-                                        "type": "string"
-                                    },
-                                    "the_packet": {
-                                        "type": "string"
-                                    },
-                                    "traffic_direction": {
-                                        "type": "string",
-                                        "index": "not_analyzed"
                                     }
+                                },
+                                "flow_offset": {
+                                    "type": "long"
+                                },
+                                "flows": {
+                                    "type": "long"
+                                },
+                                "frame_size": {
+                                    "type": "long"
+                                },
+                                "frame_type": {
+                                    "type": "keyword"
+                                },
+                                "latency": {
+                                    "type": "boolean"
+                                },
+                                "latency_only": {
+                                    "type": "boolean"
+                                },
+                                "offset": {
+                                    "type": "long"
+                                },
+                                "profile_id": {
+                                    "type": "long"
+                                },
+                                "protocol": {
+                                    "type": "keyword"
+                                },
+                                "rate": {
+                                    "type": "long"
+                                },
+                                "repeat": {
+                                    "type": "boolean"
+                                },
+                                "repeat_delay": {
+                                    "type": "text"
+                                },
+                                "repeat_flows": {
+                                    "type": "boolean"
+                                },
+                                "stream_id": {
+                                    "type": "boolean"
+                                },
+                                "stream_types": {
+                                    "type": "text"
+                                },
+                                "the_packet": {
+                                    "type": "text"
+                                },
+                                "traffic_direction": {
+                                    "type": "keyword"
                                 }
                             }
                         }
-                    },
-                    "log_avg_msec": {
-                        "type": "string"
-                    },
-                    "log_hist_msec": {
-                        "type": "string"
-                    },
-                    "log_unix_epoch": {
-                        "type": "string"
-                    },
-                    "loss_granularity": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "max_loss_pct": {
-                        "type": "double"
-                    },
-                    "max_port": {
-                        "type": "long"
-                    },
-                    "max_retries": {
-                        "type": "long"
-                    },
-                    "max_stddevpct": {
-                        "type": "double"
-                    },
-                    "measure_latency": {
-                        "type": "long"
-                    },
-                    "message_size_bytes": {
-                        "type": "long"
-                    },
-                    "negative_packet_loss_mode": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "null_stats": {
-                        "properties": {
-                            "rx_active": {
-                                "type": "boolean"
-                            },
-                            "rx_l1_bps": {
-                                "type": "long"
-                            },
-                            "rx_l2_bps": {
-                                "type": "long"
-                            },
-                            "rx_latency_average": {
-                                "type": "long"
-                            },
-                            "rx_latency_l1_bps": {
-                                "type": "long"
-                            },
-                            "rx_latency_l2_bps": {
-                                "type": "long"
-                            },
-                            "rx_latency_lost_packets": {
-                                "type": "long"
-                            },
-                            "rx_latency_lost_packets_pct": {
-                                "type": "long"
-                            },
-                            "rx_latency_lost_pps": {
-                                "type": "long"
-                            },
-                            "rx_latency_maximum": {
-                                "type": "long"
-                            },
-                            "rx_latency_packets": {
-                                "type": "long"
-                            },
-                            "rx_latency_pps": {
-                                "type": "long"
-                            },
-                            "rx_lost_packets": {
-                                "type": "long"
-                            },
-                            "rx_lost_packets_pct": {
-                                "type": "long"
-                            },
-                            "rx_lost_pps": {
-                                "type": "long"
-                            },
-                            "rx_packets": {
-                                "type": "long"
-                            },
-                            "rx_pps": {
-                                "type": "long"
-                            },
-                            "tx_active": {
-                                "type": "boolean"
-                            },
-                            "tx_l1_bps": {
-                                "type": "long"
-                            },
-                            "tx_l2_bps": {
-                                "type": "long"
-                            },
-                            "tx_latency_l1_bps": {
-                                "type": "long"
-                            },
-                            "tx_latency_l2_bps": {
-                                "type": "long"
-                            },
-                            "tx_latency_packets": {
-                                "type": "long"
-                            },
-                            "tx_latency_pps": {
-                                "type": "long"
-                            },
-                            "tx_packets": {
-                                "type": "long"
-                            },
-                            "tx_pps": {
-                                "type": "long"
-                            },
-                            "tx_pps_target": {
-                                "type": "long"
-                            }
-                        }
-                    },
-                    "num_flows": {
-                        "type": "long"
-                    },
-                    "numactl_cmd": {
-                        "type": "string"
-                    },
-                    "numjobs": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "output_dir": {
-                        "type": "string",
-                        "analyzer": "path_analyzer"
-                    },
-                    "packet_protocol": {
-                        "type": "string"
-                    },
-                    "percentage_random": {
-                        "type": "string"
-                    },
-                    "port_primary_info_file": {
-                        "type": "string"
-                    },
-                    "port_secondary_info_file": {
-                        "type": "string"
-                    },
-                    "primary_metric": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "problem_sizes": {
-                        "type": "string"
-                    },
-                    "process_all_profiler_data": {
-                        "type": "boolean"
-                    },
-                    "protocol": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "ramp_time": {
-                        "type": "string"
-                    },
-                    "random_seed": {
-                        "type": "double"
-                    },
-                    "rate": {
-                        "type": "double"
-                    },
-                    "rate_tolerance": {
-                        "type": "long"
-                    },
-                    "rate_tolerance_failure": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "rate_unit": {
-                        "type": "string"
-                    },
-                    "repeat_final_validation": {
-                        "type": "boolean"
-                    },
-                    "runtime": {
-                        "type": "string"
-                    },
-                    "runtime_tolerance": {
-                        "type": "long"
-                    },
-                    "rw": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "rwmixread": {
-                        "type": "string"
-                    },
-                    "rwmixwrite": {
-                        "type": "string"
-                    },
-                    "search_granularity": {
-                        "type": "double"
-                    },
-                    "search_runtime": {
-                        "type": "long"
-                    },
-                    "servers": {
-                        "type": "string",
-                        "analyzer": "comma_analyzer"
-                    },
-                    "size": {
-                        "type": "string"
-                    },
-                    "sniff_runtime": {
-                        "type": "long"
-                    },
-                    "stream_mode": {
-                        "type": "string"
-                    },
-                    "sync": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "teaching_measurement_interval": {
-                        "type": "long"
-                    },
-                    "teaching_measurement_packet_rate": {
-                        "type": "long"
-                    },
-                    "teaching_warmup_packet_rate": {
-                        "type": "long"
-                    },
-                    "test_dev_pairs": {
-                        "type": "nested",
-                        "properties": {
-                            "dev_pair": {
-                                "type": "string"
-                            },
-                            "direction": {
-                                "type": "string"
-                            },
-                            "path": {
-                                "type": "string"
-                            },
-                            "rx": {
-                                "type": "string"
-                            },
-                            "tx": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "test_type": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "threads": {
-                        "type": "string"
-                    },
-                    "time_based": {
-                        "type": "string"
-                    },
-                    "traffic_direction": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "traffic_generator": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "traffic_profile": {
-                        "type": "string",
-                        "analyzer": "path_analyzer"
-                    },
-                    "trafficgen_uid": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "trafficgen_uid_tmpl": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "trex_profiler_interval": {
-                        "type": "long"
-                    },
-                    "trial": {
-                        "type": "string"
-                    },
-                    "trial_mode": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "trial_primary_output_file": {
-                        "type": "string"
-                    },
-                    "trial_profiler_file": {
-                        "type": "string"
-                    },
-                    "trial_secondary_output_file": {
-                        "type": "string"
-                    },
-                    "uid": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "uid_tmpl": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "use_dst_ip_flows": {
-                        "type": "long"
-                    },
-                    "use_dst_mac_flows": {
-                        "type": "long"
-                    },
-                    "use_omp": {
-                        "type": "string"
-                    },
-                    "use_src_ip_flows": {
-                        "type": "long"
-                    },
-                    "use_src_mac_flows": {
-                        "type": "long"
-                    },
-                    "validation_runtime": {
-                        "type": "long"
-                    },
-                    "version": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "warmup_trial_runtime": {
-                        "type": "long"
                     }
+                },
+                "log_avg_msec": {
+                    "type": "text"
+                },
+                "log_hist_msec": {
+                    "type": "text"
+                },
+                "log_unix_epoch": {
+                    "type": "text"
+                },
+                "loss_granularity": {
+                    "type": "keyword"
+                },
+                "max_loss_pct": {
+                    "type": "double"
+                },
+                "max_port": {
+                    "type": "long"
+                },
+                "max_retries": {
+                    "type": "long"
+                },
+                "max_stddevpct": {
+                    "type": "double"
+                },
+                "measure_latency": {
+                    "type": "long"
+                },
+                "message_size_bytes": {
+                    "type": "long"
+                },
+                "negative_packet_loss_mode": {
+                    "type": "keyword"
+                },
+                "null_stats": {
+                    "properties": {
+                        "rx_active": {
+                            "type": "boolean"
+                        },
+                        "rx_l1_bps": {
+                            "type": "long"
+                        },
+                        "rx_l2_bps": {
+                            "type": "long"
+                        },
+                        "rx_latency_average": {
+                            "type": "long"
+                        },
+                        "rx_latency_l1_bps": {
+                            "type": "long"
+                        },
+                        "rx_latency_l2_bps": {
+                            "type": "long"
+                        },
+                        "rx_latency_lost_packets": {
+                            "type": "long"
+                        },
+                        "rx_latency_lost_packets_pct": {
+                            "type": "long"
+                        },
+                        "rx_latency_lost_pps": {
+                            "type": "long"
+                        },
+                        "rx_latency_maximum": {
+                            "type": "long"
+                        },
+                        "rx_latency_packets": {
+                            "type": "long"
+                        },
+                        "rx_latency_pps": {
+                            "type": "long"
+                        },
+                        "rx_lost_packets": {
+                            "type": "long"
+                        },
+                        "rx_lost_packets_pct": {
+                            "type": "long"
+                        },
+                        "rx_lost_pps": {
+                            "type": "long"
+                        },
+                        "rx_packets": {
+                            "type": "long"
+                        },
+                        "rx_pps": {
+                            "type": "long"
+                        },
+                        "tx_active": {
+                            "type": "boolean"
+                        },
+                        "tx_l1_bps": {
+                            "type": "long"
+                        },
+                        "tx_l2_bps": {
+                            "type": "long"
+                        },
+                        "tx_latency_l1_bps": {
+                            "type": "long"
+                        },
+                        "tx_latency_l2_bps": {
+                            "type": "long"
+                        },
+                        "tx_latency_packets": {
+                            "type": "long"
+                        },
+                        "tx_latency_pps": {
+                            "type": "long"
+                        },
+                        "tx_packets": {
+                            "type": "long"
+                        },
+                        "tx_pps": {
+                            "type": "long"
+                        },
+                        "tx_pps_target": {
+                            "type": "long"
+                        }
+                    }
+                },
+                "num_flows": {
+                    "type": "long"
+                },
+                "numactl_cmd": {
+                    "type": "text"
+                },
+                "numjobs": {
+                    "type": "keyword"
+                },
+                "output_dir": {
+                    "type": "text",
+                    "analyzer": "path_analyzer"
+                },
+                "packet_protocol": {
+                    "type": "text"
+                },
+                "percentage_random": {
+                    "type": "text"
+                },
+                "port_primary_info_file": {
+                    "type": "text"
+                },
+                "port_secondary_info_file": {
+                    "type": "text"
+                },
+                "primary_metric": {
+                    "type": "keyword"
+                },
+                "problem_sizes": {
+                    "type": "text"
+                },
+                "process_all_profiler_data": {
+                    "type": "boolean"
+                },
+                "protocol": {
+                    "type": "keyword"
+                },
+                "ramp_time": {
+                    "type": "text"
+                },
+                "random_seed": {
+                    "type": "double"
+                },
+                "rate": {
+                    "type": "double"
+                },
+                "rate_tolerance": {
+                    "type": "long"
+                },
+                "rate_tolerance_failure": {
+                    "type": "keyword"
+                },
+                "rate_unit": {
+                    "type": "text"
+                },
+                "repeat_final_validation": {
+                    "type": "boolean"
+                },
+                "runtime": {
+                    "type": "text"
+                },
+                "runtime_tolerance": {
+                    "type": "long"
+                },
+                "rw": {
+                    "type": "keyword"
+                },
+                "rwmixread": {
+                    "type": "text"
+                },
+                "rwmixwrite": {
+                    "type": "text"
+                },
+                "search_granularity": {
+                    "type": "double"
+                },
+                "search_runtime": {
+                    "type": "long"
+                },
+                "servers": {
+                    "type": "text",
+                    "analyzer": "comma_analyzer"
+                },
+                "size": {
+                    "type": "text"
+                },
+                "sniff_runtime": {
+                    "type": "long"
+                },
+                "stream_mode": {
+                    "type": "text"
+                },
+                "sync": {
+                    "type": "keyword"
+                },
+                "teaching_measurement_interval": {
+                    "type": "long"
+                },
+                "teaching_measurement_packet_rate": {
+                    "type": "long"
+                },
+                "teaching_warmup_packet_rate": {
+                    "type": "long"
+                },
+                "test_dev_pairs": {
+                    "type": "nested",
+                    "properties": {
+                        "dev_pair": {
+                            "type": "text"
+                        },
+                        "direction": {
+                            "type": "text"
+                        },
+                        "path": {
+                            "type": "text"
+                        },
+                        "rx": {
+                            "type": "text"
+                        },
+                        "tx": {
+                            "type": "text"
+                        }
+                    }
+                },
+                "test_type": {
+                    "type": "keyword"
+                },
+                "threads": {
+                    "type": "text"
+                },
+                "time_based": {
+                    "type": "text"
+                },
+                "traffic_direction": {
+                    "type": "keyword"
+                },
+                "traffic_generator": {
+                    "type": "keyword"
+                },
+                "traffic_profile": {
+                    "type": "text",
+                    "analyzer": "path_analyzer"
+                },
+                "trafficgen_uid": {
+                    "type": "keyword"
+                },
+                "trafficgen_uid_tmpl": {
+                    "type": "keyword"
+                },
+                "trex_profiler_interval": {
+                    "type": "long"
+                },
+                "trial": {
+                    "type": "text"
+                },
+                "trial_mode": {
+                    "type": "keyword"
+                },
+                "trial_primary_output_file": {
+                    "type": "text"
+                },
+                "trial_profiler_file": {
+                    "type": "text"
+                },
+                "trial_secondary_output_file": {
+                    "type": "text"
+                },
+                "uid": {
+                    "type": "keyword"
+                },
+                "uid_tmpl": {
+                    "type": "keyword"
+                },
+                "use_dst_ip_flows": {
+                    "type": "long"
+                },
+                "use_dst_mac_flows": {
+                    "type": "long"
+                },
+                "use_omp": {
+                    "type": "text"
+                },
+                "use_src_ip_flows": {
+                    "type": "long"
+                },
+                "use_src_mac_flows": {
+                    "type": "long"
+                },
+                "validation_runtime": {
+                    "type": "long"
+                },
+                "warmup_trial_runtime": {
+                    "type": "long"
                 }
             }
         }

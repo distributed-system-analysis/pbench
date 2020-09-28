@@ -1,67 +1,56 @@
 {
-    "pbench-run-toc-entry": {
-        "_all" : {"enabled" : false},
-        "_meta": {
-            "version": "5"
+    "_meta": {
+        "version": "6"
+    },
+    "date_detection": false,
+    "properties": {
+        "@timestamp": {
+            "type": "date"
         },
-        "_parent": {
-            "type": "pbench-run"
+        "run_data_parent": {
+            "type": "keyword"},
+        "ancestor_path_elements": {
+            "type": "keyword"
         },
-        "date_detection": false,
-        "properties": {
-            "@timestamp": {
-                "type": "date"
-            },
-            "ancestor_path_elements": {
-                "type": "string",
-                "index": "not_analyzed"
-            },
-            "directory": {
-                "type": "string",
-                "analyzer": "path_analyzer"
-            },
-            "files": {
-                "type": "nested",
-                "properties": {
-                    "linkpath" : {
-                        "type": "string",
-                        "analyzer": "path_analyzer"
-                    },
-                    "mode" : {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "mtime" : {
-                        "type": "date"
-                    },
-                    "name" : {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "size" : {
-                        "type": "long"
-                    },
-                    "type" : {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    }
+        "directory": {
+            "type": "text",
+            "analyzer": "path_analyzer"
+        },
+        "files": {
+            "type": "nested",
+            "properties": {
+                "linkpath" : {
+                    "type": "text",
+                    "analyzer": "path_analyzer"
+                },
+                "mode" : {
+                    "type": "keyword"
+                },
+                "mtime" : {
+                    "type": "date"
+                },
+                "name" : {
+                    "type": "keyword"
+                },
+                "size" : {
+                    "type": "long"
+                },
+                "type" : {
+                    "type": "keyword"
                 }
-            },
-            "mode" : {
-                "type": "string",
-                "index": "not_analyzed"
-            },
-            "mtime" : {
-                "type": "date"
-            },
-            "name" : {
-                "type": "string",
-                "index": "not_analyzed"
-            },
-            "parent": {
-                "type": "string",
-                "index": "not_analyzed"
             }
+        },
+        "mode" : {
+            "type": "keyword"
+        },
+        "mtime" : {
+            "type": "date"
+        },
+        "name" : {
+            "type": "keyword"
+        },
+        "parent": {
+            "type": "keyword"
         }
     }
 }

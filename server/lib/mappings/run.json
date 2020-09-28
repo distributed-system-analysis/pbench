@@ -1,216 +1,189 @@
 {
-    "pbench-run": {
-        "_all" : {"enabled" : false},
-        "_meta": {
-            "version": "5"
+    "_meta": {
+        "version": "6"
+    },
+    "date_detection": false,
+    "properties": {
+        "@timestamp": {
+            "type": "date"
         },
-        "date_detection": false,
-        "properties": {
-            "@timestamp": {
-                "type": "date"
-            },
-            "@generated-by": {
-                "type": "string",
-                "index": "not_analyzed"
-            },
-            "@metadata": {
-                "properties": {
-                    "controller_dir": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "file-date": {
-                        "type": "date"
-                    },
-                    "file-name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "file-size": {
-                        "type": "long"
-                    },
-                    "md5": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "pbench-agent-version": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "raw_size": {
-                        "type": "long"
-                    },
-                    "result-prefix": {
-                        "type": "string"
-                    },
-                    "satellite": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "tar-ball-creation-timestamp": {
-                        "type": "date"
-                    },
-                    "toc-prefix": {
-                        "type": "string"
-                    }
+        "@generated-by": {
+            "type": "keyword"
+        },
+        "@metadata": {
+            "properties": {
+                "controller_dir": {
+                    "type": "keyword"
+                },
+                "file-date": {
+                    "type": "date"
+                },
+                "file-name": {
+                    "type": "keyword"
+                },
+                "file-size": {
+                    "type": "long"
+                },
+                "md5": {
+                    "type": "keyword"
+                },
+                "pbench-agent-version": {
+                    "type": "keyword"
+                },
+                "raw_size": {
+                    "type": "long"
+                },
+                "result-prefix": {
+                    "type": "text"
+                },
+                "satellite": {
+                    "type": "keyword"
+                },
+                "tar-ball-creation-timestamp": {
+                    "type": "date"
+                },
+                "toc-prefix": {
+                    "type": "text"
                 }
-            },
-            "host_tools_info": {
-                "type": "nested",
-                "properties": {
-                    "hostname": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "hostname-f": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "hostname-s": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "label": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "tools": {
-                        "properties": {
-                            "disk": {
-                                "type": "string"
-                            },
-                            "haproxy-ocp": {
-                                "type": "string"
-                            },
-                            "iostat": {
-                                "type": "string"
-                            },
-                            "mpstat": {
-                                "type": "string"
-                            },
-                            "oc": {
-                                "type": "string"
-                            },
-                            "perf": {
-                                "type": "string"
-                            },
-                            "pidstat": {
-                                "type": "string"
-                            },
-                            "pprof": {
-                                "type": "string"
-                            },
-                            "proc-interrupts": {
-                                "type": "string"
-                            },
-                            "proc-vmstat": {
-                                "type": "string"
-                            },
-                            "prometheus-metrics": {
-                                "type": "string"
-                            },
-                            "sar": {
-                                "type": "string"
-                            },
-                            "turbostat": {
-                                "type": "string"
-                            },
-                            "vmstat": {
-                                "type": "string"
-                            }
+            }
+        },
+        "host_tools_info": {
+            "type": "nested",
+            "properties": {
+                "hostname": {
+                    "type": "keyword"
+                },
+                "hostname-f": {
+                    "type": "keyword"
+                },
+                "hostname-s": {
+                    "type": "keyword"
+                },
+                "label": {
+                    "type": "keyword"
+                },
+                "tools": {
+                    "properties": {
+                        "disk": {
+                            "type": "text"
+                        },
+                        "haproxy-ocp": {
+                            "type": "text"
+                        },
+                        "iostat": {
+                            "type": "text"
+                        },
+                        "mpstat": {
+                            "type": "text"
+                        },
+                        "oc": {
+                            "type": "text"
+                        },
+                        "perf": {
+                            "type": "text"
+                        },
+                        "pidstat": {
+                            "type": "text"
+                        },
+                        "pprof": {
+                            "type": "text"
+                        },
+                        "proc-interrupts": {
+                            "type": "text"
+                        },
+                        "proc-vmstat": {
+                            "type": "text"
+                        },
+                        "prometheus-metrics": {
+                            "type": "text"
+                        },
+                        "sar": {
+                            "type": "text"
+                        },
+                        "turbostat": {
+                            "type": "text"
+                        },
+                        "vmstat": {
+                            "type": "text"
                         }
                     }
                 }
-            },
-            "run": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "controller": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "user": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "script": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "config": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "date": {
-                        "type": "date"
-                    },
-                    "start": {
-                        "type": "date"
-                    },
-                    "end": {
-                        "type": "date"
-                    },
-                    "toolsgroup": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "iterations": {
-                        "type": "string"
-                    }
+            }
+        },
+        "run": {
+            "properties": {
+                "id": {
+                    "type": "keyword"
+                },
+                "controller": {
+                    "type": "keyword"
+                },
+                "user": {
+                    "type": "keyword"
+                },
+                "name": {
+                    "type": "keyword"
+                },
+                "script": {
+                    "type": "keyword"
+                },
+                "config": {
+                    "type": "keyword"
+                },
+                "date": {
+                    "type": "date"
+                },
+                "start": {
+                    "type": "date"
+                },
+                "end": {
+                    "type": "date"
+                },
+                "toolsgroup": {
+                    "type": "keyword"
+                },
+                "iterations": {
+                    "type": "text"
                 }
-            },
-            "sosreports": {
-                "type": "nested",
-                "properties": {
-                    "hostname-f": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "sosreport-error": {
-                        "type": "string"
-                    },
-                    "hostname-s": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "md5": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "inet": {
-                        "type": "nested",
-                        "properties": {
-                            "ifname": {
-                                "type": "string",
-                                "index": "not_analyzed"
-                            },
-                            "ipaddr": {
-                                "type": "ip"
-                            }
+            }
+        },
+        "sosreports": {
+            "type": "nested",
+            "properties": {
+                "hostname-f": {
+                    "type": "keyword"
+                },
+                "sosreport-error": {
+                    "type": "text"
+                },
+                "hostname-s": {
+                    "type": "keyword"
+                },
+                "md5": {
+                    "type": "keyword"
+                },
+                "name": {
+                    "type": "keyword"
+                },
+                "inet": {
+                    "type": "nested",
+                    "properties": {
+                        "ifname": {
+                            "type": "keyword"
+                        },
+                        "ipaddr": {
+                            "type": "ip"
                         }
-                    },
-                    "inet6": {
-                        "type": "nested",
-                        "properties": {
-                            "ifname": {
-                                "type": "string",
-                                "index": "not_analyzed"
-                            },
-                            "ipaddr": {
-                                "type": "string",
-                                "index": "not_analyzed"
-                            }
+                    }
+                },
+                "inet6": {
+                    "type": "nested",
+                    "properties": {
+                        "ifname": {
+                            "type": "keyword"
+                        },
+                        "ipaddr": {
+                            "type": "keyword"
                         }
                     }
                 }

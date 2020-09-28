@@ -1,11 +1,11 @@
 +++ Running pbench-sync-satellite satellite-one
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -23,19 +23,18 @@ len(actions) = 1
             "text": "pbench-sync-satellite.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nRemote ONE: processed 2 files, with 1 md5 failures and 0 errors.\n\nrun-1970-01-01T00:00:42-UTC: start - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs fetched, unpacking ... - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: remote tarballs unpacked - 1970-01-01T00:00:42-UTC\npbench-user-benchmark_38_2016-05-18_19:36:32.tar.xz: FAILED\npbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-11/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)\npbench-sync-satellite: completed satellite state changes\nrun-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC\nrun-1970-01-01T00:00:42-UTC: duration (secs): 0\nrun-1970-01-01T00:00:42-UTC: Total 2 files processed, with 1 md5 failures and 0 errors\n",
             "total_chunks": 1,
             "total_size": 848
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-sync-satellite (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -53,8 +52,7 @@ len(actions) = 1
             "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished unit test audit (status=0)

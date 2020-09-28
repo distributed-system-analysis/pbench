@@ -1,8 +1,9 @@
 boto3
-elasticsearch1==1.10.0
+python-dateutil
+elasticsearch
 flask
 flask-restful
 gunicorn
 humanize
-pyesbulk==1.0.0
+pyesbulk>=2.0.1
 requests

@@ -1,14 +1,13 @@
 {
     "_meta": {
-        "version": "3"
+        "version": "4"
     },
     "properties": {
         "@idx": {
             "type": "long"
         },
         "id": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "keyword"
         },
         "cpu": {
             "properties": {

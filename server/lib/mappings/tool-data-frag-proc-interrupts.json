@@ -1,21 +1,19 @@
 {
     "_meta": {
-        "version": "3"
+        "version": "4"
     },
     "properties": {
         "@idx": {
             "type": "long"
         },
         "int_id": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "keyword"
         },
         "cpu_id": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "keyword"
         },
         "desc": {
-            "type": "string"
+            "type": "text"
         },
         "gauge": {
             "type": "long"

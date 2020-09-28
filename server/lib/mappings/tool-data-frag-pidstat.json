@@ -1,22 +1,19 @@
 {
     "_meta": {
-        "version": "3"
+        "version": "4"
     },
     "properties": {
         "@idx": {
             "type": "long"
         },
         "id": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "keyword"
         },
         "pid": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "keyword"
         },
         "command": {
-            "type": "string",
-            "index": "not_analyzed"
+            "type": "keyword"
         },
         "context_switches": {
             "properties": {
