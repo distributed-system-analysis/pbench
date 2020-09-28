@@ -1,4 +1,4 @@
 ansible
+boto3
 elasticsearch
 sh
-boto3
