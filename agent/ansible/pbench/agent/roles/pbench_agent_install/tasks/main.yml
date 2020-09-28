@@ -1,0 +1,11 @@
+---
+- import_role:
+    name: pbench_clean_yum_cache
+
+- name: "Install RPMs"
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - pbench-agent
+    - pbench-sysstat

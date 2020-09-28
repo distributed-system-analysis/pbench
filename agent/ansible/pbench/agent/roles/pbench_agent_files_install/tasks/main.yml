@@ -1,0 +1,40 @@
+---
+# Install file(s) for pbench agent.
+- name: create temp dir to store the file(s) locally
+  delegate_to: localhost
+  become: no
+  tempfile:
+    state: directory
+    prefix: "{{ inventory_hostname }}-"
+  register: tempdir_1
+
+- name: relax perms
+  delegate_to: localhost
+  become: no
+  file:
+    path: "{{ tempdir_1.path }}"
+    mode: 0755
+
+- name: install the file(s) locally
+  delegate_to: localhost
+  become: no
+  get_url:
+    url: "{{ source }}/{{ item }}"
+    dest: "{{ tempdir_1.path }}/{{ item }}"
+  with_items: "{{ files }}"
+
+- name: copy the file(s) to the remote
+  copy:
+    src:  "{{ tempdir_1.path }}/{{ item }}"
+    dest: "{{ dest }}"
+    mode: "{{ mode }}"
+    owner: "{{ pbench_owner }}"
+    group: "{{ pbench_group }}"
+  with_items: "{{ files }}"
+
+- name: delete local temp dir
+  delegate_to: localhost
+  become: no
+  file:
+    state: absent
+    path: "{{ tempdir_1.path }}"

@@ -1,0 +1,10 @@
+---
+- name: Clean yum cache
+  command: yum clean all
+  args:
+    warn: False
+
+- name: Delete /var/cache/yum directory
+  file:
+    path: /var/cache/yum
+    state: absent

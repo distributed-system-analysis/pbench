@@ -1,0 +1,15 @@
+---
+- name: install pbench-agent
+  hosts: servers
+  become: yes
+  become_user: root
+
+  # The default value ('production') can be overridden by cenv, a host-specific
+  # inventory variable.
+  vars:
+    pbench_configuration_environment: "{{ cenv | default('production') }}"
+
+  roles:
+    - pbench_repo_install
+    - pbench_agent_install
+    - pbench_agent_config

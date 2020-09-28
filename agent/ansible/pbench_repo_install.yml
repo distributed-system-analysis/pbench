@@ -1,0 +1,9 @@
+---
+- name: install pbench-agent repo
+  hosts: servers
+  become: yes
+  become_user: root
+
+  roles:
+    - pbench_repo_install
+
