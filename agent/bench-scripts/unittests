@@ -101,11 +101,6 @@ function _run {
     printf -- "#!/bin/bash\n\n" > ${_testroot}/run.cmd
     printf -- "export _tst_benchmark=%s\n" "${tscrpt%% *}" >> ${_testroot}/run.cmd
     printf -- "export _PBENCH_AGENT_CONFIG=%s/config/pbench-agent.cfg\n" "${_testopt}" >> ${_testroot}/run.cmd
-    printf -- "export pbench_install_dir=%s\n" "${_testopt}" >> ${_testroot}/run.cmd
-    printf -- "export pbench_bspp_dir=%s/bench-scripts/postprocess\n" "${_testopt}" >> ${_testroot}/run.cmd
-    printf -- "export pbench_lib_dir=%s/lib\n" "${_testopt}" >> ${_testroot}/run.cmd
-    printf -- "export pbench_run=%s\n" "${_testdir}" >> ${_testroot}/run.cmd
-    printf -- "export pbench_log=%s/pbench.log\n" "${_testdir}" >> ${_testroot}/run.cmd
     printf -- "export benchmark_bin=%s/unittest-scripts/bm\n\n" "${_testopt}" >> ${_testroot}/run.cmd
     if [[ -e "${env_file}" ]]; then
         ${_real_cat} ${env_file} >> ${_testroot}/run.cmd
@@ -222,6 +217,7 @@ function _setup_state {
         echo "ERROR: failed to create pbench-agent config file, \"${_testopt}/config/pbench-agent.cfg\"" >&2
         exit 1
     fi
+    printf -- "\n[pbench-agent]\npbench_run = %s\n" "${_testdir}" >> ${_testopt}/config/pbench-agent.cfg
     mkdir -p ${_testdir}
     if [[ ${?} -ne 0 ]]; then
         echo "ERROR: failed to create test pbench directory, \"${_testdir}\"" >&2

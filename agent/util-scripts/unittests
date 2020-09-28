@@ -243,6 +243,7 @@ function _setup_state {
         echo "ERROR: failed to create default pbench-agent.cfg" >&2
         exit 1
     fi
+    printf -- "\n[pbench-agent]\npbench_run = %s\n" "${_testdir}" >> ${_testopt}/config/pbench-agent.cfg
     export _PBENCH_AGENT_CONFIG=${_testopt}/config/pbench-agent.cfg
 
     mkdir ${_testdir}
@@ -268,11 +269,6 @@ function _setup_state {
         fi
     fi
 
-    export pbench_install_dir=${_testopt}
-    export pbench_run=${_testdir}
-    export pbench_log=${_testdir}/pbench.log
-    export pbench_bspp_dir=${_testopt}/bench-scripts/postprocess
-    export pbench_lib_dir=${_testopt}/lib
     export benchmark="fake-bm"
     export benchmark_bin=${_testopt}/unittest-scripts/bm
 
@@ -297,11 +293,6 @@ function _reset_state {
     unset benchmark_run_dir
     unset benchmark_bin
     unset benchmark
-    unset pbench_lib_dir
-    unset pbench_bspp_dir
-    unset pbench_log
-    unset pbench_run
-    unset pbench_install_dir
 }
 
 let errs=0

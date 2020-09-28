@@ -1,5 +1,7 @@
 #! /bin/bash
 
+source $(dirname $(dirname "${0}"))/base
+
 # Emulate being called for two iterations
 (echo "foo"
 echo "START DEFAULT"
