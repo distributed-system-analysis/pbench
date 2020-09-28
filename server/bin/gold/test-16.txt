@@ -1,11 +1,11 @@
 +++ Running pbench-unpack-tarballs small
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -23,19 +23,18 @@ len(actions) = 1
             "text": "pbench-unpack-tarballs-small.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 1 errors\nProcessed 4 result tar balls, 3 successfully, 0 warnings, 1 errors, and 0 duplicates\n\nrun-1970-01-01T00:00:42-UTC: symlink target for /var/tmp/pbench-test-server/test-16/pbench/archive/fs-version-001/controller00/TO-UNPACK/benchmark-doesnotexist_1970-01-01T00:00:00.tar.xz does not exist\n",
             "total_chunks": 1,
             "total_size": 370
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -53,8 +52,7 @@ len(actions) = 1
             "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished unit test audit (status=0)

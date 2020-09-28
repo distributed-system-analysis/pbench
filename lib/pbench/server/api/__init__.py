@@ -21,9 +21,9 @@ from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig
 from pbench.server.utils import filesize_bytes
 
-ALLOWED_EXTENSIONS = {"xz"}
+from pbench.server.api.resources.query_controllers import QueryControllers
 
-app = None
+ALLOWED_EXTENSIONS = {"xz"}
 
 
 def allowed_file(filename):
@@ -40,18 +40,27 @@ def register_endpoints(api, app):
     """Register flask endpoints with the corresponding resource classes
     to make the APIs active."""
 
+    base_uri = app.config["REST_URI"]
+    app.logger.info("Registering service endpoints with base URI {}", base_uri)
     api.add_resource(
-        Upload, f"{app.config['REST_URI']}/upload/ctrl/<string:controller>"
+        Upload,
+        f"{base_uri}/upload/ctrl/<string:controller>",
+        resource_class_args=(app, api),
     )
-    api.add_resource(HostInfo, f"{app.config['REST_URI']}/host_info")
-    api.add_resource(Elasticsearch, f"{app.config['REST_URI']}/elasticsearch")
-    api.add_resource(GraphQL, f"{app.config['REST_URI']}/graphql")
+    api.add_resource(
+        QueryControllers,
+        f"{base_uri}/controllers/list",
+        resource_class_args=(app, api),
+    )
+    api.add_resource(HostInfo, f"{base_uri}/host_info", resource_class_args=(app, api))
+    api.add_resource(
+        Elasticsearch, f"{base_uri}/elasticsearch", resource_class_args=(app, api)
+    )
+    api.add_resource(GraphQL, f"{base_uri}/graphql", resource_class_args=(app, api))
 
 
 def create_app():
     """Create Flask app with defined resource endpoints."""
-
-    global app
 
     cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
     if not cfg_name:
@@ -93,11 +102,18 @@ def create_app():
     else:
         app.upload_directory = upload_directory
 
+    app.config["ES_URL"] = (
+        "http://"
+        + app.config_elasticsearch.get("host")
+        + ":"
+        + app.config_elasticsearch.get("port")
+    )
     app.config["PORT"] = app.config_server.get("rest_port")
     app.config["VERSION"] = app.config_server.get("rest_version")
     app.config["MAX_CONTENT_LENGTH"] = filesize_bytes(
         app.config_server.get("rest_max_content_length")
     )
+    app.config["PREFIX"] = config.conf["Indexing"].get("index_prefix")
     app.config["REST_URI"] = app.config_server.get("rest_uri")
     app.config["BIND_HOST"] = app.config_server.get("bind_host")
     app.config["WORKERS"] = app.config_server.get("workers")
@@ -126,14 +142,15 @@ class CorsOptionsRequest:
     On the server side, the server must specify the response headers to grant CORS accordingly.
     """
 
-    def __init__(self, options_exception_msg):
+    def __init__(self, app, options_exception_msg):
+        self.app = app
         self.options_exception_msg = options_exception_msg
 
     def options(self):
         try:
             response = _build_cors_preflight_response()
         except Exception:
-            app.logger.exception(self.options_exception_msg)
+            self.app.logger.exception(self.options_exception_msg)
             abort(400, message=self.options_exception_msg)
         response.status_code = 200
         return response
@@ -142,33 +159,36 @@ class CorsOptionsRequest:
 class GraphQL(Resource, CorsOptionsRequest):
     """GraphQL API for post request via server."""
 
-    def __init__(self):
-        CorsOptionsRequest.__init__(self, "Bad options request for the GraphQL query")
+    def __init__(self, app, api):
+        CorsOptionsRequest.__init__(
+            self, app, "Bad options request for the GraphQL query"
+        )
+        self.api = api
 
     def post(self):
-        global app
-        graphQL = (
-            f"http://{app.config_graphql.get('host')}:{app.config_graphql.get('port')}"
-        )
+        logger = self.app.logger
+        gql = self.app.config_graphql
+        graphQL = f"http://{gql.get('host')}:{gql.get('port')}"
         json_data = request.get_json(silent=True)
 
         if not json_data:
-            app.logger.warning("GraphQL: Invalid json object {}", request.url)
+            logger.warning("GraphQL: Invalid json object {}", request.url)
             abort(400, message="GraphQL: Invalid json object in request")
 
         try:
             # query GraphQL
             gql_response = requests.post(graphQL, json=json_data)
+            gql_response.raise_for_status()
         except requests.exceptions.ConnectionError:
-            app.logger.exception("Connection refused during the GraphQL post request")
+            logger.exception("Connection refused during the GraphQL post request")
             abort(502, message="Network problem, could not post to GraphQL Endpoint")
         except requests.exceptions.Timeout:
-            app.logger.exception("Connection timed out during the GraphQL post request")
+            logger.exception("Connection timed out during the GraphQL post request")
             abort(
                 504, message="Connection timed out, could not post to GraphQL Endpoint"
             )
         except Exception:
-            app.logger.exception("Exception occurred during the GraphQL post request")
+            logger.exception("Exception occurred during the GraphQL post request")
             abort(500, message="INTERNAL ERROR")
 
         try:
@@ -176,7 +196,7 @@ class GraphQL(Resource, CorsOptionsRequest):
             raw_response = make_response(gql_response.text)
             response = _corsify_actual_response(raw_response)
         except Exception:
-            app.logger.exception("Exception occurred GraphQL response construction")
+            logger.exception("Exception occurred in GraphQL response construction")
             abort(
                 500, message="INTERNAL ERROR",
             )
@@ -188,25 +208,23 @@ class GraphQL(Resource, CorsOptionsRequest):
 class Elasticsearch(Resource, CorsOptionsRequest):
     """Elasticsearch API for post request via server."""
 
-    def __init__(self):
+    def __init__(self, app, api):
         CorsOptionsRequest.__init__(
-            self, "Bad options request for the Elasticsearch query"
+            self, app, "Bad options request for the Elasticsearch query"
         )
+        self.api = api
 
     def post(self):
-        global app
-        elasticsearch = f"http://{app.config_elasticsearch.get('host')}:{app.config_elasticsearch.get('port')}"
+        logger = self.app.logger
+        es = self.app.config_elasticsearch
+        elasticsearch = f"http://{es.get('host')}:{es.get('port')}"
         json_data = request.get_json(silent=True)
         if not json_data:
-            app.logger.warning(
-                "Elasticsearch: Invalid json object. Query: {}", request.url
-            )
+            logger.warning("Elasticsearch: Invalid json object. Query: {}", request.url)
             abort(400, message="Elasticsearch: Invalid json object in request")
 
         if not json_data["indices"]:
-            app.logger.warning(
-                "Elasticsearch: Missing indices path in the post request"
-            )
+            logger.warning("Elasticsearch: Missing indices path in the post request")
             abort(400, message="Missing indices path in the Elasticsearch request")
 
         try:
@@ -219,19 +237,19 @@ class Elasticsearch(Resource, CorsOptionsRequest):
             if "payload" in json_data:
                 es_response = requests.post(url, json=json_data["payload"])
             else:
-                app.logger.debug(
-                    "No payload found in Elasticsearch post request json data"
-                )
+                logger.debug("No payload found in Elasticsearch post request json data")
                 es_response = requests.get(url)
+            es_response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            logger.exception("HTTP error {} from Elasticsearch post request", e)
+            abort(es_response.status_code, message=f"HTTP error {e} from Elasticsearch")
         except requests.exceptions.ConnectionError:
-            app.logger.exception(
-                "Connection refused during the Elasticsearch post request"
-            )
+            logger.exception("Connection refused during the Elasticsearch post request")
             abort(
                 502, message="Network problem, could not post to Elasticsearch Endpoint"
             )
         except requests.exceptions.Timeout:
-            app.logger.exception(
+            logger.exception(
                 "Connection timed out during the Elasticsearch post request"
             )
             abort(
@@ -239,9 +257,7 @@ class Elasticsearch(Resource, CorsOptionsRequest):
                 message="Connection timed out, could not post to Elasticsearch Endpoint",
             )
         except Exception:
-            app.logger.exception(
-                "Exception occurred during the Elasticsearch post request"
-            )
+            logger.exception("Exception occurred during the Elasticsearch post request")
             abort(
                 500, message="INTERNAL ERROR",
             )
@@ -251,9 +267,7 @@ class Elasticsearch(Resource, CorsOptionsRequest):
             raw_response = make_response(es_response.text)
             response = _corsify_actual_response(raw_response)
         except Exception:
-            app.logger.exception(
-                "Exception occurred Elasticsearch response construction"
-            )
+            logger.exception("Exception occurred Elasticsearch response construction")
             abort(
                 500, message="INTERNAL ERROR",
             )
@@ -263,27 +277,37 @@ class Elasticsearch(Resource, CorsOptionsRequest):
 
 
 class HostInfo(Resource):
+    def __init__(self, app, api):
+        self.app = app
+        self.api = api
+
     def get(self):
-        global app
         try:
+            cfg = self.app.config_server
             response = jsonify(
                 dict(
-                    message=f"{app.config_server.get('user')}@{app.config_server.get('host')}"
-                    f":{app.config_server.get('pbench-receive-dir-prefix')}-002"
+                    message=f"{cfg.get('user')}@{cfg.get('host')}"
+                    f":{cfg.get('pbench-receive-dir-prefix')}-002"
                 )
             )
-        except Exception:
-            app.logger.exception("There was something wrong constructing the host info")
+        except Exception as e:
+            self.app.logger.exception(
+                "There was something wrong constructing the host info: {}", e
+            )
             abort(500, message="There was something wrong with your request")
         response.status_code = 200
         return response
 
 
 class Upload(Resource):
+    def __init__(self, app, api):
+        self.app = app
+        self.api = api
+
     def put(self, controller):
-        global app
+        logger = self.app.logger
         if not request.headers.get("filename"):
-            app.logger.debug(
+            logger.debug(
                 "Tarfile upload: Post operation failed due to missing filename header"
             )
             abort(
@@ -293,7 +317,7 @@ class Upload(Resource):
         filename = secure_filename(request.headers.get("filename"))
 
         if not request.headers.get("Content-MD5"):
-            app.logger.debug(
+            logger.debug(
                 f"Tarfile upload: Post operation failed due to missing md5sum header for file {filename}"
             )
             abort(
@@ -302,9 +326,9 @@ class Upload(Resource):
             )
         md5sum = request.headers.get("Content-MD5")
 
-        app.logger.debug("Receiving file: {}", filename)
+        logger.debug("Receiving file: {}", filename)
         if not allowed_file(filename):
-            app.logger.debug(
+            logger.debug(
                 f"Tarfile upload: Bad file extension received for file {filename}"
             )
             abort(400, message="File extension not supported. Only .xz")
@@ -312,27 +336,28 @@ class Upload(Resource):
         try:
             content_length = int(request.headers.get("Content-Length"))
         except ValueError:
-            app.logger.debug(
+            logger.debug(
                 f"Tarfile upload: Invalid content-length header, not an integer for file {filename}"
             )
             abort(400, message="Invalid content-length header, not an integer")
         except Exception:
-            app.logger.debug(
+            logger.debug(
                 f"Tarfile upload: No Content-Length header value found for file {filename}"
             )
             abort(400, message="Missing required content-length header")
         else:
-            if content_length > app.config["MAX_CONTENT_LENGTH"]:
-                app.logger.debug(
+            max_len = self.app.config["MAX_CONTENT_LENGTH"]
+            if content_length > max_len:
+                logger.debug(
                     f"Tarfile upload: Content-Length exceeded maximum upload size allowed. File: {filename}"
                 )
                 abort(
                     400,
                     message=f"Payload body too large, {content_length:d} bytes, maximum size should be less than "
-                    f"or equal to {humanize.naturalsize(app.config['MAX_CONTENT_LENGTH'])}",
+                    f"or equal to {humanize.naturalsize(max_len)}",
                 )
             elif content_length == 0:
-                app.logger.debug(
+                logger.debug(
                     f"Tarfile upload: Content-Length header value is 0 for file {filename}"
                 )
                 abort(
@@ -340,7 +365,7 @@ class Upload(Resource):
                     message="Upload failed, Content-Length received in header is 0",
                 )
 
-        path = Path(app.upload_directory, controller)
+        path = Path(self.app.upload_directory, controller)
         path.mkdir(exist_ok=True)
         tar_full_path = Path(path, filename)
         md5_full_path = Path(path, f"{filename}.md5")
@@ -348,7 +373,7 @@ class Upload(Resource):
 
         with tempfile.NamedTemporaryFile(mode="wb", dir=path) as ofp:
             chunk_size = 4096
-            app.logger.debug("Writing chunks")
+            logger.debug("Writing chunks")
             hash_md5 = hashlib.md5()
 
             try:
@@ -361,13 +386,13 @@ class Upload(Resource):
                     ofp.write(chunk)
                     hash_md5.update(chunk)
             except Exception:
-                app.logger.exception(
+                logger.exception(
                     "Tarfile upload: There was something wrong uploading {}", filename
                 )
                 abort(500, message=f"There was something wrong uploading {filename}")
 
             if bytes_received != content_length:
-                app.logger.debug(
+                logger.debug(
                     f"Tarfile upload: Bytes received does not match with content length header value for file {filename}"
                 )
                 message = (
@@ -377,9 +402,7 @@ class Upload(Resource):
                 abort(400, message=message)
 
             elif hash_md5.hexdigest() != md5sum:
-                app.logger.debug(
-                    f"Tarfile upload: md5sum check failed for file {filename}"
-                )
+                logger.debug(f"Tarfile upload: md5sum check failed for file {filename}")
                 message = f"md5sum check failed for {filename}, upload failed"
                 abort(400, message=message)
 
@@ -393,12 +416,12 @@ class Upload(Resource):
                 except FileNotFoundError:
                     pass
                 except Exception as exc:
-                    self.logger.warning(
-                        "Failed to remove .md5 %s when trying to clean up: %s",
+                    logger.warning(
+                        "Failed to remove .md5 {} when trying to clean up: {}}",
                         md5_full_path,
                         exc,
                     )
-                self.logger.exception("Failed to write .md5 file, '%s'", md5_full_path)
+                logger.exception("Failed to write .md5 file, '{}'", md5_full_path)
                 raise
 
             # Then create the final filename link to the temporary file.
@@ -408,13 +431,13 @@ class Upload(Resource):
                 try:
                     os.remove(md5_full_path)
                 except Exception as exc:
-                    self.logger.warning(
-                        "Failed to remove .md5 %s when trying to clean up: %s",
+                    logger.warning(
+                        "Failed to remove .md5 {} when trying to clean up: {}",
                         md5_full_path,
                         exc,
                     )
-                self.logger.exception(
-                    "Failed to rename tar ball '%s' to '%s'", ofp.name, md5_full_path,
+                logger.exception(
+                    "Failed to rename tar ball '{}' to '{}'", ofp.name, md5_full_path,
                 )
                 raise
 

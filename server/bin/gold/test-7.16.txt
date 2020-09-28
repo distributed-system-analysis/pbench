@@ -1,11 +1,11 @@
 +++ Running pbench-unpack-tarballs
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -23,28 +23,29 @@ len(actions) = 1
             "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
             "total_chunks": 1,
             "total_size": 162
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -58,31 +59,46 @@ len(actions) = 1
             "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
             "name": "pbench-index"
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
 A source does not conform to mapping: key 'uperf_servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
 A source does not conform to mapping: key 'uperf_clients' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
 A source does not conform to mapping: key 'uperf__servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
 A source does not conform to mapping: key 'benchmark' has bad mapping
-Index:  pbench-unittests.v4.result-data.2018-10-04 724
-Index:  pbench-unittests.v5.run.2018-10 64
-len(actions) = 30
+A source does not conform to mapping: key 'uperf_servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'uperf_clients' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'uperf__servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'benchmark' has bad mapping
+A source does not conform to mapping: key 'uperf_servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'uperf_clients' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'uperf__servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'benchmark' has bad mapping
+A source does not conform to mapping: key 'uperf_servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'uperf_clients' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'uperf__servers' not found in ['Hammerdb-tpcc', 'active_device_pairs', 'alignment_values', 'binary', 'bs', 'claimed_dev_pairs', 'clients', 'clocksource', 'device_pairs', 'direct', 'disable_upward_search', 'duplicate_packet_failure_mode', 'enable_flow_cache', 'enable_trex_profiler', 'filename', 'frame_size', 'instances', 'iodepth', 'iodepth_batch', 'iodepth_batch_complete_min', 'ioengine', 'kmp_affinity', 'latency_rate', 'leading_dimensions', 'loaded_traffic_profile', 'log_avg_msec', 'log_hist_msec', 'log_unix_epoch', 'loss_granularity', 'max_loss_pct', 'max_port', 'max_retries', 'max_stddevpct', 'measure_latency', 'message_size_bytes', 'name', 'negative_packet_loss_mode', 'null_stats', 'num_flows', 'numactl_cmd', 'numjobs', 'output_dir', 'packet_protocol', 'percentage_random', 'port_primary_info_file', 'port_secondary_info_file', 'primary_metric', 'problem_sizes', 'process_all_profiler_data', 'protocol', 'ramp_time', 'random_seed', 'rate', 'rate_tolerance', 'rate_tolerance_failure', 'rate_unit', 'repeat_final_validation', 'runtime', 'runtime_tolerance', 'rw', 'rwmixread', 'rwmixwrite', 'search_granularity', 'search_runtime', 'servers', 'size', 'sniff_runtime', 'stream_mode', 'sync', 'teaching_measurement_interval', 'teaching_measurement_packet_rate', 'teaching_warmup_packet_rate', 'test_dev_pairs', 'test_type', 'threads', 'time_based', 'traffic_direction', 'traffic_generator', 'traffic_profile', 'trafficgen_uid', 'trafficgen_uid_tmpl', 'trex_profiler_interval', 'trial', 'trial_mode', 'trial_primary_output_file', 'trial_profiler_file', 'trial_secondary_output_file', 'uid', 'uid_tmpl', 'use_dst_ip_flows', 'use_dst_mac_flows', 'use_omp', 'use_src_ip_flows', 'use_src_mac_flows', 'validation_runtime', 'version', 'warmup_trial_runtime']
+A source does not conform to mapping: key 'benchmark' has bad mapping
+Index:  pbench-unittests.v5.result-data-sample.2018-10-04 4
+Index:  pbench-unittests.v5.result-data.2018-10-04 720
+Index:  pbench-unittests.v6.run-data.2018-10 1
+Index:  pbench-unittests.v6.run-toc.2018-10 63
+len(actions) = 35
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-data.2018-10",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -151,14 +167,12 @@ len(actions) = 30
                 "start": "2018-10-04T06:53:52.212763",
                 "toolsgroup": "default"
             }
-        },
-        "_type": "pbench-run"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "directory": "/",
@@ -215,15 +229,14 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2019-04-26T19:36:24",
-            "parent": "/"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "directory": "/21-tcp_rr-1024B-1i",
@@ -267,15 +280,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:40:38",
             "name": "21-tcp_rr-1024B-1i",
-            "parent": "/"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -322,15 +334,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T18:20:55",
             "name": "sample1",
-            "parent": "/21-tcp_rr-1024B-1i"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -357,15 +368,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
             "name": "csv",
-            "parent": "/21-tcp_rr-1024B-1i/sample1"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -376,15 +386,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
             "name": "tools-default",
-            "parent": "/21-tcp_rr-1024B-1i/sample1"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -396,15 +405,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
             "name": "rhel8-4",
-            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -454,15 +462,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
             "name": "iostat",
-            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -527,15 +534,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
             "name": "csv",
-            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/iostat"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/iostat",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -641,15 +647,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:19",
             "name": "mpstat",
-            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -700,15 +705,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:19",
             "name": "csv",
-            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/mpstat"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/mpstat",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -765,15 +769,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
             "name": "perf",
-            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -817,15 +820,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
             "name": "perf-percpu",
-            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/perf"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/perf",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -931,15 +933,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:19",
             "name": "pidstat",
-            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2018-10",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "ancestor_path_elements": [
@@ -1018,13 +1019,84 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2018-10-30T17:21:20",
             "name": "csv",
-            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/pidstat"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/pidstat",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v6.run-toc.2018-10",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-04T06:53:52.212763",
+            "ancestor_path_elements": [
+                "21-tcp_rr-1024B-1i",
+                "sample1",
+                "tools-default",
+                "rhel8-4"
+            ],
+            "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/proc-interrupts",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-30T17:21:20",
+                    "name": "proc-interrupts-by-cpu-average.txt",
+                    "size": 22262,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-30T17:21:20",
+                    "name": "proc-interrupts-by-cpu.html",
+                    "size": 1420,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-30T17:21:20",
+                    "name": "proc-interrupts-by-irq-average.txt",
+                    "size": 22262,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-30T17:21:20",
+                    "name": "proc-interrupts-by-irq.html",
+                    "size": 767,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-30T17:21:20",
+                    "name": "proc-interrupts-stderr.txt",
+                    "size": 0,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2018-10-30T17:21:20",
+                    "name": "proc-interrupts-stdout.txt",
+                    "size": 532602,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o755",
+                    "mtime": "2018-10-30T17:21:20",
+                    "name": "proc-interrupts.cmd",
+                    "size": 227,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2018-10-30T17:21:20",
+            "name": "proc-interrupts",
+            "parent": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4",
+            "run_data_parent": "b7377b15e32ba3fa1579cf01cd90b192"
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -1081,14 +1153,12 @@ len(actions) = 30
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010",
                 "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%"
             }
-        },
-        "_type": "pbench-result-data-sample"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:29.152000",
             "@timestamp_original": "1538656649152",
@@ -1100,6 +1170,7 @@ len(actions) = 30
                 "@idx": 0,
                 "value": 59.5663569216107
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1112,14 +1183,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:30.153000",
             "@timestamp_original": "1538656650153",
@@ -1131,6 +1200,7 @@ len(actions) = 30
                 "@idx": 1,
                 "value": 59.343134930045
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1143,14 +1213,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:31.154000",
             "@timestamp_original": "1538656651154",
@@ -1162,6 +1230,7 @@ len(actions) = 30
                 "@idx": 2,
                 "value": 59.6401334604385
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1174,14 +1243,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:32.156000",
             "@timestamp_original": "1538656652156",
@@ -1193,6 +1260,7 @@ len(actions) = 30
                 "@idx": 3,
                 "value": 57.8521939953811
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1205,14 +1273,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:33.157000",
             "@timestamp_original": "1538656653157",
@@ -1224,6 +1290,7 @@ len(actions) = 30
                 "@idx": 4,
                 "value": 57.0402871958516
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1236,14 +1303,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:34.158000",
             "@timestamp_original": "1538656654158",
@@ -1255,6 +1320,7 @@ len(actions) = 30
                 "@idx": 5,
                 "value": 58.0592773041007
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1267,14 +1333,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:35.159000",
             "@timestamp_original": "1538656655159",
@@ -1286,6 +1350,7 @@ len(actions) = 30
                 "@idx": 6,
                 "value": 58.6924655526239
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1298,14 +1363,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:36.160000",
             "@timestamp_original": "1538656656160",
@@ -1317,6 +1380,7 @@ len(actions) = 30
                 "@idx": 7,
                 "value": 58.022258288894
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1329,14 +1393,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:37.179000",
             "@timestamp_original": "1538656657179",
@@ -1348,6 +1410,7 @@ len(actions) = 30
                 "@idx": 8,
                 "value": 57.9306424104605
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1360,14 +1423,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:38.180000",
             "@timestamp_original": "1538656658180",
@@ -1379,6 +1440,7 @@ len(actions) = 30
                 "@idx": 9,
                 "value": 58.5894059116184
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1391,14 +1453,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:39.181000",
             "@timestamp_original": "1538656659181",
@@ -1410,6 +1470,7 @@ len(actions) = 30
                 "@idx": 10,
                 "value": 57.9819277108434
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1422,14 +1483,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:40.182000",
             "@timestamp_original": "1538656660182",
@@ -1441,6 +1500,7 @@ len(actions) = 30
                 "@idx": 11,
                 "value": 56.1350381336922
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1453,14 +1513,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:41.182000",
             "@timestamp_original": "1538656661182",
@@ -1472,6 +1530,7 @@ len(actions) = 30
                 "@idx": 12,
                 "value": 56.5099457504521
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1484,14 +1543,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2018-10-04",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2018-10-04T12:37:42.183000",
             "@timestamp_original": "1538656662183",
@@ -1503,6 +1560,7 @@ len(actions) = 30
                 "@idx": 13,
                 "value": 58.228142632773
             },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
             "run": {
                 "id": "b7377b15e32ba3fa1579cf01cd90b192",
                 "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
@@ -1515,26 +1573,240 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
             }
-        },
-        "_type": "pbench-result-data"
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data.2018-10-04",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2018-10-04T12:37:43.184000",
+            "@timestamp_original": "1538656663184",
+            "iteration": {
+                "name": "21-tcp_rr-1024B-1i",
+                "number": 21
+            },
+            "result": {
+                "@idx": 14,
+                "value": 58.2789939450396
+            },
+            "result_data_sample_parent": "3db575c233f61acbc20563b9859fd2e3",
+            "run": {
+                "id": "b7377b15e32ba3fa1579cf01cd90b192",
+                "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "usec",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2018-10-04",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2018-10-04T12:37:29.152000",
+            "@timestamp_original": "1538656649152",
+            "benchmark": {
+                "clients": "40.40.20.103",
+                "instances": 1,
+                "max_stddevpct": 10,
+                "message_size_bytes": 1024,
+                "name": "uperf",
+                "primary_metric": "trans_sec",
+                "protocol": "tcp",
+                "servers": "40.40.20.71",
+                "test_type": "rr",
+                "uid": "benchmark_name:uperf-controller_host:rhel8-4",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                "uperf__servers": "should become uperf__servers",
+                "uperf_clients": "should become uperf_clients",
+                "uperf_servers": "should conflict with previous entries 'servers' field",
+                "version": "1.0.4"
+            },
+            "iteration": {
+                "name": "21-tcp_rr-1024B-1i",
+                "number": 21
+            },
+            "run": {
+                "config": "rhel8_4.18.0-18.el8_40gb_pass",
+                "controller": "rhel8-4",
+                "date": "2018-10-04T06:53:43",
+                "end": "2018-10-04T13:45:56.435166",
+                "id": "b7377b15e32ba3fa1579cf01cd90b192",
+                "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43",
+                "script": "uperf",
+                "start": "2018-10-04T06:53:52.212763"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "all",
+                "closest_sample": 4,
+                "description": "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window",
+                "end": "2018-10-04T12:40:28.404000",
+                "mean": 58.38,
+                "measurement_idx": 1,
+                "measurement_title": "usec",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "aggregate",
+                "server_hostname": "all",
+                "server_port": "all",
+                "start": "2018-10-04T12:37:29.152000",
+                "stddev": 0.5266,
+                "stddevpct": 0.902,
+                "uid": "client_hostname:all-server_hostname:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2018-10-04",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2018-10-04T12:37:29.152000",
+            "@timestamp_original": "1538656649152",
+            "benchmark": {
+                "clients": "40.40.20.103",
+                "instances": 1,
+                "max_stddevpct": 10,
+                "message_size_bytes": 1024,
+                "name": "uperf",
+                "primary_metric": "trans_sec",
+                "protocol": "tcp",
+                "servers": "40.40.20.71",
+                "test_type": "rr",
+                "uid": "benchmark_name:uperf-controller_host:rhel8-4",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                "uperf__servers": "should become uperf__servers",
+                "uperf_clients": "should become uperf_clients",
+                "uperf_servers": "should conflict with previous entries 'servers' field",
+                "version": "1.0.4"
+            },
+            "iteration": {
+                "name": "21-tcp_rr-1024B-1i",
+                "number": 21
+            },
+            "run": {
+                "config": "rhel8_4.18.0-18.el8_40gb_pass",
+                "controller": "rhel8-4",
+                "date": "2018-10-04T06:53:43",
+                "end": "2018-10-04T13:45:56.435166",
+                "id": "b7377b15e32ba3fa1579cf01cd90b192",
+                "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43",
+                "script": "uperf",
+                "start": "2018-10-04T06:53:52.212763"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "40.40.20.103",
+                "closest_sample": 4,
+                "description": "Number of transactions sent by client for a period of 1 second",
+                "end": "2018-10-04T12:40:28.404000",
+                "mean": 17140.0,
+                "measurement_idx": 0,
+                "measurement_title": "trans_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "role": "client",
+                "server_hostname": "40.40.20.71",
+                "server_port": "20010",
+                "start": "2018-10-04T12:37:29.152000",
+                "stddev": 153.7,
+                "stddevpct": 0.8972,
+                "uid": "client_hostname:40.40.20.103-server_hostname:40.40.20.71-server_port:20010",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2018-10-04",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2018-10-04T12:37:29.152000",
+            "@timestamp_original": "1538656649152",
+            "benchmark": {
+                "clients": "40.40.20.103",
+                "instances": 1,
+                "max_stddevpct": 10,
+                "message_size_bytes": 1024,
+                "name": "uperf",
+                "primary_metric": "trans_sec",
+                "protocol": "tcp",
+                "servers": "40.40.20.71",
+                "test_type": "rr",
+                "uid": "benchmark_name:uperf-controller_host:rhel8-4",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
+                "uperf__servers": "should become uperf__servers",
+                "uperf_clients": "should become uperf_clients",
+                "uperf_servers": "should conflict with previous entries 'servers' field",
+                "version": "1.0.4"
+            },
+            "iteration": {
+                "name": "21-tcp_rr-1024B-1i",
+                "number": 21
+            },
+            "run": {
+                "config": "rhel8_4.18.0-18.el8_40gb_pass",
+                "controller": "rhel8-4",
+                "date": "2018-10-04T06:53:43",
+                "end": "2018-10-04T13:45:56.435166",
+                "id": "b7377b15e32ba3fa1579cf01cd90b192",
+                "name": "uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43",
+                "script": "uperf",
+                "start": "2018-10-04T06:53:52.212763"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "all",
+                "closest_sample": 4,
+                "description": "Number of transactions sent by client for a period of 1 second",
+                "end": "2018-10-04T12:40:28.404000",
+                "mean": 17140.0,
+                "measurement_idx": 1,
+                "measurement_title": "trans_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "role": "aggregate",
+                "server_hostname": "all",
+                "server_port": "all",
+                "start": "2018-10-04T12:37:29.152000",
+                "stddev": 153.7,
+                "stddevpct": 0.8972,
+                "uid": "client_hostname:all-server_hostname:all-server_port:all",
+                "uid_tmpl": "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%"
+            }
+        }
     }
 ]
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -1552,28 +1824,29 @@ len(actions) = 1
             "text": "pbench-index.run-1970-01-01T00:00:42-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.16/pbench/archive/fs-version-001/rhel8-4/TO-INDEX/uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43.tar.xz\n",
             "total_chunks": 1,
             "total_size": 242
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-index (status=0)
 +++ Running pbench-index --tool-data
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -1587,30 +1860,31 @@ len(actions) = 1
             "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
             "name": "pbench-index-tool-data"
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v3.tool-data-iostat.2018-10-04 558
-Index:  pbench-unittests.v3.tool-data-mpstat.2018-10-04 930
-Index:  pbench-unittests.v3.tool-data-pidstat.2018-10-04 1386
-Index:  pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04 71442
-Index:  pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04 189
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v4.tool-data-iostat.2018-10-04 558
+Index:  pbench-unittests.v4.tool-data-mpstat.2018-10-04 930
+Index:  pbench-unittests.v4.tool-data-pidstat.2018-10-04 1386
+Index:  pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04 71442
+Index:  pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04 189
 len(actions) = 75
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -1658,12 +1932,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -1711,12 +1984,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -1764,12 +2036,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -1817,12 +2088,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -1870,12 +2140,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -1923,12 +2192,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -1976,12 +2244,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2029,12 +2296,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2082,12 +2348,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2135,12 +2400,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2188,12 +2452,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2241,12 +2504,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2294,12 +2556,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2347,12 +2608,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-iostat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-iostat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2400,12 +2660,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-iostat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2445,12 +2704,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2490,12 +2748,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2535,12 +2792,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2580,12 +2836,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2625,12 +2880,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2670,12 +2924,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2715,12 +2968,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2760,12 +3012,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2805,12 +3056,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2850,12 +3100,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2895,12 +3144,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2940,12 +3188,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -2985,12 +3232,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3030,12 +3276,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-mpstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-mpstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3075,12 +3320,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-mpstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3128,12 +3372,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3181,12 +3424,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3234,12 +3476,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3287,12 +3528,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3340,12 +3580,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3393,12 +3632,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3446,12 +3684,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3499,12 +3736,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3552,12 +3788,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3605,12 +3840,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3658,12 +3892,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3711,12 +3944,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3764,12 +3996,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3817,12 +4048,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-pidstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-pidstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3870,12 +4100,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-pidstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3907,12 +4136,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3944,12 +4172,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -3981,12 +4208,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4018,12 +4244,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4055,12 +4280,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4092,12 +4316,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4129,12 +4352,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4166,12 +4388,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4203,12 +4424,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4240,12 +4460,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4277,12 +4496,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4314,12 +4532,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4351,12 +4568,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4388,12 +4604,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-interrupts.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-interrupts.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4425,12 +4640,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-interrupts"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -4633,12 +4847,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -5016,12 +5229,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -5399,12 +5611,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -5782,12 +5993,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -6165,12 +6375,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -6548,12 +6757,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -6931,12 +7139,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -7314,12 +7521,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -7697,12 +7903,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -8080,12 +8285,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -8463,12 +8667,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -8846,12 +9049,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -9229,12 +9431,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -9612,12 +9813,11 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.tool-data-proc-vmstat.2018-10-04",
+        "_index": "pbench-unittests.v4.tool-data-proc-vmstat.2018-10-04",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -9995,26 +10195,27 @@ len(actions) = 75
                 "hostname": "10.10.10.103",
                 "name": "sample1"
             }
-        },
-        "_type": "pbench-tool-data-proc-vmstat"
+        }
     }
 ]
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -10032,19 +10233,18 @@ len(actions) = 1
             "text": "pbench-index-tool-data.run-1970-01-01T00:00:42-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.16/pbench/archive/fs-version-001/rhel8-4/TO-INDEX-TOOL/uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43.tar.xz\n",
             "total_chunks": 1,
             "total_size": 257
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-index (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -10062,8 +10262,7 @@ len(actions) = 1
             "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished unit test audit (status=0)
@@ -11031,7 +11230,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
@@ -11116,7 +11315,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls

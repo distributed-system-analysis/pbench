@@ -203,7 +203,6 @@ class Report:
                         action = {
                             "_op_type": _op_type,
                             "_index": idx_name,
-                            "_type": "pbench-server-reports",
                             "_id": source_id,
                             "_source": source,
                         }

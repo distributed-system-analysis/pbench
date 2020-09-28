@@ -1,11 +1,11 @@
 +++ Running pbench-unpack-tarballs
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -23,28 +23,29 @@ len(actions) = 1
             "text": "pbench-unpack-tarballs.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 1 result tar balls, 1 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
             "total_chunks": 1,
             "total_size": 162
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-index
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -58,27 +59,30 @@ len(actions) = 1
             "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
             "name": "pbench-index"
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v4.result-data.2020-01-19 15338
-Index:  pbench-unittests.v5.run.2020-01 92
-len(actions) = 30
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v5.result-data-sample.2020-01-19 72
+Index:  pbench-unittests.v5.result-data.2020-01-19 15266
+Index:  pbench-unittests.v6.run-data.2020-01 1
+Index:  pbench-unittests.v6.run-toc.2020-01 91
+len(actions) = 46
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-data.2020-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -116,14 +120,12 @@ len(actions) = 30
                 "toolsgroup": "default",
                 "user": "virt-perf-ci"
             }
-        },
-        "_type": "pbench-run"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "directory": "/",
@@ -194,15 +196,14 @@ len(actions) = 30
             ],
             "mode": "0o755",
             "mtime": "2020-03-03T12:22:47",
-            "parent": "/"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "directory": "/1-read-4KiB",
@@ -232,15 +233,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-03-03T12:21:37",
             "name": "1-read-4KiB",
-            "parent": "/"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -301,15 +301,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-03-03T12:22:28",
             "name": "sample1",
-            "parent": "/1-read-4KiB"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/1-read-4KiB",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -320,15 +319,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-03-03T12:56:25",
             "name": "clients",
-            "parent": "/1-read-4KiB/sample1"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/1-read-4KiB/sample1",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -384,15 +382,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-01-19T00:23:44",
             "name": "ctlrA",
-            "parent": "/1-read-4KiB/sample1/clients"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/1-read-4KiB/sample1/clients",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -470,15 +467,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-01-19T00:23:44",
             "name": "hist",
-            "parent": "/1-read-4KiB/sample1/clients/ctlrA"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/1-read-4KiB/sample1/clients/ctlrA",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -519,15 +515,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-03-03T12:22:14",
             "name": "csv",
-            "parent": "/1-read-4KiB/sample1"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/1-read-4KiB/sample1",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -603,15 +598,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-01-19T00:23:44",
             "name": "hist",
-            "parent": "/1-read-4KiB/sample1"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/1-read-4KiB/sample1",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -622,15 +616,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-03-03T12:20:36",
             "name": "tools-default",
-            "parent": "/1-read-4KiB/sample1"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/1-read-4KiB/sample1",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -642,15 +635,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-03-03T12:19:48",
             "name": "ctlrA",
-            "parent": "/1-read-4KiB/sample1/tools-default"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/1-read-4KiB/sample1/tools-default",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -686,15 +678,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-01-19T00:19:41",
             "name": "turbostat",
-            "parent": "/1-read-4KiB/sample1/tools-default/ctlrA"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/1-read-4KiB/sample1/tools-default/ctlrA",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "directory": "/2-read-64KiB",
@@ -724,15 +715,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-03-03T12:21:37",
             "name": "2-read-64KiB",
-            "parent": "/"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -793,15 +783,14 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-03-03T12:22:28",
             "name": "sample1",
-            "parent": "/2-read-64KiB"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/2-read-64KiB",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v5.run.2020-01",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "ancestor_path_elements": [
@@ -812,13 +801,76 @@ len(actions) = 30
             "mode": "0o755",
             "mtime": "2020-03-03T12:56:25",
             "name": "clients",
-            "parent": "/2-read-64KiB/sample1"
-        },
-        "_type": "pbench-run-toc-entry"
+            "parent": "/2-read-64KiB/sample1",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v6.run-toc.2020-01",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2020-01-19T00:19:37.656511",
+            "ancestor_path_elements": [
+                "2-read-64KiB",
+                "sample1",
+                "clients"
+            ],
+            "directory": "/2-read-64KiB/sample1/clients/ctlrA",
+            "files": [
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-01-19T00:26:52",
+                    "name": "fio_bw.1.log",
+                    "size": 3672,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-01-19T00:26:52",
+                    "name": "fio_clat.1.log",
+                    "size": 4054,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-01-19T00:26:52",
+                    "name": "fio_clat_hist.1.log",
+                    "size": 100521,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-01-19T00:26:52",
+                    "name": "fio_iops.1.log",
+                    "size": 3312,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-01-19T00:26:52",
+                    "name": "fio_lat.1.log",
+                    "size": 4054,
+                    "type": "reg"
+                },
+                {
+                    "mode": "0o644",
+                    "mtime": "2020-01-19T00:26:52",
+                    "name": "fio_slat.1.log",
+                    "size": 3492,
+                    "type": "reg"
+                }
+            ],
+            "mode": "0o755",
+            "mtime": "2020-01-19T00:26:54",
+            "name": "ctlrA",
+            "parent": "/2-read-64KiB/sample1/clients",
+            "run_data_parent": "d43e73ad199edb936f9a88c6171d9048"
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
         "_op_type": "create",
         "_source": {
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
@@ -879,14 +931,12 @@ len(actions) = 30
                 "uid": "client_hostname:ctlrA-1",
                 "uid_tmpl": "client_hostname:%client_hostname%"
             }
-        },
-        "_type": "pbench-result-data-sample"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:38.656511",
             "@timestamp_original": "1000",
@@ -898,6 +948,7 @@ len(actions) = 30
                 "@idx": 0,
                 "value": 1147016
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -910,14 +961,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:39.656511",
             "@timestamp_original": "2000",
@@ -929,6 +978,7 @@ len(actions) = 30
                 "@idx": 1,
                 "value": 1092053
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -941,14 +991,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:40.656511",
             "@timestamp_original": "3000",
@@ -960,6 +1008,7 @@ len(actions) = 30
                 "@idx": 2,
                 "value": 1085540
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -972,14 +1021,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:41.659511",
             "@timestamp_original": "4003",
@@ -991,6 +1038,7 @@ len(actions) = 30
                 "@idx": 3,
                 "value": 1157370
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1003,14 +1051,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:42.656511",
             "@timestamp_original": "5000",
@@ -1022,6 +1068,7 @@ len(actions) = 30
                 "@idx": 4,
                 "value": 622142
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1034,14 +1081,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:43.656511",
             "@timestamp_original": "6000",
@@ -1053,6 +1098,7 @@ len(actions) = 30
                 "@idx": 5,
                 "value": 1882747
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1065,14 +1111,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:44.656511",
             "@timestamp_original": "7000",
@@ -1084,6 +1128,7 @@ len(actions) = 30
                 "@idx": 6,
                 "value": 1222003
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1096,14 +1141,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:45.656511",
             "@timestamp_original": "8000",
@@ -1115,6 +1158,7 @@ len(actions) = 30
                 "@idx": 7,
                 "value": 1090835
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1127,14 +1171,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:46.656511",
             "@timestamp_original": "9000",
@@ -1146,6 +1188,7 @@ len(actions) = 30
                 "@idx": 8,
                 "value": 1109193
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1158,14 +1201,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:47.656511",
             "@timestamp_original": "10000",
@@ -1177,6 +1218,7 @@ len(actions) = 30
                 "@idx": 9,
                 "value": 1083654
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1189,14 +1231,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:48.656511",
             "@timestamp_original": "11000",
@@ -1208,6 +1248,7 @@ len(actions) = 30
                 "@idx": 10,
                 "value": 1099972
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1220,14 +1261,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:49.656511",
             "@timestamp_original": "12000",
@@ -1239,6 +1278,7 @@ len(actions) = 30
                 "@idx": 11,
                 "value": 1098958
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1251,14 +1291,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:50.656511",
             "@timestamp_original": "13000",
@@ -1270,6 +1308,7 @@ len(actions) = 30
                 "@idx": 12,
                 "value": 1084671
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1282,14 +1321,12 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
     },
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v4.result-data.2020-01-19",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
         "_op_type": "create",
-        "_parent": "babb1e70015c01055a15ca1ab1eb0a75",
         "_source": {
             "@timestamp": "2020-01-19T00:19:51.656511",
             "@timestamp_original": "14000",
@@ -1301,6 +1338,7 @@ len(actions) = 30
                 "@idx": 13,
                 "value": 1111071
             },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
             "run": {
                 "id": "d43e73ad199edb936f9a88c6171d9048",
                 "name": "fio_mock_2020.01.19T00.18.06"
@@ -1313,26 +1351,967 @@ len(actions) = 30
                 "name": "sample1",
                 "uid": "client_hostname:ctlrA-1"
             }
-        },
-        "_type": "pbench-result-data"
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2020-01-19T00:19:52.656511",
+            "@timestamp_original": "15000",
+            "iteration": {
+                "name": "1-read-4KiB",
+                "number": 1
+            },
+            "result": {
+                "@idx": 14,
+                "value": 1086222
+            },
+            "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
+            "run": {
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "uid": "client_hostname:ctlrA-1"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "4k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "1-read-4KiB",
+                "number": 1
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "all",
+                "closest_sample": 1,
+                "description": "Average completion latency per I/O operation",
+                "end": "2020-01-19T00:22:37.657511",
+                "mean": 1128505.62983425,
+                "measurement_idx": 1,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "aggregate",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:all",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "4k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "1-read-4KiB",
+                "number": 1
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "ctlrA-1",
+                "closest_sample": 1,
+                "description": "Average total latency per I/O operation",
+                "end": "2020-01-19T00:22:37.657511",
+                "mean": 1133017.96132597,
+                "measurement_idx": 0,
+                "measurement_title": "lat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "client",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:ctlrA-1",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "4k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "1-read-4KiB",
+                "number": 1
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "all",
+                "closest_sample": 1,
+                "description": "Average total latency per I/O operation",
+                "end": "2020-01-19T00:22:37.657511",
+                "mean": 1133017.96132597,
+                "measurement_idx": 1,
+                "measurement_title": "lat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "aggregate",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:all",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "4k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "1-read-4KiB",
+                "number": 1
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "ctlrA-1",
+                "closest_sample": 1,
+                "description": "Average submission latency per I/O operation",
+                "end": "2020-01-19T00:22:37.657511",
+                "mean": 4374.67777777778,
+                "measurement_idx": 0,
+                "measurement_title": "slat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "client",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:ctlrA-1",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "4k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "1-read-4KiB",
+                "number": 1
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "all",
+                "closest_sample": 1,
+                "description": "Average submission latency per I/O operation",
+                "end": "2020-01-19T00:22:37.657511",
+                "mean": 4374.67777777778,
+                "measurement_idx": 1,
+                "measurement_title": "slat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "aggregate",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:all",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "4k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "1-read-4KiB",
+                "number": 1
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "ctlrA-1",
+                "closest_sample": 1,
+                "description": "Number of I/O operations sent by client for a period of 1 second",
+                "end": "2020-01-19T00:22:37.656511",
+                "mean": 28423.4833333333,
+                "measurement_idx": 0,
+                "measurement_title": "iops_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "role": "client",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:ctlrA-1",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "4k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "1-read-4KiB",
+                "number": 1
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "all",
+                "closest_sample": 1,
+                "description": "Number of I/O operations sent by client for a period of 1 second",
+                "end": "2020-01-19T00:22:37.656511",
+                "mean": 28423.4833333333,
+                "measurement_idx": 1,
+                "measurement_title": "iops_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "role": "aggregate",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:all",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "64k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "2-read-64KiB",
+                "number": 2
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "ctlrA-1",
+                "closest_sample": 1,
+                "description": "Average completion latency per I/O operation",
+                "end": "2020-01-19T00:22:37.673511",
+                "mean": 17705452.3867403,
+                "measurement_idx": 0,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "client",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:ctlrA-1",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "64k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "2-read-64KiB",
+                "number": 2
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "all",
+                "closest_sample": 1,
+                "description": "Average completion latency per I/O operation",
+                "end": "2020-01-19T00:22:37.673511",
+                "mean": 17705452.3867403,
+                "measurement_idx": 1,
+                "measurement_title": "clat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "aggregate",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:all",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "64k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "2-read-64KiB",
+                "number": 2
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "ctlrA-1",
+                "closest_sample": 1,
+                "description": "Average total latency per I/O operation",
+                "end": "2020-01-19T00:22:37.673511",
+                "mean": 17734707.5911602,
+                "measurement_idx": 0,
+                "measurement_title": "lat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "client",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:ctlrA-1",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "64k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "2-read-64KiB",
+                "number": 2
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "all",
+                "closest_sample": 1,
+                "description": "Average total latency per I/O operation",
+                "end": "2020-01-19T00:22:37.673511",
+                "mean": 17734707.5911602,
+                "measurement_idx": 1,
+                "measurement_title": "lat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "aggregate",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:all",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "64k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "2-read-64KiB",
+                "number": 2
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "ctlrA-1",
+                "closest_sample": 1,
+                "description": "Average submission latency per I/O operation",
+                "end": "2020-01-19T00:22:37.673511",
+                "mean": 28631.2388888889,
+                "measurement_idx": 0,
+                "measurement_title": "slat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "client",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:ctlrA-1",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "64k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "2-read-64KiB",
+                "number": 2
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "all",
+                "closest_sample": 1,
+                "description": "Average submission latency per I/O operation",
+                "end": "2020-01-19T00:22:37.673511",
+                "mean": 28631.2388888889,
+                "measurement_idx": 1,
+                "measurement_title": "slat",
+                "measurement_type": "latency",
+                "name": "sample1",
+                "role": "aggregate",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:all",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2020-01-19",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2020-01-19T00:19:38.656511",
+            "@timestamp_original": "1000",
+            "benchmark": {
+                "bs": "64k",
+                "clocksource": "gettimeofday",
+                "direct": "1",
+                "filename": "/tmp/fio",
+                "iodepth": "32",
+                "ioengine": "libaio",
+                "log_avg_msec": "1000",
+                "log_hist_msec": "10000",
+                "max_stddevpct": 5,
+                "name": "fio",
+                "numjobs": "1",
+                "primary_metric": "iops_sec",
+                "ramp_time": "5",
+                "runtime": "180",
+                "rw": "read",
+                "size": "4096M",
+                "sync": "0",
+                "time_based": "1",
+                "uid": "benchmark_name:fio-controller_host:ctlrA",
+                "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
+            },
+            "iteration": {
+                "name": "2-read-64KiB",
+                "number": 2
+            },
+            "run": {
+                "config": "mock",
+                "controller": "ctlrA",
+                "date": "2020-01-19T00:18:06",
+                "end": "2020-01-19T00:49:02.454787",
+                "id": "d43e73ad199edb936f9a88c6171d9048",
+                "name": "fio_mock_2020.01.19T00.18.06",
+                "script": "fio",
+                "start": "2020-01-19T00:19:37.656511",
+                "user": "virt-perf-ci"
+            },
+            "sample": {
+                "@idx": 0,
+                "client_hostname": "ctlrA-1",
+                "closest_sample": 1,
+                "description": "Number of I/O operations sent by client for a period of 1 second",
+                "end": "2020-01-19T00:22:37.657511",
+                "mean": 1808.94444444444,
+                "measurement_idx": 0,
+                "measurement_title": "iops_sec",
+                "measurement_type": "throughput",
+                "name": "sample1",
+                "role": "client",
+                "start": "2020-01-19T00:19:38.656511",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "client_hostname:ctlrA-1",
+                "uid_tmpl": "client_hostname:%client_hostname%"
+            }
+        }
     }
 ]
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -1350,28 +2329,29 @@ len(actions) = 1
             "text": "pbench-index.run-1970-01-01T00:00:42-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.23/pbench/archive/fs-version-001/ctlrA/TO-INDEX/fio_mock_2020.01.19T00.18.06.tar.xz\n",
             "total_chunks": 1,
             "total_size": 213
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-index (status=0)
 +++ Running pbench-index --tool-data
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -1385,38 +2365,41 @@ len(actions) = 1
             "@timestamp": "1970-01-01T00:00:42",
             "doctype": "start",
             "name": "pbench-index-tool-data"
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
 len(actions) = 0
 []
-Template:  pbench-unittests.v3.server-reports
-Template:  pbench-unittests.v3.tool-data-iostat
-Template:  pbench-unittests.v3.tool-data-mpstat
-Template:  pbench-unittests.v3.tool-data-pidstat
-Template:  pbench-unittests.v3.tool-data-proc-interrupts
-Template:  pbench-unittests.v3.tool-data-proc-vmstat
-Template:  pbench-unittests.v3.tool-data-prometheus-metrics
-Template:  pbench-unittests.v3.tool-data-vmstat
-Template:  pbench-unittests.v4.result-data
-Template:  pbench-unittests.v5.run
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Template:  pbench-unittests.v4.tool-data-iostat
+Template:  pbench-unittests.v4.tool-data-mpstat
+Template:  pbench-unittests.v4.tool-data-pidstat
+Template:  pbench-unittests.v4.tool-data-proc-interrupts
+Template:  pbench-unittests.v4.tool-data-proc-vmstat
+Template:  pbench-unittests.v4.tool-data-prometheus-metrics
+Template:  pbench-unittests.v4.tool-data-vmstat
+Template:  pbench-unittests.v5.result-data
+Template:  pbench-unittests.v5.result-data-sample
+Template:  pbench-unittests.v6.run-data
+Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -1434,19 +2417,18 @@ len(actions) = 1
             "text": "pbench-index-tool-data.run-1970-01-01T00:00:42-UTC - Indexed 1 results\n\nIndexed Results\n===============\n/var/tmp/pbench-test-server/test-7.23/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/fio_mock_2020.01.19T00.18.06.tar.xz\n",
             "total_chunks": 1,
             "total_size": 228
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-index (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -1464,8 +2446,7 @@ len(actions) = 1
             "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n",
             "total_chunks": 1,
             "total_size": 59
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished unit test audit (status=0)
@@ -2096,7 +3077,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- start processing list of tar balls
@@ -2121,7 +3102,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 10, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- start processing list of tar balls

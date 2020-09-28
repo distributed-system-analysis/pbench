@@ -1,11 +1,11 @@
 +++ Running pbench-satellite-cleanup
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -23,19 +23,18 @@ len(actions) = 1
             "text": "pbench-satellite-cleanup.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 total errors\nTotal 6 tarballs cleaned up, with 0 tarball removal errors, 0 md5 file remove errors, 0 state change errors, 0 incoming removal errors, 0 result removal errors and 0 prefix removal errors.\n\n",
             "total_chunks": 1,
             "total_size": 274
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-satellite-cleanup (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -53,8 +52,7 @@ len(actions) = 1
             "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n\nstart-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\nController: controller-a\n\t* No tar ball files found in this controller directory.\n\nController: controller-b\n\t* No tar ball files found in this controller directory.\n\nController: controller-c\n\t* No tar ball files found in this controller directory.\n\nend-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-22/pbench/archive/fs-version-001\n\n\nstart-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\nControllers which are empty:\n\tcontroller-a\n\tcontroller-c\n\nend-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/incoming\n\n\nstart-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n\nControllers which are empty:\n\tcontroller-a\n\nResults issues for controller: controller-c\n\tEmpty tar ball directories:\n\t\tdirA/dirB\n\nend-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-22/pbench/public_html/results\n",
             "total_chunks": 1,
             "total_size": 1186
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished unit test audit (status=3)

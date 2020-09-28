@@ -1,11 +1,11 @@
 +++ Running pbench-cull-unpacked-tarballs
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -23,19 +23,18 @@ len(actions) = 1
             "text": "Culled 3 unpacked tar ball directories (0 errors) in 0.00 secs\n\nActions Taken:\n  - controller-no-prefixes/tarball_culled_1970.01.01T00.00.00 (0 errors, 0.00 secs)\n      $ rm results/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00  # succ\n      $ mv incoming/controller-no-prefixes/tarball_culled_1970.01.01T00.00.00 incoming/controller-no-prefixes/.delete.tarball_culled_1970.01.01T00.00.00  # succ\n      $ rmtree incoming/controller-no-prefixes/.delete.tarball_culled_1970.01.01T00.00.00  # succ\n  - controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00 (0 errors, 0.00 secs)\n      $ rm results/controller-prefixes/pre0/pre1/pre2/tarball_culled-w-prefix_1970.01.01T00.00.00  # succ\n      $ mv incoming/controller-prefixes/tarball_culled-w-prefix_1970.01.01T00.00.00 incoming/controller-prefixes/.delete.tarball_culled-w-prefix_1970.01.01T00.00.00  # succ\n      $ rmtree incoming/controller-prefixes/.delete.tarball_culled-w-prefix_1970.01.01T00.00.00  # succ\n  - controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00 (0 errors, 0.00 secs)\n      $ rm results/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00  # succ\n      $ rm users/userA/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00  # succ\n      $ mv incoming/controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00 incoming/controller-prefixes/.delete.tarball_culled-w-userA_1970.01.01T00.00.00  # succ\n      $ rmtree incoming/controller-prefixes/.delete.tarball_culled-w-userA_1970.01.01T00.00.00  # succ\n",
             "total_chunks": 1,
             "total_size": 1551
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished pbench-cull-unpacked-tarballs (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -53,8 +52,7 @@ len(actions) = 1
             "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n\n\nstart-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/incoming\n\nControllers which do not have a /var/tmp/pbench-test-server/test-27/pbench/archive/fs-version-001 directory:\n\tcontroller-bad-names\n\nControllers which are empty:\n\tcontroller-prefixes\n\nend-1970-01-01T00:00:42-UTC: incoming hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/incoming\n\n\nstart-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/results\n\nResults issues for controller: controller-prefixes\n\tEmpty tar ball directories:\n\t\tpath0/path1\n\t\tpre0/pre1/pre2\n\nend-1970-01-01T00:00:42-UTC: results hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/results\n\n\nstart-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/users\n\nResults issues for controller: userA/controller-prefixes\n\tEmpty tar ball directories:\n\t\tpath0/path1\n\nend-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/users\n",
             "total_chunks": 1,
             "total_size": 1132
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished unit test audit (status=3)

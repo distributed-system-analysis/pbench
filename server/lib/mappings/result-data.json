@@ -1,80 +1,71 @@
 {
-    "pbench-result-data": {
-        "_all" : {"enabled" : false},
-        "_meta": {
-            "version": "4"
+    "_meta": {
+        "version": "5"
+    },
+    "date_detection": false,
+    "properties": {
+        "@timestamp": {
+            "type": "date",
+            "format": "dateOptionalTime"
         },
-        "_parent": {
-            "type": "pbench-result-data-sample"
+        "@timestamp_original": {
+            "type": "text"
         },
-        "date_detection": false,
-        "properties": {
-            "@timestamp": {
-                "type": "date",
-                "format": "dateOptionalTime"
-            },
-            "@timestamp_original": {
-                "type": "string"
-            },
-            "run": {
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    }
+        "result_data_sample_parent": {
+            "type": "keyword"
+        },
+        "run": {
+            "properties": {
+                "id": {
+                    "type": "keyword"
+                },
+                "name": {
+                    "type": "keyword"
                 }
-            },
-            "iteration": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "number": {
-                        "type": "long"
-                    }
+            }
+        },
+        "iteration": {
+            "properties": {
+                "name": {
+                    "type": "keyword"
+                },
+                "number": {
+                    "type": "long"
                 }
-            },
-            "sample": {
-                "properties": {
-                    "@idx": {
-                        "type": "long"
-                    },
-                    "name": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "measurement_type": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "measurement_idx": {
-                        "type": "long"
-                    },
-                    "measurement_title": {
-                        "type": "string"
-                    },
-                    "uid": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    }
+            }
+        },
+        "sample": {
+            "properties": {
+                "@idx": {
+                    "type": "long"
+                },
+                "name": {
+                    "type": "keyword"
+                },
+                "measurement_type": {
+                    "type": "keyword"
+                },
+                "measurement_idx": {
+                    "type": "long"
+                },
+                "measurement_title": {
+                    "type": "text"
+                },
+                "uid": {
+                    "type": "keyword"
                 }
-            },
-            "result": {
-                "properties": {
-                    "@idx": {
-                        "type": "long"
-                    },
-                    "read_or_write": {
-                        "type": "long"
-                    },
-                    "value": {
-                        "type": "double"
-                    }
+            }
+        },
+        "result": {
+            "properties": {
+                "@idx": {
+                    "type": "long"
+                },
+                "read_or_write": {
+                    "type": "long"
+                },
+                "value": {
+                    "type": "double"
                 }
             }
         }

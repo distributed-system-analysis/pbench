@@ -9,13 +9,13 @@ Re-indexing tar balls in the range 1970-02-01 00:00:00 to 1970-02-28 00:00:00
 Run-time: 42.0 42.0 0.0
 --- Finished pbench-reindex (status=0)
 +++ Running unit test audit
-Template:  pbench-unittests.v3.server-reports
-Index:  pbench-unittests.v3.server-reports.1970-01 1
+Template:  pbench-unittests.v4.server-reports
+Index:  pbench-unittests.v4.server-reports.1970-01 1
 len(actions) = 1
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_index": "pbench-unittests.v4.server-reports.1970-01",
         "_op_type": "create",
         "_source": {
             "@generated-by": {
@@ -33,8 +33,7 @@ len(actions) = 1
             "text": "pbench-audit-server.run-1970-01-01T00:00:42-UTC(unit-test)\n\nstart-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-29.2/pbench/archive/fs-version-001\n\nBad Controllers:\n\t-rw-rw-r--          0 Wed May 27 00:52:20.0000000000 2020 bad-controller\n\nController: ctlr-out-of-range\n\t* No state directories found in this controller directory.\n\t* Unexpected files in controller directory:\n\t  ++++++++++\n\t  .ignore-me\n\t  ----------\n\nend-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-29.2/pbench/archive/fs-version-001\n",
             "total_chunks": 1,
             "total_size": 565
-        },
-        "_type": "pbench-server-reports"
+        }
     }
 ]
 --- Finished unit test audit (status=1)

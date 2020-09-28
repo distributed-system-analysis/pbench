@@ -1,59 +1,51 @@
 {
-    "pbench-server-reports": {
-        "_all" : {"enabled" : false},
-        "_meta": {
-            "version": "3"
+    "_meta": {
+        "version": "4"
+    },
+    "date_detection": false,
+    "properties": {
+        "@timestamp": {
+            "type": "date"
         },
-        "date_detection": false,
-        "properties": {
-            "@timestamp": {
-                "type": "date"
-            },
-            "@generated-by": {
-                "properties": {
-                    "version": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "commit_id": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "hostname": {
-                        "type": "string",
-                        "index": "not_analyzed"
-                    },
-                    "pid": {
-                        "type": "integer"
-                    },
-                    "group_id": {
-                        "type": "integer"
-                    },
-                    "user_id": {
-                        "type": "integer"
-                    }
+        "@generated-by": {
+            "properties": {
+                "version": {
+                    "type": "keyword"
+                },
+                "commit_id": {
+                    "type": "keyword"
+                },
+                "hostname": {
+                    "type": "keyword"
+                },
+                "pid": {
+                    "type": "integer"
+                },
+                "group_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
-            },
-            "chunk_id": {
-                "type": "integer"
-            },
-            "doctype": {
-                "type": "string",
-                "index": "not_analyzed"
-            },
-            "name": {
-                "type": "string",
-                "index": "not_analyzed"
-            },
-            "text": {
-                "type": "string"
-            },
-            "total_chunks": {
-                "type": "long"
-            },
-            "total_size": {
-                "type": "long"
             }
+        },
+        "chunk_id": {
+            "type": "integer"
+        },
+        "doctype": {
+            "type": "keyword"
+        },
+        "name": {
+            "type": "keyword"
+        },
+        "text": {
+            "type": "text"
+        },
+        "total_chunks": {
+            "type": "long"
+        },
+        "total_size": {
+            "type": "long"
         }
     }
 }

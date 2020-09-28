@@ -23,6 +23,7 @@ from datetime import datetime, timedelta
 from operator import itemgetter
 from random import SystemRandom
 from time import sleep as _sleep
+from pathlib import Path
 
 from urllib3 import Timeout
 
@@ -46,9 +47,11 @@ import pbench.server
 from pbench.server import tstos
 
 try:
-    from elasticsearch1 import Elasticsearch
+    from elasticsearch import Elasticsearch, VERSION
+
+    assert VERSION[0] == 7, "Pbench currently requires Elasticsearch V7.x"
 except ImportError:
-    assert False, "Pbench currently requires Elasticsearch1 (1.x.x)"
+    assert False, "Elasticsearch Python module is required"
 
 try:
     from pbench.server.mock import MockElasticsearch
@@ -131,11 +134,15 @@ class PbenchTemplates:
 
         Raises MappingFileError if it encounters any problem loading the file.
         """
+        key = Path(mapping_fn).stem
         mapping = PbenchTemplates._load_json(mapping_fn)
-        keys = list(mapping.keys())
-        if len(keys) != 1:
-            raise MappingFileError("Invalid mapping file: {}".format(mapping_fn))
-        return keys[0], mapping[keys[0]]
+        try:
+            idxver = mapping["_meta"]["version"]
+        except KeyError:
+            raise MappingFileError(
+                "{} mapping missing _meta field in {}".format(key, mapping_fn)
+            )
+        return key, idxver, mapping
 
     _fpat = re.compile(r"tool-data-frag-(?P<toolname>.+)\.json")
 
@@ -153,142 +160,66 @@ class PbenchTemplates:
         self._dbg = _dbg
 
         # Pbench report status mapping and settings.
-        server_reports_mappings = {}
         mfile = os.path.join(MAPPING_DIR, "server-reports.json")
-        key, mapping = self._fetch_mapping(mfile)
-        try:
-            idxver = mapping["_meta"]["version"]
-        except KeyError:
-            raise MappingFileError(
-                "{} mapping missing _meta field in {}".format(key, mfile)
-            )
-        if self._dbg > 5:
-            print(
-                "fetch_mapping: {} -- {}\n{}\n".format(
-                    mfile, key, json.dumps(mapping, indent=4, sort_keys=True)
-                )
-            )
-        server_reports_mappings[key] = mapping
+        key, idxver, mapping = self._fetch_mapping(mfile)
         server_reports_settings = self._load_json(
             os.path.join(SETTING_DIR, "server-reports.json")
         )
 
-        ip = self.index_patterns["server-reports"]
+        ip = self.index_patterns[key]
         idxname = ip["idxname"]
         server_reports_template_name = ip["template_name"].format(
             prefix=self.idx_prefix, version=idxver, idxname=idxname
         )
         server_reports_template_body = dict(
-            template=ip["template_pat"].format(
+            index_patterns=ip["template_pat"].format(
                 prefix=self.idx_prefix, version=idxver, idxname=idxname
             ),
             settings=server_reports_settings,
-            mappings=server_reports_mappings,
+            mappings=mapping,
         )
         self.templates[server_reports_template_name] = server_reports_template_body
         self.versions["server-reports"] = idxver
 
-        # For v1 Elasticsearch, we need to use two doc types to have
-        # parent/child relationship between run documents and
-        # table-of-contents documents. So we load two mappings in a loop, but
-        # only one settings file below.
-        run_mappings = {}
-        idxver = None
-        for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "run*.json")):
-            key, mapping = self._fetch_mapping(mapping_fn)
-            try:
-                idxver_val = mapping["_meta"]["version"]
-            except KeyError:
-                raise MappingFileError(
-                    "{} mapping missing _meta field in {}".format(key, mapping_fn)
-                )
-            else:
-                if idxver is None:
-                    idxver = idxver_val
-                else:
-                    if idxver != idxver_val:
-                        raise MappingFileError(
-                            "{} mappings have mismatched"
-                            " version fields in {}".format(key, mapping_fn)
-                        )
-            if self._dbg > 5:
-                print(
-                    "fetch_mapping: {} -- {}\n{}\n".format(
-                        mapping_fn, key, json.dumps(mapping, indent=4, sort_keys=True)
-                    )
-                )
-            run_mappings[key] = mapping
         run_settings = self._load_json(os.path.join(SETTING_DIR, "run.json"))
-
-        ip = self.index_patterns["run-data"]
-        idxname = ip["idxname"]
-        # The API body for the template create() contains a dictionary with the
-        # settings and the mappings.
-        run_template_name = ip["template_name"].format(
-            prefix=self.idx_prefix, version=idxver, idxname=idxname
-        )
-        run_template_body = dict(
-            template=ip["template_pat"].format(
+        for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "run*.json")):
+            key, idxver, mapping = self._fetch_mapping(mapping_fn)
+            ip = self.index_patterns[key]
+            idxname = ip["idxname"]
+            # The API body for the template create() contains a dictionary with the
+            # settings and the mappings.
+            run_template_name = ip["template_name"].format(
                 prefix=self.idx_prefix, version=idxver, idxname=idxname
-            ),
-            settings=run_settings,
-            mappings=run_mappings,
-        )
-        self.templates[run_template_name] = run_template_body
-        # Remember the version we pulled from the mapping file, record it in
-        # both the run and toc-entry names.  NOTE: this use of two mappings
-        # will go away with V6 Elasticsearch.
-        self.versions["run-data"] = idxver
-        self.versions["toc-data"] = idxver
+            )
+            run_template_body = dict(
+                index_patterns=ip["template_pat"].format(
+                    prefix=self.idx_prefix, version=idxver, idxname=idxname
+                ),
+                settings=run_settings,
+                mappings=mapping,
+            )
+            self.templates[run_template_name] = run_template_body
+            self.versions[key] = idxver
 
-        # Next we load all the result-data mappings and settings.
-        result_mappings = {}
-        mfile = os.path.join(MAPPING_DIR, "result-data.json")
-        key, mapping = self._fetch_mapping(mfile)
-        try:
-            idxver = mapping["_meta"]["version"]
-        except KeyError:
-            raise MappingFileError(
-                "{} mapping missing _meta field in {}".format(key, mfile)
-            )
-        if self._dbg > 5:
-            print(
-                "fetch_mapping: {} -- {}\n{}\n".format(
-                    mfile, key, json.dumps(mapping, indent=4, sort_keys=True)
-                )
-            )
-        result_mappings[key] = mapping
-        mfile = os.path.join(MAPPING_DIR, "result-data-sample.json")
-        key, mapping = self._fetch_mapping(mfile)
-        try:
-            idxver = mapping["_meta"]["version"]
-        except KeyError:
-            raise MappingFileError(
-                "{} mapping missing _meta field in {}".format(key, mfile)
-            )
-        if self._dbg > 5:
-            print(
-                "fetch_mapping: {} -- {}\n{}\n".format(
-                    mfile, key, json.dumps(mapping, indent=4, sort_keys=True)
-                )
-            )
-        result_mappings[key] = mapping
+        # Next we load the result-data mappings and settings.
         result_settings = self._load_json(os.path.join(SETTING_DIR, "result-data.json"))
-
-        ip = self.index_patterns["result-data"]
-        idxname = ip["idxname"]
-        result_template_name = ip["template_name"].format(
-            prefix=self.idx_prefix, version=idxver, idxname=idxname
-        )
-        result_template_body = dict(
-            template=ip["template_pat"].format(
+        for mapping_fn in glob.iglob(os.path.join(MAPPING_DIR, "result-data*.json")):
+            mfile = os.path.join(MAPPING_DIR, mapping_fn)
+            key, idxver, mapping = self._fetch_mapping(mfile)
+            ip = self.index_patterns[key]
+            idxname = ip["idxname"]
+            result_template_name = ip["template_name"].format(
                 prefix=self.idx_prefix, version=idxver, idxname=idxname
-            ),
-            settings=result_settings,
-            mappings=result_mappings,
-        )
-        self.templates[result_template_name] = result_template_body
-        self.versions["result-data"] = idxver
+            )
+            result_template_body = dict(
+                index_patterns=ip["template_pat"].format(
+                    prefix=self.idx_prefix, version=idxver, idxname=idxname
+                ),
+                settings=result_settings,
+                mappings=mapping,
+            )
+            self.templates[result_template_name] = result_template_body
+            self.versions[key] = idxver
 
         # Now for the tool data mappings. First we fetch the base skeleton they
         # all share.
@@ -327,19 +258,20 @@ class PbenchTemplates:
             del mapping["_meta"]
             tool_mapping_frags[toolname] = mapping
             self.versions[ip["idxname"].format(tool=toolname)] = idxver
+
         tool_settings = self._load_json(os.path.join(SETTING_DIR, "tool-data.json"))
 
         for toolname, frag in tool_mapping_frags.items():
-            tool_skel = copy.deepcopy(skel)
+            tool_mapping = copy.deepcopy(skel)
             idxname = ip["idxname"].format(tool=toolname)
-            tool_skel["_meta"] = dict(version=self.versions[idxname])
-            tool_skel["properties"][toolname] = frag
-            tool_mapping = dict([("pbench-{}".format(idxname), tool_skel)])
+            idxver = self.versions[idxname]
+            tool_mapping["_meta"] = dict(version=self.versions[idxname])
+            tool_mapping["properties"][toolname] = frag
             tool_template_name = ip["template_name"].format(
                 prefix=self.idx_prefix, version=idxver, idxname=idxname
             )
             tool_template_body = dict(
-                template=ip["template_pat"].format(
+                index_patterns=ip["template_pat"].format(
                     prefix=self.idx_prefix,
                     version=self.versions[idxname],
                     idxname=idxname,
@@ -361,13 +293,31 @@ class PbenchTemplates:
             " benchmark) for all pbench result tar balls;"
             " e.g prefix.v0.result-data.YYYY-MM-DD",
         },
-        "run-data": {
-            "idxname": "run",
+        "result-data-sample": {
+            "idxname": "result-data-sample",
+            "template_name": "{prefix}.v{version}.{idxname}",
+            "template_pat": "{prefix}.v{version}.{idxname}.*",
+            "template": "{prefix}.v{version}.{idxname}.{year}-{month}-{day}",
+            "desc": "Daily result data (any data generated by the"
+            " benchmark) for all pbench result tar balls;"
+            " e.g prefix.v0.result-data-sample.YYYY-MM-DD",
+        },
+        "run": {
+            "idxname": "run-data",
             "template_name": "{prefix}.v{version}.{idxname}",
             "template_pat": "{prefix}.v{version}.{idxname}.*",
             "template": "{prefix}.v{version}.{idxname}.{year}-{month}",
             "desc": "Monthly pbench run metadata for index tar balls;"
             " contains directories, file names, and their size,"
+            " permissions, etc.; e.g. prefix.v0.run.YYYY-MM",
+        },
+        "run-toc-entry": {
+            "idxname": "run-toc",
+            "template_name": "{prefix}.v{version}.{idxname}",
+            "template_pat": "{prefix}.v{version}.{idxname}.*",
+            "template": "{prefix}.v{version}.{idxname}.{year}-{month}",
+            "desc": "Monthly table of contents metadata for index tar"
+            " balls; contains directories, file names, and their size,"
             " permissions, etc.; e.g. prefix.v0.run.YYYY-MM",
         },
         "server-reports": {
@@ -377,15 +327,6 @@ class PbenchTemplates:
             "template": "{prefix}.v{version}.{idxname}.{year}-{month}",
             "desc": "Monthly pbench server status reports for all"
             " cron jobs; e.g. prefix.v0.server-reports.YYYY-MM",
-        },
-        "toc-data": {
-            "idxname": "run",
-            "template_name": "{prefix}.v{version}.{idxname}",
-            "template_pat": "{prefix}.v{version}.{idxname}.*",
-            "template": "{prefix}.v{version}.{idxname}.{year}-{month}",
-            "desc": "Monthly table of contents metadata for index tar"
-            " balls; contains directories, file names, and their size,"
-            " permissions, etc.; e.g. prefix.v0.run.YYYY-MM",
         },
         "tool-data": {
             "idxname": "tool-data-{tool}",
@@ -570,7 +511,7 @@ def get_es(config, logger):
         if MockElasticsearch is None:
             raise Exception("MockElasticsearch is not available!")
         es = MockElasticsearch(hosts, max_retries=0)
-        from elasticsearch1 import helpers
+        from elasticsearch import helpers
 
         global helpers
         helpers.streaming_bulk = es.mockstrm.streaming_bulk
@@ -603,8 +544,9 @@ def es_index(es, actions, errorsfp, logger, _dbg=0):
     es_index Encapsulate the interface to the pyesbulk module index code.
 
     Args:
-        es ([elasticsearch1]): An `elasticsearch1` instance; we don't currently support
-            later versions
+        es ([Elasticsearch]): An Elasticsearch object instance from either
+            the "elasticsearch1" (Elasticsearch V1) or "elasticsearch"
+            Python module.
         actions ([type]): Elasticsearch bulk index action tuples
         errorsfp ([type]): A file pointer for error reporting
         logger ([type]): Standard logging object for use by bulk indexer
@@ -665,13 +607,11 @@ class PbenchData:
         self.counters = Counter()
 
     @staticmethod
-    def make_source_id(source, _parent=None):
+    def make_source_id(source):
         """Construct a source ID (MD5 value) by first converting the python object to
         JSON, and then computing the hash of the resulting string.
         """
         the_bytes = json.dumps(source, sort_keys=True).encode("utf-8")
-        if _parent is not None:
-            the_bytes += str(_parent).encode("utf-8")
         return hashlib.md5(the_bytes).hexdigest()
 
     def mk_abs_timestamp_millis(self, orig_ts):
@@ -1024,6 +964,7 @@ class ResultData(PbenchData):
             "_source": {
                 "@timestamp": "2020.01.31T14:33:38.000000",
                 "@timestamp_original": "2020.01.31.14:33:38",
+                "result_data_sample_parent": "8d52170bd7e3f288995af74f26ca8501",
                 "iteration": {
                     "name": "10U-NVME",
                     "number": 1
@@ -1143,6 +1084,7 @@ class ResultData(PbenchData):
                 )
                 # Yield the result-data-sample document.
                 _id = PbenchData.make_source_id(source)
+                _parent = _id
                 yield source, _id, None, "sample"
 
                 # Construct the result-data document.
@@ -1153,6 +1095,7 @@ class ResultData(PbenchData):
                     [
                         ("@timestamp", start_time),
                         ("@timestamp_original", str(row[start_ts_col])),
+                        ("result_data_sample_parent", _parent),
                         ("iteration", iteration_md),
                         ("result", result),
                         (
@@ -1168,8 +1111,7 @@ class ResultData(PbenchData):
                     ]
                 )
                 # Yield the result-data document.
-                _parent = _id
-                _id = PbenchData.make_source_id(source, _parent=_parent)
+                _id = PbenchData.make_source_id(source)
                 yield source, _id, _parent, "res"
         return
 
@@ -1594,15 +1536,13 @@ class ResultData(PbenchData):
         # documents are one of two types: a sample document summarizing the
         # metric data for that sample, with its owner iteration summary data;
         # a result-data document containing the individual metric from the
-        # array of result data for the given sample.  And iteration can have
+        # array of result data for the given sample.  An iteration can have
         # N samples, so we yield N sample documents, each followed by M result
         # data documents.
         for source, _parent, _type in ResultData.gen_sources(
             self, iter_data, iteration, self.mk_abs_timestamp_millis
         ):
-            yield source, PbenchData.make_source_id(
-                source, _parent=_parent
-            ), _parent, _type
+            yield source, PbenchData.make_source_id(source), _parent, _type
 
     # UID keyword pattern
     _uid_keyword_pat = re.compile(r"%\w*?%")
@@ -1827,6 +1767,7 @@ class ResultData(PbenchData):
                                 [
                                     ("@timestamp", ts),
                                     ("@timestamp_original", str(orig_ts)),
+                                    ("result_data_sample_parent", sample_id),
                                     ("run", run_md_subset),
                                     ("iteration", iteration_md_subset),
                                     ("sample", sample_md_subset),
@@ -3569,7 +3510,7 @@ class Iteration:
 
 class Sample:
     """Encapsulation of all sample information pulled from a pbench result
-    tar ball's metadata.log file, cross-ferenced with the tar ball contents.
+    tar ball's metadata.log file, cross-referenced with the tar ball contents.
     """
 
     def __init__(self, iteration, name):
@@ -4026,11 +3967,10 @@ class PbenchTarBall:
 
         # make a simple action for indexing
         pd = PbenchData(self)
-        idx_name = pd.generate_index_name("run-data", source)
+        idx_name = pd.generate_index_name("run", source)
         action = _dict_const(
             _op_type=_op_type,
             _index=idx_name,
-            _type="pbench-run",
             _id=self.run_metadata["id"],
             _source=source,
         )
@@ -4153,7 +4093,7 @@ class PbenchTarBall:
         # the index name once here using a fake source document on the call to
         # generate_index_name().
         pd = PbenchData(self)
-        idx_name = pd.generate_index_name("toc-data", {"@timestamp": tstamp})
+        idx_name = pd.generate_index_name("run-toc-entry", {"@timestamp": tstamp})
         count = 0
         for source in self.gen_toc():
             source["@timestamp"] = tstamp
@@ -4161,9 +4101,7 @@ class PbenchTarBall:
                 _id=get_md5sum_of_dir(source, self.run_metadata["id"]),
                 _op_type=_op_type,
                 _index=idx_name,
-                _type="pbench-run-toc-entry",
                 _source=source,
-                _parent=self.run_metadata["id"],
             )
             count += 1
             yield action
@@ -4295,6 +4233,9 @@ class PbenchTarBall:
                 pass
             else:
                 source["files"] = sorted_file_list
+
+            # Add "join" metadata to connect TOC doc to parent run doc
+            source["run_data_parent"] = self.run_metadata["id"]
             yield source
 
     def mk_tool_data(self):
@@ -4351,7 +4292,6 @@ class PbenchTarBall:
             asource = td.make_source()
             if not asource:
                 continue
-            type_name = "pbench-tool-data-{}".format(td.toolname)
             for source, source_id in asource:
                 try:
                     idx_name = td.generate_index_name(
@@ -4364,7 +4304,6 @@ class PbenchTarBall:
                     action = _dict_const(
                         _op_type=_op_type,
                         _index=idx_name,
-                        _type=type_name,
                         _id=source_id,
                         _source=source,
                     )
@@ -4388,8 +4327,13 @@ class PbenchTarBall:
             return
         count = 0
         for source, source_id, parent_id, doc_type in sources:
+            assert doc_type in (
+                "sample",
+                "res",
+            ), "Invalid result data document type, {}".format(doc_type)
+            idx = "result-data" if doc_type == "res" else "result-data-sample"
             try:
-                idx_name = rd.generate_index_name("result-data", source)
+                idx_name = rd.generate_index_name(idx, source)
             except BadDate:
                 # We don't raise this exception because we are already well into
                 # indexing so much data that there is no point in stopping
@@ -4397,24 +4341,10 @@ class PbenchTarBall:
                 # exception in its operational context.
                 pass
             else:
-                assert doc_type in (
-                    "sample",
-                    "res",
-                ), "Invalid result data document type, {}".format(doc_type)
-                if doc_type == "res":
-                    _type = "pbench-result-data"
-                else:
-                    _type = "pbench-result-data-{}".format(doc_type)
                 action = _dict_const(
-                    _op_type=_op_type,
-                    _index=idx_name,
-                    _type=_type,
-                    _id=source_id,
-                    _source=source,
+                    _op_type=_op_type, _index=idx_name, _id=source_id, _source=source,
                 )
-                if parent_id is not None:
-                    action["_parent"] = parent_id
-                else:
+                if parent_id is None:
                     # Only the parent result data documents hold the tracking IDs.
                     source["@generated-by"] = self.idxctx.get_tracking_id()
                 count += 1

@@ -5,4 +5,4 @@ pytest-cov>=2.7.1
 pytest>=4.6.3, < 5
 pytest-helpers-namespace>=2019.1.8
 pytest-mock>=1.10.4
-responses
+requests_mock
