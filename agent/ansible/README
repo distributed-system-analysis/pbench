@@ -1,6 +1,6 @@
 * Ansible playbooks to install pbench-agent
 
-The basic playbook is pbench-agent-install.yml which
+The basic playbook is pbench_agent_install.yml which
 
   - installs the pbench agent repo.
   - installs the pbench-agent RPM.
@@ -22,5 +22,65 @@ file for guidance.
 
 * Usage
 #+begin_src shell
-ansible-playbook -i /path/to/inventory/pbench-agent.hosts pbench-agent-install.yml
+ansible-playbook -i /path/to/inventory/pbench-agent.hosts pbench_agent_install.yml
 #+end_src
+
+
+* Installing roles from Ansible Galaxy
+
+The roles that the above playbooks use are available from Ansible
+Galaxy, as part of the pbench.agent collection. You can install the
+collection with
+
+   ansible-galaxy collection install pbench.agent
+
+The roles will be installed under
+
+    $HOME/.ansible/collections/ansible_collections/pbench/agent
+
+and you will need to add this path to Ansible's roles path in order
+for the playbooks to find them:
+
+    ANSIBLE_ROLES_PATH=$HOME/.ansible/collections/ansible_collections/pbench/agent/roles:$ANSIBLE_ROLES_PATH
+    export ANSIBLE_ROLES_PATH
+
+or, more permanently, you can add it to the /etc/ansible/ansible.cfg
+file:
+
+You will still need a playbook to install the pbench agent. You can use the
+standard pbench_agent_install.yml from the pbench repo - here's a link:
+
+    https://github.com/distributed-system-analysis/pbench/blob/master/agent/ansible/pbench_agent_install.yml
+
+If you want to wget/curl the file, use the raw link:
+
+    https://raw.githubusercontent.com/distributed-system-analysis/pbench/master/agent/ansible/pbench_agent_install.yml
+
+Once the dust settles a bit, we will probably move the playbooks to Galaxy
+as well.
+
+* Installing the roles *TO* Ansible Galaxy
+
+- Update the version in pbench/agent/galaxy.yml: for bug fixes,
+  increment the last of the three numbers; for new functionality that
+  leaves things backwards-compatible, increment the middle of the
+  three numbers; for incompatible updates, increment the first number.
+
+- `make test' and make sure that there are no blocking errors/warning.
+
+- `make publish' to publish the new version on Ansible Galaxy: you
+  need to have an account on Galaxy and your account needs to have
+  admin privileges to the `pbench' namespace.
+
+Prereqs:
+
+- an account on galaxy.ansible.com - typically, one can use a GitHub account for a Galaxy account.
+
+- admin access to the "pbench" namespace. Whoever has admin access
+  to the namespace currently can add new members.
+
+- an API key. You can get that from the user preferences while you are
+  logged in at the Galaxy site.
+
+The Makefile assumes that the API key is available as the value
+of the environment variable APIKEY.
