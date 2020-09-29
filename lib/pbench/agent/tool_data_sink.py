@@ -123,7 +123,7 @@ class BaseCollector:
         self.tool_group = tool_group
         self.host_tools_dict = host_tools_dict
         self.logger = logger
-        self.tool_metadata = tool_metadata        
+        self.tool_metadata = tool_metadata
         self.tool_group_dir = self.benchmark_run_dir / f"tools-{self.tool_group}"
         self.abort_launch = True
 
@@ -186,9 +186,7 @@ class PromCollector(BaseCollector):
             return 0
 
         args = ["podman", "pull", "prom/prometheus"]
-        prom_pull = subprocess.Popen(
-            args, stdout=prom_logs, stderr=prom_logs
-        )
+        prom_pull = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
         prom_pull.wait()
 
         os.mkdir(self.volume)
@@ -207,9 +205,7 @@ class PromCollector(BaseCollector):
             f"{self.benchmark_run_dir}/tm/prometheus.yml:/etc/prometheus/prometheus.yml:Z",
             "prom/prometheus",
         ]
-        self.run = subprocess.Popen(
-            args, stdout=prom_logs, stderr=prom_logs
-        )
+        self.run = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
 
         prom_logs.close()
 

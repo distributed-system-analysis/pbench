@@ -6,6 +6,7 @@ import os
 class ToolMetadataExc(Exception):
     pass
 
+
 class ToolMetadata:
     def __init__(self, mode, context, logger):
         self.logger = logger
@@ -13,7 +14,9 @@ class ToolMetadata:
             "redis",
             "json",
         ), f"Logic bomb! Unexpected mode, {mode}, encountered constructing tool meta data"
-        assert context, "Logic bomb! No context given on ToolMetadata object construction"
+        assert (
+            context
+        ), "Logic bomb! No context given on ToolMetadata object construction"
         self.mode = mode
         if mode == "redis":
             self.redis_server = context
@@ -42,7 +45,9 @@ class ToolMetadata:
             try:
                 meta_raw = self.redis_server.get("tool-metadata")
             except Exception:
-                self.logger.exception("Failure to fetch tool metadata from the Redis server")
+                self.logger.exception(
+                    "Failure to fetch tool metadata from the Redis server"
+                )
                 raise
             else:
                 if meta_raw is None:
@@ -51,7 +56,11 @@ class ToolMetadata:
             try:
                 metadata = json.loads(meta_raw.decode("utf-8"))
             except Exception as exc:
-                self.logger.error("Bad metadata loaded into Redis server, '%s', json=%r", exc, meta_raw)
+                self.logger.error(
+                    "Bad metadata loaded into Redis server, '%s', json=%r",
+                    exc,
+                    meta_raw,
+                )
                 return None
         return metadata
 
