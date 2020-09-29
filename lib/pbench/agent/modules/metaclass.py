@@ -3,13 +3,8 @@ import json
 import os
 
 
-class BadConstruction(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return repr(self.msg)
-
+class ToolMetadataExc(Exception):
+    pass
 
 class ToolMetadata:
     def __init__(self, mode, context, logger):
@@ -18,8 +13,7 @@ class ToolMetadata:
             "redis",
             "json",
         ), f"Logic bomb! Unexpected mode, {mode}, encountered constructing tool meta data"
-        if not context:
-            raise (BadConstruction("No proper context given"))
+        assert context, "Logic bomb! No context given on ToolMetadata object construction"
         self.mode = mode
         if mode == "redis":
             self.redis_server = context
@@ -30,7 +24,7 @@ class ToolMetadata:
             try:
                 self.json = json_path.resolve(strict=True)
             except FileNotFoundError:
-                raise Exception(f"missing {json_path}")
+                raise ToolMetadataExc(f"missing {json_path}")
             except Exception:
                 raise
         self.data = self.__getInitialData()
@@ -47,13 +41,18 @@ class ToolMetadata:
         elif self.mode == "redis":
             try:
                 meta_raw = self.redis_server.get("tool-metadata")
+            except Exception:
+                self.logger.exception("Failure to fetch tool metadata from the Redis server")
+                raise
+            else:
                 if meta_raw is None:
                     self.logger.error("Metadata has not been loaded into redis yet")
                     return None
-                meta_str = meta_raw.decode("utf-8")
-                metadata = json.loads(meta_str)
-            except Exception:
-                self.logger.error("Failure to reach redis server")
+            try:
+                metadata = json.loads(meta_raw.decode("utf-8"))
+            except Exception as exc:
+                self.logger.error("Bad metadata loaded into Redis server, '%s', json=%r", exc, meta_raw)
+                return None
         return metadata
 
     def __dataCheck(self):
@@ -90,7 +89,7 @@ class ToolMetadata:
             try:
                 self.json = Path(info).resolve(strict=True)
             except FileNotFoundError:
-                raise Exception(f"missing {info}")
+                raise ToolMetadataExc(f"missing {info}")
             except Exception:
                 raise
         elif self.mode == "json":
