@@ -3,7 +3,10 @@ pbench-avg-stddev
 
 
 input: a bunch of numbers on cmd line
-output: an average (mean), sample standard deviation, sample standard deviation percent, and which input was closest to the avgerage
+output: an average (mean), sample standard deviation, sample standard deviation
+percent, and which input was closest to the average.
+
+nargs = -1, accepts an unlimited number of arguments
 """
 
 import click
