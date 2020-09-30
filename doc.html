@@ -74,7 +74,7 @@
                             <div class="pf-l-grid__item pf-m-3-col-on-sm pf-m-3-col-on-lg pf-m-3-col-on-xl pf-m-offset-1-col" id="agentUserGuideToc" style="height: fit-content;">
                                 <div class="pf-c-page__sidebar">
                                     <div class="pf-c-page__sidebar-body contactLink" ><a href="#what">What is Pbench?</a></div>
-                                    <div class="pf-c-page__sidebar-body contactLink" ><a href="#how">TL;DR - How to set up pbench and run a benchmark</a></div>
+                                    <div class="pf-c-page__sidebar-body contactLink" ><a href="#how">TL;DR - How to set up Pbench and run a benchmark</a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#install">How to install</a></div>
                                     <!-- <div class="pf-c-page__sidebar-body contactLink"><a>First steps</a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a><li>First steps with pbench-user-benchmark </li></a></div>
@@ -83,7 +83,7 @@
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#availabletool">Available Tools</a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#availablescript">Available benchmark scripts</a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#pbenchdbench"><li> pbench-dbench </li></a></div>
-                                    <div class="pf-c-page__sidebar-body contactLink"><a href="#pbenchfio"><li> pbench fio </li></a></div>
+                                    <div class="pf-c-page__sidebar-body contactLink"><a href="#pbenchfio"><li> pbench-fio </li></a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#pbenchlinpack"><li> pbench-linpack</li></a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#pbenchmigrate"><li> pbench-migrate </li></a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#pbenchtpcc"><li> pbench-tpcc</li></a></div>
@@ -94,7 +94,7 @@
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#secondstepa"><li> Benchmark scripts options </li></a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#secondstepb"><li> Collection tools options </li></a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#secondstepc"><li> Utility script options</li></a></div>
-                                    <div class="pf-c-page__sidebar-body contactLink"><a href="#runningtools"> Running pbench collection tools with an arbitrary benchmark </a></div>
+                                    <div class="pf-c-page__sidebar-body contactLink"><a href="#runningtools"> Running Pbench collection tools with an arbitrary benchmark </a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#remotehost">Remote hosts</a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#multihost"><li> Multihost benchmarks</li></a></div>
                                     <div class="pf-c-page__sidebar-body contactLink"><a href="#customizing">Customizing</a></div>
@@ -149,7 +149,7 @@
                                                     <li>
                                                         Visit the Results URL in your browser to see the results: the URL depends on the server hostname or IP"; assuming that the server is "pbench.example.com" and assuming you ran the above
                                                         on a host named "myhost", the results will be found at (<b>N.B.:</b> this is a fake link serving as an example only - talk to your local administrator to find out what server to use
-                                                        to get to pbench results):<a>http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>.
+                                                        to get to Pbench results):<a>http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>.
                                                     </li>
                                                 </div>  
                                                 <p class="info_text" style="text-align:justify">For explanations and details, see subsequent sections.</p>              
@@ -226,7 +226,7 @@
                                                     <li> pbench-migrate </li>
                                                     <li> pbench-tpcc</li>
                                                     <li> pbench-uperf </li>
-                                                    <li>pbench-user-benchmark (see <a href="#runningtools">Running pbench collection tools with an arbitrary benchmark </a>below for more on this)</li>
+                                                    <li>pbench-user-benchmark (see <a href="#runningtools">Running Pbench collection tools with an arbitrary benchmark </a>below for more on this)</li>
                                                 </div>
                                                 <p class="info_text" style="text-align:justify">You can run any of these with the --help option to get basic information about how to run the script. Most of these scripts accept a standard set 
                                                     of generic options, some semi-generic ones that are common to a bunch of benchmarks, as well as some benchmark specific options that vary from benchmark to benchmark.
@@ -444,7 +444,7 @@
                                                     The second set is for controlling the running of tools – pbench-start-tools and pbench-stop-tools, as well as pbench-postprocess-tools below,
                                                     take --group, --dir and --iteration options: which group of tools to start/stop/postprocess, which directory to use to stash results and a 
                                                     label to apply to this set of results. pbench-kill-tools is used to make sure that all running tools are stopped: having a bunch of tools 
-                                                    from earlier runs still running has been know to happen and is the cause of many problems (slowdowns in particular):
+                                                    from earlier runs still running has been known to happen and is the cause of many problems (slowdowns in particular):
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
                                                     <b>pbench-start-tools</b>
@@ -452,7 +452,7 @@
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
                                                     <b>pbench-stop-tools</b>
-                                                    <br>stop a group of tool
+                                                    <br>stop a group of tools
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
                                                     <b>pbench-kill-tools</b>
@@ -482,7 +482,7 @@
                                                     <br>change the directory structure of the results (see the <a href="#web">Accessing results on the web</a> section below for details).
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
-                                                    <b>XXX pbench-cleanup</b>
+                                                    <b>pbench-cleanup</b>
                                                     <br>clean up the pbench run directory - after this step, you will need to register any tools again.
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
@@ -497,7 +497,7 @@
                                                     <li>pbench-log-timestamp</li>
                                                 </div>
                                                 <p class="info_text" style="text-align:justify">
-                                                    These are used by various pieces of pbench. There is also a contrib directory that contains completely unsupported tools that various people have found useful.
+                                                    These are used by various pieces of Pbench. There is also a contrib directory that contains completely unsupported tools that various people have found useful.
                                                 </p>
                                             </div>
                                             <div id="secondstep" class="section_cardbody">
@@ -505,7 +505,7 @@
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
                                                     WARNING: It is highly recommended that you use one of the pbench-< benchmark > scripts for running your benchmark. If one does not exist already, you might be able to use the pbench-user-benchmark 
-                                                    script to run your own script. The advantage is that these scripts already embody some conventions that pbench and associated tools depend on, e.g. using a timestamp in the name of the results
+                                                    script to run your own script. The advantage is that these scripts already embody some conventions that Pbench and associated tools depend on, e.g. using a timestamp in the name of the results
                                                     directory to make the name unique. If you cannot use pbench-user-benchmark and a pbench-< benchmark > script does not exist already, consider writing one or helping us write one. The more we can 
                                                     encapsulate all these details into generally useful tools, the easier it will be for everybody: people running it will not need to worry about all these details and people maintaining the 
                                                     system will not have to fix stuff because the script broke some assumptions. The easiest way to do so is to crib an existing pbench-<benchmark> script, e.g pbench-fio.
@@ -530,7 +530,7 @@
                                                 <p class="info_text" style="text-align:justify">where the group is usually "default" but can be changed to taste as described above, iteration is a benchmark-specific tag that disambiguates the separate
                                                 iterations in a run (e.g. for pbench-fio it is a combination of a count, the test type, the block size and a device name), and the benchmark_tools_dir specifies where the collection results are
                                                 going to end up (see the section for much more detail on this).</p>
-                                                <p class="info_text" style="text-align:justify">The stop invocation is exactly parallel, as is the postprocessing invocation:</p>
+                                                <p class="info_text" style="text-align:justify">The stop invocation is parallel, as is the postprocessing invocation:</p>
                                                 <p class="c_snip">pbench-stop-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir
                                                     <br>pbench-postprocess-tools --group=$group --iteration=$iteration --dir=$benchmark_tools_dir</p>
                                             </div>
@@ -560,7 +560,7 @@
                                                     Note that pbench-move-results, pbench-copy-results and pbench-clear-results always assume that the run directory is the default /var/lib/pbench-agent.
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
-                                                    pbench-move-results and pbench-copy-results now (starting with pbench version 0.31-108gf016ed6) take a --prefix option. This is explained in the <a href="#web">Accessing results on the web</a> section below.
+                                                    pbench-move-results and pbench-copy-results now (starting with Pbench version 0.31-108gf016ed6) take a --prefix option. This is explained in the <a href="#web">Accessing results on the web</a> section below.
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
                                                     Note also that pbench-start/stop/postprocess-tools <b>must</b> be called with exactly the same arguments. The built-in benchmark scripts do that already, but if you go your own way, make sure to follow this dictum.
@@ -586,10 +586,10 @@
                                                 <p class="cardHeader">Running Pbench collection tools with an arbitrary benchmark
                                                 </p>
                                                 <p class="info_text" style="text-align:justify">
-                                                    If you want to take advantage of pbench's data collection and other goodies, but your benchmark 
+                                                    If you want to take advantage of Pbench's data collection and other goodies, but your benchmark 
                                                     is not part of the set above (see <a href="#availablescript">Available benchmark scripts</a>), or you want to run it differently so that 
                                                     the pre-packaged script does not work for you, that's no problem (but, if possible, heed the WARNING above). 
-                                                    The various pbench phases can be run separately and you can fit your benchmark into the appropriate slot:
+                                                    The various Pbench phases can be run separately and you can fit your benchmark into the appropriate slot:
                                                 </p>
                                                 <p class="c_snip">
                                                     group=default
