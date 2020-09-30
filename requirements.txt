@@ -14,4 +14,3 @@ python-daemon
 bottle
 pyesbulk
 colorlog
-numpy
