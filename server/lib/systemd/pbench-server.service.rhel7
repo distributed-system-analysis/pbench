@@ -10,8 +10,11 @@ After=network.target httpd.service
 
 [Service]
 Type = simple
-ExecStart = /usr/bin/scl enable rh-python36 -- /opt/pbench-server/bin/pbench-server
-ExecStop = /usr/bin/pkill pbench-server
+PIDFile = /run/pbench-server/gunicorn.pid
+ExecStartPre = /bin/mkdir /run/pbench-server
+ExecStart = /usr/bin/scl enable rh-python36 /opt/pbench-server/bin/pbench-server
+ExecStop = /bin/kill -s TERM $MAINPID
+ExecStopPost = /bin/rm -rf /run/pbench-server
 Restart = always
 StartLimitInterval = 60
 StartLimitBurst = 10

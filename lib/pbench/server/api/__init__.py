@@ -93,6 +93,8 @@ def create_app():
     app.config["MAX_CONTENT_LENGTH"] = app.config_server.get("rest_max_content_length")
     app.config["REST_URI"] = app.config_server.get("rest_uri")
     app.config["LOG"] = app.config_server.get("rest_log")
+    app.config["BIND_HOST"] = app.config_server.get("bind_host")
+    app.config["WORKERS"] = app.config_server.get("workers")
 
     register_endpoints(api, app)
 
