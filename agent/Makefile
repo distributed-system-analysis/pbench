@@ -24,8 +24,6 @@ INSTALLOPTS = --directory
 util-scripts = \
 	cdm-get-iterations \
 	pbench-add-metalog-option \
-	pbench-agent-config-activate \
-	pbench-agent-config-ssh-key \
 	pbench-avg-stddev \
 	pbench-collect-sysinfo \
 	pbench-copy-results \
