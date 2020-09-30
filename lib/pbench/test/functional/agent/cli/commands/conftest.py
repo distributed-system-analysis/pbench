@@ -1,4 +1,5 @@
 import configparser
+import getpass
 import shutil
 
 import pytest
@@ -37,5 +38,7 @@ def agent_config(tmp_path, opt_pbench, pbench_cfg, pbench_run):
     config.read(pbench_cfg)
     config["pbench-agent"]["install-dir"] = str(opt_pbench)
     config["pbench-agent"]["pbench_run"] = str(pbench_run)
+    config["pbench-agent"]["user"] = getpass.getuser()
+    config["pbench-agent"]["group"] = getpass.getuser()
     with open(pbench_cfg, "w") as f:
         config.write(f)

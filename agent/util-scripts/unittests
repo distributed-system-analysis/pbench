@@ -338,7 +338,6 @@ declare -A tools=(
     [test-11.14]="pbench-register-tool-set"
     [test-12]="pbench-clear-tools"
     [test-13]="pbench-clear-tools"
-    [test-14]="pbench-agent-config-activate"
     [test-15]="pbench-register-tool-trigger"
     [test-19]="test-tool-trigger"
     [test-20]="pbench-move-results"
@@ -433,7 +432,6 @@ declare -A options=(
     [test-11.12]="--group=other --no-install"
     [test-11.13]="--help"
     [test-13]="--remote=fubar2"
-    [test-14]="${_testdir}/tmp/pbench-agent.cfg"
     [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     # pbench-move-results
     [test-20]="--help"
@@ -523,7 +521,6 @@ declare -A pre_hooks=(
     [test-05]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-06]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client; mkdir -p ${_testdir}/42-iter/sample42/tools-default/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-default/testhost.example.com/iostat/iostat-stdout.txt'
     [test-07]='mkdir -p ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat/iostat-stdout.txt'
-    [test-14]='rm ${_testopt}/config/pbench-agent.cfg; sed -i "s;_REPLACE_ME_;${_testopt};g" ${_testdir}/tmp/pbench-agent.cfg'
     [test-19]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> ${_testout}'
     [test-34]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> ${_testout}'
