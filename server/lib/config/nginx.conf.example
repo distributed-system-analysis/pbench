@@ -1,0 +1,28 @@
+# Nginx setup to work with wsgi
+# Begin by opening up Nginx’s default configuration file:
+# Open up a server block just above the other server {} block that is already in the file
+
+http {
+    . . .
+
+    include /etc/nginx/conf.d/*.conf;
+
+    server {
+    }
+
+    server {
+        listen 80 default_server;
+
+        . . .
+
+# Add the following configuration inside the new server block
+
+server {
+    listen <port>;
+    server_name <Nginx_domain_or_IP>;
+
+    location / {
+        proxy_pass http://<pbench-server:8001>;
+        # proxy_pass http://127.0.0.1:8001; if running on same host as pbench-server
+    }
+}

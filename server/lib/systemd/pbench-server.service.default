@@ -10,8 +10,11 @@ After=network.target httpd.service
 
 [Service]
 Type = simple
+PIDFile = /run/pbench-server/gunicorn.pid
+ExecStartPre = /bin/mkdir /run/pbench-server
 ExecStart = /opt/pbench-server/bin/pbench-server
-ExecStop = /usr/bin/pkill pbench-server
+ExecStop = /bin/kill -s TERM $MAINPID
+ExecStopPost = /bin/rm -rf /run/pbench-server
 Restart = always
 StartLimitInterval = 60
 StartLimitBurst = 10
