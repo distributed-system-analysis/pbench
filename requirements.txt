@@ -13,3 +13,4 @@ python-pidfile
 python-daemon
 bottle
 pyesbulk
+colorlog
