@@ -76,8 +76,8 @@
                         </span>
                      </div>      
                      <div class="landingCard">
-                        <div class="pf-l-grid pf-m-all-6-col-on-sm pf-m-all-6-col-on-md pf-m-all-6-col-on-lg pf-m-all-6-col-on-xl">
-                           <div class="pf-l-grid__item">
+                        <div style="display: flex; flex-wrap: wrap;">
+                           <div class="landingIntro">
                               <p class="cardHeader"><b>Pbench is...</b></p>
                               <p class="cardHeader" style="text-align:justify">Pbench is a harness that allows data collection from a 
                               variety of tools while running a benchmark.</p>
@@ -89,7 +89,7 @@
                               more than welcome!
                               </p>
                            </div>
-                           <div class="pf-l-grid__item" class="landingImg">
+                           <div class="landingImg">
                               <div class="pf-c-card__header pf-c-title pf-m-md landingImageDiv div1">
                                  <p class="cardHeader"><b>Placeholder Image</b></p>
                               </div>
@@ -104,8 +104,8 @@
                <div class="section" id="cards" data-receiver="ScrollToMatch">
                   <div class="pf-c-card callout_card">
                      <div class="pf-c-card__body">
-                        <div class="pf-l-grid pf-m-all-12-col-on-sm pf-m-all-8-col-on-md pf-m-all-4-col-on-lg pf-m-all-3-col-on-xl">
-                           <div class="pf-l-grid__item">
+                        <div style="display: flex; flex-wrap: wrap;">
+                           <div class="pf-l-grid__item subcards">
                               <div class="card pf-c-card" id="firstGrid">
                                  <div class="pf-c-card__header pf-c-title pf-m-md imageDiv div1">
                                     <p class="cardHeader"><b>Pbench Agent</b></p>
@@ -122,7 +122,7 @@
                                  </div>
                               </div>
                            </div>
-                           <div class="pf-l-grid__item">
+                           <div class="pf-l-grid__item subcards">
                               <div class="pf-c-card card" id="secondGrid">
                                  <div class="pf-c-card__header pf-c-title pf-m-md imageDiv div2">
                                     <p class="cardHeader"><b>Pbench Server</b></p>
@@ -139,7 +139,7 @@
                                  </div>
                               </div>
                            </div>
-                           <div class="pf-l-grid__item">
+                           <div class="pf-l-grid__item subcards">
                               <div class="pf-c-card card" id="thirdGrid">
                                  <div class="pf-c-card__header pf-c-title pf-m-md imageDiv div3">
                                     <p class="cardHeader"><b>Dashboard</b></p>
@@ -160,8 +160,8 @@
                      </div>
                   </div>
                </div>
-               <div class="pf-l-grid pf-m-all-6-col-on-sm pf-m-all-4-col-on-md pf-m-all-2-col-on-lg pf-m-all-1-col-on-xl">
-                  <div class="pf-l-grid__item pf-m-12-col-on-sm pf-m-8-col-on-lg pf-m-8-col-on-xl">
+               <div>
+                  <div>
                      <div class="info_text contrib">
                         <p>
                            <ul class="PbenchQue">
@@ -196,9 +196,8 @@
                </div>
                <div class="recentMeetCard">
                   <p class="cardHeader"  id="homeDemo"><b>Recent meetings, presentations, and demos</b></p>
-                  <div class="pf-l-grid pf-m-all-8-col-on-sm pf-m-all-6-col-on-md pf-m-all-4-col-on-lg pf-m-all-3-col-on-xl"
-                  style="margin-left: -30px;">
-                     <div class="pf-l-grid__item">
+                  <div style="display: flex; flex-wrap: wrap;">
+                     <div class="recentMeetSubCard">
                         <div class="pf-c-card card demoCard">
                            <div class="pf-c-card__header" style="padding: 16px;">
                               <p class="videoHeaderNew"><a href="learn.html">Distributed system analysis made easy with Pbench</a></p>
@@ -206,7 +205,7 @@
                            </div>
                         </div>
                      </div>
-                     <div class="pf-l-grid__item">
+                     <div class="recentMeetSubCard">
                         <div class="pf-c-card card demoCard">
                            <div class="pf-c-card__header" style="padding: 16px;">
                               <p class="videoHeaderNew"><a href="learn.html">Using Pbench to debug Performance Problems</a></p>
@@ -214,7 +213,7 @@
                            </div>
                         </div>
                      </div>
-                     <div class="pf-l-grid__item">
+                     <div class="recentMeetSubCard">
                         <div class="pf-c-card card demoCard">
                            <div class="pf-c-card__header" style="padding: 16px;">
                               <p class="videoHeaderNew"><a href="learn.html">Distributed System Analysis using Pbench Tool</a></p>
@@ -227,7 +226,6 @@
                      <a href="learn.html" style="text-decoration: none;">View all &nbsp;<i class="fas fa-arrow-right linkSymbol" style="color: var(--pf-global--link--Color);"></i></a></p>
                  </p>
                </div>
-				</div>
 			   <!-- <div class="cardHeader pyramid">
 					<b><h1 style="font-weight: bold; margin-bottom: 1%;">Food pyramid of Pbench graphic</h1></b>
 					<img src="./images/pyramid.png" style="margin-top: 2%;">

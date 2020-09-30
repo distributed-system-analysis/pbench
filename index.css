@@ -47,6 +47,10 @@ li.PbenchQueItem::after {
   text-align: center;
   box-shadow: var(--pf-global--BoxShadow--md-bottom);
   margin: var( --pf-global--spacer--xl ) 0 var( --pf-global--spacer--xl ) 0;
+  max-width: 1440px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #navlogo{
@@ -56,10 +60,13 @@ li.PbenchQueItem::after {
    margin-bottom: 16px;
 }
 .contrib{
-  padding-left: var( --pf-global--spacer--xl );
   font-family: Work Sans;
   text-align: justify;
-  margin-left: var( --pf-global--spacer--2xl);
+  padding: var(--pf-global--spacer--lg);
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1440px;
  }
  
  .quoteBox{
@@ -118,14 +125,26 @@ button.pf-c-button.pf-m-link{
 }
 
 .landingCard{
-  background: white;
+  background: #0e0e0e73;
   margin-top: var(--pf-global--spacer--xl);
   padding: var(--pf-global--spacer--lg);
+  max-width: 1440px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landingCard p.cardHeader{
+  color: white;
 }
 
 .recentMeetCard{
   margin-left: var( --pf-global--spacer--2xl );
-    padding-left: var(--pf-global--spacer--xl);
+  padding-left: var(--pf-global--spacer--xl);
+  max-width: 1440px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
@@ -144,4 +163,71 @@ button.pf-c-button.pf-m-link{
   margin-top: 16px;
   margin-bottom: 10px;
   bottom: 0;
+}
+
+.landingIntro{
+  flex-basis: 50%;
+}
+
+.landingImg{
+  flex-basis: 50%;
+}
+
+/* media query for sub cards */
+@media (min-width: 1440px) {
+  .subcards{
+    flex-basis: 33.333%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 30%;
+  }
+}
+@media (max-width: 1440px) {
+  .subcards{
+    flex-basis: 33.333%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 30%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .subcards{
+    flex-basis: 50%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 50%;
+  }
+}
+
+@media (max-width: 900px) {
+  .subcards{
+    flex-basis: 50%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 50%;
+  }
+  .landingImg{
+    display: none;
+  }
+  .landingIntro{
+    flex-basis: 100%;
+  }
+  .title{
+    margin: 0;
+    padding: 0;
+  }
+  .callout_card{
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@media (max-width: 500px) {
+  .subcards{
+    flex-basis: 100%;
+  }
+  .recentMeetSubCard{
+    flex-basis: 100%;
+  }
 }
