@@ -34,7 +34,6 @@ util-scripts = \
 	 pbench-get-iteration-metrics \
 	 pbench-get-metric-data \
 	 pbench-get-primary-metric \
-	 pbench-import-cdm \
 	 pbench-kill-tools \
 	 pbench-list-tools \
 	 pbench-list-triggers \
