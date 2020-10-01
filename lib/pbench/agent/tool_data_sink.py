@@ -33,7 +33,7 @@ import redis
 
 from bottle import Bottle, ServerAdapter, request, abort
 
-from pbench.agent.modules import metaclass
+import pbench.agent.toolmetadata as toolmetadata
 
 
 # Read in 64 KB chunks off the wire for HTTP PUT requests.
@@ -255,7 +255,7 @@ class ToolDataSink(Bottle):
         self.state = None
         self.tool_data_ctx = None
         self.directory = None
-        self.tool_metadata = metaclass.ToolMetadata("redis", redis_server, logger)
+        self.tool_metadata = toolmetadata.ToolMetadata("redis", redis_server, logger)
         self._data = None
         self._prom_server = None
         self._tm_tracking = None

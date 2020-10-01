@@ -65,6 +65,7 @@ class ToolMetadata:
         return metadata
 
     def __dataCheck(self):
+        """Check for existing/loadable data, return 1 if true and 0 if false"""
         if not self.data:
             self.data == self.__getInitialData()
             if not self.data:

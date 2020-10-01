@@ -59,7 +59,7 @@ import pidfile
 import redis
 
 from pbench.server.utils import md5sum
-from pbench.agent.modules import metaclass
+import pbench.agent.toolmetadata as toolmetadata
 
 
 # Path to external tar executable.
@@ -73,12 +73,15 @@ class ToolException(Exception):
     pass
 
 
-class PermaTool:
+class PersistentTool:
     def __init__(self, name, tool_opts, logger):
         self.name = name
         self.tool_opts = tool_opts.split(" ")
         self.logger = logger
         self.install_path = None
+
+        #Looking for required --inst option 
+        #Reformatting appropriately if found
         for opt in self.tool_opts:
             if opt.startswith("--inst="):
                 if opt[len(opt) - 1] == "\n":
@@ -88,6 +91,7 @@ class PermaTool:
                 self.logger.debug("FOUND")
             else:
                 self.logger.debug("NOT FOUND SOMEHOW")
+
         self.process = None
         self.failure = False
 
@@ -95,13 +99,12 @@ class PermaTool:
         if self.install_path is None:
             self.failure = True
             self.logger.error(
-                "NO INSTALL PATH PROPERLY GIVEN AS PERMATOOL OPTION, see /opt/pbench-agent/nodexporter --help"
+                "NO INSTALL PATH PROPERLY GIVEN AS PERSISTENT TOOL OPTION, see /opt/pbench-agent/nodexporter --help"
             )
             return
 
         if self.name == "node-exporter":
             self.logger.debug(self.install_path)
-            # args = ["/usr/bin/screen", "-dmS", "node-exp-screen", self.install_path + "/node_exporter"]
 
             if not os.path.isfile(self.install_path + "/node_exporter"):
                 self.logger.info(
@@ -122,21 +125,22 @@ class PermaTool:
                 + "/bindings/common"
             )
 
+            script_path = "/samples/scripts/dcgm_prometheus.py"
             if not os.path.isfile(
-                self.install_path + "/samples/scripts/dcgm_prometheus.py"
+                self.install_path + script_path
             ):
                 self.logger.info(
                     self.install_path
-                    + "/samples/scripts/dcgm_prometheus.py"
+                    + script_path
                     + " does not exist"
                 )
                 self.failure = True
                 return 0
 
-            args = [f"python2 {self.install_path}/samples/scripts/dcgm_prometheus.py"]
+            args = [f"python2 {self.install_path}/{script_path}"]
             self.process = subprocess.Popen(args, shell=True)
         else:
-            self.logger.error("INVALID PERMA TOOL NAME")
+            self.logger.error("INVALID PERSISTENT TOOL NAME")
             self.failure = True
             return 0
 
@@ -364,7 +368,7 @@ class ToolMeister(object):
 
     def __init__(self, pbench_bin, params, redis_server, logger):
         self.logger = logger
-        self.tool_metadata = metaclass.ToolMetadata("redis", redis_server, self.logger)
+        self.tool_metadata = toolmetadata.ToolMetadata("redis", redis_server, self.logger)
         self.persist_tools = self.tool_metadata.getPersistentTools()
         self.pbench_bin = pbench_bin
         ret_val = self.fetch_params(params)
@@ -377,7 +381,7 @@ class ToolMeister(object):
             self._tools,
         ) = ret_val
         self._running_tools = dict()
-        self._perma_tools = dict()
+        self._persistent_tools = dict()
         self._rs = redis_server
         logger.debug("pubsub")
         self._pubsub = self._rs.pubsub()
@@ -576,20 +580,20 @@ class ToolMeister(object):
                 continue
             tool_cnt += 1
             try:
-                perma_tool = PermaTool(name, tool_opts, self.logger)
-                perma_tool.start()
+                persistent_tool = PersistentTool(name, tool_opts, self.logger)
+                persistent_tool.start()
 
                 self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
             except Exception:
                 self.logger.exception(
-                    "Failed to init PermaTool %s running in background", name
+                    "Failed to init PersistentTool %s running in background", name
                 )
                 failures += 1
                 continue
             else:
-                self._perma_tools[name] = perma_tool
+                self._persistent_tools[name] = persistent_tool
         if failures > 0:
-            msg = f"{failures} of {tool_cnt} perma tools failed to start"
+            msg = f"{failures} of {tool_cnt} persistent tools failed to start"
             self._send_client_status(msg)
         else:
             self._send_client_status("success")
@@ -993,7 +997,7 @@ class ToolMeister(object):
                 continue
             tool_cnt += 1
             try:
-                perma_tool = self._perma_tools[name]
+                persistent_tool = self._persistent_tools[name]
             except KeyError:
                 self.logger.error(
                     "INTERNAL ERROR - tool %s not in list of persistent tools", name,
@@ -1001,7 +1005,7 @@ class ToolMeister(object):
                 failures += 1
                 continue
             try:
-                perma_tool.stop()
+                persistent_tool.stop()
             except Exception:
                 self.logger.exception(
                     "Failed to stop persistent tool %s running in background", name

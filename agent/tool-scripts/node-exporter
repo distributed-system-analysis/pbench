@@ -15,14 +15,18 @@ sh.setFormatter(shf)
 logger.addHandler(sh)
 
 if len(sys.argv) != 2 or sys.argv[1] != "--help":
-    logger.info("This script is deprecated, please run it with --help for info on registering the tool.")
-    logger.info("Run /opt/pbench-agent/tool-scripts/node-exporter --help for more info.")
+    logger.info(
+        "This script is deprecated, please run it with --help for info on registering the tool."
+    )
+    logger.info(
+        "Run /opt/pbench-agent/tool-scripts/node-exporter --help for more info."
+    )
     exit(0)
 
 if sys.argv[1] == "--help":
     logger.info("Options:")
     logger.info(
-        "--inst=</path/to/node_exporter/dir> (will append /node_exporter for exe, required)"
+        "--inst=</path/to/node_exporter/dir> (required; to create the path of the executable, '/node-exporter' will be appended)"
     )
     logger.info("Installation Guide: github.com/prometheus/node_exporter")
     logger.info("Soon to come: metric enabling/disabling")

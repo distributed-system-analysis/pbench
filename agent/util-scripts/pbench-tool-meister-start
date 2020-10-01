@@ -33,7 +33,7 @@ import redis
 from pbench.agent.tool_data_sink import main as tds_main
 from pbench.agent.tool_meister import main as tm_main
 from pbench.agent import PbenchAgentConfig
-from pbench.agent.modules import metaclass
+import pbench.agent.toolmetadata as toolmetadata
 
 
 # Port number is "One Tool" in hex 0x17001
@@ -389,7 +389,7 @@ def main(argv):
     except Exception as exc:
         logger.exception("Unexpected error encountered resolving installation directory: '%s'", exc)
         return 1
-    tool_metadata = metaclass.ToolMetadata("json", tm_start_path, logger)
+    tool_metadata = toolmetadata.ToolMetadata("json", tm_start_path, logger)
     tool_metadata.loadIntoRedis(redis_server)
 
 
