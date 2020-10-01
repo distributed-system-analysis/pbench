@@ -22,6 +22,6 @@ def main(values):
     stddev = statistics.stdev(values)
     stddevpct = 100 * stddev / avg
 
-    closest_index = min(range(len(value)), key=lambda i: abs(value[i] - avg))
+    closest_index = min(range(len(values)), key=lambda i: abs(values[i] - avg))
 
     print("%.4f %.4f %.4f %d" % (avg, stddev, stddevpct, closest_index))
