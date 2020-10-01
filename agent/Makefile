@@ -20,7 +20,6 @@ INSTALLOPTS = --directory
 
 # all the scripts that's fit to install
 util-scripts = \
-	 cdm-get-iterations \
 	 getconf.py \
 	 pbench-add-metalog-option \
 	 pbench-agent-config-activate \
