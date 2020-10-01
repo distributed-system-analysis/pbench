@@ -65,13 +65,13 @@ class ToolMetadata:
         return metadata
 
     def __dataCheck(self):
-        """Check for existing/loadable data, return 1 if true and 0 if false"""
+        """Check for existing/loadable data, return True if retreival possible, False otherwise"""
         if not self.data:
             self.data == self.__getInitialData()
             if not self.data:
                 self.logger.error(f"Unable to access data through {self.mode}")
-                return 0
-        return 1
+                return False
+        return True
 
     def getFullData(self):
         if self.__dataCheck():

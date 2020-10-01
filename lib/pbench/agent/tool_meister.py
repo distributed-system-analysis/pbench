@@ -125,19 +125,16 @@ class PersistentTool:
                 + "/bindings/common"
             )
 
-            script_path = "/samples/scripts/dcgm_prometheus.py"
-            if not os.path.isfile(
-                self.install_path + script_path
-            ):
+            script_path = self.install_path + "/samples/scripts/dcgm_prometheus.py"
+            if not os.path.isfile(script_path):
                 self.logger.info(
-                    self.install_path
-                    + script_path
+                    script_path
                     + " does not exist"
                 )
                 self.failure = True
                 return 0
 
-            args = [f"python2 {self.install_path}/{script_path}"]
+            args = [f"python2 {script_path}"]
             self.process = subprocess.Popen(args, shell=True)
         else:
             self.logger.error("INVALID PERSISTENT TOOL NAME")
