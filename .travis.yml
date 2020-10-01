@@ -1,5 +1,5 @@
 language: python
-dist: bionic
+dist: focal
 python:
  - "3.6"
 env:
@@ -20,6 +20,7 @@ install:
  # Perl JSON and JSON-XS required
  - sudo apt-get install libjson-perl libjson-xs-perl
  - travis_retry pip install tox
+ - perl --version
 script:
  - tox
 cache:
