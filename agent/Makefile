@@ -31,7 +31,6 @@ util-scripts = \
 	 pbench-collect-sysinfo \
 	 pbench-copy-results \
 	 pbench-copy-result-tb \
-	 pbench-get-metric-data \
 	 pbench-get-primary-metric \
 	 pbench-kill-tools \
 	 pbench-list-tools \
