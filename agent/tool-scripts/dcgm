@@ -1,6 +1,11 @@
 #!/usr/bin/python3
 # -*- mode: python -*-
 
+"""Place-holder "dcgm" persistent tool, providing a help message like the
+other existing transient tools, and issuing a warning indicating this script
+is not actually executed directly.
+"""
+
 import sys
 import os
 import logging
@@ -15,7 +20,9 @@ sh.setFormatter(shf)
 logger.addHandler(sh)
 
 if len(sys.argv) != 2 or sys.argv[1] != "--help":
-    logger.info("This script is deprecated, please run it with --help for info on registering the tool.")
+    logger.info(
+        "This script is deprecated, please run it with --help for info on registering the tool."
+    )
     logger.info("Run /opt/pbench-agent/tool-scripts/dcgm --help for more info.")
     exit(0)
 

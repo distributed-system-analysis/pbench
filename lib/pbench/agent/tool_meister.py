@@ -74,6 +74,11 @@ class ToolException(Exception):
 
 
 class PersistentTool:
+    """
+    Encapsulates all the states needed to run persistent tooling in the background.
+    The ToolMeister class uses one PersistentTool object per persistent tool.
+    """
+
     def __init__(self, name, tool_opts, logger):
         self.name = name
         self.tool_opts = tool_opts.split(" ")
@@ -99,7 +104,7 @@ class PersistentTool:
         if self.install_path is None:
             self.failure = True
             self.logger.error(
-                "NO INSTALL PATH PROPERLY GIVEN AS PERSISTENT TOOL OPTION, see /opt/pbench-agent/nodexporter --help"
+                "No install path properly given as persistent tool option, see /opt/pbench-agent/nodexporter --help"
             )
             return
 
@@ -134,7 +139,7 @@ class PersistentTool:
             args = [f"python2 {script_path}"]
             self.process = subprocess.Popen(args, shell=True)
         else:
-            self.logger.error("INVALID PERSISTENT TOOL NAME")
+            self.logger.error("Invalid persistent tool name")
             self.failure = True
             return 0
 
@@ -273,8 +278,7 @@ class Terminate(Exception):
 
 
 class ToolMeisterError(Exception):
-    """Simple exception for any errors from the ToolMeister class.
-    """
+    """Simple exception for any errors from the ToolMeister class."""
 
     pass
 
@@ -444,8 +448,7 @@ class ToolMeister(object):
         logger.debug("published *-start")
 
     def cleanup(self):
-        """cleanup - close down the Redis pubsub object.
-        """
+        """cleanup - close down the Redis pubsub object."""
         self.logger.debug("%s: cleanup", self._hostname)
         self.logger.debug("unsubscribe")
         self._pubsub.unsubscribe()
@@ -984,8 +987,7 @@ class ToolMeister(object):
         return failures
 
     def end_tools(self, data):
-        """end_tools - stop all the persistent data collection tools.
-        """
+        """end_tools - stop all the persistent data collection tools."""
         failures = 0
         tool_cnt = 0
         for name in self._tools.keys():

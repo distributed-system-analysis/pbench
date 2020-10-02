@@ -1,6 +1,11 @@
 #!/usr/bin/python3
 # -*- mode: python -*-
 
+"""Place-holder "node-exporter" persistent tool, providing a help message like the
+other existing transient tools, and issuing a warning indicating this script
+is not actually executed directly.
+"""
+
 import os
 import sys
 import logging

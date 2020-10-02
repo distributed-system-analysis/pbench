@@ -16,7 +16,6 @@ import hashlib
 import json
 import logging
 import os
-import socket
 import subprocess
 import sys
 import tempfile
@@ -26,6 +25,7 @@ from http import HTTPStatus
 from pathlib import Path
 from threading import Thread, Lock, Condition
 from wsgiref.simple_server import WSGIRequestHandler, make_server
+from jinja2 import Environment, FileSystemLoader
 
 import daemon
 import pidfile
@@ -34,6 +34,7 @@ import redis
 from bottle import Bottle, ServerAdapter, request, abort
 
 import pbench.agent.toolmetadata as toolmetadata
+from pbench.agent import PbenchAgentConfig
 
 
 # Read in 64 KB chunks off the wire for HTTP PUT requests.
@@ -119,7 +120,41 @@ class DataSinkWsgiServer(ServerAdapter):
         self._server.shutdown()
 
 
+def _create_from_template(template, context, logger):
+    """Helper method used to generate the contents of a file given a Jinja
+    template and its required context.
+
+    Returns a string representing the contents of a file, or None if the
+    rendering from the template failed.
+    """
+    try:
+        inst_dir = PbenchAgentConfig(
+            os.environ["_PBENCH_AGENT_CONFIG"]
+        ).pbench_install_dir
+    except Exception as exc:
+        logger.error(
+            "Unexpected error encountered logging pbench agent configuration: '%s'",
+            exc,
+        )
+        return None
+
+    template_dir = Environment(
+        autoescape=False,
+        loader=FileSystemLoader(os.path.join(inst_dir, "templates")),
+        trim_blocks=False,
+        lstrip_blocks=False,
+    )
+    try:
+        filled = template_dir.get_template(template).render(context)
+        return filled
+    except Exception as exc:
+        logger.error("File creation failed: '%s'", exc)
+        return None
+
+
 class BaseCollector:
+    """Abstract class for persistent tool data collectors"""
+
     allowed_tools = {"noop-collector": None}
 
     def __init__(
@@ -132,90 +167,92 @@ class BaseCollector:
         self.logger = logger
         self.tool_metadata = tool_metadata
         self.tool_group_dir = self.benchmark_run_dir / f"tools-{self.tool_group}"
-        self.abort_launch = True
 
     def launch(self):
         pass
 
     def terminate(self):
-        if self.abort_launch:
+        if not self.run:
             return 0
 
-        self.run.terminate()
-        self.run.wait()
+        try:
+            self.run.terminate()
+            self.run.wait()
+        except Exception as exc:
+            self.logger.error(
+                "Failed to terminate expected collector process: '%s'", exc
+            )
+            return 0
         return 1
 
 
 class PromCollector(BaseCollector):
+    """Persistent tool data collector for tools compatible with Prometheus"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.volume = self.tool_group_dir / "prometheus"
 
     def launch(self):
-
-        if self.host_tools_dict:
-            self.abort_launch = False
-        else:
+        if not find_executable("podman"):
+            self.logger.error(
+                "Podman is not installed on this system (required by some registered tools, aborting launch)"
+            )
             return 0
 
-        config = open("prometheus.yml", "w")
+        tool_context = []
+        with open("prometheus.yml", "w") as config:
+            for host in self.host_tools_dict:
+                for tool in self.host_tools_dict[host]:
+                    tool_dict = {}
+                    port = self.tool_metadata.getProperties(tool)["port"]
+                    tool_dict["hostname"] = host + "_" + tool
+                    tool_dict["hostport"] = host + ":" + port
+                    tool_context.append(tool_dict)
+            if tool_context:
+                tool_context = {"tools": tool_context}
+                yml = _create_from_template("prometheus.yml", tool_context, self.logger)
+                config.write(yml)
 
-        config.write("global:\n  scrape_interval: 1s\n  evaluation_interval: 1s\n\n")
-        # config.write("alerting:\n  alertmanagers:\n  - static_configs:\n    - targets:\n\nrule_files:\n\n")
-        config.write(
-            "scrape_configs:\n  - job_name: 'prometheus'\n    static_configs:\n    - targets: ['localhost:9090']\n\n"
-        )
-
-        for host in self.host_tools_dict:
-            if host.startswith("local"):
-                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.connect(("8.8.8.8", 80))
-                host_ip = str(s.getsockname()[0])
-                s.close()
-            else:
-                host_ip = host
-
-            for tool in self.host_tools_dict[host]:
-                port = self.tool_metadata.getProperties(tool)["port"]
-                config.write(
-                    "  - job_name: '{}_{}'\n    static_configs:\n    - targets: ['{}:{}']\n\n".format(
-                        host_ip, tool, host_ip, port
-                    )
+        with open("prom.log", "w") as prom_logs:
+            if not tool_context:
+                prom_logs.write(
+                    "Prometheus launch aborted, no persistent tools registered"
                 )
+                return 0
 
-        config.close()
+            args = ["podman", "pull", "prom/prometheus"]
+            try:
+                prom_pull = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
+                prom_pull.wait()
+            except Exception as exc:
+                self.logger.error("Podman pull process failed: '%s'", exc)
+                return 0
 
-        prom_logs = open("prom.log", "w")
+            try:
+                os.mkdir(self.volume)
+                os.chmod(self.volume, 0o777)
+            except Exception as exc:
+                self.logger.error("Volume creation failed: '%s'", exc)
+                return 0
 
-        if self.abort_launch:
-            prom_logs.write("Prometheus launch aborted, no persistent tools registered")
-            prom_logs.close()
-            return 0
-
-        args = ["podman", "pull", "prom/prometheus"]
-        prom_pull = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
-        prom_pull.wait()
-
-        os.mkdir(self.volume)
-        args = ["chmod", "777", self.volume]
-        volume_dir = subprocess.Popen(args)
-        volume_dir.wait()
-
-        args = [
-            "podman",
-            "run",
-            "-p",
-            "9090:9090",
-            "-v",
-            f"{self.volume}:/prometheus:Z",
-            "-v",
-            f"{self.benchmark_run_dir}/tm/prometheus.yml:/etc/prometheus/prometheus.yml:Z",
-            "prom/prometheus",
-        ]
-        self.run = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
-
-        prom_logs.close()
-
+            args = [
+                "podman",
+                "run",
+                "-p",
+                "9090:9090",
+                "-v",
+                f"{self.volume}:/prometheus:Z",
+                "-v",
+                f"{self.benchmark_run_dir}/tm/prometheus.yml:/etc/prometheus/prometheus.yml:Z",
+                "prom/prometheus",
+            ]
+            try:
+                self.run = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
+            except Exception as exc:
+                self.logger.error("Podman run process failed: '%s'", exc)
+                self.run = None
+                return 0
         return 1
 
     def terminate(self):

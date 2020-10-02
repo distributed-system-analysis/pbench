@@ -377,7 +377,7 @@ def main(argv):
     except BadConfig as exc:
         logger.error("%s", exc)
         return 1
-    except Exception:
+    except Exception as exc:
         logger.error("Unexpected error encountered logging pbench agent configuration: '%s'", exc)
         return 1
 
