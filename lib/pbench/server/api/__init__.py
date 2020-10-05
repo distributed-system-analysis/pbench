@@ -9,6 +9,7 @@ import sys
 import hashlib
 from pathlib import Path
 import requests
+import humanize
 
 from flask import request, jsonify, Flask, make_response
 from flask_restful import Resource, abort, Api
@@ -17,6 +18,7 @@ from werkzeug.utils import secure_filename
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig
+from pbench.server.utils import filesize_bytes
 
 ALLOWED_EXTENSIONS = {"xz"}
 
@@ -90,7 +92,9 @@ def create_app():
 
     app.config["PORT"] = app.config_server.get("rest_port")
     app.config["VERSION"] = app.config_server.get("rest_version")
-    app.config["MAX_CONTENT_LENGTH"] = app.config_server.get("rest_max_content_length")
+    app.config["MAX_CONTENT_LENGTH"] = filesize_bytes(
+        app.config_server.get("rest_max_content_length")
+    )
     app.config["REST_URI"] = app.config_server.get("rest_uri")
     app.config["LOG"] = app.config_server.get("rest_log")
     app.config["BIND_HOST"] = app.config_server.get("bind_host")
@@ -272,21 +276,65 @@ class Upload(Resource):
     def post(self):
         global app
         if not request.headers.get("filename"):
-            app.logger.debug("Missed filename in header")
-            abort(400, message="Missing filename header in request")
+            app.logger.debug(
+                "Tarfile upload: Post operation failed due to missing filename header"
+            )
+            abort(
+                400,
+                message="Missing filename header, POST operation requires a filename header to name the uploaded file",
+            )
         filename = secure_filename(request.headers.get("filename"))
 
         if not request.headers.get("md5sum"):
-            app.logger.debug("Missed md5sum in header")
-            abort(400, message="Missing md5sum header in request")
+            app.logger.debug(
+                f"Tarfile upload: Post operation failed due to missing md5sum header for file {filename}"
+            )
+            abort(
+                400,
+                message="Missing md5sum header, POST operation requires md5sum of an uploaded file in header",
+            )
         md5sum = request.headers.get("md5sum")
 
         app.logger.debug("Receiving file: {}", filename)
         if not allowed_file(filename):
-            app.logger.debug("Bad file extension received")
+            app.logger.debug(
+                f"Tarfile upload: Bad file extension received for file {filename}"
+            )
             abort(400, message="File extension not supported. Only .xz")
 
+        try:
+            content_length = int(request.headers.get("Content-Length"))
+        except ValueError:
+            app.logger.debug(
+                f"Tarfile upload: Invalid content-length header, not an integer for file {filename}"
+            )
+            abort(400, message="Invalid content-length header, not an integer")
+        except Exception:
+            app.logger.debug(
+                f"Tarfile upload: No Content-Length header value found for file {filename}"
+            )
+            abort(400, message="Missing required content-length header")
+        else:
+            if content_length > app.config["MAX_CONTENT_LENGTH"]:
+                app.logger.debug(
+                    f"Tarfile upload: Content-Length exceeded maximum upload size allowed. File: {filename}"
+                )
+                abort(
+                    400,
+                    message=f"Payload body too large, {content_length:d} bytes, maximum size should be less than "
+                    f"or equal to {humanize.naturalsize(app.config['MAX_CONTENT_LENGTH'])}",
+                )
+            elif content_length == 0:
+                app.logger.debug(
+                    f"Tarfile upload: Content-Length header value is 0 for file {filename}"
+                )
+                abort(
+                    400,
+                    message="Upload failed, Content-Length received in header is 0",
+                )
+
         full_path = app.upload_directory / filename
+        bytes_received = 0
 
         try:
             with open(full_path, "wb") as f:
@@ -296,18 +344,42 @@ class Upload(Resource):
 
                 while True:
                     chunk = request.stream.read(chunk_size)
-                    if len(chunk) == 0:
+                    bytes_received += len(chunk)
+                    if len(chunk) == 0 or bytes_received > content_length:
                         break
 
                     f.write(chunk)
                     hash_md5.update(chunk)
         except Exception:
-            app.logger.exception("There was something wrong uploading {}", filename)
+            app.logger.exception(
+                "Tarfile upload: There was something wrong uploading {}", filename
+            )
             abort(500, message=f"There was something wrong uploading {filename}")
 
-        if hash_md5.hexdigest() != md5sum:
-            abort(400, message=f"md5sum check failed for {filename}")
+        message = None
+        if bytes_received != content_length:
+            app.logger.debug(
+                f"Tarfile upload: Bytes received does not match with content length header value for file {filename}"
+            )
+            message = (
+                f"Bytes received ({bytes_received}) does not match with content length header"
+                f" ({content_length}), upload failed"
+            )
 
+        elif hash_md5.hexdigest() != md5sum:
+            app.logger.debug(f"Tarfile upload: md5sum check failed for file {filename}")
+            message = f"md5sum check failed for {filename}, upload failed"
+
+        if message:
+            try:
+                os.remove(full_path)
+            except Exception as exc:
+                app.logger.warning(
+                    "Failed to remove compressed %s when trying to clean up: %s",
+                    full_path,
+                    exc,
+                )
+            abort(400, message=message)
         response = jsonify(dict(message="File successfully uploaded"))
         response.status_code = 201
         return response

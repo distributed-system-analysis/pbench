@@ -2,6 +2,7 @@ import os
 
 import pytest
 from werkzeug.utils import secure_filename
+from pathlib import Path
 
 
 class TestHostInfo:
@@ -63,14 +64,17 @@ class TestGraphQL:
 class TestUpload:
     @staticmethod
     def test_missing_filename_header_upload(client):
-        expected_message = "Missing filename header in request"
+        expected_message = (
+            "Missing filename header, "
+            "POST operation requires a filename header to name the uploaded file"
+        )
         response = client.post(f"{client.config['REST_URI']}/upload")
         assert response.status_code == 400
         assert response.json.get("message") == expected_message
 
     @staticmethod
     def test_missing_md5sum_header_upload(client):
-        expected_message = "Missing md5sum header in request"
+        expected_message = "Missing md5sum header, POST operation requires md5sum of an uploaded file in header"
         response = client.post(
             f"{client.config['REST_URI']}/upload", headers={"filename": "f.tar.xz"}
         )
@@ -89,16 +93,39 @@ class TestUpload:
         assert response.json.get("message") == expected_message
 
     @staticmethod
-    def test_upload(client, pytestconfig):
-        filename = "./lib/pbench/test/unit/server/fixtures/upload/log.tar.xz"
+    def test_empty_upload(client, pytestconfig):
+        expected_message = "Upload failed, Content-Length received in header is 0"
+        filename = "tmp.tar.xz"
+        tmp_d = pytestconfig.cache.get("TMP", None)
+        Path(tmp_d, filename).touch()
 
-        with open(f"{filename}.md5") as md5sum_check:
+        with open(Path(tmp_d, filename), "rb") as data_fp:
+            response = client.post(
+                f"{client.config['REST_URI']}/upload",
+                data=data_fp,
+                headers={
+                    "filename": "log.tar.xz",
+                    "md5sum": "d41d8cd98f00b204e9800998ecf8427e",
+                },
+            )
+        assert response.status_code == 400
+        assert response.json.get("message") == expected_message
+
+    @staticmethod
+    def test_upload(client, pytestconfig):
+        filename = "log.tar.xz"
+        datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
+
+        with open(f"{datafile}.md5") as md5sum_check:
             md5sum = md5sum_check.read()
 
-        response = client.post(
-            f"{client.config['REST_URI']}/upload",
-            headers={"filename": filename, "md5sum": md5sum},
-        )
+        with open(datafile, "rb") as data_fp:
+            response = client.post(
+                f"{client.config['REST_URI']}/upload",
+                data=data_fp,
+                headers={"filename": filename, "md5sum": md5sum},
+            )
+
         assert response.status_code == 201, repr(response)
         sfilename = secure_filename(filename)
         tmp_d = pytestconfig.cache.get("TMP", None)
