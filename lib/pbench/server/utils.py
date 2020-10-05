@@ -29,6 +29,36 @@ def rename_tb_link(tb, dest, logger):
         raise
 
 
+def filesize_bytes(size):
+    size = size.strip()
+    size_name = ["B", "KB", "MB", "GB", "TB"]
+    try:
+        parts = size.split(" ", 1)
+        if len(parts) == 1:
+            if size.isdigit():
+                num = int(size)
+                unit = 0
+            else:
+                for i, c in enumerate(size):
+                    if not c.isdigit():
+                        break
+                num = int(size[:i])
+                unit = size[i:]
+        else:
+            num = int(parts[0])
+            unit = parts[1].strip()
+
+        if unit:
+            idx = size_name.index(unit.upper())
+        else:
+            idx = 0
+        factor = 1024 ** idx
+    except Exception as exc:
+        raise Exception("Invalid file size value encountered, '%s': %s", size, exc)
+    else:
+        return num * factor
+
+
 def md5sum(filename):
     """
     Return the MD5 check-sum of a given file.
