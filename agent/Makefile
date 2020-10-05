@@ -1,21 +1,23 @@
+# Caller should override `DESTDIR` when invoking make
+DESTDIR=/dev/null
 # settings - hardwired, but they could be set from the config file or
 # from the command line.
-DESTDIR=/opt/pbench-agent-test
 OWNER=pbench
 GROUP=pbench
 
 # derived directories
-CONFIGDIR=${DESTDIR}/config
-UTILDIR=${DESTDIR}/util-scripts
+ANSIBLEDIR=${DESTDIR}/ansible
 BENCHDIR=${DESTDIR}/bench-scripts
-TOOLDIR=${DESTDIR}/tool-scripts
+CONFIGDIR=${DESTDIR}/config
 LIBDIR=${DESTDIR}/lib
+STOCKPILEDIR=${DESTDIR}/stockpile
+TOOLDIR=${DESTDIR}/tool-scripts
+UTILDIR=${DESTDIR}/util-scripts
 
 # commands used below
 COPY    = cp -a
 CHOWN   = chown -R ${OWNER}.${GROUP}
 INSTALL = install
-#INSTALLOPTS = --mode 755 --directory --owner=${OWNER} --group=${GROUP}
 INSTALLOPTS = --directory
 
 # all the scripts that's fit to install
@@ -29,7 +31,6 @@ util-scripts = \
 	pbench-clear-results \
 	pbench-clear-tools \
 	pbench-collect-sysinfo \
-	pbench-config \
 	pbench-copy-results \
 	pbench-copy-result-tb \
 	pbench-get-iteration-metrics \
@@ -213,83 +214,62 @@ tool-postprocess = \
 
 # targets
 .PHONY: install \
-	install-dirs \
-	install-ansible \
+	install-destdir \
 	install-util-scripts \
 	install-bench-scripts \
 	install-tool-scripts \
-	install-lib \
-	install-configtools \
-	install-stockpile \
-	install-build-artifacts
+	install-ansible
 
-install: install-dirs install-ansible install-config install-util-scripts install-bench-scripts install-tool-scripts install-lib install-configtools install-stockpile
+# SHA1 and SEQNO - these are used when building an RPM only
+# so we provide a target for the spec file to invoke. This
+# is *NOT* meant to be invoked interactively.
+install: install-destdir install-util-scripts install-bench-scripts install-tool-scripts install-ansible
 	${COPY} VERSION ${DESTDIR}
-	${COPY} Makefile ${DESTDIR}
 	${COPY} base ${DESTDIR}
-	${COPY} profile ${DESTDIR}
-
-install-dirs:
-	${INSTALL} ${INSTALLOPTS} ${DESTDIR}
-	${INSTALL} ${INSTALLOPTS} ${DESTDIR}/ansible
 	${INSTALL} ${INSTALLOPTS} ${CONFIGDIR}
 	${INSTALL} ${INSTALLOPTS} ${CONFIGDIR}/benchmark
-	${INSTALL} ${INSTALLOPTS} ${UTILDIR}
-	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}
-	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/postprocess
-	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/templates
-	${INSTALL} ${INSTALLOPTS} ${TOOLDIR}
-	${INSTALL} ${INSTALLOPTS} ${TOOLDIR}/postprocess
-	${INSTALL} ${INSTALLOPTS} ${TOOLDIR}/datalog
+	${COPY} config ${DESTDIR}
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}
-	${INSTALL} ${INSTALLOPTS} ${DESTDIR}/stockpile
+	${COPY} lib ${DESTDIR}
+	${COPY} profile ${DESTDIR}
+	${INSTALL} ${INSTALLOPTS} ${STOCKPILEDIR}
+	${COPY} stockpile ${DESTDIR}
+	${COPY} ../lib/configtools ${LIBDIR}
 
-install-ansible:
-	${COPY} -r ansible ${DESTDIR}
+install-destdir:
+	${INSTALL} ${INSTALLOPTS} ${DESTDIR}
 
-install-config:
-	${COPY} -r config ${DESTDIR}
-
-install-util-scripts:
+install-util-scripts: install-destdir
+	${INSTALL} ${INSTALLOPTS} ${UTILDIR}
 	cd util-scripts; \
 	${COPY} ${util-scripts} ${UTILDIR}
 
-install-bench-scripts:
+install-bench-scripts: install-destdir
+	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}
+	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/templates
 	cd bench-scripts; \
 	${COPY} ${bench-scripts} ${BENCHDIR}
+	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/postprocess
 	cd bench-scripts/postprocess; \
 	${COPY} ${bench-postprocess} ${BENCHDIR}/postprocess
 	cd ${BENCHDIR}; \
 	ln -sf postprocess/compare-bench-results compare-bench-results
 
-# install-bench-script-postprocess:
-# 	cd bench-scripts; \
-# 	${COPY} -r postprocess ${BENCHDIR}
-
-install-tool-scripts:
+install-tool-scripts: install-destdir
+	${INSTALL} ${INSTALLOPTS} ${TOOLDIR}
 	cd tool-scripts; \
 	${COPY} ${tool-scripts} ${TOOLDIR}
+	${INSTALL} ${INSTALLOPTS} ${TOOLDIR}/datalog
 	cd tool-scripts/datalog; \
 	${COPY} ${tool-datalogs} ${TOOLDIR}/datalog
+	${INSTALL} ${INSTALLOPTS} ${TOOLDIR}/postprocess
 	cd tool-scripts/postprocess; \
 	${COPY} ${tool-postprocess} ${TOOLDIR}/postprocess
 
-install-stockpile:
-	${COPY} -r stockpile ${DESTDIR}
-
-install-lib:
-	${COPY} -r lib ${DESTDIR}
-
-# Yuck!
-install-configtools:
-	if [ ! -d lib/pbench ] ;then ${COPY} -r ../lib/pbench ${LIBDIR} ;fi
-
-# SHA1 and SEQNO - these are used when building an RPM only
-# so we provide a target for the spec file to invoke. This
-# is *NOT* meant to be invoked interactively.
-install-build-artifacts:
-	${COPY} SHA1 ${DESTDIR}
-	${COPY} SEQNO ${DESTDIR}
+install-ansible: install-destdir
+	${INSTALL} ${INSTALLOPTS} ${ANSIBLEDIR}
+	cd ansible; \
+	${COPY} ara ${ANSIBLEDIR}
 
 clean:
 	rm -rf ${DESTDIR}

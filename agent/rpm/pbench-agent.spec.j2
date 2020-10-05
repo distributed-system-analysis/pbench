@@ -1,11 +1,10 @@
 Name:           pbench-agent
-Version:     0.60
-%define gdist gc9e89f8f
-Release:     1%{?gdist}%{!?gdist:}
-Summary:        The pbench harness
+Version:        {{ version }}
+Release:        {{ seqno }}{{ gdist }}
+Summary:        The pbench agent CLI & default configuration.
 
 License:        GPLv3+
-URL:            http://perf1.perf.lab.eng.bos.redhat.com/atheurer/pbench
+URL:            https://github.com/distributed-system-analysis/pbench
 Source0:        pbench-agent-%{version}.tar.gz
 Buildarch:      noarch
 
@@ -64,12 +63,7 @@ rm -rf %{buildroot}
 
 mkdir -p %{buildroot}/%{installdir}
 
-cd ./agent
-%{__make} install DESTDIR=%{?buildroot}/%{installdir} INSTALL="%{__install} -p"
-%{__make} install-build-artifacts DESTDIR=%{?buildroot}/%{installdir} INSTALL="%{__install} -p"
-
-# we don't need this
-rm %{?buildroot}/%{installdir}/Makefile
+cp -a agent/* %{?buildroot}/%{installdir}/
 
 %pre
 # this RPM conflicts with a configtools RPM, but we may have a Pypi

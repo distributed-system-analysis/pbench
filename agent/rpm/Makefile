@@ -26,20 +26,23 @@ prog = pbench-agent
 arch = noarch
 
 USE_GIT_SHA1 = yes
-sha1 = $(shell git rev-parse --short HEAD)
+sha1 := $(shell git rev-parse --short HEAD)
+seqno := $(shell if [ -e ./seqno ] ;then cat ./seqno ;else echo "1" ;fi)
 
+# By default we only build a source RPM
 all: srpm
 
-srpm: spec patches tarball
-	rm -f ${HOME}/rpmbuild/SRPMS/$(prog)-*.src.rpm
-	rpmbuild -bs ${HOME}/rpmbuild/SPECS/$(prog).spec
+rpm: srpm
+	rpmbuild -bb ${RPMSPEC}/${prog}.spec
 
-rpm:  srpm
-	rpmbuild -bb /home/nick/rpmbuild/SPECS/${prog}.spec
+srpm: spec patches tarball
+	rm -f ${RPMSRPM}/$(prog)-*.src.rpm
+	rpmbuild -bs ${RPMSPEC}/${prog}.spec
 
 .PHONY: spec
-spec: ${prog}.spec
-	utils/set-version-release ${VERSION} $(prog).spec ${sha1} > ${RPMSPEC}/$<
+spec: ${prog}.spec.j2
+	if [ -e ./seqno ] ;then expr ${seqno} + 1 > ./seqno ;fi
+	jinja2 ${prog}.spec.j2 -D version=${VERSION} -D gdist=g${sha1} -D seqno=${seqno} > ${RPMSPEC}/${prog}.spec
 
 .PHONY: patches
 patches:
@@ -50,15 +53,11 @@ tarball:
 	git submodule init
 	git submodule update
 	make -C .. DESTDIR=${TMPDIR}/${prog}-${VERSION}/agent
-	git rev-parse --short HEAD > ${TMPDIR}/${prog}-${VERSION}/agent/SHA1
-	if [ ! -f seqno] ;then echo 1 ;else cat seqno ;fi > ${TMPDIR}/${prog}-${VERSION}/agent/SEQNO
+	echo "${sha1}" > ${TMPDIR}/${prog}-${VERSION}/agent/SHA1
+	echo "${seqno}" > ${TMPDIR}/${prog}-${VERSION}/agent/SEQNO
 	tar zcf ${RPMSRC}/pbench-agent-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
 	rm -rf ${TMPDIR}
 
-# buld RPMS in COPR
-seqno := $(shell if [ -e seqno ] ;then cat seqno ;else 1 ;fi)
-
-
-include utils/rpm.mk
+include rpm.mk
 
 clean:: rpm-clean
