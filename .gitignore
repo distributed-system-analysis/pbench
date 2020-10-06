@@ -13,8 +13,6 @@ dist
 .tox
 .eggs
 pip-wheel-metadata
-AUTHORS
-ChangeLog
 .idea/
 .pytest_cache/
 .venv
