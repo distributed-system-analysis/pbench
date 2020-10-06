@@ -223,21 +223,30 @@ tool-postprocess = \
 # SHA1 and SEQNO - these are used when building an RPM only
 # so we provide a target for the spec file to invoke. This
 # is *NOT* meant to be invoked interactively.
-install: install-destdir install-util-scripts install-bench-scripts install-tool-scripts install-ansible
+install: install-destdir install-python3-setup install-bench-scripts install-tool-scripts install-ansible
 	${COPY} VERSION ${DESTDIR}
 	${COPY} base ${DESTDIR}
 	${INSTALL} ${INSTALLOPTS} ${CONFIGDIR}
 	${INSTALL} ${INSTALLOPTS} ${CONFIGDIR}/benchmark
 	${COPY} config ${DESTDIR}
-	${INSTALL} ${INSTALLOPTS} ${LIBDIR}
-	${COPY} lib ${DESTDIR}
 	${COPY} profile ${DESTDIR}
 	${INSTALL} ${INSTALLOPTS} ${STOCKPILEDIR}
 	${COPY} stockpile ${DESTDIR}
-	${COPY} ../lib/configtools ${LIBDIR}
 
 install-destdir:
 	${INSTALL} ${INSTALLOPTS} ${DESTDIR}
+
+install-lib:
+	${INSTALL} ${INSTALLOPTS} ${LIBDIR}
+	${COPY} lib ${DESTDIR}
+
+install-python3-setup: install-util-scripts install-lib
+	mkdir -p ${DESTDIR}/python3
+	(cd ..; SKIP_GENERATE_AUTHORS=1 SKIP_WRITE_GIT_CHANGELOG=1 python3 setup.py install --prefix=${DESTDIR}/python3)
+	${COPY} ${DESTDIR}/python3/bin/pbench-config ${UTILDIR}/
+	rm -rf ${DESTDIR}/python3
+	${COPY} ../lib/pbench ${LIBDIR}/
+	rm -r $$(find ${LIBDIR} -name __pycache__) ${LIBDIR}/pbench/test ${LIBDIR}/pbench/server ${LIBDIR}/pbench/cli/server
 
 install-util-scripts: install-destdir
 	${INSTALL} ${INSTALLOPTS} ${UTILDIR}
