@@ -33,10 +33,12 @@ util-scripts = \
 	pbench-collect-sysinfo \
 	pbench-copy-results \
 	pbench-copy-result-tb \
+	pbench-end-tools \
 	pbench-get-iteration-metrics \
 	pbench-get-metric-data \
 	pbench-get-primary-metric \
 	pbench-import-cdm \
+	pbench-init-tools \
 	pbench-kill-tools \
 	pbench-list-tools \
 	pbench-list-triggers \
@@ -51,12 +53,17 @@ util-scripts = \
 	pbench-register-tool-set \
 	pbench-register-tool-trigger \
 	pbench-remote-sysinfo-dump \
+	pbench-send-tools \
 	pbench-start-tools \
 	pbench-stop-tools \
 	pbench-sysinfo-dump \
+	pbench-tool-meister-client \
+	pbench-tool-meister-start \
+	pbench-tool-meister-stop \
 	pbench-tool-trigger \
 	README \
-	require-rpm
+	require-rpm \
+	tool-meister
 
 bench-scripts = \
 	pbench-cyclictest \
@@ -100,6 +107,7 @@ tool-scripts = \
 	blktrace \
 	bpftrace \
 	cpuacct \
+	dcgm \
 	disk \
 	dm-cache \
 	docker \
@@ -113,7 +121,9 @@ tool-scripts = \
 	kvmstat \
 	kvmtrace \
 	lockstat \
+	meta.json \
 	mpstat \
+	node-exporter \
 	numastat \
 	oc \
 	openvswitch \
