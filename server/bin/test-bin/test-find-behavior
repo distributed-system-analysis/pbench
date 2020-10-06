@@ -44,7 +44,7 @@ tot_files=$(find ${ARCHIVE} -type f | wc -l)
 bkt_files=$(cat *.lis | wc -l)
 
 if [[ "${bkt_files}" != "${tot_files}" ]]; then
-    print "Count of files in buckets, %d, does not match total number of files, %d\n" "${bkt_files}" "${tot_files}"
+    printf "Count of files in buckets, %d, does not match total number of files, %d\n" "${bkt_files}" "${tot_files}"
 fi
 
 declare -A lb=(
