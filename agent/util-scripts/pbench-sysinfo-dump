@@ -123,7 +123,7 @@ function collect_sos {
 	for mod in ${_modules}; do
 		printf -- " -o %s" "${mod}" >> ${_cmd}
 	done
-	printf -- "--batch%s --tmp-dir=\"%s\" --name \"%s\"" "${_quiet}" "${dir}" "${_name}" >> ${_cmd}
+	printf -- " --batch%s --tmp-dir=\"%s\" --name \"%s\"\n" "${_quiet}" "${dir}" "${_name}" >> ${_cmd}
 	chmod +x ${_cmd}
 
 	debug_log "[${script_name}]collecting sosreport"
