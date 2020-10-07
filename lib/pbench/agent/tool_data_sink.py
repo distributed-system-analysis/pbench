@@ -98,18 +98,25 @@ class DataSinkWsgiServer(ServerAdapter):
 
         self.options["handler_class"] = DataSinkWsgiRequestHandler
         self._server = None
+        self._lock = Lock()
+        self._cv = Condition(lock=self._lock)
         self._logger = logger
 
     def run(self, app):
         assert self._server is None, "'run' method called twice"
         self._logger.debug("Making tool data sink WSGI server ...")
-        self._server = make_server(self.host, self.port, app, **self.options)
+        server = make_server(self.host, self.port, app, **self.options)
+        with self._lock:
+            self._server = server
+            self._cv.notify()
         self._logger.debug("Running tool data sink WSGI server ...")
         self._server.serve_forever()
 
     def stop(self):
-        if self._server is not None:
-            self._server.shutdown()
+        with self._lock:
+            while self._server is None:
+                self._cv.wait()
+        self._server.shutdown()
 
 
 class BaseCollector:
