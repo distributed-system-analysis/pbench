@@ -34,14 +34,14 @@ for dir in dir0 dir1 dir2; do
 done
 
 find -L ${ARCHIVE} \
-       \( -type f                              -size -${MEDIUM}c -fprintf small.lis  "%s %p\n" \) \
-    -o \( -type f -size +$(( ${MEDIUM} - 1 ))c -size -${LARGE}c  -fprintf medium.lis "%s %p\n" \) \
-    -o \( -type f -size +$(( ${LARGE}  - 1 ))c -size -${HUGE}c   -fprintf large.lis  "%s %p\n" \) \
-    -o \( -type f -size +$(( ${HUGE}   - 1 ))c                   -fprintf huge.lis   "%s %p\n" \) \
+       \( -type f                              -size -${MEDIUM}c -fprintf ${_testtmp}/small.lis  "%s %p\n" \) \
+    -o \( -type f -size +$(( ${MEDIUM} - 1 ))c -size -${LARGE}c  -fprintf ${_testtmp}/medium.lis "%s %p\n" \) \
+    -o \( -type f -size +$(( ${LARGE}  - 1 ))c -size -${HUGE}c   -fprintf ${_testtmp}/large.lis  "%s %p\n" \) \
+    -o \( -type f -size +$(( ${HUGE}   - 1 ))c                   -fprintf ${_testtmp}/huge.lis   "%s %p\n" \) \
     2>/dev/null
 
 tot_files=$(find ${ARCHIVE} -type f | wc -l)
-bkt_files=$(cat *.lis | wc -l)
+bkt_files=$(cat ${_testtmp}/*.lis | wc -l)
 
 if [[ "${bkt_files}" != "${tot_files}" ]]; then
     printf "Count of files in buckets, %d, does not match total number of files, %d\n" "${bkt_files}" "${tot_files}"
@@ -61,6 +61,7 @@ declare -A ub=(
     )
 for bucket in small medium large huge; do
     printf "\nBucket: %s -- %s <= size < %s\n" "${bucket}" "${lb[${bucket}]}" "${ub[${bucket}]}"
-    sort ${bucket}.lis
-    rm -f ${bucket}.lis
+    sort ${_testtmp}/${bucket}.lis
 done
+
+rm -f ${_testtmp}/*.lis
