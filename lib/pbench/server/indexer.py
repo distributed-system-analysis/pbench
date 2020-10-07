@@ -1560,7 +1560,7 @@ class ResultData(PbenchData):
             # FIXME: this is a "traffigen" specific field; we take care of
             # this here because we don't have a mechanism for source-data-
             # specific transformations external to the code.
-            bm_md["uid_tmpl"] = bm_md["trafficgen_uid"]
+            bm_md["trafficgen_uid_tmpl"] = bm_md["trafficgen_uid"]
         except KeyError:
             # Ignore a missing 'trafficgen_uid' field
             pass
@@ -1568,8 +1568,8 @@ class ResultData(PbenchData):
             # Now that we have a proper "template" field, generate the actual
             # UID from the template using the existing metadata we have
             # collected.
-            bm_md["uid"] = ResultData.expand_template(
-                bm_md["uid_tmpl"], bm_md, run=self.run_metadata
+            bm_md["trafficgen_uid"] = ResultData.expand_template(
+                bm_md["trafficgen_uid_tmpl"], bm_md, run=self.run_metadata
             )
 
         iteration = _dict_const(
