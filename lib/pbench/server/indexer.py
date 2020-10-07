@@ -4,7 +4,6 @@ result tar balls.
 
 import copy
 import csv
-import glob
 import hashlib
 import json
 import logging
@@ -1327,10 +1326,10 @@ class ResultData(PbenchData):
         """
         result_json = Path(
             self.ptb.extracted_root, self.ptb.dirname, "result.json"
-        ).resolve(strict=True)
+        )
         try:
             # Read the file and interpret it as a JSON document.
-            with open(result_json) as fp:
+            with result_json.open() as fp:
                 results = json.load(fp)
         except Exception as e:
             self.logger.warning(
