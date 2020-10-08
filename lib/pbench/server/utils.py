@@ -35,23 +35,21 @@ def filesize_bytes(size):
     try:
         parts = size.split(" ", 1)
         if len(parts) == 1:
-            if size.isdigit():
+            try:
                 num = int(size)
-                unit = 0
-            else:
+            except ValueError:
                 for i, c in enumerate(size):
                     if not c.isdigit():
                         break
                 num = int(size[:i])
                 unit = size[i:]
+            else:
+                unit = ""
         else:
             num = int(parts[0])
             unit = parts[1].strip()
 
-        if unit:
-            idx = size_name.index(unit.upper())
-        else:
-            idx = 0
+        idx = size_name.index(unit.upper()) if unit else 0
         factor = 1024 ** idx
     except Exception as exc:
         raise Exception("Invalid file size value encountered, '%s': %s", size, exc)
