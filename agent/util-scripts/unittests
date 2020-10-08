@@ -369,6 +369,8 @@ declare -A tools=(
     [test-60]="pbench-send-tools"
     [test-61]="pbench-init-tools"
     [test-62]="pbench-end-tools"
+    [test-63]="pbench-clear-results"
+    [test-64]="pbench-cleanup"
 )
 
 declare -A options=(
@@ -468,6 +470,7 @@ declare -A expected_status=(
     [test-58]=1
     [test-59]=1
     [test-60]=1
+    [test-64]=1
 )
 
 declare -A pre_hooks=(
