@@ -165,6 +165,7 @@ if [ $stress ]; then
 fi
 sample="sample1"
 count=1
+pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	benchmark_cmd="cyclictest -m -n -q -p99 -h60 -D $runtime"
 	iteration="${count}-runtime_${runtime}"
@@ -191,6 +192,7 @@ for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	printf "%20s%20s%20s%20s\n" "$iteration" "$min" "$avg" "$max" >>$benchmark_summary_txt_file
 	let count=$count+1
 done
+pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
 if [ $stress ]; then
 	kill $stress_pid
 fi

@@ -340,6 +340,7 @@ pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 trap "interrupt" INT QUIT TERM
 
+pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 	if [ $count -ge $start_iteration_num ]; then
 		iteration="${count}-${thread_count}thread"
@@ -548,6 +549,7 @@ for thread_count in `echo $thread_counts | sed -e s/,/" "/g`; do
 	fi
 	let count=$count+1 # now we can move to the next iteration
 done
+pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
 
 printf -- "</pre>\n" >>$benchmark_summary_html_file
 

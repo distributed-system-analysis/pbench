@@ -889,12 +889,14 @@ fi
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 trap "interrupt" INT QUIT TERM
+pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 fio_run_benchmark
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
 $benchmark_run_dir/generate-benchmark-summary.cmd
 
+pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 
 # Stop the tool meisters on each registered local/remote host

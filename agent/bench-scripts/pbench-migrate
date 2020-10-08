@@ -360,6 +360,7 @@ fi
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 trap "interrupt" INT QUIT TERM
+pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 count=1
 for i in `seq 1 $loops`; do
@@ -414,6 +415,7 @@ for postprocess_dir in $postprocess_dirs; do
 done
 wait
 
+pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 
 # Stop the tool meisters on each registered local/remote host
