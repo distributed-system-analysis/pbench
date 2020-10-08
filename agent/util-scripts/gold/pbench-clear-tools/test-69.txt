@@ -16,9 +16,9 @@ Removed "pidstat" from host, "fubar7.example.com", in tools group, "default"
 --interval: 42
 --- pbench tree state
 +++ pbench.log file contents
-[info][1900-01-01T00:00:00.000000] Removed "pidstat" from host, "fubar5.example.com", in tools group, "default"
-[info][1900-01-01T00:00:00.000000] All tools removed from host, "fubar5.example.com"
-[info][1900-01-01T00:00:00.000000] Removed "pidstat" from host, "fubar6.example.com", in tools group, "default"
-[info][1900-01-01T00:00:00.000000] All tools removed from host, "fubar6.example.com"
-[info][1900-01-01T00:00:00.000000] Removed "pidstat" from host, "fubar7.example.com", in tools group, "default"
+[INFO][1900-01-01T00:00:00.000000] Removed "pidstat" from host, "fubar5.example.com", in tools group, "default"
+[INFO][1900-01-01T00:00:00.000000] All tools removed from host, "fubar5.example.com"
+[INFO][1900-01-01T00:00:00.000000] Removed "pidstat" from host, "fubar6.example.com", in tools group, "default"
+[INFO][1900-01-01T00:00:00.000000] All tools removed from host, "fubar6.example.com"
+[INFO][1900-01-01T00:00:00.000000] Removed "pidstat" from host, "fubar7.example.com", in tools group, "default"
 --- pbench.log file contents
