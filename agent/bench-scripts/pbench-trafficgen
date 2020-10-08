@@ -1011,6 +1011,7 @@ pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 trap "interrupt" INT QUIT TERM
 
 if [ "${postprocess_only}" == "n" ]; then
+        pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
 		if [ $skip_trex_server == "n" ]; then
 			cp ${pbench_tmp}/trex_cfg.yaml ${benchmark_run_dir}
@@ -1293,6 +1294,7 @@ if [ $rc -eq 0 ]; then
 fi
 
 if [ "${postprocess_only}" == "n" ]; then
+        pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
 	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
 		if [ $skip_trex_server == "n" ]; then
 			kill_trex

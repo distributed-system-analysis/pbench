@@ -280,6 +280,7 @@ fi
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 trap "interrupt" INT QUIT TERM
+pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 # edit the jbb properties file to match user's options
 > ${benchmark_run_dir}/SPECjbb.props.sed
@@ -388,7 +389,7 @@ for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 done
 
 popd > /dev/null 2>&1
-
+pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 
 # Stop the tool meisters on each registered local/remote host

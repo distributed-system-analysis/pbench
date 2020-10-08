@@ -451,6 +451,7 @@ fi
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 trap "interrupt" INT QUIT TERM
+pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 # start the server processes
 count=1
@@ -637,7 +638,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	done
 done
 printf -- "</pre>\n" >>$benchmark_summary_html_file
-
+pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 
 # Stop the tool meisters on each registered local/remote host
