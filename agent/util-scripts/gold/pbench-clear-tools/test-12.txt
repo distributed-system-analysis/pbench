@@ -10,7 +10,7 @@ All tools removed from host, "testhost.example.com"
 /var/tmp/pbench-test-utils/pbench/tools-v1-default
 --- pbench tree state
 +++ pbench.log file contents
-[info][1900-01-01T00:00:00.000000] All tools removed from host, "fubar"
-[info][1900-01-01T00:00:00.000000] Removed "mpstat" from host, "testhost.example.com", in tools group, "default"
-[info][1900-01-01T00:00:00.000000] All tools removed from host, "testhost.example.com"
+[INFO][1900-01-01T00:00:00.000000] All tools removed from host, "fubar"
+[INFO][1900-01-01T00:00:00.000000] Removed "mpstat" from host, "testhost.example.com", in tools group, "default"
+[INFO][1900-01-01T00:00:00.000000] All tools removed from host, "testhost.example.com"
 --- pbench.log file contents

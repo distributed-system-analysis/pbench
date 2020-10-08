@@ -7,7 +7,7 @@ import sys
 
 import click
 
-from pbench.agent import PbenchAgentConfig, fs
+from pbench.agent import PbenchAgentConfig
 
 
 class BaseCommand(metaclass=abc.ABCMeta):
@@ -17,10 +17,9 @@ class BaseCommand(metaclass=abc.ABCMeta):
         self.context = context
 
         self.config = PbenchAgentConfig(self.context.config)
+        self.name = os.path.basename(sys.argv[0])
 
-        self.pbench_run = self.get_path(os.environ.get("pbench_run", None))
-        if self.pbench_run is None:
-            self.pbench_run = self.config.pbench_run
+        self.pbench_run = self.config.pbench_run
         if not self.pbench_run.exists():
             click.secho(
                 f"[ERROR] the provided pbench run directory, {self.pbench_run}, does not exist"
@@ -30,22 +29,21 @@ class BaseCommand(metaclass=abc.ABCMeta):
         # the pbench temporary directory is always relative to the $pbench_run
         # directory
         self.pbench_tmp = self.pbench_run / "tmp"
-        try:
-            fs.safe_mkdir(self.pbench_tmp)
-        except Exception:
-            click.secho(f"[ERROR] unable to create TMP dir, {self.pbench_tmp}")
-            sys.exit(1)
+        if not self.pbench_tmp.exists():
+            try:
+                os.makedirs(self.pbench_tmp)
+            except OSError:
+                click.secho(f"[ERROR] unable to create TMP dir, {self.pbench_tmp}")
+                sys.exit(1)
 
         # log file - N.B. not a directory
-        self.pbench_log = self.get_path(os.environ.get("pbench_log", None))
+        self.pbench_log = self.config.pbench_log
         if self.pbench_log is None:
-            self.pbench_log = self.config.pbench_log
+            self.pbench_log = self.pbench_run / "pbench.log"
 
-        self.pbench_install_dir = self.get_path(
-            os.environ.get("pbench_install_dir", None)
-        )
+        self.pbench_install_dir = self.config.pbench_install_dir
         if self.pbench_install_dir is None:
-            self.pbench_install_dir = self.config.pbench_install_dir
+            self.pbench_install_dir = "/opt/pbench-agent"
         if not self.pbench_install_dir.exists():
             click.secho(
                 f"[ERROR] pbench installation directory, {self.pbench_install_dir}, does not exist"
@@ -104,3 +102,15 @@ class BaseCommand(metaclass=abc.ABCMeta):
             return pathlib.Path(path)
         else:
             return path
+
+    def verify_tool_group(self, group):
+        """Ensure we have a tools group directory to work with"""
+        self.tool_group_dir = self.pbench_run / f"tools-v1-{group}"
+        if not self.tool_group_dir.exists():
+            click.secho(
+                f'\t{self.name}: invalid --group option ("{group}"), directory not found: {self.tool_group_dir}'
+            )
+            ctxt = click.get_current_context()
+            click.echo(ctxt.get_help())
+            return 1
+        return 0

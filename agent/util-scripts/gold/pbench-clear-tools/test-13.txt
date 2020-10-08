@@ -15,5 +15,5 @@ All tools removed from host, "fubar2"
 --interval: 34
 --- pbench tree state
 +++ pbench.log file contents
-[info][1900-01-01T00:00:00.000000] All tools removed from host, "fubar2"
+[INFO][1900-01-01T00:00:00.000000] All tools removed from host, "fubar2"
 --- pbench.log file contents
