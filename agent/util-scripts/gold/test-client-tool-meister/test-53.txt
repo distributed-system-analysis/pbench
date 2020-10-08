@@ -129,7 +129,7 @@ INFO pbench-tool-meister main -- Remove pid file ... (tm-default-testhost.exampl
 --- mock-run/tm/tm-default-testhost.example.com.out file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x iostat
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x iostat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat
 --- test-execution.log file contents
