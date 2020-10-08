@@ -26,7 +26,6 @@ util-scripts = \
 	 pbench-agent-config-activate \
 	 pbench-agent-config-ssh-key \
 	 pbench-avg-stddev \
-	 pbench-cleanup \
 	 pbench-clear-results \
 	 pbench-clear-tools \
 	 pbench-collect-sysinfo \
