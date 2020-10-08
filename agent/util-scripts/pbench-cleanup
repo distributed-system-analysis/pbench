@@ -1,12 +1,13 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-script_path=`dirname $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
-if [ -d "$pbench_run" ]; then
-	log "Cleaning up $pbench_run"
-	pushd "$pbench_run" && rm -rf * && popd
-fi
+warn_log "${script_name} deprecated, will be removed in future release in favor of pbench-clear-results"
+
+exec ${script_path}/pbench-clear-results

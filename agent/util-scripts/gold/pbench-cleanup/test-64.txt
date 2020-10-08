@@ -1,0 +1,15 @@
++++ Running test-64 pbench-cleanup 
+[warn][1900-01-01T00:00:00.000000] pbench-cleanup deprecated, will be removed in future release in favor of pbench-clear-results
+--- Finished test-64 pbench-cleanup (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tmp/leave-me
+/var/tmp/pbench-test-utils/pbench/tmp/leave-me/alone
+/var/tmp/pbench-test-utils/pbench/tools-v1-default
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat:
+--interval=3
+=== /var/tmp/pbench-test-utils/pbench/tmp/leave-me/alone:
+--- pbench tree state

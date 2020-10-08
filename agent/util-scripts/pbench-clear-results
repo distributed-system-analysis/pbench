@@ -1,13 +1,25 @@
 #!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
-script_path=`dirname $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
 
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
-if [ -d "$pbench_run" ]; then
-	pushd $pbench_run >/dev/null
-	/bin/rm -rf -- `/bin/ls | grep -v "^tmp" | grep -v "^tools"`
-	popd >/dev/null
+pushd ${pbench_run} >/dev/null
+if [[ ${?} -ne 0 ]]; then
+	warn_log "Unable to cleanup the '${pbench_run}' directory"
+	exit 1
 fi
+
+cleanup_list="$(/bin/ls -1 | grep -v "^tmp" | grep -v "^tools")"
+for entry in ${cleanup_list}; do
+	# NOTE WELL: even though we have `pushd` into the run directory
+	# itself, we remove each entry explicitly using the full ${pbench_run}
+	# path just in case some bug inadvertently places us in the wrong
+	# diretory.
+	rm -rf ${pbench_run}/${entry}
+done
+exit 0
