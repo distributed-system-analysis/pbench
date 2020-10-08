@@ -10,8 +10,8 @@ umask 0002
 unset _PBENCH_SERVER_CONFIG
 
 # Ensure we always use the same locale for the unit tests.
-export LANG=C
-export LC_ALL=C
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
 
 export _tdir=$(dirname $(readlink -f $0))
 export _gitdir=$(dirname $(dirname $_tdir))
