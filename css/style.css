@@ -251,8 +251,6 @@ p.quickLink{
 
 .cardBody{
   font-family: Work Sans;
-  min-height: 220px;
-  padding: var( --pf-global--spacer--xl );
   position: relative;
 }
 
@@ -279,7 +277,6 @@ p.quickLink{
 
 .imageDiv{
   border-bottom: 3px solid #1bc1c9;
-  height: 200px;
   background-position: center;
   background-size: cover;
   color: white;

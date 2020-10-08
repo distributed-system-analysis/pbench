@@ -48,6 +48,7 @@ li.PbenchQueItem::after {
   box-shadow: var(--pf-global--BoxShadow--md-bottom);
   margin: var( --pf-global--spacer--xl ) 0 var( --pf-global--spacer--xl ) 0;
   max-width: 1440px;
+  width: 100%;
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -116,6 +117,12 @@ li.PbenchQueItem::after {
 
 #startBtn{
   margin-right: 22px;
+}
+
+button#agentBtn,button#serverBtn, button#dashboardBtn {
+  background-color: transparent;
+  border: 2px solid white;
+  font-size: 18px;
 }
 
 button.pf-c-button.pf-m-link{
@@ -230,4 +237,8 @@ button.pf-c-button.pf-m-link{
   .recentMeetSubCard{
     flex-basis: 100%;
   }
+}
+
+.addPadding1, .addPadding2, .addPadding3{
+  padding: var( --pf-global--spacer--xl );
 }
