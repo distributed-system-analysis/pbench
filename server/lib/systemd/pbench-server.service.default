@@ -12,6 +12,7 @@ After=network.target httpd.service
 Type = simple
 PIDFile = /run/pbench-server/gunicorn.pid
 ExecStartPre = /bin/mkdir /run/pbench-server
+ExecStartPre = /bin/chown pbench:pbench /run/pbench-server
 ExecStart = /opt/pbench-server/bin/pbench-server
 ExecStop = /bin/kill -s TERM $MAINPID
 ExecStopPost = /bin/rm -rf /run/pbench-server
