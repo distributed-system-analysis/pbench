@@ -10,6 +10,7 @@ import hashlib
 from pathlib import Path
 import requests
 import humanize
+import tempfile
 
 from flask import request, jsonify, Flask, make_response
 from flask_restful import Resource, abort, Api
@@ -39,7 +40,9 @@ def register_endpoints(api, app):
     """Register flask endpoints with the corresponding resource classes
     to make the APIs active."""
 
-    api.add_resource(Upload, f"{app.config['REST_URI']}/upload")
+    api.add_resource(
+        Upload, f"{app.config['REST_URI']}/upload/ctrl/<string:controller>"
+    )
     api.add_resource(HostInfo, f"{app.config['REST_URI']}/host_info")
     api.add_resource(Elasticsearch, f"{app.config['REST_URI']}/elasticsearch")
     api.add_resource(GraphQL, f"{app.config['REST_URI']}/graphql")
@@ -273,7 +276,7 @@ class HostInfo(Resource):
 
 
 class Upload(Resource):
-    def post(self):
+    def put(self, controller):
         global app
         if not request.headers.get("filename"):
             app.logger.debug(
@@ -285,7 +288,7 @@ class Upload(Resource):
             )
         filename = secure_filename(request.headers.get("filename"))
 
-        if not request.headers.get("md5sum"):
+        if not request.headers.get("Content-MD5"):
             app.logger.debug(
                 f"Tarfile upload: Post operation failed due to missing md5sum header for file {filename}"
             )
@@ -293,7 +296,7 @@ class Upload(Resource):
                 400,
                 message="Missing md5sum header, POST operation requires md5sum of an uploaded file in header",
             )
-        md5sum = request.headers.get("md5sum")
+        md5sum = request.headers.get("Content-MD5")
 
         app.logger.debug("Receiving file: {}", filename)
         if not allowed_file(filename):
@@ -333,53 +336,84 @@ class Upload(Resource):
                     message="Upload failed, Content-Length received in header is 0",
                 )
 
-        full_path = app.upload_directory / filename
+        path = Path(app.upload_directory, controller)
+        path.mkdir(exist_ok=True)
+        tar_full_path = Path(path, filename)
+        md5_full_path = Path(path, f"{filename}.md5")
         bytes_received = 0
 
-        try:
-            with open(full_path, "wb") as f:
-                chunk_size = 4096
-                app.logger.debug("Writing chunks")
-                hash_md5 = hashlib.md5()
+        with tempfile.NamedTemporaryFile(mode="wb", dir=path) as ofp:
+            chunk_size = 4096
+            app.logger.debug("Writing chunks")
+            hash_md5 = hashlib.md5()
 
+            try:
                 while True:
                     chunk = request.stream.read(chunk_size)
                     bytes_received += len(chunk)
                     if len(chunk) == 0 or bytes_received > content_length:
                         break
 
-                    f.write(chunk)
+                    ofp.write(chunk)
                     hash_md5.update(chunk)
-        except Exception:
-            app.logger.exception(
-                "Tarfile upload: There was something wrong uploading {}", filename
-            )
-            abort(500, message=f"There was something wrong uploading {filename}")
-
-        message = None
-        if bytes_received != content_length:
-            app.logger.debug(
-                f"Tarfile upload: Bytes received does not match with content length header value for file {filename}"
-            )
-            message = (
-                f"Bytes received ({bytes_received}) does not match with content length header"
-                f" ({content_length}), upload failed"
-            )
-
-        elif hash_md5.hexdigest() != md5sum:
-            app.logger.debug(f"Tarfile upload: md5sum check failed for file {filename}")
-            message = f"md5sum check failed for {filename}, upload failed"
-
-        if message:
-            try:
-                os.remove(full_path)
-            except Exception as exc:
-                app.logger.warning(
-                    "Failed to remove compressed %s when trying to clean up: %s",
-                    full_path,
-                    exc,
+            except Exception:
+                app.logger.exception(
+                    "Tarfile upload: There was something wrong uploading {}", filename
                 )
-            abort(400, message=message)
+                abort(500, message=f"There was something wrong uploading {filename}")
+
+            if bytes_received != content_length:
+                app.logger.debug(
+                    f"Tarfile upload: Bytes received does not match with content length header value for file {filename}"
+                )
+                message = (
+                    f"Bytes received ({bytes_received}) does not match with content length header"
+                    f" ({content_length}), upload failed"
+                )
+                abort(400, message=message)
+
+            elif hash_md5.hexdigest() != md5sum:
+                app.logger.debug(
+                    f"Tarfile upload: md5sum check failed for file {filename}"
+                )
+                message = f"md5sum check failed for {filename}, upload failed"
+                abort(400, message=message)
+
+            # First write the .md5
+            try:
+                with md5_full_path.open("w") as md5fp:
+                    md5fp.write(f"{md5sum} {filename}\n")
+            except Exception:
+                try:
+                    os.remove(md5_full_path)
+                except FileNotFoundError:
+                    pass
+                except Exception as exc:
+                    self.logger.warning(
+                        "Failed to remove .md5 %s when trying to clean up: %s",
+                        md5_full_path,
+                        exc,
+                    )
+                self.logger.exception("Failed to write .md5 file, '%s'", md5_full_path)
+                raise
+
+            # Then create the final filename link to the temporary file.
+            try:
+                os.link(ofp.name, tar_full_path)
+            except Exception:
+                try:
+                    os.remove(md5_full_path)
+                except Exception as exc:
+                    self.logger.warning(
+                        "Failed to remove .md5 %s when trying to clean up: %s",
+                        md5_full_path,
+                        exc,
+                    )
+                self.logger.exception(
+                    "Failed to rename tar ball '%s' to '%s'", ofp.name, md5_full_path,
+                )
+                raise
+
         response = jsonify(dict(message="File successfully uploaded"))
         response.status_code = 201
         return response

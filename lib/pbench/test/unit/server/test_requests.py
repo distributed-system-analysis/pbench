@@ -1,6 +1,7 @@
 import os
 
 import pytest
+import socket
 from werkzeug.utils import secure_filename
 from pathlib import Path
 
@@ -68,15 +69,18 @@ class TestUpload:
             "Missing filename header, "
             "POST operation requires a filename header to name the uploaded file"
         )
-        response = client.post(f"{client.config['REST_URI']}/upload")
+        response = client.put(
+            f"{client.config['REST_URI']}/upload/ctrl/{socket.gethostname()}"
+        )
         assert response.status_code == 400
         assert response.json.get("message") == expected_message
 
     @staticmethod
     def test_missing_md5sum_header_upload(client):
         expected_message = "Missing md5sum header, POST operation requires md5sum of an uploaded file in header"
-        response = client.post(
-            f"{client.config['REST_URI']}/upload", headers={"filename": "f.tar.xz"}
+        response = client.put(
+            f"{client.config['REST_URI']}/upload/ctrl/{socket.gethostname()}",
+            headers={"filename": "f.tar.xz"},
         )
         assert response.status_code == 400
         assert response.json.get("message") == expected_message
@@ -85,9 +89,9 @@ class TestUpload:
     @pytest.mark.parametrize("bad_extension", ("test.tar.bad", "test.tar", "test.tar."))
     def test_bad_extension_upload(client, bad_extension):
         expected_message = "File extension not supported. Only .xz"
-        response = client.post(
-            f"{client.config['REST_URI']}/upload",
-            headers={"filename": bad_extension, "md5sum": "md5sum"},
+        response = client.put(
+            f"{client.config['REST_URI']}/upload/ctrl/{socket.gethostname()}",
+            headers={"filename": bad_extension, "Content-MD5": "md5sum"},
         )
         assert response.status_code == 400
         assert response.json.get("message") == expected_message
@@ -100,12 +104,12 @@ class TestUpload:
         Path(tmp_d, filename).touch()
 
         with open(Path(tmp_d, filename), "rb") as data_fp:
-            response = client.post(
-                f"{client.config['REST_URI']}/upload",
+            response = client.put(
+                f"{client.config['REST_URI']}/upload/ctrl/{socket.gethostname()}",
                 data=data_fp,
                 headers={
                     "filename": "log.tar.xz",
-                    "md5sum": "d41d8cd98f00b204e9800998ecf8427e",
+                    "Content-MD5": "d41d8cd98f00b204e9800998ecf8427e",
                 },
             )
         assert response.status_code == 400
@@ -120,10 +124,10 @@ class TestUpload:
             md5sum = md5sum_check.read()
 
         with open(datafile, "rb") as data_fp:
-            response = client.post(
-                f"{client.config['REST_URI']}/upload",
+            response = client.put(
+                f"{client.config['REST_URI']}/upload/ctrl/{socket.gethostname()}",
                 data=data_fp,
-                headers={"filename": filename, "md5sum": md5sum},
+                headers={"filename": filename, "Content-MD5": md5sum},
             )
 
         assert response.status_code == 201, repr(response)
