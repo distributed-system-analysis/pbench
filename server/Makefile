@@ -1,6 +1,8 @@
+# DESTDIR *must* be overwritten from the command line
+DESTDIR=/dev/null
+
 # settings - hardwired, but they could be set from the config file or
 # from the command line.
-DESTDIR=/opt/pbench-server
 OWNER=pbench
 GROUP=pbench
 
@@ -11,6 +13,7 @@ LIBDIR=${DESTDIR}/lib
 # commands used below
 COPY    = cp -a
 CHOWN   = chown -R ${OWNER}.${GROUP}
+LINK	= ln -s
 INSTALL = install
 #INSTALLOPTS = --mode 755 --directory --owner=${OWNER} --group=${GROUP}
 INSTALLOPTS = --directory
@@ -63,16 +66,15 @@ setupfiles = \
 # targets
 .PHONY: install \
 	install-dirs \
-	install-bin install-binbase install-bintools install-binscripts \
+	install-bin install-binbase install-bintools install-binlinks \
 	install-lib \
 	install-server-lib \
-	install-makefile \
 	install-pbench-scripts \
 	install-build-artifacts
 
 install-all: install install-server-lib
 
-install: install-dirs install-bin install-lib install-makefile install-pbench-scripts
+install: install-dirs install-bin install-lib install-pbench-scripts
 	${COPY} VERSION ${DESTDIR}
 
 install-dirs:
@@ -81,8 +83,12 @@ install-dirs:
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/crontab
 	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/pbench
+	${INSTALL} ${INSTALLOPTS} ${LIBDIR}/pbench/cli
 
-install-bin: install-binbase install-bintools install-binscripts
+install-bin: \
+	install-binbase \
+	install-bintools \
+	install-binlinks
 
 install-binbase:
 	for f in ${binbase} ;do \
@@ -94,24 +100,26 @@ install-bintools:
 	    ${COPY} bin/$$f ${BINDIR} \
 	;done
 
-install-binscripts:
-	cd bin; \
+install-binlinks:
 	for f in ${binlinks} ;do \
-	    ${COPY} $$f ${BINDIR}; \
-	    if [ -e $$f.sh ] ;then \
-	        ${COPY} $$f.sh ${BINDIR} \
-	    ;elif [ -e $$f.py ] ;then \
-	        ${COPY} $$f.py ${BINDIR} \
+	    ${LINK} pbench-trampoline ${BINDIR}/$$f \
+	    ;if [ -f bin/$$f.py ] ;then \
+		${COPY} bin/$$f.py ${BINDIR} \
+	    ;elif [ -f bin/$$f.sh ] ;then \
+		${COPY} bin/$$f.sh ${BINDIR}\
+	    ;else \
+		exit 1\
 	    ;fi \
 	;done
 
 install-lib:
 	${COPY} -r lib ${DESTDIR}
+	${RM} ${DESTDIR}/lib/config/nginx.conf.example
 
-# copy enough to be able to run setup again in the destination directory
+# copy only the server-related bits
 install-server-lib:
-	${COPY} -r ../lib/pbench/common ../lib/pbench/__init__.py ../lib/pbench/server ../lib/pbench/cli  ${DESTDIR}/lib/pbench
-	${COPY} ../lib/pbench.egg-info/PKG-INFO ${DESTDIR}
+	${COPY} -r ../lib/pbench/common ../lib/pbench/__init__.py ../lib/pbench/server ${DESTDIR}/lib/pbench
+	${COPY} -r ../lib/pbench/cli/getconf.py ../lib/pbench/cli/__init__.py ../lib/pbench/cli/server ${DESTDIR}/lib/pbench/cli
 	for f in ${setupfiles} ;do \
 	    ${COPY} ../$$f ${DESTDIR} \
 	;done
@@ -123,17 +131,14 @@ install-setup-files:
 	    ${COPY} $$f ${DESTDIR} \
 	;done
 
-install-makefile:
-	${COPY} Makefile ${DESTDIR}
-
 # fix the shebang: rpmbuild does not like unversioned python
 install-pbench-scripts:
-	if [ -f ../bin/pbench-config ] ;then \
-	    sed '1s;.*python$$;#!/usr/bin/env python3;' ../bin/pbench-config > ${DESTDIR}/bin/pbench-config; \
-	    sed '1s;.*python$$;#!/usr/bin/env python3;' ../bin/pbench-server > ${DESTDIR}/bin/pbench-server \
+	if [ -f ${DESTDIR}/../bin/pbench-config ] ;then \
+	    sed '1s;.*python$$;#!/usr/bin/env python3;' ${DESTDIR}/../bin/pbench-config > ${DESTDIR}/bin/pbench-config; \
+	    sed '1s;.*python$$;#!/usr/bin/env python3;' ${DESTDIR}/../bin/pbench-server > ${DESTDIR}/bin/pbench-server \
 	;else \
-	    ${COPY} bin/pbench-config ${BINDIR}; \
-	    ${COPY} bin/pbench-server ${BINDIR} \
+	    ${COPY} ${DESTDIR}/../bin/pbench-config ${BINDIR}; \
+	    ${COPY} ${DESTDIR}/../bin/pbench-server ${BINDIR} \
 	;fi
 
 # SHA1 and SEQNO - these are used when building an RPM only

@@ -14,11 +14,7 @@ VERSION = $(shell cat ${SERVER}/VERSION)
 
 DISTRO = $(shell uname -r | python -c 'import sys; print(sys.stdin.read().split(".")[-2])')
 
-ifeq (${DISTRO},el7)
-PYTHON = scl enable rh-python36 -- python3
-else
 PYTHON = python3
-endif
 
 RPMSRC = ${HOME}/rpmbuild/SOURCES
 RPMSRPM = ${HOME}/rpmbuild/SRPMS
@@ -27,33 +23,24 @@ RPMSPEC = ${HOME}/rpmbuild/SPECS
 prog = pbench-server
 arch = noarch
 
+TBDIR = ${TMPDIR}/${prog}-${VERSION}
+
 USE_GIT_SHA1 = yes
 sha1 = $(shell git rev-parse --short HEAD)
+seqno := $(shell if [ -e ./seqno ] ;then cat ./seqno ;else echo "1" ;fi)
 
-all:
-	echo Version: ${VERSION}
-	echo Prog: ${prog}
-	echo SHA1: ${sha1}
-	echo ${PYTHON}
+rpm:  srpm
+	rpmbuild -bb ${HOME}/rpmbuild/SPECS/${prog}.spec
 
 srpm:	spec patches tarball
 	rm -f ${HOME}/rpmbuild/SRPMS/$(prog)-*.src.rpm
 	rpmbuild -bs ${HOME}/rpmbuild/SPECS/$(prog).spec
 
-rpm:  srpm
-	rpmbuild -bb ${HOME}/rpmbuild/SPECS/${prog}.spec
-
 .PHONY: spec
-spec: ${prog}.spec
-	utils/set-version-release ${VERSION} ${prog}.spec ${sha1} > ${RPMSPEC}/$<
-
-###########################################################################
-# make an SRPM using the upstream bits
-rpm-upstream: all-but-build
-	rm -f ${HOME}/rpmbuild/SRPMS/$(prog)-*.src.rpm
-	rpmbuild -bs ${HOME}/rpmbuild/SPECS/$(prog).spec
-
-all-but-build: ${RPMSPEC}/${prog}.spec patches
+spec: ${prog}.spec.j2
+	mkdir -p ${RPMSPEC} ${RPMSRC}
+	if [ -e ./seqno ] ;then expr ${seqno} + 1 > ./seqno ;fi
+	jinja2 ${prog}.spec.j2 -D version=${VERSION} -D gdist=g${sha1} -D seqno=${seqno} > ${RPMSPEC}/${prog}.spec
 
 .PHONY: patches
 patches:
@@ -61,12 +48,13 @@ patches:
 
 .PHONY: tarball
 tarball:
-	(cd ${PBENCHTOP}; ${PYTHON} setup.py install --prefix=${PBENCHTOP})
-	mkdir -p ${TMPDIR}/${prog}-${VERSION}/server
-	git rev-parse --short HEAD > ${TMPDIR}/${prog}-${VERSION}/server/SHA1
-	if [ ! -f seqno ] ;then echo 1 ;else cat seqno ;fi > ${TMPDIR}/${prog}-${VERSION}/server/SEQNO
-	cd ${PBENCHTOP}/server; make install-all DESTDIR=${TMPDIR}/${prog}-${VERSION}/server
-	cd ${PBENCHTOP}/web-server; make install DESTDIR=${TMPDIR}/${prog}-${VERSION}/web-server
+	mkdir -p ${TBDIR}/server
+	(cd ${PBENCHTOP}; ${PYTHON} setup.py install --prefix=${TBDIR})
+	git rev-parse --short HEAD > ${TBDIR}/server/SHA1
+	if [ ! -f seqno ] ;then echo 1 ;else cat seqno ;fi > ${TBDIR}/server/SEQNO
+	cd ${PBENCHTOP}/server; make install-all DESTDIR=${TBDIR}/server
+	rm -rf ${TBDIR}/bin ${TBDIR}/lib
+	cd ${PBENCHTOP}/web-server; make install DESTDIR=${TBDIR}/web-server
 	tar zcf ${RPMSRC}/pbench-server-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
 	rm -rf ${TMPDIR}
 
@@ -74,7 +62,7 @@ tarball:
 # build RPMs in COPR
 seqno := $(shell if [ -f seqno ] ;then cat seqno ;else echo 1; fi)
 
-include utils/rpm.mk
+include rpm.mk
 
 clean-sha1:
 	rm -f ${upstmtree}/${prog}.SHA1
