@@ -327,7 +327,7 @@ declare -A tools=(
     [test-11.13]="pbench-register-tool-set"
     [test-11.14]="pbench-register-tool-set"
     [test-12]="pbench-clear-tools"
-    [test-13]="pbench-clear-tools" # was 21
+    [test-13]="pbench-clear-tools"
     [test-14]="pbench-agent-config-activate"
     [test-15]="pbench-register-tool-trigger"
     [test-16]="pbench-list-triggers"
@@ -373,6 +373,11 @@ declare -A tools=(
     [test-62]="pbench-end-tools"
     [test-63]="pbench-clear-results"
     [test-64]="pbench-cleanup"
+    [test-65]="pbench-clear-tools"
+    [test-66]="pbench-clear-tools"
+    [test-67]="pbench-clear-tools"
+    [test-68]="pbench-clear-tools"
+    [test-69]="pbench-clear-tools"
 )
 
 declare -A options=(
@@ -449,6 +454,17 @@ declare -A options=(
     [test-60]="--group=default --dir=42-iter/sample42"
     [test-61]="--group=default --dir=${_testdir}/mock-run"
     [test-62]="--group=default --dir=${_testdir}/mock-run"
+    # pbench-clear-tools
+    # Remove all tools from group good, leave default alone
+    [test-65]="--group=good"
+    # Error group does not exist
+    [test-66]="--group=bad"
+    # Remove all tools from 2 remotes, one remote does not exist
+    [test-67]="--remotes=fubar3.example.com,doesnotexist.example.com,fubar4.example.com"
+    # Remove one tool from two remotes, remotes not removed
+    [test-68]="--name=vmstat --remotes=fubar5.example.com,fubar6.example.com"
+    # One tool, one remote w label, one remote w/o label, one remote w 2 tools, 1st two remotes removed
+    [test-69]="--name=pidstat --remotes=fubar5.example.com,fubar6.example.com,fubar7.example.com"
 )
 
 declare -A expected_status=(
@@ -470,6 +486,7 @@ declare -A expected_status=(
     [test-58]=1
     [test-59]=1
     [test-60]=1
+    [test-66]=1
 )
 
 declare -A pre_hooks=(

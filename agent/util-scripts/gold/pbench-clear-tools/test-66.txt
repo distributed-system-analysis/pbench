@@ -1,0 +1,19 @@
++++ Running test-66 pbench-clear-tools --group=bad
+	pbench-clear-tools: invalid --group option ("bad"), directory not found: /var/tmp/pbench-test-utils/pbench/tools-v1-bad
+
+usage:
+pbench-clear-tools --name=<tool-name> [--group=<group-name>] [--remotes=<remote-host>[,<remote-host>]]
+
+The following options are available:
+	-g str --group=str, str = the group from which tools should be removed
+		(the default group is 'default')
+	-n str --name=str, str = a specific tool to be removed.
+		If no tool is specified, all tools in the group are removed
+	-r str --remote=str, str = a specific remote on which tools needs to be cleared.
+		If no remote is specified, all the tools on all remotes are removed
+
+--- Finished test-66 pbench-clear-tools (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state

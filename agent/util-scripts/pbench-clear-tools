@@ -104,6 +104,11 @@ function clear_tool() {
 	local remote=${2}
 	local tpath=${tools_group_dir}/${remote}/${tname}
 
+	if [[ ! -e ${tpath} ]]; then
+		debug_log "Tool \"${tname}\" not registered for remote \"${remote}\""
+		return 0
+	fi
+
 	/bin/rm ${tpath}
 	local rc=${?}
 	if [[ ${rc} == 0 && -e ${tpath}.__noinstall__ ]]; then
@@ -152,6 +157,7 @@ for remote in ${remotes[@]}; do
 			(( nerrs++ ))
 		fi
 	done
+	unset names
 	tools_files=$(/bin/ls ${tools_group_dir}/${remote})
 	if [[ "${tools_files}" == "__label__" ]]; then
 		/bin/rm ${tools_group_dir}/${remote}/__label__
