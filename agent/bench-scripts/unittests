@@ -182,20 +182,21 @@ function _verify_output {
         mv ${_testout}.1 ${_testroot}/${tname}_output.txt
         sts=1
     else
-        if [[ ${sts} -eq 0 ]]; then
-            echo "PASS - ${tname}"
-            rm ${_testout} ${_testout}.1
-        else
-            if [[ ${sts} -eq ${expected_status} ]]; then
+        if [[ ${sts} -eq ${expected_status} ]]; then
+            if [[ ${expected_status} -ne 0 ]]; then
                 echo "PASS - ${tname} exited with expected status: ${sts}"
-                rm ${_testout} ${_testout}.1
+                rm ${_testout}.1
                 sts=0
             else
-                echo "FAIL - ${tname}: PASS output but execution returned non-zero exit status"
-                rm ${_testout}
-                mv ${_testout}.1 ${_testroot}/${tname}_output.txt
+                echo "PASS - ${tname}"
+                rm ${_testout}.1
             fi
+        else
+            echo "FAIL - ${tname}: PASS output but execution returned unexpected exit status: ${sts}"
+            mv ${_testout}.1 ${_testroot}/${tname}_output.txt
+            sts=1
         fi
+        rm ${_testout}
     fi
     return ${sts}
 }
