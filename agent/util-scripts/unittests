@@ -218,16 +218,18 @@ function _verify_output {
         mv ${_testout} ${_testroot}/${tname}_output.txt
         sts=1
     else
-        if [[ ${sts} -eq 0 ]]; then
-            echo "PASS - ${tname}"
-            rm ${_testout}
-        elif [[ ${sts} -eq ${expected_status} ]]; then
-            echo "PASS - ${tname} exited with expected status: ${sts}"
-            rm ${_testout}
-            sts=0
+        if [[ ${sts} -eq ${expected_status} ]]; then
+            if [[ ${expected_status} -ne 0 ]]; then
+                echo "PASS - ${tname} exited with expected status: ${sts}"
+                sts=0
+            else
+                echo "PASS - ${tname}"
+            fi
         else
-            echo "FAIL - ${tname}: PASS output but execution returned non-zero exit status"
+            echo "FAIL - ${tname}: PASS output but execution returned unexpected exit status: ${sts}"
+            sts=1
         fi
+        rm ${_testout}
     fi
     return ${sts}
 }
@@ -453,11 +455,9 @@ declare -A expected_status=(
     [test-01]=1
     [test-09]=1
     [test-10]=1
-    [test-11.00]=4
     [test-11.07]=1
     [test-11.08]=1
     [test-11.11]=1
-    [test-12]=1
     [test-29]=1
     [test-35]=1
     [test-36]=1
@@ -470,7 +470,6 @@ declare -A expected_status=(
     [test-58]=1
     [test-59]=1
     [test-60]=1
-    [test-64]=1
 )
 
 declare -A pre_hooks=(
