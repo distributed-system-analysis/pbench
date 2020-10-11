@@ -131,10 +131,10 @@ for remote in ${remotes[@]}; do
 
 	declare -A names
 	if [[ -n ${name} ]]; then
-		# Use the given tool name from the command line
+		# Use the given tool name from the command line.
 		names[0]=${name}
 	else
-		# Discovery all the tools registered for this remote
+		# Discover all the tools registered for this remote.
 		typeset -i idx=0
 		for _name in $(/bin/ls ${tools_group_dir}/${remote}); do
 			if [[ "${_name}" =~ .+\.__noinstall__ || "${_name}" == "__label__" ]]; then
