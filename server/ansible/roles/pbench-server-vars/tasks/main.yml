@@ -5,7 +5,7 @@
 
 # pbench install directory
 - name: fetch the pbench install directory from remote
-  shell: "{{ scl }} pbench-config install-dir pbench-server"
+  shell: "pbench-config install-dir pbench-server"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
@@ -25,7 +25,7 @@
 
 # pbench top level directory
 - name: fetch the top-level pbench directory from remote
-  shell: "{{ scl }} pbench-config pbench-top-dir pbench-server"
+  shell: "pbench-config pbench-top-dir pbench-server"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
@@ -41,7 +41,7 @@
 
 # pbench logs dir
 - name: fetch the logs directory
-  shell: "{{ scl }} pbench-config pbench-logs-dir pbench-server"
+  shell: "pbench-config pbench-logs-dir pbench-server"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
@@ -57,7 +57,7 @@
 
 # pbench tmp dir
 - name: fetch the tmp directory
-  shell: "{{ scl }} pbench-config pbench-tmp-dir pbench-server"
+  shell: "pbench-config pbench-tmp-dir pbench-server"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
@@ -73,7 +73,7 @@
 
 # pbench quarantine dir
 - name: fetch the quarantine directory
-  shell: "{{ scl }} pbench-config pbench-quarantine-dir pbench-server"
+  shell: "pbench-config pbench-quarantine-dir pbench-server"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
@@ -89,7 +89,7 @@
 
 # pbench hostinfo prefix
 - name: fetch the host info prefix
-  shell: "{{ scl }} pbench-config host-info-path-prefix results"
+  shell: "pbench-config host-info-path-prefix results"
   register: cmd_output
   ignore_errors: yes
   environment:
@@ -106,7 +106,7 @@
 
 # pbench reception area
 - name: fetch the reception area directory
-  shell: "{{ scl }} pbench-config pbench-receive-dir-prefix pbench-server"
+  shell: "pbench-config pbench-receive-dir-prefix pbench-server"
   register: cmd_output
   ignore_errors: yes
   environment:
@@ -123,7 +123,7 @@
 
 # httpd document root
 - name: fetch the httpd document root directory
-  shell: "{{ scl }} pbench-config documentroot apache"
+  shell: "pbench-config documentroot apache"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
@@ -139,7 +139,7 @@
 
 # pbench owner
 - name: fetch the pbench owner
-  shell: "{{ scl }} pbench-config user pbench-server"
+  shell: "pbench-config user pbench-server"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
@@ -155,7 +155,7 @@
 
 # pbench group
 - name: fetch the pbench group
-  shell: "{{ scl }} pbench-config group pbench-server"
+  shell: "pbench-config group pbench-server"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
@@ -171,7 +171,7 @@
 
 # pbench host
 - name: fetch the pbench server
-  shell: "{{ scl }} pbench-config host pbench-server"
+  shell: "pbench-config host pbench-server"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
@@ -187,7 +187,7 @@
 
 # pbench contact email address
 - name: fetch the contact email address
-  shell: "{{ scl }} pbench-config admin-email pbench-server"
+  shell: "pbench-config admin-email pbench-server"
   register: cmd_output
   environment:
     _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
