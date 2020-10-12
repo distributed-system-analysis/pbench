@@ -62,11 +62,11 @@ def verify_subdirs(hier, controller, directories):
                 ]
             ):
                 if dirent not in linkdirs:
-                    hier.add_unexpected_controllers(
+                    hier.add_unexpected_entries(
                         Hierarchy.UNEXPECTED_DIRS, controller, dirent
                     )
     else:
-        hier.add_unexpected_controllers(
+        hier.add_unexpected_entries(
             Hierarchy.SUBDIR_STATUS_INDICATORS, controller, "subdirs"
         )
 
@@ -78,7 +78,7 @@ def verify_prefixes(hier, controller):
     if not prefix_dir.exists():
         return 0
     if not prefix_dir.is_dir():
-        hier.add_unexpected_controllers(
+        hier.add_unexpected_entries(
             Hierarchy.PREFIX_STATUS_INDICATORS, controller, "prefix_dir"
         )
         return 1
@@ -89,11 +89,11 @@ def verify_prefixes(hier, controller):
         if not prefix_path.name.startswith("prefix.") and not prefix_path.name.endswith(
             ".prefix"
         ):
-            hier.add_unexpected_controllers(
+            hier.add_unexpected_entries(
                 Hierarchy.NON_PREFIXES, controller, prefix_path.name
             )
         elif prefix_path.name.startswith("prefix."):
-            hier.add_unexpected_controllers(
+            hier.add_unexpected_entries(
                 Hierarchy.WRONG_PREFIXES, controller, prefix_path.name
             )
 
@@ -113,7 +113,7 @@ def verify_archive(hier):
         if hidden_entries:
             for hid_entries_path in hidden_entries:
                 if hid_entries_path.is_file():
-                    hier.add_unexpected_controllers(
+                    hier.add_unexpected_entries(
                         Hierarchy.UNEXPECTED_OBJECTS, controller, hid_entries_path.name,
                     )
         controller_subdir = list()
@@ -125,12 +125,13 @@ def verify_archive(hier):
                 try:
                     item_p = item_path.resolve(strict=True)
                 except FileNotFoundError:
-                    print(
-                        f"{item_path.name}_path, '{item_path}', does not resolve to a real location"
+                    hier.add_error_or_inconceivable_entries(
+                        Hierarchy.ERROR,
+                        controller,
+                        f"{item_path.name}_path, '{item_path}', does not resolve to a real location",
                     )
-                    return 1
                 symlink_item = f"{item_path.name} -> {item_p}"
-                hier.add_unexpected_controllers(
+                hier.add_unexpected_entries(
                     Hierarchy.UNEXPECTED_SYMLINKS, controller, symlink_item
                 )
             elif all(
@@ -140,7 +141,7 @@ def verify_archive(hier):
                     not item_path.name.endswith(".tar.xz.md5"),
                 ]
             ):
-                hier.add_unexpected_controllers(
+                hier.add_unexpected_entries(
                     Hierarchy.UNEXPECTED_OBJECTS, controller, item_path.name
                 )
             elif item_path.is_file() and (
@@ -149,7 +150,9 @@ def verify_archive(hier):
             ):
                 hier.add_tarballs(controller)
             else:
-                print(f"Add it as impossible in dictionary")
+                hier.add_error_or_inconceivable_entries(
+                    Hierarchy.INCONCEIVABLE, controller, item_path.name,
+                )
         verify_subdirs(hier, controller, controller_subdir)
         verify_prefixes(hier, controller)
 
@@ -162,16 +165,16 @@ def verify_tar_dirs(ihier, tarball_dirs, tblist, controller):
         if tb.endswith("unpack"):
             tar = tb[:-7]
             tar = f"{tar}.tar.xz"
-            val = Hierarchy.INVALID_UNPACKING_DIRS
+            dict_val = Hierarchy.INVALID_UNPACKING_DIRS
         else:
             tar = f"{tb}.tar.xz"
-            val = Hierarchy.INVALID_TB_DIRS
+            dict_val = Hierarchy.INVALID_TB_DIRS
         tarfile = Path(ihier.config.ARCHIVE, controller, tar)
         if tarfile.exists():
             if os.access(tarfile, os.R_OK):
                 continue
         else:
-            tblist(val, controller, tb)
+            tblist(dict_val, controller, tb)
     return 0
 
 
@@ -196,32 +199,31 @@ def verify_incoming(ihier, verifylist):
                     if len(os.listdir(dir_path)) == 0:
                         unpacking_tarball_dirs.append(dir_path.name)
                     else:
-                        print("condition did not exist earlier")
-                elif not dir_path.name.endswith(".unpack"):
+                        tarball_dirs.append(dir_path.name)
+                else:
                     if len(os.listdir(dir_path)) == 0:
-                        ihier.add_unexpected_controllers(
+                        ihier.add_unexpected_entries(
                             Hierarchy.EMPTY_TARBALL_DIRS, controller, dir_path.name
                         )
                     else:
                         tarball_dirs.append(dir_path.name)
             elif dir_path.is_symlink():
-                ihier.add_unexpected_controllers(
+                ihier.add_unexpected_entries(
                     Hierarchy.TARBALL_LINKS, controller, dir_path.name
                 )
             else:
-                print("IMPOSSIBLE =========== ", controller)
+                ihier.add_error_or_inconceivable_entries(
+                    Hierarchy.INCONCEIVABLE, controller, dir_path.name,
+                )
 
         if tarball_dirs:
             verify_tar_dirs(
-                ihier, tarball_dirs, ihier.add_unexpected_controllers, controller
+                ihier, tarball_dirs, ihier.add_unexpected_entries, controller
             )
 
         if unpacking_tarball_dirs:
             verify_tar_dirs(
-                ihier,
-                unpacking_tarball_dirs,
-                ihier.add_unexpected_controllers,
-                controller,
+                ihier, unpacking_tarball_dirs, ihier.add_unexpected_entries, controller,
             )
 
     return 0
@@ -249,15 +251,13 @@ def verify_user_arg(rhier, mdlogcfg, controller, path):
             we are examining a link in the user tree that
             does not have a configured user, report it.
             """
-            rhier.add_unexpected_controllers(
+            rhier.add_unexpected_entries(
                 Hierarchy.UNEXPECTED_USER_LINKS, controller, path
             )
         elif user_arg != user:
             """Configured user does not match the user tree in
             which we found the link."""
-            rhier.add_unexpected_controllers(
-                Hierarchy.WRONG_USER_LINKS, controller, path
-            )
+            rhier.add_unexpected_entries(Hierarchy.WRONG_USER_LINKS, controller, path)
 
     return 0
 
@@ -298,7 +298,7 @@ def verify_results(rhier, verifylist):
         for dir_path in direct_entries:
             path = path_below_controller(str(dir_path), controller)
             if dir_path.is_dir() and len(os.listdir(dir_path)) == 0:
-                rhier.add_unexpected_controllers(
+                rhier.add_unexpected_entries(
                     Hierarchy.EMPTY_TARBALL_DIRS, controller, path
                 )
             elif dir_path.is_symlink():
@@ -306,24 +306,26 @@ def verify_results(rhier, verifylist):
                 tb = f"{path.name}.tar.xz"
                 incoming_path = Path(rhier.config.INCOMING, controller, dir_path.name)
                 if not Path(rhier.config.ARCHIVE, controller, tb).exists():
-                    rhier.add_unexpected_controllers(
+                    rhier.add_unexpected_entries(
                         Hierarchy.INVALID_TB_LINKS, controller, dir_path.name
                     )
                 else:
                     if link != str(incoming_path):
-                        rhier.add_unexpected_controllers(
+                        rhier.add_unexpected_entries(
                             Hierarchy.INCORRECT_TB_DIR_LINKS, controller, dir_path.name
                         )
                     elif not incoming_path.is_dir() and not incoming_path.is_symlink():
-                        rhier.add_unexpected_controllers(
+                        rhier.add_unexpected_entries(
                             Hierarchy.INVALID_TB_DIR_LINKS, controller, dir_path.name
                         )
                     else:
                         prefix_path = str(path.parent)
                         prefix_file = Path(
-                            rhier.config.ARCHIVE, controller, ".prefix", dir_path.name
+                            rhier.config.ARCHIVE,
+                            controller,
+                            ".prefix",
+                            f"{dir_path.name}.prefix",
                         )
-                        prefix_file = Path(f"{prefix_file}.prefix")
                         mdlogcfg = PbenchMDLogConfig(
                             Path(incoming_path, "metadata.log")
                         )
@@ -336,21 +338,21 @@ def verify_results(rhier, verifylist):
                             pass
                         if prefix_path == ".":
                             if prefix:
-                                rhier.add_unexpected_controllers(
+                                rhier.add_unexpected_entries(
                                     Hierarchy.BAD_PREFIXES, controller, path
                                 )
                             elif prefix_file.exists():
-                                rhier.add_unexpected_controllers(
+                                rhier.add_unexpected_entries(
                                     Hierarchy.UNUSED_PREFIX_FILES, controller, path
                                 )
                         else:
                             if prefix:
                                 if prefix != prefix_path:
-                                    rhier.add_unexpected_controllers(
+                                    rhier.add_unexpected_entries(
                                         Hierarchy.BAD_PREFIXES, controller, path
                                     )
                             elif not prefix_file.exists():
-                                rhier.add_unexpected_controllers(
+                                rhier.add_unexpected_entries(
                                     Hierarchy.MISSING_PREFIX_FILES, controller, path
                                 )
                             else:
@@ -361,12 +363,12 @@ def verify_results(rhier, verifylist):
                                 except Exception:
                                     f = 1
                                 if f == 1:
-                                    rhier.add_unexpected_controllers(
+                                    rhier.add_unexpected_entries(
                                         Hierarchy.BAD_PREFIX_FILES, controller, path
                                     )
                                 else:
                                     if prefix != prefix_path:
-                                        rhier.add_unexpected_controllers(
+                                        rhier.add_unexpected_entries(
                                             Hierarchy.BAD_PREFIXES, controller, path
                                         )
                         verify_user_arg(rhier, mdlogcfg, controller, path)
@@ -398,6 +400,7 @@ def verify_controllers(hier):
                 count_dir_entries += 1
                 if not item_path.is_dir() and not item_path.is_symlink():
                     unexpected_dirs.append(controller)
+                    break
             else:
                 if count_dir_entries == 0:
                     hier.add_controller_list(Hierarchy.EMPTY_CONTROLLERS, controller)
