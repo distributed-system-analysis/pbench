@@ -8,7 +8,7 @@ CWD = $(shell pwd -L)
 
 SERVER = $(dir ${CWD})
 PBENCHTOP = $(shell dirname ${SERVER})
-TMPDIR = /var/tmp/pbench-server-package
+TMPDIR = /tmp/opt
 
 VERSION = $(shell cat ${SERVER}/VERSION)
 
@@ -32,7 +32,7 @@ seqno := $(shell if [ -e ./seqno ] ;then cat ./seqno ;else echo "1" ;fi)
 rpm:  srpm
 	rpmbuild -bb ${HOME}/rpmbuild/SPECS/${prog}.spec
 
-srpm:	spec patches tarball
+srpm:	patches tarball
 	rm -f ${HOME}/rpmbuild/SRPMS/$(prog)-*.src.rpm
 	rpmbuild -bs ${HOME}/rpmbuild/SPECS/$(prog).spec
 
@@ -47,14 +47,13 @@ patches:
 	if [ -d ${CWD}/patches ] ;then cp ${CWD}/patches/* ${RPMSRC} ;fi
 
 .PHONY: tarball
-tarball:
-	mkdir -p ${TBDIR}/server ${RPMSRC}
-	(cd ${PBENCHTOP}; ${PYTHON} setup.py install --prefix=${TBDIR})
-	git rev-parse --short HEAD > ${TBDIR}/server/SHA1
-	if [ ! -f seqno ] ;then echo 1 ;else cat seqno ;fi > ${TBDIR}/server/SEQNO
-	cd ${PBENCHTOP}/server; make install-all DESTDIR=${TBDIR}/server
-	rm -rf ${TBDIR}/bin ${TBDIR}/lib
-	cd ${PBENCHTOP}/web-server; make install DESTDIR=${TBDIR}/web-server
+tarball: spec
+	mkdir -p ${RPMSRC}
+	make -C ${PBENCHTOP}/server DESTDIR=${TBDIR}/server install
+	make -C ${PBENCHTOP}/web-server DESTDIR=${TBDIR}/web-server install
+	sed -i '1s;.*python$$;#!/usr/bin/env python3;' ${TBDIR}/server/bin/pbench-config ${TBDIR}/server/bin/pbench-server 
+	echo "${sha1}" > ${TBDIR}/server/SHA1
+	echo "${seqno}" > ${TBDIR}/server/SEQNO
 	tar zcf ${RPMSRC}/pbench-server-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
 	rm -rf ${TMPDIR}
 
