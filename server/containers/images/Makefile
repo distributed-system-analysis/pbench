@@ -16,6 +16,7 @@ URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${USER}
 # test COPR repos to have a suffix added, typically "test", so that
 # the final repo name would be "pbench-test".
 TEST =
+_TEST_SUFFIX = $(if $(TEST),-$(TEST),"")
 
 # By default we use the pbench Quay.io organization for the image
 # repository.  You can override this default using an environment
@@ -77,7 +78,7 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${_DISTROS}-push-major-minor)
 #-
 
 %-base-tagged: %-base
-	./apply-tags pbench-agent-base-$* $*-tags.lis
+	./apply-tags pbench-server-base-$* $*-tags.lis
 
 %-base: %-base.Dockerfile %-tags.lis
 	./build-image base $* $*-tags.lis
@@ -113,7 +114,7 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${_DISTROS}-push-major-minor)
 
 # Build the tags file for the given distribution.
 %-tags.lis:
-	./gen-tags-from-rpm "${URL_PREFIX}" "$*" "${_ARCH}" "${TEST}" > ${@}
+	./gen-tags-from-rpm "${URL_PREFIX}" "$*" "${_ARCH}" "${_TEST_SUFFIX}" > ${@}
 
 #+
 # For the following rules, the various CentOS "base" images need a mapping
@@ -143,7 +144,7 @@ fedora-31-base.Dockerfile: Dockerfile.base.j2 fedora-31-pbench.repo
 	jinja2 ${_REPO_TEMPLATE} $*.yml -o $@
 
 %.yml: repo.yml.j2
-	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -D test_suffix=${TEST} -o $@
+	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -o $@
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis
