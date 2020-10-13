@@ -89,7 +89,7 @@ function collect_sos {
 	if [[ "${sos_ver}" -lt 3 ]]; then
 		_quiet=""
 	else
-		_quiet="--quiet"
+		_quiet=" --quiet"
 	fi
 	if [[ "${sos_ver}" -lt 3 || ( "${sos_ver}" -eq 3 && ( "${sos_ver_minor}" -lt 5 || ( "${sos_ver_minor}" -eq 5 && -z "${sos_ver_subminor}" ) ) ) ]]; then
 		# Pre-v3.5.1+
