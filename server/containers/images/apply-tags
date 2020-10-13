@@ -1,0 +1,21 @@
+#!/bin/bash
+
+imageName="${1}"
+tags_file="${2}"
+if [[ "${3}" == "latest" ]]; then
+    # grep below for the tag line with "latest" in it.
+    latest=""
+else
+    # grep below for the tag line WITHOUT "latest" in it.
+    latest="-v"
+fi
+
+githash="$(grep -v -E "^v" ${tags_file})"
+
+function apply_tag {
+    buildah tag ${1}:${githash} ${1}:${2}
+}
+
+for tag in $(grep -E "^v" ${tags_file} | grep ${latest} latest); do
+    apply_tag ${imageName} ${tag}
+done

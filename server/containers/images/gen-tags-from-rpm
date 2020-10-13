@@ -1,0 +1,38 @@
+#!/bin/bash
+
+url_prefix="${1}"
+dist="${2}"
+arch="${3}"
+test="${4}"
+
+if [[ "${dist}" == "centos-8" ]]; then
+    dist="epel-8"
+elif [[ "${dist}" == "centos-7" ]]; then
+    dist="epel-7"
+fi
+
+if [[ ! -z "${test}" ]]; then
+    test_suffix="-${test}"
+else
+    test_suffix=""
+fi
+
+# Ensure we only consider the pbench-server RPM's version string from the
+# target repo.
+version_string="$(yum list -q --repofrompath pbench,"${url_prefix}/pbench${test_suffix}/${dist}-${arch}" pbench-server.noarch 2>/dev/null | awk 'FNR==2{print $2}')"
+if [[ -z "${version_string}" ]]; then
+    printf -- "Failed to fetch pbench-server.noarch version string from '%s/pbench%s/%s-%s'\n" "${url_prefix}" "${test_suffix}" "${dist}" "${arch}" >&2
+    exit 1
+fi
+
+# Expected tag format (example): 0.69.3-1
+ver="${version_string%g*}"
+major="${ver%%.*}"
+major_minor="${ver%.*}"
+commit_id="${version_string#*g}"
+
+printf -- "%s\n" "${commit_id}"
+printf -- "v%s\n" "${ver}"
+printf -- "v%s-latest v%s-latest\n" "${major}" "${major_minor}"
+
+exit 0
