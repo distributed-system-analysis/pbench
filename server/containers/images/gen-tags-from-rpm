@@ -1,5 +1,27 @@
 #!/bin/bash
 
+# Generate 3 lines of output to stdout containing strings which
+# can be used as image tags.
+#
+# The first line emitted contains one tag representing the Git
+# SHA1 short hash label taken from the RPM's commit ID suffix.
+#
+# The second line contains the full version string without the
+# Git commit ID suffix.
+#
+# The third line contains two separate labels separate by
+# white space, the first being the "latest" label using only
+# the version's "major" ID, the second being the "latest" label
+# using the versions' "major" and "minor" ID.
+#
+# For example:
+#
+#   RPM Version String:  0.69.3-1g13ab89fe3
+#
+#   Line 1: 13ab89fe3
+#   Line 2: v0.69.3-1
+#   Line 3: v0-latest v0.69-latest
+
 url_prefix="${1}"
 dist="${2}"
 arch="${3}"
@@ -20,7 +42,13 @@ if [[ -z "${version_string}" ]]; then
     exit 1
 fi
 
-# Expected tag format (example): 0.69.3-1
+# Expected tag format (example):
+# version_string = "0.69.3-1g13ab89fe3"
+# ver =            "0.69.3-1"
+# major =          "0"
+# major_minor =    "0.69" 
+# commit_id =      "13ab89fe3"
+
 ver="${version_string%g*}"
 major="${ver%%.*}"
 major_minor="${ver%.*}"
