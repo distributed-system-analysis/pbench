@@ -39,6 +39,7 @@ install-dirs:
 
 install-python3-setup: install-bin install-lib
 	mkdir -p ${DESTDIR}/python3
+	${COPY} ../requirements.txt ${DESTDIR}
 	(cd ..; SKIP_GENERATE_AUTHORS=1 SKIP_WRITE_GIT_CHANGELOG=1 python3 setup.py install --prefix=${DESTDIR}/python3)
 	${COPY} ${DESTDIR}/python3/bin/pbench-config ${DESTDIR}/python3/bin/pbench-server ${BINDIR}/
 	${RM} -r ${DESTDIR}/python3
