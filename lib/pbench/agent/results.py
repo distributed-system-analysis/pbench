@@ -153,7 +153,7 @@ class MakeResultTb:
 class CopyResultTb:
     chunk_size = 4096
 
-    def __init__(self, tarball, config, logger):
+    def __init__(self, controller, tarball, config, logger):
         if not os.path.exists(tarball):
             logger.error("tarball does not exist, '{}'", tarball)
             sys.exit(1)
@@ -165,7 +165,7 @@ class CopyResultTb:
         self.tarball_md5 = Path(tarball_md5)
         self.logger = logger
         server_rest_url = config.results.get("server_rest_url")
-        self.upload_url = f"{server_rest_url}/upload"
+        self.upload_url = f"{server_rest_url}/upload/ctrl/{controller}"
 
     def read_in_chunks(self, file_object):
         data = file_object.read(self.chunk_size)
@@ -187,10 +187,10 @@ class CopyResultTb:
         with open(self.tarball_md5, "r") as md5fp:
             md5sum = md5fp.read()
         filename = secure_filename(str(self.tarball))
-        headers = {"filename": filename, "md5sum": md5sum}
+        headers = {"filename": filename, "Content-MD5": md5sum}
         with self.tarball.open("rb") as f:
             try:
-                response = requests.post(
+                response = requests.put(
                     self.upload_url, data=self.read_in_chunks(f), headers=headers
                 )
                 self.logger.info("File uploaded successfully")
