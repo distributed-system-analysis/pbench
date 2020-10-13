@@ -24,10 +24,12 @@ class TestCopyResults:
     @responses.activate
     def test_copy_tar(self, valid_config):
         responses.add(
-            responses.POST, "http://pbench.example.com/api/v1/upload", status=200
+            responses.PUT,
+            "http://pbench.example.com/api/v1/upload/ctrl/controller",
+            status=200,
         )
         try:
-            crt = CopyResultTb(tarball, self.config, self.logger)
+            crt = CopyResultTb("controller", tarball, self.config, self.logger)
             crt.copy_result_tb()
         except SystemExit:
             assert False
@@ -37,12 +39,14 @@ class TestCopyResults:
     @responses.activate
     def test_bad_tar(self, caplog, valid_config):
         responses.add(
-            responses.POST, "http://pbench.example.com/api/v1/upload", status=200
+            responses.PUT,
+            "http://pbench.example.com/api/v1/upload/ctrl/controller",
+            status=200,
         )
         expected_error_message = f"tarball does not exist, '{bad_tarball}'"
         caplog.set_level(logging.ERROR, logger=self.logger.name)
         try:
-            crt = CopyResultTb(bad_tarball, self.config, self.logger)
+            crt = CopyResultTb("controller", bad_tarball, self.config, self.logger)
             crt.copy_result_tb()
         except SystemExit:
             assert caplog.records
@@ -54,7 +58,9 @@ class TestCopyResults:
     @responses.activate
     def test_missing_md5(self, caplog, valid_config):
         responses.add(
-            responses.POST, "http://pbench.example.com/api/v1/upload", status=200
+            responses.PUT,
+            "http://pbench.example.com/api/v1/upload/ctrl/controller",
+            status=200,
         )
         caplog.set_level(logging.ERROR, logger=self.logger.name)
         with NamedTemporaryFile(suffix=".tar.xz") as missing_md5_tar:
@@ -62,7 +68,9 @@ class TestCopyResults:
                 f"tarball's .md5 does not exist, '{missing_md5_tar.name}.md5'"
             )
             try:
-                crt = CopyResultTb(missing_md5_tar.name, self.config, self.logger)
+                crt = CopyResultTb(
+                    "controller", missing_md5_tar.name, self.config, self.logger
+                )
                 crt.copy_result_tb()
             except SystemExit:
                 assert caplog.records
@@ -74,14 +82,16 @@ class TestCopyResults:
     @responses.activate
     def test_multiple_files(self, caplog, valid_config):
         responses.add(
-            responses.POST, "http://pbench.example.com/api/v1/upload", status=200
+            responses.PUT,
+            "http://pbench.example.com/api/v1/upload/ctrl/controller",
+            status=200,
         )
         caplog.set_level(logging.ERROR, logger=self.logger.name)
         base_dir = os.path.dirname(tarball)
         with NamedTemporaryFile(suffix=".add", dir=base_dir):
             expected_error_message = f"(internal): unexpected file count, 3, associated with tarball, '{tarball}'"
             try:
-                crt = CopyResultTb(tarball, self.config, self.logger)
+                crt = CopyResultTb("controller", tarball, self.config, self.logger)
                 crt.copy_result_tb()
             except SystemExit:
                 assert caplog.records

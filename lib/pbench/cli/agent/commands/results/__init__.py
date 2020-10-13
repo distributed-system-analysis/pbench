@@ -1,6 +1,7 @@
 import os
 import sys
 import requests
+import tempfile
 
 from pbench.common.logger import get_pbench_logger
 from pbench.agent import PbenchAgentConfig
@@ -49,15 +50,11 @@ def move_results(ctx, _user, _prefix, _show_server):
     runs_copied = 0
     failures = 0
 
-    # FIXME: use tempfile
-    temp_dir = os.path.join(
-        config.pbench_tmp,
-        ".".join([os.path.basename(__file__), str(os.getpid())]),
-        controller,
-    )
     try:
-        os.makedirs(temp_dir)
-    except OSError:
+        temp_dir = tempfile.mkdtemp(
+            dir=config.pbench_tmp, prefix="pbench-move-results."
+        )
+    except Exception:
         logger.error("Failed to create temporary directory")
         sys.exit(1)
 
@@ -72,7 +69,7 @@ def move_results(ctx, _user, _prefix, _show_server):
         mrt = MakeResultTb(result_dir, temp_dir, _user, _prefix, config, logger)
         result_tb_name = mrt.make_result_tb()
         if result_tb_name:
-            crt = CopyResultTb(result_tb_name, config, logger)
+            crt = CopyResultTb(controller, result_tb_name, config, logger)
             copy_result = crt.copy_result_tb()
             try:
                 os.remove(result_tb_name)

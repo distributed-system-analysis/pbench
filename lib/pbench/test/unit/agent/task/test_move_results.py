@@ -20,7 +20,9 @@ class TestMoveResults:
             body="pbench@pbench-server:/srv/pbench/pbench-move-results-receive/fs-version-002",
         )
         responses.add(
-            responses.POST, "http://pbench.example.com/api/v1/upload", status=200
+            responses.PUT,
+            "http://pbench.example.com/api/v1/upload/ctrl/controller",
+            status=200,
         )
 
         ctx = {"args": {"config": os.environ["_PBENCH_AGENT_CONFIG"]}}
