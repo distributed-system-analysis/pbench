@@ -40,7 +40,6 @@ util-scripts = \
 	pbench-init-tools \
 	pbench-kill-tools \
 	pbench-list-tools \
-	pbench-list-triggers \
 	pbench-log-timestamp \
 	pbench-make-result-tb \
 	pbench-metadata-log \
@@ -256,6 +255,7 @@ install-python3-setup: install-util-scripts install-lib
 	(cd ..; SKIP_GENERATE_AUTHORS=1 SKIP_WRITE_GIT_CHANGELOG=1 python3 setup.py install --prefix=${DESTDIR}/python3)
 	${COPY} ${DESTDIR}/python3/bin/pbench-config ${UTILDIR}/
 	${COPY} ${DESTDIR}/python3/bin/pbench-clear-tools ${UTILDIR}/
+	${COPY} ${DESTDIR}/python3/bin/pbench-list-triggers ${UTILDIR}/
 	rm -rf ${DESTDIR}/python3
 	${COPY} ../lib/pbench ${LIBDIR}/
 	rm -r $$(find ${LIBDIR} -name __pycache__) ${LIBDIR}/pbench/test ${LIBDIR}/pbench/server ${LIBDIR}/pbench/cli/server
