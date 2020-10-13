@@ -11,17 +11,12 @@ elif [[ "${dist}" == "centos-7" ]]; then
     dist="epel-7"
 fi
 
-if [[ ! -z "${test}" ]]; then
-    test_suffix="-${test}"
-else
-    test_suffix=""
-fi
-
 # Ensure we only consider the pbench-agent RPM's version string from the
 # target repo.
-version_string="$(yum list -q --repofrompath pbench,"${url_prefix}/pbench${test_suffix}/${dist}-${arch}" pbench-agent.noarch 2>/dev/null | awk 'FNR==2{print $2}')"
+url="${url_prefix}/pbench${test}/${dist}-${arch}"
+version_string="$(yum list -q --repofrompath pbench,"${url}" pbench-agent.noarch 2>/dev/null | awk 'FNR==2{print $2}')"
 if [[ -z "${version_string}" ]]; then
-    printf -- "Failed to fetch pbench-agent.noarch version string from '%s/pbench%s/%s-%s'\n" "${url_prefix}" "${test_suffix}" "${dist}" "${arch}" >&2
+    printf -- "Failed to fetch pbench-agent.noarch version string from '%s'\n" "${url}" >&2
     exit 1
 fi
 
