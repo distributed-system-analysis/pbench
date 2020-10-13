@@ -23,7 +23,8 @@ and `pbench-sysstat` RPMs, build or find proper RPMs for `fio` & `uperf`,
 and place them in a single yum/dnf repository accessible via HTTPS.  By
 default, we use Fedora COPR repos under the `ndokos` user (one can
 override the yum/dnf repos and user via the `URL_PREFIX` and `USER`
-environment variables). 
+environment variables, and use `pbench-test` repos by setting the `TEST`
+environment variable to `test`). 
 
 Once the proper RPMs are available in the target repo, the default
 `Makefile` target, `all`, will build all the default images, and tag

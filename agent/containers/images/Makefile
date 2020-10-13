@@ -12,6 +12,11 @@ USER = ndokos
 # using an environment variable as appropriate.
 URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${USER}
 
+# By default we use non-"test" COPR repos named "pbench".  We expect
+# test COPR repos to have a suffix added, typically "test", so that
+# the final repo name would be "pbench-test".
+TEST =
+
 # By default we use the pbench Quay.io organization for the image
 # repository.  You can override this default using an environment
 # variable as appropriate.
@@ -35,7 +40,7 @@ _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 _DISTROS = centos-8 centos-7 fedora-32 fedora-31
 
 # Default we only build images the following distributions:
-all: $(foreach distro, ${_DISTROS}, ${_DISTROS}-all-tagged)
+all: $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
 
 #+
 # Tagging targets
@@ -72,70 +77,70 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${_DISTROS}-push-major-minor)
 #-
 
 %-all-tagged: %-all %-tags.lis
-	./apply-tags pbench-agent-all-${@:-all-tagged=} ${@:-all-tagged=}-tags.lis
+	./apply-tags pbench-agent-all-$* $*-tags.lis
 
 %-all: %-tools-tagged %-workloads-tagged %-all.Dockerfile
-	./build-image all ${@:-all=} ${@:-all=}-tags.lis
+	./build-image all $* $*-tags.lis
 
 %-all.Dockerfile: Dockerfile.layered.j2 %-tags.lis
-	jinja2 Dockerfile.layered.j2 -D distro=${@:-all.Dockerfile=} -D tag="$$(grep -v -E '^v' ${@:-all.Dockerfile=}-tags.lis)" -D kind="all" -D rpms="${_ALL_RPMS}" > ./$@
+	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="all" -D rpms="${_ALL_RPMS}" > ./$@
 
 %-tools-tagged: %-tools %-tags.lis
-	./apply-tags pbench-agent-tools-${@:-tools-tagged=} ${@:-tools-tagged=}-tags.lis
+	./apply-tags pbench-agent-tools-$* $*-tags.lis
 
 %-tools: %-base-tagged %-tools.Dockerfile
-	./build-image tools ${@:-tools=} ${@:-tools=}-tags.lis
+	./build-image tools $* $*-tags.lis
 
 %-tools.Dockerfile: Dockerfile.layered.j2 %-tags.lis
-	jinja2 Dockerfile.layered.j2 -D distro=${@:-tools.Dockerfile=} -D tag="$$(grep -v -E '^v' ${@:-tools.Dockerfile=}-tags.lis)" -D kind="tools" -D rpms="${_TOOL_RPMS}" > ./$@
+	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="tools" -D rpms="${_TOOL_RPMS}" > ./$@
 
 %-workloads-tagged: %-workloads %-tags.lis
-	./apply-tags pbench-agent-workloads-${@:-workloads-tagged=} ${@:-workloads-tagged=}-tags.lis
+	./apply-tags pbench-agent-workloads-$* $*-tags.lis
 
 %-workloads: %-base-tagged %-workloads.Dockerfile
-	./build-image workloads ${@:-workloads=} ${@:-workloads=}-tags.lis
+	./build-image workloads $* $*-tags.lis
 
 %-workloads.Dockerfile: Dockerfile.layered.j2 %-tags.lis
-	jinja2 Dockerfile.layered.j2 -D distro=${@:-workloads.Dockerfile=} -D tag="$$(grep -v -E '^v' ${@:-workloads.Dockerfile=}-tags.lis)" -D kind="workloads" -D rpms="${_WORKLOAD_RPMS}" > ./$@
+	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="workloads" -D rpms="${_WORKLOAD_RPMS}" > ./$@
 
 %-base-tagged: %-base
-	./apply-tags pbench-agent-base-${@:-base-tagged=} ${@:-base-tagged=}-tags.lis
+	./apply-tags pbench-agent-base-$* $*-tags.lis
 
 %-base: %-base.Dockerfile %-tags.lis
-	./build-image base ${@:-base=} ${@:-base=}-tags.lis
+	./build-image base $* $*-tags.lis
 
 #+
 # Push local images for the given tag and distribution.
 #-
 
 %-push: %-tags.lis
-	./push ${IMAGE_REPO} ${@:-push=}
+	./push ${IMAGE_REPO} $*
 
 %-push-latest: %-tags.lis
-	./push ${IMAGE_REPO} ${@:-push-latest=} latest
+	./push ${IMAGE_REPO} $* latest
 
 %-push-major: %-tags.lis
-	./push ${IMAGE_REPO} ${@:-push-major=} _major
+	./push ${IMAGE_REPO} $* _major
 
 %-push-major-minor: %-tags.lis
-	./push ${IMAGE_REPO} ${@:-push-major-minor=} _minor
+	./push ${IMAGE_REPO} $* _minor
 
 #+
 # Tag local images for the given distribution.
 #-
 
 %-tag-latest: %-tags.lis
-	./tagit ${@:-tag-latest=} latest
+	./tagit $* latest
 
 %-tag-major: %-tags.lis
-	./tagit ${@:-tag-major=} major-latest
+	./tagit $* major-latest
 
 %-tag-major-minor: %-tags.lis
-	./tagit ${@:-tag-major-minor=} major-minor-latest
+	./tagit $* major-minor-latest
 
 # Build the tags file for the given distribution.
 %-tags.lis:
-	./gen-tags-from-rpm "${URL_PREFIX}" "${@:-tags.lis=}" "${_ARCH}" > ${@}
+	./gen-tags-from-rpm "${URL_PREFIX}" "$*" "${_ARCH}" "${TEST}" > ${@}
 
 #+
 # For the following rules, the various CentOS "base" images need a mapping
@@ -162,10 +167,10 @@ fedora-31-base.Dockerfile: Dockerfile.base.j2 fedora-31-pbench.repo
 %.repo: ${_REPO_TEMPLATE} 
 
 %.repo: %.yml
-	jinja2 ${_REPO_TEMPLATE} ${@:.repo=}.yml -o $@
+	jinja2 ${_REPO_TEMPLATE} $*.yml -o $@
 
 %.yml: repo.yml.j2
-	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -o $@
+	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -D test_suffix=${TEST} -o $@
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis
