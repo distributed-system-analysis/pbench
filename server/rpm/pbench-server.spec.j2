@@ -46,31 +46,27 @@ The pbench server scripts.
 %install
 rm -rf %{buildroot}
 
-mkdir -p %{buildroot}/%{installdir}/html/static
-
 cp -a ./server/* %{buildroot}/%{installdir}
 
-# for the npm install below
-cp -a ./web-server/package.json %{buildroot}/%{installdir}
-
+mkdir -p %{buildroot}/%{installdir}/html/static
 cp -a ./web-server/* %{buildroot}/%{installdir}/html/static
 
+# for the npm install below
+mv %{buildroot}/%{installdir}/html/static/package.json %{buildroot}/%{installdir}
+
 %post
-chown -R pbench.pbench /%{installdir}
-
-cd /%{installdir}
-
 # Install python dependencies
-
 echo "pip3 install -r /%{installdir}/requirements.txt"
 pip3 install -r /%{installdir}/requirements.txt
 
-# install the js bits
+# install node.js modules under /%{installdir}
 cd /%{installdir}
 rm -rf node_modules
-
-# install node.js modules under /%{installdir}
 npm install
+
+# Finally, make sure the installation directory is entirely owned
+# by the pbench user.
+chown -R pbench.pbench /%{installdir}
 
 %preun
 
