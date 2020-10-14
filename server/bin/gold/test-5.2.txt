@@ -692,8 +692,7 @@ drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        254 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       7305 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
--rw-rw-r--        650 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
--rw-rw-r--       2029 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+-rw-rw-r--       2988 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--        219 logs/pbench-sync-satellite/pbench-sync-satellite.error
@@ -1006,18 +1005,16 @@ run-1970-01-01T00:00:42-UTC: Processed 10 result tar balls, 7 successfully (0 pa
 1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 0 (skipped 7) results, 0 errors
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
-+++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
-run-1970-01-01T00:00:42-UTC: Duplicate: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz duplicate name
-run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-e-bad-md5/tarball-bad-md5_1970.01.01T00.42.00.tar.xz failed MD5 check
-run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz failed MD5 check
------ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- run-1970-01-01T00:00:42-UTC
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- tarball-0_1970.01.01T00.42.00.tar.xz: OK
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz: OK
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz: OK
+1970-01-01T00:00:42.000000 ERROR pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- run-1970-01-01T00:00:42-UTC: Duplicate: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz duplicate name
+1970-01-01T00:00:42.000000 ERROR pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-e-bad-md5/tarball-bad-md5_1970.01.01T00.42.00.tar.xz failed MD5 check
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- tarball-bad-md5_1970.01.01T00.42.00.tar.xz: FAILED
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- md5sum: WARNING: 1 computed checksum did NOT match
+1970-01-01T00:00:42.000000 ERROR pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-f-bad-md5/tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz failed MD5 check
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- tarball-bad-md5-1_1970.01.01T00.42.00.tar.xz: FAILED
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- md5sum: WARNING: 1 computed checksum did NOT match
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- tarball-normal_1970.01.01T00.42.00.tar.xz: OK
