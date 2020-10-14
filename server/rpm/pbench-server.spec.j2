@@ -9,16 +9,16 @@ Source0:        pbench-server-%{version}.tar.gz
 Buildarch:      noarch
 
 
-Requires: python3
+Requires: python3 python3-devel gcc
 
 # policycoreutils for semanage and restorecon - used in pbench-server-activate-create-results-dir
 Requires:       policycoreutils
-
 %if 0%{?rhel} != 7
 Requires: policycoreutils-python-utils
 %else
 Requires: policycoreutils-python
 %endif
+
 Requires: npm
 
 # installdir has to agree with the definition of install-dir in
@@ -62,8 +62,8 @@ cd /%{installdir}
 
 # Install python dependencies
 
-echo "python3 -m pip install -r requirements.txt"
-python3 -m pip install -r requirements.txt
+echo "pip3 install -r /%{installdir}/requirements.txt"
+pip3 install -r /%{installdir}/requirements.txt
 
 # install the js bits
 cd /%{installdir}
