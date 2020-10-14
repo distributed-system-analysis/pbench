@@ -240,7 +240,6 @@ drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        210 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--        200 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
--rw-rw-r--          0 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 -rw-rw-r--        816 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
@@ -328,8 +327,6 @@ run-1970-01-01T00:00:42-UTC: Processed 0 result tar balls, 0 successfully (0 par
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:42.000000 ERROR pbench-index.__init__ _get_valid_path -- The INCOMING directory, '/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming', does not resolve to a real location
 ----- pbench-index/pbench-index.log
-+++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
------ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- run-1970-01-01T00:00:42-UTC
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 main -- run-1970-01-01T00:00:42-UTC: Processed 0 entries, 0 tarballs successful, 0 quarantined tarballs, 0 duplicately-named tarballs, 0 errors.

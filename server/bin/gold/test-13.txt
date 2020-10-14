@@ -90,8 +90,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
 -rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
--rw-rw-r--        106 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
--rw-rw-r--          0 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+-rw-rw-r--        215 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine.bad
@@ -144,10 +143,8 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
-+++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
-Failed: /var/tmp/pbench-test-server/test-13/pbench-local/quarantine does not exist, or is not a directory
------ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+1970-01-01T00:00:42.000000 ERROR pbench-server-prep-shim-002.pbench-server-prep-shim-002 fetch_config_val -- Failed: /var/tmp/pbench-test-server/test-13/pbench-local/quarantine does not exist, or is not a directory
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 ---- pbench-local/logs
 ++++ pbench-satellite-local/logs

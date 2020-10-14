@@ -37,29 +37,27 @@ class Results(object):
         self.nerrs = nerrs
 
 
-def fetch_config_val(config, errorfile):
+def fetch_config_val(config, logger):
 
     qdir = config.get("pbench-server", "pbench-quarantine-dir")
     if not qdir:
-        errorfile.write("Failed: getconf.py pbench-quarantine-dir pbench-server\n")
+        logger.error("Failed: getconf.py pbench-quarantine-dir pbench-server")
         return None, None
 
     qdir = Path(qdir).resolve()
     if not qdir.is_dir():
-        errorfile.write(f"Failed: {qdir} does not exist, or is not a directory\n")
+        logger.error("Failed: {} does not exist, or is not a directory", qdir)
         return None, None
 
     # we are explicitly handling version-002 data in this shim
     receive_dir_prefix = config.get("pbench-server", "pbench-receive-dir-prefix")
     if not receive_dir_prefix:
-        errorfile.write("Failed: getconf.py pbench-receive-dir-prefix pbench-server\n")
+        logger.error("Failed: getconf.py pbench-receive-dir-prefix pbench-server")
         return None, None
 
     receive_dir = Path(f"{receive_dir_prefix}-002").resolve()
     if not receive_dir.is_dir():
-        errorfile.write(
-            f"Failed: {receive_dir} does not exist, or is not a directory\n"
-        )
+        logger.error("Failed: {} does not exist, or is not a directory", receive_dir)
         return None, None
 
     return (qdir, receive_dir)
@@ -98,7 +96,7 @@ def md5_check(tb, tbmd5, logger):
     return (archive_md5_hex_value, archive_tar_hex_value)
 
 
-def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorfile):
+def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors):
 
     # Check for results that are ready for processing: version 002 agents
     # upload the MD5 file as xxx.md5.check and they rename it to xxx.md5
@@ -131,7 +129,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
         dest = archive / controller
 
         if all([(dest / resultname).is_file(), (dest / tbmd5.name).is_file()]):
-            errorfile.write(f"{config.TS}: Duplicate: {tb} duplicate name\n")
+            logger.error("{}: Duplicate: {} duplicate name", config.TS, tb)
             quarantine((duplicates / controller), logger, tb, tbmd5)
             ndups += 1
             continue
@@ -144,7 +142,7 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors, errorf
                 archive_md5_hex_value is None,
             ]
         ):
-            errorfile.write(f"{config.TS}: Quarantined: {tb} failed MD5 check\n")
+            logger.error("{}: Quarantined: {} failed MD5 check", config.TS, tb)
             logger.info("{}: FAILED", tb.name)
             logger.info("md5sum: WARNING: 1 computed checksum did NOT match")
             quarantine((qdir_md5 / controller), logger, tb, tbmd5)
@@ -258,31 +256,24 @@ def main(cfg_name):
 
     logger = get_pbench_logger(_NAME_, config)
 
-    with Path(
-        config.LOGSDIR,
-        "pbench-server-prep-shim-002",
-        "pbench-server-prep-shim-002.error",
-    ).open(mode="w") as error_f:
-        qdir, receive_dir = fetch_config_val(config, error_f)
+    qdir, receive_dir = fetch_config_val(config, logger)
 
-        if qdir is None and receive_dir is None:
-            return 2
+    if qdir is None and receive_dir is None:
+        return 2
 
-        qdir_md5 = qdirs_check("quarantine", Path(qdir, "md5-002"), logger)
-        duplicates = qdirs_check("duplicates", Path(qdir, "duplicates-002"), logger)
+    qdir_md5 = qdirs_check("quarantine", Path(qdir, "md5-002"), logger)
+    duplicates = qdirs_check("duplicates", Path(qdir, "duplicates-002"), logger)
 
-        # The following directory holds tarballs that are quarantined because
-        # of operational errors on the server. They should be retried after
-        # the problem is fixed: basically, move them back into the reception
-        # area for 002 agents and wait.
-        errors = qdirs_check("errors", Path(qdir, "errors-002"), logger)
+    # The following directory holds tarballs that are quarantined because
+    # of operational errors on the server. They should be retried after
+    # the problem is fixed: basically, move them back into the reception
+    # area for 002 agents and wait.
+    errors = qdirs_check("errors", Path(qdir, "errors-002"), logger)
 
-        if qdir_md5 is None or duplicates is None or errors is None:
-            return 1
+    if qdir_md5 is None or duplicates is None or errors is None:
+        return 1
 
-        counts = process_tb(
-            config, logger, receive_dir, qdir_md5, duplicates, errors, error_f
-        )
+    counts = process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors)
 
     result_string = (
         f"{config.TS}: Processed {counts.ntotal} entries,"
