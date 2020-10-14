@@ -5,3 +5,4 @@ flask-restful
 gunicorn
 humanize
 pyesbulk
+requests

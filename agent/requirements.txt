@@ -3,7 +3,6 @@ bottle
 cffi
 click
 colorlog
-humanize
 python-daemon
 python-pidfile
 redis
