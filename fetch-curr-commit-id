@@ -7,4 +7,4 @@ import git
 repo = git.Repo(search_parent_directories=True)
 hexsha = repo.head.object.hexsha
 short_sha = repo.git.rev_parse(hexsha, short=True)
-print(f"{short_sha}")
+print(short_sha)
