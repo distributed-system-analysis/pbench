@@ -1,0 +1,7 @@
+boto3
+elasticsearch1==1.10.0
+flask
+flask-restful
+gunicorn
+humanize
+pyesbulk
