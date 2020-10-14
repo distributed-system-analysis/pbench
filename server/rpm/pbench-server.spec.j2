@@ -46,6 +46,7 @@ The pbench server scripts.
 %install
 rm -rf %{buildroot}
 
+mkdir -p %{buildroot}/%{installdir}
 cp -a ./server/* %{buildroot}/%{installdir}
 
 mkdir -p %{buildroot}/%{installdir}/html/static
@@ -88,7 +89,6 @@ fi
 /%{installdir}/SEQNO
 /%{installdir}/SHA1
 /%{installdir}/%{static}/VERSION
-/%{installdir}/%{static}/package.json
 /%{installdir}/package.json
 /%{installdir}/requirements.txt
 
