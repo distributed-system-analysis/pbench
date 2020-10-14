@@ -77,6 +77,11 @@ if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;f
 %endif
 
 %post
+
+# Install python dependencies
+echo "pip3 install -r /%{installdir}/requirements.txt"
+pip3 install -r /%{installdir}/requirements.txt
+
 # link the pbench profile, so it'll automatically be sourced on login
 ln -sf /%{installdir}/profile /etc/profile.d/pbench-agent.sh
 
