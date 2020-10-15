@@ -9,11 +9,11 @@ Source0:        pbench-agent-%{version}.tar.gz
 Buildarch:      noarch
 
 %if 0%{?rhel} == 7
-Requires:  scl-utils, rh-python36
+Requires:  scl-utils, rh-python36, rh-python36-python-pip
 %endif
 
 %if 0%{?rhel} == 8 || 0%{?fedora} >= 31
-Requires:  python3-pip
+Requires:  python3, python3-pip
 %endif
 
 %if 0%{?fedora} == 0
@@ -69,9 +69,17 @@ if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;f
 
 %post
 
+%if 0%{?rhel} == 7
+sed -i 's/^#\(source scl_source enable rh-python36\)/\1/' /%{installdir}/base
+%endif
+
 # Install python dependencies
-echo "pip3 install -r /%{installdir}/requirements.txt"
+%if 0%{?rhel} == 7
+scl enable rh-python36 -- bash -c "pip3 install -r /%{installdir}/requirements.txt"
+%endif
+%if 0%{?rhel} == 8 || 0%{?fedora} >= 31
 pip3 install -r /%{installdir}/requirements.txt
+%endif
 
 # link the pbench profile, so it'll automatically be sourced on login
 ln -sf /%{installdir}/profile /etc/profile.d/pbench-agent.sh
