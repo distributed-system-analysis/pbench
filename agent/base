@@ -9,17 +9,17 @@
 # will catch any ssh failure
 set -o pipefail
 
-if command -v python3 > /dev/null 2>&1 ;then
-    # All python programs/scripts have headers using "python3" by default.
-    :
-elif command -v scl_source > /dev/null 2>&1 ;then
-    # If we don't have python3, but we do have SCL, we only support
-    # Python 3.6.
-    source scl_source enable rh-python36
-else
-    printf -- "${script_name}: python3 required, either directly or through SCL\n" >&2
-    exit 1
-fi
+# When we are installed via RPM on RHEL 7, we are required to use the
+# Python 3.6 environment as provided by the rh-python36 SCL (Software
+# Collections Library) module.
+#
+# Starting with RHEL 7.7, Python3 is shipped natively, but because the RPM
+# mechanisms do not allow us to depend on either Python3 or SCL Python3,
+# the RPMs we build for RHEL 7 explicitly depend only on SCL's Python 3.6
+# environment.
+#
+# The RPM "%post" steps will uncomment this line on RHEL 7 installs.
+#source scl_source enable rh-python36
 
 # very first thing to do is figure out which pbench we are
 if [[ -z "$pbench_run" ]]; then
