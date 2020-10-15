@@ -113,7 +113,7 @@ fi
 /%{installdir}/requirements.txt
 
 %ghost %attr(0400,pbench,pbench) /%{installdir}/id_rsa
-%ghost %attr(0664,pbench,pbench) /%{installdir}/config/pbench-agent.cfg
+%config(noreplace) %attr(0664,pbench,pbench) /%{installdir}/config/pbench-agent.cfg
 
 %defattr(775,pbench,pbench,775)
 /%{installdir}/util-scripts
@@ -123,4 +123,3 @@ fi
 # stockpile
 %defattr(775,pbench,pbench,775)
 /%{installdir}/stockpile
-
