@@ -99,7 +99,7 @@ fi
 %posttrans
 
 %files
-%defattr(775,pbench,pbench,775)
+%defattr(664,root,root,775)
 /%{installdir}/config
 
 /%{installdir}/lib
@@ -112,14 +112,26 @@ fi
 /%{installdir}/profile
 /%{installdir}/requirements.txt
 
-%ghost %attr(0400,pbench,pbench) /%{installdir}/id_rsa
-%config(noreplace) %attr(0664,pbench,pbench) /%{installdir}/config/pbench-agent.cfg
+%ghost %attr(0400,root,root) /%{installdir}/id_rsa
+%config(noreplace) %attr(0664,root,root) /%{installdir}/config/pbench-agent.cfg
 
-%defattr(775,pbench,pbench,775)
+%defattr(775,root,root,775)
 /%{installdir}/util-scripts
+%attr(664,root,root) /%{installdir}/util-scripts/README
 /%{installdir}/tool-scripts
+%attr(664,root,root) /%{installdir}/tool-scripts/meta.json
+%attr(664,root,root) /%{installdir}/tool-scripts/perf.README
+%attr(664,root,root) /%{installdir}/tool-scripts/README
 /%{installdir}/bench-scripts
+%attr(664,root,root) /%{installdir}/bench-scripts/pbench-fio.md
+%attr(664,root,root) /%{installdir}/bench-scripts/pbench-uperf.md
+%attr(664,root,root) /%{installdir}/bench-scripts/postprocess/BenchPostprocess.pm
+%attr(664,root,root) /%{installdir}/bench-scripts/templates/fio.job
+%attr(664,root,root) /%{installdir}/bench-scripts/templates/fio-shared-fs.job
 
 # stockpile
-%defattr(775,pbench,pbench,775)
+%defattr(664,root,root,775)
 /%{installdir}/stockpile
+%attr(775,root,root) /%{installdir}/stockpile/import_roles.sh
+%attr(775,root,root) /%{installdir}/stockpile/roles/openshift-cluster-topology/files/openshift_config_scraper.py
+%attr(775,root,root) /%{installdir}/stockpile/roles/openstack_common/files/openstack-config-parser.py
