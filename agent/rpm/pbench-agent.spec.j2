@@ -91,9 +91,23 @@ if [ $1 -eq 0 ] ;then
 fi
 
 %postun
-# if uninstalling, rather than updating, remove /%{installdir}
+# if uninstalling, rather than updating, remove /%{installdir} except id_rsa and pbench-agent.cfg
 if [ $1 -eq 0 ] ;then
-    rm -rf /%{installdir}
+    rm -rf /%{installdir}/lib \
+           /%{installdir}/ansible \
+           /%{installdir}/base \
+           /%{installdir}/VERSION \
+           /%{installdir}/SEQNO \
+           /%{installdir}/SHA1 \
+           /%{installdir}/profile \
+           /%{installdir}/requirements.txt \
+           /%{installdir}/util-scripts \
+           /%{installdir}/tool-scripts \
+           /%{installdir}/bench-scripts \
+           /%{installdir}/stockpile \
+           /%{installdir}/config/ansible.cfg \
+           /%{installdir}/config/benchmark \
+           /%{installdir}/config/pbench-agent-default.cfg
 fi
 
 %posttrans
