@@ -4,6 +4,6 @@ prog="$(basename "${0}")"
 progdir="$(realpath -e $(dirname "${0}"))"
 
 # List of tox environments to run.
-tox_envs="py3-functional py3-server server"
+tox_envs="py3-server server"
 
 ${progdir}/../run-unittests ${tox_envs}

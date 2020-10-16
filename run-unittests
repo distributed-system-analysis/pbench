@@ -4,7 +4,7 @@ prog="$(basename "${0}")"
 progdir="$(realpath -e $(dirname "${0}"))"
 
 # Default list of tox environments to run.
-def_tox_envs="lint py3-functional py3-agent datalog postprocess tool-scripts util-scripts bench-scripts py3-server server"
+def_tox_envs="lint py3-agent datalog postprocess tool-scripts util-scripts bench-scripts py3-server server"
 
 if [[ -z "${1}" ]]; then
     tox_envs="${def_tox_envs}"
