@@ -44,15 +44,16 @@ import sys
 import glob
 import errno
 import tempfile
-from pathlib import Path
-from enum import Enum
 
-from pbench.server import PbenchServerConfig
+from enum import Enum
+from pathlib import Path
+
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
+from pbench.common.utils import md5sum
+from pbench.server import PbenchServerConfig
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Entry
-from pbench.server.utils import md5sum
 
 
 _NAME_ = "pbench-verify-backup-tarballs"
