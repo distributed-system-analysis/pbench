@@ -18,8 +18,10 @@ set -o pipefail
 # the RPMs we build for RHEL 7 explicitly depend only on SCL's Python 3.6
 # environment.
 #
+# We also need to enable the Redis v5 environment for the Tool Meister.
+#
 # The RPM "%post" steps will uncomment this line on RHEL 7 installs.
-#source scl_source enable rh-python36
+#source scl_source enable rh-python36 rh-redis5
 
 # very first thing to do is figure out which pbench we are
 if [[ -z "$pbench_run" ]]; then
