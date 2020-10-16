@@ -58,7 +58,7 @@ import daemon
 import pidfile
 import redis
 
-from pbench.server.utils import md5sum
+from pbench.common.utils import md5sum
 import pbench.agent.toolmetadata as toolmetadata
 
 
