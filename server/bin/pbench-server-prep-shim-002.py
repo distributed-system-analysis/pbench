@@ -15,11 +15,13 @@ import shutil
 import tempfile
 
 from pathlib import Path
-from pbench.server import PbenchServerConfig
+
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
+from pbench.common.utils import md5sum
+from pbench.server import PbenchServerConfig
 from pbench.server.report import Report
-from pbench.server.utils import md5sum, quarantine
+from pbench.server.utils import quarantine
 
 
 _NAME_ = "pbench-server-prep-shim-002"

@@ -1,5 +1,3 @@
-from functools import partial
-import hashlib
 import os
 import sys
 import shutil
@@ -55,18 +53,6 @@ def filesize_bytes(size):
         raise Exception("Invalid file size value encountered, '%s': %s", size, exc)
     else:
         return num * factor
-
-
-def md5sum(filename):
-    """
-    Return the MD5 check-sum of a given file.
-    We don't want to read the entire file into memory.
-    """
-    with open(filename, mode="rb") as f:
-        d = hashlib.md5()
-        for buf in iter(partial(f.read, 128), b""):
-            d.update(buf)
-    return d.hexdigest()
 
 
 def quarantine(dest, logger, *files):

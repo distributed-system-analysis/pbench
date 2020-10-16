@@ -1,16 +1,16 @@
 import datetime
-import hashlib
+import errno
 import os
+import requests
 import sys
 import tarfile
-import errno
-from pathlib import Path
 
-import requests
+from pathlib import Path
 from werkzeug.utils import secure_filename
 
 from pbench.cli.agent.commands.log import add_metalog_option
 from pbench.common import configtools
+from pbench.common.utils import md5sum
 
 
 class MakeResultTb:
@@ -90,6 +90,7 @@ class MakeResultTb:
         if self.prefix:
             add_metalog_option(md_log, "run", "prefix", self.prefix)
 
+        # FIXME: subprocess "du" command
         result_size = sum(f.stat().st_size for f in self.result_dir.rglob("*"))
         self.logger.debug(
             "preparing to tar up {} bytes of data from {}", result_size, self.result_dir
@@ -101,6 +102,7 @@ class MakeResultTb:
             md_log, "pbench", "tar-ball-creation-timestamp", f"{timestamp}"
         )
 
+        # FIXME: subprocess "tar" command
         tarball = self.target_dir / f"{pbench_run_name}.tar.xz"
         try:
             with tarfile.open(tarball, mode="x:xz") as tar:
@@ -126,13 +128,8 @@ class MakeResultTb:
     def make_md5sum(self, tarball):
         tarball_md5 = Path(f"{tarball}.md5")
         try:
-            hash_md5 = hashlib.md5()
-            with tarball.open("rb") as tar:
-                for chunk in iter(lambda: tar.read(4096), b""):
-                    hash_md5.update(chunk)
-
-            with tarball_md5.open("w") as md5:
-                md5.write(f"{tarball.name} {hash_md5.hexdigest()}\n")
+            hash_md5 = md5sum(tarball)
+            tarball_md5.write_text(f"{hash_md5} {tarball.name}\n")
         except Exception:
             self.logger.error("md5sum failed for {}, skipping", tarball)
             try:
@@ -154,15 +151,14 @@ class CopyResultTb:
     chunk_size = 4096
 
     def __init__(self, controller, tarball, config, logger):
-        if not os.path.exists(tarball):
+        self.tarball = Path(tarball)
+        if not self.tarball.exists():
             logger.error("tarball does not exist, '{}'", tarball)
             sys.exit(1)
-        tarball_md5 = f"{tarball}.md5"
-        if not os.path.exists(tarball_md5):
-            logger.error("tarball's .md5 does not exist, '{}'", tarball_md5)
+        self.tarball_md5 = Path(f"{tarball}.md5")
+        if not self.tarball_md5.exists():
+            logger.error("tarball's .md5 does not exist, '{}'", self.tarball_md5)
             sys.exit(1)
-        self.tarball = Path(tarball)
-        self.tarball_md5 = Path(tarball_md5)
         self.logger = logger
         server_rest_url = config.results.get("server_rest_url")
         self.upload_url = f"{server_rest_url}/upload/ctrl/{controller}"
@@ -185,7 +181,7 @@ class CopyResultTb:
             sys.exit(1)
 
         with open(self.tarball_md5, "r") as md5fp:
-            md5sum = md5fp.read()
+            md5sum = md5fp.read().split()[0]
         filename = secure_filename(str(self.tarball))
         headers = {"filename": filename, "Content-MD5": md5sum}
         with self.tarball.open("rb") as f:
