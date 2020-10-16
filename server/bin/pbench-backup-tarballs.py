@@ -8,12 +8,15 @@ import shutil
 import tempfile
 
 from pathlib import Path
-from pbench.server import PbenchServerConfig
+
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
+from pbench.common.utils import md5sum
+from pbench.server import PbenchServerConfig
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Status, NoSuchKey
-from pbench.server.utils import md5sum, rename_tb_link, quarantine
+from pbench.server.utils import rename_tb_link, quarantine
+
 
 _NAME_ = "pbench-backup-tarballs"
 
