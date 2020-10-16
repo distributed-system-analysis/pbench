@@ -13,7 +13,6 @@ env:
   - TOXENV=bench-scripts
   - TOXENV=py3-server
   - TOXENV=server
-  - TOXENV=py3-functional
 before_install:
  - sudo apt-get update
 install:
