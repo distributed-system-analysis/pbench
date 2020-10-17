@@ -23,10 +23,12 @@ function _pbench_setup() {
 	echo "                Setup has failed - could not determine the proper environment prefix: \"${prefix}\"" >&2
 	echo "                You will need to fix it before working with pbench." >&2
     else
-	local pdir=${prefix}/lib
-	if [[ ":${PYTHONPATH:-}:" != *":${pdir}:"* ]]; then
-	    export PYTHONPATH=${pdir}${PYTHONPATH:+:${PYTHONPATH}}
-	fi
+	local pdir
+	for pdir in ${prefix}/lib $(ls -1d ${prefix}/lib*/python3.*/site-packages); do
+	    if [[ ":${PYTHONPATH:-}:" != *":${pdir}:"* ]]; then
+		export PYTHONPATH=${pdir}${PYTHONPATH:+:${PYTHONPATH}}
+	    fi
+	done
 	export _PBENCH_AGENT_CONFIG=${prefix}/config/pbench-agent.cfg
 
 	_pbench_pathins "${prefix}/bench-scripts"
