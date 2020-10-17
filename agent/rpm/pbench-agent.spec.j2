@@ -9,11 +9,17 @@ Source0:        pbench-agent-%{version}.tar.gz
 Buildarch:      noarch
 
 %if 0%{?rhel} == 7
-Requires:  scl-utils, rh-python36, rh-python36-python-pip, rh-redis5
+Requires:  scl-utils, rh-python38, rh-python38-python-pip, rh-redis5
+# RPMs for modules in requirements.txt
+Requires:  rh-python38-python-cffi, rh-python38-python-requests
+# RPMs for derived dependencies
+Requires:  rh-python38-python-cryptography, rh-python38-python-jinja2, rh-python38-python-markupsafe, rh-python38-python-psutil, rh-python38-python-pyyaml, rh-python38-python-chardet, rh-python38-python-idna, rh-python38-python-pycparser, rh-python38-python-six, rh-python38-python-urllib3
 %endif
 
 %if 0%{?rhel} == 8 || 0%{?fedora} >= 31
-Requires:  python3, python3-pip, redis, python3-redis
+Requires:  python3, python3-pip, redis
+# RPMs for modules in requirements.txt
+Requires:  python3-bottle, python3-cffi, python3-click, python3-colorlog, python3-daemon, python3-redis, python3-requests, python3-sh, python3-werkzeug
 %endif
 
 %if 0%{?fedora} == 0
@@ -60,7 +66,7 @@ cp -a agent/* %{?buildroot}/%{installdir}/
 # this RPM conflicts with a configtools RPM, but we may have a Pypi
 # configtools installed: zap it.
 %if 0%{?rhel} == 7
-scl enable rh-python36 -- bash -c 'if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;fi'
+scl enable rh-python38 -- bash -c 'if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;fi'
 %endif
 
 %if 0%{?rhel} == 8 || 0%{?fedora} >= 31
@@ -70,15 +76,15 @@ if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;f
 %post
 
 %if 0%{?rhel} == 7
-sed -i 's/^#\(source scl_source enable rh-python36\)/\1/' /%{installdir}/base
+sed -i 's/^#\(source scl_source enable rh-python38\)/\1/' /%{installdir}/base
 %endif
 
 # Install python dependencies
 %if 0%{?rhel} == 7
-scl enable rh-python36 -- bash -c "pip3 install -r /%{installdir}/requirements.txt"
+scl enable rh-python38 -- bash -c "pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.scl"
 %endif
 %if 0%{?rhel} == 8 || 0%{?fedora} >= 31
-pip3 install -r /%{installdir}/requirements.txt
+pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.f3x
 %endif
 
 # link the pbench profile, so it'll automatically be sourced on login
@@ -125,6 +131,8 @@ fi
 /%{installdir}/SHA1
 /%{installdir}/profile
 /%{installdir}/requirements.txt
+/%{installdir}/requirements.f3x
+/%{installdir}/requirements.scl
 
 %ghost %attr(0400,root,root) /%{installdir}/id_rsa
 %config(noreplace) %attr(0664,root,root) /%{installdir}/config/pbench-agent.cfg

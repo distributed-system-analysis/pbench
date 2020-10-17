@@ -1,0 +1,13 @@
+Module           Fedora 31/32 & R8  RHEL 7 (rh-python38)           Notes
+===============  =================  =============================  =====
+ansible          n/a                -                              The "ansible" package is available, but the Python modules are not installed in the SCL site-packages; so we have to pip3 install in SCL.
+bottle           python3-bottle     -
+cffi             python3-cffi       rh-python38-python-cffi
+click            python3-click      -
+colorlog         python3-colorlog   -
+python-daemon    python3-daemon     -
+python-pidfile   -                  -
+redis            python3-redis      -
+requests         python3-requests   rh-python38-python-requests
+sh               python3-sh         -
+werkzeug         python3-werkzeug   -
