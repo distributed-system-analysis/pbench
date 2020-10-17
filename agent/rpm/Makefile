@@ -58,6 +58,8 @@ tarball:
 	make -C .. DESTDIR=${TMPDIR}/${prog}-${VERSION}/agent
 	echo "${sha1}" > ${TMPDIR}/${prog}-${VERSION}/agent/SHA1
 	echo "${seqno}" > ${TMPDIR}/${prog}-${VERSION}/agent/SEQNO
+	for i in $$(cat ${TMPDIR}/${prog}-${VERSION}/agent/requirements.txt); do if [[ $$(grep $${i} ./python-module-mapping.table | awk '{print $$2}') == "-" ]]; then echo $${i}; fi; done > ${TMPDIR}/${prog}-${VERSION}/agent/requirements.f3x
+	for i in $$(cat ${TMPDIR}/${prog}-${VERSION}/agent/requirements.txt); do if [[ $$(grep $${i} ./python-module-mapping.table | awk '{print $$3}') == "-" ]]; then echo $${i}; fi; done > ${TMPDIR}/${prog}-${VERSION}/agent/requirements.scl
 	tar zcf ${RPMSRC}/pbench-agent-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
 	rm -rf ${TMPDIR}
 
