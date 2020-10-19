@@ -8,13 +8,6 @@ URL:            https://github.com/distributed-system-analysis/pbench
 Source0:        pbench-agent-%{version}.tar.gz
 Buildarch:      noarch
 
-
-%if 0%{?rhel} == 6
-%define turbostatpkg cpupowerutils
-%else
-%define turbostatpkg kernel-tools
-%endif
-
 %if 0%{?rhel} == 7
 Requires:  scl-utils, rh-python36
 %endif
@@ -30,10 +23,8 @@ Requires:  python3-pip
 %define perljsonxs perl-JSON-XS
 %endif
 
-
-Requires:  bzip2, tar, xz, screen
+Requires:  bzip2, tar, xz, screen, psmisc, bc, sos
 Requires:  perl, perl-JSON, %{perljsonxs}, perl-Time-HiRes, perl-Data-UUID
-Requires:  net-tools, numactl, perf, psmisc, bc, sos, %{turbostatpkg}
 # The following are needed by UBI containers which are bare bones - most other
 # systems will probably already have them installed.
 Requires:  ansible hostname iproute procps-ng iputils openssh-server openssh-clients rsync
