@@ -100,6 +100,10 @@ fi
 # if uninstalling, rather than updating, delete the Python3 pip3 install location.
 if [ $1 -eq 0 ] ;then
     rm -rf /%{installdir}/bin /%{installdir}/lib /%{installdir}/lib64
+
+    if [ -e /%{installdir}/id_rsa ] ;then
+        echo "WARNING: beware /%{installdir}/id_rsa left behind after uninstall of the pbench-agent RPM." >&2
+    fi
 fi
 
 %posttrans
