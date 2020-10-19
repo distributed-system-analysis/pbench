@@ -1,0 +1,23 @@
+#!/bin/bash
+
+req_file="${1}"
+mapping_file="${2}"
+# The format of the given mapping file has "Fedora" RPMs in the
+# 2nd column, and SCL (for RHEL 7) in the 3rd column.
+if [[ "${3}" == "f3x" ]]; then
+    selector='$2'
+elif [[ "${3}" == "scl" ]]; then
+    selector='$3'
+else
+    printf -- "Unrecognized column, \"%s\"\n" "${3}" >&2
+    exit 1
+fi
+
+while read module; do
+    if [[ $(grep ${module} ${mapping_file} | awk "{print ${selector}}") == "-" ]]; then
+        # A "-" (dash) in the table entry indicates there is no mapping for
+        # this python module to an RPM, so we need to emit it on stdout to
+        # ensure the caller will include it.
+        echo ${module}
+    fi
+done < ${req_file}
