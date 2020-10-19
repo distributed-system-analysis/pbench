@@ -81,10 +81,10 @@ sed -i 's/^#\(source scl_source enable rh-python38\)/\1/' /%{installdir}/base
 
 # Install python dependencies
 %if 0%{?rhel} == 7
-scl enable rh-python38 -- bash -c "pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.scl"
+scl enable rh-python38 -- bash -c "pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.scl" > /%{installdir}/pip3-install.log
 %endif
 %if 0%{?rhel} == 8 || 0%{?fedora} >= 31
-pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.f3x
+pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.f3x > /%{installdir}/pip3-install.log
 %endif
 
 # link the pbench profile, so it'll automatically be sourced on login
@@ -99,7 +99,7 @@ fi
 %postun
 # if uninstalling, rather than updating, delete the Python3 pip3 install location.
 if [ $1 -eq 0 ] ;then
-    rm -rf /%{installdir}/bin /%{installdir}/lib /%{installdir}/lib64
+    rm -rf /%{installdir}/bin /%{installdir}/lib /%{installdir}/lib64 /%{installdir}/pip3-install.log
 
     if [ -e /%{installdir}/id_rsa ] ;then
         echo "WARNING: beware /%{installdir}/id_rsa left behind after uninstall of the pbench-agent RPM." >&2
