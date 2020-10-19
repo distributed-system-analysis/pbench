@@ -19,7 +19,7 @@ Buildarch:      noarch
 Requires:  scl-utils, rh-python36
 %endif
 
-%if 0%{?rhel} == 8 || 0%{?fedora} >= 29
+%if 0%{?rhel} == 8 || 0%{?fedora} >= 31
 Requires:  python3-pip
 %endif
 
@@ -72,7 +72,7 @@ cp -a agent/* %{?buildroot}/%{installdir}/
 scl enable rh-python36 -- bash -c 'if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;fi'
 %endif
 
-%if 0%{?rhel} == 8 || 0%{?fedora} >= 29
+%if 0%{?rhel} == 8 || 0%{?fedora} >= 31
 if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;fi
 %endif
 
