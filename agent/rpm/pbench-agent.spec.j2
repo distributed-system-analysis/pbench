@@ -97,23 +97,9 @@ if [ $1 -eq 0 ] ;then
 fi
 
 %postun
-# if uninstalling, rather than updating, remove /%{installdir} except id_rsa and pbench-agent.cfg
+# if uninstalling, rather than updating, delete the Python3 pip3 install location.
 if [ $1 -eq 0 ] ;then
-    rm -rf /%{installdir}/lib \
-           /%{installdir}/ansible \
-           /%{installdir}/base \
-           /%{installdir}/VERSION \
-           /%{installdir}/SEQNO \
-           /%{installdir}/SHA1 \
-           /%{installdir}/profile \
-           /%{installdir}/requirements.txt \
-           /%{installdir}/util-scripts \
-           /%{installdir}/tool-scripts \
-           /%{installdir}/bench-scripts \
-           /%{installdir}/stockpile \
-           /%{installdir}/config/ansible.cfg \
-           /%{installdir}/config/benchmark \
-           /%{installdir}/config/pbench-agent-default.cfg
+    rm -rf /%{installdir}/bin /%{installdir}/lib /%{installdir}/lib64
 fi
 
 %posttrans
@@ -134,7 +120,6 @@ fi
 /%{installdir}/requirements.f3x
 /%{installdir}/requirements.scl
 
-%ghost %attr(0400,root,root) /%{installdir}/id_rsa
 %config(noreplace) %attr(0664,root,root) /%{installdir}/config/pbench-agent.cfg
 
 %defattr(775,root,root,775)
