@@ -64,6 +64,8 @@ import pbench.agent.toolmetadata as toolmetadata
 
 # Path to external tar executable.
 tar_path = None
+# Path to external screen executable.
+screen_path = None
 
 # FIXME: The client response channel should be in a shared constants module.
 client_channel = "tool-meister-client"
@@ -193,7 +195,7 @@ class Tool(object):
         self._check_no_processes()
         # screen -dm -L -S \"${screen_name}\" ${pbench_bin}/tool-scripts/${name} --${action} --dir=${tool_output_dir} ${tool_opts[@]}
         args = [
-            "/usr/bin/screen",
+            screen_path,
             "-dmS",
             self.screen_name,
             f"{self.pbench_bin}/tool-scripts/{self.name}",
@@ -1047,6 +1049,12 @@ def main(argv):
     tar_path = find_executable("tar")
     if tar_path is None:
         print("External 'tar' executable not found.", file=sys.stderr)
+        return 2
+
+    global screen_path
+    screen_path = find_executable("screen")
+    if screen_path is None:
+        print("External 'screen' executable not found.", file=sys.stderr)
         return 2
 
     logger = logging.getLogger(PROG)
