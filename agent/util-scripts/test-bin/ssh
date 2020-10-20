@@ -24,7 +24,7 @@ shift
 if [[ "${1}" == "hostname" && "${2}" == "-s" ]]; then
     echo "${remote}"
     exit_code=0
-elif [[ "$(basename -- "${1}")" == "pbench-tool-meister" ]]; then
+elif [[ "$(basename -- "${1}")" == "pbench-tool-meister-remote" ]]; then
     _dir=$(dirname ${0})
     _tool_bin=${_dir}/mpstat ${1} localhost "${3}" "${4}"
     exit_code=$?

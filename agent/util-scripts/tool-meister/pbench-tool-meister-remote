@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Pbench Tool Meister trampoline for remote (SSH) based environments.
+#
+# When the pbench-tool-meister executable is invoked locally, any
+# "bench-scripts" script would have already sourced "base", giving us the
+# proper Python 3 environment (a SCL Python 3 on RHEL 7), and a PYTHONPATH
+# containing our pbench-agent install pip3 requirements.
+#
+# This trampoline gives us a chance to source "base" and then invoke the
+# Tool Meister code with the given arguments.
+
+_dir="$(dirname ${0})"
+
+source ${_dir}/../../base
+${_dir}/pbench-tool-meister ${*}
