@@ -186,6 +186,9 @@ virsh-migrate)
 	longoptions="${longoptions},vm:"
 	tool_package_name="libvirt-client"
 	;;
+vmstat)
+	tool_package_name="procps-ng"
+	;;
 esac
 
 function usage {
