@@ -9,6 +9,7 @@ into the configured Elasticsearch V1 instance.
 import sys
 import os
 import glob
+import signal
 import tarfile
 import tempfile
 from pathlib import Path
@@ -34,6 +35,22 @@ from pbench.server.indexer import (
 )
 from pbench.server.report import Report
 from pbench.server.utils import rename_tb_link, quarantine
+
+
+class SigIntException(Exception):
+    pass
+
+
+def sigint_handler(*args):
+    raise SigIntException()
+
+
+class SigTermException(Exception):
+    pass
+
+
+def sigterm_handler(*args):
+    raise SigTermException()
 
 
 # Internal debugging flag.
@@ -102,6 +119,35 @@ def main(options, name):
          8 - Unable to load and process expected mapping files
          9 - Unable to update index templates in configured Elasticsearch
              instance
+
+        Signal Handlers used to establish different patterns for the three
+        behaviors:
+
+        1. Gracefully stop processing tar balls
+            - SIGQUIT
+            - The current tar ball is indexed until completion, but no other
+              tar balls are processed.
+            - Handler Behavior:
+                - Sets a flag that causes the code flow to break out of the
+                  for loop.
+                - Does not raise an exception.
+
+        2. Interrupt the current tar ball being indexed, and proceed to the
+           next one, if any
+            - SIGINT
+            - Handler Behavior:
+                - try/except/finally placed immediately around the es_index()
+                  call so that the signal handler will only be established for
+                  the duration of the call.
+                - Raises an exception caught by above try/except/finally.
+                - The finally clause would take down the signal handler.
+
+        3. Stop processing tar balls immediately and exit gracefully
+            - SIGTERM
+            - Handler Behavior:
+                - Raises an exception caught be a new, outer-most, try/except
+                  block that does not have a finally clause (as you don't want
+                  any code execution in the finally block).
     """
     _name_suf = "-tool-data" if options.index_tool_data else ""
     _name_re = "-re" if options.re_index else ""
@@ -216,6 +262,10 @@ def main(options, name):
                 continue
             else:
                 tarballs.append((size, controller, tb))
+    except SigTermException:
+        # Re-raise a SIGTERM to avoid it being lumped in with general
+        # exception handling below.
+        raise
     except Exception:
         idxctx.logger.exception(
             "Unexpected error encountered generating list" " of tar balls to process"
@@ -241,6 +291,10 @@ def main(options, name):
     except TemplateError as e:
         idxctx.logger.error("update_templates [end], error {}", repr(e))
         res = 9
+    except SigTermException:
+        # Re-raise a SIGTERM to avoid it being lumped in with general
+        # exception handling below.
+        raise
     except Exception:
         idxctx.logger.exception(
             "update_templates [end]: Unexpected template" " processing error"
@@ -269,6 +323,10 @@ def main(options, name):
     # documents.
     try:
         tracking_id = report.post_status(tstos(idxctx.time()), "start")
+    except SigTermException:
+        # Re-raise a SIGTERM to avoid it being lumped in with general
+        # exception handling below.
+        raise
     except Exception:
         idxctx.logger.error("Failed to post initial report status")
         return 12
@@ -291,6 +349,16 @@ def main(options, name):
             erred = Path(tmpdir, f"{name}.{idxctx.TS}.erred")
             skipped = Path(tmpdir, f"{name}.{idxctx.TS}.skipped")
             ie_filepath = Path(tmpdir, f"{name}.{idxctx.TS}.indexing-errors.json")
+
+            # We use a list object here so that when we close over this
+            # variable in the handler, the list object will be closed over,
+            # but not its contents.
+            sigquit_interrupt = [False]
+
+            def sigquit_handler(*args):
+                sigquit_interrupt[0] = True
+
+            signal.signal(signal.SIGQUIT, sigquit_handler)
 
             for size, controller, tb in tarballs:
                 # Sanity check source tar ball path
@@ -327,9 +395,19 @@ def main(options, name):
                     # can't/won't be retried.
                     with ie_filepath.open(mode="w") as fp:
                         idxctx.logger.debug("begin indexing")
-                        es_res = es_index(
-                            idxctx.es, actions, fp, idxctx.logger, idxctx._dbg
-                        )
+                        try:
+                            signal.signal(signal.SIGINT, sigint_handler)
+                            es_res = es_index(
+                                idxctx.es, actions, fp, idxctx.logger, idxctx._dbg
+                            )
+                        except SigIntException:
+                            idxctx.logger.exception(
+                                "Indexing interrupted by SIGINT, continuing to next tarball"
+                            )
+                            continue
+                        finally:
+                            # Turn off the SIGINT handler when not indexing.
+                            signal.signal(signal.SIGINT, signal.SIG_IGN)
                 except UnsupportedTarballFormat as e:
                     idxctx.logger.warning("Unsupported tar ball format: {}", e)
                     tb_res = 4
@@ -352,6 +430,11 @@ def main(options, name):
                         "Can't unpack tar ball into {}: {}", ptb.extracted_root, e
                     )
                     tb_res = 11
+                except SigTermException:
+                    idxctx.logger.exception(
+                        "Indexing interrupted by SIGTERM, terminating"
+                    )
+                    break
                 except Exception as e:
                     idxctx.logger.exception("Other indexing error: {}", e)
                     tb_res = 12
@@ -375,6 +458,10 @@ def main(options, name):
                 except _filenotfounderror:
                     # Above operation never made it to actual indexing, ignore.
                     pass
+                except SigTermException:
+                    # Re-raise a SIGTERM to avoid it being lumped in with
+                    # general exception handling below.
+                    raise
                 except Exception:
                     idxctx.logger.exception(
                         "Unexpected error handling" " indexing errors file: {}",
@@ -395,6 +482,10 @@ def main(options, name):
                     # Unconditionally remove the indexing errors file.
                     try:
                         os.remove(ie_filepath)
+                    except SigTermException:
+                        # Re-raise a SIGTERM to avoid it being lumped in with
+                        # general exception handling below.
+                        raise
                     except Exception:
                         pass
                 # Distinguish failure cases, so we can retry the indexing
@@ -446,7 +537,19 @@ def main(options, name):
                     rename_tb_link(
                         tb, Path(controller_path, linkerrdest), idxctx.logger
                     )
-                idxctx.logger.info("Finished {} (size {:d})", tb, size)
+                idxctx.logger.info(
+                    "Finished{} {} (size {:d})",
+                    "[SIGQUIT]" if sigquit_interrupt[0] else "",
+                    tb,
+                    size,
+                )
+
+                if sigquit_interrupt[0]:
+                    break
+        except SigTermException:
+            # Re-raise a SIGTERM to avoid it being lumped in with general
+            # exception handling below.
+            raise
         except Exception:
             idxctx.logger.exception("Unexpected setup error")
             res = 12
@@ -511,6 +614,10 @@ def main(options, name):
                             print(line.strip(), file=fp)
             try:
                 report.post_status(tstos(idxctx.time()), "status", report_fname)
+            except SigTermException:
+                # Re-raise a SIGTERM to avoid it being lumped in with general
+                # exception handling below.
+                raise
             except Exception:
                 pass
 
@@ -569,5 +676,17 @@ if __name__ == "__main__":
         help="Perform re-indexing of previously indexed data",
     )
     parsed = parser.parse_args()
-    status = main(parsed, run_name)
+    try:
+        # The SIGTERM handler is established around main() to make it easier
+        # to handle it cleanly once established.  We also make sure both
+        # SIGQUIT and SIGINT are ignored until we are ready to deal with them.
+        signal.signal(signal.SIGTERM, sigterm_handler)
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+        signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+        status = main(parsed, run_name)
+    except SigTermException:
+        # If a SIGTERM escapes the main indexing function, silently set our
+        # exit status to 1.  All finally handlers would have been executed, no
+        # need to report a SIGTERM again.
+        status = 1
     sys.exit(status)
