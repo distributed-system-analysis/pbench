@@ -64,8 +64,6 @@ import pbench.agent.toolmetadata as toolmetadata
 
 # Path to external tar executable.
 tar_path = None
-# Path to external screen executable.
-screen_path = None
 
 # FIXME: The client response channel should be in a shared constants module.
 client_channel = "tool-meister-client"
@@ -174,7 +172,6 @@ class Tool(object):
         self.tool_opts = tool_opts
         self.pbench_bin = pbench_bin
         self.tool_dir = tool_dir
-        self.screen_name = f"pbench-tool-{group}-{name}"
         self.start_process = None
         self.stop_process = None
 
@@ -189,26 +186,25 @@ class Tool(object):
             )
 
     def start(self):
-        """Creates the background `screen` process running the tool's "start"
-        operation.
+        """Creates the background process running the tool's "start" operation.
         """
         self._check_no_processes()
-        # screen -dm -L -S \"${screen_name}\" ${pbench_bin}/tool-scripts/${name} --${action} --dir=${tool_output_dir} ${tool_opts[@]}
         args = [
-            screen_path,
-            "-dmS",
-            self.screen_name,
             f"{self.pbench_bin}/tool-scripts/{self.name}",
             "--start",
             f"--dir={self.tool_dir}",
             self.tool_opts,
         ]
         self.logger.info("%s: start_tool -- %s", self.name, " ".join(args))
-        self.start_process = subprocess.Popen(args)
+        o_file = self.tool_dir / f"tm-{self.name}-start.out"
+        e_file = self.tool_dir / f"tm-{self.name}-start.err"
+        with o_file.open("w") as ofp, e_file.open("w") as efp:
+            self.start_process = subprocess.Popen(
+                args, stdin=subprocess.DEVNULL, stdout=ofp, stderr=efp
+            )
 
     def stop(self):
-        """Creates the background `screen` process to running the tool's "stop"
-        operation.
+        """Stops the background process by running the tool's "stop" operation.
         """
         if self.start_process is None:
             raise ToolException(f"Tool({self.name})'s start process not running")
@@ -233,7 +229,6 @@ class Tool(object):
                 tool_pid_file,
             )
 
-        # $pbench_bin/tool-scripts/$name --$action --dir=${tool_output_dir} "${tool_opts[@]}"
         args = [
             f"{self.pbench_bin}/tool-scripts/{self.name}",
             "--stop",
@@ -245,7 +240,7 @@ class Tool(object):
         e_file = self.tool_dir / f"tm-{self.name}-stop.err"
         with o_file.open("w") as ofp, e_file.open("w") as efp:
             self.stop_process = subprocess.Popen(
-                args, stdin=None, stdout=ofp, stderr=efp
+                args, stdin=subprocess.DEVNULL, stdout=ofp, stderr=efp
             )
 
     def wait(self):
@@ -1049,12 +1044,6 @@ def main(argv):
     tar_path = find_executable("tar")
     if tar_path is None:
         print("External 'tar' executable not found.", file=sys.stderr)
-        return 2
-
-    global screen_path
-    screen_path = find_executable("screen")
-    if screen_path is None:
-        print("External 'screen' executable not found.", file=sys.stderr)
         return 2
 
     logger = logging.getLogger(PROG)

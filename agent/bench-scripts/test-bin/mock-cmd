@@ -17,16 +17,6 @@ fi
 last=${args[${lastidx}]}
 if [[ "${prog}" == "pbench-metadata-log" && "${last}" == "beg" ]]; then
     echo [pbench] > ${benchmark_run_dir}/metadata.log
-elif [[ "${prog}" == "screen" && "${args[3]}" == "--start" ]]; then
-    # Mock out creating the tool directory for a tool "start" action
-    _tool="$(basename "${args[2]}")"
-    _dir="${args[4]}"
-    mkdir ${_dir#*=}/${_tool}
-    if [[ ${?} -ne 0 ]]; then
-        exit 1
-    fi
-    echo "999942" > ${_dir#*=}/${_tool}/${_tool}.pid
-    exit ${?}
 elif [[ "${prog}" == "cat" && "${args[0]}" == "/proc/cmdline" ]]; then
     echo "intel_iommu=on"
 fi
