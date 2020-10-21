@@ -53,8 +53,7 @@ patches:
 .PHONY: tarball
 tarball:
 	mkdir -p ${RPMSRC}
-	git submodule init
-	git submodule update
+	(cd ${AGENT}/../; git submodule init; git submodule update)
 	make -C .. DESTDIR=${TMPDIR}/${prog}-${VERSION}/agent
 	echo "${sha1}" > ${TMPDIR}/${prog}-${VERSION}/agent/SHA1
 	echo "${seqno}" > ${TMPDIR}/${prog}-${VERSION}/agent/SEQNO
