@@ -29,7 +29,6 @@ util-scripts = \
 	pbench-avg-stddev \
 	pbench-cleanup \
 	pbench-clear-results \
-	pbench-clear-tools \
 	pbench-collect-sysinfo \
 	pbench-copy-results \
 	pbench-copy-result-tb \
