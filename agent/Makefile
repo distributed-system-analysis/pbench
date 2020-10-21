@@ -29,7 +29,6 @@ util-scripts = \
 	pbench-avg-stddev \
 	pbench-cleanup \
 	pbench-clear-results \
-	pbench-clear-tools \
 	pbench-collect-sysinfo \
 	pbench-copy-results \
 	pbench-copy-result-tb \
@@ -255,6 +254,7 @@ install-python3-setup: install-util-scripts install-lib
 	mkdir -p ${DESTDIR}/python3
 	(cd ..; SKIP_GENERATE_AUTHORS=1 SKIP_WRITE_GIT_CHANGELOG=1 python3 setup.py install --prefix=${DESTDIR}/python3)
 	${COPY} ${DESTDIR}/python3/bin/pbench-config ${UTILDIR}/
+	${COPY} ${DESTDIR}/python3/bin/pbench-clear-tools ${UTILDIR}/
 	rm -rf ${DESTDIR}/python3
 	${COPY} ../lib/pbench ${LIBDIR}/
 	rm -r $$(find ${LIBDIR} -name __pycache__) ${LIBDIR}/pbench/test ${LIBDIR}/pbench/server ${LIBDIR}/pbench/cli/server
