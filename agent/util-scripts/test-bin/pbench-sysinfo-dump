@@ -1,1 +1,27 @@
-mpstat
+#!/usr/bin/env python3
+
+import sys
+import os
+
+from pathlib import Path
+
+
+with open(os.environ["_testlog"], "a") as ofp:
+    args = " ".join(sys.argv)
+    ofp.write(f"{args}\n")
+
+# Mock the behavior of the real pbench-sysinfo-dump
+
+tgtdir = Path(sys.argv[1])
+sysinfo = sys.argv[2]
+try:
+    label = sys.argv[3]
+except IndexError:
+    label = ""
+hostname = os.environ["_pbench_full_hostname"]
+hostdir = f"{label}:{hostname}" if label else hostname
+
+(tgtdir / hostdir).mkdir()
+
+(tgtdir / hostdir / "contents.lis").write_text(sysinfo)
+sys.exit(0)

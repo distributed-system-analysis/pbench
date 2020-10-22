@@ -530,7 +530,7 @@ declare -A pre_hooks=(
     [test-46]='mkdir ${_testdir}/tmp; printf -- "# bad list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com,labelThree,junk\n" > ${_testdir}/tmp/remotes.lis'
     [test-47]='mkdir ${_testdir}/tmp; printf -- "# good list with no labels\none.example.com\ntwo.example.com\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
     [test-48]='mkdir ${_testdir}/tmp; printf -- "%s\n" "30%" > ${_testdir}/tmp/foo.txt'
-    [test-55]='pbench-register-tool --name=mpstat --remote=localhost > /dev/null; mkdir ${_testdir}/mock-run'
+    [test-55]='pbench-register-tool --name=mpstat --remote=localhost > /dev/null; mkdir ${_testdir}/mock-run; ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-61]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-62]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client; mkdir -p ${_testdir}/mock-run/tools-default'
 )
@@ -551,6 +551,7 @@ declare -A post_hooks=(
     [test-07]='cat ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/postprocess.log >> ${_testout} 2>&1'
     [test-19]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-53]='sort_testlog'
+    [test-55]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-56]='sort_testlog; sort_tdslog'
     [test-57]='sort_testlog; sort_tdslog'
     [test-61]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'

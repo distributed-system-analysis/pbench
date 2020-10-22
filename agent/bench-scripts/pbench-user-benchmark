@@ -355,17 +355,17 @@ for rdir in ${result_dirs}; do
 	ln -s "$(basename "${rdir}")" "$(dirname "${rdir}")/reference-result"
 done
 
+${script_path}/postprocess/user-benchmark-wrapper "${benchmark_run_dir}" "${total_duration}"
+
 pbench-metadata-log --group="${tool_group}" --dir="${benchmark_run_dir}" end
+
+pbench-collect-sysinfo --group="${tool_group}" --dir="${benchmark_run_dir}" --sysinfo="${sysinfo}" end
 
 # Stop the tool meisters on each registered local/remote host
 pbench-tool-meister-stop
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to stop the tool meisters."
 fi
-
-${script_path}/postprocess/user-benchmark-wrapper "${benchmark_run_dir}" "${total_duration}"
-
-pbench-collect-sysinfo --group="${tool_group}" --dir="${benchmark_run_dir}" --sysinfo="${sysinfo}" end
 
 rmdir ${benchmark_run_dir}/.running
 exit 0

@@ -32,10 +32,6 @@ The tool meister is given two arguments when started: the redis server to use,
 and the redis key to fetch its configuration from for its operation.
 
 [1] https://redis.io/
-
-$ sudo dnf install python3-redis
-$ sudo pip3 install python-daemon
-$ sudo pip3 install python-pidfile
 """
 
 import errno
@@ -64,6 +60,9 @@ import pbench.agent.toolmetadata as toolmetadata
 
 # Path to external tar executable.
 tar_path = None
+
+# Path to external pbench-sysinfo-dump executable.
+sysinfo_dump = None
 
 # FIXME: The client response channel should be in a shared constants module.
 client_channel = "tool-meister-client"
@@ -283,9 +282,8 @@ class ToolMeisterError(Exception):
 class ToolMeister:
     """Encapsulate tool life-cycle
 
-    The goal of this class is to make sure all necessary state and behaviors
-    for managing a given tool are handled by the methods offered by the
-    class.
+    The goal of this class is to provide the methods and attributes necessary
+    for managing the life-cycles of a registered set of tools.
 
     The start_, stop_, send_, and wait_ prefixed methods represent all the
     necessary interfaces for managing the life-cycle of a tool.  The cleanup()
@@ -336,6 +334,7 @@ class ToolMeister:
     Meister is running remotely, then it will use a local temporary directory
     to write it's data, and will send that data to the Tool Data Sink during
     the "send" phase.
+
     """
 
     @staticmethod
@@ -409,7 +408,7 @@ class ToolMeister:
             "stop": {"curr": "running", "next": "idle", "action": self.stop_tools},
         }
         self._valid_actions = frozenset(
-            ["end", "init", "send", "start", "stop", "terminate"]
+            ["end", "init", "send", "start", "stop", "sysinfo", "terminate"]
         )
         for key in self._state_trans.keys():
             assert (
@@ -419,7 +418,7 @@ class ToolMeister:
                 "INTERNAL ERROR: invalid state transition 'next' entry for"
                 f" '{key}', '{self._state_trans[key]['next']}'"
             )
-        self._message_keys = frozenset(["directory", "group", "action"])
+        self._message_keys = frozenset(["action", "args", "directory", "group"])
         # The current 'directory' into which the tools are collected; not set
         # until a 'start tools' is executed, cleared when a 'send tools'
         # completes.
@@ -431,7 +430,7 @@ class ToolMeister:
         # tools for storing their collected data.
         self._tool_dir = None
         # The temporary directory to use for capturing all tool data.
-        self._tmp_dir = os.environ.get("_PBENCH_TOOL_MEISTER_TMP", "/var/tmp")
+        self._tmp_dir = os.environ["pbench_tmp"]
 
         # FIXME: run all the "--install" commands for the tools to ensure
         # they are successful before declaring that we are ready.
@@ -468,33 +467,32 @@ class ToolMeister:
                 # FIXME: Add connection drop error handling, retry loop
                 # re-establishing a connection.
                 self.logger.exception("Error fetching 'next' data off channel")
+                continue
             else:
                 self.logger.debug("next success")
+            msg = None
             try:
                 json_str = payload["data"].decode("utf-8")
-                data = json.loads(json_str)
+                tmp_data = json.loads(json_str)
             except Exception:
-                self.logger.warning("data payload in message not JSON, %r", json_str)
-                data = None
+                msg = f"data payload in message not JSON, {json_str!r}"
             else:
-                keys = frozenset(data.keys())
+                keys = frozenset(tmp_data.keys())
                 if keys != self._message_keys:
-                    self.logger.warning(
-                        "unrecognized keys in data of payload in message, %r", json_str,
+                    msg = (
+                        f"unrecognized keys in data of payload in message, {json_str!r}"
                     )
-                    data = None
-                elif data["action"] not in self._valid_actions:
-                    self.logger.warning(
-                        "unrecognized action in data of payload in message, %r",
-                        json_str,
-                    )
-                    data = None
-                elif data["group"] is not None and data["group"] != self._group:
-                    self.logger.warning(
-                        "unrecognized group in data of payload in message, %r",
-                        json_str,
-                    )
-                    data = None
+                elif tmp_data["action"] not in self._valid_actions:
+                    msg = f"unrecognized action in data of payload in message, {json_str!r}"
+                elif tmp_data["group"] is not None and tmp_data["group"] != self._group:
+                    msg = f"unrecognized group in data of payload in message, {json_str!r}"
+                else:
+                    data = tmp_data
+            finally:
+                if msg is not None:
+                    assert data is None
+                    self.logger.warning(msg)
+                    self._send_client_status(msg)
         return data["action"], data
 
     def wait_for_command(self):
@@ -507,24 +505,26 @@ class ToolMeister:
         """
         self.logger.debug("%s: wait_for_command %s", self._hostname, self.state)
         action, data = self._get_data()
-        done = False
-        while not done:
+        action_method = None
+        while not action_method:
             if action == "terminate":
                 self.logger.debug("%s: msg - %r", self._hostname, data)
                 raise Terminate()
             if action == "send":
-                self.logger.debug("%s: msg - %r", self._hostname, data)
-                return self.send_tools, data
+                action_method = self.send_tools
+                continue
+            if action == "sysinfo":
+                action_method = self.sysinfo
+                continue
             state_trans_rec = self._state_trans[action]
             if state_trans_rec["curr"] != self.state:
-                self.logger.info(
-                    "ignoring unexpected data, %r, in state '%s'", data, self.state
-                )
+                msg = f"ignoring unexpected data, {data!r}, in state '{self.state}'"
+                self.logger.info(msg)
+                self._send_client_status(msg)
                 action, data = self._get_data()
                 continue
-            done = True
-        action_method = state_trans_rec["action"]
-        self.state = state_trans_rec["next"]
+            action_method = state_trans_rec["action"]
+            self.state = state_trans_rec["next"]
         self.logger.debug("%s: msg - %r", self._hostname, data)
         return action_method, data
 
@@ -797,52 +797,20 @@ class ToolMeister:
             self._send_client_status("success")
         return failures
 
-    def send_tools(self, data):
-        """send_tools - send any collected tool data to the tool data sink.
+    def _send_directory(self, directory, uri, ctx):
+        """_send_directory - tar up the given directory and send via PUT to the
+        URL constructed from the "uri" fragment, using the provided context.
 
-        The 'action' and 'group' values of the payload have already been
-        validated before this "send tools" action is invoked.
+        The directory argument is a Path object who last element is a
+        directory with a name that is the same as the self.hostname.
 
-        This method only proceeds if the 'directory' entry value of the
-        payload matches what was previously provided to a "start tools"
-        action.
+        The uri and ctx arguments are used to form the final URL as defined by:
+
+           f"http://{self._controller}:8080/{uri}/{ctx}/{self._hostname}"
+
         """
-
-        if len(set(self._tools.keys()) - set(self.persist_tools)) == 0:
-            self._send_client_status("success")
-            return 0
-
-        directory = data["directory"]
-        try:
-            tool_dir = self.directories[directory]
-        except KeyError:
-            self.logger.error(
-                "INTERNAL ERROR - send tools action encountered for a"
-                " directory, '%s', that is different from any previous"
-                " start tools directory, %r",
-                directory,
-                self.directories.keys(),
-            )
-            self._send_client_status("internal-error")
-            return False
-
-        if self._hostname == self._controller:
-            del self.directories[directory]
-            self.logger.info(
-                "%s: send_tools (no-op) %s %s", self._hostname, self._group, tool_dir
-            )
-            # Note that we don't have a directory to send when a Tool
-            # Meister runs on the same host as the controller.
-            self._send_client_status("success")
-            return 0
-
-        assert tool_dir.name == self._hostname, (
-            f"Logic Bomb! Final path component of the tool directory is"
-            f" '{tool_dir.name}', not our host name '{self._hostname}'"
-        )
-
         failures = 0
-        parent_dir = tool_dir.parent
+        parent_dir = directory.parent
         tar_file = parent_dir / f"{self._hostname}.tar.xz"
         o_file = parent_dir / f"{self._hostname}.tar.out"
         e_file = parent_dir / f"{self._hostname}.tar.err"
@@ -857,22 +825,20 @@ class ToolMeister:
                     stderr=efp,
                 )
         except Exception:
-            self.logger.exception("Failed to create tools tar ball '%s'", tar_file)
+            self.logger.exception("Failed to create tar ball '%s'", tar_file)
+            failures += 1
         else:
             try:
                 if cp.returncode != 0:
                     self.logger.error(
-                        "Failed to create tools tar ball; return code: %d",
-                        cp.returncode,
+                        "Failed to create tar ball; return code: %d", cp.returncode,
                     )
                     failures += 1
                 else:
                     try:
                         tar_md5 = md5sum(tar_file)
                     except Exception:
-                        self.logger.exception(
-                            "Failed to read tools tar ball, '%s'", tar_file
-                        )
+                        self.logger.exception("Failed to read tar ball, '%s'", tar_file)
                         failures += 1
                     else:
                         try:
@@ -893,17 +859,15 @@ class ToolMeister:
                             )
 
                         self.logger.debug(
-                            "%s: starting send_tools %s %s",
+                            "%s: starting send_data group=%s, directory=%s",
                             self._hostname,
                             self._group,
                             self._directory,
                         )
                         headers = {"md5sum": tar_md5}
-                        directory_bytes = data["directory"].encode("utf-8")
-                        tool_data_ctx = hashlib.md5(directory_bytes).hexdigest()
                         url = (
-                            f"http://{self._controller}:8080/tool-data"
-                            f"/{tool_data_ctx}/{self._hostname}"
+                            f"http://{self._controller}:8080/{uri}"
+                            f"/{ctx}/{self._hostname}"
                         )
                         sent = False
                         retries = 200
@@ -949,16 +913,16 @@ class ToolMeister:
                                             parent_dir,
                                         )
                                         failures += 1
-                                    else:
-                                        del self.directories[directory]
                         self.logger.info(
-                            "%s: send_tools completed %s %s",
+                            "%s: PUT %s completed %s %s",
                             self._hostname,
+                            uri,
                             self._group,
-                            tool_dir,
+                            directory,
                         )
             except Exception:
                 self.logger.exception("Unexpected error encountered")
+                failures += 1
         finally:
             # We always remove the created tar file regardless of success or
             # failure. The above code should take care of removing the
@@ -971,15 +935,76 @@ class ToolMeister:
             except OSError as exc:
                 if exc.errno != errno.ENOENT:
                     self.logger.warning(
-                        "error removing tools tar ball, '%s': %s", tar_file, exc
+                        "error removing tar ball, '%s': %s", tar_file, exc
                     )
             except Exception as exc:
                 self.logger.warning(
-                    "unexpected error removing tools tar ball, '%s': %s", tar_file, exc
+                    "unexpected error removing tar ball, '%s': %s", tar_file, exc
                 )
+        return failures
+
+    def send_tools(self, data):
+        """send_tools - send any collected tool data to the tool data sink.
+
+        The 'action' and 'group' values of the payload have already been
+        validated before this "send tools" action is invoked.
+
+        This method only proceeds if the 'directory' entry value of the
+        payload matches what was previously provided to a "start tools"
+        action.
+        """
+
+        if self.state in ("running", "startup"):
+            # The "send tool data" action is only allowed when the Tool
+            # Meister has left the startup state (received the first "init" at
+            # least, and is not running any tools. It is a no-op if a "send"
+            # is issued "send" before any tools were started.
+            msg = f"send action received in state '{self.state}'"
+            self._send_client_status(msg)
+            return 1
+
+        if len(set(self._tools.keys()) - set(self.persist_tools)) == 0:
+            self._send_client_status("success")
+            return 0
+
+        directory = data["directory"]
+        try:
+            tool_dir = self.directories[directory]
+        except KeyError:
+            self.logger.error(
+                "INTERNAL ERROR - send tools action encountered for a"
+                " directory, '%s', that is different from any previous"
+                " start tools directory, %r",
+                directory,
+                self.directories.keys(),
+            )
+            self._send_client_status("internal-error")
+            return 1
+
+        if self._hostname == self._controller:
+            del self.directories[directory]
+            self.logger.info(
+                "%s: send_tools (no-op) %s %s", self._hostname, self._group, tool_dir
+            )
+            # Note that we don't have a directory to send when a Tool
+            # Meister runs on the same host as the controller.
+            self._send_client_status("success")
+            return 0
+
+        assert tool_dir.name == self._hostname, (
+            f"Logic Bomb! Final path component of the tool directory is"
+            f" '{tool_dir.name}', not our host name '{self._hostname}'"
+        )
+
+        directory_bytes = data["directory"].encode("utf-8")
+        tool_data_ctx = hashlib.md5(directory_bytes).hexdigest()
+        failures = self._send_directory(tool_dir, "tool-data", tool_data_ctx)
+
+        if failures == 0:
+            del self.directories[directory]
 
         self._send_client_status(
-            "success" if failures == 0 else "failures sending tool data"
+            "success" if failures == 0 else f"{failures} failures sending tool data"
         )
         return failures
 
@@ -1014,6 +1039,103 @@ class ToolMeister:
             self._send_client_status("success")
         return failures
 
+    def sysinfo(self, data):
+        """sysinfo - collect all the sysinfo data for this host."""
+        if self.state in ("running", "idle"):
+            # The "gather system information" action is only allowed when the
+            # Tool Meister first starts ("startup"), and when it is ready for
+            # shutting down ("shutdown").
+            msg = f"sysinfo action received in state '{self.state}'"
+            self._send_client_status(msg)
+            return 1
+
+        args = data["args"]
+        if not args:
+            self._send_client_status("No sysinfo arguments given")
+            return 1
+
+        self.logger.debug("sysinfo: %r", args)
+        # FIXME - Should we perform more checking to validate the argument?
+        sysinfo = args[0]
+        # FIXME - We need the label for this registered host
+        label = ""
+
+        if self._hostname == self._controller:
+            try:
+                sysinfo_dir = Path(data["directory"]).resolve(strict=True)
+            except Exception:
+                self.logger.exception(
+                    "Failed to access provided sysinfo directory, %s", data["directory"]
+                )
+                self._send_client_status("internal-error")
+                return 1
+        else:
+            try:
+                sysinfo_dir = Path(
+                    tempfile.mkdtemp(
+                        dir=self._tmp_dir, prefix=f"tm.{self._group}.{os.getpid()}."
+                    )
+                ).resolve(strict=True)
+            except Exception:
+                self.logger.exception(
+                    "Failed to create temporary directory for sysinfo operation"
+                )
+                self._send_client_status("internal-error")
+                return 1
+
+        global sysinfo_dump
+        command = [
+            sysinfo_dump,
+            str(sysinfo_dir),
+            sysinfo,
+            label,
+        ]
+
+        self.logger.info("pbench-sysinfo-dump -- %s", " ".join(command))
+
+        o_file = sysinfo_dir / "tm-sysinfo.out"
+        e_file = sysinfo_dir / "tm-sysinfo.err"
+        try:
+            with o_file.open("w") as ofp, e_file.open("w") as efp:
+                cp = subprocess.run(
+                    command, cwd=sysinfo_dir, stdin=None, stdout=ofp, stderr=efp,
+                )
+        except Exception as exc:
+            msg = f"Failed to collect system information: {exc}"
+            self.logger.exception(msg)
+            self._send_client_status(msg)
+            return 1
+        else:
+            if cp.returncode != 0:
+                msg = f"failed to collect system information; return code: {cp.returncode}"
+                self.logger.error(msg)
+                self._send_client_status(msg)
+                return 1
+
+        if self._hostname == self._controller:
+            self.logger.info(
+                "%s: sysinfo send (no-op) %s %s",
+                self._hostname,
+                self._group,
+                sysinfo_dir,
+            )
+            # Note that we don't have a directory to send when a Tool
+            # Meister runs on the same host as the controller.
+            self._send_client_status("success")
+            return 0
+
+        directory_bytes = data["directory"].encode("utf-8")
+        sysinfo_data_ctx = hashlib.md5(directory_bytes).hexdigest()
+        failures = self._send_directory(
+            sysinfo_dir / self._hostname, "sysinfo-data", sysinfo_data_ctx
+        )
+
+        self._send_client_status(
+            "success" if failures == 0 else f"{failures} failures sending sysinfo data"
+        )
+
+        return failures
+
 
 def main(argv):
     """Main program for the Tool Meister.
@@ -1044,6 +1166,12 @@ def main(argv):
     tar_path = find_executable("tar")
     if tar_path is None:
         print("External 'tar' executable not found.", file=sys.stderr)
+        return 2
+
+    global sysinfo_dump
+    sysinfo_dump = find_executable("pbench-sysinfo-dump")
+    if sysinfo_dump is None:
+        print("External 'pbench-sysinfo-dump' executable not found.", file=sys.stderr)
         return 2
 
     logger = logging.getLogger(PROG)

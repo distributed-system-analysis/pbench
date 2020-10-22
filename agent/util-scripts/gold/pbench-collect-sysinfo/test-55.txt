@@ -16,7 +16,8 @@ Collecting system information
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] tool_opts: ""
 [info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "default"
+[info][1900-01-01T00:00:00.000000] Collecting system information
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end block,libvirt,kernel_config,security_mitigations,sos,topology 
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-tool-meister-client default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end sysinfo block,libvirt,kernel_config,security_mitigations,sos,topology
 --- test-execution.log file contents

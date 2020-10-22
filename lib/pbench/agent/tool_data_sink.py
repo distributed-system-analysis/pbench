@@ -297,7 +297,7 @@ class ToolDataSink(Bottle):
         # Initialize internal state
         self._hostname = os.environ["_pbench_full_hostname"]
         self.state = None
-        self.tool_data_ctx = None
+        self.data_ctx = None
         self.directory = None
         self.tool_metadata = toolmetadata.ToolMetadata("redis", redis_server, logger)
         self._data = None
@@ -307,10 +307,17 @@ class ToolDataSink(Bottle):
         self._cv = Condition(lock=self._lock)
         # Setup the Bottle server route and the WSGI server instance.
         self.route(
-            "/tool-data/<tool_data_ctx>/<hostname>",
+            "/tool-data/<data_ctx>/<hostname>",
             method="PUT",
             callback=self.put_document,
         )
+        self.route(
+            "/sysinfo-data/<data_ctx>/<hostname>",
+            method="PUT",
+            callback=self.put_document,
+        )
+        # The list of states where we expect Tool Meisters to send data to us.
+        self._data_states = frozenset(("send", "sysinfo"))
         self._server = DataSinkWsgiServer(host="0.0.0.0", port=8080, logger=logger)
         # Setup the Redis server channel subscription
         logger.debug("pubsub")
@@ -494,10 +501,13 @@ class ToolDataSink(Bottle):
         """wait_for_all_data - block the caller until all of the registered
         tool meisters have sent their data.
 
-        Waiting is a no-op for all states except 'send'.  In the 'send' state,
-        we are expecting to hear from all registered tool meisters.
+        Waiting is a no-op for all states except the "data states" (see
+        self._data_states).  In a "data" state, we are expecting to hear from
+        all registered tool meisters.
         """
-        assert self.state == "send", f"expected state 'send' not '{self.state}'"
+        assert (
+            self.state in self._data_states
+        ), f"expected state to be one of {self._data_states!r} not {self.state!r}"
         assert self._tm_tracking is not None, "Logic bomb!  self._tm_tracking is None"
 
         done = False
@@ -597,7 +607,7 @@ class ToolDataSink(Bottle):
         # data we receive to that directory, but expect them to provide the
         # opaque context in the URL for the PUT method.
         directory_bytes = directory_str.encode("utf-8")
-        self.tool_data_ctx = hashlib.md5(directory_bytes).hexdigest()
+        self.data_ctx = hashlib.md5(directory_bytes).hexdigest()
 
         # Transition to "send" state should reset self._tm_tracking
         with self._lock:
@@ -626,7 +636,7 @@ class ToolDataSink(Bottle):
             elif self.state == "end":
                 if self._prom_server:
                     self._prom_server.terminate()
-            elif self.state == "send":
+            elif self.state in self._data_states:
                 self._change_tm_tracking("dormant", "waiting")
                 # The Tool Data Sink cannot send success until all the Tool
                 # Meisters have sent their collected data, so wait for all the
@@ -678,7 +688,7 @@ class ToolDataSink(Bottle):
                 ret_val = 0
         return ret_val
 
-    def put_document(self, tool_data_ctx, hostname):
+    def put_document(self, data_ctx, hostname):
         """put_document - PUT callback method for Bottle web server end point
 
         The put_document method is called by threads serving web requests.
@@ -689,16 +699,16 @@ class ToolDataSink(Bottle):
 
         """
         with self._lock:
-            if self.state != "send":
+            if self.state not in self._data_states:
                 # FIXME: Don't we have a race condition if the tool meisters
                 # process their messages first?  Seems like we need to send to
                 # the Tool Data Sink first, and then send to all the tool
                 # meisters.
                 abort(400, f"Can't accept PUT requests in state '{self.state}'")
-            if self.tool_data_ctx != tool_data_ctx:
+            if self.data_ctx != data_ctx:
                 # Tool Data Sink and this Tool Meister are out of sink as to
                 # what data is expected.
-                abort(400, f"Unexpected tool data context, '{tool_data_ctx}'")
+                abort(400, f"Unexpected data context, '{data_ctx}'")
             # Fetch the Tool Meister tracking record for this host and verify
             # it is in the expected waiting state.
             tm_tracker = self._tm_tracking[hostname]
@@ -735,11 +745,11 @@ class ToolDataSink(Bottle):
         target_dir = self.directory
         if not target_dir.is_dir():
             self.logger.error("ERROR - directory, '%s', does not exist", target_dir)
-            abort(500, f"Invalid URL, path {target_dir} does not exist")
-        host_tool_data_tb_name = target_dir / f"{hostname}.tar.xz"
-        if host_tool_data_tb_name.exists():
-            abort(409, f"{host_tool_data_tb_name} already uploaded")
-        host_tool_data_tb_md5 = Path(f"{host_tool_data_tb_name}.md5")
+            abort(500, "INTERNAL ERROR")
+        host_data_tb_name = target_dir / f"{hostname}.tar.xz"
+        if host_data_tb_name.exists():
+            abort(409, f"{host_data_tb_name} already uploaded")
+        host_data_tb_md5 = Path(f"{host_data_tb_name}.md5")
 
         with tempfile.NamedTemporaryFile(mode="wb", dir=target_dir) as ofp:
             total_bytes = 0
@@ -766,45 +776,45 @@ class ToolDataSink(Bottle):
 
             # First write the .md5
             try:
-                with host_tool_data_tb_md5.open("w") as md5fp:
-                    md5fp.write(f"{exp_md5} {host_tool_data_tb_name.name}\n")
+                with host_data_tb_md5.open("w") as md5fp:
+                    md5fp.write(f"{exp_md5} {host_data_tb_name.name}\n")
             except Exception:
                 try:
-                    os.remove(host_tool_data_tb_md5)
+                    os.remove(host_data_tb_md5)
                 except Exception as exc:
                     self.logger.warning(
                         "Failed to remove .md5 %s when trying to clean up: %s",
-                        host_tool_data_tb_md5,
+                        host_data_tb_md5,
                         exc,
                     )
                 self.logger.exception(
-                    "Failed to write .md5 file, '%s'", host_tool_data_tb_md5
+                    "Failed to write .md5 file, '%s'", host_data_tb_md5
                 )
                 raise
 
             # Then create the final filename link to the temporary file.
             try:
-                os.link(ofp.name, host_tool_data_tb_name)
+                os.link(ofp.name, host_data_tb_name)
             except Exception:
                 try:
-                    os.remove(host_tool_data_tb_md5)
+                    os.remove(host_data_tb_md5)
                 except Exception as exc:
                     self.logger.warning(
                         "Failed to remove .md5 %s when trying to clean up: %s",
-                        host_tool_data_tb_md5,
+                        host_data_tb_md5,
                         exc,
                     )
                 self.logger.exception(
                     "Failed to rename tar ball '%s' to '%s'",
                     ofp.name,
-                    host_tool_data_tb_md5,
+                    host_data_tb_md5,
                 )
                 raise
             else:
                 self.logger.debug(
                     "Successfully wrote %s (%s.md5)",
-                    host_tool_data_tb_name,
-                    host_tool_data_tb_name,
+                    host_data_tb_name,
+                    host_data_tb_name,
                 )
 
         # Now unpack that tar ball
@@ -814,34 +824,32 @@ class ToolDataSink(Bottle):
             # Invoke tar directly for efficiency.
             with o_file.open("w") as ofp, e_file.open("w") as efp:
                 cp = subprocess.run(
-                    [tar_path, "-xf", host_tool_data_tb_name],
+                    [tar_path, "-xf", host_data_tb_name],
                     cwd=target_dir,
                     stdin=None,
                     stdout=ofp,
                     stderr=efp,
                 )
         except Exception:
-            self.logger.exception(
-                "Failed to extract tools tar ball, '%s'", host_tool_data_tb_name
-            )
-            raise
+            self.logger.exception("Failed to extract tar ball, '%s'", host_data_tb_name)
+            abort(500, "INTERNAL ERROR")
         else:
             if cp.returncode != 0:
                 self.logger.error(
-                    "Failed to create tools tar ball; return code: %d", cp.returncode
+                    "Failed to create tar ball; return code: %d", cp.returncode
                 )
                 abort(500, "INTERNAL ERROR")
             else:
-                self.logger.debug("Successfully unpacked %s", host_tool_data_tb_name)
+                self.logger.debug("Successfully unpacked %s", host_data_tb_name)
                 try:
                     o_file.unlink()
                     e_file.unlink()
-                    host_tool_data_tb_md5.unlink()
-                    host_tool_data_tb_name.unlink()
+                    host_data_tb_md5.unlink()
+                    host_data_tb_name.unlink()
                 except Exception:
                     self.logger.exception(
                         "Error removing unpacked tar ball '%s' and it's .md5",
-                        host_tool_data_tb_name,
+                        host_data_tb_name,
                     )
 
         # Tell the waiting "watcher" thread engaging in a "state" change

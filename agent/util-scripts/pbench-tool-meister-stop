@@ -101,7 +101,7 @@ def main(argv):
     ret_val = 0
 
     logger.debug("terminating %d pids at localhost:%d", expected_pids, redis_port)
-    terminate_msg = dict(action="terminate", group=None, directory=None)
+    terminate_msg = dict(action="terminate", group=None, directory=None, args=None)
     try:
         num_present = redis_server.publish(
             channel, json.dumps(terminate_msg, sort_keys=True)
