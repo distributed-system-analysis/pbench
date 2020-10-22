@@ -1,7 +1,7 @@
 {% for repo in repos %}
 
-[copr-{{ repo.tag }}]
-name=Copr {{ repo.tag }} repo
+[copr-{{ repo.tag }}-{{ repo.user }}]
+name=COPR {{ repo.tag }} ({{ repo.user }}) repo
 baseurl={{ repo.baseurl }}
 skip_if_unavailable=True
 gpgcheck={{ repo.gpgcheck }}
