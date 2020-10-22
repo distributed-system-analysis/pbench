@@ -4,6 +4,7 @@ pbench_repo_url_prefix: https://copr-be.cloud.fedoraproject.org/results/{{ fedor
  
 repos:
   - tag: pbench
+    user: "{{ fedoraproject_username }}"
     baseurl: "{{ pbench_repo_url_prefix }}/pbench/{{ distrodir }}"
     gpgkey: "{{ pbench_repo_url_prefix }}/pbench/pubkey.gpg"
     gpgcheck: 1
