@@ -176,7 +176,7 @@ fedora-31-base.Dockerfile: Dockerfile.base.j2 fedora-31-pbench.repo
 	jinja2 ${_REPO_TEMPLATE} $*.yml -o $@
 
 %.yml: repo.yml.j2
-	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -o $@
+	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -D user=${USER} -o $@
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis
