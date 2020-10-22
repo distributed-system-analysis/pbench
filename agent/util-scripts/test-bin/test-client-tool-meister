@@ -68,6 +68,13 @@ if [[ ${status} -ne 0 ]]; then
     exit 1
 fi
 
+_timeout pbench-collect-sysinfo --group="${group}" --dir="${benchmark_run_dir}" --sysinfo="block,security_mitigations,sos" beg
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "ERROR - \"pbench-collect-sysinfo\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+    exit 1
+fi
+
 _timeout pbench-init-tools --group="${group}" --dir="${benchmark_run_dir}"
 status=${?}
 if [[ ${status} -ne 0 ]]; then
@@ -124,6 +131,13 @@ _timeout pbench-end-tools --group="${group}" --dir="${benchmark_run_dir}"
 status=${?}
 if [[ ${status} -ne 0 ]]; then
     printf -- "ERROR - \"pbench-end-tools\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+    exit 1
+fi
+
+_timeout pbench-collect-sysinfo --group="${group}" --dir="${benchmark_run_dir}" --sysinfo="block,security_mitigations,sos" end
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "ERROR - \"pbench-collect-sysinfo\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
     exit 1
 fi
 

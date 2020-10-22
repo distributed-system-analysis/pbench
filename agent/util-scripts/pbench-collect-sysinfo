@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
 script_path=`dirname $0`
 script_name=`basename $0`
@@ -156,9 +156,6 @@ if [[ ! -d ${dir} ]]; then
 	exit 1
 fi
 
-# always notify the user, as collection can sometimes take a while
-echo "Collecting system information"
-
 # Ensure we have a tools group directory to work with
 tool_group_dir="$(verify_tool_group "${group}")"
 if [[ ${?} -ne 0 || -z "${tool_group_dir}" ]]; then
@@ -177,55 +174,10 @@ if [[ ! -d ${sysinfo_path} ]]; then
 	exit 1
 fi
 
+# Always notify the user, as collection can sometimes take a while
+msg="Collecting system information"
+echo "${msg}"; log "${msg}"
 
-function gather_remote_sysinfo_data {
-	local remote_host=${1}
-	local remote_label=${2}
-	debug_log "[${script_name}]running sysinfo-dump on ${remote_host}"
-	cmd="ssh ${ssh_opts} -n ${remote_host} pbench-remote-sysinfo-dump ${sysinfo_path} \"${sysinfo}\" ${remote_label}"
-	debug_log "[${script_name}] ${cmd} > ${sysinfo_path}/${remote_label}${remote_host}.tar 2> ${sysinfo_path}/${remote_label}${remote_host}.err"
-	${cmd} > ${sysinfo_path}/${remote_label}${remote_host}.tar 2> ${sysinfo_path}/${remote_label}${remote_host}.err
-	if [[ ${?} -ne 0 ]]; then
-		error_log "Remote sysinfo-dump failed"
-		error_log "$(cat ${sysinfo_path}/${remote_label}${remote_host}.err)"
-	else
-		debug_log "[${script_name}]completed: deleting sysinfo-dump data on ${remote_host}"
-		debug_log "$(cat ${sysinfo_path}/${remote_label}${remote_host}.err)"
-		pushd "${sysinfo_path}" >/dev/null
-		tar xf ${remote_label}${remote_host}.tar
-		tar_status=${?}
-		popd >/dev/null
-		if [[ ${tar_status} -ne 0 ]]; then
-			error_log "Remote tar ball was bad: ${sysinfo_path}/${remote_label}${remote_host}.tar"
-		fi
-	fi
-	rm -f ${sysinfo_path}/${remote_label}${remote_host}.tar
-	rm -f ${sysinfo_path}/${remote_label}${remote_host}.err
-}
-
-
-## Collect the sysinfo-dumps in parallel
-
-for dirent in $(/bin/ls -1 ${tool_group_dir}); do
-        if [[ "${dirent}" == "__trigger__" ]]; then
-		# Ignore trigger files
-		continue
-	elif [[ ! -d ${tool_group_dir}/${dirent} ]]; then
-		# Skip spurious files of ${tool_group_dir}
-		warn_log "[$script_name] \"${this_tool_file}\" is a file in \"${tool_group_dir}\"; that should not happen. Please consider deleting it."
-		continue
-	fi
-	hostdir="${dirent}"
-	label="$(cat ${tool_group_dir}/${hostdir}/__label__ 2> /dev/null)"
-	if [[ "${hostdir}" == "localhost" || "${hostdir}" == "${_pbench_hostname}" || "${hostdir}" == "${_pbench_full_hostname}" ]]; then
-		# We found local tools specified in the tools group directory,
-		# so we should collect sysinfo data locally.
-		pbench-sysinfo-dump "${sysinfo_path}" "${sysinfo}" "${label}" &
-	else
-		# We have a remote directory.
-		gather_remote_sysinfo_data ${hostdir} ${label} &
-	fi
-done
-wait
-
-exit 0
+# Direct the Tool Meister's and Tool Data Sink to collect the system information.
+pbench-tool-meister-client "${group}" "${sysinfo_path}" "sysinfo" "${sysinfo}"
+exit ${?}

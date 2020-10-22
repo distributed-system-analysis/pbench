@@ -141,14 +141,14 @@ printf "\n" >>$benchmark_summary_txt_file
 printf "<pre>\n# these results generated with:\n# uperf %s\n\n" "$scrtip_name $orig_cmd" >$benchmark_summary_html_file
 printf "\n" >>$benchmark_summary_html_file
 
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
 # Start the tool meisters on each registered local/remote host
 pbench-tool-meister-start "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to start the tool meisters."
 	exit 1
 fi
+
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
@@ -198,13 +198,14 @@ if [ $stress ]; then
 fi
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
+
 # Stop the tool meisters on each registered local/remote host
 pbench-tool-meister-stop
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to stop the tool meisters."
 fi
 
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 cat $benchmark_summary_txt_file
 
 # signal to move/copy-results that this run is done.

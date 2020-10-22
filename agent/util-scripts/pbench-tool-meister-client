@@ -25,7 +25,7 @@ tm_channel = "tool-meister-chan"
 cl_channel = "tool-meister-client"
 
 # List of allowed actions
-allowed_actions = ("end", "init", "send", "start", "stop", "kill")
+allowed_actions = ("end", "init", "send", "start", "stop", "kill", "sysinfo")
 
 
 def main(argv):
@@ -68,6 +68,10 @@ def main(argv):
             # tool meisters, locally and remotely, and ensuring they are all
             # properly shut down.
             return 0
+    try:
+        args = argv[4:]
+    except IndexError:
+        args = []
 
     logger.debug("constructing Redis() object")
     try:
@@ -141,7 +145,7 @@ def main(argv):
     # The caller of tool-meister-client must be sure the directory argument
     # is accessible by the tool-data-sink.
     logger.debug("publish %s", tm_channel)
-    msg = dict(action=action, group=group, directory=directory)
+    msg = dict(action=action, group=group, directory=directory, args=args)
     try:
         num_present = redis_server.publish(tm_channel, json.dumps(msg))
     except Exception:

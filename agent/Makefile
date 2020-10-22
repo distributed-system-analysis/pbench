@@ -50,7 +50,6 @@ util-scripts = \
 	pbench-register-tool \
 	pbench-register-tool-set \
 	pbench-register-tool-trigger \
-	pbench-remote-sysinfo-dump \
 	pbench-send-tools \
 	pbench-start-tools \
 	pbench-stop-tools \
@@ -136,7 +135,7 @@ tool-scripts = \
 	prometheus-metrics \
 	qemu-migrate \
 	rabbit \
-	README \
+	README.md \
 	sar \
 	strace \
 	sysfs \

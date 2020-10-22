@@ -1,6 +1,8 @@
 +++ Running test-53 test-client-tool-meister 
 "mpstat" tool is now registered for host "testhost.example.com" in group "default"
 "iostat" tool is now registered for host "testhost.example.com" in group "default"
+Collecting system information
+Collecting system information
 --- Finished test-53 test-client-tool-meister (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -51,6 +53,17 @@
 /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/tm-mpstat-start.out
 /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/tm-mpstat-stop.err
 /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com/tm-mpstat-stop.out
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com/contents.lis
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/tm-sysinfo.err
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/tm-sysinfo.out
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com/contents.lis
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/tm-sysinfo.err
+/var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/tm-sysinfo.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.log
@@ -79,6 +92,8 @@
 [info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42 --options=forty-two"
 [info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "default"
+[info][1900-01-01T00:00:00.000000] Collecting system information
+[info][1900-01-01T00:00:00.000000] Collecting system information
 --- pbench.log file contents
 +++ mock-run/tm/pbench-tool-data-sink.err file contents
 Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class 'pbench.agent.tool_data_sink.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
@@ -116,6 +131,8 @@ port 17001
 --- mock-run/tm/tm-default-testhost.example.com.err file contents
 +++ mock-run/tm/tm-default-testhost.example.com.log file contents
 INFO pbench-tool-meister main -- params_key (tm-default-testhost.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "testhost.example.com", "group": "default", "hostname": "testhost.example.com", "tools": {"iostat": "--interval=42 --options=forty-two", "mpstat": "--interval=42 --options=forty-two"}}'
+INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg block,security_mitigations,sos 
+INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg
 INFO pbench-tool-meister start -- iostat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister stop -- iostat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/iostat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-default/testhost.example.com --interval=42 --options=forty-two
@@ -130,12 +147,16 @@ INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils
 INFO pbench-tool-meister wait -- waiting for stop iostat
 INFO pbench-tool-meister wait -- waiting for stop mpstat
 INFO pbench-tool-meister send_tools -- testhost.example.com: send_tools (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/1-iter-one/sample42/tools-default/testhost.example.com
+INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end block,security_mitigations,sos 
+INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) default /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end
 INFO pbench-tool-meister main -- terminating
 INFO pbench-tool-meister main -- Remove pid file ... (tm-default-testhost.example.com.pid)
 --- mock-run/tm/tm-default-testhost.example.com.log file contents
 +++ mock-run/tm/tm-default-testhost.example.com.out file contents
 --- mock-run/tm/tm-default-testhost.example.com.out file contents
 +++ test-execution.log file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg block,security_mitigations,sos 
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end block,security_mitigations,sos 
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x iostat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x iostat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pidof -x mpstat

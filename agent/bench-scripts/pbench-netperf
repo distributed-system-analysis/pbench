@@ -439,14 +439,14 @@ printf "\n" >>$benchmark_summary_html_file
 # disable firewall on local system
 systemctl stop firewalld
 
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
 # Start the tool meisters on each registered local/remote host
 pbench-tool-meister-start "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to start the tool meisters."
 	exit 1
 fi
+
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
@@ -641,12 +641,12 @@ printf -- "</pre>\n" >>$benchmark_summary_html_file
 pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
 pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 
+pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
+
 # Stop the tool meisters on each registered local/remote host
 pbench-tool-meister-stop
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to stop the tool meisters."
 fi
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 rmdir $benchmark_run_dir/.running
