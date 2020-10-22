@@ -89,9 +89,9 @@
                               more than welcome!
                               </p>
                            </div>
-                           <div class="landingImg">
-                              <div class="pf-c-card__header pf-c-title pf-m-md landingImageDiv div1">
-                                 <p class="cardHeader"><b>Placeholder Image</b></p>
+                           <div class="landingImg div4">
+                              <div class="pf-c-card__header pf-c-title pf-m-md landingImageDiv">
+                                 
                               </div>
                            </div>
                         </div>
@@ -106,11 +106,12 @@
                      <div class="pf-c-card__body">
                         <div style="display: flex; flex-wrap: wrap;">
                            <div class="pf-l-grid__item subcards">
-                              <div class="card pf-c-card" id="firstGrid">
+                              <div class="card pf-c-card maxHeight" id="firstGrid">
                                  <div class="pf-c-card__header pf-c-title pf-m-md imageDiv div1">
                                     <button class="pf-c-button pf-m-primary cardHeader" id="agentBtn" type="button">
-                                       <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
-                                       &nbsp; PBENCH AGENT
+                                       <i class="fa fa-chevron-circle-down" id="agentOpenIcon" aria-hidden="true"></i>
+                                       <i class="fa fa-chevron-circle-right hidden" id="agentCloseIcon" aria-hidden="true"></i>
+                                       &nbsp; Pbench Agent
                                     </button>
                                  </div>
                                  <div class="pf-c-card__body cardBody addPadding1" id="agentBox" >
@@ -128,9 +129,12 @@
                               </div>
                            </div>
                            <div class="pf-l-grid__item subcards">
-                              <div class="pf-c-card card" id="secondGrid">
+                              <div class="pf-c-card card maxHeight" id="secondGrid">
                                  <div class="pf-c-card__header pf-c-title pf-m-md imageDiv div2">
-                                    <button class="pf-c-button pf-m-primary cardHeader" id="serverBtn" type="button"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i>&nbsp; PBENCH SERVER</button>
+                                    <button class="pf-c-button pf-m-primary cardHeader" id="serverBtn" type="button">
+                                       <i class="fa fa-chevron-circle-down" id="serverOpenIcon" aria-hidden="true"></i>
+                                       <i class="fa fa-chevron-circle-right hidden"id="serverCloseIcon" aria-hidden="true"></i>
+                                       &nbsp; Pbench Server</button>
                                  </div>
                                  <div class="pf-c-card__body cardBody addPadding2" id="serverBox" >
                                     <div id="serverToggle">
@@ -146,9 +150,12 @@
                               </div>
                            </div>
                            <div class="pf-l-grid__item subcards">
-                              <div class="pf-c-card card" id="thirdGrid">
+                              <div class="pf-c-card card maxHeight" id="thirdGrid">
                                  <div class="pf-c-card__header pf-c-title pf-m-md imageDiv div3">
-                                    <button class="pf-c-button pf-m-primary cardHeader" id="dashboardBtn" type="button"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i>&nbsp; DASHBOARD</button>
+                                    <button class="pf-c-button pf-m-primary cardHeader" id="dashboardBtn" type="button">
+                                       <i class="fa fa-chevron-circle-down" id="dashboardOpenIcon" aria-hidden="true"></i>
+                                       <i class="fa fa-chevron-circle-right hidden" id="dashboardCloseIcon" aria-hidden="true"></i>&nbsp; 
+                                       Dashboard</button>
                                  </div>
                                  <div class="pf-c-card__body cardBody addPadding3" id="dashboardBox">
                                     <div id="dashboardToggle">
