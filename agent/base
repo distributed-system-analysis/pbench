@@ -9,20 +9,6 @@
 # will catch any ssh failure
 set -o pipefail
 
-# When we are installed via RPM on RHEL 7, we are required to use the
-# Python 3.8 environment as provided by the rh-python38 SCL (Software
-# Collections Library) module.
-#
-# Starting with RHEL 7.7, Python3 is shipped natively, but because the RPM
-# mechanisms do not allow us to depend on either Python3 or SCL Python3,
-# the RPMs we build for RHEL 7 explicitly depend only on SCL's Python 3.8
-# environment.
-#
-# We also need to enable the Redis v5 environment for the Tool Meister.
-#
-# The RPM "%post" steps will uncomment this line on RHEL 7 installs.
-#source scl_source enable rh-python38 rh-redis5
-
 # very first thing to do is figure out which pbench we are
 if [[ -z "$pbench_run" ]]; then
     pbench_run=$(pbench-config pbench_run pbench-agent)

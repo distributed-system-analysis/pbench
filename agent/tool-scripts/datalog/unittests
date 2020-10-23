@@ -55,18 +55,6 @@ export TZ=UTC
 
 export _PBENCH_UNIT_TESTS
 
-if command -v python3 > /dev/null 2>&1 ;then
-    # All python programs/scripts have headers using "python3" by default.
-    :
-elif command -v scl > /dev/null 2>&1 ;then
-    # If we don't have python3, but we do have SCL, we only support
-    # Python 3.6.
-    source scl_source enable rh-python36
-else
-    printf -- "ERROR: python3 required, either directly or through SCL\n" >&2
-    exit 1
-fi
-
 function testit {
     printf -- "Testing ${2}-datalog under setup ${1} ...\n"
 

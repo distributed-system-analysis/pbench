@@ -57,8 +57,6 @@ tarball:
 	make -C .. DESTDIR=${TMPDIR}/${prog}-${VERSION}/agent
 	echo "${sha1}" > ${TMPDIR}/${prog}-${VERSION}/agent/SHA1
 	echo "${seqno}" > ${TMPDIR}/${prog}-${VERSION}/agent/SEQNO
-	./gen_final_requirements ${TMPDIR}/${prog}-${VERSION}/agent/requirements.txt ./python-module-mapping.table f3x > ${TMPDIR}/${prog}-${VERSION}/agent/requirements.f3x
-	./gen_final_requirements ${TMPDIR}/${prog}-${VERSION}/agent/requirements.txt ./python-module-mapping.table scl > ${TMPDIR}/${prog}-${VERSION}/agent/requirements.scl
 	tar zcf ${RPMSRC}/pbench-agent-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
 	rm -rf ${TMPDIR}
 

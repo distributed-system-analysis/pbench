@@ -416,8 +416,8 @@ if ($params{'postprocess-mode'} eq 'html') {
 
 # Convert the stockpile data with scribe, then create CDM docs in ./es/config
 if (-e $base_bench_dir . "/stockpile.json") {
-    system('scl enable rh-python36 \'python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' .
-        $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json\'');
+    system('python3 -m venv /var/lib/pbench-agent/tmp/scribe && cd ' .
+        $base_bench_dir . ' && scribe -t stockpile -ip ./stockpile.json >scribe.json');
     open(my $scribe_fh, "<" . $base_bench_dir . "/scribe.json") || die "Could not open " .
         $base_bench_dir . "/scribe.json";
     my $json_text = "";
