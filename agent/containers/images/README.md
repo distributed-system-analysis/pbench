@@ -23,7 +23,8 @@ and `pbench-sysstat` RPMs, build or find proper RPMs for `fio` & `uperf`,
 and place them in a single yum/dnf repository accessible via HTTPS.  By
 default, we use Fedora COPR repos under the `ndokos` user (one can
 override the yum/dnf repos and user via the `URL_PREFIX` and `USER`
-environment variables).
+environment variables, and use `pbench-test` repos by setting the `TEST`
+environment variable to `test`). 
 
 Once the proper RPMs are available in the target repo, the default
 `Makefile` target, `all`, will build all the default images, and tag
@@ -73,11 +74,11 @@ appropriate (these tags are not automatically applied at build time):
 
 Finally, there are "push" targets to copy the locally built and
 tagged images to a non-local container image repository.  By default
-we use `docker://quay.io/pbench` (you can override that via an
-environment variable).  We have separate push targets to allow the
-administrator of the container image repository to label the images
-based on what they have built in relation to what has been published
-already.  The push targets are:
+we use `docker://quay.io/pbench` (you can override that via the
+environment variable `IMAGE_REPO`).  We have separate push targets to
+allow the administrator of the container image repository to label the
+images based on what they have built in relation to what has been
+published already.  The push targets are:
 
  * `push` - pushes all the images by their `<git commit ID>` tag,
    and their RPM version tag
@@ -93,4 +94,4 @@ already.  The push targets are:
 NOTE WELL: Each separate tag for each image needs to be pushed to
 the non-local container image repository.  This does NOT result in
 multiple image copies over the wire using up network bandwidth, as
-`buildah push` is smart enough push the actual image only once.
+`buildah push` is smart enough to push the actual image only once.
