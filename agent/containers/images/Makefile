@@ -29,7 +29,7 @@ _REPO_TEMPLATE = ../../ansible/pbench/agent/roles/pbench_repo_install/templates/
 
 # The list of RPMs which provide the various tools we offer.
 # Not intended to be overridden with an environment variable.
-_TOOL_RPMS = atomic-openshift-clients blktrace bpftrace cpupowerutils golang kernel-tools libvirt-client nmap-ncat numactl pbench-sysstat pcp-system-tools perf procps-ng strace tcpdump trace-cmd
+_TOOL_RPMS = blktrace bpftrace cpupowerutils golang kernel-tools libvirt-client nmap-ncat numactl pbench-sysstat pcp-system-tools perf procps-ng strace tcpdump trace-cmd
 
 # The list of RPMs for the default workloads we offer.
 # Not intended to be overridden with an environment variable.
@@ -38,10 +38,10 @@ _WORKLOAD_RPMS = fio uperf
 # Not intended to be overridden with an environment variable.
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
+# By default we only build images for the following distributions:
 _DISTROS = centos-8 centos-7 fedora-32 fedora-31
 
-# Default we only build images the following distributions:
-all: $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
+all: all-tags $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
 
 #+
 # Tagging targets
@@ -148,6 +148,15 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-tags.lis:
 	./gen-tags-from-rpm "${URL_PREFIX}" "$*" "${_ARCH}" "${_TEST_SUFFIX}" > ${@}
 
+# Helper target to build each distro's "-tags.lis" file and verify they
+# are consistent.
+all-tags: pkgmgr-clean $(foreach distro, ${_DISTROS}, ${distro}-tags.lis)
+	./verify-tags *-tags.lis
+
+# Helper target to ensure local cache consistent by "cleaning"
+pkgmgr-clean:
+	dnf clean all
+
 #+
 # For the following rules, the various CentOS "base" images need a mapping
 # between the distribution name and the repo name, which for CentOS images
@@ -168,9 +177,12 @@ fedora-32-base.Dockerfile: Dockerfile.base.j2 fedora-32-pbench.repo
 fedora-31-base.Dockerfile: Dockerfile.base.j2 fedora-31-pbench.repo
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-31-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:31 -D distro_image_name="Fedora 31" -o $@
 
+# Helper target to build each distro's ".repo" and ".Dockerfile"
+all-dockerfiles: $(foreach distro, ${_DISTROS}, ${distro}-base.Dockerfile ${distro}-tools.Dockerfile ${distro}-workloads.Dockerfile ${distro}-all.Dockerfile)
+
 # Rule pattern dependencies on non-patterned targets have to be set up
 # separately for some reason.
-%.repo: ${_REPO_TEMPLATE} 
+%.repo: ${_REPO_TEMPLATE}
 
 %.repo: %.yml
 	jinja2 ${_REPO_TEMPLATE} $*.yml -o $@

@@ -1,6 +1,6 @@
 ---
 repos:
-  - tag: pbench
+  - tag: pbench{{ test_suffix }}
     user: {{ user }}
     baseurl: "{{ url_prefix }}/pbench{{ test_suffix }}/{{ distro }}-$basearch"
     gpgkey: "{{ url_prefix }}/pbench{{ test_suffix }}/pubkey.gpg"
