@@ -44,7 +44,6 @@ util-scripts = \
 	pbench-postprocess-tools-cdm \
 	pbench-register-tool \
 	pbench-register-tool-set \
-	pbench-register-tool-trigger \
 	pbench-send-tools \
 	pbench-start-tools \
 	pbench-stop-tools \
@@ -253,6 +252,7 @@ install-python3-setup: install-util-scripts install-lib
 	${COPY} ${DESTDIR}/python3/bin/pbench-clear-results ${UTILDIR}/
 	${COPY} ${DESTDIR}/python3/bin/pbench-cleanup ${UTILDIR}/
 	${COPY} ${DESTDIR}/python3/bin/pbench-list-tools ${UTILDIR}/
+	${COPY} ${DESTDIR}/python3/bin/pbench-register-tool-trigger ${UTILDIR}/
 	rm -rf ${DESTDIR}/python3
 	${COPY} ../lib/pbench ${LIBDIR}/
 	rm -r $$(find ${LIBDIR} -name __pycache__) ${LIBDIR}/pbench/test ${LIBDIR}/pbench/server ${LIBDIR}/pbench/cli/server

@@ -336,7 +336,6 @@ declare -A tools=(
     [test-11.12]="pbench-register-tool-set"
     [test-11.13]="pbench-register-tool-set"
     [test-11.14]="pbench-register-tool-set"
-    [test-15]="pbench-register-tool-trigger"
     [test-19]="test-tool-trigger"
     [test-20]="pbench-move-results"
     [test-21]="pbench-move-results"
@@ -353,8 +352,6 @@ declare -A tools=(
     [test-32]="pbench-copy-results"
     [test-33]="pbench-move-results"
     [test-34]="pbench-copy-results"
-    [test-35]="pbench-register-tool-trigger"
-    [test-36]="pbench-register-tool-trigger"
     [test-37]="pbench-copy-results"
     [test-38]="pbench-copy-results"
     [test-39]="pbench-copy-results"
@@ -422,7 +419,6 @@ declare -A options=(
     # verify --group option works along side --no-install
     [test-11.12]="--group=other --no-install"
     [test-11.13]="--help"
-    [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     # pbench-move-results
     [test-20]="--help"
     # pbench-move-results - no args, nothing to do
@@ -444,8 +440,6 @@ declare -A options=(
     #[test-33]=""
     # pbench-copy-results - no args, 2 bad, 1 good result directory moved
     #[test-34]=""
-    [test-35]="--group=default --start-trigger=\"START:DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
-    [test-36]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP:DEFAULT\""
     # pbench-copy-results - same controller specified as in metadata.log, no-op
     [test-37]="--controller=testhost.example.com"
     # pbench-copy-results - explicit controller different from recorded controller
@@ -484,8 +478,6 @@ declare -A expected_status=(
     [test-11.08]=1
     [test-11.11]=1
     [test-29]=1
-    [test-35]=1
-    [test-36]=1
     [test-44]=1
     [test-46]=1
     [test-47]=1
