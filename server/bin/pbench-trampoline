@@ -6,20 +6,12 @@ _basename=$(basename ${0})
 if [[ ! ":$PATH:" =~ ":${_dirname}:" ]]; then
    PATH=${_dirname}${PATH:+:}$PATH; export PATH
 fi
-if command -v python3 > /dev/null 2>&1 ;then
-    _pythoncmd=""
-elif command -v scl > /dev/null 2>&1 ;then
-    _pythoncmd="scl enable rh-python36 --"
-else
-    printf -- "${_basename}: pbench-trampoline needs python3, either directly or through SCL\n" >&2
-    exit 1
-fi
 if [[ -e ${_dirname}/${_basename}.py ]]; then
     # We don't use pbench-base.py to invoke python programs, they can use the
     # PbenchServerConfig class directly.
-    ${_pythoncmd} ${_dirname}/${_basename}.py ${@}
+    ${_dirname}/${_basename}.py ${@}
 else
     export PROG=${_basename}
     export dir=${_dirname}
-    ${_pythoncmd} ${_dirname}/pbench-base.py ${0} ${@}
+    ${_dirname}/pbench-base.py ${0} ${@}
 fi
