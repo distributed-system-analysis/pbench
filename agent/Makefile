@@ -236,10 +236,11 @@ tool-postprocess = \
 install: install-destdir install-python3-setup install-bench-scripts install-tool-scripts install-ansible
 	${COPY} VERSION ${DESTDIR}
 	${COPY} base ${DESTDIR}
+	${COPY} profile ${DESTDIR}
 	${INSTALL} ${INSTALLOPTS} ${CONFIGDIR}
 	${INSTALL} ${INSTALLOPTS} ${CONFIGDIR}/benchmark
 	${COPY} config ${DESTDIR}
-	${COPY} profile ${DESTDIR}
+	${COPY} templates ${DESTDIR}
 	${INSTALL} ${INSTALLOPTS} ${STOCKPILEDIR}
 	${COPY} stockpile ${DESTDIR}
 

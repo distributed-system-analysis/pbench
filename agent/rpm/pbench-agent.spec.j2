@@ -9,36 +9,45 @@ Source0:        pbench-agent-%{version}.tar.gz
 Buildarch:      noarch
 
 %if 0%{?rhel} == 7
-Requires:  scl-utils, rh-python38, rh-python38-python-pip, rh-redis5
+Requires:  python3, python3-pip
+# For RHEL boxen we need the python development environment in order for the
+# pip3 installs for some modules to be successful.
+Requires:  gcc python3-devel
+%endif
+
+%if 0%{?rhel} == 8
+Requires:  python36, python3-pip
 # RPMs for modules in requirements.txt
-Requires:  rh-python38-python-cffi, rh-python38-python-requests
-# RPMs for derived dependencies
-Requires:  rh-python38-python-cryptography, rh-python38-python-jinja2, rh-python38-python-markupsafe, rh-python38-python-psutil, rh-python38-python-pyyaml, rh-python38-python-chardet, rh-python38-python-idna, rh-python38-python-pycparser, rh-python38-python-six, rh-python38-python-urllib3
+Requires:  python3-cffi, python3-click, python3-requests, python3-werkzeug
+# RPMs for module dependencies
+Requires:  python3-docutils, python3-psutil
 %endif
 
-%if 0%{?rhel} == 8 || 0%{?fedora} >= 31
-Requires:  python3, python3-pip, redis
+%if 0%{?fedora} != 0
+Requires:  python3, python3-pip
 # RPMs for modules in requirements.txt
-Requires:  python3-bottle, python3-cffi, python3-click, python3-colorlog, python3-daemon, python3-redis, python3-requests, python3-sh, python3-werkzeug
+Requires:  python3-bottle, python3-cffi, python3-click, python3-colorlog
+Requires:  python3-daemon, python3-redis, python3-requests, python3-sh
+Requires:  python3-werkzeug
+# RPMs for module dependencies
+Requires:  python3-psutil
 %endif
 
-%if 0%{?fedora} == 0
-# NOT fedora
-%define perljsonxs pbench-perl-JSON-XS
-%else
-%define perljsonxs perl-JSON-XS
+%if 0%{?rhel} >= 7
+%define prefixjsonxs pbench-
 %endif
 
-Requires:  bzip2, tar, xz, screen, psmisc, bc, sos
-Requires:  perl, perl-JSON, %{perljsonxs}, perl-Time-HiRes, perl-Data-UUID
+Requires:  bzip2, tar, xz, screen, psmisc, bc, sos, redis
+Requires:  perl, perl-JSON, %{?prefixjsonxs}perl-JSON-XS, perl-Time-HiRes, perl-Data-UUID
 # The following are needed by UBI containers which are bare bones - most other
 # systems will probably already have them installed.
-Requires:  ansible hostname iproute iputils openssh-server openssh-clients rsync
+Requires:  ansible hostname iproute iputils openssh-server openssh-clients
+Requires:  rsync
 
 Obsoletes: pbench <= 0.34
 Conflicts: pbench <= 0.34
-# configtools is packaged with pbench-agent, so we specifically do NOT want the configtools
-# RPM installed.
+# configtools is packaged with pbench-agent, so we specifically do NOT want
+# the configtools RPM installed.
 Conflicts: configtools
 
 Patch0: stockpile-shebang.patch
@@ -63,41 +72,25 @@ mkdir -p %{buildroot}/%{installdir}
 cp -a agent/* %{?buildroot}/%{installdir}/
 
 %pre
-# this RPM conflicts with a configtools RPM, but we may have a Pypi
+# This RPM conflicts with a configtools RPM, but we may have a PyPI
 # configtools installed: zap it.
-%if 0%{?rhel} == 7
-scl enable rh-python38 -- bash -c 'if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;fi'
-%endif
-
-%if 0%{?rhel} == 8 || 0%{?fedora} >= 31
 if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;fi
-%endif
 
 %post
-
-%if 0%{?rhel} == 7
-sed -i 's/^#\(source scl_source enable rh-python38\)/\1/' /%{installdir}/base
-%endif
-
 # Install python dependencies
-%if 0%{?rhel} == 7
-scl enable rh-python38 -- bash -c "pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.scl" > /%{installdir}/pip3-install.log
-%endif
-%if 0%{?rhel} == 8 || 0%{?fedora} >= 31
-pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.f3x > /%{installdir}/pip3-install.log
-%endif
+pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log
 
 # link the pbench profile, so it'll automatically be sourced on login
 ln -sf /%{installdir}/profile /etc/profile.d/pbench-agent.sh
 
 %preun
-# if uninstalling, rather than updating, delete the link
+# If uninstalling, rather than updating, delete the link
 if [ $1 -eq 0 ] ;then
     rm -f /etc/profile.d/pbench-agent.sh
 fi
 
 %postun
-# if uninstalling, rather than updating, delete the Python3 pip3 install location.
+# If uninstalling, rather than updating, delete the Python3 pip3 install location.
 if [ $1 -eq 0 ] ;then
     rm -rf /%{installdir}/bin /%{installdir}/lib /%{installdir}/lib64 /%{installdir}/pip3-install.log
 
@@ -110,19 +103,17 @@ fi
 
 %files
 %defattr(664,root,root,775)
-/%{installdir}/config
-
-/%{installdir}/lib
 /%{installdir}/ansible
-/%{installdir}/base
+/%{installdir}/config
+/%{installdir}/lib
+/%{installdir}/templates
 
+/%{installdir}/base
 /%{installdir}/VERSION
 /%{installdir}/SEQNO
 /%{installdir}/SHA1
 /%{installdir}/profile
 /%{installdir}/requirements.txt
-/%{installdir}/requirements.f3x
-/%{installdir}/requirements.scl
 
 %config(noreplace) %attr(0664,root,root) /%{installdir}/config/pbench-agent.cfg
 
