@@ -23,7 +23,7 @@ in the Pbench Agent [Getting Started Guide](
 https://distributed-system-analysis.github.io/pbench/start.html).
 
 For Fedora, CentOS, and RHEL users, we have made available [COPR
-builds](https://copr.fedoraproject.org/coprs/ndokos/pbench/) for the
+builds](https://copr.fedorainfracloud.org/coprs/ndokos/pbench/) for the
 `pbench-agent`, `pbench-server`, `pbench-web-server`, and some benchmark and
 tool packages.
 
@@ -39,11 +39,9 @@ https://distributed-system-analysis.github.io/pbench/doc.html).
 Refer to the [Pbench Agent Getting Started Guide](
 https://distributed-system-analysis.github.io/pbench/start.html).
 
-TL;DR? See [TL;DR - How to set up the `pbench-agent` and run a benchmark
-](https://distributed-system-analysis.github.io/pbench/doc.html#how) of the
-[Pbench Agent Getting Started Guide](
-https://distributed-system-analysis.github.io/pbench/doc.html) for a
-super quick set of introductory steps.
+TL;DR? See "[TL;DR - How to set up the `pbench-agent` and run a benchmark
+](https://distributed-system-analysis.github.io/pbench/doc.html#how)" in the
+main documentation for a super quick set of introductory steps.
 
 ## Where is the source kept?
 The latest source code is at
