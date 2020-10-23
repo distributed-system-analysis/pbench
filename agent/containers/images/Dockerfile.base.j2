@@ -9,13 +9,8 @@ COPY ./{{ pbench_repo_file }} /etc/yum.repos.d/pbench.repo
 # ... and finally, ensure the proper pbench-agent environment variables are set up.
 RUN \
 {% if distro_image.startswith('centos') %}
-    {{ pkgmgr }} install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ distro_image.split(':', 1)[1] }}.noarch.rpm && \
+    {{ pkgmgr }} install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ distro_image.split(':', 1)[1] }}.noarch.rpm{% if distro_image == 'centos:7' %} centos-release-scl-rh centos-release-scl{% endif %} && \
 {% endif %}
-{% if distro_image == 'centos:7' %}
-    {{ pkgmgr }} install -y centos-release-scl-rh centos-release-scl && \
-    {{ pkgmgr }} install -y --enablerepo=centos-sclo-rh rh-python36 && \
-{% endif %}
-    {{ pkgmgr }} install -y {% if distro_image == 'centos:8' %}--enablerepo PowerTools {% endif %}--enablerepo copr-pbench pbench-agent && \
+    {{ pkgmgr }} install -y {% if distro_image == 'centos:8' %}--enablerepo PowerTools {% endif %}{% if distro_image == 'centos:7' %}--enablerepo=centos-sclo-rh {% endif %} pbench-agent && \
     {{ pkgmgr }} -y clean all && \
-    rm -rf /var/cache/yum && \
-    cp -a /opt/pbench-agent/config/pbench-agent.cfg.example /opt/pbench-agent/config/pbench-agent.cfg
+    rm -rf /var/cache/{{ pkgmgr }}

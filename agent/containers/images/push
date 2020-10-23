@@ -2,14 +2,24 @@
 
 image_repo="${1}"
 distro="${2}"
+
+# See gen-tags-from-rpm for the documented file format of a *-tags.lis file.
+
+# The git hash label is the only line in the *-tags.lis file without a leading
+# "v".
 githash="$(grep -v -E "^v" ${distro}-tags.lis)"
+# The full version label (sans git hash) is the line with a leading "v" but
+# without the "latest" label suffix.
 ver="$(grep -E "^v" ${distro}-tags.lis | grep -v latest)"
 
 if [[ "${3}" == "_major" ]]; then
+    # The "v<major>-latest" label is the first of the "latest" labels.
     other="$(grep -E "^v" ${distro}-tags.lis | grep latest | awk '{print $1}')"
 elif [[ "${3}" == "_minor" ]]; then
+    # The "v<major>.<minor>-latest" label is the second of the "latest" labels.
     other="$(grep -E "^v" ${distro}-tags.lis | grep latest | awk '{print $2}')"
 else
+    # Take the third argument as is for a label (quite trusting).
     other="${3}"
 fi
 

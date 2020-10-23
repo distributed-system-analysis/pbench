@@ -12,6 +12,12 @@ USER = ndokos
 # using an environment variable as appropriate.
 URL_PREFIX = https://copr-be.cloud.fedoraproject.org/results/${USER}
 
+# By default we use non-"test" COPR repos named "pbench".  We expect
+# test COPR repos to have a suffix added, typically "test", so that
+# the final repo name would be "pbench-test".
+TEST =
+_TEST_SUFFIX = $(if $(TEST),-$(TEST),"")
+
 # By default we use the pbench Quay.io organization for the image
 # repository.  You can override this default using an environment
 # variable as appropriate.
@@ -23,7 +29,7 @@ _REPO_TEMPLATE = ../../ansible/pbench/agent/roles/pbench_repo_install/templates/
 
 # The list of RPMs which provide the various tools we offer.
 # Not intended to be overridden with an environment variable.
-_TOOL_RPMS = pbench-sysstat perf blktrace bpftrace numactl pcp-system-tools strace kernel-tools tcpdump
+_TOOL_RPMS = blktrace bpftrace cpupowerutils golang kernel-tools libvirt-client nmap-ncat numactl pbench-sysstat pcp-system-tools perf procps-ng strace tcpdump trace-cmd
 
 # The list of RPMs for the default workloads we offer.
 # Not intended to be overridden with an environment variable.
@@ -32,108 +38,115 @@ _WORKLOAD_RPMS = fio uperf
 # Not intended to be overridden with an environment variable.
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
-# Default we only build images the following distributions:
-all: centos-8-all-tagged centos-7-all-tagged fedora-32-all-tagged fedora-31-all-tagged
+# By default we only build images for the following distributions:
+_DISTROS = centos-8 centos-7 fedora-32 fedora-31
+
+all: $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
 
 #+
 # Tagging targets
 #-
 
 # Add the "latest" tag to the local images.
-tag-latest: centos-8-tag-latest centos-7-tag-latest fedora-32-tag-latest fedora-31-tag-latest
+tag-latest: $(foreach distro, ${_DISTROS}, ${distro}-tag-latest)
 
 # Add the "v<Major>-latest" tag to the local images.
-tag-major: centos-8-tag-major centos-7-tag-major fedora-32-tag-major fedora-31-tag-major
+tag-major: $(foreach distro, ${_DISTROS}, ${distro}-tag-major)
 
 # Add the "v<Major>.<Minor>-latest" tag to the local images.
-tag-major-minor: centos-8-tag-major-minor centos-7-tag-major-minor fedora-32-tag-major-minor fedora-31-tag-major-minor
+tag-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-tag-major-minor)
 
 #+
 # Push targets
 #-
 
 # Push images with "<git commit hash>" and "v<full RPM version>" tags.
-push: centos-8-push centos-7-push fedora-32-push fedora-31-push
+push: $(foreach distro, ${_DISTROS}, ${distro}-push)
 
 # Push images with the "latest" tag.
-push-latest: centos-8-push-latest centos-7-push-latest fedora-32-push-latest fedora-31-push-latest
+push-latest: $(foreach distro, ${_DISTROS}, ${distro}-push-latest)
 
 # Push images with the "v<Major>-latest" tag.
-push-major: centos-8-push-major centos-7-push-major fedora-32-push-major fedora-31-push-major
+push-major: $(foreach distro, ${_DISTROS}, ${distro}-push-major)
 
 # Push images with the "v<Major>.<Minor>-latest" tag.
-push-major-minor: centos-8-push-major-minor centos-7-push-major-minor fedora-32-push-major-minor fedora-31-push-major-minor
+push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 
 #+
 # For the following rule patterns, the "%" represents the "distribution" name,
 # as derived from the "all" target's *-distro list.
+#
+# The string matching the "%" is called the "stem", in GNU Make parlance.  The
+# "$*" references are replaced with that stem value.
+#
+# See https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 #-
 
 %-all-tagged: %-all %-tags.lis
-	./apply-tags pbench-agent-all-${@:-all-tagged=} ${@:-all-tagged=}-tags.lis
+	./apply-tags pbench-agent-all-$* $*-tags.lis
 
 %-all: %-tools-tagged %-workloads-tagged %-all.Dockerfile
-	./build-image all ${@:-all=} ${@:-all=}-tags.lis
+	./build-image all $* $*-tags.lis
 
 %-all.Dockerfile: Dockerfile.layered.j2 %-tags.lis
-	jinja2 Dockerfile.layered.j2 -D distro=${@:-all.Dockerfile=} -D tag="$$(grep -v -E '^v' ${@:-all.Dockerfile=}-tags.lis)" -D kind="all" -D rpms="${_ALL_RPMS}" > ./$@
+	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="all" -D rpms="${_ALL_RPMS}" > ./$@
 
 %-tools-tagged: %-tools %-tags.lis
-	./apply-tags pbench-agent-tools-${@:-tools-tagged=} ${@:-tools-tagged=}-tags.lis
+	./apply-tags pbench-agent-tools-$* $*-tags.lis
 
 %-tools: %-base-tagged %-tools.Dockerfile
-	./build-image tools ${@:-tools=} ${@:-tools=}-tags.lis
+	./build-image tools $* $*-tags.lis
 
 %-tools.Dockerfile: Dockerfile.layered.j2 %-tags.lis
-	jinja2 Dockerfile.layered.j2 -D distro=${@:-tools.Dockerfile=} -D tag="$$(grep -v -E '^v' ${@:-tools.Dockerfile=}-tags.lis)" -D kind="tools" -D rpms="${_TOOL_RPMS}" > ./$@
+	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="tools" -D rpms="${_TOOL_RPMS}" > ./$@
 
 %-workloads-tagged: %-workloads %-tags.lis
-	./apply-tags pbench-agent-workloads-${@:-workloads-tagged=} ${@:-workloads-tagged=}-tags.lis
+	./apply-tags pbench-agent-workloads-$* $*-tags.lis
 
 %-workloads: %-base-tagged %-workloads.Dockerfile
-	./build-image workloads ${@:-workloads=} ${@:-workloads=}-tags.lis
+	./build-image workloads $* $*-tags.lis
 
 %-workloads.Dockerfile: Dockerfile.layered.j2 %-tags.lis
-	jinja2 Dockerfile.layered.j2 -D distro=${@:-workloads.Dockerfile=} -D tag="$$(grep -v -E '^v' ${@:-workloads.Dockerfile=}-tags.lis)" -D kind="workloads" -D rpms="${_WORKLOAD_RPMS}" > ./$@
+	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="workloads" -D rpms="${_WORKLOAD_RPMS}" > ./$@
 
 %-base-tagged: %-base
-	./apply-tags pbench-agent-base-${@:-base-tagged=} ${@:-base-tagged=}-tags.lis
+	./apply-tags pbench-agent-base-$* $*-tags.lis
 
 %-base: %-base.Dockerfile %-tags.lis
-	./build-image base ${@:-base=} ${@:-base=}-tags.lis
+	./build-image base $* $*-tags.lis
 
 #+
 # Push local images for the given tag and distribution.
 #-
 
 %-push: %-tags.lis
-	./push ${IMAGE_REPO} ${@:-push=}
+	./push ${IMAGE_REPO} $*
 
 %-push-latest: %-tags.lis
-	./push ${IMAGE_REPO} ${@:-push-latest=} latest
+	./push ${IMAGE_REPO} $* latest
 
 %-push-major: %-tags.lis
-	./push ${IMAGE_REPO} ${@:-push-major=} _major
+	./push ${IMAGE_REPO} $* _major
 
 %-push-major-minor: %-tags.lis
-	./push ${IMAGE_REPO} ${@:-push-major-minor=} _minor
+	./push ${IMAGE_REPO} $* _minor
 
 #+
 # Tag local images for the given distribution.
 #-
 
 %-tag-latest: %-tags.lis
-	./tagit ${@:-tag-latest=} latest
+	./tagit $* latest
 
 %-tag-major: %-tags.lis
-	./tagit ${@:-tag-major=} major-latest
+	./tagit $* major-latest
 
 %-tag-major-minor: %-tags.lis
-	./tagit ${@:-tag-major-minor=} major-minor-latest
+	./tagit $* major-minor-latest
 
 # Build the tags file for the given distribution.
 %-tags.lis:
-	./gen-tags-from-rpm "${URL_PREFIX}" "${@:-tags.lis=}" "${_ARCH}" > ${@}
+	./gen-tags-from-rpm "${URL_PREFIX}" "$*" "${_ARCH}" "${_TEST_SUFFIX}" > ${@}
 
 #+
 # For the following rules, the various CentOS "base" images need a mapping
@@ -160,10 +173,10 @@ fedora-31-base.Dockerfile: Dockerfile.base.j2 fedora-31-pbench.repo
 %.repo: ${_REPO_TEMPLATE}
 
 %.repo: %.yml
-	jinja2 ${_REPO_TEMPLATE} ${@:.repo=}.yml -o $@
+	jinja2 ${_REPO_TEMPLATE} $*.yml -o $@
 
 %.yml: repo.yml.j2
-	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -o $@
+	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -D user=${USER} -o $@
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis

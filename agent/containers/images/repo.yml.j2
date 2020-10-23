@@ -1,7 +1,8 @@
 ---
 repos:
   - tag: pbench
-    baseurl: "{{ url_prefix }}/pbench/{{ distro }}-$basearch"
-    gpgkey: "{{ url_prefix }}/pbench/pubkey.gpg"
+    user: {{ user }}
+    baseurl: "{{ url_prefix }}/pbench{{ test_suffix }}/{{ distro }}-$basearch"
+    gpgkey: "{{ url_prefix }}/pbench{{ test_suffix }}/pubkey.gpg"
     gpgcheck: 1
     enabled: 1
