@@ -241,6 +241,7 @@ install: install-destdir install-python3-setup install-bench-scripts install-too
 	${COPY} profile ${DESTDIR}
 	${INSTALL} ${INSTALLOPTS} ${STOCKPILEDIR}
 	${COPY} stockpile ${DESTDIR}
+	${COPY} templates ${DESTDIR}
 
 install-destdir:
 	${INSTALL} ${INSTALLOPTS} ${DESTDIR}
