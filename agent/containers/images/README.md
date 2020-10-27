@@ -72,6 +72,10 @@ appropriate (these tags are not automatically applied at build time):
  * `tag-major-minor` -adds the `v<Major>.<Minor>-latest` label to
    the images ...
 
+ * `tag-alpha` - adds the `alpha` label to the images ...
+
+ * `tag-beta` - adds the `beta` label to the images ...
+
 Finally, there are "push" targets to copy the locally built and
 tagged images to a non-local container image repository.  By default
 we use `docker://quay.io/pbench` (you can override that via the
@@ -90,6 +94,10 @@ published already.  The push targets are:
 
  * `push-major-minor` - pushes all the images by their
    `v<Major>.<Minor>-latest` tag
+
+ * `push-alpha` - pushes all the images by their `alpha` tag
+
+ * `push-beta` - pushes all the images by their `beta` tag
 
 NOTE WELL: Each separate tag for each image needs to be pushed to
 the non-local container image repository.  This does NOT result in
