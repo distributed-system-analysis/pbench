@@ -11,6 +11,10 @@
 		<link href="./css/modal.css" rel="stylesheet">
 		<link href="./css/fontawesome.min.css">
 		<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400&display=swap" rel="stylesheet">
+		<script src="./js/jquery.min.js"></script>
+		<script src="./js/tab.js"></script>
+		<script src="./js/accordion.js"></script>
+		<script src="./js/modal.js"></script>
 	</head>
 	<body>
 		<div class="pf-c-page">
@@ -59,16 +63,16 @@
 		<div class="pf-c-tabs" id="primary" style="align-items: center;margin-left: 10%;">
 		<ul class="pf-c-tabs__list pf-l-flex" style="width: 100%;">
 		<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-			<button class="tablinks active" onClick="openTab(event,'demos')">Demo</button>
+			<button id="demosLink" class="tablinks active" onClick="openTab(event,'demos')">Demo</button>
 		</li>
 		<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-			<button class="tablinks" onClick="openTab(event, 'faq')">FAQ</button>
+			<button id="faqLink" class="tablinks" onClick="openTab(event, 'faq')">FAQ</button>
 		</li>
 		</ul>
 		</div>
 	</div>
 	<div>
-		<div id="demos" class="tabcontent" style="display:block">
+		<div id="demos" class="tabcontent">
 		<div class="section">
 			<div class="pf-c-card info_card">
 				<div class="pf-c-card__body" style="padding-left: 1.5%;">
@@ -432,11 +436,13 @@
 	</div>
 
 	</body>
-	<script src="./js/jquery.min.js"></script>
-	<script src="./js/tab.js"></script>
-	<script src="./js/accordion.js"></script>
-	<script src="./js/modal.js"></script>
 	<script>
+	window.addEventListener("hashchange", function(event){
+		manageHash('demos')
+	});
+	window.onload = function() {
+		manageHash('demos')
+	};
 	function toggleSearchIcon(){
 		$(".searchBtn").hide();
 		if($(".searchInput").val()===''){
