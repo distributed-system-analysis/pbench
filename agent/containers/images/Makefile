@@ -50,6 +50,12 @@ all: all-tags $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
 # Add the "latest" tag to the local images.
 tag-latest: $(foreach distro, ${_DISTROS}, ${distro}-tag-latest)
 
+# Add the "beta" tag to the local images.
+tag-beta: $(foreach distro, ${_DISTROS}, ${distro}-tag-beta)
+
+# Add the "alpha" tag to the local images.
+tag-alpha: $(foreach distro, ${_DISTROS}, ${distro}-tag-alpha)
+
 # Add the "v<Major>-latest" tag to the local images.
 tag-major: $(foreach distro, ${_DISTROS}, ${distro}-tag-major)
 
@@ -65,6 +71,12 @@ push: $(foreach distro, ${_DISTROS}, ${distro}-push)
 
 # Push images with the "latest" tag.
 push-latest: $(foreach distro, ${_DISTROS}, ${distro}-push-latest)
+
+# Push images with the "beta" tag.
+push-beta: $(foreach distro, ${_DISTROS}, ${distro}-push-beta)
+
+# Push images with the "alpha" tag.
+push-alpha: $(foreach distro, ${_DISTROS}, ${distro}-push-alpha)
 
 # Push images with the "v<Major>-latest" tag.
 push-major: $(foreach distro, ${_DISTROS}, ${distro}-push-major)
@@ -125,6 +137,12 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-push-latest: %-tags.lis
 	./push ${IMAGE_REPO} $* latest
 
+%-push-beta: %-tags.lis
+	./push ${IMAGE_REPO} $* beta
+
+%-push-alpha: %-tags.lis
+	./push ${IMAGE_REPO} $* alpha
+
 %-push-major: %-tags.lis
 	./push ${IMAGE_REPO} $* _major
 
@@ -137,6 +155,12 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 
 %-tag-latest: %-tags.lis
 	./tagit $* latest
+
+%-tag-beta: %-tags.lis
+	./tagit $* beta
+
+%-tag-alpha: %-tags.lis
+	./tagit $* alpha
 
 %-tag-major: %-tags.lis
 	./tagit $* major-latest
