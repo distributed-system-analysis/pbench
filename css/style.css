@@ -24,10 +24,10 @@
 {
   --pf-global--primary-color--100: #1bc1c9;
   --pf-c-nav__horizontal-list-link--m-current--after--BackgroundColor: #1bc1c9;
-  --pf-c-nav__horizontal-list-link--hover--after--BackgroundColor: #0E6267;
+  --pf-c-nav__horizontal-list-link--hover--after--BackgroundColor: #1bc1c9;
   --pf-c-nav__horizontal-list-link--focus--after--BackgroundColor: #1bc1c9;
   --pf-c-nav__horizontal-list-link--m-current--Color: #1bc1c9;
-  --pf-c-nav__horizontal-list-link--hover--Color: #0E6267;
+  --pf-c-nav__horizontal-list-link--hover--Color: #1bc1c9;
   --pf-c-nav__horizontal-list-link--focus--Color: #1bc1c9;
   --pf-c-accordion__toggle--m-expanded--BorderLeftColor: #1bc1c9;
   --pf-global--link--Color: #157584;
@@ -111,9 +111,13 @@ a:hover{
   margin: var( --pf-global--spacer--xl);
 }
 
+.maxHeight{
+  height: 100%;
+}
+
 .demoCard{
   border: 1px solid #d2d2d2;
-  margin: var( --pf-global--spacer--xl) var( --pf-global--spacer--xl) var( --pf-global--spacer--xl) 0;
+  margin: var( --pf-global--spacer--md);
 }
 
 .demoCard:hover{
@@ -170,6 +174,7 @@ a:hover{
 }
 
 .cardHeader{
+  font-family: Work Sans;
   font-size: var(--pf-global--FontSize--xl);
   text-align: initial;
   margin-bottom: var(--pf-global--spacer--md);
@@ -415,7 +420,7 @@ button.tablinks:hover {
 }
 
 .pf-c-button.pf-m-link:hover {
-  color: #0E6267;
+  color: #1bc1c9;
 }
 
 .footer{
