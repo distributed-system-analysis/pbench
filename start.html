@@ -15,457 +15,730 @@
 	}
 	</style>
    <body>
-      	<div class="pf-c-page">
-			<header role="banner" class="pf-c-page__header header">
-                <div class="pf-c-page__header-brand" style="position: absolute;">
-                   <a class="pf-c-page__header-brand-link" href="index.html">
-                   <img class="pf-c-brand" src="./images/pbench_logo.png" alt="PatternFly logo" id="navlogo"/>
-                   </a>
-                </div>
-                <div class="pf-c-page__header nav-wrapper">
-                   <div class="pf-c-page__header-nav" style="background-color: var(--pf-global--BackgroundColor--dark-100);">
-                      <nav class="pf-c-nav pf-m-start pf-m-end menu-wrapper" aria-label="Global">
-                         <button class="pf-c-nav__scroll-button left-paddle paddle hidden" aria-label="Scroll left">
-                         <i class="fas fa-angle-left" aria-hidden="true"></i>
-                         </button>
-                         <ul class="pf-c-nav__horizontal-list menu">
-                            <li class="pf-c-nav__item item">
-                               <a href="start.html" class="pf-c-nav__link pf-m-current">Get Started</a>
-                            </li>
-                            <li class="pf-c-nav__item item">
-                               <a href="doc.html" class="pf-c-nav__link">Documentation</a>
-                            </li>
-                            <li class="pf-c-nav__item item">
-                               <a href="learn.html" class="pf-c-nav__link">Learn More</a>
-                               </li class="pf-c-nav__item item">
-                               <a href="contact.html" class="pf-c-nav__link">Contact</a>
-                            </li>
-                         </ul>
-                         <button class="pf-c-nav__scroll-button right-paddle paddle hidden" aria-label="Scroll right">
-                         <i class="fas fa-angle-right" aria-hidden="true"></i>
-                         </button>
-                      </nav>
-                      <!-- // Will be added later  -->
-                      <!-- <div class="pf-c-input-group searchDiv">
-                         <input class="pf-c-form-control searchInput" type="search" placeholder="search site" oninput="toggleSearchIcon()">
-                         <button type="button" aria-label="search button for search input" class="searchBtn">
-                           <i class="fas fa-search" aria-hidden="true"></i>
-                         </button>
-                         </div> -->
-                   </div>
-                </div>
-             </header>
-			<main role="main" class="pf-c-page__main" tabindex="-1" style="background-color: white;">
-			<div class="content">
-				<div class="tab">
-					<div class="pf-c-tabs" id="primary" style="align-items: center;">
-						<ul class="pf-c-tabs__list pf-l-flex" style="width: 100%;margin-left: 20%;">
-						<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-							<button class="tablinks active" onClick="openTab(event,'setup')">Setup</button>
-						</li>
-						<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-							<button class="tablinks" onClick="openTab(event, 'install')">Install</button>
-						</li>
-						<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-							<button class="tablinks" onClick="openTab(event, 'steps')">First Steps</button>
-						</li>
-						<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-							<button class="tablinks" onClick="openTab(event, 'best')">Best Practices</button>
-						</li>
-						</ul>
-					</div>
-				</div>
-				<div>
-					<div id="setup" class="tabcontent" style="display:block">
-						<div class="App">
-							<div class="section">
-								<div class="pf-c-card info_card">
-									<div class="pf-c-card__body">
-										<p class="info_text">
-											The following steps assume that only a single node participates in the benchmark run. If you want a multi-node setup, you have to read up on the --remote options of
-											various commands (in particular, <span class="c_snip_inline">pbench-register-tool-set</span>)
-										</p>
-									</div>
-								</div>
-								<div class="pf-c-card next_card">
-									<div class="pf-c-card__body">
-										<button class="pf-c-button pf-m-inline pf-m-link pf-m-small info_text" type="button" onClick="openTab(event, 'install')" style="text-align: center;">Install the agent</button>
-										<p class="info_text" style="text-align:justify">Customize the agent for your server environment. This will vary from installation to installation, but it fundamentally involves copying two files that should be 
-											made available to you somehow by an admin type: an ssh private key file to allow the client(s) to send results to the server and a configuration file that should be 
-											installed in /opt/pbench-agent/config/pbench-agent.cfg. There is an example configuration file in that location, but you need the "real" one for your environment. Among other things, the config file specifies who the server is.</p>
-											<p class="info_text" style="text-align:justify">Run your benchmark with a default set of tools:</p>
-											<p class="c_snip">
-												. /etc/profile.d/pbench-agent.sh  &nbsp; &nbsp; #or log out and log back in<br></br>
-												pbench-register-tool-set<br></br>
-												pbench-user-benchmark -C test1 -- ./your_cmd.sh<br></br>
-												pbench-move-results
-											</p >
-											<p class="info_text" style="text-align:justify">
-												Visit the Results URL in your browser to see the results: the URL depends on who the server is; assuming that the server is "pbench.example.com" and assuming you ran the 
-												above on a host named "myhost", the results will be found at (N.B.: this is a fake link serving as an example only - talk to your local administrator to find out what server
-												to use to get to Pbench results): 
-												<a href="#">http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>
-											</p>
-										</div>
-									</div>
-									<div class="info_text">
-										<p style="align-self:center">Don't see what you need here?
-											<span>
-												<button class="pf-c-button pf-m-link" type="button" onclick="window.open('https://github.com/distributed-system-analysis/pbench','_blank','resizable=yes')">
-													<span class="pf-c-button__icon">
-														<i class="fas fa-pencil-alt"></i>
-													</span>
-													<span class="pf-c-button__text">Contribute a Pbench script</span>
-												</button>
-											</span>
-										</p>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div id="install" class="tabcontent">
-						<div class="App">
-							<div class="section">
-								<div class="pf-c-accordion accor_card">
-									<div class="accordionCard">
-										<h3 class="accordion">
-											<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-												<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-												<span class="pf-c-accordion__toggle-text">Introduction</span>
-											</button>
-										</h3>
-										<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-											<div class="pf-c-accordion__expanded-content-body">
-												<p class="info_text" style="text-align:justify">
-													The Pbench agent requires the installation of some generic bits, but it also requires some localization: it needs to know where
-													 to send the results for storage and analysis and it needs to be able to authenticate to the storage server.</p>
-													<p class="info_text"  style="text-align:justify">
-													The generic bits are packaged as an RPM, available from COPR (https://copr.fedorainfracloud.org/). We try to build a new release 
-													every month or so.</p>
-													<p class="info_text"  style="text-align:justify">
-													The localization bits are of course, specific to a particular installation. Internally, we make them available to users through
-													 an internal RPM, but other installations may use different methods to make them available. Consult your local pbench guru for help.</p>
-													<p class="info_text"  style="text-align:justify">In the following, we describe how to install pbench-agent using the two RPMs (the "external" RPM and the "internal" RPM). 
-													  You will have to modify these instructions for your local installation. Nevertheless, for simplicity, in the following we 
-													  will refer to the two packages as pbench-agent and pbench-agent-internal, but bear in mind that your local installation 
-													  may use different names or may not use an internal RPM or may not use RPMs at all.</p>
-													<p class="info_text"  style="text-align:justify">Note that the same pbench-agent version <b>must </b>be installed on all the test systems that participate in a benchmark run: 
-														there is <b> no support for mixed installations</b>.</p>
-											</div>
-										</div>
-									</div>
-									<div class="accordionCard">
-										<h3 class="accordion">
-											<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-												<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-												<span class="pf-c-accordion__toggle-text">Repos</span>
-											</button>
-										</h3>
-										<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-											<div class="pf-c-accordion__expanded-content-body">
-												<p class="info_text"  style="text-align:justify">
-													You will need to install both the external repo and (if applicable) the internal repo on every machine where you are planning to run Pbench (including VMs). N.B. These steps must be run as root.
-													</p>
-													<p class="info_text"  style="text-align:justify"><b>External repo : </b></p>
-													<p class="info_text"  style="text-align:justify">If your system supports dnf, then you can copy the repo locally with:</p>
-													<p class="c_snip">dnf copr enable ndokos/pbench</p>
-													<p class="info_text"  style="text-align:justify">If your system only supports yum, you may be able to install the COPR plugin and install similarly:</p>
-													<p class="c_snip">yum install yum-plugin-copr<br></br>yum copr enable ndokos/pbench</p>
-													<p class="info_text"  style="text-align:justify">If all else fails, you can manually download the repo, by visiting <a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">https://copr.fedorainfracloud.org/coprs/ndokos/pbench/</a>
-													   and clicking on the appropriate repo (Epel 6, Epel 7, Fedora XX). Save it into /etc/yum.repos.d/ndokos-pbench.repo.</p>
-													<p class="info_text"  style="text-align:justify"><b>Internal Repo : </b></p>
-													<p class="info_text"  style="text-align:justify">Refer to your local installation guide or ask your local Pbench guru for help.</p>
-													<p class="info_text"  style="text-align:justify">If there is no such repo, you will need to install the pbench-agent RPM and then manually install the config file and the Pbench private key which will allow you to send results to the server. Refer to Installing pbench-agent below.</p>
-											</div>
-										</div>
-									</div>
-									<div class="accordionCard">
-										<h3 class="accordion">
-											<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
-												<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-												<span class="pf-c-accordion__toggle-text">Package Dependencies</span>
-											</button>
-										</h3>
-										<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden style="overflow: hidden">
-											<div class="pf-c-accordion__expanded-content-body">
-												<p class="info_text"  style="text-align:justify">In order to simplify installation, the pbench-agent RPM requires the installation of a few tools that should be available from the distribution's standard repo(s).</p>
-											</div>
-										</div>
-									</div>
-									<div class="accordionCard">
-										<h3 class="accordion">
-											<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
-												<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-												<span class="pf-c-accordion__toggle-text">Installing pbench-agent</span>
-											</button>
-										</h3>
-										<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-											<div class="pf-c-accordion__expanded-content-body">
-												<p class="info_text"  style="text-align:justify">Once you have the COPR repo installed, you can install the pbench-agent RPM and
-													source the startup file to initialize your PATH and CONFIG environment variables:</p>
-													<p class="c_snip">dnf install pbench-agent<br></br>. /etc/profile.d/pbench-agent.sh</p>
-												   <p class="info_text"  style="text-align:justify">The pbench-agent RPM is not self-contained. You will need to somehow be given
-													access to the config file and the pbench ssh private key for your installation. They may be part of another RPM, or you may be able to copy them
-													from a central location or from media that your administrator provides.</p>
-												   <p class="info_text"  style="text-align:justify">You can install these two as follows:</p>
-												   <p class="c_snip">configfile=/path/to/config/file/pbench-agent.cfg<br></br>keyfile=/path/to/pbench/private/key/id_rsa<b></b>
-												   pbench-agent-config-activate $configfile<b>pbench-agent-config-ssh-key $configfile $keyfile</b></p>
-												   <p class="info_text"  style="text-align:justify">You should be ready to roll.</p>
-											</div>
-										</div>
-									</div>
-									<div class="accordionCard">
-										<h3 class="accordion">
-											<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
-												<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-												<span class="pf-c-accordion__toggle-text">Administrator responsibility: Config file and ssh private key file</span>
-											</button>
-										</h3>
-										<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-											<div class="pf-c-accordion__expanded-content-body">
-												<p class="info_text"  style="text-align:justify">If you are the administrator for this installation, you will have to create a config file and make it available to your users. How you 
-													make it available is up to you. This section describes how to create the config file in the first place.</p>
-													<p class="info_text"  style="text-align:justify">The installation includes an example config file at /opt/pbench-agent/config/pbench-agent.cfg.example. Copy this file to a
-													 safe place and rename it to pbench-agent.cfg; then edit the lines that are flagged with # CHANGE ME! comments to reflect your setup.</p>
-													<p class="info_text"  style="text-align:justify">The ssh key pair can be generated with:</p>
-													<p class="c_snip">ssh-keygen -t rsa</p>
-													<p class="info_text"  style="text-align:justify">and an empty passphrase. The private key has to be made available to users so they can complete 
-													their installation of pbench-agent as described above. The public key should be added to the authorized-keys file of the Pbench user on the server where the results are copied.</p>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div id="steps" class="tabcontent">
-						<div class="App">
-							<div class="section">
-								<div class="pf-c-card info_card">
-									<div class="pf-c-card__body">
-									<p class="info_text"  style="text-align:justify">
-									All the commands take a --help option and produce a terse uasage message
-									</p>
-									<p class="info_text"  style="text-align:justify">
-									The default set of tools for data collection can be enabled with
-									</p>
-									<p class="c_snip">pbench-register-tool-set</p>
-									<p class="info_text"  style="text-align:justify">
-									You can then run a built-in benchmark by invoking its Pbench script - Pbench will install the benchmark if necessary1:
-									</p>
-									<p class="c_snip">pbench-fio</p>
-									<p class="info_text"  style="text-align:justify">
-									When the benchmark finishes, the tools will be stopped as well. The results can be collected and shipped to the standard storage location2 with:
-									</p>
-									<p class="c_snip">
-									pbench-move-results
-									</p>
-									<p class="info_text"  style="text-align:justify">or</p>
-									<p class="c_snip">pbench-copy-results</p>
-								</div>
-							</div>
-							<div class="section">
-								<div class="pf-c-accordion accor_card">
-									<div class="accordionCard">
-										<h3 class="accordion">
-											<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-												<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-												<span class="pf-c-accordion__toggle-text"> First steps with pbench-user-benchmark</span>
-											</button>
-										</h3>
-										<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-											<div class="pf-c-accordion__expanded-content-body">
-												<p class="info_text" style="text-align:justify">
-													If you want to run something that is not already packaged up as a benchmark script, you may be able to use the pbench-user-benchmark script: 
-													it takes a command as argument, starts the collection tools, invokes the command, stops the collection tools and postprocesses the results. So the workflow becomes:
-													</p>
-													<p class="c_snip">pbench-register-tool-set<br></br>pbench-user-benchmark --config=foo -- myscript.sh
-													<br></br>pbench-move-results</p>
-													<p class="info_text" style="text-align:justify">See What does --config do? in <a href="learn.html">FAQ section</a> for more information on that.</p>
-											</div>
-										</div>
-									</div>
-									<div class="accordionCard">
-										<h3 class="accordion">
-											<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-												<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-												<span class="pf-c-accordion__toggle-text">First steps with remote hosts and pbench-user-benchmark</span>
-											</button>
-										</h3>
-										<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-											<div class="pf-c-accordion__expanded-content-body">
-												<p class="info_text" style="text-align:justify">
-													Running a multihost benchmark involves registering the tools on all the hosts, but assuming 
-													you have a script that will execute your benchmark that can be used with pbench-user-benchmark, the workflow is not much different:
-													</p>
-													<p class="c_snip">for host in $hosts ;do<br></br>
-														&nbsp;&nbsp;&nbsp;&nbsp;  pbench-register-tool-set --remote=$host<br></br>
-														done<br></br>
-														pbench-user-benchmark --config=foo -- myscript.sh<br></br>
-														pbench-move-results</p>
-													<p class="info_text" style="text-align:justify">Apart from having to register the collection tools on all the hosts, the rest is the same: 
-													pbench-user-benchmark will start the collection tools on all the hosts, run myscript.sh, stop the tools and run the postprocessing phase, gathering
-													 up all the remote results to the local host (the local host may be just a controller, not running any collection tools itself, or it may be part of
-													  the set of hosts where the benchmark is run, with collection tools running).</p>
-													<p class="info_text" style="text-align:justify">The underlying assumption is that myscript.sh will run your benchmark on all the relevant 
-													hosts and will copy all the results into the standard directory which postprocessing will copy over to the controller host. pbench-user-benchmark 
-													calls the script in its command-line arguments (everything after the – is just execed by -pbench-user-benchmark) and redirects its stdout to a file 
-													in that directory: <span class="c_snip_inline">$benchmark_run_dir/result.txt</span>.</p>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>	
-				<div  id="best" class="tabcontent">
-					<div class="App">
-						<div class="section">
-							<div class="pf-c-accordion accor_card">
-								<div class="accordionCard">
-									<h3 class="accordion">
-										<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-											<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-											<span class="pf-c-accordion__toggle-text"> Clear results </span>
-										</button>
-									</h3>
-									<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" style="display: none;">
-										<div class="pf-c-accordion__expanded-content-body">
-											<p class="info_text" style="text-align:justify">													The pbench-move-results script removes the results directory (assumed to be within the /var/lib/pbench-agent hierarchy) after copying it the results repo. But if there are previous 
-											results present (perhaps because pbench-move-results was never invoked, or perhaps because pbench-copy-results was invoked instead), pbench-move-results will copy <b>all</b>of them: you probably do not want that.
-											</p>
-											<p class="info_text" style="text-align:justify">
-											It's a good idea in general to invoke <span class="c_snip_inline">pbench-clear-results</span>, which cleans <span class="c_snip_inline">/var/lib/pbench-agent</span>, <b>before</b>running your benchmark.</p>
-										</div>
-									</div>
-								</div>
-								<div class="accordionCard">
-									<h3 class="accordion">
-										<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-											<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-											<span class="pf-c-accordion__toggle-text"> Kill tools</span>
-										</button>
-									</h3>
-									<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-										<div class="pf-c-accordion__expanded-content-body"></div>										<div class="pf-c-accordion__expanded-content-body">
-											<p class="info_text" style="text-align:justify">
-												If you interrupt a built-in benchmark script (or your own script perhaps), the collection tools are not going to be stopped. If you don't stop them explicitly, they can severely affect subsequent runs that 
-												you make. So it is strongly recommended that you invoke <span class="c_snip_inline">pbench-kill-tools</span> before you start your run:
-											</p>
-											<p class="c_snip">pbench-kill-tools --group=$group</p>
-											<p class="info_text" style="text-align:justify">If you run Pbench from your own script, you should add a signal handler to do this:</p>
-											<p class="c_snip">trap "pbench-kill-tools --group=$group" EXIT INT QUIT</p>
-										</div>
-									</div>
-								</div>
-								<div class="accordionCard">
-									<h3 class="accordion">
-										<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-											<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-											<span class="pf-c-accordion__toggle-text"> Clear tools</span>
-										</button>
-									</h3>
-									<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-										<div class="pf-c-accordion__expanded-content-body">
-											<p class="info_text" style="text-align:justify">
-											This tool will delete the tools.$group file on the local host as well as on all the 
-											remote hosts specified therein. After doing that, you will need to re-register all the tools that 
-											you want to use. In combination with <span class="c_snip_inline">pbench-clear-results</span>, this tool creates a blank slate where you can start from scratch. You probably don't want to call this much, but it may be useful in certain cases (e.g. when the remotes are created for the test and then disappear at the end - it's a good idea to call pbench-clear-tools from a trap in that case).
-											</p>
-										</div>
-									</div>
-								</div>
-								<div class="accordionCard">
-									<h3 class="accordion">
-										<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-											<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-											<span class="pf-c-accordion__toggle-text"> Register tools</span>
-										</button>
-									</h3>
-									<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-										<div class="pf-c-accordion__expanded-content-body">
-											<p class="info_text" style="text-align:justify">Once you have the COPR repo installed, you can install the pbench-agent RPM and
-														source the startup file to initialize your PATH and CONFIG environment variables:</p>
-											<p class="c_snip">dnf install pbench-agent<br></br>. /etc/profile.d/pbench-agent.sh</p>
-											<p class="info_text" style="text-align:justify">The pbench-agent RPM is not self-contained. You will need to somehow be given
-														access to the config file and the pbench ssh private key for your installation. They may be part of another RPM, or you may be able to copy them
-														from a central location or from media that your administrator provides.</p>
-											<p class="info_text" style="text-align:justify">You can install these two as follows:</p>
-											<p class="c_snip">configfile=/path/to/config/file/pbench-agent.cfg<br></br>keyfile=/path/to/pbench/private/key/id_rsa<b></b>
-													pbench-agent-config-activate $configfile<b>pbench-agent-config-ssh-key $configfile $keyfile</b></p>
-											<p class="info_text" style="text-align:justify">You should be ready to roll.</p>
-										</div>
-									</div>
-								</div>
-								<div class="accordionCard">
-									<h3 class="accordion">
-										<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-											<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-											<span class="pf-c-accordion__toggle-text">Using --dir</span>
-										</button>
-									</h3>
-									<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-										<div class="pf-c-accordion__expanded-content-body">
-											<p class="info_text" style="text-align:justify">If you are the administrator for this installation, you will have to create a config file and make it available to your users. How you 
-											make it available is up to you. This section describes how to create the config file in the first place.</p>
-											<p class="info_text" style="text-align:justify">The installation includes an example config file at /opt/pbench-agent/config/pbench-agent.cfg.example. Copy this file to a
-													safe place and rename it to pbench-agent.cfg; then edit the lines that are flagged with # CHANGE ME! comments to reflect your setup.</p>
-											<p class="info_text" style="text-align:justify">The ssh key pair can be generated with:</p>
-											<p class="c_snip">ssh-keygen -t rsa</p>
-											<p class="info_text" style="text-align:justify">and an empty passphrase. The private key has to be made available to users so they can complete 
-														their installation of pbench-agent as described above. The public key should be added to the authorized-keys file of the Pbench user on the server where the results are copied.</p>
-										</div>
-									</div>
-								</div>
-								<div class="accordionCard">
-									<h3 class="accordion">
-										<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-											<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-											<span class="pf-c-accordion__toggle-text">Using --remote</span>
-										</button>
-									</h3>
-									<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-										<div class="pf-c-accordion__expanded-content-body">
-											<p class="info_text" style="text-align:justify">If you are running multihost benchmarks, we strongly encourage you to
-														set up the tool collections using --remote. Choose a driver host (which might or might not participate in the tool 
-														data collection: in the first case, you register tools locally as well as remotely; in the second, you just register 
-														them remotely) and run everything from it. During the data collection phase, everything will be pulled off the remotes 
-														and copied to the driver host, so it can be moved to the results repo as a single unit. Consider also using --label to 
-														label sets of hosts - see <b>Using --label</b> for more information.</p>
-										</div>
-									</div>
-								</div>
-								<div class="accordionCard">
-									<h3 class="accordion">
-										<button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-											<i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-											<span class="pf-c-accordion__toggle-text">Using --label</span>
-										</button>
-									</h3>
-									<div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-										<div class="pf-c-accordion__expanded-content-body">
-											<p class="info_text" style="text-align: justify">When you register remotes, --label can be used to give a meaningful label 
-														to the results subdirectories that come from remote hosts.
-													For example, use =–label=server" (or client, or vm, or capsule or whatever else is appropriate for your use case).</p>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="section">
-					<span class="footer">
-						<p class="darkFoot">2020 Pbench | Privacy Statement</p>
-						<p class="lightFoot">Code licensed under a thing, site under a thing</p>
-					</span>
-				</div> 			
-			</div>
-		</div>   				
-		</main>
-	</div>
+     <div class="pf-c-page">
+       <header role="banner" class="pf-c-page__header header">
+         <div class="pf-c-page__header-brand" style="position: absolute;">
+           <a class="pf-c-page__header-brand-link" href="index.html">
+             <img class="pf-c-brand" src="./images/pbench_logo.png" alt="PatternFly logo" id="navlogo"/>
+           </a>
+         </div>
+         <div class="pf-c-page__header nav-wrapper">
+           <div class="pf-c-page__header-nav" style="background-color: var(--pf-global--BackgroundColor--dark-100);">
+             <nav class="pf-c-nav pf-m-start pf-m-end menu-wrapper" aria-label="Global">
+               <button class="pf-c-nav__scroll-button left-paddle paddle hidden" aria-label="Scroll left">
+                 <i class="fas fa-angle-left"
+                    aria-hidden="true"></i>
+               </button>
+               <ul class="pf-c-nav__horizontal-list menu">
+                 <li class="pf-c-nav__item item">
+                   <a href="start.html" class="pf-c-nav__link pf-m-current">Get Started</a>
+                 </li>
+                 <li class="pf-c-nav__item item">
+                   <a href="doc.html" class="pf-c-nav__link">Documentation</a>
+                 </li>
+                 <li class="pf-c-nav__item item">
+                   <a href="learn.html" class="pf-c-nav__link">Learn More</a>
+                 </li class="pf-c-nav__item item">
+                 <li class="pf-c-nav__item item">
+                   <a href="contact.html" class="pf-c-nav__link">Contact</a>
+                 </li class="pf-c-nav__item item">
+               </ul class="pf-c-nav__horizontal-list menu">
+               <button class="pf-c-nav__scroll-button right-paddle paddle hidden" aria-label="Scroll right">
+                 <i class="fas fa-angle-right" aria-hidden="true"></i>
+               </button>
+             </nav>
+             <!-- // Will be added later  -->
+             <!-- <div class="pf-c-input-group searchDiv">
+                  <input class="pf-c-form-control searchInput" type="search" placeholder="search site" oninput="toggleSearchIcon()">
+                  <button type="button" aria-label="search button for search input" class="searchBtn">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                  </button>
+             </div> -->
+           </div>
+         </div>
+       </header>
+
+       <main role="main" class="pf-c-page__main" tabindex="-1" style="background-color: white;">
+	 <div class="content">
+	   <div class="tab">
+	     <div class="pf-c-tabs" id="primary" style="align-items: center;">
+	       <ul class="pf-c-tabs__list pf-l-flex" style="width: 100%;margin-left: 20%;">
+		 <li class="tab-item pf-c-tabs__item pf-l-flex__item">
+		   <button class="tablinks active" onClick="openTab(event,'setup')">Setup</button>
+		 </li>
+		 <li class="tab-item pf-c-tabs__item pf-l-flex__item">
+		   <button class="tablinks" onClick="openTab(event, 'install')">Install</button>
+		 </li>
+		 <li class="tab-item pf-c-tabs__item pf-l-flex__item">
+		   <button class="tablinks" onClick="openTab(event, 'steps')">First Steps</button>
+		 </li>
+		 <li class="tab-item pf-c-tabs__item pf-l-flex__item">
+		   <button class="tablinks" onClick="openTab(event, 'best')">Best Practices</button>
+		 </li>
+	       </ul>
+	     </div>
+	   </div>
+	   <div>
+	     <div id="setup" class="tabcontent" style="display:block">
+	       <div class="App">
+		 <div class="section">
+		   <div class="pf-c-card info_card">
+		     <div class="pf-c-card__body">
+		       <p class="info_text">
+			 The following steps assume that only a single node participates in the benchmark run. If you want a multi-node setup, you have to read up on the --remote options of
+			 various commands (in particular, <span class="c_snip_inline">pbench-register-tool-set</span>)
+		       </p>
+		     </div>
+		   </div>
+		   <div class="pf-c-card next_card">
+		     <div class="pf-c-card__body">
+		       <button class="pf-c-button pf-m-inline pf-m-link pf-m-small info_text" type="button" onClick="openTab(event, 'install')" style="text-align: center;">Install the agent</button>
+		       <p class="info_text" style="text-align:justify">
+                         Customize the agent for your server
+			 environment. This will vary from installation
+			 to installation, but it fundamentally
+			 involves copying two files that should be
+			 made available to you somehow by an admin
+			 type: an ssh private key file to allow the
+			 client(s) to send results to the server and a
+			 configuration file that should be installed
+			 in
+			 /opt/pbench-agent/config/pbench-agent.cfg. There
+			 is an example configuration file in that
+			 location, but you need the "real" one for
+			 your environment. Among other things, the
+			 config file specifies who the server is.
+                       </p>
+		       <p class="info_text" style="text-align:justify">
+                         Run your benchmark with a default set of tools:
+                       </p>
+		       <p class="c_snip">
+                         . /etc/profile.d/pbench-agent.sh  &nbsp; &nbsp; #or log out and log back in<br></br>
+			 pbench-register-tool-set<br></br>
+			 pbench-user-benchmark -C test1 -- ./your_cmd.sh<br></br>
+			 pbench-move-results
+		       </p>
+		       <p class="info_text" style="text-align:justify">
+			 Visit the Results URL in your browser to see
+			 the results: the URL depends on who the
+			 server is; assuming that the server is
+			 "pbench.example.com" and assuming you ran the
+			 above on a host named "myhost", the results
+			 will be found at (N.B.: this is a fake link
+			 serving as an example only - talk to your
+			 local administrator to find out what server
+			 to use to get to Pbench results):
+			 <a href="#">http://pbench.example.com/results/myhost/pbench-user-benchmark_test1_yyyy-mm-dd_HH:MM:SS</a>
+		       </p>
+		     </div>
+		   </div>
+		   <div class="info_text">
+		     <p style="align-self:center">Don't see what you need here?
+		       <span>
+			 <button class="pf-c-button pf-m-link" type="button" onclick="window.open('https://github.com/distributed-system-analysis/pbench','_blank','resizable=yes')">
+			   <span class="pf-c-button__icon">
+			     <i class="fas fa-pencil-alt"></i>
+			   </span>
+			   <span class="pf-c-button__text">Contribute a Pbench script</span>
+			 </button>
+		       </span>
+		     </p>
+		   </div>
+		 </div>
+	       </div>
+	     </div>
+	   </div>
+	   <div id="install" class="tabcontent">
+	     <div class="App">
+	       <div class="section">
+		 <div class="pf-c-accordion accor_card">
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Introduction</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+			   The Pbench agent requires the installation
+			   of some generic bits, but it also requires
+			   some localization: it needs to know where
+			   to send the results for storage and
+			   analysis and it needs to be able to
+			   authenticate to the storage server.
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+			   The generic bits are packaged as an RPM,
+			   available from COPR
+			   (https://copr.fedorainfracloud.org/). We
+			   try to build a new release every month or
+			   so.
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+			   The localization bits are of course,
+			   specific to a particular
+			   installation. Internally, we make them
+			   available to users through an internal RPM,
+			   but other installations may use different
+			   methods to make them available. Consult
+			   your local pbench guru for help.
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           In the following, we describe how to install pbench-agent using the two RPMs (the "external" RPM and the "internal" RPM).
+			   You will have to modify these instructions for your local installation. Nevertheless, for simplicity, in the following we
+			   will refer to the two packages as pbench-agent and pbench-agent-internal, but bear in mind that your local installation
+			   may use different names or may not use an internal RPM or may not use RPMs at all.
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           Note that the same pbench-agent version <b>must </b>be installed on all the test systems that participate in a benchmark run:
+			   there is <b> no support for mixed installations</b>.
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Repos</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text"  style="text-align:justify">
+			   You will need to install both the external
+			   repo and (if applicable) the internal repo
+			   on every machine where you are planning to
+			   run Pbench (including VMs). N.B. These
+			   steps must be run as root.
+			 </p>
+			 <p class="info_text"  style="text-align:justify"><b>External repo : </b></p>
+			 <p class="info_text"  style="text-align:justify">
+                           If your system supports dnf, then you can copy the repo locally with:
+                         </p>
+			 <p class="c_snip">
+                           dnf copr enable ndokos/pbench
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           If your system only supports yum, you may be able to install the COPR plugin and install similarly:
+                         </p>
+			 <p class="c_snip">
+                           yum install yum-plugin-copr
+                           <br></br>
+                           yum copr enable ndokos/pbench
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           If all else fails, you can manually
+			   download the repo, by
+			   visiting <a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">https://copr.fedorainfracloud.org/coprs/ndokos/pbench/</a>
+			   and clicking on the appropriate repo (Epel
+			   6, Epel 7, Fedora XX). Save it into
+			   /etc/yum.repos.d/ndokos-pbench.repo.
+                         </p>
+			 <p class="info_text"  style="text-align:justify"><b>Internal Repo : </b></p>
+			 <p class="info_text"  style="text-align:justify">
+                           Refer to your local installation guide or ask your local Pbench guru for help.
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           If there is no such repo, you will need to
+                           install the pbench-agent RPM and then
+                           manually install the config file and the
+                           Pbench private key which will allow you to
+                           send results to the server. Refer to
+                           Installing pbench-agent below.
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Package Dependencies</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden style="overflow: hidden">
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text"  style="text-align:justify">
+                           In order to simplify installation, the
+                           pbench-agent RPM requires the installation
+                           of a few tools that should be available
+                           from the distribution's standard repo(s).
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Installing pbench-agent</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text"  style="text-align:justify">
+                           Once you have the COPR repo installed, you
+			   can install the pbench-agent RPM and source
+			   the startup file to initialize your PATH
+			   and CONFIG environment variables:
+                         </p>
+			 <p class="c_snip">
+                           dnf install pbench-agent
+                           <br></br>
+                           . /etc/profile.d/pbench-agent.sh
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           The pbench-agent RPM is not
+			   self-contained. You will need to somehow be
+			   given access to the config file and the
+			   pbench ssh private key for your
+			   installation. They may be part of another
+			   RPM, or you may be able to copy them from a
+			   central location or from media that your
+			   administrator provides.
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           You can install these two as follows:
+                         </p>
+			 <p class="c_snip">
+                           configfile=/path/to/config/file/pbench-agent.cfg
+                           <br></br>
+                           keyfile=/path/to/pbench/private/key/id_rsa
+                           <b></b>
+			   pbench-agent-config-activate $configfile
+                           <b>pbench-agent-config-ssh-key $configfile $keyfile</b>
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           You should be ready to roll.
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Administrator responsibility: Config file and ssh private key file</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text"  style="text-align:justify">
+                           If you are the administrator for this
+			   installation, you will have to create a
+			   config file and make it available to your
+			   users. How you make it available is up to
+			   you. This section describes how to create
+			   the config file in the first place.
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           The installation includes an example config
+			   file at
+			   /opt/pbench-agent/config/pbench-agent.cfg.example. Copy
+			   this file to a safe place and rename it to
+			   pbench-agent.cfg; then edit the lines that
+			   are flagged with # CHANGE ME! comments to
+			   reflect your setup.
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           The ssh key pair can be generated with:
+                         </p>
+			 <p class="c_snip">
+                           ssh-keygen -t rsa
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           and an empty passphrase. The private key
+			   has to be made available to users so they
+			   can complete their installation of
+			   pbench-agent as described above. The public
+			   key should be added to the authorized-keys
+			   file of the Pbench user on the server where
+			   the results are copied.
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		 </div>
+	       </div>
+	     </div>
+	   </div>
+	   <div id="steps" class="tabcontent">
+	     <div class="App">
+	       <div class="section">
+		 <div class="pf-c-card info_card">
+		   <div class="pf-c-card__body">
+		     <p class="info_text"  style="text-align:justify">
+		       All the commands take a --help option and
+		       produce a terse uasage message
+		     </p>
+		     <p class="info_text"  style="text-align:justify">
+		       The default set of tools for data collection
+		       can be enabled with
+		     </p>
+		     <p class="c_snip">pbench-register-tool-set</p>
+		     <p class="info_text"  style="text-align:justify">
+		       You can then run a built-in benchmark by
+		       invoking its Pbench script - Pbench will
+		       install the benchmark if necessary1:
+		     </p>
+		     <p class="c_snip">pbench-fio</p>
+		     <p class="info_text"  style="text-align:justify">
+		       When the benchmark finishes, the tools will be
+		       stopped as well. The results can be collected
+		       and shipped to the standard storage location2
+		       with:
+		     </p>
+		     <p class="c_snip">
+		       pbench-move-results
+		     </p>
+		     <p class="info_text"  style="text-align:justify">or</p>
+		     <p class="c_snip">pbench-copy-results</p>
+		   </div>
+		 </div>
+		 <div class="section">
+		   <div class="pf-c-accordion accor_card">
+		     <div class="accordionCard">
+		       <h3 class="accordion">
+			 <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			   <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			   <span class="pf-c-accordion__toggle-text"> First steps with pbench-user-benchmark</span>
+			 </button>
+		       </h3>
+		       <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+			 <div class="pf-c-accordion__expanded-content-body">
+			   <p class="info_text" style="text-align:justify">
+			     If you want to run something that is not
+			     already packaged up as a benchmark
+			     script, you may be able to use the
+			     pbench-user-benchmark script: it takes a
+			     command as argument, starts the
+			     collection tools, invokes the command,
+			     stops the collection tools and
+			     postprocesses the results. So the
+			     workflow becomes:
+			   </p>
+			   <p class="c_snip">pbench-register-tool-set<br></br>
+                             pbench-user-benchmark --config=foo -- myscript.sh
+			     <br></br>pbench-move-results
+                           </p>
+			   <p class="info_text" style="text-align:justify">
+                             See What does --config do?
+                             in <a href="learn.html">FAQ section</a>
+                             for more information on that.
+                           </p>
+			 </div>
+		       </div>
+		     </div>
+		     <div class="accordionCard">
+		       <h3 class="accordion">
+			 <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			   <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			   <span class="pf-c-accordion__toggle-text">First steps with remote hosts and pbench-user-benchmark</span>
+			 </button>
+		       </h3>
+		       <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+			 <div class="pf-c-accordion__expanded-content-body">
+			   <p class="info_text" style="text-align:justify">
+			     Running a multihost benchmark involves
+			     registering the tools on all the hosts,
+			     but assuming you have a script that will
+			     execute your benchmark that can be used
+			     with pbench-user-benchmark, the workflow
+			     is not much different:
+			   </p>
+			   <p class="c_snip">for host in $hosts ;do<br></br>
+			     &nbsp;&nbsp;&nbsp;&nbsp;  pbench-register-tool-set --remote=$host<br></br>
+			     done<br></br>
+			     pbench-user-benchmark --config=foo -- myscript.sh<br></br>
+			     pbench-move-results</p>
+			   <p class="info_text" style="text-align:justify">
+                             Apart from having to register the
+			     collection tools on all the hosts, the
+			     rest is the same: pbench-user-benchmark
+			     will start the collection tools on all
+			     the hosts, run myscript.sh, stop the
+			     tools and run the postprocessing phase,
+			     gathering up all the remote results to
+			     the local host (the local host may be
+			     just a controller, not running any
+			     collection tools itself, or it may be
+			     part of the set of hosts where the
+			     benchmark is run, with collection tools
+			     running).
+                           </p>
+			   <p class="info_text" style="text-align:justify">
+                             The underlying assumption is that
+			     myscript.sh will run your benchmark on
+			     all the relevant hosts and will copy all
+			     the results into the standard directory
+			     which postprocessing will copy over to
+			     the controller
+			     host. pbench-user-benchmark calls the
+			     script in its command-line arguments
+			     (everything after the – is just execed by
+			     -pbench-user-benchmark) and redirects its
+			     stdout to a file in that
+			     directory: <span class="c_snip_inline">$benchmark_run_dir/result.txt</span>.
+                           </p>
+			 </div>
+		       </div>
+		     </div>
+		   </div>
+		 </div>
+	       </div>
+	     </div>
+	   </div>
+	   <div  id="best" class="tabcontent">
+	     <div class="App">
+	       <div class="section">
+		 <div class="pf-c-accordion accor_card">
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text"> Clear results </span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" style="display: none;">
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+			   The pbench-move-results script removes the
+			   results directory (assumed to be within the
+			   /var/lib/pbench-agent hierarchy) after
+			   copying it the results repo. But if there
+			   are previous results present (perhaps
+			   because pbench-move-results was never
+			   invoked, or perhaps because
+			   pbench-copy-results was invoked instead),
+			   pbench-move-results will copy <b>all</b>of
+			   them: you probably do not want that.
+			 </p>
+			 <p class="info_text" style="text-align:justify">
+			   It's a good idea in general to
+			   invoke <span class="c_snip_inline">pbench-clear-results</span>,
+			   which
+			   cleans <span class="c_snip_inline">/var/lib/pbench-agent</span>, <b>before</b>running
+			   your benchmark.
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text"> Kill tools</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body"></div>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+			   If you interrupt a built-in benchmark
+			   script (or your own script perhaps), the
+			   collection tools are not going to be
+			   stopped. If you don't stop them explicitly,
+			   they can severely affect subsequent runs
+			   that you make. So it is strongly
+			   recommended that you
+			   invoke <span class="c_snip_inline">pbench-kill-tools</span>
+			   before you start your run:
+			 </p>
+			 <p class="c_snip">pbench-kill-tools --group=$group</p>
+			 <p class="info_text" style="text-align:justify">
+                           If you run Pbench from your own script, you should add a signal handler to do this:
+                         </p>
+			 <p class="c_snip">
+                           trap "pbench-kill-tools --group=$group" EXIT INT QUIT
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text"> Clear tools</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+			   This tool will delete the tools.$group file
+			   on the local host as well as on all the
+			   remote hosts specified therein. After doing
+			   that, you will need to re-register all the
+			   tools that you want to use. In combination
+			   with <span class="c_snip_inline">pbench-clear-results</span>,
+			   this tool creates a blank slate where you
+			   can start from scratch. You probably don't
+			   want to call this much, but it may be
+			   useful in certain cases (e.g. when the
+			   remotes are created for the test and then
+			   disappear at the end - it's a good idea to
+			   call pbench-clear-tools from a trap in that
+			   case).
+			 </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text"> Register tools</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+                           Once you have the COPR repo installed, you
+			   can install the pbench-agent RPM and source
+			   the startup file to initialize your PATH
+			   and CONFIG environment variables:
+                         </p>
+			 <p class="c_snip">
+                           dnf install pbench-agent<br></br>
+                           . /etc/profile.d/pbench-agent.sh
+                         </p>
+			 <p class="info_text" style="text-align:justify">
+                           The pbench-agent RPM is not
+			   self-contained. You will need to somehow be
+			   given access to the config file and the
+			   pbench ssh private key for your
+			   installation. They may be part of another
+			   RPM, or you may be able to copy them from a
+			   central location or from media that your
+			   administrator provides.
+                         </p>
+			 <p class="info_text" style="text-align:justify">
+                           You can install these two as follows:
+                         </p>
+			 <p class="c_snip">
+                           configfile=/path/to/config/file/pbench-agent.cfg
+                           <br></br>
+                           keyfile=/path/to/pbench/private/key/id_rsa
+                           <b></b>
+			   pbench-agent-config-activate $configfile
+                           <b>pbench-agent-config-ssh-key $configfile $keyfile</b>
+                         </p>
+			 <p class="info_text" style="text-align:justify">
+                           You should be ready to roll.
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Using --dir</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+                           If you are the administrator for this
+			   installation, you will have to create a
+			   config file and make it available to your
+			   users. How you make it available is up to
+			   you. This section describes how to create
+			   the config file in the first place.
+                         </p>
+			 <p class="info_text" style="text-align:justify">
+                           The installation includes an example config
+			   file at
+			   /opt/pbench-agent/config/pbench-agent.cfg.example. Copy
+			   this file to a safe place and rename it to
+			   pbench-agent.cfg; then edit the lines that
+			   are flagged with # CHANGE ME! comments to
+			   reflect your setup.
+                         </p>
+			 <p class="info_text" style="text-align:justify">
+                           The ssh key pair can be generated with:
+                         </p>
+			 <p class="c_snip">
+                           ssh-keygen -t rsa
+                         </p>
+			 <p class="info_text" style="text-align:justify">
+                           and an empty passphrase. The private key
+			   has to be made available to users so they
+			   can complete their installation of
+			   pbench-agent as described above. The public
+			   key should be added to the authorized-keys
+			   file of the Pbench user on the server where
+			   the results are copied.
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Using --remote</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+                           If you are running multihost benchmarks, we
+			   strongly encourage you to set up the tool
+			   collections using --remote. Choose a driver
+			   host (which might or might not participate
+			   in the tool data collection: in the first
+			   case, you register tools locally as well as
+			   remotely; in the second, you just register
+			   them remotely) and run everything from
+			   it. During the data collection phase,
+			   everything will be pulled off the remotes
+			   and copied to the driver host, so it can be
+			   moved to the results repo as a single
+			   unit. Consider also using --label to label
+			   sets of hosts - see <b>Using --label</b>
+			   for more information.
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Using --label</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align: justify">
+                           When you register remotes, --label can be
+			   used to give a meaningful label to the
+			   results subdirectories that come from
+			   remote hosts.  For example, use
+			   =–label=server" (or client, or vm, or
+			   capsule or whatever else is appropriate for
+			   your use case).
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		 </div>
+	       </div>
+	     </div>
+	   </div>
+	   <div class="section">
+	     <span class="footer">
+	       <p class="darkFoot">2020 Pbench | Privacy Statement</p>
+	       <p class="lightFoot">Code licensed under a thing, site under a thing</p>
+	     </span>
+	   </div>
+	 </div>
+     </div>
+     </main>
+</div>
 </body>
 <script src="./js/jquery.min.js"></script>
 <script src="./js/accordion.js"></script>
