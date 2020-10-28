@@ -2,6 +2,7 @@ ansible
 bottle
 cffi
 click
+jinja2
 python-daemon
 python-pidfile
 redis
