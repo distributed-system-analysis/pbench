@@ -116,7 +116,7 @@ drwxrwxr-x          - archive/fs-version-001/controller01/.prefix
 -rw-rw-r--         12 archive/fs-version-001/controller01/.prefix/benchmark-result-medium_1970.01.01T00.00.00.tar.xz.prefix
 -rw-rw-r--         13 archive/fs-version-001/controller01/.prefix/prefix.DUPLICATE__NAME.1.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
 -rw-rw-r--          0 archive/fs-version-001/controller01/.prefix/prefix.benchmark-result-medium_1970.01.01T00.00.00.tar.xz
---w--w----         12 archive/fs-version-001/controller01/.prefix/tarball-bad-prefix-file_1970.01.01T00.00.00.prefix
+-rw-rw-r--         12 archive/fs-version-001/controller01/.prefix/tarball-bad-prefix-file_1970.01.01T00.00.00.prefix
 -rw-rw-r--         12 archive/fs-version-001/controller01/.prefix/tarball-bad-prefix_1970.01.01T00.00.00.prefix
 -rw-rw-r--         14 archive/fs-version-001/controller01/.prefix/tarball-unused-prefix-file_1970.01.01T00.00.00.prefix
 -rw-rw-r--          0 archive/fs-version-001/controller01/.prefix/unexpected
