@@ -3,13 +3,13 @@ pipeline {
     stages {
         stage('Linting') {
             steps {
-                echo "Linting ..."
+                echo 'Linting ...'
                 sh 'tox -e lint'
             }
         }
         stage('Unit Tests') {
             steps {
-                echo "Unit tests !!"
+                echo 'Unit tests !!'
                 sh 'podman --version'
             }
         }
