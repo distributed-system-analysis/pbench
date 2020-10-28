@@ -4,5 +4,5 @@ flask
 flask-restful
 gunicorn
 humanize
-pyesbulk
+pyesbulk==1.0.0
 requests
