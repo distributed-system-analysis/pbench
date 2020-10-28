@@ -30,3 +30,5 @@ def setup_logging(debug, logfile):
         filehandler.setLevel(logging.NOTSET)
         filehandler.setFormatter(logging.Formatter(fmt))
         rootLogger.addHandler(filehandler)
+
+    return rootLogger
