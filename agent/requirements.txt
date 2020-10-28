@@ -2,7 +2,6 @@ ansible
 bottle
 cffi
 click
-colorlog
 python-daemon
 python-pidfile
 redis
