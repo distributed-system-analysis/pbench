@@ -17,7 +17,6 @@ ln -s ${TOP}/pbench/public_html/incoming/controller02/tarball-bad-incoming-locat
 ln -s ${TOP}/pbench/public_html/incoming/controller01/tarball-unused-prefix-file_1970.01.01T00.00.00 ${TOP}/pbench/public_html/results/controller01/tarball-unused-prefix-file_1970.01.01T00.00.00 || exit $?
 mkdir -p ${TOP}/pbench/public_html/results/controller01/missing/prefix || exit $?
 ln -s ${TOP}/pbench/public_html/incoming/controller01/tarball-missing-prefix-file_1970.01.01T00.00.00 ${TOP}/pbench/public_html/results/controller01/missing/prefix/tarball-missing-prefix-file_1970.01.01T00.00.00 || exit $?
-chmod 220 ${TOP}/pbench/archive/fs-version-001/controller01/.prefix/tarball-bad-prefix-file_1970.01.01T00.00.00.prefix || exit $?
 mkdir -p ${TOP}/pbench/public_html/results/controller01/good/prefix || exit $?
 ln -s ${TOP}/pbench/public_html/incoming/controller01/tarball-bad-prefix-file_1970.01.01T00.00.00 ${TOP}/pbench/public_html/results/controller01/good/prefix/tarball-bad-prefix-file_1970.01.01T00.00.00 || exit $?
 mkdir -p ${TOP}/pbench/public_html/results/controller01/bad/prefix || exit $?

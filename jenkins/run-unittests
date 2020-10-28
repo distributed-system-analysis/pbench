@@ -1,0 +1,86 @@
+#!/bin/bash
+
+prog="$(basename "${0}")"
+progdir="$(realpath -e $(dirname "${0}")/..)"
+
+_prefix="${1}"
+
+pip3 install --no-cache-dir --prefix="${_prefix}" -r ${progdir}/agent/requirements.txt -r ${progdir}/server/requirements.txt
+
+_pdir=${_prefix}/bin
+if [[ ":${PATH:-}:" != *":${_pdir}:"* ]]; then
+    export PATH=${_pdir}${PATH:+:${PATH}}
+fi
+
+_pdir="$(ls -1d ${_prefix}/lib/python3.*/site-packages)"
+if [[ ":${PYTHONPATH:-}:" != *":${_pdir}:"* ]]; then
+    export PYTHONPATH=${_pdir}${PYTHONPATH:+:${PYTHONPATH}}
+fi
+
+_pdir="$(head -n 1 ${_prefix}/lib/python3.*/site-packages/pbench.egg-link)"
+if [[ ":${PYTHONPATH:-}:" != *":${_pdir}:"* ]]; then
+    export PYTHONPATH=${_pdir}${PYTHONPATH:+:${PYTHONPATH}}
+fi
+
+export PBENCH_UNITTEST_SERVER_MODE=parallel
+
+# List of environments to run.
+envs="agent/tool-scripts/datalog agent/tool-scripts/postprocess agent/tool-scripts agent/util-scripts agent/bench-scripts server/bin"
+
+for env in ${envs}; do
+    if [[ ! -x ${progdir}/${env}/unittests ]]; then
+        printf -- "Ignoring unrecognized environment, ${env}\n" >&2
+        continue
+    fi
+    env_name="$(basename ${env})"
+    ${progdir}/${env}/unittests > /var/tmp/env-${env_name}.out 2>&1 & echo ${!} > /var/tmp/env-${env_name}.pid
+done
+
+function tail_and_wait {
+    local name="${1}"
+    local pid="$(cat /var/tmp/env-${name}.pid)"
+    local file="/var/tmp/env-${name}.out"
+    local status=""
+
+    printf -- "+++ Env ${name} Tests +++\n\n"
+
+    tail -n 9999999 -f ${file} --pid ${pid}
+    if [[ ${?} -ne 0 ]]; then
+        printf -- "tail -f ${file} --pid ${pid} failed\n" >&2
+        return 1
+    fi
+    wait ${pid}
+    local let tw_sts=${?}
+    if [[ ${tw_sts} -ne 0 ]]; then
+        status="FAILED"
+    else
+        status="SUCCEEDED"
+    fi
+    rm -f ${file}
+
+    printf -- "\n--- Env ${name} Tests ($status) ---\n"
+
+    return ${tw_sts}
+}
+
+typeset -i errors=0
+for env in ${envs}; do
+    printf -- "#+++ (%s)\n" "${env}"
+    tail_and_wait "$(basename ${env})"
+    status=${?}
+    if [[ ${status} -ne 0 ]]; then
+        printf -- "#--- (FAILED: %d)\n" "${status}"
+        (( errors++ ))
+    else
+        printf -- "#--- (SUCCESS)\n"
+    fi
+    printf -- "\n\n"
+done
+
+if [[ ${errors} -gt 0 ]]; then
+    printf -- "\n\nTests failed! (%d errors)\n" ${errors}
+    exit 1
+else
+    printf -- "\n\nTests succeeded.\n"
+    exit 0
+fi

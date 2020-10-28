@@ -1,0 +1,66 @@
+#!/bin/bash
+
+if [[ "$(realpath -e $(pwd)/jenkins)" != "$(realpath -e $(dirname ${0}))" ]]; then
+    printf -- "ERROR - Jenkins running from an unexpected directory, %s\n" "$(pwd)" >&2
+    exit 1
+fi
+
+if [[ -z "${WORKSPACE_TMP}" ]]; then
+    printf -- "ERROR - missing required Jenkins environment variable, WORKSPACE_TMP\n" >&2
+    exit 1
+fi
+
+if [[ -z "${1}" ]]; then
+    printf -- "ERROR - missing required arguments for what to run\n" >&2
+    exit 1
+fi
+
+_branch_name="$(cat jenkins/branch.name)"
+
+if [[ -z "${IMAGE_REPO}" ]]; then
+    IMAGE_REPO="quay.io/pbench"
+fi
+
+# We need a unique working directory for this run.
+mkdir -p ${WORKSPACE_TMP}
+_run_dir=$(mktemp -d -p ${WORKSPACE_TMP})
+
+# Create a separate directory for the container's /tmp
+_tmp="${_run_dir}/tmp"
+rm -rf ${_tmp}
+mkdir ${_tmp}
+if [[ ${?} -ne 0 ]]; then
+    rm -rf ${_run_dir}
+    printf -- "ERROR - failed to create a directory for the container's /tmp\n" >&2
+    exit 1
+fi
+
+# Create a separate directory for the container's /var/tmp
+_var_tmp="${_run_dir}/var-tmp"
+rm -rf ${_var_tmp}
+mkdir ${_var_tmp}
+if [[ ${?} -ne 0 ]]; then
+    rm -rf ${_run_dir}
+    printf -- "ERROR - failed to create a directory for the container's /var/tmp\n" >&2
+    exit 1
+fi
+# Create a fifo to provide a working /dev/log (but one that is not connected to journald)
+_dev_log="${_run_dir}/dev-log"
+rm -f ${_dev_log}
+mkfifo ${_dev_log}
+if [[ ${?} -ne 0 ]]; then
+    rm -rf ${_run_dir}
+    printf -- "ERROR - failed to create a fifo for the container's /dev/log\n" >&2
+    exit 1
+fi
+
+podman run -it --userns=keep-id \
+    --volume ${_tmp}:/tmp:z \
+    --volume ${_var_tmp}:/var/tmp:z \
+    --volume ${_dev_log}:/dev/log:z \
+    --volume $(pwd):/home/pbench:z -w /home/pbench \
+    --env-host --ulimit nofile=65536:65536 \
+    --rm ${IMAGE_REPO}/pbench-devel:${_branch_name} /bin/bash -c "${*}"
+sts=${?}
+rm -rf ${_run_dir}
+exit ${sts}
