@@ -53,7 +53,18 @@ if [[ ${?} -ne 0 ]]; then
     echo "ERROR: failed to create test bin directories, \"${_optdir}/tool-scripts/...\"" >&2
     exit 1
 fi
-cp -d ${_tdir}/* ${_optdir}/tool-scripts/ 2> /dev/null
+
+for i in ${_tdir}/*; do
+    if [[ -d ${i} ]]; then
+        continue
+    fi
+    cp -d ${i} ${_optdir}/tool-scripts/
+    if [[ ${?} -ne 0 ]]; then
+        echo "ERROR: failed to copy tool-scripts hierarchy" >&2
+        exit 1
+    fi
+done
+
 rm ${_optdir}/tool-scripts/unittests
 if [[ ${?} -ne 0 ]]; then
     echo "ERROR: failed to remove unittests script" >&2
@@ -82,13 +93,6 @@ printf -- "#!/bin/bash\n\necho \"\$(basename \${0}) \${@}\" >> \${_testlog}\nexi
 chmod 775 ${_ts}/postprocess/mock-cmd
 if [[ ${?} -ne 0 ]]; then
     echo "ERROR: failed to create ${_ts}/postprocess/mock-cmd" >&2
-    exit 1
-fi
-
-# Mock out GOLANG setups
-mkdir -p ${_testroot}/go/bin
-if [[ ${?} -ne 0 ]]; then
-    echo "ERROR: failed to create ${_testroot}/go/bin" >&2
     exit 1
 fi
 
@@ -126,7 +130,24 @@ function create_mock {
     fi
 }
 
-# Special mock just for systemstap
+for tool in $(find -L ${_ts} -maxdepth 1 -type f); do
+    toolname="$(basename ${tool})"
+    if [[ "${toolname}" == "base-tool" ]]; then
+        continue
+    fi
+    if [[ "${toolname}" == "meta.json" ]]; then
+        continue
+    fi
+    if [[ "${toolname}" == "README" ]]; then
+        continue
+    fi
+    if [[ "${toolname}" == "perf.README" ]]; then
+        continue
+    fi
+    create_mock "${toolname}"
+done
+
+# Special mock just for systemtap
 printf -- "#!/bin/bash\n\necho \"mock-kernel.version\"\nexit 0\n" > ${_ts}/uname
 chmod 775 ${_ts}/uname
 if [[ ${?} -ne 0 ]]; then
@@ -134,13 +155,12 @@ if [[ ${?} -ne 0 ]]; then
     exit 1
 fi
 
-for tool in $(find -L ${_ts} -maxdepth 1 -perm 775); do
-    toolname="$(basename ${tool})"
-    if [[ "${toolname}" == "base-tool" ]]; then
-        continue
-    fi
-    create_mock "${toolname}"
-done
+# Mock out GOLANG setups
+mkdir -p ${_testroot}/go/bin
+if [[ ${?} -ne 0 ]]; then
+    echo "ERROR: failed to create ${_testroot}/go/bin" >&2
+    exit 1
+fi
 
 function invokit {
     local name="${1}"

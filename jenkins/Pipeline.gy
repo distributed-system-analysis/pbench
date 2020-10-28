@@ -1,0 +1,17 @@
+pipeline {
+    agent { label 'pbench' }
+    stages {
+        stage('Linting & Pytest Unit Tests') {
+            steps {
+                echo 'Linting & pytest-based unit tests'
+                sh 'jenkins/run jenkins/tox -r --current-env -e jenkins-pytests'
+            }
+        }
+        stage('Parallelized Agent & Server Unit Tests') {
+            steps {
+                echo 'Running all the Agent and Server unit tests in parallel'
+                sh 'jenkins/run jenkins/tox -r --current-env -e jenkins-unittests'
+            }
+        }
+    }
+}
