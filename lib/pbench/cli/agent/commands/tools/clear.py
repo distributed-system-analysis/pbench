@@ -7,19 +7,15 @@ a tool name and/or remote host will limit the scope of the removal.
 
 
 """
-import logging
 import shutil
 import sys
 import pathlib
 
 import click
 
-from pbench.agent.utils import setup_logging
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
 from pbench.cli.agent.options import common_options
-
-LOG = logging.getLogger(__name__)
 
 
 class ClearTools(ToolCommand):
@@ -27,8 +23,6 @@ class ClearTools(ToolCommand):
 
     def __init__(self, context):
         super().__init__(context)
-
-        setup_logging(debug=False, logfile=self.pbench_log)
 
     def execute(self):
         errors = 0
@@ -46,7 +40,7 @@ class ClearTools(ToolCommand):
         for remote in remotes:
             tg_dir_r = self.tool_group_dir / remote
             if not tg_dir_r.exists():
-                LOG.warn(
+                self.logger.warn(
                     'The given remote host, "%s", is not a directory in' " %s.",
                     remote,
                     self.tool_group_dir,
@@ -71,15 +65,15 @@ class ClearTools(ToolCommand):
                 try:
                     label.unlink()
                 except Exception:
-                    LOG.error("Failed to remove label for remote %s", tg_dir_r)
+                    self.logger.error("Failed to remove label for remote %s", tg_dir_r)
                     errors += 1
 
             if self.is_empty(tg_dir_r):
-                LOG.info('All tools removed from host, "%s"', tg_dir_r.name)
+                self.logger.info('All tools removed from host, "%s"', tg_dir_r.name)
                 try:
                     shutil.rmtree(tg_dir_r)
                 except OSError:
-                    LOG.error("Failed to remove remote directory %s", tg_dir_r)
+                    self.logger.error("Failed to remove remote directory %s", tg_dir_r)
                     errors += 1
 
         return errors
@@ -90,10 +84,10 @@ class ClearTools(ToolCommand):
         try:
             tpath.unlink()
         except FileNotFoundError:
-            LOG.debug('Tool "%s" not registered for remote "%s"', name, remote)
+            self.logger.debug('Tool "%s" not registered for remote "%s"', name, remote)
             return 0
         except Exception as exc:
-            LOG.error("Failed to remove %s: %s", tpath, exc)
+            self.logger.error("Failed to remove %s: %s", tpath, exc)
             ret_val = 1
         else:
             noinstall = pathlib.Path(f"{tpath}.__noinstall__")
@@ -102,13 +96,13 @@ class ClearTools(ToolCommand):
             except FileNotFoundError:
                 ret_val = 0
             except Exception as exc:
-                LOG.error("Failure to remove %s: %s", noinstall, exc)
+                self.logger.error("Failure to remove %s: %s", noinstall, exc)
                 ret_val = 1
             else:
                 ret_val = 0
 
         if ret_val == 0:
-            LOG.info(
+            self.logger.info(
                 'Removed "%s" from host, "%s", in tools group, "%s"',
                 name,
                 remote,

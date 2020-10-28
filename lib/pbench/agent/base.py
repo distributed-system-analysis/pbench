@@ -8,6 +8,7 @@ import sys
 import click
 
 from pbench.agent import PbenchAgentConfig
+from pbench.agent.utils import setup_logging
 
 
 class BaseCommand(metaclass=abc.ABCMeta):
@@ -52,6 +53,8 @@ class BaseCommand(metaclass=abc.ABCMeta):
 
         self.pbench_bspp_dir = self.pbench_install_dir / "bench-scripts" / "postprocess"
         self.pbench_lib_dir = self.pbench_install_dir / "lib"
+
+        self.logger = setup_logging(debug=False, logfile=self.pbench_log)
 
         self.ssh_opts = self.config.ssh_opts
         os.environ["ssh_opts"] = self.ssh_opts
