@@ -1,0 +1,17 @@
+pipeline {
+    agent { label 'pbench' }
+    stages {
+        stage('Linting') {
+            steps {
+                echo "Linting ..."
+                tox -e lint
+            }
+        }
+        stage('Unit Tests') {
+            steps {
+                echo "Unit tests !!"
+                sh 'podman --version'
+            }
+        }
+    }
+}
