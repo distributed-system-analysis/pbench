@@ -98,16 +98,19 @@
 			 environment. This will vary from installation
 			 to installation, but it fundamentally
 			 involves copying two files that should be
-			 made available to you somehow by an admin
-			 type: an ssh private key file to allow the
-			 client(s) to send results to the server and a
-			 configuration file that should be installed
-			 in
+			 made available to you somehow by an
+			 administrator: an ssh private key file to
+			 allow the client(s) to send results to the
+			 server and a configuration file that should
+			 be installed in
 			 /opt/pbench-agent/config/pbench-agent.cfg. There
 			 is an example configuration file in that
-			 location, but you need the "real" one for
-			 your environment. Among other things, the
-			 config file specifies who the server is.
+			 location, which allows you to run benchmarks
+			 normally and gather results; but you need the
+			 "real" one for your environment in order to
+			 send results to the server, since among other
+			 things, the config file specifies <b>who</b>
+			 the server is.
                        </p>
 		       <p class="info_text" style="text-align:justify">
                          Run your benchmark with a default set of tools:
@@ -178,94 +181,19 @@
                          </p>
 			 <p class="info_text"  style="text-align:justify">
 			   The localization bits are of course,
-			   specific to a particular
-			   installation. Internally, we make them
-			   available to users through an internal RPM,
-			   but other installations may use different
-			   methods to make them available. Consult
-			   your local pbench guru for help.
+			   specific to a particular installation.  The
+			   most common method of installing them is
+			   through an ansible playbook and a few
+			   ansible roles as described below, but you
+			   should consult your local pbench guru for
+			   the details of your particular environment.
                          </p>
 			 <p class="info_text"  style="text-align:justify">
-                           In the following, we describe how to install pbench-agent using the two RPMs (the "external" RPM and the "internal" RPM).
-			   You will have to modify these instructions for your local installation. Nevertheless, for simplicity, in the following we
-			   will refer to the two packages as pbench-agent and pbench-agent-internal, but bear in mind that your local installation
-			   may use different names or may not use an internal RPM or may not use RPMs at all.
-                         </p>
-			 <p class="info_text"  style="text-align:justify">
-                           Note that the same pbench-agent version <b>must </b>be installed on all the test systems that participate in a benchmark run:
-			   there is <b> no support for mixed installations</b>.
-                         </p>
-		       </div>
-		     </div>
-		   </div>
-		   <div class="accordionCard">
-		     <h3 class="accordion">
-		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
-			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-			 <span class="pf-c-accordion__toggle-text">Repos</span>
-		       </button>
-		     </h3>
-		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
-		       <div class="pf-c-accordion__expanded-content-body">
-			 <p class="info_text"  style="text-align:justify">
-			   You will need to install both the external
-			   repo and (if applicable) the internal repo
-			   on every machine where you are planning to
-			   run Pbench (including VMs). N.B. These
-			   steps must be run as root.
-			 </p>
-			 <p class="info_text"  style="text-align:justify"><b>External repo : </b></p>
-			 <p class="info_text"  style="text-align:justify">
-                           If your system supports dnf, then you can copy the repo locally with:
-                         </p>
-			 <p class="c_snip">
-                           dnf copr enable ndokos/pbench
-                         </p>
-			 <p class="info_text"  style="text-align:justify">
-                           If your system only supports yum, you may be able to install the COPR plugin and install similarly:
-                         </p>
-			 <p class="c_snip">
-                           yum install yum-plugin-copr
-                           <br></br>
-                           yum copr enable ndokos/pbench
-                         </p>
-			 <p class="info_text"  style="text-align:justify">
-                           If all else fails, you can manually
-			   download the repo, by
-			   visiting <a href="https://copr.fedorainfracloud.org/coprs/ndokos/pbench/">https://copr.fedorainfracloud.org/coprs/ndokos/pbench/</a>
-			   and clicking on the appropriate repo (Epel
-			   6, Epel 7, Fedora XX). Save it into
-			   /etc/yum.repos.d/ndokos-pbench.repo.
-                         </p>
-			 <p class="info_text"  style="text-align:justify"><b>Internal Repo : </b></p>
-			 <p class="info_text"  style="text-align:justify">
-                           Refer to your local installation guide or ask your local Pbench guru for help.
-                         </p>
-			 <p class="info_text"  style="text-align:justify">
-                           If there is no such repo, you will need to
-                           install the pbench-agent RPM and then
-                           manually install the config file and the
-                           Pbench private key which will allow you to
-                           send results to the server. Refer to
-                           Installing pbench-agent below.
-                         </p>
-		       </div>
-		     </div>
-		   </div>
-		   <div class="accordionCard">
-		     <h3 class="accordion">
-		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
-			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
-			 <span class="pf-c-accordion__toggle-text">Package Dependencies</span>
-		       </button>
-		     </h3>
-		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden style="overflow: hidden">
-		       <div class="pf-c-accordion__expanded-content-body">
-			 <p class="info_text"  style="text-align:justify">
-                           In order to simplify installation, the
-                           pbench-agent RPM requires the installation
-                           of a few tools that should be available
-                           from the distribution's standard repo(s).
+                           Note that the same pbench-agent
+			   version <b>must</b> be installed on all the
+			   test systems that participate in a
+			   benchmark run: there is <b>no support for
+			   mixed installations</b>.
                          </p>
 		       </div>
 		     </div>
@@ -278,45 +206,316 @@
 		       </button>
 		     </h3>
 		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+
+
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Boostrapping a new system</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+                       <p class="info_text"  style="text-align:justify">
+                         <b>N.B.</b> You need to do this
+                         step <b>before</b> going on to the rest of
+                         the steps described here, or at least to make
+                         sure that you have reasonable repo files
+                         installed already. If you are not sure, we
+                         recommend that you run this step after saving
+                         any existing repo files and compare the new
+                         ones with the existing ones. This should be a
+                         one-time procedure.
+                       </p>
+                       <p class="info_text"  style="text-align:justify">
+                         <span class="c_snip_inline">pbench-agent</span> has a large number
+                         of dependencies. The first time that it is
+                         installed, it will install a long list of
+                         packages that it depends on: it is not
+                         unusual for the list to contain close to two
+                         hundred packages.  So before you install
+                         <span class="c_snip_inline">pbench-agent</span>,
+                         you need to ensure that the host contains a
+                         reasonable set of repos
+                         in <span class="c_snip_inline">/etc/yum.repos.d</span>.
+                         For example, for RHEL8, you will need the CRB
+                         (Code Ready Builder) repo; for CentOS 8, you
+                         will need the Centos-PowerTools repo.
+                       </p>
+                       <p class="info_text"  style="text-align:justify">
+                         In general, you will need some Perl packages and a lot
+                         of Python3 packages, in addition to some basic packages
+                         that the pbench-agent spec file lists.
+                       </p>
+                     </div>
+                   </div>
+<!-- Section: Installing using ansible  -->
+                   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Installing using ansible</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+                       <p class="info_text"  style="text-align:justify">
+                         Once you have a good set of repos installed on your machines, then you can
+                         install <span class="c_snip_inline">pbench-agent</span>. The recommended method for installation is through
+                         ansible playbooks.
+                       </p>
+                       <p class="info_text"  style="text-align:justify">
+                         The steps are:
+                       </p>
+                       <div class="info_text" style="text-align:justify">
+                           <li>Make sure that you have ansible and ansible-galaxy installed on your
+                             laptop (or wherever you decide to run the playbooks).</li>
+                           <li>Install the ansible roles from Ansible Galaxy.</li>
+                           <li>Tell ansible where to find these roles.</li>
+                           <li>Create a playbook (you can copy the one below).</li>
+                           <li>Create an inventory file naming the hosts on which you wish to install
+                             <span class="c_snip_inline">pbench-agent</span> and including information about where the config file and ssh key
+                             file can be found.</li>
+                           <li>Run the playbook.</li>
+                       </div>
+                       <p class="info_text"  style="text-align:justify">
+                         The playbook will install the pbench repo and it will then use it to
+                         install the pbench-agent RPM; finally, it will install the
+                         localization pieces (config file and ssh key) that will allow you to
+                         send results to the server.
+                       </p>
+                       <p class="info_text"  style="text-align:justify">
+                         The prerequisite assumption is that you can ssh as root without a
+                         password into the relevant set of hosts:
+                       </p>
+		       <p class="c_snip">
+                         ssh-copy-id root@host
+                         ...
+                       </p>
+                       <p class="info_text"  style="text-align:justify">
+                         for each host in your inventory (that includes <span class="c_snip_inline">localhost</span> if you are going to
+                         install <span class="c_snip_inline">pbench-agent</span> on your local host).
+                       </p>
+                     </div>
+                   </div>
+                   <!-- Subsection: Install ansible and ansible galaxy (one-time task)-->
+		   <div class="accordionCard">
+		     <h4 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Install ansible and ansible galaxy (one-time task)</span>
+		       </button>
+		     </h4>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
 		       <div class="pf-c-accordion__expanded-content-body">
 			 <p class="info_text"  style="text-align:justify">
-                           Once you have the COPR repo installed, you
-			   can install the pbench-agent RPM and source
-			   the startup file to initialize your PATH
-			   and CONFIG environment variables:
-                         </p>
-			 <p class="c_snip">
-                           dnf install pbench-agent
-                           <br></br>
-                           . /etc/profile.d/pbench-agent.sh
-                         </p>
+                           That is done using the standard package installer (<span class="c_snip_inline">dnf</span> or <span class="c_snip_inline">yum</span>):
+                       </p>
+                       <p class="info_text"  style="text-align:justify">
+                         #+begin_src shell
+                         dnf install ansible -y
+                         #+end_src
+                       </p>
+                       </div>
+                     </div>
+                   </div>
+                   <!-- Subsection: Install the pbench-agent roles from Galaxy (one-time task) -->
+		   <div class="accordionCard">
+		     <h4 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Install the pbench-agent roles from Galaxy (one-time task)</span>
+		       </button>
+		     </h4>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
 			 <p class="info_text"  style="text-align:justify">
-                           The pbench-agent RPM is not
-			   self-contained. You will need to somehow be
-			   given access to the config file and the
-			   pbench ssh private key for your
-			   installation. They may be part of another
-			   RPM, or you may be able to copy them from a
-			   central location or from media that your
-			   administrator provides.
+                           #+begin_src shell
+                           ansible-galaxy collection install pbench.agent
+                           #+end_src
                          </p>
+                         <p class="info_text"  style="text-align:justify">
+                           That will install the roles in your home directory at
+                           <span class="c_snip_inline">$HOME/.ansible/collections/ansible_collections/pbench/agent/roles/</span>.
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           Even though this is a one-time task, there may be updated roles pushed
+                           to Galaxy (e.g. to fix bugs). It may be a good idea to try the above
+                           command every once in a while just to check if there are updates.
+                         </p>
+                       </div>
+                     </div>
+                   </div>
+                   <!-- Subsection: Make sure that ansible will be able to find these roles -->
+		   <div class="accordionCard">
+		     <h4 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Make sure that ansible will be able to find these roles</span>
+		       </button>
+		     </h4>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
 			 <p class="info_text"  style="text-align:justify">
-                           You can install these two as follows:
+                           There are multiple ways to do this but setting an environment variable
+                           is the simplest:
                          </p>
-			 <p class="c_snip">
-                           configfile=/path/to/config/file/pbench-agent.cfg
-                           <br></br>
-                           keyfile=/path/to/pbench/private/key/id_rsa
-                           <b></b>
-			   pbench-agent-config-activate $configfile
-                           <b>pbench-agent-config-ssh-key $configfile $keyfile</b>
+                         <p class="info_text"  style="text-align:justify">
+                           #+begin_src shell
+                           export ANSIBLE_ROLES_PATH=$HOME/.ansible/collections/ansible_collections/pbench/agent/roles:$ANSIBLE_ROLES_PATH
+                           #+end_src
                          </p>
+                         <p class="info_text"  style="text-align:justify">
+                           Adding this to your <span class="c_snip_inline">.profile</span> or other shell init file is probably a good idea.
+                         </p>
+                       </div>
+                     </div>
+                   </div>
+                   <!-- SUbsection: Create a playbook (one-time task) -->
+		   <div class="accordionCard">
+		     <h4 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Create a playbook (one-time task)</span>
+		       </button>
+		     </h4>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
 			 <p class="info_text"  style="text-align:justify">
-                           You should be ready to roll.
+                           You can copy the following playbook to some place locally - save it under the
+                           name <span class="c_snip_inline">pbench_agent_install.yml</span>.
                          </p>
-		       </div>
-		     </div>
-		   </div>
+                         <p class="info_text"  style="text-align:left">
+                           <pre>
+---
+- name: install pbench-agent
+  hosts: servers
+  become: yes
+  become_user: root
+
+  # The default value ('production') can be overriddent by cenv, a host-specific
+  # inventory variable.
+  vars:
+    pbench_configuration_environment: "{{ cenv | default('production') }}"
+
+  roles:
+    - pbench_repo_install
+    - pbench_agent_install
+    - pbench_agent_config
+                           </pre>
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           No modifications are necessary.
+                         </p>
+                       </div>
+                     </div>
+                   </div>
+                   <!-- Subsection: Create an inventory file (one-time task for a given set of hosts) -->
+		   <div class="accordionCard">
+		     <h4 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Create an inventory file (one-time task for a given set of hosts)</span>
+		       </button>
+		     </h4>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text"  style="text-align:justify">
+                           The inventory file can be named anything and placed anywhere, but for
+                           definiteness, we will assume it is in <span class="c_snip_inline">~/.config/Inventory/myhosts.inv</span>.
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           The following inventory is only an example:
+                           your administrator should provide a local
+                           version with the appropriate values for the
+                           second section filled in (the section after
+                           the "DO NOT CHANGE ANYTHING BELOW THIS
+                           LINE" comment, which is meant for users:
+                           users should not change that section,
+                           except for testing and debugging purposes).
+                           The following paragraphs should be read in
+                           the context where that has already been
+                           done (see the "Administrator
+                           responsibility: Config file and ssh key
+                           file" below for more details on this).
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           Copy the following configuration to your inventory file, changing only the
+                           first section to specify all the hosts where you want to install the agent.
+                         </p>
+                         <p class="info_text"  style="text-align:left">
+                           <pre>
+[servers]
+host1
+host2
+host3
+
+# DO NOT CHANGE ANYTHING BELOW THIS LINE
+[servers:vars]
+pbench_repo_url_prefix = https://copr-be.cloud.fedoraproject.org/results/ndokos
+
+# where to get the key
+pbench_key_url = http://example.com/some/path/to/agent/{{ pbench_configuration_environment }}/ssh
+
+# where to get the config file
+pbench_config_url = http://example.com/some/path/to/agent/{{ pbench_configuration_environment }}/config
+                           </pre>
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           The above spec covers three hosts. Please make sure that the hosts are
+                           correct. A useful way to make sure that you are touching the correct
+                           set of hosts is the following command:
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           <p class="c_snip">
+                           cd /path/to/some/directory/pbench/agent/ansible
+                           ansible-playbook -i ~/.config/Inventory/myhosts.inv --list-hosts pbench_agent_install.yml
+                           </p>
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           If you want to install on the local machine, the inventory file should include <span class="c_snip_inline">localhost</span> in
+                           the <span class="c_snip_inline">[servers]</span> section. Note that you need to be able to ssh to the localhost as root as well,
+                           so you might need to do <span class="c_snip_inline">ssh-copy-id root@localhost</span>.
+                         </p>
+                       </div>
+                     </div>
+                   </div>
+                   <!-- Subsection: Run the playbook -->
+		   <div class="accordionCard">
+		     <h4 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text">Run the playbook</span>
+		       </button>
+		     </h4>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text"  style="text-align:justify">
+                           You can install <span class="c_snip_inline">pbench-agent</span> by using the following command:
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           <p class="c_snip">
+                             ansible-playbook -i ~/.config/Inventory/myhosts.inv pbench_agent_install.yml
+                           </p>
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           That will install the appropriate version
+                           of <span class="c_snip_inline">pbench.repo</span>
+                           into the
+                           <span class="c_snip_inline">/etc/yum.repos.d</span> directory of each host (you don't have to worry
+                           about what distro the host is running: the repo file is tailored
+                           accordingly); it will then run either ~yum~ or ~dnf~ to install or
+                           update the ~pbench-agent~ package; and it will install the correct ssh
+                           key file and the correct pbench-agent config files for the production
+                           environment.
+                         </p>
+                         <p class="info_text"  style="text-align:justify">
+                           That's it: you can rerun the playbook to install a new version when
+                           one becomes available.
+                         </p>
+                       </div>
+                     </div>
+                   </div>
+                   <!-- No changes beyon this point  -->
 		   <div class="accordionCard">
 		     <h3 class="accordion">
 		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="false">
@@ -331,17 +530,19 @@
 			   installation, you will have to create a
 			   config file and make it available to your
 			   users. How you make it available is up to
-			   you. This section describes how to create
-			   the config file in the first place.
+			   you but the ansible roles assume that both
+			   the config file and the ssh key file are
+			   made available at given URLs. This section
+			   describes how to create the config file in
+			   the first place.
                          </p>
 			 <p class="info_text"  style="text-align:justify">
                            The installation includes an example config
 			   file at
-			   /opt/pbench-agent/config/pbench-agent.cfg.example. Copy
-			   this file to a safe place and rename it to
-			   pbench-agent.cfg; then edit the lines that
-			   are flagged with # CHANGE ME! comments to
-			   reflect your setup.
+			   /opt/pbench-agent/config/pbench-agent.cfg. Make
+			   a backup of this file; then edit the lines
+			   that are flagged with # CHANGE ME! comments
+			   to reflect your setup.
                          </p>
 			 <p class="info_text"  style="text-align:justify">
                            The ssh key pair can be generated with:
@@ -355,7 +556,114 @@
 			   can complete their installation of
 			   pbench-agent as described above. The public
 			   key should be added to the authorized-keys
-			   file of the Pbench user on the server where
+			   file of the relevant hosts and
+			   will copy all the results into the standard
+			   directory which postprocessing will copy
+			   over to the controller
+			   host. pbench-user-benchmark calls the
+			   script in its command-line arguments
+			   (everything after the – is just execed by
+			   -pbench-user-benchmark) and redirects its
+			   stdout to a file in that
+			   directory: <span class="c_snip_inline">$benchmark_run_dir/result.txt</span>.
+                         </p>
+			 <p class="info_text"  style="text-align:justify">
+                           Finally, you should provide an inventory
+                           file template (see above) with the the URLs
+                           for the config file and the ssh key file
+                           filled in for users to use.
+                         </p>
+                         <!-- Something is screwy here -->
+			 </div>
+		       </div>
+		     </div>
+		   </div>
+		 </div>
+	       </div>
+	     </div>
+	   </div>
+	   <div  id="best" class="tabcontent">
+	     <div class="App">
+	       <div class="section">
+		 <div class="pf-c-accordion accor_card">
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text"> Clear results </span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" style="display: none;">
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+			   The pbench-move-results script removes the
+			   results directory (assumed to be within the
+			   /var/lib/pbench-agent hierarchy) after
+			   copying it the results repo. But if there
+			   are previous results present (perhaps
+			   because pbench-move-results was never
+			   invoked, or perhaps because
+			   pbench-copy-results was invoked instead),
+			   pbench-move-results will copy <b>all</b>of
+			   them: you probably do not want that.
+			 </p>
+			 <p class="info_text" style="text-align:justify">
+			   It is a good idea in general to
+			   invoke <span class="c_snip_inline">pbench-clear-results</span>,
+			   which
+			   cleans <span class="c_snip_inline">/var/lib/pbench-agent</span>, <b>before</b>running
+			   your benchmark.
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text"> Kill tools</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body"></div>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+			   If you interrupt a built-in benchmark
+			   script (or your own script perhaps), the
+			   collection tools are not going to be
+			   stopped. If you don't stop them explicitly,
+			   they can severely affect subsequent runs
+			   that you make. So it is strongly
+			   recommended that you
+			   invoke <span class="c_snip_inline">pbench-kill-tools</span>
+			   before you start your run:
+			 </p>
+			 <p class="c_snip">pbench-kill-tools --group=$group</p>
+			 <p class="info_text" style="text-align:justify">
+                           If you run Pbench from your own script, you should add a signal handler to do this:
+                         </p>
+			 <p class="c_snip">
+                           trap "pbench-kill-tools --group=$group" EXIT INT QUIT
+                         </p>
+		       </div>
+		     </div>
+		   </div>
+		   <div class="accordionCard">
+		     <h3 class="accordion">
+		       <button class="accordionBtn pf-c-accordion__toggle" aria-expanded="true">
+			 <i class="arrowIcon fas fa-angle-right pf-c-accordion__toggle-icon" aria-hidden="true"></i>
+			 <span class="pf-c-accordion__toggle-text"> Clear tools</span>
+		       </button>
+		     </h3>
+		     <div class="explanation pf-c-accordion__expanded-content pf-m-fixed" hidden>
+		       <div class="pf-c-accordion__expanded-content-body">
+			 <p class="info_text" style="text-align:justify">
+			   This tool will delete the tools.$group file
+			   on the local host as well as on all the
+			   remote hosts specified therein. After doing
+			   that, you will need to re-register all the
+			   tools that you want to use. In combination
+			   with <span class="c_snip_inline">pbench</span> user on the server where
 			   the results are copied.
                          </p>
 		       </div>
