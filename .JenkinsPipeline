@@ -5,6 +5,7 @@ pipeline {
             steps {
                 echo 'Linting ...'
                 sh 'tox -e lint'
+                echo '... Linted'
             }
         }
         stage('Unit Tests') {
