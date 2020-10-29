@@ -192,7 +192,7 @@ class BaseCollector:
 class PCPPmlogger(BaseCollector):
     """ Log pcp metric data """
 
-    def __init__(self, benchmark_run_dir, host_tools_dict, logger):
+    def __init__(self, *args, **kwargs):
         """
         input: takes list of hosts and tools
         what init function does:
@@ -202,7 +202,7 @@ class PCPPmlogger(BaseCollector):
         4. builds the control file required by pmlogger_check tool.
         for more info on pmlogconf and pmlogger_check check respective man pages.
         """
-        super().__init__(benchmark_run_dir, host_tools_dict, logger)
+        super().__init__(*args, **kwargs)
         # save external state
         self.temp_hosts = self.host_tools_dict.keys()
         self.temp_tools = []
@@ -395,7 +395,7 @@ class PCPPmlogger(BaseCollector):
 class PCPPmie(BaseCollector):
     """ inference on pcp metric data """
 
-    def __init__(self, benchmark_run_dir, host_tools_dict, logger):
+        def __init__(self, *args, **kwargs):
         """
         input: takes list of hosts
         what init function does:
@@ -404,7 +404,7 @@ class PCPPmie(BaseCollector):
         3. builds the control file required by pmie_check tool.
         for more info on pmieconf and pmie_check check respective man pages.
         """
-        super().__init__(benchmark_run_dir, host_tools_dict, logger)
+        super().__init__(*args, **kwargs)
         self.pmie_config_file = os.path.join(self.benchmark_run_dir, 'pmie.config')
         self.control_file = os.path.join(self.benchmark_run_dir, 'pmie.d')
         self.log_dir = os.path.join(self.benchmark_run_dir, 'pmie')
@@ -955,8 +955,8 @@ class ToolDataSink(Bottle):
                 host_tools_dict = json_val["host_tools_dict"]
                 self.logger.debug("host tools dict:%s", host_tools_dict)
 
-                self._pcp_pmlogger = PCPPmlogger(self.benchmark_run_dir, host_tools_dict, self.logger)
-                self._pcp_pmie = PCPPmie(self.benchmark_run_dir, host_tools_dict, self.logger)
+                self._pcp_pmlogger = PCPPmlogger(self.benchmark_run_dir, self.tool_group, host_tools_dict, self.logger, self.tool_metadata)
+                self._pcp_pmie = PCPPmie(self.benchmark_run_dir, self.tool_group, host_tools_dict, self.logger, self.tool_metadata)
                 self.logger.info("initialized pmlogger and pmie for required tools")
 
                 self._pcp_pmlogger.start()
