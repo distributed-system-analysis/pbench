@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Unit Tests') {
             steps {
-                echo 'Unit tests !!'
+                echo 'Unit tests for a PR !!'
                 sh 'podman --version'
                 sh 'buildah --version'
             }
