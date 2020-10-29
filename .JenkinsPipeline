@@ -11,7 +11,7 @@ pipeline {
         stage('Linting') {
             steps {
                 echo 'Linting ... hi pbench-ci-multi!'
-                sh 'podman run -it --name pbench --userns=keep-id --volume $(pwd):/home/pbench:z --rm quay.io/pbench/pbench-devel:jenkins /bin/bash -c \'cd /home/pbench; tox -e lint\''
+                sh 'podman run -it --name pbench --userns=keep-id --volume $(pwd):/home/pbench:z -w /home/pbench --rm quay.io/pbench/pbench-devel:jenkins /bin/bash -c \'tox -e lint\''
                 echo '... Linted'
             }
         }
