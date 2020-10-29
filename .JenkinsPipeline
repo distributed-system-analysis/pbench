@@ -5,6 +5,7 @@ pipeline {
             steps {
                 echo 'Unit tests !!'
                 sh 'podman --version'
+                sh 'buildah --version'
             }
         }
         stage('Linting') {
