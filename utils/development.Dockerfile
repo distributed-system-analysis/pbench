@@ -10,7 +10,7 @@
 # NOTE WELL: This image has no entry point.
 #
 # It is intended to be built on top of with additional entry point for running
-# a text or a suite in pbench.
+# a test or a suite in pbench.
 #
 # Also note that the pbench sources are not built into the image.  Instead
 # we create a local directory, /mnt/pbench, to which one can mount an external
