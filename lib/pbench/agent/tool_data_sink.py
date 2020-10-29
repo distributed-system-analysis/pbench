@@ -216,6 +216,7 @@ class PCPPmlogger(BaseCollector):
         self.log_dir = os.path.join(self.benchmark_run_dir, 'results')
         # call init functions
         self.check_connection(self.temp_hosts)
+        #WILL LIKELY BE AN ISSUE HERE
         self.read_json('./pcp-mapping.json')
         self.build_pmlog_configs(self.hosts, self.tools)
         self.build_control_file(self.hosts)
