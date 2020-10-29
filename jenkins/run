@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [[ "$(realpath -e $(pwd)/jenkins)" != "$(realpath -e $(dirname ${0}))" ]]; then
+    printf -- "ERROR - Jenkins running from an unexpected directory, %s\n" "$(pwd)" >&2
+    exit 1
+fi
+
+if [[ -z "${WORKSPACE_TMP}" ]]; then
+    printf -- "ERROR - missing required Jenkins environment variable, WORKSPACE_TMP\n" >&2
+    exit 1
+fi
+
+if [[ -z "${1}" ]]; then
+    printf -- "ERROR - missing required arguments for what to run\n" >&2
+    exit 1
+fi
+
+# FIXME: for now we hard-code the image tag to be jenkins
+_branch_name="jenkins"
+
+podman run -it --userns=keep-id --volume $(pwd):/home/pbench:z --volume ${WORKSPACE_TMP}:/var/tmp:z --volume ${WORKSPACE_TMP}:/tmp:z -w /home/pbench --env-host --ulimit nofile=65536:65536 --rm quay.io/pbench/pbench-devel:${_branch_name} /bin/bash -c "${*}"

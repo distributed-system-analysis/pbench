@@ -25,6 +25,6 @@
 
 FROM docker.io/library/fedora:32
 RUN \
-    dnf install -y python3-tox python3-pip python3-bottle python3-cffi python3-click python3-colorlog python3-daemon python3-redis python3-requests python3-sh python3-werkzeug python3-psutil bzip2 tar xz screen psmisc bc sos redis perl perl-JSON perl-JSON-XS perl-Time-HiRes perl-Data-UUID ansible hostname iproute iputils openssh-server openssh-clients rsync && \
+    dnf install -y ansible bc bzip2 diffutils git hostname iproute iputils less openssh-clients openssh-server perl perl-Data-UUID perl-JSON perl-JSON-XS perl-Time-HiRes procps-ng psmisc python3-boto3 python3-botocore python3-bottle python3-cffi python3-click python3-colorlog python3-daemon python3-elasticsearch python3-flask python3-humanize python3-jinja2 python3-flask-restful python3-gunicorn python3-itsdangerous python3-pip python3-psutil python3-redis python3-requests python3-s3transfer python3-sh python3-tox python3-tox-current-env python3-werkzeug redis rsync screen sos tar xz && \
     dnf -y clean all && \
     rm -rf /var/cache/dnf

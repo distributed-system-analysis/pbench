@@ -1,0 +1,27 @@
+pipeline {
+    agent { label 'pbench' }
+    stages {
+        stage('Linting') {
+            steps {
+                echo 'Linting first ...'
+                sh 'jenkins/run jenkins/tox -e lint'
+            }
+        }
+        stage('Parallel Unit Tests') {
+            parallel {
+                stage('Pytest Unit Tests') {
+                    steps {
+                        echo 'Pytest-based unit tests'
+                        sh 'jenkins/run jenkins/tox -e py3-agent,py3-server'
+                    }
+                }
+                stage('Parallelized Agent & Server Unit Tests') {
+                    steps {
+                        echo 'Running all the Agent and Server unit tests in parallel'
+                        sh 'jenkins/run jenkins/tox -r --current-env -e jenkins'
+                    }
+                }
+            }
+        }
+    }
+}
