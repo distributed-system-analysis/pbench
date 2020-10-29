@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Linting') {
             steps {
-                echo 'Linting ...'
+                echo 'Linting ... hi team!'
                 sh 'tox -e lint'
                 echo '... Linted'
             }
