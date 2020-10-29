@@ -10,7 +10,7 @@ pipeline {
         }
         stage('Linting') {
             steps {
-                echo 'Linting ... hi team!'
+                echo 'Linting ... hi pbench-ci-multi!'
                 sh 'tox -e lint'
                 echo '... Linted'
             }
