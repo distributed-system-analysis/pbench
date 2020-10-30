@@ -104,7 +104,7 @@ if [[ -z "${hostname}" ]]; then
     export hostname=$(hostname -s)
 fi
 if [[ -z "${full_hostname}" ]]; then
-    export full_hostname=$(hostname)
+    export full_hostname=$(hostname -f)
 fi
 
 if [[ -z "$ssh_opts" ]]; then
