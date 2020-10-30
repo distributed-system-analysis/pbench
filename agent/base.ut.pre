@@ -1,0 +1,12 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
+
+# base.ut.pre: contains the overrides of the environment variables needed for
+#              the unit test environments.
+
+if [[ -z "${hostname}" ]]; then
+    export hostname="testhost"
+fi
+if [[ -z "${full_hostname}" ]]; then
+    export full_hostname="testhost.example.com"
+fi
