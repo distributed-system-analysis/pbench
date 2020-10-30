@@ -1,0 +1,21 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: nil; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
+
+# base.ut: contains the overrides of the base functions and environment
+#          variables needed for the unit test environments.
+
+function timestamp {
+    echo "1900-01-01T00:00:00.000000"
+}
+
+export date="1900-01-01T00:00:00"
+export date_suffix="1900.01.01T00.00.00"
+
+function check_enable_copr {
+    echo $1
+    #$2 is the version which will vary
+    return 0
+}
+
+# For unit tests, we use a mock kill: disable the bash built-in.
+enable -n kill
