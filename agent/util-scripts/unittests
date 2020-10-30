@@ -23,7 +23,7 @@ _testopt=${_testroot}/opt/pbench-agent
 res=0
 mkdir -p ${_testopt}/config ${_testopt}/util-scripts/tool-meister ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
 let res=res+${?}
-cp -L ${_tdir}/../base ${_testopt}/
+cat ${_tdir}/../base.ut.pre ${_tdir}/../base ${_tdir}/../base.ut.post > ${_testopt}/base
 let res=res+${?}
 cp -rL ${_tdir}/../config/* ${_testopt}/config/
 # rename pbench-agent.cfg - we need to process it for each test but it gets cleaned up after each test.

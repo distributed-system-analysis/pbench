@@ -59,16 +59,10 @@ export pbench_bspp_dir pbench_lib_dir
 
 TS_FORMAT="%FT%H:%M:%S"
 
-if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
-    function timestamp {
-        # use ns in the timestamp
-        echo "$(date --utc +"${TS_FORMAT}.%N")"
-    }
-else
-    function timestamp {
-        echo "1900-01-01T00:00:00.000000"
-    }
-fi
+function timestamp {
+    # use ns in the timestamp
+    echo "$(date --utc +"${TS_FORMAT}.%N")"
+}
 
 function log {
     echo "[info][$(timestamp)] $*" >> $pbench_log
@@ -96,34 +90,21 @@ function debug_log {
     echo "[debug][${log_date}] $*" >> ${pbench_log}
 }
 
+# date may be set "accidentally" so add a var with an unlikely name
+# to check whether we need to set it.
+if [[ -z "$date" || -z "$_PBENCH_DATE_SET" ]]; then
+    # don't use ns in the date
+    export date=$(date --utc +"${TS_FORMAT}")
+    export _PBENCH_DATE_SET=1
+fi
+# don't use colons and dashes in the date suffix
+export date_suffix=$(date --date ${date} --utc +"%Y.%m.%dT%H.%M.%S")
 
-# Some standard global vars - try the config file first and fall back on hardwired defaults
-# which are valid today.
-if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
-    # date may be set "accidentally" so add a var with an unlikely name
-    # to check whether we need to set it.
-    if [[ -z "$date" || -z "$_PBENCH_DATE_SET" ]]; then
-        # don't use ns in the date
-        export date=$(date --utc +"${TS_FORMAT}")
-        export _PBENCH_DATE_SET=1
-    fi
-    # don't use colons and dashes in the date suffix
-    export date_suffix=$(date --date ${date} --utc +"%Y.%m.%dT%H.%M.%S")
-    if [[ -z "${hostname}" ]]; then
-        export hostname=$(hostname -s)
-    fi
-    if [[ -z "${full_hostname}" ]]; then
-        export full_hostname=$(hostname)
-    fi
-else
-    export date="1900-01-01T00:00:00"
-    export date_suffix="1900.01.01T00.00.00"
-    if [[ -z "${hostname}" ]]; then
-        export hostname="testhost"
-    fi
-    if [[ -z "${full_hostname}" ]]; then
-        export full_hostname="testhost.example.com"
-    fi
+if [[ -z "${hostname}" ]]; then
+    export hostname=$(hostname -s)
+fi
+if [[ -z "${full_hostname}" ]]; then
+    export full_hostname=$(hostname)
 fi
 
 if [[ -z "$ssh_opts" ]]; then
@@ -156,33 +137,25 @@ function get_redhat_version() {
     cat /etc/redhat-release | awk '{ print $7 }'
 }
 
-if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
-    function check_enable_copr {
-        local copr_user=$1
-        local copr_name=$2
+function check_enable_copr {
+    local copr_user=$1
+    local copr_name=$2
 
-        if is_fedora ; then
-            dnf copr enable ${copr_user}/${copr_name}
+    if is_fedora ; then
+        dnf copr enable ${copr_user}/${copr_name}
+    else
+        if is_redhat ; then
+            rhel_version=$(get_redhat_version)
+            rhel_major=${rhel_version%.*}
+            cd /etc/yum.repos.d/
+            local copr_url=https://copr.fedorainfracloud.org
+            local repo_file=${copr_user}-${copr_name}-epel-${rhel_major}.repo
+            [[ ! -f ${repo_file} ]] && wget -c ${copr_url}/coprs/${copr_user}/${copr_name}/repo/epel-${rhel_major}/${repo_file}
         else
-            if is_redhat ; then
-                rhel_version=$(get_redhat_version)
-                rhel_major=${rhel_version%.*}
-                cd /etc/yum.repos.d/
-                local copr_url=https://copr.fedorainfracloud.org
-                local repo_file=${copr_user}-${copr_name}-epel-${rhel_major}.repo
-                [[ ! -f ${repo_file} ]] && wget -c ${copr_url}/coprs/${copr_user}/${copr_name}/repo/epel-${rhel_major}/${repo_file}
-            else
-                echo "Unsupported distribution"
-            fi
+            echo "Unsupported distribution"
         fi
-    }
-else
-    function check_enable_copr {
-        echo $1
-        #$2 is the version which will vary
-        return 0
-    }
-fi
+    fi
+}
 
 function check_install_rpm {
     _n="${1}"
@@ -278,12 +251,12 @@ function generate_inventory {
     printf -- ${preamble} "${hostname}"
     for dirent in $(/bin/ls -1 ${tool_group_dir}); do
         if [[ "${dirent}" == "__trigger__" ]]; then
-		# Ignore trigger files
-		continue
-	elif [[ ! -d ${tool_group_dir}/${dirent} ]]; then
-		# Ignore spurious files
-		continue
-	fi
+            # Ignore trigger files
+            continue
+        elif [[ ! -d ${tool_group_dir}/${dirent} ]]; then
+            # Ignore spurious files
+            continue
+        fi
         printf -- "%s\n" "${dirent}"
     done
 }
@@ -304,9 +277,3 @@ function interrupt() {
     pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} int
     return 0
 }
-
-if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]] ;then
-    # For unit tests, we use a mock kill:
-    # disable the built-in.
-    enable -n kill
-fi
