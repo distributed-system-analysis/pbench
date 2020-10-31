@@ -12,8 +12,11 @@ export date="1900-01-01T00:00:00"
 export date_suffix="1900.01.01T00.00.00"
 
 function check_enable_copr {
-    echo $1
-    #$2 is the version which will vary
+    # For the unit test environment, we only echo the first argument passed to
+    # use, since that name doesn't change, but we don't echo the optional
+    # second argument, since that can contain data which will vary and cause
+    # gold-file-based test failures.
+    echo ${1}
     return 0
 }
 

@@ -295,7 +295,7 @@ class ToolDataSink(Bottle):
         self.tool_group = tool_group
         self.logger = logger
         # Initialize internal state
-        self._hostname = os.environ["full_hostname"]
+        self._hostname = os.environ["_pbench_full_hostname"]
         self.state = None
         self.tool_data_ctx = None
         self.directory = None
