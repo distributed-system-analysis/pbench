@@ -831,7 +831,7 @@ class ToolMeister(object):
         # initialize and start pcp tools
         if len(pcp_pmda_list) > 0:
             raw_json = self._rs.get(f"tds-{self._group}")
-            json = raw_json.decode("utf-8")
+            json = json.loads(raw_json.decode("utf-8"))
             self.logger.info(self._group)
             self.logger.info(json)
             hosts_dict = json["host_tools_dict"]#.keys()
