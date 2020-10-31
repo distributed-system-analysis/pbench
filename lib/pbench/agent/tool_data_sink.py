@@ -217,7 +217,16 @@ class PCPPmlogger(BaseCollector):
         # call init functions
         self.check_connection(self.temp_hosts)
         #WILL LIKELY BE AN ISSUE HERE
-        self.read_json('./pcp-mapping.json')
+        try:
+            inst_dir = PbenchAgentConfig(
+                os.environ["_PBENCH_AGENT_CONFIG"]
+            ).pbench_install_dir
+        except Exception as exc:
+            logger.error(
+                "Unexpected error encountered logging pbench agent configuration: '%s'",
+                exc,
+            )
+        self.read_json(os.path.join(inst_dir,'util-scripts','pcp-mapping.json'))
         self.build_pmlog_configs(self.hosts, self.tools)
         self.build_control_file(self.hosts)
 
@@ -369,6 +378,7 @@ class PCPPmlogger(BaseCollector):
         self.logger.debug("The control file\n:%s", string)
         self.logger.debug("The control file name:%s and stored at:%s", self.control_file, self.benchmark_run_dir)
         try:
+            os.mkdir(self.benchmark_run_dir / '.temp')
             with open(self.control_file, 'w') as file:
                 file.write(string)
             self.logger.info("successfully built the control file")
@@ -395,7 +405,7 @@ class PCPPmlogger(BaseCollector):
 class PCPPmie(BaseCollector):
     """ inference on pcp metric data """
 
-        def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         input: takes list of hosts
         what init function does:
@@ -408,9 +418,9 @@ class PCPPmie(BaseCollector):
         self.pmie_config_file = os.path.join(self.benchmark_run_dir, 'pmie.config')
         self.control_file = os.path.join(self.benchmark_run_dir, 'pmie.d')
         self.log_dir = os.path.join(self.benchmark_run_dir, 'pmie')
-        self.hosts = host_tools_dict.keys()
+        self.hosts = self.host_tools_dict.keys()
 
-        self.check_connection(hosts)
+        self.check_connection(self.hosts)
         self.build_pmie_config()
         self.build_pmie_control_file(self.hosts)
 
@@ -959,14 +969,14 @@ class ToolDataSink(Bottle):
                 self._pcp_pmie = PCPPmie(self.benchmark_run_dir, self.tool_group, host_tools_dict, self.logger, self.tool_metadata)
                 self.logger.info("initialized pmlogger and pmie for required tools")
 
-                self._pcp_pmlogger.start()
-                self._pcp_pmie.start()
+                self._pcp_pmlogger.start_logging()
+                self._pcp_pmie.start_pmie()
                 self.logger.info("started pmlogger and pmie for required tools")
             elif self.state == "end":
                 if self._prom_server:
                     self._prom_server.terminate()
-                self._pcp_pmlogger.stop()
-                self._pcp_pmie.stop()
+                self._pcp_pmlogger.stop_logging()
+                self._pcp_pmie.stop_pmie()
             elif self.state == "send":
                 self._change_tm_tracking("dormant", "waiting")
                 # The Tool Data Sink cannot send success until all the Tool
