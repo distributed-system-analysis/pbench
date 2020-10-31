@@ -66,7 +66,7 @@ def main(argv):
     logger.addHandler(sh)
 
     try:
-        full_hostname = os.environ["full_hostname"]
+        full_hostname = os.environ["_pbench_full_hostname"]
         benchmark_run_dir = os.environ["benchmark_run_dir"]
     except Exception:
         logger.exception("failed to fetch parameters from the environment")

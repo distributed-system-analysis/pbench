@@ -100,11 +100,11 @@ fi
 # don't use colons and dashes in the date suffix
 export date_suffix=$(date --date ${date} --utc +"%Y.%m.%dT%H.%M.%S")
 
-if [[ -z "${hostname}" ]]; then
-    export hostname=$(hostname -s)
+if [[ -z "${_pbench_hostname}" ]]; then
+    export _pbench_hostname=$(hostname -s)
 fi
-if [[ -z "${full_hostname}" ]]; then
-    export full_hostname=$(hostname -f)
+if [[ -z "${_pbench_full_hostname}" ]]; then
+    export _pbench_full_hostname=$(hostname -f)
 fi
 
 if [[ -z "$ssh_opts" ]]; then
@@ -239,7 +239,6 @@ function verify_common_bench_script_options {
 }
 
 # Generate inventory file with controller and remotes.
-# FIXME: need to make this work with new tools-v1 directory format.
 function generate_inventory {
     local component="${1}"
     local preamble=""
