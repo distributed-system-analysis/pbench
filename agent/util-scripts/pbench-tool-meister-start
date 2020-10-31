@@ -30,10 +30,12 @@ from pathlib import Path
 
 import redis
 
+import pbench.agent.toolmetadata as toolmetadata
+
 from pbench.agent.tool_data_sink import main as tds_main
 from pbench.agent.tool_meister import main as tm_main
 from pbench.agent import PbenchAgentConfig
-import pbench.agent.toolmetadata as toolmetadata
+from pbench.common.exceptions import BadConfig
 
 
 # Port number is "One Tool" in hex 0x17001
@@ -282,8 +284,8 @@ def main(argv):
 
     try:
         benchmark_run_dir = os.environ["benchmark_run_dir"]
-        hostname = os.environ["hostname"]
-        full_hostname = os.environ["full_hostname"]
+        hostname = os.environ["_pbench_hostname"]
+        full_hostname = os.environ["_pbench_full_hostname"]
     except Exception:
         logger.exception("failed to fetch parameters from the environment")
         return 1
@@ -297,8 +299,8 @@ def main(argv):
             return 1
     if not full_hostname or not hostname:
         logger.error(
-            "ERROR - hostname ('%s') and full_hostname ('%s') environment"
-            " variables are required",
+            "ERROR - _pbench_hostname ('%s') and _pbench_full_hostname ('%s')"
+            " environment variables are required",
             hostname,
             full_hostname,
         )
@@ -373,25 +375,33 @@ def main(argv):
 
     # 2.5. Add tool metadata json to redis
     try:
-        inst_dir = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"]).pbench_install_dir
+        inst_dir = PbenchAgentConfig(
+            os.environ["_PBENCH_AGENT_CONFIG"]
+        ).pbench_install_dir
     except BadConfig as exc:
         logger.error("%s", exc)
         return 1
     except Exception as exc:
-        logger.error("Unexpected error encountered logging pbench agent configuration: '%s'", exc)
+        logger.error(
+            "Unexpected error encountered logging pbench agent configuration: '%s'", exc
+        )
         return 1
 
     try:
         tm_start_path = Path(inst_dir).resolve(strict=True)
     except FileNotFoundError:
-        logger.error("Unable to determine proper installation directory, '%s' not found", inst_dir)
+        logger.error(
+            "Unable to determine proper installation directory, '%s' not found",
+            inst_dir,
+        )
         return 1
     except Exception as exc:
-        logger.exception("Unexpected error encountered resolving installation directory: '%s'", exc)
+        logger.exception(
+            "Unexpected error encountered resolving installation directory: '%s'", exc
+        )
         return 1
     tool_metadata = toolmetadata.ToolMetadata("json", tm_start_path, logger)
     tool_metadata.loadIntoRedis(redis_server)
-
 
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process

@@ -6,17 +6,17 @@ pbench_bin="$(realpath -e ${_script_path}/..)"
 # source the base script
 . "${pbench_bin}"/base
 
-if [[ -z "${full_hostname}" ]]; then
-    printf -- "Missing 'full_hostname' environment variable" >&2
+if [[ -z "${_pbench_full_hostname}" ]]; then
+    printf -- "Missing '_pbench_full_hostname' environment variable" >&2
     exit 1
 fi
-export full_hostname
+export _pbench_full_hostname
 
-if [[ -z "${hostname}" ]]; then
-    printf -- "Missing 'hostname' environment variable" >&2
+if [[ -z "${_pbench_hostname}" ]]; then
+    printf -- "Missing '_pbench_hostname' environment variable" >&2
     exit 1
 fi
-export hostname
+export _pbench_hostname
 
 if [[ -z "${1}" ]]; then
      group="default"

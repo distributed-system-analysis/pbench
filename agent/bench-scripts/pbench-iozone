@@ -218,7 +218,7 @@ pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 for file_size in $(echo $file_sizes | sed -e s/,/" "/g); do
 	for record_size in $(echo $record_sizes | sed -e s/,/" "/g); do
 		for run in $(seq 1 ${number_of_runs}); do
-			$benchmark_bin -i0 -i1 -i2 -i3 -i4 -i5 -i6 -i7 -i8 -i9 -i10 -i11 -i12  -c -e -f $targets -s ${file_size}g -r ${record_size}m >> $benchmark_results_dir/$(hostname)_$run.iozone
+			$benchmark_bin -i0 -i1 -i2 -i3 -i4 -i5 -i6 -i7 -i8 -i9 -i10 -i11 -i12  -c -e -f $targets -s ${file_size}g -r ${record_size}m >> $benchmark_results_dir/${_pbench_full_hostname}_$run.iozone
 		done
 	done
 done

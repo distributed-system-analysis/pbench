@@ -217,7 +217,7 @@ for dirent in $(/bin/ls -1 ${tool_group_dir}); do
 	fi
 	hostdir="${dirent}"
 	label="$(cat ${tool_group_dir}/${hostdir}/__label__ 2> /dev/null)"
-	if [[ "${hostdir}" == "localhost" || "${hostdir}" == "${hostname}" || "${hostdir}" == "${full_hostname}" ]]; then
+	if [[ "${hostdir}" == "localhost" || "${hostdir}" == "${_pbench_hostname}" || "${hostdir}" == "${_pbench_full_hostname}" ]]; then
 		# We found local tools specified in the tools group directory,
 		# so we should collect sysinfo data locally.
 		pbench-sysinfo-dump "${sysinfo_path}" "${sysinfo}" "${label}" &

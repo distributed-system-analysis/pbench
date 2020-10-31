@@ -4,9 +4,9 @@
 # base.ut.pre: contains the overrides of the environment variables needed for
 #              the unit test environments.
 
-if [[ -z "${hostname}" ]]; then
-    export hostname="testhost"
+if [[ -z "${_pbench_hostname}" ]]; then
+    export _pbench_hostname="testhost"
 fi
-if [[ -z "${full_hostname}" ]]; then
-    export full_hostname="testhost.example.com"
+if [[ -z "${_pbench_full_hostname}" ]]; then
+    export _pbench_full_hostname="testhost.example.com"
 fi

@@ -10,7 +10,7 @@ class TestMoveResults:
     @staticmethod
     @responses.activate
     def test_move_results(monkeypatch):
-        monkeypatch.setenv("full_hostname", "localhost")
+        monkeypatch.setenv("_pbench_full_hostname", "localhost")
         monkeypatch.setattr(datetime, "datetime", MockDatetime)
 
         responses.add(

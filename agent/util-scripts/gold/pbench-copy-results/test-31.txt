@@ -54,7 +54,7 @@ user_script = sleep
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum info installed pbench-agent
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum info installed pbench-agent
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/curl -s -A pbench-agent-unknown-unknown:agent.example.com:nobody:pbench-copy-results -L http://pbench.example.com/pbench-results-host-info.versioned/pbench-results-host-info.URL002
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/curl -s -A pbench-agent-unknown-unknown:testhost.example.com:nobody:pbench-copy-results -L http://pbench.example.com/pbench-results-host-info.versioned/pbench-results-host-info.URL002
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -q -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa -o StrictHostKeyChecking=no pbench@server.com exit
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/scp -r -o StrictHostKeyChecking=no -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa /var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/testhost.example.com pbench@server.com:/foo/bar
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa -o StrictHostKeyChecking=no pbench@server.com cd /foo/bar/testhost.example.com; md5sum --check pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5.check && mv pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5.check pbench-user-benchmark_ndk-test-1_2018.05.23T03.21.32.tar.xz.md5

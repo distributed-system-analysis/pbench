@@ -89,14 +89,14 @@ if [[ -z "${date}" ]]; then
     error_log "Missing required \$date environment variable"
     exit 3
 fi
-if [[ -z "${full_hostname}" ]]; then
+if [[ -z "${_pbench_full_hostname}" ]]; then
     # Should be provided by ${pbench_bin}/base
-    error_log "Missing required \$full_hostname environment variable"
+    error_log "Missing required \$_pbench_full_hostname environment variable"
     exit 3
 fi
-if [[ -z "${hostname}" ]]; then
+if [[ -z "${_pbench_hostname}" ]]; then
     # Should be provided by ${pbench_bin}/base
-    error_log "Missing required \$hostname environment variable"
+    error_log "Missing required \$_pbench_hostname environment variable"
     exit 3
 fi
 
@@ -114,7 +114,7 @@ function metadata_log_tools {
 	elif [[ ! -d ${tool_group_dir}/${dirent} ]]; then
 	    # Skip spurious files of ${tool_group_dir}
 	    warn_log "[$script_name] \"${this_tool_file}\" is a file in \"${tool_group_dir}\"; that should not happen. Please consider deleting it."
-	elif [[ "${dirent}" == "${full_hostname}" ]]; then
+	elif [[ "${dirent}" == "${_pbench_full_hostname}" ]]; then
             local_tools=1
 	elif [[ -z "${remotes}" ]]; then
             remotes="${dirent}"
@@ -131,14 +131,14 @@ function metadata_log_tools {
         # first under the local host's hostname.
         cat >> ${log} <<EOF
 [tools]
-hosts = ${full_hostname} ${remotes}
+hosts = ${_pbench_full_hostname} ${remotes}
 group = ${group}
 trigger = "${trigger_val}"
 
-[tools/${full_hostname}]
-hostname-s = ${hostname}
+[tools/${_pbench_full_hostname}]
+hostname-s = ${_pbench_hostname}
 EOF
-        for toolent in $(/bin/ls -1 ${tool_group_dir}/${full_hostname} 2> /dev/null); do
+        for toolent in $(/bin/ls -1 ${tool_group_dir}/${_pbench_full_hostname} 2> /dev/null); do
             if [[ "${toolent}" == *.__noinstall__ ]]; then
                 continue
             fi
@@ -149,7 +149,7 @@ EOF
             fi
             # Add the options with a space in front, effectively making them continuation
             # lines as far the python config module is concerned.
-            printf -- "%s = %s\n" "${toolent_name}" "$(cat ${tool_group_dir}/${full_hostname}/${toolent} | sed 's/^/ /')"
+            printf -- "%s = %s\n" "${toolent_name}" "$(cat ${tool_group_dir}/${_pbench_full_hostname}/${toolent} | sed 's/^/ /')"
         done >> ${log}
     else
         if [[ ! -z "${remotes}" ]]; then
@@ -228,7 +228,7 @@ rpm-version = $(yum list installed pbench-agent 2>/dev/null | tail -n 1 | awk '{
 EOF
     cat >> ${TMPFILE} <<EOF
 [run]
-controller = ${full_hostname}
+controller = ${_pbench_full_hostname}
 start_run = ${ts}
 EOF
     metadata_log_tools "${TMPFILE}"
