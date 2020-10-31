@@ -82,7 +82,7 @@ if [[ ! -f "${pbench_bin}/id_rsa" ]]; then
     exit 1
 fi
 
-controller=${full_hostname}
+controller=${_pbench_full_hostname}
 if [[ -z "${controller}" ]]; then
     error_log "Missing controller name (should be \"hostname -f\" value)"
     exit 1
@@ -105,7 +105,7 @@ if [[ -z "${rel}" ]]; then
     rel="unknown"
 fi
 # User-Agent HTTP header: <pbench-agent-ver-rel>:<FQDN>:<$USER>:<full path of this script>""
-user_agent="pbench-agent-${ver}-${rel}:$(hostname -f):${USER}:${script_name}"
+user_agent="pbench-agent-${ver}-${rel}:${controller}:${USER}:${script_name}"
 
 results_host_info_url=$(pbench-config host_info_url results)
 results_host_info=$(curl -s -A "${user_agent}" -L "${results_host_info_url}")

@@ -12,7 +12,7 @@ def move_results(ctx, _user, _prefix, _show_server):
     config = PbenchAgentConfig(ctx["args"]["config"])
     logger = get_pbench_logger("pbench-move-results", config)
 
-    controller = os.environ.get("full_hostname")
+    controller = os.environ.get("_pbench_full_hostname")
     if not controller:
         logger.error("Missing controller name (should be 'hostname -f' value)")
         sys.exit(1)

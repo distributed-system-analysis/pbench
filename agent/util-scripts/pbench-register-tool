@@ -22,7 +22,7 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 #   * The next level of the hierarchy are directories named for each remote
 #     host name tools are register for
 #     * If the user registers the local host, we always use the full hostname,
-#       ${full_hostname}
+#       ${_pbench_full_hostname}
 #     * All other names are considered "remote" host names
 #   * Under each host name directory are tool and an optional "__label__" file
 #     * Each tool file is named after the tool for which each line of the file
@@ -34,8 +34,8 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 #     top-level directory of the tool group
 #
 # Examples:
-#   * A single local host, ${full_hostname} == "localhost", with four tools
-#     and a trigger:
+#   * A single local host, ${_pbench_full_hostname} == "localhost", with four
+#     tools and a trigger:
 #
 #     ${pbench_run}/
 #       tools-v1-default/
@@ -66,8 +66,9 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 #           perf
 #           perf.__noinstall__@
 #
-#   * Three hosts, one local (${full_hostname} == "localhost"), with two tools
-#     on all hosts, 1 additional tool on the local host, labels on all hosts:
+#   * Three hosts, one local (${_pbench_full_hostname} == "localhost"), with
+#     two tools on all hosts, 1 additional tool on the local host, labels on
+#     all hosts:
 #
 #     ${pbench_run}/
 #       tools-v1-my2tools/
@@ -304,7 +305,7 @@ debug_log "tool_opts: \"${tool_opts[@]}\""
 # Determine what our local hostname(s) and IP(s) are.
 # FIXME: this does not check for ipv6
 local_ips=$(ip a | grep "inet " | awk '{print $2}' | awk -F/ '{print $1}')
-local_interfaces="${local_ips} ${hostname} ${full_hostname} localhost"
+local_interfaces="${local_ips} ${_pbench_hostname} ${_pbench_full_hostname} localhost"
 
 # If for some reason the user specified a remote host, and that host is a
 # local interface, we work to make sure we only register one local host.
@@ -320,7 +321,7 @@ for (( i=0; ${i} < ${#remotes_A[@]}; i++ )); do
 				if [[ "${remotes_arg}" != "localhost" ]]; then
 					debug_log "The remote host you have provided, ${remote}, matches a local interface, so we will register this tool locally only"
 				fi
-				local_hostname="${full_hostname}"
+				local_hostname="${_pbench_full_hostname}"
 				local_label="${labels_A[${remote}]}"
 			else
 				if [[ "${remotes_arg}" != "localhost" ]]; then

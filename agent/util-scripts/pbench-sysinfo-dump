@@ -21,9 +21,9 @@ fi
 
 label=$3
 if [[ -z "$label" ]]; then
-	dir="$dir/$hostname"
+	dir="${dir}/${_pbench_full_hostname}"
 else
-	dir="$dir/$label:$hostname"
+	dir="${dir}/${label}:${_pbench_full_hostname}"
 fi
 mkdir -p $dir
 if [[ ! -d "$dir" ]]; then
@@ -117,7 +117,7 @@ function collect_sos {
 		_modules="${_modules} tuned"
 	fi
 
-	_name="pbench-$(hostname -f)"
+	_name="pbench-${_pbench_full_hostname}"
 	_cmd="${dir}/sosreport-${_name}.cmd"
 	printf -- "sosreport" > ${_cmd}
 	for mod in ${_modules}; do

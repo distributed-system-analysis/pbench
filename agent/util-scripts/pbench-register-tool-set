@@ -133,7 +133,7 @@ if [[ -n "${labels_arg}" ]]; then
 	pbench-register-tool --name=perf --test-labels ${remotes_arg}${labels_arg}
 	if [[ ${?} -ne 0 ]]; then
 		if [[ -z "${remotes_arg}" ]]; then
-			remotes_arg="(default) --remotes=${full_hostname}"
+			remotes_arg="(default) --remotes=${_pbench_full_hostname}"
 		fi
 		error_log "The number of labels given, \"${labels_arg}\", does not match the number of remotes given, \"${remotes_arg}\""
 		usage >&2
