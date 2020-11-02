@@ -1255,7 +1255,7 @@ class ToolMeister(object):
         failures = 0
         tool_cnt = 0
 
-        if pcp_tool:
+        if self.pcp_tool:
             self.pcp_tool.stop()
             self.logger.info("ended pcp tools")
 
