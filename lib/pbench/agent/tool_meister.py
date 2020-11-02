@@ -809,9 +809,9 @@ class ToolMeister(object):
         pcp_pmda_list = []
         for name, tool_opts in self._tools.items():
             if name not in self.persist_tools:
-                if name in TOOLS_PMDA_MAPPING.keys():
+                if name in TOOLS_PMDA_MAPPING.keys() and "pcptool" in self._tools:
                     self.logger.info(name)
-                    self.logger.info(TOOLS_PMDA_MAPPING.keys())
+                    self.logger.info(TOOLS_PMDA_MAPPING)
                     pcp_pmda_list += TOOLS_PMDA_MAPPING[name]
                 else:
                     continue
@@ -934,7 +934,7 @@ class ToolMeister(object):
         for name, tool_opts in sorted(self._tools.items()):
             if name in self.persist_tools:
                 continue
-            if name in TOOLS_PMDA_MAPPING.keys():
+            if name in TOOLS_PMDA_MAPPING.keys() and "pcptool" in self._tools:
                 continue
             tool_cnt += 1
             try:
@@ -973,7 +973,7 @@ class ToolMeister(object):
         for name in sorted(self._tools.keys()):
             if name in self.persist_tools:
                 continue
-            if name in self.pcp_tool:
+            if name in TOOLS_PMDA_MAPPING.keys() and "pcptool" in self._tools:
                 continue
             try:
                 tool = self._running_tools[name]
@@ -1017,7 +1017,7 @@ class ToolMeister(object):
         for name in sorted(self._tools.keys()):
             if name in self.persist_tools:
                 continue
-            if name in TOOLS_PMDA_MAPPING.keys():
+            if name in TOOLS_PMDA_MAPPING.keys() and "pcptool" in self._tools:
                 continue
             tool_cnt += 1
             try:
@@ -1255,8 +1255,9 @@ class ToolMeister(object):
         failures = 0
         tool_cnt = 0
 
-        self.pcp_tool.stop()
-        self.logger.info("ended pcp tools")
+        if pcp_tool:
+            self.pcp_tool.stop()
+            self.logger.info("ended pcp tools")
 
         for name in self._tools.keys():
             if name not in self.persist_tools:
