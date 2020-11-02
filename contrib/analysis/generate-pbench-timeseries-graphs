@@ -1,0 +1,463 @@
+#!/usr/bin/perl
+
+# Copyright 2020 Robert Krawitz/Red Hat
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# generate-pbench-timeseries-graphs -- generate graphs from .csv files from Pbench raw output
+#
+# Usage (for now): process-timeseries [files...] | bash
+#
+# Lots of TODOs:
+#
+# 1) Command line arguments for image size, max # of data sets, what else?
+# 2) Actually feed the output into gnuplot rather than just sending it to stdout
+# 3) Optionally sort data sets by max value or max average
+# 4) Combine multiple samples into 1.
+#    This will require that generate-pbench-timeseries-graphs enumerate the files
+#    (or accept the file list on stdin rather than command line) because the command
+#    line won't be able to accept all of the files in a data set.
+# 5) Handle .csv files from perf and any other tools I've missed.
+# 6) Allow scaling of Y and possibly X axis.
+# 7) Allow command line override of per-file settings.
+# 8) Allow additional gnuplot options
+# 9) Error checking
+# 10) Make data max/minvals available to graph generator so that it can set
+#    the axis bounds in gnuplot correctly.
+# 11->Graham's number ...
+
+use strict;
+use Getopt::Long;
+Getopt::Long::Configure("bundling", "ignore_case", "pass_through");
+
+my ($psize) = "1280,1024";
+my ($linewidth) = 1;
+
+GetOptions("s=s" => \$psize,
+	   "w=i" => \$linewidth);	   
+
+# Match filenames (with implied trailing '.csv') to determine what settings to use.
+# Most of the settings allow regexp interpolation.
+#
+# type (line or stack)
+# title (graph title)
+# x_axis (X axis name, default none)
+# y_axis (Y axis name, default "Elapsed Time (sec)"
+my (%pattern_map) = (
+    'disk_IOPS' => {"type" => "line",
+			"title" => "IOPS"},
+    'disk_Queue_Size' => {"type" => "line",
+			      "title" => "Queue Size"},
+    'disk_Request_Merges_per_sec' => {"type" => "line",
+					  "title" => "Request Merges/sec"},
+    'disk_Request_Size_in_512_byte_sectors' => {"type" => "line",
+						    "title" => "Request Size (512B sectors)"},
+    'disk_Request_Size_in_kB' => {"type" => "line",
+				      "title" => "Request Size (KB)"},
+    'disk_Throughput_MB_per_sec' => {"type" => "line",
+					 "title" => "Throughput (MB/sec)"},
+    'disk_Utilization_percent' => {"type" => "line",
+				       "title" => "Utilization (percent)"},
+    'disk_Wait_Time_msec' => {"type" => "line",
+				  "title" => "Wait Time (msec)"},
+    'cpuall_cpuall' => {'type' => "stack",
+			    'title' => "CPU All Utilization"},
+    'cpu{[0-9]+}_cpu{[0-9]+}' => {'type' => 'stack',
+				      'title' => 'CPU $1 Utilization'},
+    'memory_usage_virtual_size' => {'type' => 'line',
+					'title' => 'Virtual Size'},
+    'memory_usage_resident_set_size' => {'type' => 'line',
+					     'title' => 'Resident Set'},
+    'memory_faults_major_faults_sec' => {'type' => 'line',
+					     'title' => 'Major Faults/Sec'},
+    'memory_faults_minor_faults_sec' => {'type' => 'line',
+					     'title' => 'Minor Faults/Sec'},
+    'file_io_io_reads_KB_sec' => {'type' => 'line',
+				      'title' => 'I/O Reads (KB/sec)'},
+    'file_io_io_writes_KB_sec' => {'type' => 'line',
+				       'title' => 'I/O Writes (KB/sec)'},
+    'cpu_usage_percent_cpu' => {'type' => 'stack',
+				    'title' => 'CPU Usage (percent)'},
+    'context_switches_voluntary_switches_sec' => {'type' => 'line',
+						      'title' => 'Voluntary Context Switches/sec'},
+    'context_switches_nonvoluntary_switches_sec' => {'type' => 'line',
+							 'title' => 'Involuntary Context Switches/sec'},
+    'proc-interrupts-by_irq_IRQ_{.*}' => {'type' => 'stack',
+					      'title' => 'Interrupts/sec (IRQ $1)',
+					      'x_axis' => 'Interrupts/sec by CPU'},
+    'proc-interrupts-by_cpu_CPU_{.*}' => {'type' => 'line',
+					      'title' => 'Interrupts/sec (CPU $1}',
+					      'x_axis' => 'Interrupts/sec by IRQ'},
+    'proc-vmstat_allocstall_delta' => {'type' => 'line',
+					   'title' => 'Alloc stall delta/sec'},
+    'proc-vmstat_balloon_delta' => {'type' => 'line',
+					'title' => 'Balloon delta/sec'},
+    'proc-vmstat_compact_delta' => {'type' => 'line',
+					'title' => 'Compact delta/sec'},
+    'proc-vmstat_drop_delta' => {'type' => 'line',
+				     'title' => 'Drop delta/sec'},
+    'proc-vmstat_htlb_delta' => {'type' => 'line',
+				     'title' => 'HTLB delta/sec'},
+    'proc-vmstat_kswapd_delta' => {'type' => 'line',
+				       'title' => 'Kswapd delta/sec'},
+    'proc-vmstat_nr_delta' => {'type' => 'line',
+				   'title' => 'Nr delta/sec'},
+    'proc-vmstat_numa_delta' => {'type' => 'line',
+				     'title' => 'NUMA delta/sec'},
+    'proc-vmstat_oom_delta' => {'type' => 'line',
+				    'title' => 'Oom delta/sec'},
+    'proc-vmstat_pgalloc_delta' => {'type' => 'line',
+					'title' => 'Pgalloc delta/sec'},
+    'proc-vmstat_pgmigrate_delta' => {'type' => 'line',
+					  'title' => 'Pgmigrate delta/sec'},
+    'proc-vmstat_pgscan_delta' => {'type' => 'line',
+				       'title' => 'Pgscan delta/sec'},
+    'proc-vmstat_pgskip_delta' => {'type' => 'line',
+				       'title' => 'Pgskip delta/sec'},
+    'proc-vmstat_pgsteal_delta' => {'type' => 'line',
+					'title' => 'Pgsteal delta/sec'},
+    'proc-vmstat_slabs_delta' => {'type' => 'line',
+				      'title' => 'Slabs delta/sec'},
+    'proc-vmstat_swap_delta' => {'type' => 'line',
+				     'title' => 'Swap delta/sec'},
+    'proc-vmstat_thp_delta' => {'type' => 'line',
+				    'title' => 'Thp delta/sec'},
+    'proc-vmstat_unevictable_delta' => {'type' => 'line',
+					    'title' => 'Unevictable delta/sec'},
+    'proc-vmstat_workingset_delta' => {'type' => 'line',
+					   'title' => 'Workingset delta/sec'},
+    'proc-vmstat_zone_delta' => {'type' => 'line',
+				     'title' => 'Zone delta/sec'},
+    'cpu_all_cpu_busy' => {'type' => 'stack',
+			       'title' => '%Busy {All CPU)'},
+    'cpu_frequency_MHz' => {'type' => 'line',
+				'title' => 'CPU Frequency (MHz)'},
+    'per_cpu_cpu_{.*}' => {'type' => 'stack',
+			       'title' => 'CPU $1 States (percent)'},
+    'memory_memory_activity' => {'type' => 'line',
+				     'title' => 'Memory Activity',
+				     'y_axis' => 'Activity (counts/sec)'},
+    'memory_memory_usage' => {'type' => 'line',
+				  'title' => 'Memory Uage'},
+    'network_l2_carrier_errors' => {'type' => 'line',
+					'title' => 'Carrier Errors'},
+    'network_l2_drops_sec' => {'type' => 'line',
+				   'title' => 'Carrier Errors'},
+    'network_l2_errors_sec' => {'type' => 'line',
+				    'title' => 'Errors'},
+    'network_l2_fifo_overrun_errors' => {'type' => 'line',
+					     'title' => 'FIFO Overrun Errors'},
+    'network_l2_frame_alignment_errors' => {'type' => 'line',
+						'title' => 'Frame Alignment Errors'},
+    'network_l2_network_compressed_packets_sec' => {'type' => 'line',
+							'title' => 'Compressed Packets/sec'},
+    'network_l2_network_Mbits_sec' => {'type' => 'line',
+					   'title' => 'Network traffic (Mbits/sec)'},
+    'network_l2_network_multicast_packets_sec' => {'type' => 'line',
+						       'title' => 'Multicast Packets/sec'},
+    'network_l2_network_packets_sec' => {'type' => 'line',
+					     'title' => 'Packets/sec'},
+    'network_l345_ip' => {'type' => 'line',
+			      'title' => 'IP Activity (counts/sec)'},
+    'network_l345_nfs_client' => {'type' => 'line',
+				      'title' => 'NFS Activity (counts/sec)'},
+    'network_l345_sockets' => {'type' => 'line',
+				   'title' => 'Sockets (count)'},
+    'network_l345_tcp_sockets' => {'type' => 'line',
+				       'title' => 'TCP Activity (counts/sec)'},
+    'network_l345_udp' => {'type' => 'line',
+			       'title' => 'UDP Activity (counts/sec)'},
+    'system_interrupts_sec' => {'type' => 'line',
+				    'title' => 'Interrupts/sec'},
+    'system_proc_cswch_sec' => {'type' => 'line',
+				    'title' => 'Context Switches/sec'},
+    );
+
+
+# Color utilities.  These generate an RGB spectrum with varying saturation and
+# lightness to do a reasonable job of generating distinct colors.
+# As for why I use HSL (hue, saturation, lightness) rather than HSV (hue, saturation,
+# value), its big advantage is that it's symmetric from dark to light, which better
+# matches what I'm trying to achieve (distribution of light and dark colors to
+# maximize contrast between nearby colors).  HSL's weak point is with highly
+# saturated light or dark colors, but we're not using such colors, which are difficult
+# to distinguish.
+#
+# More discussion (if you care) at https://psychology.wikia.org/wiki/HSL_and_HSV
+
+sub hsl_value($$$) {
+    my ($n1, $n2, $h) = @_;
+    if ($h < 0) {
+	$h += 6.0;
+    } elsif ($h >= 6) {
+	$h -= 6;
+    }
+    if ($h < 1.0) {
+	return ($n1 + ($n2 - $n1) * $h);
+    } elsif ($h < 3.0) {
+	return $n2;
+    } elsif ($h < 4.0) {
+	return ($n1 + ($n2 - $n1) * (4.0 - $h));
+    } else {
+	return $n1;
+    }
+}
+
+sub pow($$) {
+    my ($base, $expt) = @_;
+    if ($base == 0) {
+	return 0;
+    }
+    return exp(log($base) * $expt);
+}
+
+sub color_from_hsl($$$) {
+    my ($h, $s, $l) = @_;
+    my ($gamma) = 1.5;
+    my ($m1, $m2);
+    if ($l < .5) {
+	$m2 = $l * (1 + $s);
+    } else {
+	$m2 = $l + $s - ($l * $s);
+    }
+    $m1 = ($l * 2) - $m2;
+    my $r = hsl_value($m1, $m2, $h + 2);
+    my $g = hsl_value($m1, $m2, $h);
+    my $b = hsl_value($m1, $m2, $h - 2);
+    $r = 255 * pow($r, 1.0 / $gamma);
+    $g = 255 * pow($g, 1.0 / $gamma);
+    $b = 255 * pow($b, 1.0 / $gamma);
+    return sprintf "#%2.2x%2.2x%2.2x", $r, $g, $b;
+}
+
+# gnuplot can use a limited number colors (99 for the older PNG driver
+# and 256 for the newer one).  The first three colors are used
+# for other purposes, so we have to limit the number of colors we use.
+#
+# The algorithm we use to try to achieve maximum contrast is as follows:
+#
+# Use 25 points around the color wheel in rotation.
+# In addition, alternate the saturation and luminosity so that adjacent
+# colors, with very similar hues, look significantly different in
+# brightness and saturation (richness).
+
+my ($gnuplot_maximum_colors) = 254;
+
+sub color_from_position($;$) {
+    my ($val, $rotor) = @_;
+    if (! defined $rotor || $rotor > 25) { $rotor = 25; }
+    if ($rotor < 3) { $rotor = 3; }
+    $val = $val % ($gnuplot_maximum_colors + 1);
+    my ($h, $s, $l);
+    $h = ($val * 6.0 / $rotor);
+    $h -= 6 * int($h / 6);
+    $s = 1.0 - .035 * (($val * 5) % 13);
+    $l = 0.5 - .025 * (($val * 10) % 19);
+    return color_from_hsl($h, $s, $l);
+}
+
+sub generate_colors() {
+    local ($_);
+    return join " ", map { color_from_position($_) } (0..$gnuplot_maximum_colors);
+}
+
+# Generate an evenly-spaced spectrum of colors from blue to red.
+# "Evenly spaced" is defined in terms of the hue component of the HSL
+# color space.	We use S = 1.0 (fully saturated) and L = 0.5 (which
+# yields the purest color).
+sub generate_spectrum($) {
+    my ($steps) = @_;
+    my ($direction) = 1;
+    if ($steps < 0) {
+	$direction = -1;
+	$steps = -$steps;
+    }
+    if ($steps < 1) {
+	return "#ff0000";
+    } else {
+	if ($steps > $gnuplot_maximum_colors) {
+	    $steps = $gnuplot_maximum_colors;
+	}
+	# Going beyond either red or blue (toward magenta) yields
+	# confusing colors.
+	my $min_hue = 0.0;	# red
+	my $max_hue = 4.0;	# blue
+	my $increment = ($max_hue - $min_hue) / $steps;
+	local ($_);
+	# I've determined all of these constants empirically as
+	# "yields a reasonably easy to read graph".  This prefers
+	# fairly dark (lightness between .15 and .5) and fairly
+	# saturated (saturation between .58 and 1) colors, with
+	# steps between colors that are out of sync so we don't
+	# wind up with nearby (and hence similar hue) colors with
+	# similar saturation and lightness.
+	my @stuff = (map { color_from_hsl($min_hue + ($_ * $increment),
+					  1.0 - .035 * (($_ * 5) % 13),
+					  0.5 - .035 * (($_ * 6) % 11)) }
+		     reverse (0..$steps));
+	return ($direction > 0 ? @stuff : reverse @stuff);
+    }
+}
+
+sub generate_linestyles($) {
+    my ($count) = @_;
+    my (@colors) = generate_spectrum($count - 1);
+    return join("\n", map { my $x = $_ + 1; "set style line $x linecolor rgb '$colors[$_]'" } (0..$count - 1));
+}
+
+# For stack graphs, we have to perform the stacking ourselves since gnuplot doesn't
+# doesn't have any way to do that.
+sub genrow(\@) {
+    my ($row) = @_;
+    my (@row) = @$row;
+    my (@answer);
+    my ($acc) = 0;
+    foreach my $valno (1..$#row) {
+	$acc += $row[$#row - $valno + 1];
+	push @answer, $acc;
+    }
+    return ($row[0], reverse @answer);
+}
+
+sub generate_graph($$$$$\@) {
+    my ($file, $type, $title, $x_axis, $y_axis, $data) = @_;
+    $title =~ s/'/"/g;	# so we don't choke gnuplot
+    $x_axis =~ s/'/"/g;	# so we don't choke gnuplot
+    $y_axis =~ s/'/"/g;	# so we don't choke gnuplot
+    my (@data) = @$data;
+    # Generate data set names somewhat arbitrarily in a way that hopefully
+    # is not hard to read.
+    my (@names) = map { my ($a) = $_; $a =~ s/'/"/g; $a =~ s/_/ /g; $a} @{$$data[0]};
+    if ($#names <= 0) {
+	print STDERR "Skipping $file, no data\n";
+	return;
+    }
+    print STDERR "Plotting $file\n";
+    my ($imgfile) = $file;
+    my ($colors) = generate_linestyles($#names);
+    my ($graphtype) = $type eq 'line' ? "lines" : "filledcurves x1";
+    $imgfile =~ s/(\.csv)?$/.png/;
+    print << "FINIS";
+gnuplot <<'EOF'
+set yrange [0:]
+
+set xrange [0:${data[$#data-1][0]}]
+set key outside
+set terminal pngcairo dashed size $psize linewidth $linewidth
+set title '$title'
+$colors
+set style fill solid
+set output "$imgfile"
+set xlabel "Elapsed time (seconds)"
+set grid
+FINIS
+    print "plot ", join(", \\\n     ", map { my $x = $_ + 1; "'-' using 1:$x with $graphtype ls $_ title '$names[$_]'" } (1..$#names)), "\n";
+    my($maxtime) = 0;
+    foreach my $iter (1..$#names) {
+	foreach my $row (1..$#data) {
+	    if ($type eq 'line') {
+		print join(", ", @{$$data[$row]}, "\n");
+	    } else {
+		print join(", ", genrow(@{$$data[$row]}), "\n");
+	    }
+	}
+	print "e\n";
+    }
+    print "EOF\n";
+}
+
+sub slurp_file($) {
+    my ($file) = @_;
+    open IN, "<", $file || die("Can't open $file: $!\n");
+    my (@coldata);
+    my (@maxval);
+    my ($abs_maxval);
+
+    my ($timestamp_divisor) = 1;
+    my ($base_ts);
+    my ($rows_read) = 0;
+    while (<IN>) {
+	chomp;
+	my (@vals) = split(/,/);
+	if ($rows_read == 0) {
+	    if ($vals[0] eq 'timestamp_ms') {
+		$timestamp_divisor = 1000;
+		$vals[0] = 'timestamp_sec';
+	    }
+	    map {
+		$coldata[$_] = ();
+		push @{$coldata[$_]}, $vals[$_];
+		$maxval[$_] = 0;
+	    } (0..$#vals);
+	    $maxval[0] = 0;
+	} else {
+	    if ($rows_read == 1) {
+		$base_ts = $vals[0];
+	    }
+	    push @{$coldata[0]}, ($vals[0] - $base_ts) / $timestamp_divisor;
+	    map {
+		push @{$coldata[$_]}, $vals[$_];
+		if ($vals[$_] > $maxval[$_]) {
+		    $maxval[$_] = $vals[$_];
+		    if ($vals[$_] > $abs_maxval) {
+			$abs_maxval = $vals[$_];
+		    }
+		}
+	    } (1..$#vals);
+	}
+	$rows_read++;
+    }
+    close IN;
+    # If no datasets contain significant data, don't attempt to generate a graph.
+    if ($abs_maxval <= 0) {
+	return ();
+    }
+    my (@colmap);
+    map {
+	if ($_ == 0 || $maxval[$_] >= .01 * $abs_maxval) {
+	    push @colmap, $_;
+	}
+    } (0..$#coldata);
+
+    my (@answer);
+    foreach my $row (0..$rows_read - 1) {
+	push @answer, [ map { $coldata[$_][$row]; } @colmap ];
+    }
+    return @answer;
+}
+
+foreach my $file (@ARGV) {
+    my (@data) = slurp_file($file);
+    my ($title) = '';
+    my ($graphtype) = '';
+    my ($x_axis) = "Elapsed Time (sec)";
+    my ($y_axis) = '';
+    foreach my $pattern (keys %pattern_map) {
+	if ($file =~ /${pattern}\.csv$/) {
+	    # A bit to my surprise, all of these evals really aren't very expensive.
+	    $title = eval("\"$pattern_map{\"$pattern\"}{'title'}\"");
+	    $graphtype = $pattern_map{$pattern}{"type"};
+	    if (defined $pattern_map{$pattern}{"x_axis"}) {
+		$x_axis = eval("\"$pattern_map{\"$pattern\"}{'x_axis'}\"");
+	    }
+	    if (defined $pattern_map{$pattern}{"y_axis"}) {
+		$y_axis = eval("\"$pattern_map{\"$pattern\"}{'y_axis'}\"");
+	    }
+	    generate_graph($file, $graphtype, $title, $x_axis, $y_axis, @data);
+	    last;
+	}
+    }
+    if (not $graphtype) {
+	warn "No handler defined for $file!\n";
+    }
+}
