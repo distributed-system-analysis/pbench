@@ -19,6 +19,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import shutil
 
 from distutils.spawn import find_executable
 from http import HTTPStatus
@@ -212,33 +213,37 @@ class PCPPmlogger(BaseCollector):
         self.hosts, self.tools = [], []
         self.pmlog_config_files = []
         self.mapping = dict()
-        self.control_file = os.path.join(self.benchmark_run_dir, '.temp', 'pcppmlogger.d')
-        self.log_dir = os.path.join(self.benchmark_run_dir, 'results')
+        self.control_file = os.path.join(
+            self.benchmark_run_dir, ".temp", "pcppmlogger.d"
+        )
+        self.log_dir = os.path.join(self.benchmark_run_dir, "results")
         # call init functions
         self.check_connection(self.temp_hosts)
-        #WILL LIKELY BE AN ISSUE HERE
+        # WILL LIKELY BE AN ISSUE HERE
         try:
             inst_dir = PbenchAgentConfig(
                 os.environ["_PBENCH_AGENT_CONFIG"]
             ).pbench_install_dir
         except Exception as exc:
-            logger.error(
+            self.logger.error(
                 "Unexpected error encountered logging pbench agent configuration: '%s'",
                 exc,
             )
-        self.read_json(os.path.join(inst_dir,'util-scripts','pcp-mapping.json'))
+        self.read_json(os.path.join(inst_dir, "util-scripts", "pcp-mapping.json"))
         self.build_pmlog_configs(self.hosts, self.tools)
         self.build_control_file(self.hosts)
 
     def start_logger(self):
         """ starting logging process """
-        logging.basicConfig(filename='pmlogger.log',
-                            filemode='w',
-                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                            datefmt='%H:%M:%S',
-                            level=logging.DEBUG)
+        logging.basicConfig(
+            filename="pmlogger.log",
+            filemode="w",
+            format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+            datefmt="%H:%M:%S",
+            level=logging.DEBUG,
+        )
 
-        self.logger = logging.getLogger('pmlogger')
+        self.logger = logging.getLogger("pmlogger")
 
     def read_json(self, json_fn):
         """ read json file """
@@ -248,18 +253,24 @@ class PCPPmlogger(BaseCollector):
             with open(os.path.join(json_fn)) as json_file:
                 self.mapping = json.loads(json_file.read())
         except Exception as e:
-            self.logger.critical("Not able to load the mapping file\n:%s", e, exc_info=True)
+            self.logger.critical(
+                "Not able to load the mapping file\n:%s", e, exc_info=True
+            )
 
     def start_logging(self):
         """ invoke pmlogger and start logging using pmlogger_check -c """
         # code to start logging
         self.logger.info("starting logger")
 
-        command = PCP.pmGetConfig('PCP_BINADM_DIR') + '/pmlogger_check -c {}'.format(self.control_file)
+        command = PCP.pmGetConfig("PCP_BINADM_DIR") + "/pmlogger_check -c {}".format(
+            self.control_file
+        )
         self.logger.debug("start logger command:%s", command)
-        out = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, stderr = out.communicate()
-        self.logger.debug("start logger command stdout:%s",stdout.decode())
+        self.logger.debug("start logger command stdout:%s", stdout.decode())
 
         if stdout.decode() != "":
             # pmlogger failed to start. Log it
@@ -272,11 +283,15 @@ class PCPPmlogger(BaseCollector):
         # code to stop logging
         self.logger.info("stop logger")
 
-        command = PCP.pmGetConfig('PCP_BINADM_DIR') + '/pmlogger_check -s -c {}'.format(self.control_file)
+        command = PCP.pmGetConfig("PCP_BINADM_DIR") + "/pmlogger_check -s -c {}".format(
+            self.control_file
+        )
         self.logger.debug("stop logger command:%s", command)
-        out = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, stderr = out.communicate()
-        self.logger.debug("stop logger command stdout:%s",stdout.decode())
+        self.logger.debug("stop logger command stdout:%s", stdout.decode())
 
         if stdout.decode() != "":
             # pmlogger failed to stop. Log it
@@ -295,14 +310,18 @@ class PCPPmlogger(BaseCollector):
             res = ""
             try:
                 self.logger.debug("checking connection on host:%s", host)
-                res = pmapi.pmContext(api.PM_CONTEXT_HOST, host+":44321")
+                res = pmapi.pmContext(api.PM_CONTEXT_HOST, host + ":44321")
             except:
                 res = None
 
             if res is not None:
                 self.logger.info("Port 44321 is open in:{}".format(host))
-                self.hosts.append(host) # logging only on those hosts with port 44321 active
-                self.tools.append(self.temp_tools[idx]) # appending the given hosts tool group
+                self.hosts.append(
+                    host
+                )  # logging only on those hosts with port 44321 active
+                self.tools.append(
+                    self.temp_tools[idx]
+                )  # appending the given hosts tool group
             else:
                 self.logger.error("Port 44321 is not open in:{}".format(host))
                 self.logger.error("Ignoring host:%s", host)
@@ -314,16 +333,26 @@ class PCPPmlogger(BaseCollector):
         for index, host in enumerate(hosts):
             # make a folder with name self.benchmark_run_dir/temp/host
             try:
-                os.mkdir('.temp')
-                self.logger.debug("Created folder :{}".format(os.path.join(self.benchmark_run_dir, '.temp')))
+                os.mkdir(".temp")
+                self.logger.debug(
+                    "Created folder :{}".format(
+                        os.path.join(self.benchmark_run_dir, ".temp")
+                    )
+                )
             except:
-                self.logger.debug("Folder :{} already exists".format(os.path.join('.temp')))
+                self.logger.debug(
+                    "Folder :{} already exists".format(os.path.join(".temp"))
+                )
 
             try:
-                os.mkdir(os.path.join('.temp', host))
-                self.logger.debug("Created folder :{}".format(os.path.join('.temp', host)))
+                os.mkdir(os.path.join(".temp", host))
+                self.logger.debug(
+                    "Created folder :{}".format(os.path.join(".temp", host))
+                )
             except:
-                self.logger.debug("Folder :{} already exists".format(os.path.join('.temp', host)))
+                self.logger.debug(
+                    "Folder :{} already exists".format(os.path.join(".temp", host))
+                )
 
             try:
                 for _, tool in enumerate(tools[index]):
@@ -331,22 +360,37 @@ class PCPPmlogger(BaseCollector):
                     try:
                         string = ""
                         string += "#pmlogconf-setup 2.0\n"
-                        string += "ident   "+ self.mapping[tool]["ident"] + "\n"
-                        string += "probe   "+ self.mapping[tool]["probe"] + " ? include : exclude\n\n"
+                        string += "ident   " + self.mapping[tool]["ident"] + "\n"
+                        string += (
+                            "probe   "
+                            + self.mapping[tool]["probe"]
+                            + " ? include : exclude\n\n"
+                        )
                         for _, metric in enumerate(self.mapping[tool]["metrics"]):
                             string += "   " + metric + "\n"
 
-                        self.logger.debug("%s.summary output for host %s :\n%s", host, host, string)
-                        with open(os.path.join('.temp', host, tool+'.summary'), "w") as file:
+                        self.logger.debug(
+                            "%s.summary output for host %s :\n%s", host, host, string
+                        )
+                        with open(
+                            os.path.join(".temp", host, tool + ".summary"), "w"
+                        ) as file:
                             file.write(string)
                     except KeyError:
                         self.logger.error("tool:%s does not exist in mapping", tool)
 
                 # code to build pmlogger configuration file
                 self.logger.info("building pmlogger configuration file")
-                command = 'pmlogconf -c -h {} -d {} {}.config '.format(host, os.path.join('.temp', host), host)
+                command = "pmlogconf -c -h {} -d {} {}.config ".format(
+                    host, os.path.join(".temp", host), host
+                )
                 self.logger.debug("pmlogconf command:%s", command)
-                out = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+                out = subprocess.Popen(
+                    [command],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    shell=True,
+                )
                 stdout, stderr = out.communicate()
                 self.logger.debug("stdout output:%s", stdout.decode())
 
@@ -359,7 +403,9 @@ class PCPPmlogger(BaseCollector):
                 self.pmlog_config_files.append("{}.config".format(host))
             except Exception as e:
                 # log exception as we are not able to stop logger
-                self.logger.error("not able to create a logger conf file\n", e, exc_info=True )
+                self.logger.error(
+                    "not able to create a logger conf file\n", e, exc_info=True
+                )
 
     def build_control_file(self, hosts):
         """ build control.d file. returns true/false depending on success or failure in building files"""
@@ -368,18 +414,24 @@ class PCPPmlogger(BaseCollector):
         string = ""
 
         # insert version
-        string += "$version=1.1 \n" 
+        string += "$version=1.1 \n"
 
         for idx, host in enumerate(hosts):
             # build control file
-            string += "{}  n  n {}  -r -T1m -c {}\n".format(host, os.path.join(self.log_dir,host), self.pmlog_config_files[idx])
+            string += "{}  n  n {}  -r -T1m -c {}\n".format(
+                host, os.path.join(self.log_dir, host), self.pmlog_config_files[idx]
+            )
 
         # save the file
         self.logger.debug("The control file\n:%s", string)
-        self.logger.debug("The control file name:%s and stored at:%s", self.control_file, self.benchmark_run_dir)
+        self.logger.debug(
+            "The control file name:%s and stored at:%s",
+            self.control_file,
+            self.benchmark_run_dir,
+        )
         try:
-            os.mkdir(self.benchmark_run_dir / '.temp')
-            with open(self.control_file, 'w') as file:
+            os.mkdir(self.benchmark_run_dir / ".temp")
+            with open(self.control_file, "w") as file:
                 file.write(string)
             self.logger.info("successfully built the control file")
         except Exception as e:
@@ -396,11 +448,14 @@ class PCPPmlogger(BaseCollector):
         except Exception as e:
             self.logger.error("Error removing config files\n%s", e, exc_info=True)
             # remove the temp dir
-        try:    
-            shutil.rmtree('.temp')
+        try:
+            shutil.rmtree(".temp")
             self.logger.info("deleted the .temp dir and config files")
         except Exception as e:
-            self.logger.error("error removing the .temp directory\n%s",e, exc_info=True)
+            self.logger.error(
+                "error removing the .temp directory\n%s", e, exc_info=True
+            )
+
 
 class PCPPmie(BaseCollector):
     """ inference on pcp metric data """
@@ -415,9 +470,9 @@ class PCPPmie(BaseCollector):
         for more info on pmieconf and pmie_check check respective man pages.
         """
         super().__init__(*args, **kwargs)
-        self.pmie_config_file = os.path.join(self.benchmark_run_dir, 'pmie.config')
-        self.control_file = os.path.join(self.benchmark_run_dir, 'pmie.d')
-        self.log_dir = os.path.join(self.benchmark_run_dir, 'pmie')
+        self.pmie_config_file = os.path.join(self.benchmark_run_dir, "pmie.config")
+        self.control_file = os.path.join(self.benchmark_run_dir, "pmie.d")
+        self.log_dir = os.path.join(self.benchmark_run_dir, "pmie")
         self.hosts = self.host_tools_dict.keys()
 
         self.check_connection(self.hosts)
@@ -428,15 +483,21 @@ class PCPPmie(BaseCollector):
         """ invoke pmie and start using pmie_check -c """
         # code to start logging
         self.logger.info("starting pmie")
-        command = PCP.pmGetConfig('PCP_BINADM_DIR') + '/pmie_check -c {}'.format(self.control_file)
+        command = PCP.pmGetConfig("PCP_BINADM_DIR") + "/pmie_check -c {}".format(
+            self.control_file
+        )
         self.logger.debug("start pmie command: %s", command)
-        out = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, stderr = out.communicate()
         self.logger.debug("start pmie command output:%s", stdout.decode())
 
         if stdout.decode() != "":
             # pmie failed. Log it
-            self.logger.error("not able to start pmie successfully due to:{}".format(stdout))
+            self.logger.error(
+                "not able to start pmie successfully due to:{}".format(stdout)
+            )
         else:
             self.logger.info("pmie started successfully")
 
@@ -444,15 +505,21 @@ class PCPPmie(BaseCollector):
         """ stop pmie using pmie_check -s """
         # stopping pmie
         self.logger.info("stopping pmie")
-        command = PCP.pmGetConfig('PCP_BINADM_DIR') + '/pmie_check -s -c {}'.format(self.control_file)
+        command = PCP.pmGetConfig("PCP_BINADM_DIR") + "/pmie_check -s -c {}".format(
+            self.control_file
+        )
         self.logger.debug("stop pmie command: %s", command)
-        out = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, stderr = out.communicate()
         self.logger.debug("stop pmie command output:%s", stdout.decode())
 
         if stdout.decode() != "":
             # pmie failed. Log it
-            self.logger.error("not able to stop pmie successfully due to:{}".format(stdout))
+            self.logger.error(
+                "not able to stop pmie successfully due to:{}".format(stdout)
+            )
         else:
             self.logger.info("pmie stopped successfully")
 
@@ -464,13 +531,15 @@ class PCPPmie(BaseCollector):
             res = ""
             try:
                 self.logger.debug("checking connection on host:%s", host)
-                res = pmapi.pmContext(api.PM_CONTEXT_HOST, host+":44321")
+                res = pmapi.pmContext(api.PM_CONTEXT_HOST, host + ":44321")
             except:
                 res = None
 
             if res is not None:
                 self.logger.info("Port 44321 is open in:{}".format(host))
-                self.hosts.append(host) # logging only on those hosts with port 44321 active
+                self.hosts.append(
+                    host
+                )  # logging only on those hosts with port 44321 active
             else:
                 self.logger.error("Port 44321 is not open in:{}".format(host))
                 self.logger.error("Ignoring host:%s", host)
@@ -479,15 +548,19 @@ class PCPPmie(BaseCollector):
         """ Build pmie config files for each host. Returns true/false depending on success or failure in building files """
         # building pmie config file
         self.logger.info("building pmie config file")
-        command = 'pmieconf -c {}'.format(self.pmie_config_file)
+        command = "pmieconf -c {}".format(self.pmie_config_file)
         self.logger.debug(" build pmie config command: %s", command)
-        out = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, stderr = out.communicate()
         self.logger.debug("build pmie config command output:%s", stdout.decode())
 
         if stdout.decode() != "":
             # pmie failed. Log it
-            self.logger.error("not able to build pmie config successfully due to:{}".format(stdout))
+            self.logger.error(
+                "not able to build pmie config successfully due to:{}".format(stdout)
+            )
         else:
             self.logger.info("pmie config built successfully")
 
@@ -497,16 +570,18 @@ class PCPPmie(BaseCollector):
         string = ""
 
         # insert version
-        string += "$version=1.1 \n" 
+        string += "$version=1.1 \n"
 
         for idx, host in enumerate(hosts):
             # build control file
-            string += "{}  n  n {}  -c {}\n".format(host, os.path.join(self.log_dir, host), self.pmie_config_file)
+            string += "{}  n  n {}  -c {}\n".format(
+                host, os.path.join(self.log_dir, host), self.pmie_config_file
+            )
 
         # save the file
         self.logger.debug("pmie.d file output:%s", string)
         try:
-            with open(self.control_file, 'w') as file:
+            with open(self.control_file, "w") as file:
                 file.write(string)
             self.logger.info("build pmie.d control file succesfully")
         except Exception as e:
@@ -515,8 +590,8 @@ class PCPPmie(BaseCollector):
 
     def cleanup(self):
         # remove all temp gen files
-        os.remove('pmie.config')
-        os.remove('pmie.d')
+        os.remove("pmie.config")
+        os.remove("pmie.d")
 
 
 class PromCollector(BaseCollector):
@@ -938,6 +1013,7 @@ class ToolDataSink(Bottle):
         with self._lock:
             if self.state == "init":
                 prom_tool_dict = {}
+                pcp_host_list = []
                 for tm in self._tm_tracking:
                     prom_tools = []
                     persist_tools = self._tm_tracking[tm]["persistent_tools"]
@@ -945,6 +1021,8 @@ class ToolDataSink(Bottle):
                         tool_data = self.tool_metadata.getProperties(tool)
                         if tool_data["collector"] == "prometheus":
                             prom_tools.append(tool)
+                        elif tool_data["collector"] == "pcp":
+                            pcp_host_list.append(tm)
                     if len(prom_tools) > 0:
                         prom_tool_dict[self._tm_tracking[tm]["hostname"]] = prom_tools
                 self.logger.debug(prom_tool_dict)
@@ -965,18 +1043,35 @@ class ToolDataSink(Bottle):
                 host_tools_dict = json_val["host_tools_dict"]
                 self.logger.debug("host tools dict:%s", host_tools_dict)
 
-                self._pcp_pmlogger = PCPPmlogger(self.benchmark_run_dir, self.tool_group, host_tools_dict, self.logger, self.tool_metadata)
-                self._pcp_pmie = PCPPmie(self.benchmark_run_dir, self.tool_group, host_tools_dict, self.logger, self.tool_metadata)
-                self.logger.info("initialized pmlogger and pmie for required tools")
+                if pcp_host_list:
+                    self.logger.info("GOOD: " + str(pcp_host_list))
+                    self.logger.info("BAD: " + str(host_tools_dict))
+                    self._pcp_pmlogger = PCPPmlogger(
+                        self.benchmark_run_dir,
+                        self.tool_group,
+                        host_tools_dict,
+                        self.logger,
+                        self.tool_metadata,
+                    )
+                    self._pcp_pmie = PCPPmie(
+                        self.benchmark_run_dir,
+                        self.tool_group,
+                        host_tools_dict,
+                        self.logger,
+                        self.tool_metadata,
+                    )
+                    self.logger.info("initialized pmlogger and pmie for required tools")
 
-                self._pcp_pmlogger.start_logging()
-                self._pcp_pmie.start_pmie()
-                self.logger.info("started pmlogger and pmie for required tools")
+                    self._pcp_pmlogger.start_logging()
+                    self._pcp_pmie.start_pmie()
+                    self.logger.info("started pmlogger and pmie for required tools")
             elif self.state == "end":
                 if self._prom_server:
                     self._prom_server.terminate()
-                self._pcp_pmlogger.stop_logging()
-                self._pcp_pmie.stop_pmie()
+                if self._pcp_pmlogger:
+                    self._pcp_pmlogger.stop_logging()
+                if self._pcp_pmie:
+                    self._pcp_pmie.stop_pmie()
             elif self.state == "send":
                 self._change_tm_tracking("dormant", "waiting")
                 # The Tool Data Sink cannot send success until all the Tool

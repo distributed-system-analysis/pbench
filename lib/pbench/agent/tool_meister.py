@@ -810,6 +810,8 @@ class ToolMeister(object):
         for name, tool_opts in self._tools.items():
             if name not in self.persist_tools:
                 if name in TOOLS_PMDA_MAPPING.keys():
+                    self.logger.info(name)
+                    self.logger.info(TOOLS_PMDA_MAPPING.keys())
                     pcp_pmda_list += TOOLS_PMDA_MAPPING[name]
                 else:
                     continue
@@ -835,7 +837,7 @@ class ToolMeister(object):
             #self.logger.info(self._group)
             #self.logger.info(json)
             self.logger.info(pcp_pmda_list)
-            selt.logger.info("AAAAAAAAHHHHHHHHHHHHHHHHH")
+            self.logger.info("AAAAAAAAHHHHHHHHHHHHHHHHH")
             hosts_dict = json_dicts["host_tools_dict"]
             self.logger.info(hosts_dict)
             hosts = hosts_dict.keys()
