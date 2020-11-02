@@ -108,7 +108,10 @@ function _run_allscripts {
     _run pbench-backup-tarballs
     _run pbench-verify-backup-tarballs
     # Invoke pbench-satellite-cleanup in the context of the satellite
-    PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} _PBENCH_SERVER_CONFIG=${SATCONFIG} _run pbench-satellite-cleanup
+    PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} \
+        PYTHONPATH=${_testopt_sat}/unittest-lib:${_orig_PYTHONPATH} \
+        _PBENCH_SERVER_CONFIG=${SATCONFIG} \
+        _run pbench-satellite-cleanup
 }
 
 function _local_find {
@@ -248,7 +251,15 @@ function _setup_state {
     let res=res+$?
     cp -a $_tdir/test-bin/* $_testopt/unittest-scripts/
     let res=res+$?
-    cp $_tdir/test-bin/* $_testopt_sat/unittest-scripts/
+    cp -a $_tdir/test-bin/* $_testopt_sat/unittest-scripts/
+    let res=res+$?
+    mkdir -p ${_testopt}/unittest-lib/
+    let res=res+$?
+    mkdir -p ${_testopt_sat}/unittest-lib/
+    let res=res+$?
+    cp -a ${_tdir}/test-lib/* ${_testopt}/unittest-lib/
+    let res=res+$?
+    cp -a ${_tdir}/test-lib/* ${_testopt_sat}/unittest-lib/
     let res=res+$?
     mkdir -p $_testopt/bin
     let res=res+$?
@@ -314,7 +325,9 @@ function _setup_state {
     # All the "real" scripts are found at $_testopt/bin, the mock scripts
     # are found in $_testopt/unittest-scripts.
     _orig_PATH=$PATH
+    _orig_PYTHONPATH=$PYTHONPATH
     export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
+    export PYTHONPATH=$_testopt/unittest-lib:$PYTHONPATH
 
     # Expected location of the final configuration files
     export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg
@@ -489,6 +502,7 @@ function _reset_state {
     fi
 
     export PATH=${_orig_PATH}
+    export PYTHONPATH=${_orig_PYTHONPATH}
     unset _PBENCH_SERVER_CONFIG
     unset SATCONFIG
 

@@ -74,6 +74,7 @@ RUN \
         python3-humanize \
         python3-itsdangerous \
         python3-jinja2 \
+        python3-libselinux \
         python3-mock \
         python3-pip \
         python3-psutil \
