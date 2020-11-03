@@ -1,7 +1,11 @@
+import logging
+import logging.handlers
+
 from configparser import NoOptionError, NoSectionError
 from datetime import datetime
-import logging
-from logging import handlers
+from pathlib import Path
+
+from pbench.common.exceptions import BadConfig
 
 
 class _Message:
@@ -108,13 +112,18 @@ class _PbenchLogFormatter(logging.Formatter):
         return msg
 
 
-# Used to track the individual FileHandler's created by callers of
+# Used to track the individual logging handlers created by callers of
 # get_pbench_logger().
 _handlers = {}
 
+# Constant for the location of the FIFO used by the SysLogHandler when
+# the "logger_type" "devlog" is specified.
+_devlog = "/dev/log"
+
 
 def get_pbench_logger(caller, config):
-    """Add a specific handler for the caller using the configured LOGSDIR.
+    """Fetch the logger specifed by "caller", and add a specific handler
+    based on the logging configuration requested.
 
     We also return a logger that supports "brace" style message formatting,
     e.g. logger.warning("that = {}", that)
@@ -129,29 +138,31 @@ def get_pbench_logger(caller, config):
         pbench_logger.setLevel(logging_level)
 
         if config.logger_type == "file":
-            logdir = config.LOGSDIR / caller
+            log_dir = Path(config.log_dir)
+            if config.log_using_caller_directory:
+                log_dir = log_dir / caller
             try:
-                logdir.mkdir()
+                log_dir.mkdir()
             except FileExistsError:
                 # directory already exists, ignore
                 pass
-            handler = logging.FileHandler(logdir / f"{caller}.log")
+            handler = logging.FileHandler(log_dir / f"{caller}.log")
         elif config.logger_type == "devlog":
-            handler = handlers.SysLogHandler(address="/dev/log")
+            handler = logging.handlers.SysLogHandler(address=_devlog)
         elif (
             config.logger_type == "hostport"
         ):  # hostport logger type uses UDP-based logging
-            handler = handlers.SysLogHandler(
+            handler = logging.handlers.SysLogHandler(
                 address=(config.logger_host, int(config.logger_port))
             )
         else:
-            raise Exception("Unsupported logger type")
+            raise BadConfig("Unsupported logger type")
 
         handler.setLevel(logging.DEBUG)
-        if not config._unittests:
+        if config.log_fmt is None:
             logfmt = "{asctime} {levelname} {process} {thread} {name}.{module} {funcName} {lineno} -- {message}"
         else:
-            logfmt = "1970-01-01T00:00:42.000000 {levelname} {name}.{module} {funcName} -- {message}"
+            logfmt = config.log_fmt
         formatter = _PbenchLogFormatter(fmt=logfmt)
         handler.setFormatter(formatter)
         _handlers[caller] = handler
