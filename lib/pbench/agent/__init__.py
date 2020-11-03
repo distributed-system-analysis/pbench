@@ -60,7 +60,13 @@ class PbenchAgentConfig(PbenchConfig):
                 self.pbench_install_dir / "bench-scripts" / "postprocess"
             )
             self.pbench_lib_dir = self.pbench_install_dir / "lib"
-            self.LOGSDIR = self.pbench_log
+
+        if self.logger_type == "file" and self.log_dir is None:
+            # The configuration file has a logging section configured to use
+            # "file" logging, but no log directory is set.  We'll set the log
+            # directory to be the directory of the legacy ${pbench_log} value
+            # determined above.
+            self.log_dir = str(self.pbench_log.parent)
 
         try:
             self.ssh_opts = self.conf.get(
