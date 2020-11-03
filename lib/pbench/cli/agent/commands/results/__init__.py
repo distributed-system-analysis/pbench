@@ -1,11 +1,12 @@
 import os
-import sys
 import requests
+import shutil
+import sys
 import tempfile
 
-from pbench.common.logger import get_pbench_logger
 from pbench.agent import PbenchAgentConfig
 from pbench.agent.results import MakeResultTb, CopyResultTb
+from pbench.common.logger import get_pbench_logger
 
 
 def move_results(ctx, _user, _prefix, _show_server):
@@ -47,9 +48,6 @@ def move_results(ctx, _user, _prefix, _show_server):
         )
         sys.exit(1)
 
-    runs_copied = 0
-    failures = 0
-
     try:
         temp_dir = tempfile.mkdtemp(
             dir=config.pbench_tmp, prefix="pbench-move-results."
@@ -58,42 +56,42 @@ def move_results(ctx, _user, _prefix, _show_server):
         logger.error("Failed to create temporary directory")
         sys.exit(1)
 
-    dirs = [
-        _dir
-        for _dir in next(os.walk(config.pbench_run))[1]
-        if not _dir.startswith("tools-") and not _dir.startswith("tmp")
-    ]
+    runs_copied = 0
+    failures = 0
 
-    for _dir in dirs:
-        result_dir = config.pbench_run / _dir
+    for dirent in config.pbench_run.iterdir():
+        if not dirent.is_dir():
+            continue
+        if dirent.name.startswith("tools-") or dirent.name == "tmp":
+            continue
+        result_dir = dirent
         mrt = MakeResultTb(result_dir, temp_dir, _user, _prefix, config, logger)
         result_tb_name = mrt.make_result_tb()
-        if result_tb_name:
-            crt = CopyResultTb(controller, result_tb_name, config, logger)
-            copy_result = crt.copy_result_tb()
-            try:
-                os.remove(result_tb_name)
-                os.remove(f"{result_tb_name}.md5")
-            except OSError:
-                logger.error("rm failed to remove %s and its .md5 file", result_tb_name)
-                sys.exit(1)
-            if not copy_result:
-                failures += 1
-                continue
+        assert (
+            result_tb_name
+        ), "Logic bomb!  make_result_tb() always returns a tar ball name"
+        crt = CopyResultTb(controller, result_tb_name, config, logger)
+        crt.copy_result_tb()
+        try:
+            # We always remove the constructed tar ball, regardless of success
+            # or failure, since we keep the result directory below on failure.
+            os.remove(result_tb_name)
+            os.remove(f"{result_tb_name}.md5")
+        except OSError:
+            logger.error("rm failed to remove %s and its .md5 file", result_tb_name)
+            sys.exit(1)
 
-            try:
-                os.remove(result_dir)
-            except OSError:
-                logger.error(
-                    "rm failed to remove the %s directory hierarchy", result_dir
-                )
-                sys.exit(1)
+        try:
+            shutil.rmtree(result_dir)
+        except OSError:
+            logger.error("rm failed to remove the %s directory hierarchy", result_dir)
+            sys.exit(1)
 
-            runs_copied += 1
+        runs_copied += 1
 
     if runs_copied + failures > 0:
         logger.debug(
             "successfully moved %s runs, encountered %s failures", runs_copied, failures
         )
 
-    return failures
+    return runs_copied, failures
