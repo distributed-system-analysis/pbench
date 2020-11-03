@@ -63,7 +63,7 @@ class MakeResultTb:
             sys.exit(0)
 
         try:
-            md_log = Path(self.result_dir, "metadata.log").resolve(strict=True)
+            md_log = (self.result_dir / "metadata.log").resolve(strict=True)
         except FileNotFoundError:
             self.logger.debug(
                 "The {}/metadata.log file seems to be missing", pbench_run_name

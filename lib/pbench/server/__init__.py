@@ -40,9 +40,23 @@ class PbenchServerConfig(PbenchConfig):
         # Now fetch some default common pbench settings that are required.
         self.TOP = self._get_valid_dir_option("TOP", "pbench-server", "pbench-top-dir")
         self.TMP = self._get_valid_dir_option("TMP", "pbench-server", "pbench-tmp-dir")
-        self.LOGSDIR = self._get_valid_dir_option(
-            "LOGSDIR", "pbench-server", "pbench-logs-dir"
-        )
+        if self.log_dir:
+            # We have a logging directory, which means the logger_type is
+            # "file", so we'll ignore any "pbench-logs-dir" configuration
+            # values.
+            self.LOGSDIR = Path(self.log_dir)
+        else:
+            # We don't have a [logging] section "log_dir" option, so we'll
+            # fetch the old "pbench-logs-dir" option.
+            self.LOGSDIR = self._get_valid_dir_option(
+                "LOGSDIR", "pbench-server", "pbench-logs-dir"
+            )
+            # Provide a value for log_dir since it was provided via the old
+            # pbench-logs-dir configuration.
+            self.log_dir = str(self.LOGSDIR)
+        # The pbench server, unlike the pbench agent code, logs to separate
+        # directories for each caller.
+        self.log_using_caller_directory = True
         self.BINDIR = self._get_valid_dir_option(
             "BINDIR", "pbench-server", "script-dir"
         )

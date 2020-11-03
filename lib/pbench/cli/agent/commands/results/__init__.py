@@ -11,7 +11,7 @@ from pbench.common.logger import get_pbench_logger
 
 def move_results(ctx, _user, _prefix, _show_server):
     config = PbenchAgentConfig(ctx["args"]["config"])
-    logger = get_pbench_logger("pbench-move-results", config)
+    logger = get_pbench_logger("pbench", config)
 
     controller = os.environ.get("_pbench_full_hostname")
     if not controller:
