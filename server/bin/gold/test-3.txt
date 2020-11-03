@@ -259,8 +259,8 @@ drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--        576 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--        254 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--        224 logs/pbench-index/pbench-index.log
+-rw-rw-r--        265 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--        235 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--        816 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - logs/pbench-sync-satellite
@@ -349,11 +349,11 @@ run-1970-01-01T00:00:42-UTC: Processed 0 result tar balls, 0 successfully (0 par
 ----- pbench-dispatch/pbench-dispatch.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
-1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.pbench-index main -- No tar balls found that need processing
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexing_tarballs collect_tb -- No tar balls found that need processing
 ----- pbench-index-tool-data/pbench-index-tool-data.log
 +++++ pbench-index/pbench-index.log
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
-1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- No tar balls found that need processing
+1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs collect_tb -- No tar balls found that need processing
 ----- pbench-index/pbench-index.log
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- run-1970-01-01T00:00:42-UTC

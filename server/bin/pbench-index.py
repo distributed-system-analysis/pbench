@@ -8,10 +8,7 @@ into the configured Elasticsearch V1 instance.
 
 import sys
 import os
-import glob
 import signal
-import tarfile
-import tempfile
 from pathlib import Path
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
@@ -19,34 +16,10 @@ from configparser import Error as ConfigParserError
 from pbench.common.exceptions import (
     BadConfig,
     ConfigFileError,
-    BadDate,
-    UnsupportedTarballFormat,
-    SosreportHostname,
-    BadMDLogFormat,
     JsonFileError,
-    TemplateError,
 )
-from pbench.server import tstos
-from pbench.server.indexer import (
-    IdxContext,
-    PbenchTarBall,
-    es_index,
-    VERSION,
-)
-from pbench.server.report import Report
-from pbench.server.utils import rename_tb_link, quarantine
-
-
-class SigIntException(Exception):
-    pass
-
-
-def sigint_handler(*args):
-    raise SigIntException()
-
-
-class SigTermException(Exception):
-    pass
+from pbench.server.indexer import IdxContext
+from pbench.server.indexing_tarballs import Index, SigTermException
 
 
 def sigterm_handler(*args):
@@ -55,22 +28,6 @@ def sigterm_handler(*args):
 
 # Internal debugging flag.
 _DEBUG = 0
-
-# ^$!@!#%# compatibility
-# FileNotFoundError is python 3.3 and the travis-ci hosts still (2015-10-01) run
-# python 3.2
-_filenotfounderror = getattr(__builtins__, "FileNotFoundError", IOError)
-
-
-def _count_lines(fname):
-    """Simple method to count the lines of a file.
-    """
-    try:
-        with open(fname, "r") as fp:
-            cnt = sum(1 for line in fp)
-    except _filenotfounderror:
-        cnt = 0
-    return cnt
 
 
 def main(options, name):
@@ -149,6 +106,7 @@ def main(options, name):
                   block that does not have a finally clause (as you don't want
                   any code execution in the finally block).
     """
+
     _name_suf = "-tool-data" if options.index_tool_data else ""
     _name_re = "-re" if options.re_index else ""
     name = f"{name}{_name_re}{_name_suf}"
@@ -183,21 +141,6 @@ def main(options, name):
         idxctx.templates.dump_templates()
         return 0
 
-    _re_idx = "RE-" if options.re_index else ""
-    if options.index_tool_data:
-        # The link source and destination for the operation of this script
-        # when it only indexes tool data.
-        linksrc = "TO-INDEX-TOOL"
-        linkdest = "INDEXED"
-    else:
-        # The link source and destination for the operation of this script
-        # when it indexes run, table-of-contents, and result data.
-        linksrc = f"TO-{_re_idx}INDEX"
-        linkdest = "TO-INDEX-TOOL"
-    # We only ever use a symlink'd error destination for indexing
-    # problems.
-    linkerrdest = "WONT-INDEX"
-
     res = 0
 
     ARCHIVE_rp = idxctx.config.ARCHIVE
@@ -227,405 +170,15 @@ def main(options, name):
 
     idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
 
-    # find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
-    tarballs = []
-    try:
-        tb_glob = os.path.join(ARCHIVE_rp, "*", linksrc, "*.tar.xz")
-        for tb in glob.iglob(tb_glob):
-            try:
-                rp = Path(tb).resolve(strict=True)
-            except OSError:
-                idxctx.logger.warning("{} does not resolve to a real path", tb)
-                quarantine(qdir, idxctx.logger, tb)
-                continue
-            controller_path = rp.parent
-            controller = controller_path.name
-            archive_path = controller_path.parent
-            if str(archive_path) != str(ARCHIVE_rp):
-                idxctx.logger.warning(
-                    "For tar ball {}, original home is not {}", tb, ARCHIVE_rp
-                )
-                quarantine(qdir, idxctx.logger, tb)
-                continue
-            if not Path(f"{rp}.md5").is_file():
-                idxctx.logger.warning("Missing .md5 file for {}", tb)
-                quarantine(qdir, idxctx.logger, tb)
-                # Audit should pick up missing .md5 file in ARCHIVE directory.
-                continue
-            try:
-                # get size
-                size = rp.stat().st_size
-            except OSError:
-                idxctx.logger.warning("Could not fetch tar ball size for {}", tb)
-                quarantine(qdir, idxctx.logger, tb)
-                # Audit should pick up missing .md5 file in ARCHIVE directory.
-                continue
-            else:
-                tarballs.append((size, controller, tb))
-    except SigTermException:
-        # Re-raise a SIGTERM to avoid it being lumped in with general
-        # exception handling below.
-        raise
-    except Exception:
-        idxctx.logger.exception(
-            "Unexpected error encountered generating list" " of tar balls to process"
-        )
-        return 12
-    else:
-        if not tarballs:
-            idxctx.logger.info("No tar balls found that need processing")
-            return 0
+    idx = Index(name, options, idxctx, INCOMING_rp)
 
-    # We always process the smallest tar balls first.
-    tarballs = sorted(tarballs)
+    status, tarballs = idx.collect_tb(ARCHIVE_rp, qdir)
+    if status == 0 and tarballs:
+        status = idx.process_tb(tarballs)
 
-    # At this point, tarballs contains a list of tar balls sorted by size
-    # that were available as symlinks in the various 'linksrc' directories.
-    idxctx.logger.debug("Preparing to index {:d} tar balls", len(tarballs))
-
-    try:
-        # Now that we are ready to begin the actual indexing step, ensure we
-        # have the proper index templates in place.
-        idxctx.logger.debug("update_templates [start]")
-        idxctx.templates.update_templates(idxctx.es)
-    except TemplateError as e:
-        idxctx.logger.error("update_templates [end], error {}", repr(e))
-        res = 9
-    except SigTermException:
-        # Re-raise a SIGTERM to avoid it being lumped in with general
-        # exception handling below.
-        raise
-    except Exception:
-        idxctx.logger.exception(
-            "update_templates [end]: Unexpected template" " processing error"
-        )
-        res = 12
-    else:
-        idxctx.logger.debug("update_templates [end]")
-        res = 0
-
-    if res != 0:
-        # Exit early if we encounter any errors.
-        return res
-
-    report = Report(
-        idxctx.config,
-        name,
-        es=idxctx.es,
-        pid=idxctx.getpid(),
-        group_id=idxctx.getgid(),
-        user_id=idxctx.getuid(),
-        hostname=idxctx.gethostname(),
-        version=VERSION,
-        templates=idxctx.templates,
-    )
-    # We use the "start" report ID as the tracking ID for all indexed
-    # documents.
-    try:
-        tracking_id = report.post_status(tstos(idxctx.time()), "start")
-    except SigTermException:
-        # Re-raise a SIGTERM to avoid it being lumped in with general
-        # exception handling below.
-        raise
-    except Exception:
-        idxctx.logger.error("Failed to post initial report status")
-        return 12
-    else:
-        idxctx.set_tracking_id(tracking_id)
-
-    with tempfile.TemporaryDirectory(
-        prefix=f"{name}.", dir=idxctx.config.TMP
-    ) as tmpdir:
-        idxctx.logger.debug("start processing list of tar balls")
-        tb_list = Path(tmpdir, f"{name}.{idxctx.TS}.list")
-        try:
-            with tb_list.open(mode="w") as lfp:
-                # Write out all the tar balls we are processing so external
-                # viewers can follow along from home.
-                for size, controller, tb in tarballs:
-                    print(f"{size:20d} {controller} {tb}", file=lfp)
-
-            indexed = Path(tmpdir, f"{name}.{idxctx.TS}.indexed")
-            erred = Path(tmpdir, f"{name}.{idxctx.TS}.erred")
-            skipped = Path(tmpdir, f"{name}.{idxctx.TS}.skipped")
-            ie_filepath = Path(tmpdir, f"{name}.{idxctx.TS}.indexing-errors.json")
-
-            # We use a list object here so that when we close over this
-            # variable in the handler, the list object will be closed over,
-            # but not its contents.
-            sigquit_interrupt = [False]
-
-            def sigquit_handler(*args):
-                sigquit_interrupt[0] = True
-
-            signal.signal(signal.SIGQUIT, sigquit_handler)
-
-            for size, controller, tb in tarballs:
-                # Sanity check source tar ball path
-                linksrc_dir = Path(tb).parent
-                linksrc_dirname = linksrc_dir.name
-                assert linksrc_dirname == linksrc, (
-                    f"Logic bomb!  tar ball " f"path {tb} does not contain {linksrc}"
-                )
-
-                idxctx.logger.info("Starting {} (size {:d})", tb, size)
-
-                ptb = None
-                try:
-                    # "Open" the tar ball represented by the tar ball object
-                    idxctx.logger.debug("open tar ball")
-                    ptb = PbenchTarBall(
-                        idxctx,
-                        os.path.realpath(tb),
-                        tmpdir,
-                        Path(INCOMING_rp, controller),
-                    )
-
-                    # Construct the generator for emitting all actions.  The
-                    # `idxctx` dictionary is passed along to each generator so
-                    # that it can add its context for error handling to the
-                    # list.
-                    idxctx.logger.debug("generator setup")
-                    if options.index_tool_data:
-                        actions = ptb.mk_tool_data_actions()
-                    else:
-                        actions = ptb.make_all_actions()
-
-                    # File name for containing all indexing errors that
-                    # can't/won't be retried.
-                    with ie_filepath.open(mode="w") as fp:
-                        idxctx.logger.debug("begin indexing")
-                        try:
-                            signal.signal(signal.SIGINT, sigint_handler)
-                            es_res = es_index(
-                                idxctx.es, actions, fp, idxctx.logger, idxctx._dbg
-                            )
-                        except SigIntException:
-                            idxctx.logger.exception(
-                                "Indexing interrupted by SIGINT, continuing to next tarball"
-                            )
-                            continue
-                        finally:
-                            # Turn off the SIGINT handler when not indexing.
-                            signal.signal(signal.SIGINT, signal.SIG_IGN)
-                except UnsupportedTarballFormat as e:
-                    idxctx.logger.warning("Unsupported tar ball format: {}", e)
-                    tb_res = 4
-                except BadDate as e:
-                    idxctx.logger.warning("Bad Date: {!r}", e)
-                    tb_res = 5
-                except _filenotfounderror as e:
-                    idxctx.logger.warning("No such file: {}", e)
-                    tb_res = 6
-                except BadMDLogFormat as e:
-                    idxctx.logger.warning(
-                        "The metadata.log file is curdled in" " tar ball: {}", e
-                    )
-                    tb_res = 7
-                except SosreportHostname as e:
-                    idxctx.logger.warning("Bad hostname in sosreport: {}", e)
-                    tb_res = 10
-                except tarfile.TarError as e:
-                    idxctx.logger.error(
-                        "Can't unpack tar ball into {}: {}", ptb.extracted_root, e
-                    )
-                    tb_res = 11
-                except SigTermException:
-                    idxctx.logger.exception(
-                        "Indexing interrupted by SIGTERM, terminating"
-                    )
-                    break
-                except Exception as e:
-                    idxctx.logger.exception("Other indexing error: {}", e)
-                    tb_res = 12
-                else:
-                    beg, end, successes, duplicates, failures, retries = es_res
-                    idxctx.logger.info(
-                        "done indexing (start ts: {}, end ts: {}, duration:"
-                        " {:.2f}s, successes: {:d}, duplicates: {:d},"
-                        " failures: {:d}, retries: {:d})",
-                        tstos(beg),
-                        tstos(end),
-                        end - beg,
-                        successes,
-                        duplicates,
-                        failures,
-                        retries,
-                    )
-                    tb_res = 1 if failures > 0 else 0
-                try:
-                    ie_len = ie_filepath.stat().st_size
-                except _filenotfounderror:
-                    # Above operation never made it to actual indexing, ignore.
-                    pass
-                except SigTermException:
-                    # Re-raise a SIGTERM to avoid it being lumped in with
-                    # general exception handling below.
-                    raise
-                except Exception:
-                    idxctx.logger.exception(
-                        "Unexpected error handling" " indexing errors file: {}",
-                        ie_filepath,
-                    )
-                else:
-                    # Success fetching indexing error file size.
-                    if ie_len > len(tb) + 1:
-                        try:
-                            report.post_status(tstos(end), "errors", ie_filepath)
-                        except Exception:
-                            idxctx.logger.exception(
-                                "Unexpected error issuing"
-                                " report status with errors: {}",
-                                ie_filepath,
-                            )
-                finally:
-                    # Unconditionally remove the indexing errors file.
-                    try:
-                        os.remove(ie_filepath)
-                    except SigTermException:
-                        # Re-raise a SIGTERM to avoid it being lumped in with
-                        # general exception handling below.
-                        raise
-                    except Exception:
-                        pass
-                # Distinguish failure cases, so we can retry the indexing
-                # easily if possible.  Different `linkerrdest` directories for
-                # different failures; the rest are going to end up in
-                # `linkerrdest` for later retry.
-                controller_path = linksrc_dir.parent
-
-                if tb_res == 0:
-                    idxctx.logger.info(
-                        "{}: {}/{}: success",
-                        idxctx.TS,
-                        controller_path.name,
-                        os.path.basename(tb),
-                    )
-                    # Success
-                    with indexed.open(mode="a") as fp:
-                        print(tb, file=fp)
-                    rename_tb_link(tb, Path(controller_path, linkdest), idxctx.logger)
-                elif tb_res == 1:
-                    idxctx.logger.warning(
-                        "{}: index failures encountered on {}", idxctx.TS, tb
-                    )
-                    with erred.open(mode="a") as fp:
-                        print(tb, file=fp)
-                    rename_tb_link(
-                        tb, Path(controller_path, f"{linkerrdest}.1"), idxctx.logger,
-                    )
-                elif tb_res in (2, 3):
-                    assert False, (
-                        f"Logic Bomb!  Unexpected tar ball handling "
-                        f"result status {tb_res:d} for tar ball {tb}"
-                    )
-                elif tb_res >= 4 or res <= 11:
-                    # # Quietly skip these errors
-                    with skipped.open(mode="a") as fp:
-                        print(tb, file=fp)
-                    rename_tb_link(
-                        tb,
-                        Path(controller_path, f"{linkerrdest}.{tb_res:d}"),
-                        idxctx.logger,
-                    )
-                else:
-                    idxctx.logger.error(
-                        "{}: index error {:d} encountered on {}", idxctx.TS, tb_res, tb
-                    )
-                    with erred.open(mode="a") as fp:
-                        print(tb, file=fp)
-                    rename_tb_link(
-                        tb, Path(controller_path, linkerrdest), idxctx.logger
-                    )
-                idxctx.logger.info(
-                    "Finished{} {} (size {:d})",
-                    "[SIGQUIT]" if sigquit_interrupt[0] else "",
-                    tb,
-                    size,
-                )
-
-                if sigquit_interrupt[0]:
-                    break
-        except SigTermException:
-            # Re-raise a SIGTERM to avoid it being lumped in with general
-            # exception handling below.
-            raise
-        except Exception:
-            idxctx.logger.exception("Unexpected setup error")
-            res = 12
-        else:
-            # No exceptions while processing tar ball, success.
-            res = 0
-        finally:
-            if idxctx:
-                idxctx.dump_opctx()
-            idxctx.logger.debug("stopped processing list of tar balls")
-
-            idx = _count_lines(indexed)
-            skp = _count_lines(skipped)
-            err = _count_lines(erred)
-
-            idxctx.logger.info(
-                "{}.{}: indexed {:d} (skipped {:d}) results," " {:d} errors",
-                name,
-                idxctx.TS,
-                idx,
-                skp,
-                err,
-            )
-
-            if err > 0:
-                if skp > 0:
-                    subj = (
-                        f"{name}.{idxctx.TS} - Indexed {idx:d} results, skipped {skp:d}"
-                        f" results, w/ {err:d} errors"
-                    )
-                else:
-                    subj = (
-                        f"{name}.{idxctx.TS} - Indexed {idx:d} results, w/ {err:d}"
-                        " errors"
-                    )
-            else:
-                if skp > 0:
-                    subj = f"{name}.{idxctx.TS} - Indexed {idx:d} results, skipped {skp:d} results"
-                else:
-                    subj = f"{name}.{idxctx.TS} - Indexed {idx:d} results"
-
-            report_fname = Path(tmpdir, f"{name}.{idxctx.TS}.report")
-            with report_fname.open(mode="w") as fp:
-                print(subj, file=fp)
-                if idx > 0:
-                    print("\nIndexed Results\n===============", file=fp)
-                    with indexed.open() as ifp:
-                        for line in sorted(ifp):
-                            print(line.strip(), file=fp)
-                if err > 0:
-                    print(
-                        "\nResults producing errors" "\n========================",
-                        file=fp,
-                    )
-                    with erred.open() as efp:
-                        for line in sorted(efp):
-                            print(line.strip(), file=fp)
-                if skp > 0:
-                    print("\nSkipped Results\n===============", file=fp)
-                    with skipped.open() as sfp:
-                        for line in sorted(sfp):
-                            print(line.strip(), file=fp)
-            try:
-                report.post_status(tstos(idxctx.time()), "status", report_fname)
-            except SigTermException:
-                # Re-raise a SIGTERM to avoid it being lumped in with general
-                # exception handling below.
-                raise
-            except Exception:
-                pass
-
-    return res
+    return status
 
 
-###########################################################################
-# Options handling
 if __name__ == "__main__":
     run_name = Path(sys.argv[0]).name
     run_name = run_name if run_name[-3:] != ".py" else run_name[:-3]
@@ -678,7 +231,7 @@ if __name__ == "__main__":
     parsed = parser.parse_args()
     try:
         # The SIGTERM handler is established around main() to make it easier
-        # to handle it cleanly once established.  We also make sure both
+        # to handle it cleanly once established. We also make sure both
         # SIGQUIT and SIGINT are ignored until we are ready to deal with them.
         signal.signal(signal.SIGTERM, sigterm_handler)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
