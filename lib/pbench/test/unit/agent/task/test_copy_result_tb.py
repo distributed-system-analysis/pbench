@@ -16,7 +16,7 @@ class TestCopyResults:
     def config_and_logger(self):
         # Setup the configuration and logger
         self.config = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"])
-        self.logger = get_pbench_logger("unittest", self.config)
+        self.logger = get_pbench_logger("pbench", self.config)
         yield
         # Teardown the setup
         self.config, self.logger = None, None

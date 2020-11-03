@@ -68,7 +68,9 @@ def valid_config(pytestconfig):
 @pytest.fixture
 def invalid_config(pytestconfig):
     cfg_file = pytestconfig.cache.get("_PBENCH_AGENT_CONFIG", None)
-    shutil.copyfile("./lib/pbench/test/unit/config/pbench-agent.invalid.cfg", cfg_file)
+    shutil.copyfile(
+        "./lib/pbench/test/unit/agent/config/pbench-agent.invalid.cfg", cfg_file
+    )
 
 
 @pytest.fixture(autouse=True)

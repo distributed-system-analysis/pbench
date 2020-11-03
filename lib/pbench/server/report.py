@@ -8,7 +8,9 @@ import math
 import json
 import hashlib
 import socket
+
 from configparser import Error as NoSectionError, NoOptionError
+from pathlib import Path
 
 from pbench.common.logger import get_pbench_logger
 from pbench.server import tstos
@@ -180,7 +182,7 @@ class Report:
                     fname = "report-status-payload.{}.{}.xz".format(
                         self.name, timestamp_noutc
                     )
-                    fpath = os.path.join(self.config.LOGSDIR, self.name, fname)
+                    fpath = Path(self.config.log_dir) / self.name / fname
                     with lzma.open(fpath, mode="w", preset=9) as fp:
                         fp.write(the_bytes)
                         for _, _, the_bytes in payload_gen:

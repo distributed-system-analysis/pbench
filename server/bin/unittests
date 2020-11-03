@@ -318,7 +318,6 @@ function _setup_state {
 
     # Expected location of the final configuration files
     export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg
-    export LOGSDIR=$_testdir_local/logs
     export SATCONFIG=$_testopt_sat/lib/config/pbench-server.cfg
 
     # The activate invocations are supposed to work without _PBENCH_SERVER_CONFIG being set,
@@ -491,7 +490,6 @@ function _reset_state {
 
     export PATH=${_orig_PATH}
     unset _PBENCH_SERVER_CONFIG
-    unset LOGSDIR
     unset SATCONFIG
 
     rm -f ${_testopt}/lib/config/state-pbench-server.cfg
@@ -744,20 +742,6 @@ declare -A cmds=(
     # Tests that the behavior of the find command works as we expect to
     # ensure that buckets for pbench-unpack-tarballs work properly.
     [test-25]="_run test-find-behavior"
-
-    # Test to Log messages on File
-    [test-26.1]="_run test_logger_type.py"
-
-    # Test to Log messages on devlog
-    [test-26.2]="_run test_logger_type.py"
-
-    # Test to check error when logger_port and logger_host are not provided with hostport
-    [test-26.3]="_run test_logger_type.py"
-
-    # Test to Log messages on hostport with logger-host and logger_port
-    [test-26.4]="_run test_logger_type.py"
-
-    [test-26.5]="_run test_logger_level.py" 
 
     # Test culling unpacked tar balls
     [test-27]="_run pbench-cull-unpacked-tarballs"

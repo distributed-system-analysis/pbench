@@ -11,7 +11,6 @@ install-dir = /opt/pbench-server
 pbench-top-dir = /srv/pbench
 # Backup dir may be remote NFS mounted
 pbench-backup-dir = /mnt/pbench.archive.backup
-pbench-logs-dir = %(pbench-local-dir)s/logs
 # Add role for sync'ing with satellites
 roles = pbench-maintenance, pbench-prep, pbench-results, pbench-backup, pbench-sync-satellites
 # pbench-server rest api variables
@@ -19,7 +18,6 @@ rest_port = 8001
 rest_version = 1
 rest_max_content_length = 100 * 1024 * 1024
 rest_uri = /api/v%(rest_version)s
-rest_log = %(pbench-logs-dir)s/pbench-server.log
 
 [pbench-server-backup]
 endpoint_url = <the URL of the S3 object store to be used>
