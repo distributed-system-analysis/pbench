@@ -105,7 +105,7 @@ for host, port, cert, key, selfsigned, linenum in host_n_port(inv_file):
                 PROG, host, linenum)
         sys.exit(1)
     else:
-        if pid is 0:
+        if pid == 0:
             # Child continue below
             parent = False
             break
