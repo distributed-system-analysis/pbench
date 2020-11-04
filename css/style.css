@@ -47,6 +47,10 @@ a{
   text-decoration: underline;
 }
 
+ul{
+  list-style: inside;
+}
+
 a:hover{
   color: #0E6267;
 }
@@ -509,16 +513,16 @@ ul.pf-c-nav__horizontal-list.menu {
 
 .pf-c-page__sidebar{
   min-width: 100%;
-  margin-left: 8%;
+  padding-left: 16px;
   height: 100%;
   overflow-y: hidden;
   padding-top: var(--pf-global--spacer--sm);
 }
 
 .pf-c-page__sidebar-body{
-  max-width: 95%;
+  max-width: 100%;
   font-size: var(--pf-global--FontSize--sm);
-  padding: 0px;
+  padding: 1px 5px 1px 5px;
   margin-top: 2%;
 }
 
