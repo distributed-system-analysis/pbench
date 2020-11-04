@@ -13,5 +13,6 @@ fio-histo-log-pctiles.py
 | binary-search.py
 | profile-builder.py
 | agent/stockpile
+| .git
 )
 '''
