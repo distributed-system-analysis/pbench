@@ -808,7 +808,7 @@ class ToolMeister(object):
         tool_cnt = 0
         pcp_pmda_list = []
         for name, tool_opts in self._tools.items():
-            if name not in self.persist_tools:
+            if name not in self.persist_tools or name == "pcptool":
                 if name in TOOLS_PMDA_MAPPING.keys() and "pcptool" in self._tools:
                     self.logger.info(name)
                     self.logger.info(TOOLS_PMDA_MAPPING)
@@ -834,12 +834,7 @@ class ToolMeister(object):
         if len(pcp_pmda_list) > 0:
             raw_json = self._rs.get(f"tds-{self._group}")
             json_dicts = json.loads(raw_json.decode("utf-8"))
-            #self.logger.info(self._group)
-            #self.logger.info(json)
-            self.logger.info(pcp_pmda_list)
-            self.logger.info("AAAAAAAAHHHHHHHHHHHHHHHHH")
             hosts_dict = json_dicts["host_tools_dict"]
-            self.logger.info(hosts_dict)
             hosts = hosts_dict.keys()
             # remove duplicates from pcp_pmda_list 
             pcp_pmda_list = list(dict.fromkeys(pcp_pmda_list))
@@ -1041,6 +1036,8 @@ class ToolMeister(object):
         # potentially receiving another start tools.
         for name in sorted(self._tools.keys()):
             if name in self.persist_tools:
+                continue
+            if name in TOOLS_PMDA_MAPPING.keys() and "pcptool" in self._tools:
                 continue
             try:
                 del self._running_tools[name]

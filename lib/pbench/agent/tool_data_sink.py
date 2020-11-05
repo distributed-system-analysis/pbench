@@ -206,11 +206,8 @@ class PCPPmlogger(BaseCollector):
         super().__init__(*args, **kwargs)
         # save external state
         self.temp_hosts = list(self.host_tools_dict.keys())
-        self.temp_tools = []
-        for _, val in enumerate(self.host_tools_dict):
-            self.temp_tools.append(val)
         # initialize internal state
-        self.hosts, self.tools = [], []
+        self.hosts = []
         self.pmlog_config_files = []
         self.mapping = dict()
         self.control_file = os.path.join(
@@ -230,7 +227,7 @@ class PCPPmlogger(BaseCollector):
                 exc,
             )
         self.read_json(os.path.join(inst_dir, "util-scripts", "pcp-mapping.json"))
-        self.build_pmlog_configs(self.hosts, self.tools)
+        self.build_pmlog_configs(self.hosts)
         self.build_control_file(self.hosts)
 
     def start_logger(self):
@@ -319,14 +316,11 @@ class PCPPmlogger(BaseCollector):
                 self.hosts.append(
                     host
                 )  # logging only on those hosts with port 44321 active
-                self.tools.append(
-                    self.temp_tools[idx]
-                )  # appending the given hosts tool group
             else:
                 self.logger.error("Port 44321 is not open in:{}".format(host))
                 self.logger.error("Ignoring host:%s", host)
 
-    def build_pmlog_configs(self, hosts, tools):
+    def build_pmlog_configs(self, hosts):
         """ Build pmlog config files for each host. Returns true/false depending on success or failure in building files """
         self.logger.info("building pmlogger config files")
 
@@ -355,7 +349,6 @@ class PCPPmlogger(BaseCollector):
                 )
 
             try:
-                #still not what is intended here...need tools getting hosts
                 for tool in self.host_tools_dict[host]:
 
                     try:
@@ -395,7 +388,7 @@ class PCPPmlogger(BaseCollector):
                 stdout, stderr = out.communicate()
                 self.logger.debug("stdout output:%s", stdout.decode())
 
-                if stdout.decode().strip() != "":
+                if stdout.decode().strip() != ".":
                     # pmlogger failed to stop. Log it
                     self.logger.error("not able to build pmlogconf file")
                 else:
