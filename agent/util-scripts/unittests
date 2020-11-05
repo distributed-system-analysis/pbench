@@ -101,6 +101,8 @@ function _run {
     shift
     local tscrpt=${1}
     shift
+    local sortit=${1}
+    shift
 
     pushd ${_testdir} > /dev/null 2>&1
     if [[ ${?} -ne 0 ]]; then
@@ -111,13 +113,21 @@ function _run {
     echo "${tname} ${tscrpt} ${opts}"
     echo "+++ Running ${tname} ${tscrpt} ${opts}" >> ${_testout}
 
-    eval ${tscrpt} ${opts} >> ${_testout} 2>&1
+    _runout=${_testroot}/run.out
+    eval ${tscrpt} ${opts} > ${_runout} 2>&1
     sts=${?}
 
     popd > /dev/null 2>&1
     if [[ ${?} -ne 0 ]]; then
         exit 1
     fi
+
+    if [[ "${sortit}" == "sort" ]]; then
+        sort ${_runout} >> ${_testout}
+    else
+        cat ${_runout} >> ${_testout}
+    fi
+    rm ${_runout}
 
     echo "--- Finished $tname ${tscrpt} (status=${sts})" >> ${_testout}
     return ${sts}
@@ -380,6 +390,11 @@ declare -A tools=(
     [test-69]="pbench-clear-tools"
 )
 
+declare -A sortem=(
+    [test-51]="sort"
+    [test-52]="sort"
+)
+
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
     [test-01]="--dir=${_testdir}/mock-run beg"
@@ -536,13 +551,14 @@ fi
 
 for tst in ${tests}; do
     tool=${tools[${tst}]}
+    sort=${sortem[${tst}]}
     status=${expected_status[${tst}]}
     pre_hook=${pre_hooks[${tst}]}
     post_hook=${post_hooks[${tst}]}
 
     _setup_state ${tst} ${tool}
     eval "${pre_hook}"
-    USER=nobody _run ${tst} ${tool}
+    USER=nobody _run ${tst} ${tool} ${sort}
     res=${?}
     eval "${post_hook}"
     _save_tree

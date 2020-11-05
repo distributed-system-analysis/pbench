@@ -164,7 +164,7 @@ def wait_for_subs(chan, expected_tms, logger):
         except Exception:
             logger.warning("data payload in message not UTF-8, '%r'", json_str)
             continue
-        logger.debug('channel payload, "%r"', json_str)
+        logger.debug("w. channel payload, %r", json_str)
         try:
             data = json.loads(json_str)
         except json.JSONDecodeError:
@@ -328,7 +328,7 @@ def main(argv):
     #   - FIXME: use podman to start a redis server container
     redis_srvr = "redis-server"
     redis_srvr_path = find_executable(redis_srvr)
-    logger.debug("starting redis server")
+    logger.debug("a. starting redis server")
     try:
         retcode = os.spawnl(os.P_WAIT, redis_srvr_path, redis_srvr, redis_conf)
     except Exception:
@@ -414,7 +414,7 @@ def main(argv):
             "failed to create tool data sink parameter key in redis server"
         )
         return kill_redis_server(redis_pid)
-    logger.debug("starting tool data sink")
+    logger.debug("b. starting tool data sink")
     try:
         pid = os.fork()
         if pid == 0:
@@ -480,7 +480,7 @@ def main(argv):
             )
             return kill_redis_server(redis_pid)
         if host == full_hostname:
-            logger.debug("starting localhost tool meister")
+            logger.debug("c. starting localhost tool meister")
             try:
                 pid = os.fork()
                 if pid == 0:
@@ -515,7 +515,7 @@ def main(argv):
         args[1] = host
         args[5] = tm_param_key
         logger.debug(
-            "starting remote tool meister, ssh_path=%r args=%r", ssh_path, args
+            "d. starting remote tool meister, ssh_path=%r args=%r", ssh_path, args
         )
         try:
             pid = os.spawnv(os.P_NOWAIT, ssh_path, args)
@@ -582,7 +582,7 @@ def main(argv):
         # If any successes, then we need to wait for them to show up as
         # subscribers.
         logger.debug(
-            "waiting for all successfully spawned SSH processes"
+            "e. waiting for all successfully spawned SSH processes"
             " to show up as subscribers"
         )
         pids = wait_for_subs(chan, successes, logger)

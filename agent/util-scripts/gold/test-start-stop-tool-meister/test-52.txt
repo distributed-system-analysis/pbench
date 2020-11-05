@@ -1,11 +1,11 @@
 +++ Running test-52 test-start-stop-tool-meister mygroup
 "mpstat" tool is now registered for host "testhost.example.com" in group "mygroup"
-starting redis server
-starting tool data sink
-starting localhost tool meister
-waiting for all successfully spawned SSH processes to show up as subscribers
-channel payload, "'{"hostname": "testhost.example.com", "kind": "ds", "pid": NNNNN}'"
-channel payload, "'{"hostname": "testhost.example.com", "kind": "tm", "pid": NNNNN}'"
+a. starting redis server
+b. starting tool data sink
+c. starting localhost tool meister
+e. waiting for all successfully spawned SSH processes to show up as subscribers
+w. channel payload, '{"hostname": "testhost.example.com", "kind": "ds", "pid": NNNNN}'
+w. channel payload, '{"hostname": "testhost.example.com", "kind": "tm", "pid": NNNNN}'
 --- Finished test-52 test-start-stop-tool-meister (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
