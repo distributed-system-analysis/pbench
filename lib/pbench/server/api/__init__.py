@@ -147,39 +147,41 @@ class GraphQL(Resource, CorsOptionsRequest):
 
     def post(self):
         global app
-        graphQL = f"{app.config_graphql.get('host')}:{app.config_graphql.get('port')}"
+        graphQL = (
+            f"http://{app.config_graphql.get('host')}:{app.config_graphql.get('port')}"
+        )
         json_data = request.get_json(silent=True)
 
         if not json_data:
-            app.logger.error("GraphQL: Invalid json object %s", request.url)
+            app.logger.warning("GraphQL: Invalid json object {}", request.url)
             abort(400, message="GraphQL: Invalid json object in request")
 
         try:
             # query GraphQL
-            response = requests.post(graphQL, json=json_data)
-
-            # construct response object
-            response = make_response(response.text)
-            response = _corsify_actual_response(response)
-
+            gql_response = requests.post(graphQL, json=json_data)
         except requests.exceptions.ConnectionError:
             app.logger.exception("Connection refused during the GraphQL post request")
-            abort(500, message="Network problem, could not post to GraphQL Endpoint")
+            abort(502, message="Network problem, could not post to GraphQL Endpoint")
         except requests.exceptions.Timeout:
             app.logger.exception("Connection timed out during the GraphQL post request")
             abort(
-                500, message="Connection timed out, could not post to GraphQL Endpoint"
-            )
-        except requests.exceptions.InvalidURL:
-            app.logger.exception("Invalid url during the GraphQL post request")
-            abort(
-                500, message="Invalid GraphQL url, could not complete the post request"
+                504, message="Connection timed out, could not post to GraphQL Endpoint"
             )
         except Exception:
             app.logger.exception("Exception occurred during the GraphQL post request")
-            abort(500, message="Could not post to GraphQL endpoint")
+            abort(500, message="INTERNAL ERROR")
 
-        response.status_code = 200
+        try:
+            # construct response object
+            raw_response = make_response(gql_response.text)
+            response = _corsify_actual_response(raw_response)
+        except Exception:
+            app.logger.exception("Exception occurred GraphQL response construction")
+            abort(
+                500, message="INTERNAL ERROR",
+            )
+
+        response.status_code = gql_response.status_code
         return response
 
 
@@ -193,16 +195,18 @@ class Elasticsearch(Resource, CorsOptionsRequest):
 
     def post(self):
         global app
-        elasticsearch = f"{app.config_elasticsearch.get('host')}:{app.config_elasticsearch.get('port')}"
+        elasticsearch = f"http://{app.config_elasticsearch.get('host')}:{app.config_elasticsearch.get('port')}"
         json_data = request.get_json(silent=True)
         if not json_data:
-            app.logger.error(
-                "Elasticsearch: Invalid json object. Query: %s", request.url
+            app.logger.warning(
+                "Elasticsearch: Invalid json object. Query: {}", request.url
             )
             abort(400, message="Elasticsearch: Invalid json object in request")
 
         if not json_data["indices"]:
-            app.logger.error("Elasticsearch: Missing indices path in the post request")
+            app.logger.warning(
+                "Elasticsearch: Missing indices path in the post request"
+            )
             abort(400, message="Missing indices path in the Elasticsearch request")
 
         try:
@@ -213,47 +217,48 @@ class Elasticsearch(Resource, CorsOptionsRequest):
                 url = f"{elasticsearch}/{json_data['indices']}"
 
             if "payload" in json_data:
-                response = requests.post(url, json=json_data["payload"])
+                es_response = requests.post(url, json=json_data["payload"])
             else:
-                app.logger.info(
+                app.logger.debug(
                     "No payload found in Elasticsearch post request json data"
                 )
-                response = requests.get(url)
-
-            # construct response object
-            response = make_response(response.text)
-            response = _corsify_actual_response(response)
-
+                es_response = requests.get(url)
         except requests.exceptions.ConnectionError:
             app.logger.exception(
                 "Connection refused during the Elasticsearch post request"
             )
             abort(
-                500, message="Network problem, could not post to Elasticsearch Endpoint"
+                502, message="Network problem, could not post to Elasticsearch Endpoint"
             )
         except requests.exceptions.Timeout:
             app.logger.exception(
                 "Connection timed out during the Elasticsearch post request"
             )
             abort(
-                500,
+                504,
                 message="Connection timed out, could not post to Elasticsearch Endpoint",
-            )
-        except requests.exceptions.InvalidURL:
-            app.logger.exception("Invalid url during the Elasticsearch post request")
-            abort(
-                500,
-                message="Invalid Elasticsearch url, could not complete the post request",
             )
         except Exception:
             app.logger.exception(
                 "Exception occurred during the Elasticsearch post request"
             )
             abort(
-                500, message="Could not post to Elasticsearch endpoint",
+                500, message="INTERNAL ERROR",
             )
 
-        response.status_code = 200
+        try:
+            # Construct our response object
+            raw_response = make_response(es_response.text)
+            response = _corsify_actual_response(raw_response)
+        except Exception:
+            app.logger.exception(
+                "Exception occurred Elasticsearch response construction"
+            )
+            abort(
+                500, message="INTERNAL ERROR",
+            )
+
+        response.status_code = es_response.status_code
         return response
 
 
