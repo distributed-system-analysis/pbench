@@ -68,21 +68,11 @@
 		<main role="main" class="pf-c-page__main" tabindex="-1" style="background-color: white;">
 			<div class="content">
 				<div class="tab">
-					<div class="pf-c-tabs" id="primary" style="align-items: center;">
-						<ul class="pf-c-tabs__list pf-l-flex" style="width: 100%;margin-left: 20%;">
-							<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-								<button class="tablinks active" onClick="openTab(event,'setup')">Setup</button>
-							</li>
-							<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-								<button class="tablinks" onClick="openTab(event, 'install')">Install</button>
-							</li>
-							<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-								<button class="tablinks" onClick="openTab(event, 'steps')">First Steps</button>
-							</li>
-							<li class="tab-item pf-c-tabs__item pf-l-flex__item">
-								<button class="tablinks" onClick="openTab(event, 'best')">Best Practices</button>
-							</li>
-						</ul>
+					<div class="pf-c-tabs scrollmenu" id="primary" style="align-items: center;display: block; margin-left: 10.5%; width: 80%;">
+						<button class="tablinks active" id="setupLink" onClick="openTab(event,'setup')">Setup</button>
+						<button class="tablinks" id="installLink" onClick="openTab(event, 'install')">Install</button>
+						<button class="tablinks" id="stepsLink" onClick="openTab(event, 'steps')">First Steps</button>
+						<button class="tablinks" id="bestLink" onClick="openTab(event, 'best')">Best Practices</button>
 					</div>
 				</div>
 				<div>
