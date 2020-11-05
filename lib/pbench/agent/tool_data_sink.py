@@ -205,7 +205,7 @@ class PCPPmlogger(BaseCollector):
         """
         super().__init__(*args, **kwargs)
         # save external state
-        self.temp_hosts = self.host_tools_dict.keys()
+        self.temp_hosts = list(self.host_tools_dict.keys())
         self.temp_tools = []
         for _, val in enumerate(self.host_tools_dict):
             self.temp_tools.append(val)
@@ -355,7 +355,8 @@ class PCPPmlogger(BaseCollector):
                 )
 
             try:
-                for _, tool in enumerate(tools[index]):
+                #still not what is intended here...need tools getting hosts
+                for tool in self.host_tools_dict[host]:
 
                     try:
                         string = ""
@@ -443,7 +444,7 @@ class PCPPmlogger(BaseCollector):
         # Remove directory created for generating pmlogconf files
         try:
             # remove all the config files
-            for path in self.build_pmlog_configs:
+            for path in self.pmlog_config_files:
                 os.remove(path)
         except Exception as e:
             self.logger.error("Error removing config files\n%s", e, exc_info=True)
@@ -473,9 +474,10 @@ class PCPPmie(BaseCollector):
         self.pmie_config_file = os.path.join(self.benchmark_run_dir, "pmie.config")
         self.control_file = os.path.join(self.benchmark_run_dir, "pmie.d")
         self.log_dir = os.path.join(self.benchmark_run_dir, "pmie")
-        self.hosts = self.host_tools_dict.keys()
+        self.temp_hosts = list(self.host_tools_dict.keys())
+        self.hosts = []
 
-        self.check_connection(self.hosts)
+        self.check_connection(self.temp_hosts)
         self.build_pmie_config()
         self.build_pmie_control_file(self.hosts)
 
@@ -527,7 +529,7 @@ class PCPPmie(BaseCollector):
         """ Check if pmcd is running in given list of hosts"""
         self.logger.info("checking connection")
 
-        for idx, host in enumerate(hosts):
+        for host in hosts:
             res = ""
             try:
                 self.logger.debug("checking connection on host:%s", host)
@@ -548,7 +550,7 @@ class PCPPmie(BaseCollector):
         """ Build pmie config files for each host. Returns true/false depending on success or failure in building files """
         # building pmie config file
         self.logger.info("building pmie config file")
-        command = "pmieconf -c {}".format(self.pmie_config_file)
+        command = "pmieconf --config={}".format(self.pmie_config_file)
         self.logger.debug(" build pmie config command: %s", command)
         out = subprocess.Popen(
             [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True

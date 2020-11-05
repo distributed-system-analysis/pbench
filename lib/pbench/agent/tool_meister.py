@@ -222,7 +222,7 @@ class PCPTools:
         # create data structure that represents our play, including tasks, this is basically what our YAML loader does internally.
         play_source = dict(
             name="pcp start",
-            hosts=self.hosts,
+            hosts=list(self.hosts),
             gather_facts='yes',
             become=True,
             become_method='su',
@@ -272,7 +272,7 @@ class PCPTools:
         # create data structure that represents our play, including tasks, this is basically what our YAML loader does internally.
         play_source = dict(
             name="pcp stop",
-            hosts=self.hosts,
+            hosts=list(self.hosts),
             gather_facts='no',
             become='true',
             become_method='su',
