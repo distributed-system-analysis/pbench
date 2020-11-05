@@ -341,6 +341,10 @@ p.sub_info_text{
 div.scrollmenu {
   overflow: auto;
   white-space: nowrap;
+  align-items: center;
+  display: block; 
+  margin-left: 10.5%; 
+  width: 80%;
 }
 
 button.tablinks:hover {
