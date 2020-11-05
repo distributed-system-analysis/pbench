@@ -92,10 +92,10 @@ my (%pattern_map) = (
 						      'title' => 'Voluntary Context Switches/sec'},
     'context_switches_nonvoluntary_switches_sec' => {'type' => 'line',
 							 'title' => 'Involuntary Context Switches/sec'},
-    'proc-interrupts-by_irq_IRQ_{.*}' => {'type' => 'stack',
+    'proc-interrupts-by_irq_IRQ_(.*)' => {'type' => 'stack',
 					      'title' => 'Interrupts/sec (IRQ $1)',
 					      'x_axis' => 'Interrupts/sec by CPU'},
-    'proc-interrupts-by_cpu_CPU_{.*}' => {'type' => 'line',
+    'proc-interrupts-by_cpu_CPU_(.*)' => {'type' => 'line',
 					      'title' => 'Interrupts/sec (CPU $1}',
 					      'x_axis' => 'Interrupts/sec by IRQ'},
     'proc-vmstat_allocstall_delta' => {'type' => 'line',
@@ -142,7 +142,7 @@ my (%pattern_map) = (
 			       'title' => '%Busy {All CPU)'},
     'cpu_frequency_MHz' => {'type' => 'line',
 				'title' => 'CPU Frequency (MHz)'},
-    'per_cpu_cpu_{.*}' => {'type' => 'stack',
+    'per_cpu_cpu_(.*)' => {'type' => 'stack',
 			       'title' => 'CPU $1 States (percent)'},
     'memory_memory_activity' => {'type' => 'line',
 				     'title' => 'Memory Activity',
@@ -350,8 +350,7 @@ sub generate_graph($$$$$\@) {
     print << "FINIS";
 gnuplot <<'EOF'
 set yrange [0:]
-
-set xrange [0:${data[$#data-1][0]}]
+set xrange [0:${data[$#data][0]}]
 set key outside
 set terminal pngcairo dashed size $psize linewidth $linewidth
 set title '$title'
