@@ -14,11 +14,14 @@ pbench-top-dir = {TMP}/srv/pbench
 
 [elasticsearch]
 host = elasticsearch.example.com
-port = 0000
+port = 7080
 
 [graphql]
 host = graphql.example.com
-port = 0000
+port = 7081
+
+[logging]
+logger_type = file
 
 ###########################################################################
 # The rest will come from the default config file.
