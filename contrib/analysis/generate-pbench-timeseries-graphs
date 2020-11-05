@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/python3
 
 # Copyright 2020 Robert Krawitz/Red Hat
 #
@@ -36,427 +36,538 @@
 #    the axis bounds in gnuplot correctly.
 # 11->Graham's number ...
 
-use strict;
-use Getopt::Long;
-Getopt::Long::Configure("bundling", "ignore_case", "pass_through");
+from __future__ import print_function
+import re
+import sys
+import argparse
 
-my ($psize) = "1280,1024";
-my ($linewidth) = 1;
+parser = argparse.ArgumentParser(description='Generate graphs from raw Pbench tarball')
+parser.add_argument('-s', "--size", help='Graph size (x,y)', metavar='Size', default='1280,1024')
+parser.add_argument('-w', '--linewidth', help='Line width', metavar='Width', default=2, type=int)
+args = parser.parse_args()
 
-GetOptions("s=s" => \$psize,
-	   "w=i" => \$linewidth);	   
-
-# Match filenames (with implied trailing '.csv') to determine what settings to use.
-# Most of the settings allow regexp interpolation.
-#
-# type (line or stack)
-# title (graph title)
-# x_axis (X axis name, default none)
-# y_axis (Y axis name, default "Elapsed Time (sec)"
-my (%pattern_map) = (
-    'disk_IOPS' => {"type" => "line",
-			"title" => "IOPS"},
-    'disk_Queue_Size' => {"type" => "line",
-			      "title" => "Queue Size"},
-    'disk_Request_Merges_per_sec' => {"type" => "line",
-					  "title" => "Request Merges/sec"},
-    'disk_Request_Size_in_512_byte_sectors' => {"type" => "line",
-						    "title" => "Request Size (512B sectors)"},
-    'disk_Request_Size_in_kB' => {"type" => "line",
-				      "title" => "Request Size (KB)"},
-    'disk_Throughput_MB_per_sec' => {"type" => "line",
-					 "title" => "Throughput (MB/sec)"},
-    'disk_Utilization_percent' => {"type" => "line",
-				       "title" => "Utilization (percent)"},
-    'disk_Wait_Time_msec' => {"type" => "line",
-				  "title" => "Wait Time (msec)"},
-    'cpuall_cpuall' => {'type' => "stack",
-			    'title' => "CPU All Utilization"},
-    'cpu{[0-9]+}_cpu{[0-9]+}' => {'type' => 'stack',
-				      'title' => 'CPU $1 Utilization'},
-    'memory_usage_virtual_size' => {'type' => 'line',
-					'title' => 'Virtual Size'},
-    'memory_usage_resident_set_size' => {'type' => 'line',
-					     'title' => 'Resident Set'},
-    'memory_faults_major_faults_sec' => {'type' => 'line',
-					     'title' => 'Major Faults/Sec'},
-    'memory_faults_minor_faults_sec' => {'type' => 'line',
-					     'title' => 'Minor Faults/Sec'},
-    'file_io_io_reads_KB_sec' => {'type' => 'line',
-				      'title' => 'I/O Reads (KB/sec)'},
-    'file_io_io_writes_KB_sec' => {'type' => 'line',
-				       'title' => 'I/O Writes (KB/sec)'},
-    'cpu_usage_percent_cpu' => {'type' => 'stack',
-				    'title' => 'CPU Usage (percent)'},
-    'context_switches_voluntary_switches_sec' => {'type' => 'line',
-						      'title' => 'Voluntary Context Switches/sec'},
-    'context_switches_nonvoluntary_switches_sec' => {'type' => 'line',
-							 'title' => 'Involuntary Context Switches/sec'},
-    'proc-interrupts-by_irq_IRQ_(.*)' => {'type' => 'stack',
-					      'title' => 'Interrupts/sec (IRQ $1)',
-					      'x_axis' => 'Interrupts/sec by CPU'},
-    'proc-interrupts-by_cpu_CPU_(.*)' => {'type' => 'line',
-					      'title' => 'Interrupts/sec (CPU $1}',
-					      'x_axis' => 'Interrupts/sec by IRQ'},
-    'proc-vmstat_allocstall_delta' => {'type' => 'line',
-					   'title' => 'Alloc stall delta/sec'},
-    'proc-vmstat_balloon_delta' => {'type' => 'line',
-					'title' => 'Balloon delta/sec'},
-    'proc-vmstat_compact_delta' => {'type' => 'line',
-					'title' => 'Compact delta/sec'},
-    'proc-vmstat_drop_delta' => {'type' => 'line',
-				     'title' => 'Drop delta/sec'},
-    'proc-vmstat_htlb_delta' => {'type' => 'line',
-				     'title' => 'HTLB delta/sec'},
-    'proc-vmstat_kswapd_delta' => {'type' => 'line',
-				       'title' => 'Kswapd delta/sec'},
-    'proc-vmstat_nr_delta' => {'type' => 'line',
-				   'title' => 'Nr delta/sec'},
-    'proc-vmstat_numa_delta' => {'type' => 'line',
-				     'title' => 'NUMA delta/sec'},
-    'proc-vmstat_oom_delta' => {'type' => 'line',
-				    'title' => 'Oom delta/sec'},
-    'proc-vmstat_pgalloc_delta' => {'type' => 'line',
-					'title' => 'Pgalloc delta/sec'},
-    'proc-vmstat_pgmigrate_delta' => {'type' => 'line',
-					  'title' => 'Pgmigrate delta/sec'},
-    'proc-vmstat_pgscan_delta' => {'type' => 'line',
-				       'title' => 'Pgscan delta/sec'},
-    'proc-vmstat_pgskip_delta' => {'type' => 'line',
-				       'title' => 'Pgskip delta/sec'},
-    'proc-vmstat_pgsteal_delta' => {'type' => 'line',
-					'title' => 'Pgsteal delta/sec'},
-    'proc-vmstat_slabs_delta' => {'type' => 'line',
-				      'title' => 'Slabs delta/sec'},
-    'proc-vmstat_swap_delta' => {'type' => 'line',
-				     'title' => 'Swap delta/sec'},
-    'proc-vmstat_thp_delta' => {'type' => 'line',
-				    'title' => 'Thp delta/sec'},
-    'proc-vmstat_unevictable_delta' => {'type' => 'line',
-					    'title' => 'Unevictable delta/sec'},
-    'proc-vmstat_workingset_delta' => {'type' => 'line',
-					   'title' => 'Workingset delta/sec'},
-    'proc-vmstat_zone_delta' => {'type' => 'line',
-				     'title' => 'Zone delta/sec'},
-    'cpu_all_cpu_busy' => {'type' => 'stack',
-			       'title' => '%Busy {All CPU)'},
-    'cpu_frequency_MHz' => {'type' => 'line',
-				'title' => 'CPU Frequency (MHz)'},
-    'per_cpu_cpu_(.*)' => {'type' => 'stack',
-			       'title' => 'CPU $1 States (percent)'},
-    'memory_memory_activity' => {'type' => 'line',
-				     'title' => 'Memory Activity',
-				     'y_axis' => 'Activity (counts/sec)'},
-    'memory_memory_usage' => {'type' => 'line',
-				  'title' => 'Memory Uage'},
-    'network_l2_carrier_errors' => {'type' => 'line',
-					'title' => 'Carrier Errors'},
-    'network_l2_drops_sec' => {'type' => 'line',
-				   'title' => 'Carrier Errors'},
-    'network_l2_errors_sec' => {'type' => 'line',
-				    'title' => 'Errors'},
-    'network_l2_fifo_overrun_errors' => {'type' => 'line',
-					     'title' => 'FIFO Overrun Errors'},
-    'network_l2_frame_alignment_errors' => {'type' => 'line',
-						'title' => 'Frame Alignment Errors'},
-    'network_l2_network_compressed_packets_sec' => {'type' => 'line',
-							'title' => 'Compressed Packets/sec'},
-    'network_l2_network_Mbits_sec' => {'type' => 'line',
-					   'title' => 'Network traffic (Mbits/sec)'},
-    'network_l2_network_multicast_packets_sec' => {'type' => 'line',
-						       'title' => 'Multicast Packets/sec'},
-    'network_l2_network_packets_sec' => {'type' => 'line',
-					     'title' => 'Packets/sec'},
-    'network_l345_ip' => {'type' => 'line',
-			      'title' => 'IP Activity (counts/sec)'},
-    'network_l345_nfs_client' => {'type' => 'line',
-				      'title' => 'NFS Activity (counts/sec)'},
-    'network_l345_sockets' => {'type' => 'line',
-				   'title' => 'Sockets (count)'},
-    'network_l345_tcp_sockets' => {'type' => 'line',
-				       'title' => 'TCP Activity (counts/sec)'},
-    'network_l345_udp' => {'type' => 'line',
-			       'title' => 'UDP Activity (counts/sec)'},
-    'system_interrupts_sec' => {'type' => 'line',
-				    'title' => 'Interrupts/sec'},
-    'system_proc_cswch_sec' => {'type' => 'line',
-				    'title' => 'Context Switches/sec'},
-    );
-
-
-# Color utilities.  These generate an RGB spectrum with varying saturation and
-# lightness to do a reasonable job of generating distinct colors.
-# As for why I use HSL (hue, saturation, lightness) rather than HSV (hue, saturation,
-# value), its big advantage is that it's symmetric from dark to light, which better
-# matches what I'm trying to achieve (distribution of light and dark colors to
-# maximize contrast between nearby colors).  HSL's weak point is with highly
-# saturated light or dark colors, but we're not using such colors, which are difficult
-# to distinguish.
-#
-# More discussion (if you care) at https://psychology.wikia.org/wiki/HSL_and_HSV
-
-sub hsl_value($$$) {
-    my ($n1, $n2, $h) = @_;
-    if ($h < 0) {
-	$h += 6.0;
-    } elsif ($h >= 6) {
-	$h -= 6;
-    }
-    if ($h < 1.0) {
-	return ($n1 + ($n2 - $n1) * $h);
-    } elsif ($h < 3.0) {
-	return $n2;
-    } elsif ($h < 4.0) {
-	return ($n1 + ($n2 - $n1) * (4.0 - $h));
-    } else {
-	return $n1;
-    }
+pattern_map = {
+    re.compile('disk_IOPS.csv$') : {
+        'type' : 'line',
+        'title' : 'IOPS',
+    },
+    re.compile('disk_Queue_Size.csv$') : {
+        'type' : 'line',
+        'title' : 'Queue Size',
+    },
+    re.compile('disk_Request_Merges_per_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Request Merges/sec',
+    },
+    re.compile('disk_Request_Size_in_512_byte_sectors.csv$') : {
+        'type' : 'line',
+        'title' : 'Request Size (512B sectors)',
+    },
+    re.compile('disk_Request_Size_in_kB.csv$') : {
+        'type' : 'line',
+        'title' : 'Request Size (KB)',
+    },
+    re.compile('disk_Throughput_MB_per_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Throughput (MB/sec)',
+    },
+    re.compile('disk_Utilization_percent.csv$') : {
+        'type' : 'line',
+        'title' : 'Utilization (percent)',
+    },
+    re.compile('disk_Wait_Time_msec.csv$') : {
+        'type' : 'line',
+        'title' : 'Wait Time (msec)',
+    },
+    re.compile('cpuall_cpuall.csv$') : {
+        'type' : 'stack',
+        'title' : 'CPU All Utilization',
+    },
+    re.compile('cpu{[0-9]+}_cpu{[0-9]+}.csv$') : {
+        'type' : 'stack',
+        'title' : 'CPU \\1 Utilization',
+    },
+    re.compile('memory_usage_virtual_size.csv$') : {
+        'type' : 'line',
+        'title' : 'Virtual Size',
+    },
+    re.compile('memory_usage_resident_set_size.csv$') : {
+        'type' : 'line',
+        'title' : 'Resident Set',
+    },
+    re.compile('memory_faults_major_faults_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Major Faults/Sec',
+    },
+    re.compile('memory_faults_minor_faults_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Minor Faults/Sec',
+    },
+    re.compile('file_io_io_reads_KB_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'I/O Reads (KB/sec)',
+    },
+    re.compile('file_io_io_writes_KB_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'I/O Writes (KB/sec)',
+    },
+    re.compile('cpu_usage_percent_cpu.csv$') : {
+        'type' : 'stack',
+        'title' : 'CPU Usage (percent)',
+    },
+    re.compile('context_switches_voluntary_switches_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Voluntary Context Switches/sec',
+    },
+    re.compile('context_switches_nonvoluntary_switches_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Involuntary Context Switches/sec',
+    },
+    re.compile('proc-interrupts-by_irq_IRQ_(.*).csv$') : {
+        'type' : 'stack',
+        'title' : 'Interrupts/sec (IRQ \\1)',
+        'x_axis' : 'Interrupts/sec by CPU',
+    },
+    re.compile('proc-interrupts-by_cpu_CPU_(.*).csv$') : {
+        'type' : 'line',
+        'title' : 'Interrupts/sec (CPU \\1}',
+        'x_axis' : 'Interrupts/sec by IRQ',
+    },
+    re.compile('proc-vmstat_allocstall_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Alloc stall delta/sec',
+    },
+    re.compile('proc-vmstat_balloon_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Balloon delta/sec',
+    },
+    re.compile('proc-vmstat_compact_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Compact delta/sec',
+    },
+    re.compile('proc-vmstat_drop_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Drop delta/sec',
+    },
+    re.compile('proc-vmstat_htlb_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'HTLB delta/sec',
+    },
+    re.compile('proc-vmstat_kswapd_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Kswapd delta/sec',
+    },
+    re.compile('proc-vmstat_nr_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Nr delta/sec',
+    },
+    re.compile('proc-vmstat_numa_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'NUMA delta/sec',
+    },
+    re.compile('proc-vmstat_oom_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Oom delta/sec',
+    },
+    re.compile('proc-vmstat_pgalloc_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Pgalloc delta/sec',
+    },
+    re.compile('proc-vmstat_pgmigrate_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Pgmigrate delta/sec',
+    },
+    re.compile('proc-vmstat_pgscan_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Pgscan delta/sec',
+    },
+    re.compile('proc-vmstat_pgskip_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Pgskip delta/sec',
+    },
+    re.compile('proc-vmstat_pgsteal_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Pgsteal delta/sec',
+    },
+    re.compile('proc-vmstat_slabs_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Slabs delta/sec',
+    },
+    re.compile('proc-vmstat_swap_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Swap delta/sec',
+    },
+    re.compile('proc-vmstat_thp_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Thp delta/sec',
+    },
+    re.compile('proc-vmstat_unevictable_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Unevictable delta/sec',
+    },
+    re.compile('proc-vmstat_workingset_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Workingset delta/sec',
+    },
+    re.compile('proc-vmstat_zone_delta.csv$') : {
+        'type' : 'line',
+        'title' : 'Zone delta/sec',
+    },
+    re.compile('cpu_all_cpu_busy.csv$') : {
+        'type' : 'stack',
+        'title' : '%Busy (All CPU)',
+    },
+    re.compile('cpu_frequency_MHz.csv$') : {
+        'type' : 'line',
+        'title' : 'CPU Frequency (MHz)',
+    },
+    re.compile('per_cpu_cpu_(.*).csv$') : {
+        'type' : 'stack',
+        'title' : 'CPU \\1 States (percent)',
+    },
+    re.compile('memory_memory_activity.csv$') : {
+        'type' : 'line',
+        'title' : 'Memory Activity',
+        'y_axis' : 'Activity (counts/sec)',
+    },
+    re.compile('memory_memory_usage.csv$') : {
+        'type' : 'line',
+        'title' : 'Memory Uage',
+    },
+    re.compile('network_l2_carrier_errors.csv$') : {
+        'type' : 'line',
+        'title' : 'Carrier Errors',
+    },
+    re.compile('network_l2_drops_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Carrier Errors',
+    },
+    re.compile('network_l2_errors_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Errors',
+    },
+    re.compile('network_l2_fifo_overrun_errors.csv$') : {
+        'type' : 'line',
+        'title' : 'FIFO Overrun Errors',
+    },
+    re.compile('network_l2_frame_alignment_errors.csv$') : {
+        'type' : 'line',
+        'title' : 'Frame Alignment Errors',
+    },
+    re.compile('network_l2_network_compressed_packets_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Compressed Packets/sec',
+    },
+    re.compile('network_l2_network_Mbits_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Network traffic (Mbits/sec)',
+    },
+    re.compile('network_l2_network_multicast_packets_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Multicast Packets/sec',
+    },
+    re.compile('network_l2_network_packets_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Packets/sec',
+    },
+    re.compile('network_l345_ip.csv$') : {
+        'type' : 'line',
+        'title' : 'IP Activity (counts/sec)',
+    },
+    re.compile('network_l345_nfs_client.csv$') : {
+        'type' : 'line',
+        'title' : 'NFS Activity (counts/sec)',
+    },
+    re.compile('network_l345_sockets.csv$') : {
+        'type' : 'line',
+        'title' : 'Sockets (count)',
+    },
+    re.compile('network_l345_tcp_sockets.csv$') : {
+        'type' : 'line',
+        'title' : 'TCP Activity (counts/sec)',
+    },
+    re.compile('network_l345_udp.csv$') : {
+        'type' : 'line',
+        'title' : 'UDP Activity (counts/sec)',
+    },
+    re.compile('system_interrupts_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Interrupts/sec',
+    },
+    re.compile('system_proc_cswch_sec.csv$') : {
+        'type' : 'line',
+        'title' : 'Context Switches/sec',
+    },
 }
 
-sub pow($$) {
-    my ($base, $expt) = @_;
-    if ($base == 0) {
-	return 0;
-    }
-    return exp(log($base) * $expt);
-}
 
-sub color_from_hsl($$$) {
-    my ($h, $s, $l) = @_;
-    my ($gamma) = 1.5;
-    my ($m1, $m2);
-    if ($l < .5) {
-	$m2 = $l * (1 + $s);
-    } else {
-	$m2 = $l + $s - ($l * $s);
-    }
-    $m1 = ($l * 2) - $m2;
-    my $r = hsl_value($m1, $m2, $h + 2);
-    my $g = hsl_value($m1, $m2, $h);
-    my $b = hsl_value($m1, $m2, $h - 2);
-    $r = 255 * pow($r, 1.0 / $gamma);
-    $g = 255 * pow($g, 1.0 / $gamma);
-    $b = 255 * pow($b, 1.0 / $gamma);
-    return sprintf "#%2.2x%2.2x%2.2x", $r, $g, $b;
-}
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
-# gnuplot can use a limited number colors (99 for the older PNG driver
-# and 256 for the newer one).  The first three colors are used
-# for other purposes, so we have to limit the number of colors we use.
-#
-# The algorithm we use to try to achieve maximum contrast is as follows:
-#
-# Use 25 points around the color wheel in rotation.
-# In addition, alternate the saturation and luminosity so that adjacent
-# colors, with very similar hues, look significantly different in
-# brightness and saturation (richness).
 
-my ($gnuplot_maximum_colors) = 254;
+def generate_spectrum(steps):
+    """Generate a spectrum that provides good local contrast.
+    This varies saturation and lightness to produce good contrast between
+    near-adjacent values.
 
-sub color_from_position($;$) {
-    my ($val, $rotor) = @_;
-    if (! defined $rotor || $rotor > 25) { $rotor = 25; }
-    if ($rotor < 3) { $rotor = 3; }
-    $val = $val % ($gnuplot_maximum_colors + 1);
-    my ($h, $s, $l);
-    $h = ($val * 6.0 / $rotor);
-    $h -= 6 * int($h / 6);
-    $s = 1.0 - .035 * (($val * 5) % 13);
-    $l = 0.5 - .025 * (($val * 10) % 19);
-    return color_from_hsl($h, $s, $l);
-}
+    As for why I use HSL (hue, saturation, lightness) rather than HSV (hue, saturation,
+    value), its big advantage is that it's symmetric from dark to light, which better
+    matches what I'm trying to achieve (distribution of light and dark colors to
+    maximize contrast between nearby colors).  HSL's weak point is with highly
+    saturated light or dark colors, but we're not using such colors, which are difficult
+    to distinguish.
 
-sub generate_colors() {
-    local ($_);
-    return join " ", map { color_from_position($_) } (0..$gnuplot_maximum_colors);
-}
+    More discussion (if you care) at https://psychology.wikia.org/wiki/HSL_and_HSV
 
-# Generate an evenly-spaced spectrum of colors from blue to red.
-# "Evenly spaced" is defined in terms of the hue component of the HSL
-# color space.	We use S = 1.0 (fully saturated) and L = 0.5 (which
-# yields the purest color).
-sub generate_spectrum($) {
-    my ($steps) = @_;
-    my ($direction) = 1;
-    if ($steps < 0) {
-	$direction = -1;
-	$steps = -$steps;
-    }
-    if ($steps < 1) {
-	return "#ff0000";
-    } else {
-	if ($steps > $gnuplot_maximum_colors) {
-	    $steps = $gnuplot_maximum_colors;
-	}
-	# Going beyond either red or blue (toward magenta) yields
-	# confusing colors.
-	my $min_hue = 0.0;	# red
-	my $max_hue = 4.0;	# blue
-	my $increment = ($max_hue - $min_hue) / $steps;
-	local ($_);
-	# I've determined all of these constants empirically as
-	# "yields a reasonably easy to read graph".  This prefers
-	# fairly dark (lightness between .15 and .5) and fairly
-	# saturated (saturation between .58 and 1) colors, with
-	# steps between colors that are out of sync so we don't
-	# wind up with nearby (and hence similar hue) colors with
-	# similar saturation and lightness.
-	my @stuff = (map { color_from_hsl($min_hue + ($_ * $increment),
-					  1.0 - .035 * (($_ * 5) % 13),
-					  0.5 - .035 * (($_ * 6) % 11)) }
-		     reverse (0..$steps));
-	return ($direction > 0 ? @stuff : reverse @stuff);
-    }
-}
+    """
 
-sub generate_linestyles($) {
-    my ($count) = @_;
-    my (@colors) = generate_spectrum($count - 1);
-    return join("\n", map { my $x = $_ + 1; "set style line $x linecolor rgb '$colors[$_]'" } (0..$count - 1));
-}
+    def hsl_value(n1, n2, h):
+        """Generate an RGB coordinate from HSL space.
+        """
+        while h < 0:
+            h = h + 6.0
+        while h >= 6:
+            h = h - 6
+        if h < 1.0:
+            return n1 + ((n2 - n1) * h)
+        elif h < 3.0:
+            return n2
+        elif h < 4.0:
+            return n1 + ((n2 - n1) * (4 - h))
+        else:
+            return n1
 
-# For stack graphs, we have to perform the stacking ourselves since gnuplot doesn't
-# doesn't have any way to do that.
-sub genrow(\@) {
-    my ($row) = @_;
-    my (@row) = @$row;
-    my (@answer);
-    my ($acc) = 0;
-    foreach my $valno (1..$#row) {
-	$acc += $row[$#row - $valno + 1];
-	push @answer, $acc;
-    }
-    return ($row[0], reverse @answer);
-}
+    def color_from_hsl(h, s, l):
+        gamma = 1.5
+        m2 = 0
+        if (l < .5):
+            m2 = l * (1 + s)
+        else:
+            m2 = l + s - (l * s)
+        m1 = (l * 2) - m2
+        r = hsl_value(m1, m2, h + 2)
+        g = hsl_value(m1, m2, h)
+        b = hsl_value(m1, m2, h - 2)
+        r = int(255 * (r ** (1.0 / gamma)))
+        g = int(255 * (g ** (1.0 / gamma)))
+        b = int(255 * (b ** (1.0 / gamma)))
+        return "#%2.2x%2.2x%2.2x" % (r, g, b)
 
-sub generate_graph($$$$$\@) {
-    my ($file, $type, $title, $x_axis, $y_axis, $data) = @_;
-    $title =~ s/'/"/g;	# so we don't choke gnuplot
-    $x_axis =~ s/'/"/g;	# so we don't choke gnuplot
-    $y_axis =~ s/'/"/g;	# so we don't choke gnuplot
-    my (@data) = @$data;
-    # Generate data set names somewhat arbitrarily in a way that hopefully
-    # is not hard to read.
-    my (@names) = map { my ($a) = $_; $a =~ s/'/"/g; $a =~ s/_/ /g; $a} @{$$data[0]};
-    if ($#names <= 0) {
-	print STDERR "Skipping $file, no data\n";
-	return;
-    }
-    print STDERR "Plotting $file\n";
-    my ($imgfile) = $file;
-    my ($colors) = generate_linestyles($#names);
-    my ($graphtype) = $type eq 'line' ? "lines" : "filledcurves x1";
-    $imgfile =~ s/(\.csv)?$/.png/;
-    print << "FINIS";
+    direction = 1
+    if steps < 0:
+        direction = -1
+        steps = -steps
+    if steps < 1:
+        return ["#ff0000"]
+    else:
+        # I've determined all of these constants empirically as
+        # "yields a reasonably easy to read graph".  This prefers
+        # fairly dark (lightness between .15 and .5) and fairly
+        # saturated (saturation between .58 and 1) colors, with
+        # steps between colors that are out of sync so we don't
+        # wind up with nearby (and hence similar hue) colors with
+        # similar saturation and lightness.
+        # 0.58 < = sat < = 1
+        sat_base = 1.0
+        sat_incr = 0.035
+        sat_step = 5
+        sat_mod = 13
+
+        # 0.15 < = lightness < = 0.5
+        # i. e. use generally darker colors
+        lgt_base = 0.5
+        lgt_incr = 0.035
+        lgt_step = 6
+        lgt_mod = 11
+        # Colors between blue and red (purple/magenta)
+        # are a bit confusing.
+        min_hue = 0.0           # red
+        max_hue = 4.0           # blue
+        increment = (max_hue - min_hue) / steps
+
+        answer = []
+        if direction > 0:
+            hue_steps = range(steps, 0, -1)
+        else:
+            hue_steps = range(0, steps, 1)
+
+        for n in hue_steps:
+            answer.append(color_from_hsl(min_hue + (n * increment),
+                                         sat_base - (sat_incr * ((n * sat_step) % sat_mod)),
+                                         lgt_base - (lgt_incr * ((n * lgt_step) % lgt_mod))))
+        return answer
+
+
+def generate_linestyles(count):
+    gnuplot_maximum_colors = 255
+    if count > gnuplot_maximum_colors:
+        count = gnuplot_maximum_colors
+
+    colors = generate_spectrum(count - 1)
+    color_list = []
+    for n in range(count - 1):
+        color_list.append("set style line %d linecolor rgb '%s'" % (n + 1, colors[n]))
+    answer = "\n"
+    return answer.join(color_list)
+
+
+def genrow(graphtype, row):
+    answer = [str(row[0])]
+    if graphtype == 'lines':
+        for valno in range(1, len(row)):
+            answer.append(str(row[valno]))
+    else:
+        stack_row = []
+        acc = 0
+        for valno in range(1, len(row)):
+            acc += row[len(row) - valno]
+            stack_row.append(acc)
+        for valno in range(len(stack_row), 0, -1):
+            answer.append(str(stack_row[valno - 1]))
+    return answer
+
+
+def generate_graph(filename, graphtypename, title, x_axis, y_axis, data):
+    title = title.replace("'", '"')  # So we don't choke gnuplot
+    x_axis = x_axis.replace("'", '"')
+    y_axis = y_axis.replace("'", '"')
+
+    names = []
+    if len(data) == 0:
+        eprint("Skipping %s, no data" % (filename))
+        return
+    eprint("Plotting ", filename)
+
+    for row in range(0, len(data[0])):
+        name = data[0][row]
+        name = name.replace("'", '"')
+        name = name.replace("_", " ")
+        names.append(name)
+
+    imgfile = filename.replace(".csv", ".png")
+    colors = generate_linestyles(len(names))
+    if graphtypename == "line":
+        graphtype = "lines"
+    else:
+        graphtype = "filledcurves x1"
+
+    s1 = """
 gnuplot <<'EOF'
 set yrange [0:]
-set xrange [0:${data[$#data][0]}]
+set xrange [0:%d]
 set key outside
-set terminal pngcairo dashed size $psize linewidth $linewidth
-set title '$title'
-$colors
+set terminal pngcairo dashed size %s linewidth %d
+set title '%s'
+%s
 set style fill solid
-set output "$imgfile"
-set xlabel "Elapsed time (seconds)"
+set output '%s'
+set xlabel '%s'
+set ylabel '%s'
 set grid
-FINIS
-    print "plot ", join(", \\\n     ", map { my $x = $_ + 1; "'-' using 1:$x with $graphtype ls $_ title '$names[$_]'" } (1..$#names)), "\n";
-    my($maxtime) = 0;
-    foreach my $iter (1..$#names) {
-	foreach my $row (1..$#data) {
-	    if ($type eq 'line') {
-		print join(", ", @{$$data[$row]}, "\n");
-	    } else {
-		print join(", ", genrow(@{$$data[$row]}), "\n");
-	    }
-	}
-	print "e\n";
-    }
-    print "EOF\n";
-}
+""" % (data[len(data)-1][0], args.size, args.linewidth, title, colors, imgfile,
+       x_axis, y_axis)
+    print(s1)
 
-sub slurp_file($) {
-    my ($file) = @_;
-    open IN, "<", $file || die("Can't open $file: $!\n");
-    my (@coldata);
-    my (@maxval);
-    my ($abs_maxval);
+    for nameidx in range(1, len(names)):
+        comma = ""
+        if len(names) > 1 and nameidx != len(names) - 1:
+            comma = ", \\"
+        plot = "    "
+        if nameidx == 1:
+            plot = "plot"
+        print("%s '-' using 1:2 with %s ls %s title '%s'%s" % (plot, graphtype, nameidx, names[nameidx], comma))
 
-    my ($timestamp_divisor) = 1;
-    my ($base_ts);
-    my ($rows_read) = 0;
-    while (<IN>) {
-	chomp;
-	my (@vals) = split(/,/);
-	if ($rows_read == 0) {
-	    if ($vals[0] eq 'timestamp_ms') {
-		$timestamp_divisor = 1000;
-		$vals[0] = 'timestamp_sec';
-	    }
-	    map {
-		$coldata[$_] = ();
-		push @{$coldata[$_]}, $vals[$_];
-		$maxval[$_] = 0;
-	    } (0..$#vals);
-	    $maxval[0] = 0;
-	} else {
-	    if ($rows_read == 1) {
-		$base_ts = $vals[0];
-	    }
-	    push @{$coldata[0]}, ($vals[0] - $base_ts) / $timestamp_divisor;
-	    map {
-		push @{$coldata[$_]}, $vals[$_];
-		if ($vals[$_] > $maxval[$_]) {
-		    $maxval[$_] = $vals[$_];
-		    if ($vals[$_] > $abs_maxval) {
-			$abs_maxval = $vals[$_];
-		    }
-		}
-	    } (1..$#vals);
-	}
-	$rows_read++;
-    }
-    close IN;
-    # If no datasets contain significant data, don't attempt to generate a graph.
-    if ($abs_maxval <= 0) {
-	return ();
-    }
-    my (@colmap);
-    map {
-	if ($_ == 0 || $maxval[$_] >= .01 * $abs_maxval) {
-	    push @colmap, $_;
-	}
-    } (0..$#coldata);
+    for col in range(1, len(names)):
+        for row in range(1, len(data)):
+            data_elts = genrow(graphtype, data[row])
+            print("%s, %s," % (data_elts[0], data_elts[col]))
+        print('e')
+    print('EOF')
 
-    my (@answer);
-    foreach my $row (0..$rows_read - 1) {
-	push @answer, [ map { $coldata[$_][$row]; } @colmap ];
-    }
-    return @answer;
-}
 
-foreach my $file (@ARGV) {
-    my (@data) = slurp_file($file);
-    my ($title) = '';
-    my ($graphtype) = '';
-    my ($x_axis) = "Elapsed Time (sec)";
-    my ($y_axis) = '';
-    foreach my $pattern (keys %pattern_map) {
-	if ($file =~ /${pattern}\.csv$/) {
-	    # A bit to my surprise, all of these evals really aren't very expensive.
-	    $title = eval("\"$pattern_map{\"$pattern\"}{'title'}\"");
-	    $graphtype = $pattern_map{$pattern}{"type"};
-	    if (defined $pattern_map{$pattern}{"x_axis"}) {
-		$x_axis = eval("\"$pattern_map{\"$pattern\"}{'x_axis'}\"");
-	    }
-	    if (defined $pattern_map{$pattern}{"y_axis"}) {
-		$y_axis = eval("\"$pattern_map{\"$pattern\"}{'y_axis'}\"");
-	    }
-	    generate_graph($file, $graphtype, $title, $x_axis, $y_axis, @data);
-	    last;
-	}
-    }
-    if (not $graphtype) {
-	warn "No handler defined for $file!\n";
-    }
-}
+def read_file(filename):
+    coldata = []
+    maxval = []
+    minval = []
+    abs_maxval = 0
+    abs_minval = 0
+    timestamp_divisor = 1
+    base_ts = 0
+    rows_read = 0
+    try:
+        with open(filename, 'r') as f:
+            while True:
+                line = f.readline()
+                if not line:
+                    break
+                vals = line.split(',')
+                if rows_read == 0:
+                    if vals[0] == 'timestamp_ms':
+                        timestamp_divisor = 1000
+                        vals[0] = 'timestamp_sec'
+                    for i in range(0, len(vals)):
+                        coldata.append([])
+                        coldata[i].append(vals[i])
+                        maxval.append(0)
+                        minval.append(0)
+                    rows_read = 1
+                else:
+                    if rows_read == 1:
+                        base_ts = float(vals[0])
+                    coldata[0].append((float(vals[0]) - base_ts) / timestamp_divisor)
+                    for i in range(1, len(vals)):
+                        val = float(vals[i])
+                        coldata[i].append(val)
+                        if val > maxval[i]:
+                            maxval[i] = val
+                            if val > abs_maxval:
+                                abs_maxval = val
+                        if val < minval[i]:
+                            minval[i] = val
+                            if val < abs_minval:
+                                abs_minval = val
+                    rows_read = rows_read + 1
+        if maxval == minval:
+            return []
+        colmap = []
+        for i in range(len(coldata)):
+            if i == 0 or maxval[i] >= .01 * abs_maxval:
+                colmap.append(i)
+        answer = []
+        for j in range(rows_read):
+            row = []
+            for i in range(len(colmap)):
+                row.append(coldata[colmap[i]][j])
+            answer.append(row)
+        return answer
+    except IOError:
+        eprint("Unable to open '%s'" % (filename))
+        return None
+
+
+for line in sys.stdin:
+    line = line.rstrip()
+    if not re.compile('.csv$').search(line):
+        continue
+    data = read_file(line)
+    if data is not None and len(data) > 0:
+        title = None
+        graph_type = None
+        x_axis = 'Elapsed Time (sec)'
+        y_axis = ''
+        for pattern in pattern_map:
+            m = pattern.search(line)
+            if m:
+                p = pattern_map[pattern]
+                title = m.expand(p["title"])
+                graph_type = p["type"]
+                if 'x_axis' in p:
+                    x_axis = m.expand(p["x_axis"])
+                if 'y_axis' in p:
+                    y_axis = m.expand(p["y_axis"])
+                generate_graph(line, graph_type, title, x_axis, y_axis, data)
+                break
+        if graph_type is None:
+            eprint("Can't find handler for $line!")
+    else:
+        eprint("Skipping file %s (no data)" % (line))
