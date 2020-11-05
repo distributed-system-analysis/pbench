@@ -63,39 +63,42 @@ import pbench.agent.toolmetadata as toolmetadata
 
 import ansible.constants as C
 from ansible.executor.task_queue_manager import TaskQueueManager
-from ansible.module_utils.common.collections import ImmutableDict
+
+# from ansible.module_utils.common.collections import ImmutableDict
 from ansible.inventory.manager import InventoryManager
 from ansible.parsing.dataloader import DataLoader
 from ansible.playbook.play import Play
-from ansible.plugins.callback import CallbackBase
+
+# from ansible.plugins.callback import CallbackBase
 from ansible.vars.manager import VariableManager
-from ansible import context
+
+# from ansible import context
 
 # ansible constants
 ANSIBLE_CONF = "/etc/ansible/ansible.cfg"
 ANSIBLE_ROLES_PATH = "/etc/ansible/roles"
 PLAYBOOK_PATH = ""
 TOOLS_PMDA_MAPPING = {
-    "bpftrace":["bpftrace"],
-    "cpuacct":["cgroup"],
-    "disk":["disk"],
-    "dmcache":["disk", "dmcache"],
-    "docker":["docker"],
-    "iostat":["disk", "kernel"],
-    "kvmstat":["kvm"],
-    "mpstat":["kernel"],
-    "numastat":["mem"],
-    "openvswitch":["openvswitch"],
-    "pidstat":["proc", "kernel"],
-    "proc-interrupts":["kernel"],
-    "proc-sched_debug":["proc"],
-    "proc-vmstat":["mem"],
-    "qemu-migrate":["libvirt"],
-    "rabbitmq":["rabbitmq"],
-    "tcpdump":["network"],
-    "turbostat":["hinv"],
-    "virsh-migrate":["libvirt"],
-    "vmstat":["mem"]
+    "bpftrace": ["bpftrace"],
+    "cpuacct": ["cgroup"],
+    "disk": ["disk"],
+    "dmcache": ["disk", "dmcache"],
+    "docker": ["docker"],
+    "iostat": ["disk", "kernel"],
+    "kvmstat": ["kvm"],
+    "mpstat": ["kernel"],
+    "numastat": ["mem"],
+    "openvswitch": ["openvswitch"],
+    "pidstat": ["proc", "kernel"],
+    "proc-interrupts": ["kernel"],
+    "proc-sched_debug": ["proc"],
+    "proc-vmstat": ["mem"],
+    "qemu-migrate": ["libvirt"],
+    "rabbitmq": ["rabbitmq"],
+    "tcpdump": ["network"],
+    "turbostat": ["hinv"],
+    "virsh-migrate": ["libvirt"],
+    "vmstat": ["mem"],
 }
 
 # Path to external tar executable.
@@ -129,16 +132,20 @@ class PCPTools:
 
         # ansible part
         # initialize needed objects
-        self.loader = DataLoader()  # Takes care of finding and reading yaml, json and ini files
-        self.passwords = dict(vault_pass='secret')
+        self.loader = (
+            DataLoader()
+        )  # Takes care of finding and reading yaml, json and ini files
+        self.passwords = dict(vault_pass="secret")
 
-        self.sources = ','.join(self.hosts)
+        self.sources = ",".join(self.hosts)
 
         # create inventory, use path to host config file as source or hosts in a comma separated string
         self.inventory = InventoryManager(loader=self.loader, sources=self.sources)
 
         # variable manager takes care of merging all the different sources to give you a unified view of variables available in each context
-        self.variable_manager = VariableManager(loader=self.loader, inventory=self.inventory)
+        self.variable_manager = VariableManager(
+            loader=self.loader, inventory=self.inventory
+        )
 
     def find_roles_path(self):
         """ find where roles are stored """
@@ -152,12 +159,12 @@ class PCPTools:
         except FileNotFoundError:
             self.logger.exception("ansible conf file does not exist")
 
-        for line in temp.split('\n'):
+        for line in temp.split("\n"):
             if "roles_path" in line:
                 resp = line
 
         if resp is not None:
-            self.roles_path = resp.split('=')[-1].strip()
+            self.roles_path = resp.split("=")[-1].strip()
             self.logger.debug("roles path:%s", self.roles_path)
         else:
             self.roles_path = ANSIBLE_ROLES_PATH
@@ -167,11 +174,18 @@ class PCPTools:
         """ Download role if it does not exist in the localhost """
         # build command for finding contents of roles path folder
         command = "ls -lA " + self.roles_path
-        out = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, stderr = out.communicate()
         # decode the output
         output = stdout.decode()
-        self.logger.debug("output from command:%s is:%s\n and stderr:%s", command, stdout.decode(), stderr)
+        self.logger.debug(
+            "output from command:%s is:%s\n and stderr:%s",
+            command,
+            stdout.decode(),
+            stderr,
+        )
 
         # find if the required role exists or not
         for line in output:
@@ -181,11 +195,18 @@ class PCPTools:
 
         # given role does not exist. We have to download it from ansible galaxy
         command = "ansible-galaxy install performancecopilot.pcp"
-        out = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, stderr = out.communicate()
         # decode stderr
         output_err = stderr
-        self.logger.debug("output from command:%s is:%s\n and stderr:%s", command, stdout.decode(), stderr)
+        self.logger.debug(
+            "output from command:%s is:%s\n and stderr:%s",
+            command,
+            stdout.decode(),
+            stderr,
+        )
 
         if output_err is not None:
             self.logger.error("not able to download role. error:%s", output_err)
@@ -197,11 +218,18 @@ class PCPTools:
         """ delete the downloaded role """
         # create command to remove role
         command = "ansible-galaxy remove performancecopilot.pcp"
-        out = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        out = subprocess.Popen(
+            [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        )
         stdout, stderr = out.communicate()
         # decode stderr
         output_err = stderr
-        self.logger.debug("output from command:%s is:%s\n and stderr:%s", command, stdout.decode(), stderr)
+        self.logger.debug(
+            "output from command:%s is:%s\n and stderr:%s",
+            command,
+            stdout.decode(),
+            stderr,
+        )
 
         if output_err is not None:
             self.logger.error("not able to download role. error:%s", output_err)
@@ -223,27 +251,28 @@ class PCPTools:
         play_source = dict(
             name="pcp start",
             hosts=list(self.hosts),
-            gather_facts='yes',
+            gather_facts="yes",
             become=True,
-            become_method='su',
+            become_method="su",
             become_user="root",
-            roles=[
-                'performancecopilot.pcp'
-            ],
-            vars=dict(
-                pcp_optional_agents=self.tool_pmda,
-            )
+            roles=["performancecopilot.pcp"],
+            vars=dict(pcp_optional_agents=self.tool_pmda,),
         )
 
         self.logger.debug("play source for starting pcp tools:%s", play_source)
 
         # Create play object, playbook objects use .load instead of init or new methods,
         # this will also automatically create the task objects from the info provided in play_source
-        play = Play().load(play_source, variable_manager=self.variable_manager, loader=self.loader)
+        play = Play().load(
+            play_source, variable_manager=self.variable_manager, loader=self.loader
+        )
 
         # Actually run it
         try:
-            result = tqm.run(play)  # most interesting data for a play is actually sent to the callback's methods
+            # result =
+            tqm.run(
+                play
+            )  # most interesting data for a play is actually sent to the callback's methods
         finally:
             # we always need to cleanup child procs and the structures we use to communicate with them
             tqm.cleanup()
@@ -273,26 +302,43 @@ class PCPTools:
         play_source = dict(
             name="pcp stop",
             hosts=list(self.hosts),
-            gather_facts='no',
-            become='true',
-            become_method='su',
-            become_user='root',
+            gather_facts="no",
+            become="true",
+            become_method="su",
+            become_user="root",
             tasks=[
-                dict(action=dict(module='command', args=dict(cmd='systemctl disable pmcd '))),
-                dict(action=dict(module='command', args=dict(cmd='systemctl disable pmie '))),
-                dict(action=dict(module='command', args=dict(cmd='systemctl disable pmlogger '))),
-            ]
+                dict(
+                    action=dict(
+                        module="command", args=dict(cmd="systemctl disable pmcd ")
+                    )
+                ),
+                dict(
+                    action=dict(
+                        module="command", args=dict(cmd="systemctl disable pmie ")
+                    )
+                ),
+                dict(
+                    action=dict(
+                        module="command", args=dict(cmd="systemctl disable pmlogger ")
+                    )
+                ),
+            ],
         )
 
         self.logger.debug("play source for stopping pcp tools:%s", play_source)
 
         # Create play object, playbook objects use .load instead of init or new methods,
         # this will also automatically create the task objects from the info provided in play_source
-        play = Play().load(play_source, variable_manager=self.variable_manager, loader=self.loader)
+        play = Play().load(
+            play_source, variable_manager=self.variable_manager, loader=self.loader
+        )
 
         # Actually run it
         try:
-            result = tqm.run(play)  # most interesting data for a play is actually sent to the callback's methods
+            # result =
+            tqm.run(
+                play
+            )  # most interesting data for a play is actually sent to the callback's methods
         finally:
             # we always need to cleanup child procs and the structures we use to communicate with them
             tqm.cleanup()
@@ -305,7 +351,7 @@ class PCPTools:
         if self.downloaded_role:
             self.delete_role()
         self.logger.info("pcp tools stopped")
-        
+
 
 class PersistentTool:
     """
@@ -836,7 +882,7 @@ class ToolMeister(object):
             json_dicts = json.loads(raw_json.decode("utf-8"))
             hosts_dict = json_dicts["host_tools_dict"]
             hosts = hosts_dict.keys()
-            # remove duplicates from pcp_pmda_list 
+            # remove duplicates from pcp_pmda_list
             pcp_pmda_list = list(dict.fromkeys(pcp_pmda_list))
             self.logger.debug("list of hosts:%s", hosts)
 

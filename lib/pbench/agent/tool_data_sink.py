@@ -308,7 +308,7 @@ class PCPPmlogger(BaseCollector):
             try:
                 self.logger.debug("checking connection on host:%s", host)
                 res = pmapi.pmContext(api.PM_CONTEXT_HOST, host + ":44321")
-            except:
+            except Exception:
                 res = None
 
             if res is not None:
@@ -333,7 +333,7 @@ class PCPPmlogger(BaseCollector):
                         os.path.join(self.benchmark_run_dir, ".temp")
                     )
                 )
-            except:
+            except Exception:
                 self.logger.debug(
                     "Folder :{} already exists".format(os.path.join(".temp"))
                 )
@@ -343,7 +343,7 @@ class PCPPmlogger(BaseCollector):
                 self.logger.debug(
                     "Created folder :{}".format(os.path.join(".temp", host))
                 )
-            except:
+            except Exception:
                 self.logger.debug(
                     "Folder :{} already exists".format(os.path.join(".temp", host))
                 )
@@ -527,7 +527,7 @@ class PCPPmie(BaseCollector):
             try:
                 self.logger.debug("checking connection on host:%s", host)
                 res = pmapi.pmContext(api.PM_CONTEXT_HOST, host + ":44321")
-            except:
+            except Exception:
                 res = None
 
             if res is not None:
