@@ -49,3 +49,34 @@ body, .pf-c-button, .pf-m-primary{
   text-decoration: none;
   padding-right: var(--pf-global--spacer--xl);
 }
+
+@media (max-width: 500px) {
+  .contact_card_item1, .contact_card_item2 {
+    width: 100%;
+    height: auto;
+  }
+  .contact_cards{
+    padding: 0;
+  }
+  .contact_card_item1{
+    margin-left: 30%;
+  }
+  .contact_card_item2{
+    margin-left: 0;
+  }
+  .contact_card_header{
+    margin-left: 0;
+  }
+  .cardText{
+    text-align: center;
+  }
+}
+
+@media (max-width: 300px) {
+  .contact_cards{
+    text-align: left;
+  }
+  .contact_cards{
+    padding-bottom: var(--pf-global--spacer--xl);
+  }
+}
