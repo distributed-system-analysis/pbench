@@ -324,13 +324,7 @@ p.sub_info_text{
   width: 100%;
 }
 
-.tab-item{
-  width: 15%;
-  margin: 0;
-}
-
 .tablinks{
-  width: 100%;
   font-family: Work Sans;
   font-size: var(--pf-global--FontSize--md);
   color: var(--pf-global--Color-100);
@@ -339,7 +333,14 @@ p.sub_info_text{
   border-bottom: 2px;
   outline: none;
   cursor: pointer;
-  padding: 5%;
+  padding: 1% 3%;
+  margin-right: -3px;
+  margin-left: -3px;
+}
+
+div.scrollmenu {
+  overflow: auto;
+  white-space: nowrap;
 }
 
 button.tablinks:hover {
@@ -539,4 +540,10 @@ ul.pf-c-nav__horizontal-list.menu {
 .subList{
   list-style-type: circle;
   margin-left: var(--pf-global--spacer--3xl);
+}
+
+@media (max-width: 500px) {
+  .tablinks{
+    padding: 8px 32px;
+  }
 }
