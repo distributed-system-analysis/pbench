@@ -1,8 +1,6 @@
 import logging
 import os
 
-import colorlog
-
 
 def setup_logging(name=None, debug=False, logfile=None):
     """Setup logging for client
@@ -21,20 +19,8 @@ def setup_logging(name=None, debug=False, logfile=None):
     # FIXME: since we dont do debugging level yet
     log.setLevel(logging.INFO)
 
-    format_str = "%(message)s"
-    date_format = "%Y-%m-%d %H:%M:%S"
-    cformat = "%(log_color)s" + format_str
-    colors = {
-        "DEBUG": "green",
-        "INFO": "cyan",
-        "WARNING": "bold_yellow",
-        "ERROR": "bold_red",
-        "CRITICAL": "bold_purple",
-    }
     # Setup console
-    formatter = colorlog.ColoredFormatter(cformat, date_format, log_colors=colors)
     stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
 
     # Setup log file
     if logfile is not None:
