@@ -856,9 +856,8 @@ class ToolMeister(object):
         for name, tool_opts in self._tools.items():
             if name not in self.persist_tools or name == "pcptool":
                 if name in TOOLS_PMDA_MAPPING.keys() and "pcptool" in self._tools:
-                    self.logger.info(name)
-                    self.logger.info(TOOLS_PMDA_MAPPING)
                     pcp_pmda_list += TOOLS_PMDA_MAPPING[name]
+                    continue
                 else:
                     continue
             tool_cnt += 1
@@ -1303,7 +1302,7 @@ class ToolMeister(object):
             self.logger.info("ended pcp tools")
 
         for name in self._tools.keys():
-            if name not in self.persist_tools:
+            if name not in self.persist_tools or name == "pcptool":
                 continue
             tool_cnt += 1
             try:
