@@ -61,7 +61,6 @@ RUN \
         python3-bottle \
         python3-cffi \
         python3-click \
-        python3-colorlog \
         python3-coverage \
         python3-daemon \
         python3-elasticsearch \

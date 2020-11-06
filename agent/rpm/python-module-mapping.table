@@ -4,7 +4,6 @@ ansible          n/a                -         -                  The "ansible" p
 bottle           python3-bottle     -         -
 cffi             python3-cffi       -         python3-cffi
 click            python3-click      -         python3-click
-colorlog         python3-colorlog   -         -
 python-daemon    python3-daemon     -         -                  Typically needs the "lockfile" and "docutils" packages installed as well
 python-pidfile   -                  -         -                  Neither Fedora nor RHEL package the pidfile module, needs "psutil" which is typicaly packaged
 redis            python3-redis      -         -
