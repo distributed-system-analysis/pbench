@@ -388,7 +388,10 @@ class PCPPmlogger(BaseCollector):
                 stdout, stderr = out.communicate()
                 self.logger.debug("stdout output:%s", stdout.decode())
 
-                if stdout.decode().strip() != ".":
+                if (
+                    stdout.decode().strip()
+                    != f'Creating config file "{host}.config" using default settings ...\n.'
+                ):
                     # pmlogger failed to stop. Log it
                     self.logger.error("not able to build pmlogconf file")
                 else:
