@@ -585,6 +585,13 @@ def read_file(filename):
                         base_ts = float(vals[0])
                     coldata[0].append((float(vals[0]) - base_ts) / timestamp_divisor)
                     for i in range(1, len(vals)):
+                        # Not ideal, but if there's a missing value,
+                        # probably the best we can do
+                        try:
+                            val = float(vals[i])
+                        except:
+                            eprint("Missing value in %s at row %d, col %d" % (filename, rows_read, i))
+                            val = 0.0
                         coldata[i].append(val)
                         abssum.append(abs(val))
                         if val > maxval[i]:
