@@ -40,6 +40,7 @@ from __future__ import print_function
 import re
 import sys
 import argparse
+import math
 
 parser = argparse.ArgumentParser(description='Generate graphs from raw Pbench tarball')
 parser.add_argument('-s', "--size", help='Graph size (x,y)', metavar='Size', default='1280,1024')
@@ -322,13 +323,15 @@ def generate_spectrum(steps):
 
     """
 
+    def normalize_hue(h):
+        while h < 0:
+            h = h + 6.0
+        return h % 6.0
+
     def hsl_value(n1, n2, h):
         """Generate an RGB coordinate from HSL space.
         """
-        while h < 0:
-            h = h + 6.0
-        while h >= 6:
-            h = h - 6
+        h = normalize_hue(h)
         if h < 1.0:
             return n1 + ((n2 - n1) * h)
         elif h < 3.0:
@@ -339,7 +342,7 @@ def generate_spectrum(steps):
             return n1
 
     def color_from_hsl(h, s, l):
-        gamma = 1.5
+        gamma = 1.05
         m2 = 0
         if (l < .5):
             m2 = l * (1 + s)
@@ -352,14 +355,24 @@ def generate_spectrum(steps):
         r = int(255 * (r ** (1.0 / gamma)))
         g = int(255 * (g ** (1.0 / gamma)))
         b = int(255 * (b ** (1.0 / gamma)))
-        return "#%2.2x%2.2x%2.2x" % (r, g, b)
+        return {'r': r, 'g': g, 'b': b}
+
+    # Perceptual-modified base brightness.  Yellow and cyan, and to a lesser
+    # extent green, are perceptually brighter than red and particularly
+    # blue.
+    lgt_base = [.6, .5, .55, .5, .9, .55, .6]
+
+    def interpolate_base_lgt(h):
+        h = normalize_hue(h)
+        lower = math.floor(h)
+        return (lgt_base[lower] * (1 - (h - lower))) + (lgt_base[lower + 1] * (h - lower))
 
     direction = 1
     if steps < 0:
         direction = -1
         steps = -steps
     if steps < 2:
-        return ["#ff0000"]
+        return [{'r': 255, 'g': 0, 'b': 0}]
     else:
         # I've determined all of these constants empirically as
         # "yields a reasonably easy to read graph".  This prefers
@@ -370,16 +383,13 @@ def generate_spectrum(steps):
         # similar saturation and lightness.
         # 0.58 < = sat < = 1
         sat_base = 1.0
-        sat_incr = 0.035
         sat_step = 5
         sat_mod = 13
+        sat_incr = (.2 / sat_mod)
 
-        # 0.15 < = lightness < = 0.5
-        # i. e. use generally darker colors
-        lgt_base = 0.5
-        lgt_incr = 0.035
-        lgt_step = 6
-        lgt_mod = 11
+        lgt_step = 7
+        lgt_mod = 10
+        lgt_incr = (.4 / lgt_mod)
         # Colors between blue and red (purple/magenta)
         # are a bit confusing.
         min_hue = 0.0           # red
@@ -393,9 +403,10 @@ def generate_spectrum(steps):
             hue_steps = range(0, steps, 1)
 
         for n in hue_steps:
-            answer.append(color_from_hsl(min_hue + (n * increment),
+            h = min_hue + (n * increment)
+            answer.append(color_from_hsl(h,
                                          sat_base - (sat_incr * ((n * sat_step) % sat_mod)),
-                                         lgt_base - (lgt_incr * ((n * lgt_step) % lgt_mod))))
+                                         interpolate_base_lgt(h) - (lgt_incr * ((n * lgt_step) % lgt_mod))))
         return answer
 
 
@@ -407,7 +418,7 @@ def generate_linestyles(count):
     colors = generate_spectrum(count)
     color_list = []
     for n in range(count):
-        color_list.append("set style line %d linecolor rgb '%s'" % (n + 1, colors[n]))
+        color_list.append("set style line %d linecolor rgb '#%2.2x%2.2x%2.2x'" % (n + 1, colors[n]['r'], colors[n]['g'], colors[n]['b']))
     answer = "\n"
     return answer.join(color_list)
 
@@ -574,7 +585,6 @@ def read_file(filename):
                         base_ts = float(vals[0])
                     coldata[0].append((float(vals[0]) - base_ts) / timestamp_divisor)
                     for i in range(1, len(vals)):
-                        val = float(vals[i])
                         coldata[i].append(val)
                         abssum.append(abs(val))
                         if val > maxval[i]:
