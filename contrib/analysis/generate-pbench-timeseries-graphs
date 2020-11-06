@@ -44,6 +44,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Generate graphs from raw Pbench tarball')
 parser.add_argument('-s', "--size", help='Graph size (x,y)', metavar='Size', default='1280,1024')
 parser.add_argument('-w', '--linewidth', help='Line width', metavar='Width', default=2, type=int)
+parser.add_argument('--max-elements', help='Maximum elements to plot', metavar='Max Elements', default=0, type=int)
 args = parser.parse_args()
 
 pattern_map = {
@@ -232,7 +233,7 @@ pattern_map = {
     },
     re.compile('memory_memory_usage.csv$') : {
         'type' : 'line',
-        'title' : 'Memory Uage',
+        'title' : 'Memory Usage',
     },
     re.compile('network_l2_carrier_errors.csv$') : {
         'type' : 'line',
@@ -357,7 +358,7 @@ def generate_spectrum(steps):
     if steps < 0:
         direction = -1
         steps = -steps
-    if steps < 1:
+    if steps < 2:
         return ["#ff0000"]
     else:
         # I've determined all of these constants empirically as
@@ -383,11 +384,11 @@ def generate_spectrum(steps):
         # are a bit confusing.
         min_hue = 0.0           # red
         max_hue = 4.0           # blue
-        increment = (max_hue - min_hue) / steps
+        increment = (max_hue - min_hue) / (steps - 1)
 
         answer = []
         if direction > 0:
-            hue_steps = range(steps, 0, -1)
+            hue_steps = range(steps - 1, -1, -1)
         else:
             hue_steps = range(0, steps, 1)
 
@@ -403,36 +404,37 @@ def generate_linestyles(count):
     if count > gnuplot_maximum_colors:
         count = gnuplot_maximum_colors
 
-    colors = generate_spectrum(count - 1)
+    colors = generate_spectrum(count)
     color_list = []
-    for n in range(count - 1):
+    for n in range(count):
         color_list.append("set style line %d linecolor rgb '%s'" % (n + 1, colors[n]))
     answer = "\n"
     return answer.join(color_list)
 
 
-def genrow(graphtype, row, ordering=None):
-    def genrow_1(graphtype, row, ordering):
-        answer = [str(row[0])]
-        if graphtype == 'line':
-            for valno in range(1, len(row)):
-                answer.append(str(row[ordering[valno]]))
-        else:
-            stack_row = []
-            acc = 0
-            for valno in range(1, len(row)):
-                acc += row[ordering[len(row) - valno]]
-                stack_row.append(acc)
-            for valno in range(len(stack_row), 0, -1):
-                answer.append(str(stack_row[valno - 1]))
-        return answer
-
+def genrow(graphtype, row, overflow_elements=0, ordering=None):
     if ordering is None:
         ordering = []
         for i in range(len(row)):
             ordering.append(i)
-
-    return genrow_1(graphtype, row, ordering)
+    answer = [str(row[0])]
+    total_elements = len(row)
+    base_elements = total_elements - overflow_elements
+    if graphtype == 'line':
+        for valno in range(1, base_elements):
+            answer.append(str(row[ordering[valno]]))
+    else:
+        stack_row = []
+        acc = 0
+        for valno in range(1, len(row)):
+            acc += row[ordering[len(row) - valno]]
+            if (valno < base_elements):
+                stack_row.append(acc)
+        if (overflow_elements > 0):
+            stack_row.append(acc)
+        for valno in range(len(stack_row), 0, -1):
+            answer.append(str(stack_row[valno - 1]))
+    return answer
 
 
 def sort_columns(criterion, reverse=False):
@@ -446,13 +448,13 @@ def sort_columns(criterion, reverse=False):
         return [0]
     if (len(criterion) == 2):
         return [0, 1]
-    ordering=[]
+    ordering = []
     for column in range(1, len(criterion)):
         ordering.append([criterion[column], column])
 
     ordering.sort(key=lambda item: item[0], reverse=reverse)
 
-    answer=[0]
+    answer = [0]
     for column in range(0, len(ordering)):
         answer.append(ordering[column][1])
     return answer
@@ -464,23 +466,45 @@ def generate_graph(filename, graphtypename, title, x_axis, y_axis, blob):
     y_axis = y_axis.replace("'", '"')
     data = blob['data']
 
-    cmap = sort_columns(blob['maxvals'], reverse=(graphtypename == 'line'))
-
-    names = []
-    eprint("Plotting ", filename)
-
-    for col in range(0, len(data[0])):
-        name = data[0][col]
-        name = name.replace("'", '"')
-        name = name.replace("_", " ")
-        names.append(name)
-
-    imgfile = filename.replace(".csv", ".png")
-    colors = generate_linestyles(len(names))
     if graphtypename == "line":
         graphtype = "lines"
     else:
         graphtype = "filledcurves x1"
+    cmap = sort_columns(blob['maxvals'], reverse=(graphtypename == 'line'))
+    names_cmap = sort_columns(blob['maxvals'], reverse=True)
+
+    eprint("Plotting ", filename)
+
+    total_elements = len(cmap)
+    base_elements = total_elements
+    overflow_elements = 0
+    # The first element is the X axis; that needs to be ignored when
+    # computing how many elements we want.
+    if args.max_elements > 0 and total_elements > args.max_elements + 1:
+        if (graphtypename == 'line'):
+            base_elements = args.max_elements + 1
+        else:
+            base_elements = args.max_elements
+        overflow_elements = total_elements - base_elements
+
+    names = []
+    tnames = []
+    for col in range(1, len(data[0])):
+        if col >= base_elements:
+            if graphtypename != 'line':
+                tnames.append('Other')
+            break
+        name = data[0][names_cmap[col]]
+        name = name.replace("'", '"')
+        name = name.replace("_", " ")
+        tnames.append(name)
+    if graphtypename != 'line':
+        tnames.reverse()
+    names = [data[0][0]]
+    names.extend(tnames)
+
+    imgfile = filename.replace(".csv", ".png")
+    colors = generate_linestyles(len(names) - 1)
 
     s1 = """
 gnuplot <<'EOF'
@@ -506,11 +530,11 @@ set grid
         plot = "    "
         if nameidx == 1:
             plot = "plot"
-        print("%s '-' using 1:2 with %s ls %s title '%s'%s" % (plot, graphtype, nameidx, names[cmap[nameidx]], comma))
+        print("%s '-' using 1:2 with %s ls %s title '%s'%s" % (plot, graphtype, nameidx, names[nameidx], comma))
 
     for col in range(1, len(names)):
         for row in range(1, len(data)):
-            data_elts = genrow(graphtype, data[row], ordering=cmap)
+            data_elts = genrow(graphtypename, data[row], overflow_elements=overflow_elements, ordering=cmap)
             print("%s, %s," % (data_elts[0], data_elts[col]))
         print('e')
     print('EOF')
@@ -566,7 +590,7 @@ def read_file(filename):
             return None
         colmap = []
         for i in range(len(coldata)):
-            if i == 0 or maxval[i] >= .01 * max_maxval:
+            if i == 0 or maxval[i] > minval[i]:
                 colmap.append(i)
         data = []
         maxval_n = []
