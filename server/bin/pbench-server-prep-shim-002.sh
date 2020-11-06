@@ -187,6 +187,13 @@ while read tbmd5 ;do
         (( nerrs++ ))
         continue
     fi
+    # mv does not restore the SELinux context properly, so we do it by hand
+    restorecon ${dest}/${tb}
+    sts=${?}
+    if [[ ${sts} -ne 0 ]]; then
+        # log it but do not abort
+        log_error "${TS}: Error: \"restorecon ${dest}/${tb}\", status ${sts}" "${status}"
+    fi
 
     # Now that we have successfully moved the tar ball and its .md5 to the
     # destination, we can remove the original .md5 file.
