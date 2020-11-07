@@ -1021,7 +1021,7 @@ class ToolDataSink(Bottle):
                         if tool_data["collector"] == "prometheus":
                             prom_tools.append(tool)
                         elif tool_data["collector"] == "pcp":
-                            pcp_tools = list(self._tm_tracking[tm]["transcient_tools"].keys())
+                            pcp_tools = list(self._tm_tracking[tm]["transient_tools"].keys())
                     if len(prom_tools) > 0:
                         prom_tool_dict[self._tm_tracking[tm]["hostname"]] = prom_tools
                     if len(pcp_tools) > 0:
