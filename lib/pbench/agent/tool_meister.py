@@ -877,10 +877,11 @@ class ToolMeister(object):
 
         # initialize and start pcp tools
         if len(pcp_pmda_list) > 0:
-            raw_json = self._rs.get(f"tds-{self._group}")
-            json_dicts = json.loads(raw_json.decode("utf-8"))
-            hosts_dict = json_dicts["host_tools_dict"]
-            hosts = hosts_dict.keys()
+            #raw_json = self._rs.get(f"tds-{self._group}")
+            #json_dicts = json.loads(raw_json.decode("utf-8"))
+            #hosts_dict = json_dicts["host_tools_dict"]
+            hosts = []
+            hosts.append(self.hostname)
             # remove duplicates from pcp_pmda_list
             pcp_pmda_list = list(dict.fromkeys(pcp_pmda_list))
             self.logger.debug("list of hosts:%s", hosts)

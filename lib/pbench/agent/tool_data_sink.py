@@ -1011,19 +1011,23 @@ class ToolDataSink(Bottle):
         with self._lock:
             if self.state == "init":
                 prom_tool_dict = {}
-                pcp_host_list = []
+                pcp_tool_dict = {}
                 for tm in self._tm_tracking:
                     prom_tools = []
+                    pcp_tools = []
                     persist_tools = self._tm_tracking[tm]["persistent_tools"]
                     for tool in persist_tools:
                         tool_data = self.tool_metadata.getProperties(tool)
                         if tool_data["collector"] == "prometheus":
                             prom_tools.append(tool)
                         elif tool_data["collector"] == "pcp":
-                            pcp_host_list.append(tm)
+                            pcp_tools = list(self._tm_tracking[tm]["transcient_tools"].keys())
                     if len(prom_tools) > 0:
                         prom_tool_dict[self._tm_tracking[tm]["hostname"]] = prom_tools
+                    if len(pcp_tools) > 0:
+                        pcp_tool_dict[self._tm_tracking[tm]["hostname"]] = pcp_tools
                 self.logger.debug(prom_tool_dict)
+                self.logger.debug(pcp_tool_dict)
 
                 if prom_tool_dict:
                     self._prom_server = PromCollector(
@@ -1036,25 +1040,25 @@ class ToolDataSink(Bottle):
                     self._prom_server.launch()
 
                 # fetch required info from redis for starting pmlogger and pmie
-                raw_json = self.redis_server.get(f"tds-{self.tool_group}")
-                json_val = json.loads(raw_json.decode("utf-8"))
-                host_tools_dict = json_val["host_tools_dict"]
-                self.logger.debug("host tools dict:%s", host_tools_dict)
+                # raw_json = self.redis_server.get(f"tds-{self.tool_group}")
+                # json_val = json.loads(raw_json.decode("utf-8"))
+                # host_tools_dict = json_val["host_tools_dict"]
+                # self.logger.debug("host tools dict:%s", host_tools_dict)
 
-                if pcp_host_list:
-                    self.logger.info("GOOD: " + str(pcp_host_list))
-                    self.logger.info("BAD: " + str(host_tools_dict))
+                if pcp_tool_dict:
+                    self.logger.info("GOOD: " + str(pcp_tool_dict))
+                    # self.logger.info("BAD: " + str(host_tools_dict))
                     self._pcp_pmlogger = PCPPmlogger(
                         self.benchmark_run_dir,
                         self.tool_group,
-                        host_tools_dict,
+                        pcp_tool_dict,
                         self.logger,
                         self.tool_metadata,
                     )
                     self._pcp_pmie = PCPPmie(
                         self.benchmark_run_dir,
                         self.tool_group,
-                        host_tools_dict,
+                        pcp_tool_dict,
                         self.logger,
                         self.tool_metadata,
                     )
