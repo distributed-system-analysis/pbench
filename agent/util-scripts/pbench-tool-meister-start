@@ -405,12 +405,8 @@ def main(argv):
 
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process
-    host_tools_dict = dict()
-    for host in tool_group.hostnames.keys():
-        host_tools_dict[host] = tool_group.get_tools(host)
-
     tds_param_key = "tds-{}".format(group)
-    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group, host_tools_dict=host_tools_dict)
+    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group)
     try:
         redis_server.set(tds_param_key, json.dumps(tds, sort_keys=True))
     except Exception:
