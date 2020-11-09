@@ -46,6 +46,7 @@ RUN \
         iproute \
         iputils \
         less \
+        net-tools \
         openssh-clients \
         openssh-server \
         perl \
