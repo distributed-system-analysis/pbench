@@ -189,12 +189,12 @@ class PCPTools:
 
         # find if the required role exists or not
         for line in output:
-            if "performancecopilot.pcp" in line:
+            if "performancecopilot.metrics.pcp" in line:
                 # if it exists, return. Dont have to proceed
                 return
 
         # given role does not exist. We have to download it from ansible galaxy
-        command = "ansible-galaxy install performancecopilot.pcp"
+        command = "ansible-galaxy collection install performancecopilot.metrics"
         out = subprocess.Popen(
             [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
         )
@@ -217,7 +217,7 @@ class PCPTools:
     def delete_role(self):
         """ delete the downloaded role """
         # create command to remove role
-        command = "ansible-galaxy remove performancecopilot.pcp"
+        command = "ansible-galaxy collection remove performancecopilot.metrics"
         out = subprocess.Popen(
             [command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
         )
@@ -255,7 +255,7 @@ class PCPTools:
             become=True,
             become_method="su",
             become_user="root",
-            roles=["performancecopilot.pcp"],
+            roles=["performancecopilot.metrics.pcp"],
             vars=dict(pcp_optional_agents=self.tool_pmda,),
         )
 
