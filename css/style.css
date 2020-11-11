@@ -48,7 +48,7 @@ a{
 }
 
 ul{
-  list-style: inside;
+  list-style: none;
 }
 
 a:hover{
