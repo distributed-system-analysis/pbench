@@ -33,5 +33,4 @@ if sys.argv[1] == "--help":
     logger.info(
         "--inst=</path/to/node_exporter/dir> (required; to create the path of the executable, '/node-exporter' will be appended)"
     )
-    logger.info("Installation Guide: github.com/prometheus/node_exporter")
-    logger.info("Soon to come: metric enabling/disabling")
+    logger.info("GitHub Project: https://github.com/prometheus/node_exporter")
