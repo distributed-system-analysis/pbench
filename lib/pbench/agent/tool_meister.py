@@ -64,7 +64,7 @@ import pbench.agent.toolmetadata as toolmetadata
 import ansible.constants as C
 from ansible.executor.task_queue_manager import TaskQueueManager
 
-# from ansible.module_utils.common.collections import ImmutableDict
+from ansible.module_utils.common.collections import ImmutableDict
 from ansible.inventory.manager import InventoryManager
 from ansible.parsing.dataloader import DataLoader
 from ansible.playbook.play import Play
@@ -72,7 +72,7 @@ from ansible.playbook.play import Play
 # from ansible.plugins.callback import CallbackBase
 from ansible.vars.manager import VariableManager
 
-# from ansible import context
+from ansible import context
 
 # ansible constants
 ANSIBLE_CONF = "/etc/ansible/ansible.cfg"
@@ -115,10 +115,9 @@ class ToolException(Exception):
 class PCPTools:
     """ class for initializing, starting and stopping pcp tools """
 
-    def __init__(self, hosts, tool_pmda, logger):
+    def __init__(self, tool_pmda, logger):
         """ constructor """
         # store external variables
-        self.hosts = hosts
         self.logger = logger
         self.tool_pmda = tool_pmda
         # initialize internal variables
@@ -131,16 +130,15 @@ class PCPTools:
         self.download_role()
 
         # ansible part
+        context.CLIARGS = ImmutableDict(connection='local')
         # initialize needed objects
         self.loader = (
             DataLoader()
         )  # Takes care of finding and reading yaml, json and ini files
         self.passwords = dict(vault_pass="secret")
 
-        self.sources = ",".join(self.hosts)
-
         # create inventory, use path to host config file as source or hosts in a comma separated string
-        self.inventory = InventoryManager(loader=self.loader, sources=self.sources)
+        self.inventory = InventoryManager(loader=self.loader, sources=sources='localhost,')
 
         # variable manager takes care of merging all the different sources to give you a unified view of variables available in each context
         self.variable_manager = VariableManager(
@@ -250,13 +248,13 @@ class PCPTools:
         # create data structure that represents our play, including tasks, this is basically what our YAML loader does internally.
         play_source = dict(
             name="pcp start",
-            hosts=list(self.hosts),
+            hosts="localhost",
             gather_facts="yes",
             become=True,
             become_method="su",
             become_user="root",
             roles=["performancecopilot.metrics.pcp"],
-            vars=dict(pcp_optional_agents=self.tool_pmda,),
+            # vars=dict(pcp_optional_agents=self.tool_pmda,),
         )
 
         self.logger.debug("play source for starting pcp tools:%s", play_source)
@@ -301,7 +299,7 @@ class PCPTools:
         # create data structure that represents our play, including tasks, this is basically what our YAML loader does internally.
         play_source = dict(
             name="pcp stop",
-            hosts=list(self.hosts),
+            hosts="localhost",
             gather_facts="no",
             become="true",
             become_method="su",
@@ -309,17 +307,17 @@ class PCPTools:
             tasks=[
                 dict(
                     action=dict(
-                        module="command", args=dict(cmd="systemctl disable pmcd ")
+                        module="command", args=dict(cmd="systemctl stop pmcd ")
                     )
                 ),
                 dict(
                     action=dict(
-                        module="command", args=dict(cmd="systemctl disable pmie ")
+                        module="command", args=dict(cmd="systemctl stop pmie ")
                     )
                 ),
                 dict(
                     action=dict(
-                        module="command", args=dict(cmd="systemctl disable pmlogger ")
+                        module="command", args=dict(cmd="systemctl stop pmlogger ")
                     )
                 ),
             ],
@@ -878,14 +876,11 @@ class ToolMeister(object):
         # initialize and start pcp tools
         if len(pcp_pmda_list) > 0:
             # Slightly jank, will have to adapt
-            hosts = []
-            hosts.append(self._hostname)
             # remove duplicates from pcp_pmda_list
             # CHECK THIS LATER
             pcp_pmda_list = list(dict.fromkeys(pcp_pmda_list))
-            self.logger.debug("list of hosts:%s", hosts)
 
-            self.pcp_tool = PCPTools(hosts, pcp_pmda_list, self.logger)
+            self.pcp_tool = PCPTools(pcp_pmda_list, self.logger)
             self.pcp_tool.start()
             self.logger.info("started pcp tools")
 
