@@ -63,6 +63,74 @@ https://github.com/distributed-system-analysis/pbench/projects/2),
 and a project that is named the same as the current [milestone](
 https://github.com/distributed-system-analysis/pbench/milestones).
 
+## How can I contribute?
+
+Below are some simple steps for setting up a development environment for
+working with the Pbench code base.  For more detailed instructions on the
+workflow and process of contributing code to Pbench, refere to the [Guidelines
+for Contributing](doc/CONTRIBUTING.md).
+
+### Getting the Code
+
+```
+$ git clone https://github.com/distributed-system-analysis/pbench
+$ cd pbench
+```
+
+### Running the Unit Tests
+
+To simply run the unit tests quickly from within the checked out source tree,
+execute:
+
+ * `jenkins/run jenkins/tox -r --current-env -e jenkins-pytests`
+ * `jenkins/run jenkins/tox -r --current-env -e jenkins-unittests`
+
+The above commands runs the tests in a Fedora-base container with all the
+proper packages installed.
+
+If you want to run the Unit Tests outside of that environment, you need to
+install `tox` properly in your environment (Fedora/CentOS/RHEL):
+
+```
+$ sudo dnf install -y perl-JSON python3-pip python3-tox
+```
+
+Once tox is installed you can run the unittests (use `tox --listenvs` to see
+the full list); e.g.:
+
+  * `tox -e util-scripts`  -- for agent/util-scripts tests
+  * `tox -e server`  -- for server tests
+  * `tox -e lint`  -- to run the linting and code style checks
+
+To run the full suite of unit tests in parallel, invoke the `run-unittests`
+script at the top-level of the pbench repository.
+
+### Python formatting
+
+This project uses the [flake8==3.8.3](http://flake8.pycqa.org/en/latest) method of
+code style enforcement, linting, and checking.
+
+All python code contributed to pbench must match the style requirements. These
+requirements are enforced by the [pre-commit](https://pre-commit.com) hook
+using the [black==1.19b0](https://github.com/psf/black) Python code formatter.
+
+### Use pre-commit to set automatic commit requirements
+
+This project makes use of [pre-commit](https://pre-commit.com/) to do automatic
+lint and style checking on every commit containing Python files.
+
+To install the pre-commit hook, run the executable from your Python 3 framework
+while in your current pbench git checkout:
+
+```
+$ cd ~/pbench
+$ pip3 install pre-commit
+$ pre-commit install --install-hooks
+```
+
+Once installed, all commits will run the test hooks. If your changes fail any of
+the tests, the commit will be rejected.
+
 ## Pbench Release Tag Scheme (GitHub)
 We employ a simple major, minor, release, build (optional) scheme for tagging
 starting with the `v0.70.0` release (`v<Major>.<Minor>.<Release>[-<Build>]`).
