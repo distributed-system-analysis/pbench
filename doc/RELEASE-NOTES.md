@@ -4,6 +4,10 @@ This is a very *significant* "minor" release of the pbench code base, agent and 
 
 The "Tool Meister" functionality (PR #1248) is the major piece of functionality delivered with this release.  This is a significant change, where the pbench-agent first orchestrates the instantiation of a "Tool Meister" process on all hosts registered with tools, using a Redis instance to coordinate their operation, and the new "Tool Data Sink" handles the collection of data into the pbench run directory hierarchy.  We effectively eliminate all remote SSH operations for tools except one per host to orchestrate the creation of the Tool Meister instance.
 
+The Tool Meister work has enabled us to integrate with Prometheus for tool data collection.  Two new pbench "tools" have been added, `node-exporter` and `dcgm`.  If one registers either or both of these new tools (e.g. via `pbench-register-tools --name=node-exporter`), then the Tool Meister sub-system will run the `node_exporter` code on the registered hosts, and a local instance of Prometheus to collect the data.  The collected Prometheus data is stored in the pbench result directory as a tar ball at: `${pbench_run}/<script>_<config>_YYYY.MM.DDTHH.mm.ss/tools-<group>/prometheus`.  For the duration of the run, the Prometheus instance is available on `localhost:9090` if one desires to review the metrics being collected live.
+
+_**NOTE WELL**_: like all the other "tools" the `pbench-agent` supports, the `node-exporter` and `dcgm` tools themselves need to be installed separately.
+
 Along with the delivery of the "Tool Meister" work, the notion of tool registration has changed significantly, where tools are now recorded as registered only on the local host were `pbench-register-tool` and `pbench-register-tool-set` are invoked.  As a result of this change, the following behavioral changes follow:
 
  * The process of registering tools on local or remote hosts no longer validates that those tools are available during tool registration
@@ -15,15 +19,40 @@ We did not bump the "major" release version number with these changes because we
 
 Installation
 ====
-There are ansible playbooks to install the `pbench-agent` and the pieces needed (key and config files) to be able to send results to a server.
-
 There are no other installation changes in this release: see the [Getting Started Guide](https://distributed-system-analysis.github.io/pbench/start.html) for how to install or update.
 
-After installation or update, you should have version `0.70.0-1gXXXXXXXXX` of the `pbench-agent` RPM installed.
+After installation or update, you should have version `0.70.0-9ga7d1f0d6` of the `pbench-agent` RPM installed.
+
+RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/portante/pbench/), covering Fedora 31, 32, EPEL 7 & 8.
+
+There are Ansible [playbooks](https://galaxy.ansible.com/pbench/agent) available via Ansible Galaxy to install the `pbench-agent`, and the pieces needed (key and configuration files) to be able to send results to a server.  To use the RPMs provided above via COPR with the [playbooks](https://galaxy.ansible.com/pbench/agent), an inventory file needs to include the `fedoraproject_username` variable set to `portante`, for example:
+
+```
+...
+
+[servers:vars]
+fedoraproject_username: portante
+
+...
+```
+
+Alternatively, one can specify `fedoraproject_username` on the command line, rather than having it specified in the inventory file:
+
+    ansible-playbook -i <inventory> <playbook> -e '{fedoraproject_username: portante}'
+
+_**NOTE WELL**_: If the inventory file also has a definition for `pbench_repo_url_prefix` (which was standard practice before `fedoraproject_username` was introduced), it needs to be deleted, otherwise it will override the default repo URL and the `fedoraproject_username` change is not going to take effect.
+
+While we don't include installation instructions for the new `node-exporter` and `dcgm` tools in the published documentation, you can find a manual installation procedure for the Prometheus "node_exporter" and references to the Nvidia "DCGM" documentation in the [`agent/tool-scripts/README`](https://github.com/distributed-system-analysis/pbench/blob/b0.70/agent/tool-scripts/README.md).
+
+Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `beta`, `v0.70.0-9`, and `a7d1f0d6`.
 
 Agent
 ====
 In addition to the major changes described above for this release, the following significant changes for the agent are also worth calling out specifically:
+
+ * The `pbench-fio` bench script now requires `fio-3.21` or later; see 5048a149
+
+   * You can find a [Fedora COPR](https://copr.fedorainfracloud.org/coprs/portante/pbench/) build of `fio-3.21-6.pbench` for EPEL 7 & 8
 
  * [_**DEPRECATED**_] The `pbench-cleanup` utility command is deprecated, and will be removed in a subsequent release (see PR #1828)
 
@@ -47,32 +76,33 @@ ChangeLog
 ====
 This is the list of visible commits since the [v0.69.3-agent](https://github.com/distributed-system-analysis/pbench/releases/tag/v0.69.3-agent) release:
 
-0600d293 `Update the development image we use for 'b0.70'`
-fefcbcf6 `Add missing 'net-tools' req agent RPM`
-0db148a8 `Remove colorlog; add Makefile for pbench-devel`
-cd6a1eb3 `Rework pass-thru API implementation a bit`
-c67a56b8 `Jenkins integration using Fedora 32 container`
-35fd8d5e `Fix the flaky util-scripts test-51 & test-52`
-c19c7626 `Address common logging between agent and server`
-be119359 `Fix agent side 'test_move_results'`
-09d03861 `Use '_pbench_' prefixed env var for host names`
-361c6d1b `Make sure we explicitly ask for the full hostname`
-73766630 `Refactor base to extract unit test overrides`
-0136107e `Address some undesirable tox behaviors`
-60663490 `Fix misaligned deps in tox.ini`
-aaa40b43 `Direct 'black' to ignore '.git' subtree`
-9b667dcc `Cleanup 'datalog/prometheus-metrics-datalog'`
-1a2e9f96 `Rejig functional unit tests`
-37fa8a52 `Fix warning while running unit tests`
-9aa7bd1b `Remove colorlog`
-31ea2140 `Only do git submodule init at the top of the tree`
-baa6461b `Remove wayward py3-functional unit test`
-4888d36e `Add ability to tag agent images with beta and alpha`
+a7d1f0d6 `Add 'v0.70.0-beta' release notes`
+46aa2add `Update the development image we use for 'b0.70'`
+8ae13674 `Add missing 'net-tools' req agent RPM`
+8b7424ac `Remove colorlog; add Makefile for pbench-devel`
+e7024573 `Rework pass-thru API implementation a bit`
+6dc6e4fa `Jenkins integration using Fedora 32 container`
+e927f024 `Fix the flaky util-scripts test-51 & test-52`
+dd1c52d6 `Address common logging between agent and server`
+a37b40c3 `Fix agent side 'test_move_results'`
+54b65229 `Use '_pbench_' prefixed env var for host names`
+03c14b40 `Make sure we explicitly ask for the full hostname`
+50c301d3 `Refactor base to extract unit test overrides`
+1261d6db `Address some undesirable tox behaviors`
+af520f22 `Fix misaligned deps in tox.ini`
+f0f6217c `Direct 'black' to ignore '.git' subtree`
+589caa6a `Cleanup 'datalog/prometheus-metrics-datalog'`
+ea581356 `Rejig functional unit tests`
+aaef93a2 `Fix warning while running unit tests`
+1496c7c7 `Remove colorlog`
+16099125 `Only do git submodule init at the top of the tree`
+98f42b7d `Remove wayward py3-functional unit test`
+cb93ab3f `Add ability to tag agent images with beta and alpha`
 f28c7a3a `Require pyesbulk 1.0.0 for now`
-a925fc71 `Remove SCL from the agent side`
-5e472654 `Remove SCL reference in the server trampoline code`
-95ee71de `Fix the README to restore working URLs`
-1884855d `Enhance agent container builds`
+0c05fb89 `Remove SCL from the agent side`
+4eb6d198 `Remove SCL reference in the server trampoline code`
+98d50ce5 `Fix the README to restore working URLs`
+e3e893f8 `Enhance agent container builds`
 7dd58f0b `Add required package name for vmstat`
 a4316361 `Remove use of 'screen' from Tool Meister`
 5671ea54 `Stop invoking screen directly in unit tests`
@@ -145,7 +175,7 @@ d32a0913 `Switch indexer.py to pyesbulk package`
 b5a48712 `Fixes to the systemd service file plus a service file for RHEL7`
 ad9eb15d `Make shell.py into a package that exports a main().`
 4222d0f5 `A few more cleanups`
-d4c6a440 `- Make all non-environment variables local to functions named _pbench*`
+d4c6a440 `Make all non-environment variables local to functions named _pbench*`
 23cc097e `First pass implementation of the "Tool Meister"`
 d8f835dd `Prepare roles for Ansible Galaxy`
 991ad99d `Set backup cron job frequency to every minute`
