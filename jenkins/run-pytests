@@ -27,4 +27,4 @@ black --check .
 printf -- "\nflake8 --verbose ...\n"
 flake8 --verbose .
 printf -- "\n"
-pytest ./lib/pbench/test/unit/common ./lib/pbench/test/unit/agent ./lib/pbench/test/unit/server ./lib/pbench/test/functional
+pytest ./lib/pbench/test/common ./lib/pbench/test/agent ./lib/pbench/test/server
