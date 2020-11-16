@@ -60,7 +60,7 @@ channel = "tool-meister-chan"
 REDIS_MAX_WAIT = 60
 
 
-class ToolGroup(object):
+class ToolGroup:
     tg_prefix = "tools-v1"
 
     def __init__(self, group):
