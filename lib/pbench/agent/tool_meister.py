@@ -155,7 +155,7 @@ class PersistentTool:
         return 0
 
 
-class Tool(object):
+class Tool:
     """Encapsulates all the state needed to manage a tool running as a background
     process.
 
@@ -280,7 +280,7 @@ class ToolMeisterError(Exception):
     pass
 
 
-class ToolMeister(object):
+class ToolMeister:
     """Encapsulate tool life-cycle
 
     The goal of this class is to make sure all necessary state and behaviors

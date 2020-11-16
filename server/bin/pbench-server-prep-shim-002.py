@@ -27,7 +27,7 @@ from pbench.server.utils import quarantine
 _NAME_ = "pbench-server-prep-shim-002"
 
 
-class Results(object):
+class Results:
     def __init__(
         self, nstatus="", ntotal=0, ntbs=0, nquarantined=0, ndups=0, nerrs=0,
     ):
