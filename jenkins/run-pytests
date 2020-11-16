@@ -22,9 +22,7 @@ if [[ ":${PYTHONPATH:-}:" != *":${_pdir}:"* ]]; then
     export PYTHONPATH=${_pdir}${PYTHONPATH:+:${PYTHONPATH}}
 fi
 
-printf -- "black --check ...\n"
-black --check .
-printf -- "\nflake8 --verbose ...\n"
-flake8 --verbose .
-printf -- "\n"
-pytest ./lib/pbench/test/common ./lib/pbench/test/agent ./lib/pbench/test/server
+printf -- "lint check ... \n"
+tox -e lint
+print -- "python3 check ..\n"
+tox -e py3
