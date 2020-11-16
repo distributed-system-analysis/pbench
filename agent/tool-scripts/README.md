@@ -32,7 +32,7 @@ for executing all the "persistent" tools.  Once the Tool Meister sub-system is
 up and running, this phase is started first (required), and is ended before
 the Tool Meister sub-system is shut down (required).  The `pbench-init-tools`
 CLI interface begins the "persistent" tools phase, and the `pbench-end-tools`
-closes out the phase.  More about "persistent" tools below.
+CLI interface closes out the phase.  More about "persistent" tools below.
 
 The second phase is for executing all the "transient" tools (described below).
 This phase must be started after the "persistent" tools phase begins, and must
@@ -109,7 +109,7 @@ post-processing at a later time:
   $
   $ pbench-end-tools
   $
-  $ # All data has been collected, run the all the post-processing locally.
+  $ # All data has been collected, run all the post-processing locally.
   $
   $ pbench-postprocess-tools
   $ pbench-postprocess-tools
@@ -132,7 +132,7 @@ those tools registered.
 ### The `node-exporter` and `dcgm` Tools
 
 The `node-exporter` and `dcgm` tool scripts provided in this directory are
-placeholders only in order for users to see them along side the other tools.
+placeholders only in order for users to see them alongside the other tools.
 The actual implementation of these tools is handled by the Tool Meister code
 directly.
 
@@ -140,7 +140,7 @@ directly.
 
 A "transient" tool is one where the tool data capture happens on the host
 local to where the tool is running.  All transient tools store their data
-locally as directed by its invoking Tool Meister.  For Tool Meisters running
+locally as directed by their invoking Tool Meister.  For Tool Meisters running
 on the same host where the caller is driving the benchmark (where
 `pbench-tool-meister-start` was invoked), the captured data is stored directly
 into the local `${benchmark_result_dir}` directory.  Tool Meisters running on
@@ -177,7 +177,7 @@ handles the required steps for properly capturing all of the relevant data and
 meta-data for that tool.  These scripts are stored in the "postprocess"
 sub-directory named `<tool>-stop-postprocess`.  The `stop-postprocess` script
 is executed on the host running the tool, after that tool is stopped
-successfully, but before reporting back to the caller the tool has stopped.
+successfully, but before reporting back to the caller that the tool has stopped.
 
 Similarly, each transient tool can also optionally provide a "postprocess"
 script which handles post-processing steps for the captured data to apply any
@@ -189,7 +189,7 @@ when the `pbench-postprocess-tools` script is invoked.
 In cases where your operating system distribution does not provide a package
 for installing the Prometheus `node_exporter` command, consider following the
 steps below on the hosts from which you want to collect Prometheus
-`node_exporter`, and/or refer to the `node_exporter` [GitHub source
+`node_exporter` data, and/or refer to the `node_exporter` [GitHub source
 repository](https://github.com/prometheus/node_exporter).
 
  1. `wget https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz`  (latest version, change version number as desired)
