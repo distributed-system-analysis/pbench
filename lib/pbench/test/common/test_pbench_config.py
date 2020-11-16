@@ -1,6 +1,6 @@
 import pytest
 
-from pbench.test.unit.agent.conftest import valid_config, agent_config_env  # noqa F401
+from pbench.test.agent.conftest import valid_config, agent_config_env  # noqa F401
 
 
 def test_pbench_config():

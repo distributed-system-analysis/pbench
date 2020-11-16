@@ -5,7 +5,7 @@ import responses
 
 from pathlib import Path
 from pbench.cli.agent.commands.results import move_results
-from pbench.test.unit.agent.task.common import MockDatetime
+from pbench.test.agent.task.common import MockDatetime
 
 
 # Template for a mocked "metadata.log" file; the caller needs to

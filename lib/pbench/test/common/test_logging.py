@@ -1,5 +1,4 @@
-"""Test Pbench Logging Infrastructure
-"""
+"""Test Pbench Logging Infrastructure"""
 
 import logging
 import pytest
@@ -16,7 +15,7 @@ class TestLoggingSetup:
     @pytest.fixture(autouse=True)
     def config(self):
         # Setup the configuration
-        config_prefix_path = Path("lib/pbench/test/unit/common/config/")
+        config_prefix_path = Path("lib/pbench/test/common/config/")
         self.config = PbenchConfig(config_prefix_path / "pbench.cfg")
         self.logger = None
         yield
@@ -125,7 +124,7 @@ class TestLoggingSetup:
     def test_log_level(self):
         """Test to verify log level setting."""
         # Was test-26.5, test_logger_level.py
-        config_prefix_path = Path("lib/pbench/test/unit/common/config/")
+        config_prefix_path = Path("lib/pbench/test/common/config/")
         config = PbenchConfig(config_prefix_path / "log-level.cfg")
         logger = get_pbench_logger("test_log_level", config)
         assert (

@@ -146,7 +146,7 @@ class TestUpload:
     @staticmethod
     def test_upload(client, pytestconfig, caplog):
         filename = "log.tar.xz"
-        datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
+        datafile = Path("./lib/pbench/test/server/fixtures/upload/", filename)
 
         with open(f"{datafile}.md5") as md5sum_check:
             md5sum = md5sum_check.read()

@@ -8,7 +8,7 @@ import responses
 from pbench.agent import PbenchAgentConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.agent.results import CopyResultTb
-from pbench.test.unit.agent.task.common import tarball, bad_tarball
+from pbench.test.agent.task.common import tarball, bad_tarball
 
 
 class TestCopyResults:

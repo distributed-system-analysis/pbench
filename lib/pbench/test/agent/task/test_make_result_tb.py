@@ -8,7 +8,7 @@ import pytest
 from pbench.agent import PbenchAgentConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.agent.results import MakeResultTb
-from pbench.test.unit.agent.task.common import MockDatetime, MRT_DIR
+from pbench.test.agent.task.common import MockDatetime, MRT_DIR
 
 
 class TestMakeResultTb:

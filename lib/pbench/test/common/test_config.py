@@ -9,7 +9,7 @@ from pbench import PbenchConfig
 from pbench.common.exceptions import BadConfig
 
 
-_config_path_prefix = Path("lib/pbench/test/unit/common/config")
+_config_path_prefix = Path("lib/pbench/test/common/config")
 
 
 class TestPbenchConfig:

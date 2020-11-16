@@ -3,7 +3,7 @@ import subprocess
 
 import pytest
 
-from pbench.test.unit.agent.conftest import base_setup
+from pbench.test.agent.conftest import base_setup
 
 
 @pytest.fixture(scope="session", autouse=True)
