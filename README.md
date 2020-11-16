@@ -67,7 +67,7 @@ https://github.com/distributed-system-analysis/pbench/milestones).
 
 Below are some simple steps for setting up a development environment for
 working with the Pbench code base.  For more detailed instructions on the
-workflow and process of contributing code to Pbench, refere to the [Guidelines
+workflow and process of contributing code to Pbench, refer to the [Guidelines
 for Contributing](doc/CONTRIBUTING.md).
 
 ### Getting the Code
@@ -85,17 +85,17 @@ execute:
  * `jenkins/run jenkins/tox -r --current-env -e jenkins-pytests`
  * `jenkins/run jenkins/tox -r --current-env -e jenkins-unittests`
 
-The above commands runs the tests in a Fedora-base container with all the
+The above commands run the tests in a Fedora-base container with all the
 proper packages installed.
 
-If you want to run the Unit Tests outside of that environment, you need to
+If you want to run the unit tests outside of that environment, you need to
 install `tox` properly in your environment (Fedora/CentOS/RHEL):
 
 ```
 $ sudo dnf install -y perl-JSON python3-pip python3-tox
 ```
 
-Once tox is installed you can run the unittests (use `tox --listenvs` to see
+Once tox is installed you can run the unit tests (use `tox --listenvs` to see
 the full list); e.g.:
 
   * `tox -e util-scripts`  -- for agent/util-scripts tests
