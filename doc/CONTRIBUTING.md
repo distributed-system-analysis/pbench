@@ -67,12 +67,12 @@ the report as well, and they have been updated accordingly.
 1. Write appropriate Pull Request Title stating the fix
   1. Use present tense (ex. Fixes, Changes, Fixing, Changing..)
 1. Reference the issue that the PR is fixing with **“Fixes #issue_number”** in the description
-1. Provide a detailed description (at least 50 - 70 characters) of the changes; if UI related, add screenshots or gif
+1. Provide a detailed description of the changes; if UI related, add screenshots
 1. Make sure that the branches can be automatically merged (otherwise rebase the PR with `master`) and then click the drop down next to, `Create pull request`, and select `Create draft pull request`
 ![Image](https://lh5.googleusercontent.com/V14SjFhimKYF1fH6TXMfaoZtDCj2ZH0d9USqe8YHyn0xOOVYekiXtx2CwdOQbSvxWPB6JVEfi4jSM_mjkSMaaI7voQNYQ8gDWntMhzCMbj3wrK3H4eCSEsdVq_XP_aZMdb5h9xU4)
 
 1. Assign the PR to yourself and add appropriate labels
-1. Add "**DO NOT MERGE**" label if the work is not needed to be merged or there is no agreement on the work yet
+1. Add "**DO NOT MERGE**" label if the work does not need to be merged or there is no agreement on the work yet
 1. Make sure to add Milestone to the PR to mention specific release
 1. Request for review once the work is ready for getting reviewed
 ![Image](https://lh6.googleusercontent.com/iM-vaIsFQ8ew7vpNDUvmSY9MVjyTadTZkngdlQfo7qYe_QQuFSA8yZ_3P40fBdeNw6Q-lSJwDD59jfBoQgdNP3mGHPgrjVicsyGt8QkMMAaDYowHsIyAnukXsEiFPSOnYnrZyze3)
@@ -82,7 +82,6 @@ the report as well, and they have been updated accordingly.
 1. Make sure to add proper details to the Issue raised
 1. Upload screenshot(if possible) in dashboard issues
 1. Apply proper labels to the Issue
-1. Make sure to add Milestone and Project to the issue to mention specific release.
 1. Try to actively respond to the communication in case of comments in the same issue.
 
 ## Reviewing a pull request
