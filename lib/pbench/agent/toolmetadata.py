@@ -69,7 +69,7 @@ class ToolMetadata:
         if not self.data:
             self.data == self.__getInitialData()
             if not self.data:
-                self.logger.error(f"Unable to access data through {self.mode}")
+                self.logger.error("Unable to access data through %s", self.mode)
                 return False
         return True
 
