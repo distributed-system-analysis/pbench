@@ -61,7 +61,6 @@ class PbenchServerConfig(PbenchConfig):
             "BINDIR", "pbench-server", "script-dir"
         )
         self.LIBDIR = self._get_valid_dir_option("LIBDIR", "pbench-server", "lib-dir")
-        self.mail_recipients = self.conf.get("pbench-server", "mailto")
         self.ARCHIVE = self._get_valid_dir_option(
             "ARCHIVE", "pbench-server", "pbench-archive-dir"
         )
@@ -81,25 +80,6 @@ class PbenchServerConfig(PbenchConfig):
         except NoOptionError:
             self.COMMIT_ID = "(unknown)"
 
-        try:
-            self._unittests = self.conf.get("pbench-server", "debug_unittest")
-        except Exception:
-            self._unittests = False
-        else:
-            self._unittests = bool(self._unittests)
-
-        try:
-            self.elasticsearch = f"{self.conf.get('elasticsearch', 'host')}:{self.conf.get('elasticsearch', 'port')}"
-        except (NoOptionError, NoSectionError):
-            self.elasticsearch = ""
-
-        try:
-            self.graphql = (
-                f"{self.conf.get('graphql', 'host')}:{self.conf.get('graphql', 'port')}"
-            )
-        except (NoOptionError, NoSectionError):
-            self.graphql = ""
-
         if self._unittests:
 
             def mocked_time():
@@ -107,14 +87,6 @@ class PbenchServerConfig(PbenchConfig):
 
             global _time
             _time = mocked_time
-
-            try:
-                ref_dt_str = self.conf.get("pbench-server", "debug_ref_datetime")
-            except Exception:
-                ref_dt_str = "1970-01-02T00:00:00.000000"
-            self._ref_datetime = datetime.strptime(ref_dt_str, _STD_DATETIME_FMT)
-        else:
-            self._ref_datetime = None
 
         # Constants
 
@@ -142,6 +114,41 @@ class PbenchServerConfig(PbenchConfig):
             + " "
             + " ".join([f"WONT-INDEX.{i:d}" for i in range(1, 12)])
         )
+
+    @property
+    def server_config(self):
+        return self.conf["pbench-server"]
+
+    @property
+    def mail_recipients(self):
+        try:
+            return self.conf.get("pbench-server", "mailto")
+        except (NoOptionError, NoSectionError):
+            return ""
+
+    @property
+    def _unittests(self):
+        try:
+            unittests = self.conf.get("pbench-server", "debug_unittest")
+        except (NoOptionError, NoSectionError):
+            return False
+        else:
+            return bool(unittests)
+
+    @property
+    def _ref_datetime(self):
+        if self._unittests:
+            try:
+                ref_dt_str = self.conf.get("pbench-server", "debug_ref_datetime")
+            except Exception:
+                ref_dt_str = "1970-01-02T00:00:00.000000"
+            return datetime.strptime(ref_dt_str, _STD_DATETIME_FMT)
+        else:
+            return None
+
+    @property
+    def rest_uri(self):
+        return self._get_conf("pbench-server", "rest_uri")
 
     def _get_conf(self, section, option):
         """

@@ -3,6 +3,7 @@ from flask_restful import Resource, abort
 import requests
 
 from dateutil import parser, rrule
+from pbench.server.api.resources.query_apis import get_es_url, get_index_prefix
 
 
 class QueryControllers(Resource):
@@ -10,9 +11,10 @@ class QueryControllers(Resource):
     Abstracted Pbench API to get date-bounded controller data.
     """
 
-    def __init__(self, app, api):
-        self.app = app
-        self.api = api
+    def __init__(self, config, logger):
+        self.logger = logger
+        self.es_url = get_es_url(config)
+        self.prefix = get_index_prefix(config)
 
     @staticmethod
     def _genMonthUriRange(prefix, index, start, end):
@@ -127,13 +129,12 @@ class QueryControllers(Resource):
             }
         ]
         """
-        logger = self.app.logger
         json_data = request.get_json(silent=True)
         if not json_data:
-            logger.info("QueryControllers: Invalid JSON object. Query: {}", request.url)
+            self.logger.info(
+                "QueryControllers: Invalid JSON object. Query: {}", request.url
+            )
             abort(400, message="QueryControllers: Missing request payload")
-
-        prefix = self.app.config["PREFIX"]
 
         try:
             user = json_data["user"]
@@ -141,7 +142,7 @@ class QueryControllers(Resource):
             end_arg = json_data["end"]
         except KeyError:
             keys = [k for k in ("user", "start", "end") if k not in json_data]
-            logger.info(
+            self.logger.info(
                 "QueryControllers: Missing required JSON keys {}", ",".join(keys)
             )
             abort(
@@ -162,7 +163,7 @@ class QueryControllers(Resource):
                 session_token = token
 
             if not session_token:
-                logger.warn(
+                self.logger.warn(
                     '"Authorization" header specifies unsupported or missing '
                     ' schema; use "Authorization: Bearer <JWT-token>"'
                 )
@@ -172,7 +173,7 @@ class QueryControllers(Resource):
             start = parser.parse(start_arg)
             end = parser.parse(end_arg)
         except Exception as e:
-            logger.info(
+            self.logger.info(
                 "Invalid start or end time string: {}, {}: {}", start_arg, end_arg, e
             )
             abort(400, message="QueryControllers: Invalid start or end time string")
@@ -180,10 +181,10 @@ class QueryControllers(Resource):
         # We have nothing to authorize against yet, but print the specified
         # user and session token to prove we got them (and so the variables
         # aren't diagnosed as "unused")
-        logger.info(
+        self.logger.info(
             "QueryControllers POST for user {}, prefix {}, session {}: ({} - {})",
             user,
-            prefix,
+            self.prefix,
             session_token,
             start,
             end,
@@ -215,10 +216,10 @@ class QueryControllers(Resource):
         # information in Redis or postgreSQL probably makes sense; maybe
         # we just hardcode until then?
         uri_fragment = QueryControllers._genMonthUriRange(
-            prefix, ".v6.run-data.", start, end
+            self.prefix, ".v6.run-data.", start, end
         )
 
-        uri = f"{self.app.config['ES_URL']}/{uri_fragment}/_search"
+        uri = f"{self.es_url}/{uri_fragment}/_search"
         try:
             # query Elasticsearch
             es_response = requests.post(
@@ -232,20 +233,22 @@ class QueryControllers(Resource):
             )
             es_response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            logger.exception("HTTP error {} from Elasticsearch post request", e)
+            self.logger.exception("HTTP error {} from Elasticsearch post request", e)
             abort(500, message=f"HTTP error {e} from Elasticsearch")
         except requests.exceptions.ConnectionError:
-            logger.exception("Connection refused during the Elasticsearch post request")
+            self.logger.exception(
+                "Connection refused during the Elasticsearch post request"
+            )
             abort(502, message="Network problem, could not post to Elasticsearch")
         except requests.exceptions.Timeout:
-            logger.exception(
+            self.logger.exception(
                 "Connection timed out during the Elasticsearch post request"
             )
             abort(
                 504, message="Connection timed out, could not post to Elasticsearch",
             )
         except requests.exceptions.InvalidURL:
-            logger.exception(
+            self.logger.exception(
                 "Invalid url {} during the Elasticsearch post request", uri
             )
             abort(
@@ -253,7 +256,7 @@ class QueryControllers(Resource):
                 message=f"Invalid Elasticsearch url {uri}, could not complete the post request",
             )
         except Exception as e:
-            logger.exception(
+            self.logger.exception(
                 "Exception {!r} occurred during the Elasticsearch post request", e
             )
             abort(500, message=f"Could not post to Elasticsearch: {e!r}")
@@ -262,7 +265,7 @@ class QueryControllers(Resource):
             try:
                 es_json = es_response.json()
                 buckets = es_json["aggregations"]["controllers"]["buckets"]
-                logger.info("{} controllers found", len(buckets))
+                self.logger.info("{} controllers found", len(buckets))
                 for controller in buckets:
                     c = {}
                     c["key"] = controller["key"]
@@ -272,7 +275,7 @@ class QueryControllers(Resource):
                     c["last_modified_string"] = controller["runs"]["value_as_string"]
                     controllers.append(c)
             except KeyError:
-                logger.exception("ES response not formatted as expected")
+                self.logger.exception("ES response not formatted as expected")
                 abort(500, message="Elasticsearch response is odd")
             else:
                 # construct response object
