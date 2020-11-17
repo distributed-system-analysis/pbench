@@ -3,6 +3,7 @@ python-dateutil
 elasticsearch
 flask
 flask-restful
+flask_cors
 gunicorn
 humanize
 pyesbulk>=2.0.1

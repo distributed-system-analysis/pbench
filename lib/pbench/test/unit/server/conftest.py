@@ -2,8 +2,7 @@ import shutil
 import tempfile
 import pytest
 from pathlib import Path
-
-from pbench.server.api import create_app
+from pbench.server.api import create_app, get_server_config
 
 
 server_cfg_tmpl = """[DEFAULT]
@@ -83,12 +82,22 @@ def setup(request, pytestconfig):
 
 
 @pytest.fixture
-def client(pytestconfig, monkeypatch):
+def server_config(pytestconfig, monkeypatch):
     cfg_file = pytestconfig.cache.get("_PBENCH_SERVER_CONFIG", None)
     monkeypatch.setenv("_PBENCH_SERVER_CONFIG", cfg_file)
-    app = create_app()
-    app.testing = True
+
+    server_config = get_server_config()
+    return server_config
+
+
+@pytest.fixture
+def client(server_config):
+    app = create_app(server_config)
+
     """A test client for the app."""
     app_client = app.test_client()
+    app_client.logger = app.logger
     app_client.config = app.config
+    app_client.debug = True
+    app_client.testing = True
     return app_client
