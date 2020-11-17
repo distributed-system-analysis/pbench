@@ -1,0 +1,186 @@
+Name:           pbench-server
+Version:        {{ version }}
+Release:        {{ seqno }}{{ gdist }}
+Summary:        The pbench server bits
+
+License:        GPLv3+
+URL:            http://github.com/distributed-systems-analysis/pbench
+Source0:        pbench-server-%{version}.tar.gz
+Buildarch:      noarch
+
+
+%if 0%{?rhel} == 7
+# need python3 - install scl to get it
+# scl-utils is in the main repo, but the scl python3
+# collection du jour is in the scl repo which
+# is assumed to have been added already with:
+#    yum install yum-utils
+#    yum-config-manager --enable rhel-server-rhscl-7-rpms
+#
+# we can't do that in the spec file, because of the yum lock,
+# so they have to be done beforehand.
+Requires: scl-utils, rh-python36
+%else
+Requires: python3 python3-devel gcc
+%endif
+
+# policycoreutils for semanage and restorecon - used in pbench-server-activate-create-results-dir
+Requires:       policycoreutils
+%if 0%{?rhel} != 7
+Requires: policycoreutils-python-utils
+%else
+Requires: policycoreutils-python
+%endif
+
+Requires: npm
+
+# installdir has to agree with the definition of install-dir in
+# pbench-server.cfg, but we can't go out and pluck it from there,
+# because we don't know where the config file is. Note that we omit
+# the initial / - it is added in every use below.  IMO, that's more
+# readable since it appears in the middle of the path in all cases,
+# *except* in the %files section (and one instance in the %post
+# and %postun sections).
+
+%define installdir opt/pbench-server
+%define static html/static
+
+%define __python python3
+
+%description
+The pbench server scripts.
+
+%prep
+
+%setup
+
+%build
+
+%install
+rm -rf %{buildroot}
+
+mkdir -p %{buildroot}/%{installdir}
+cp -a ./server/* %{buildroot}/%{installdir}
+
+mkdir -p %{buildroot}/%{installdir}/html/static
+cp -a ./web-server/* %{buildroot}/%{installdir}/html/static
+
+# for the npm install below
+mv %{buildroot}/%{installdir}/html/static/package.json %{buildroot}/%{installdir}
+
+%post
+# Install python dependencies
+%if 0%{?rhel} == 7
+# install python3-elasticsearch
+echo "scl enable rh-python36 'pip install elasticsearch1 boto3 ujson'"
+scl enable rh-python36 'pip install elasticsearch1 boto3 ujson'
+%else
+echo "pip3 install -r /%{installdir}/requirements.txt"
+pip3 install -r /%{installdir}/requirements.txt
+%endif
+
+# install node.js modules under /%{installdir}
+cd /%{installdir}
+rm -rf node_modules
+npm install
+
+# Finally, make sure the installation directory is entirely owned
+# by the pbench user.
+chown -R pbench.pbench /%{installdir}
+
+%preun
+
+%postun
+# if uninstalling, rather than updating, remove everything
+if [ $1 -eq 0 ] ;then
+    crontab=/%{installdir}/lib/crontab/crontab
+    if [ -f $crontab ] ;then
+        crontab -u pbench -r
+    fi
+    rm -rf /%{installdir}
+fi
+
+%posttrans
+
+%files
+%defattr(644, pbench, pbench, 755)
+/%{installdir}/VERSION
+/%{installdir}/SEQNO
+/%{installdir}/SHA1
+/%{installdir}/%{static}/VERSION
+/%{installdir}/package.json
+
+/%{installdir}/lib/config/pbench-server-satellite.cfg.example
+/%{installdir}/lib/config/pbench-server.cfg.example
+/%{installdir}/lib/config/pbench-server-default.cfg
+
+/%{installdir}/lib/crontab
+/%{installdir}/lib/mappings
+/%{installdir}/lib/settings
+
+/%{installdir}/lib/configtools/__init__.py
+/%{installdir}/lib/pbench/__init__.py
+/%{installdir}/lib/pbench/indexer.py
+/%{installdir}/lib/pbench/mock.py
+/%{installdir}/lib/pbench/report.py
+/%{installdir}/lib/s3backup/__init__.py
+
+/%{installdir}/bin/pbench-base.sh
+
+%defattr(755, pbench, pbench, 755)
+/%{installdir}/bin/getconf.py
+/%{installdir}/bin/pbench-server-activate-create-crontab
+/%{installdir}/bin/pbench-server-prep-shim-002
+/%{installdir}/bin/pbench-audit-server
+/%{installdir}/bin/pbench-backup-tarballs
+/%{installdir}/bin/pbench-verify-backup-tarballs
+/%{installdir}/bin/pbench-clean-up-dangling-results-links
+/%{installdir}/bin/pbench-copy-sosreports
+/%{installdir}/bin/pbench-index
+/%{installdir}/bin/pbench-reindex
+/%{installdir}/bin/pbench-unpack-tarballs
+/%{installdir}/bin/pbench-satellite-cleanup
+/%{installdir}/bin/pbench-satellite-state-change
+/%{installdir}/bin/pbench-remote-satellite-state-change
+/%{installdir}/bin/pbench-remote-sync-package-tarballs
+/%{installdir}/bin/pbench-dispatch
+/%{installdir}/bin/pbench-report-status
+/%{installdir}/bin/pbench-pp-status
+/%{installdir}/bin/pbench-sync-package-tarballs
+/%{installdir}/bin/pbench-sync-satellite
+/%{installdir}/bin/pbench-server-set-result-state
+/%{installdir}/bin/pbench-audit-server.sh
+/%{installdir}/bin/pbench-backup-tarballs.py
+/%{installdir}/bin/pbench-base.py
+/%{installdir}/bin/pbench-clean-up-dangling-results-links.sh
+/%{installdir}/bin/pbench-copy-sosreports.sh
+/%{installdir}/bin/pbench-dispatch.sh
+/%{installdir}/bin/pbench-index.py
+/%{installdir}/bin/pbench-reindex.py
+/%{installdir}/bin/pbench-report-status.py
+/%{installdir}/bin/pbench-satellite-cleanup.sh
+/%{installdir}/bin/pbench-satellite-state-change.py
+/%{installdir}/bin/pbench-server-prep-shim-002.sh
+/%{installdir}/bin/pbench-sync-package-tarballs.sh
+/%{installdir}/bin/pbench-sync-satellite.sh
+/%{installdir}/bin/pbench-trampoline
+/%{installdir}/bin/pbench-unpack-tarballs.sh
+/%{installdir}/bin/pbench-verify-backup-tarballs.py
+/%{installdir}/bin/pbench-check-tb-age
+/%{installdir}/bin/pbench-check-tb-age.py
+/%{installdir}/bin/pbench-cull-unpacked-tarballs
+/%{installdir}/bin/pbench-cull-unpacked-tarballs.py
+
+%defattr(644, pbench, pbench, 755)
+/%{installdir}/%{static}/css/v0.2/pbench_utils.css
+/%{installdir}/%{static}/js/v0.2/pbench_utils.js
+/%{installdir}/%{static}/js/v0.2/app.js
+/%{installdir}/%{static}/css/v0.3/jschart.css
+/%{installdir}/%{static}/js/v0.3/jschart.js
+
+%doc
+/%{installdir}/lib/s3backup/README
+/%{installdir}/lib/pbench/AUTHORS.log_formatter
+/%{installdir}/lib/pbench/LICENSE.log_formatter
+/%{installdir}/%{static}/css/v0.3/LICENSE.TXT
+/%{installdir}/%{static}/js/v0.3/LICENSE.TXT
