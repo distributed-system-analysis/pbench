@@ -24,11 +24,13 @@ function _pbench_setup() {
 	echo "                You will need to fix it before working with pbench." >&2
     else
 	local pdir
+	local NL=$'\n'
 	while read -r pdir; do
 	    if [[ ":${PYTHONPATH:-}:" != *":${pdir}:"* ]]; then
-		export PYTHONPATH=${pdir}${PYTHONPATH:+:${PYTHONPATH}}
+		PYTHONPATH=${pdir}${PYTHONPATH:+:${PYTHONPATH}}
 	    fi
-	done <<< "${prefix}/lib $(ls -1d ${prefix}/lib*/python3.*/site-packages)"
+	done <<< "${prefix}/lib${NL}$(ls -1d ${prefix}/lib*/python3.*/site-packages)"
+	export PYTHONPATH
 	export _PBENCH_AGENT_CONFIG=${prefix}/config/pbench-agent.cfg
 
 	_pbench_pathins "${prefix}/bench-scripts"
