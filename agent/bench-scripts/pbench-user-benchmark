@@ -342,6 +342,9 @@ pbench-end-tools --group=${tool_group} --dir=${benchmark_run_dir}
 # Now that we have finished running all the iterations, create the
 # reference-result symlinks.
 while read -r rdir; do
+	if [[ -z "${rdir}" ]]; then
+		continue
+	fi
 	iteration_name="$(basename "$(dirname "${rdir}")")"
 	iteration="${iteration_name%%-*}"
 	if [ ${use_tool_triggers} -ne 0 ]; then
