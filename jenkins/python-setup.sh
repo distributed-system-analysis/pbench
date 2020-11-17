@@ -7,8 +7,8 @@ if [[ ":${PATH:-}:" != *":${_pdir}:"* ]]; then
     export PATH=${_pdir}${PATH:+:${PATH}}
 fi
 
-for _pdir in $(ls -1d ${_prefix}/lib*/python3.*/site-packages 2> /dev/null) $(head -n 1 ${_prefix}/lib*/python3.*/site-packages/pbench.egg-link 2> /dev/null); do
+while read -r _pdir; do
     if [[ ":${PYTHONPATH:-}:" != *":${_pdir}:"* ]]; then
         export PYTHONPATH=${_pdir}${PYTHONPATH:+:${PYTHONPATH}}
     fi
-done
+done <<< "$(ls -1d ${_prefix}/lib*/python3.*/site-packages 2> /dev/null) $(head -n 1 ${_prefix}/lib*/python3.*/site-packages/pbench.egg-link 2> /dev/null)"
