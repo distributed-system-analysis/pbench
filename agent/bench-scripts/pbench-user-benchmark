@@ -341,8 +341,7 @@ pbench-end-tools --group=${tool_group} --dir=${benchmark_run_dir}
 
 # Now that we have finished running all the iterations, create the
 # reference-result symlinks.
-result_dirs="$(ls -1d ${benchmark_run_dir}/*/${sample_name} 2> /dev/null)"
-for rdir in ${result_dirs}; do
+while read -r rdir; do
 	iteration_name="$(basename "$(dirname "${rdir}")")"
 	iteration="${iteration_name%%-*}"
 	if [ ${use_tool_triggers} -ne 0 ]; then
@@ -353,7 +352,7 @@ for rdir in ${result_dirs}; do
 		record_iteration "${iteration}" "${iteration_name}" "${benchmark_bin}"
 	fi
 	ln -s "$(basename "${rdir}")" "$(dirname "${rdir}")/reference-result"
-done
+done <<< "$(ls -1d ${benchmark_run_dir}/*/${sample_name} 2> /dev/null)"
 
 ${script_path}/postprocess/user-benchmark-wrapper "${benchmark_run_dir}" "${total_duration}"
 
