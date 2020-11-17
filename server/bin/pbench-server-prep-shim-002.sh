@@ -11,6 +11,11 @@
 # load common things
 . $dir/pbench-base.sh
 
+# need /usr/sbin in the PATH for restorecon
+if [[ ! ":$PATH:" =~ ":/usr/sbin:" ]]; then
+   PATH=$PATH:/usr/sbin; export PATH
+fi
+
 test -d $ARCHIVE || doexit "Bad ARCHIVE=$ARCHIVE"
 
 errlog=$LOGSDIR/$PROG/$PROG.error
@@ -187,12 +192,14 @@ while read tbmd5 ;do
         (( nerrs++ ))
         continue
     fi
+
     # mv, as well as cp -a, does not restore the SELinux context properly, so we do it by hand
-    restorecon ${dest}/${tb} ${dest}/${tb}.md5
+    tbname=${resultname}.tar.xz
+    restorecon ${dest}/${tbname} ${dest}/${tbname}.md5
     sts=${?}
     if [[ ${sts} -ne 0 ]]; then
         # log it but do not abort
-        log_error "${TS}: Error: \"restorecon ${dest}/${tb} ${dest}/${tb}.md5\", status ${sts}" "${status}"
+        log_error "${TS}: Error: \"restorecon ${dest}/${tbname} ${dest}/${tbname}.md5\", status ${sts}" "${status}"
     fi
 
     # Now that we have successfully moved the tar ball and its .md5 to the
