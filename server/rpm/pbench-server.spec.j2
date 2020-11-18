@@ -62,11 +62,11 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/%{installdir}
 cp -a ./server/* %{buildroot}/%{installdir}
 
-mkdir -p %{buildroot}/%{installdir}/html/static
-cp -a ./web-server/* %{buildroot}/%{installdir}/html/static
+mkdir -p %{buildroot}/%{installdir}/%{static}
+cp -a ./web-server/* %{buildroot}/%{installdir}/%{static}
 
 # for the npm install below
-mv %{buildroot}/%{installdir}/html/static/package.json %{buildroot}/%{installdir}
+mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
 %post
 # Install python dependencies
@@ -83,6 +83,21 @@ pip3 install -r /%{installdir}/requirements.txt
 cd /%{installdir}
 rm -rf node_modules
 npm install
+
+# this only handles v0.3
+# AFAIK, we don't need all the other modules that package.json includes.
+jslist="node_modules/d3/d3.min.js
+        node_modules/d3-queue/build/d3-queue.min.js
+        node_modules/save-svg-as-png/lib/saveSvgAsPng.js"
+
+# Copy them to the appropriate directory for v0.3. That
+# directory should exist already because of the `cp -a'
+# of the web-server stuff above, but add an explicit
+# mkdir just in case, although it should be a no-op.
+mkdir -p /%{installdir}/%{static}/js/v0.3
+for x in ${jslist} ;do
+    cp $x /%{installdir}/%{static}/js/v0.3
+done
 
 # Finally, make sure the installation directory is entirely owned
 # by the pbench user.
