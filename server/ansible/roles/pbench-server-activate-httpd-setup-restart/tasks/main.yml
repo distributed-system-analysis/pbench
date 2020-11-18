@@ -12,6 +12,14 @@
   notify:
     - restart apache
 
+- name: "Create pbench-tarballs link in doc root"
+  file:
+    src: "{{ pbench_dir }}/archive/fs-version-001"
+    path: "{{ httpd_document_root_dir }}/pbench-tarballs"
+    state: link
+  notify:
+    - restart apache
+
 - name: "Make sure rsync is installed. Used below."
   package:
     name: rsync
