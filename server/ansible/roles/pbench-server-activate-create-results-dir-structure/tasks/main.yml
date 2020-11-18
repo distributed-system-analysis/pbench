@@ -1,6 +1,43 @@
 ---
 # activate the server - create results dir structure
 
+# The sefcontext module is available from Galaxy with
+#    ansibble-galacy collection install community.general
+#
+# We have two tasks to set the SELinux context with semanage on the
+# top level directory (typically /pbench or /srv/pbench) and its
+# subdirectories: they get a default_t type.  We then override the
+# type for the `archive' and `public_html' subdirs (and their subdirs)
+# which must be available through HTTP: they get a httpd_sys_content_t
+# type.
+
+# The rest of the tasks create the directory structure under the top-level
+# directory. Then at the end, we run a restorecon to give every directory
+# its proper label.
+
+- name: add semanage fcontexts - top level dir gets default_t and subdirs inherit
+  community.general.sefcontext:
+    target: "{{ pbench_dir }}(/.*)?"
+    setype: default_t
+    state: present
+
+- name: add semanage fcontexts - public_html and archive get httpd_sys_content_t
+  community.general.sefcontext:
+    target: "{{ pbench_dir }}/{{ item}}(/.*)?"
+    setype: httpd_sys_content_t
+    state: present
+  with_items:
+    - public_html
+    - archive
+
+- name: ensure top level dir is present with default_t type
+  file:
+    path: "{{ pbench_dir }}"
+    owner: "{{ pbench_user }}"
+    group: "{{ pbench_group }}"
+    mode:  0775
+    state: directory
+
 - name: ensure archive and public_html directories and top-level subdirs are present
   file:
     path: "{{ pbench_dir }}/{{ item }}"
@@ -8,7 +45,6 @@
     group: "{{ pbench_group }}"
     mode:  0775
     state: directory
-    setype: httpd_sys_content_t
   with_items:
     - archive
     - archive/fs-version-001
@@ -51,3 +87,7 @@
     state: directory
   with_items:
     - "002"
+
+- name: Apply new SELinux file context to filesystem
+  command:
+    cmd: "restorecon -irv {{ pbench_dir }}"
