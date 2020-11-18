@@ -1,6 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; sh-indent-for-case-alt: + -*-
-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
 script_path="$(dirname ${0})"
 script_name="$(basename ${0})"
 pbench_bin="$(realpath -e ${script_path}/..)"
@@ -10,7 +9,7 @@ pbench_bin="$(realpath -e ${script_path}/..)"
 
 function usage() {
     printf "usage:\n"
-    printf "${script_name} [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
+    printf "${script_name} [--help] [--controller=<controller>] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]\n"
 }
 
 function missing_arg() {
@@ -20,7 +19,7 @@ function missing_arg() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o u:p:xSh --longoptions "user:,prefix:,xz-single-threaded,show-server,help" -n "getopt.sh" -- "${@}")
+opts=$(getopt -q -o c:u:p:xSh --longoptions "controller:,user:,prefix:,xz-single-threaded,show-server,help" -n "getopt.sh" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
     printf "\n${script_name}: you specified an invalid option or an unexpected argument\n\n" >&2
     usage >&2
@@ -28,6 +27,7 @@ if [[ ${?} -ne 0 ]]; then
 fi
 
 user="${PBENCH_USER}"
+controller="${PBENCH_CONTROLLER}"
 prefix=""
 xz_single_threaded=0
 show_server=""
@@ -36,6 +36,14 @@ while true; do
     opt="${1}"
     shift
     case "${opt}" in
+	-c|--controller)
+	    if [[ -n "${1}" ]]; then
+		controller="${1}"
+		shift;
+	    else
+		missing_arg "${opt}"
+	    fi
+	    ;;
 	-u|--user)
 	    if [[ -n "${1}" ]]; then
 		user="${1}"
@@ -72,19 +80,39 @@ while true; do
     esac
 done
 
-if [[ ! -d "${pbench_run}" ]]; then
+# Move into pbench run collection directory
+cd ${pbench_run} >/dev/null
+if [[ ${?} -ne 0 ]]; then
     error_log "ERROR: pbench local results directory does not exist: ${pbench_run}"
     exit 1
 fi
 
-if [[ ! -f "${pbench_bin}/id_rsa" ]]; then
-    error_log "ERROR: ${pbench_bin}/id_rsa required for moving results to archive host"
+tmp=${pbench_tmp}/${script_name}.${$}
+trap "rm -rf ${tmp}" EXIT INT QUIT TERM
+
+# Before we take any further actions, enumerate the results to be moved
+mkdir ${tmp}
+sts=${?}
+if [[ ${sts} -ne 0 ]] ;then
+    error_log "Failed: \"mkdir -p ${tmp}\", status ${sts}"
     exit 1
 fi
+/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v "^${tools_group_prefix}" | grep -v "^tmp/" > ${tmp}/results.lis
+if [[ ! -s ${tmp}/results.lis ]]; then
+    # Nothing to do
+    exit 0
+fi
 
-controller=${_pbench_full_hostname}
 if [[ -z "${controller}" ]]; then
-    error_log "Missing controller name (should be \"hostname -f\" value)"
+    controller=${_pbench_full_hostname}
+    if [[ -z "${controller}" ]]; then
+	error_log "Missing controller name (should be \"hostname -f\" value)"
+	exit 1
+    fi
+fi
+
+if [[ ! -f "${pbench_bin}/id_rsa" ]]; then
+    error_log "ERROR: ${pbench_bin}/id_rsa required for moving results to archive host"
     exit 1
 fi
 
@@ -96,16 +124,17 @@ if [[ -z "${results_webserver}" ]]; then
     exit 1
 fi
 
-ver=$(yum info installed pbench-agent 2> /dev/null | grep Version | awk '{ print $3 }')
+_info="$(yum info installed pbench-agent 2> /dev/null)"
+ver=$(printf -- "%s" "${_info}" | grep Version | awk '{ print $3 }')
 if [[ -z "${ver}" ]]; then
     ver="unknown"
 fi
-rel=$(yum info installed pbench-agent 2> /dev/null | grep Release | awk '{ print $3 }')
+rel=$(printf -- "%s" "${_info}" | grep Release | awk '{ print $3 }')
 if [[ -z "${rel}" ]]; then
     rel="unknown"
 fi
 # User-Agent HTTP header: <pbench-agent-ver-rel>:<FQDN>:<$USER>:<full path of this script>""
-user_agent="pbench-agent-${ver}-${rel}:${controller}:${USER}:${script_name}"
+user_agent="pbench-agent-${ver}-${rel}:${_pbench_full_hostname}:${USER}:${script_name}"
 
 results_host_info_url=$(pbench-config host_info_url results)
 results_host_info=$(curl -s -A "${user_agent}" -L "${results_host_info_url}")
@@ -166,10 +195,7 @@ fi
 let runs_copied=0
 let failures=0
 
-tmp=${pbench_tmp}/${script_name}.${$}
-trap "rm -rf ${tmp}" EXIT INT QUIT
-
-mkdir -p ${tmp}/${controller}
+mkdir ${tmp}/${controller}
 sts=${?}
 if [[ ${sts} -ne 0 ]] ;then
     error_log "Failed: \"mkdir -p ${tmp}/${controller}\", status ${sts}"
@@ -180,7 +206,7 @@ fi
 # Move into pbench run collection directory
 pushd ${pbench_run} >/dev/null
 
-for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v "^${tools_group_prefix}" | grep -v "^tmp/"`; do
+while read -r dir; do
     # Before the loop we have created a temp directory, $tmp/$controller, to
     # contain the tarball and the md5 file (as ${tb}.tar.xz.md5.check); pass
     # that information on to pbench-make-result-tb.
@@ -230,9 +256,7 @@ for dir in `/bin/ls -ort -d */ | awk '{print $8}' | grep -v "^tools-" | grep -v 
 	fi
     fi
     let runs_copied=runs_copied+1
-done
-
-popd >/dev/null
+done < ${tmp}/results.lis
 
 let anything=runs_copied+failures
 if [[ $anything -gt 0 ]]; then

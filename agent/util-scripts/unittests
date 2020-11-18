@@ -344,6 +344,8 @@ declare -A tools=(
     [test-17]="pbench-list-triggers"
     [test-18]="pbench-list-triggers"
     [test-19]="test-tool-trigger"
+    [test-20]="pbench-move-results"
+    [test-21]="pbench-move-results"
     [test-22]="pbench-metadata-log"
     [test-23]="pbench-collect-sysinfo"
     [test-24]="pbench-collect-sysinfo"
@@ -355,8 +357,12 @@ declare -A tools=(
     [test-30]="pbench-collect-sysinfo"
     [test-31]="pbench-copy-results"
     [test-32]="pbench-copy-results"
+    [test-33]="pbench-move-results"
+    [test-34]="pbench-copy-results"
     [test-35]="pbench-register-tool-trigger"
     [test-36]="pbench-register-tool-trigger"
+    [test-37]="pbench-copy-results"
+    [test-38]="pbench-copy-results"
     [test-39]="pbench-copy-results"
     [test-40]="pbench-copy-results"
     [test-41]="pbench-copy-results"
@@ -434,6 +440,10 @@ declare -A options=(
     [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     [test-17]="--group=default"
     [test-18]="--group=foo"
+    # pbench-move-results
+    [test-20]="--help"
+    # pbench-move-results - no args, nothing to do
+    #[test-21]=""
     [test-22]="--dir=${_testdir}/mock-run end"
     [test-23]="--help"
     [test-24]="--options"
@@ -443,21 +453,33 @@ declare -A options=(
     [test-28]="--check --sysinfo=block,libvirt,kernel_config,sos,topology"
     [test-29]="--check --sysinfo=block,sos,bad,topology"
     [test-30]="--check --sysinfo=libvirt,default,kernel_config,all,topology,none"
+    # pbench-copy-results - verify prefix and user are recorded
     [test-31]="--prefix=foo/bar --user=ndk"
+    # pbench-copy-results
     [test-32]="--help"
-    [test-34]="--help"
+    # pbench-move-results - no args, 2 bad, 1 good result directory moved
+    #[test-33]=""
+    # pbench-copy-results - no args, 2 bad, 1 good result directory moved
+    #[test-34]=""
     [test-35]="--group=default --start-trigger=\"START:DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     [test-36]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP:DEFAULT\""
-    [test-37]="--prefix="
-    [test-38]="--user="
+    # pbench-copy-results - same controller specified as in metadata.log, no-op
+    [test-37]="--controller=testhost.example.com"
+    # pbench-copy-results - explicit controller different from recorded controller
+    [test-38]="--controller=my-controller.example.com"
+    # pbench-copy-results - verify just prefix
     [test-39]="--prefix=goo/tar"
+    # pbench-copy-results - verify just user
     [test-40]="--user=pap"
+    # pbench-copy-results - move one good result
+    #[test-41]=""
     [test-42]="--name=vmstat --group=default --no-install -- --interval=42"
     [test-43]="--name=turbostat --no-install --remotes=one.example.com,localhost,testhost.example.com,two.example.com"
     [test-44]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/doesntexist.lis"
     [test-45]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-46]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis"
     [test-47]="--name=mpstat --no-install --remotes=@${_testdir}/tmp/remotes.lis --labels=labelOne,labelTwo"
+    # pbench-copy-results - verify handling of "%"
     [test-49]="--prefix=foo/bar3% --user=ndk20%"
     [test-52]="mygroup"
     [test-54]="bad"
@@ -492,8 +514,6 @@ declare -A expected_status=(
     [test-29]=1
     [test-35]=1
     [test-36]=1
-    [test-37]=1
-    [test-38]=1
     [test-44]=1
     [test-46]=1
     [test-47]=1
@@ -515,7 +535,7 @@ declare -A pre_hooks=(
     [test-46]='mkdir ${_testdir}/tmp; printf -- "# bad list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com,labelThree,junk\n" > ${_testdir}/tmp/remotes.lis'
     [test-47]='mkdir ${_testdir}/tmp; printf -- "# good list with no labels\none.example.com\ntwo.example.com\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
     [test-48]='mkdir ${_testdir}/tmp; printf -- "%s\n" "30%" > ${_testdir}/tmp/foo.txt'
-    [test-55]='pbench-register-tool --name=mpstat --remote=localhost > /dev/null; mkdir ${_testdir}/mock-run'
+    [test-55]='pbench-register-tool --name=mpstat --remote=localhost > /dev/null; mkdir ${_testdir}/mock-run; ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-61]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-62]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client; mkdir -p ${_testdir}/mock-run/tools-default'
 )
@@ -536,11 +556,42 @@ declare -A post_hooks=(
     [test-07]='cat ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/postprocess.log >> ${_testout} 2>&1'
     [test-19]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-53]='sort_testlog'
+    [test-55]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-56]='sort_testlog; sort_tdslog'
     [test-57]='sort_testlog; sort_tdslog'
     [test-61]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-62]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
 )
+
+# Verify that there are no dangling gold files and sample directories.
+let cnt=0
+while read -r _path; do
+    if [[ -z "${_path}" ]]; then
+        continue
+    fi
+    _name="$(basename ${_path})"
+    tool=${tools[${_name}]}
+    if [[ -z "${tool}" ]]; then
+        printf -- "Dangling sample: ${_path}\n" >&2
+        (( cnt = cnt + 1 ))
+    fi
+done <<< "$(ls -1d ${_tdir}/samples/*/test-*)"
+while read -r _path; do
+    if [[ -z "${_path}" ]]; then
+        continue
+    fi
+    _name="$(basename ${_path})"
+    tool=${tools[${_name%.*}]}
+    if [[ -z "${tool}" ]]; then
+        printf -- "Dangling gold: ${_path}\n" >&2
+        (( cnt = cnt + 1 ))
+    fi
+done <<< "$(ls -1d ${_tdir}/gold/*/test-*)"
+
+if [[ ${cnt} -gt 0 ]]; then
+    printf -- "INTERNAL ERROR - Gold or Sample files not accounted for in test list.\n" >&2
+    exit 1
+fi
 
 tests="${*}"
 if [[ -z "${tests}" ]]; then

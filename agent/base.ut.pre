@@ -10,3 +10,6 @@ fi
 if [[ -z "${_pbench_full_hostname}" ]]; then
     export _pbench_full_hostname="testhost.example.com"
 fi
+if [[ -z "${_pbench_hostname_ip}" ]]; then
+    export _pbench_hostname_ip="172.16.42.42"
+fi

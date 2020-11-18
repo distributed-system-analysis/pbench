@@ -1,6 +1,6 @@
-+++ Running test-41 pbench-copy-results 
-tar --create --force-local "pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33" | xz -T0 > "/var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/testhost.example.com/pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz"
---- Finished test-41 pbench-copy-results (status=0)
++++ Running test-38 pbench-copy-results --controller=my-controller.example.com
+tar --create --force-local "pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33" | xz -T0 > "/var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/my-controller.example.com/pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz"
+--- Finished test-38 pbench-copy-results (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33
@@ -42,9 +42,10 @@ sar = --interval=3
 turbostat = --interval=3
 
 [run]
-controller = testhost.example.com
+controller = my-controller.example.com
 start_run = 2019-09-27T14:21:33.387628370
 end_run = 2019-09-27T14:22:38.538437410
+controller_orig = testhost.example.com
 raw_size = #####
 
 [iterations/1]
@@ -56,6 +57,6 @@ user_script = sleep
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/yum info installed pbench-agent
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/curl -s -A pbench-agent-unknown-unknown:testhost.example.com:nobody:pbench-copy-results -L http://pbench.example.com/pbench-results-host-info.versioned/pbench-results-host-info.URL002
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -q -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa -o StrictHostKeyChecking=no pbench@server.com exit
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/scp -r -o StrictHostKeyChecking=no -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa /var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/testhost.example.com pbench@server.com:/foo/bar
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa -o StrictHostKeyChecking=no pbench@server.com cd /foo/bar/testhost.example.com; md5sum --check pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz.md5.check && mv pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz.md5.check pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz.md5
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/scp -r -o StrictHostKeyChecking=no -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa /var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/my-controller.example.com pbench@server.com:/foo/bar
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -i /var/tmp/pbench-test-utils/opt/pbench-agent/id_rsa -o StrictHostKeyChecking=no pbench@server.com cd /foo/bar/my-controller.example.com; md5sum --check pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz.md5.check && mv pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz.md5.check pbench-user-benchmark_rht-test-1_2019.09.27T14.21.33.tar.xz.md5
 --- test-execution.log file contents

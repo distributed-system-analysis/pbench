@@ -7,11 +7,11 @@ rpm-version = 0.50-1g799ea025
 iterations = 1, 1
 
 [tools]
-hosts = alphaville
+hosts = testhost
 group = default
 
-[tools/alphaville]
-hostname-s = alphaville
+[tools/testhost]
+hostname-s = testhost
 iostat = --interval=3
 mpstat = --interval=3
 perf = --record-opts=record -a --freq=100
@@ -22,7 +22,7 @@ sar = --interval=3
 turbostat = --interval=3
 
 [run]
-controller = alphaville.usersys.redhat.com
+controller = testhost.example.com
 start_run = 2019-09-27T14:21:32.387628370
 end_run = 2019-09-27T14:22:38.538437410
 
