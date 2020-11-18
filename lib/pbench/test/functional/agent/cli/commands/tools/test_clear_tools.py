@@ -1,7 +1,7 @@
 import pytest
 
 
-def test_clear_tools_help():
+def test_pbench_clear_tools_help():
     command = ["pbench-clear-tools", "--help"]
     out, err, exitcode = pytest.helpers.capture(command)
     assert b"Usage: pbench-clear-tools [OPTIONS]" in out
