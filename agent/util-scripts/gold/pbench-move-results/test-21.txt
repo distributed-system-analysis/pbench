@@ -1,0 +1,6 @@
++++ Running test-21 pbench-move-results 
+--- Finished test-21 pbench-move-results (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state

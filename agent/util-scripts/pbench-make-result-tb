@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; sh-indent-for-case-alt: + -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
 
 script_path="$(dirname ${0})"
 script_name="$(basename ${0})"
@@ -84,7 +84,7 @@ while true; do
 	    break;
 	    ;;
 	*)
- 	    printf "\n%s: you specified an invalid option or an unexpected argument: \"${opt}\"\n\n" "${script_name}" >&2    
+ 	    printf "\n%s: you specified an invalid option or an unexpected argument: \"${opt}\"\n\n" "${script_name}" >&2
 	    usage >&2
 	    exit 1
 	    ;;
@@ -101,6 +101,8 @@ if [[ ! -d "${target_dir}" ]]; then
     error_log "Invalid target directory provided: \"${target_dir}\""
     exit 1
 fi
+
+controller_dir="$(basename -- "${target_dir}")"
 
 # We can now start building the target tarball
 
@@ -132,8 +134,21 @@ fi
 
 res_name=$(pbench-config --config ${mdlog} name pbench)
 if [[ "${res_name}" != "${pbench_run_name}" ]]; then
-    warn_log "The run in directory ${pbench_run}/${pbench_run_name} has an unexpected metadata name, \"${res_name}\" - skipping"
+    error_log "The run in directory ${pbench_run}/${pbench_run_name} has an unexpected metadata name, \"${res_name}\" - skipping"
     exit 1
+fi
+
+printf -- "%s" "${_pbench_full_hostname}" | pbench-add-metalog-option ${mdlog} pbench hostname_f
+printf -- "%s" "${_pbench_hostname}" | pbench-add-metalog-option ${mdlog} pbench hostname_s
+printf -- "%s" "${_pbench_hostname_ip}" | pbench-add-metalog-option ${mdlog} pbench hostname_ip
+controller_name=$(pbench-config --config ${mdlog} controller run)
+if [[ "${controller_name}" != "${controller_dir}" ]]; then
+    # The controller name in the metadata.log file does not match the
+    # controller directory being used in the target directory.  So save the
+    # current controller as "controller_orig", and save the controller
+    # directory as the new controller name.
+    printf -- "%s" "${controller_name}" | pbench-add-metalog-option ${mdlog} run controller_orig
+    printf -- "%s" "${controller_dir}" | pbench-add-metalog-option ${mdlog} run controller
 fi
 
 if [[ -e pbench.log ]]; then

@@ -1,0 +1,8 @@
++++ Running test-20 pbench-move-results --help
+usage:
+pbench-move-results [--help] [--controller=<controller>] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]
+--- Finished test-20 pbench-move-results (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state

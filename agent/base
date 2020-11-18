@@ -106,6 +106,9 @@ fi
 if [[ -z "${_pbench_full_hostname}" ]]; then
     export _pbench_full_hostname=$(hostname -f)
 fi
+if [[ -z "${_pbench_hostname_ip}" ]]; then
+    export _pbench_hostname_ip=$(hostname -i)
+fi
 
 if [[ -z "$ssh_opts" ]]; then
     ssh_opts=$(pbench-config ssh_opts results)
@@ -247,7 +250,7 @@ function generate_inventory {
     else
         preamble="[controller]\n%s\n\n[remote]\n"
     fi
-    printf -- ${preamble} "${hostname}"
+    printf -- ${preamble} "${_pbench_full_hostname}"
     for dirent in $(/bin/ls -1 ${tool_group_dir}); do
         if [[ "${dirent}" == "__trigger__" ]]; then
             # Ignore trigger files

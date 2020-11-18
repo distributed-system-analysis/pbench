@@ -1,6 +1,6 @@
 +++ Running test-32 pbench-copy-results --help
 usage:
-pbench-copy-results [--help] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]
+pbench-copy-results [--help] [--controller=<controller>] [--user=<user>] [--prefix=<path>] [--xz-single-threaded] [--show-server]
 --- Finished test-32 pbench-copy-results (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
