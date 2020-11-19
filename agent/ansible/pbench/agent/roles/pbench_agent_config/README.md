@@ -21,8 +21,6 @@ These are the variables that are defined by default and do not
 generally need to be modified:
 
 - pbench_agent_install_dir: the installation directory for the pbench agent (default: /opt/pbench-agent)
-- pbench_owner: the owner of all the files in the installation directory (default: pbench)
-- pbench_group: the group of all the files in the installation directory (default: pbench)
 - pbench_config_files: the list of config files to be installed (default '["pbench-agent.cfg"]')
 - pbench_config_dest: the location where the config file(s) are to be installed (default: {{ pbench_agent_install_dir }}/config)
 - pbench_key_dest: the location where the key file is to be installed (default: {{ pbench_agent_install_dir }})

@@ -1,7 +1,5 @@
 ---
 pbench_agent_install_dir: /opt/pbench-agent
-pbench_owner: pbench
-pbench_group: pbench
 pbench_config_files:
   - pbench-agent.cfg
 pbench_config_dest: "{{ pbench_agent_install_dir }}/config"
