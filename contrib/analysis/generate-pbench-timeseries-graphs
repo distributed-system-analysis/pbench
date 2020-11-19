@@ -37,268 +37,287 @@
 # 11->Graham's number ...
 
 from __future__ import print_function
-import re
-import sys
+from pathlib import Path
 import argparse
 import math
+import re
+import subprocess
+import sys
+import tarfile
 
 parser = argparse.ArgumentParser(description='Generate graphs from raw Pbench tarball')
-parser.add_argument('-s', "--size", help='Graph size (x,y)', metavar='Size', default='1280,1024')
-parser.add_argument('-w', '--linewidth', help='Line width', metavar='Width', default=2, type=int)
-parser.add_argument('--max-elements', help='Maximum elements to plot', metavar='Max Elements', default=0, type=int)
+parser.add_argument('-s', "--size", help='Graph size (x,y)', metavar='Graph size (x,y)', default='1280,1024')
+parser.add_argument('-w', '--linewidth', help='Line width', metavar='Line Width', default=2, type=int)
+parser.add_argument('--max-elements', help='Maximum elements to plot', metavar='Maximum elements to plot', default=0, type=int)
+parser.add_argument('-t', "--tarfile-name", help='tarfile name', metavar='tarfile name', action='append')
+parser.add_argument('-m', "--match", help='process filenames matching all --match patterns', action='append')
+parser.add_argument('-M', "--dont-match", "--no-match", help="don't process filenames matching any --dont-match patterns", action='append')
+parser.add_argument('-O', "--out-dir", help="Output root directory", metavar="Output directory", default=".")
+parser.add_argument('-L', "--max-label-size", type=int, help="Maximum label size", metavar="max label size")
+parser.add_argument('-n', "--dont-generate-graphs", action='store_true', help="Don't actually generate graph")
+parser.add_argument('files', metavar='file', type=str, nargs="*", help="files")
 args = parser.parse_args()
 
 pattern_map = {
-    re.compile('disk_IOPS.csv$') : {
+    re.compile(r'disk_IOPS\.csv$') : {
         'type' : 'line',
-        'title' : 'IOPS',
+        'title' : r'IOPS',
     },
-    re.compile('disk_Queue_Size.csv$') : {
+    re.compile(r'disk_Queue_Size\.csv$') : {
         'type' : 'line',
-        'title' : 'Queue Size',
+        'title' : r'Queue Size',
     },
-    re.compile('disk_Request_Merges_per_sec.csv$') : {
+    re.compile(r'disk_Request_Merges_per_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Request Merges/sec',
+        'title' : r'Request Merges/sec',
     },
-    re.compile('disk_Request_Size_in_512_byte_sectors.csv$') : {
+    re.compile(r'disk_Request_Size_in_512_byte_sectors\.csv$') : {
         'type' : 'line',
-        'title' : 'Request Size (512B sectors)',
+        'title' : r'Request Size (512B sectors)',
     },
-    re.compile('disk_Request_Size_in_kB.csv$') : {
+    re.compile(r'disk_Request_Size_in_kB\.csv$') : {
         'type' : 'line',
-        'title' : 'Request Size (KB)',
+        'title' : r'Request Size (KB)',
     },
-    re.compile('disk_Throughput_MB_per_sec.csv$') : {
+    re.compile(r'disk_Throughput_MB_per_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Throughput (MB/sec)',
+        'title' : r'Throughput (MB/sec)',
     },
-    re.compile('disk_Utilization_percent.csv$') : {
+    re.compile(r'disk_Utilization_percent\.csv$') : {
         'type' : 'line',
-        'title' : 'Utilization (percent)',
+        'title' : r'Utilization (percent)',
     },
-    re.compile('disk_Wait_Time_msec.csv$') : {
+    re.compile(r'disk_Wait_Time_msec\.csv$') : {
         'type' : 'line',
-        'title' : 'Wait Time (msec)',
+        'title' : r'Wait Time (msec)',
     },
-    re.compile('cpuall_cpuall.csv$') : {
+    re.compile(r'cpuall_cpuall\.csv$') : {
         'type' : 'stack',
-        'title' : 'CPU All Utilization',
+        'title' : r'CPU All Utilization',
+        'y_max' : 100,
     },
-    re.compile('cpu{[0-9]+}_cpu{[0-9]+}.csv$') : {
+    re.compile(r'cpu([0-9]+)_cpu([0-9]+)\.csv$') : {
         'type' : 'stack',
-        'title' : 'CPU \\1 Utilization',
+        'title' : r'CPU \1 Utilization',
+        'y_max' : 100,
     },
-    re.compile('memory_usage_virtual_size.csv$') : {
+    re.compile(r'memory_usage_virtual_size\.csv$') : {
         'type' : 'line',
-        'title' : 'Virtual Size',
+        'title' : r'Virtual Size',
     },
-    re.compile('memory_usage_resident_set_size.csv$') : {
+    re.compile(r'memory_usage_resident_set_size\.csv$') : {
         'type' : 'line',
-        'title' : 'Resident Set',
+        'title' : r'Resident Set',
     },
-    re.compile('memory_faults_major_faults_sec.csv$') : {
+    re.compile(r'memory_faults_major_faults_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Major Faults/Sec',
+        'title' : r'Major Faults/Sec',
     },
-    re.compile('memory_faults_minor_faults_sec.csv$') : {
+    re.compile(r'memory_faults_minor_faults_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Minor Faults/Sec',
+        'title' : r'Minor Faults/Sec',
     },
-    re.compile('file_io_io_reads_KB_sec.csv$') : {
+    re.compile(r'file_io_io_reads_KB_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'I/O Reads (KB/sec)',
+        'title' : r'I/O Reads (KB/sec)',
     },
-    re.compile('file_io_io_writes_KB_sec.csv$') : {
+    re.compile(r'file_io_io_writes_KB_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'I/O Writes (KB/sec)',
+        'title' : r'I/O Writes (KB/sec)',
     },
-    re.compile('cpu_usage_percent_cpu.csv$') : {
+    re.compile(r'cpu_usage_percent_cpu\.csv$') : {
         'type' : 'stack',
-        'title' : 'CPU Usage (percent)',
+        'title' : r'CPU Usage (percent)',
     },
-    re.compile('context_switches_voluntary_switches_sec.csv$') : {
+    re.compile(r'context_switches_voluntary_switches_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Voluntary Context Switches/sec',
+        'title' : r'Voluntary Context Switches/sec',
     },
-    re.compile('context_switches_nonvoluntary_switches_sec.csv$') : {
+    re.compile(r'context_switches_nonvoluntary_switches_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Involuntary Context Switches/sec',
+        'title' : r'Involuntary Context Switches/sec',
     },
-    re.compile('proc-interrupts-by_irq_IRQ_(.*).csv$') : {
+    re.compile(r'proc-interrupts-by-irq_IRQ_(.*)\.csv$') : {
         'type' : 'stack',
-        'title' : 'Interrupts/sec (IRQ \\1)',
+        'title' : r'Interrupts/sec (IRQ \1)',
         'x_axis' : 'Interrupts/sec by CPU',
     },
-    re.compile('proc-interrupts-by_cpu_CPU_(.*).csv$') : {
+    re.compile(r'proc-interrupts-by-cpu_CPU_(.*)\.csv$') : {
         'type' : 'line',
-        'title' : 'Interrupts/sec (CPU \\1}',
+        'title' : r'Interrupts/sec (CPU \1)',
         'x_axis' : 'Interrupts/sec by IRQ',
     },
-    re.compile('proc-vmstat_allocstall_delta.csv$') : {
+    re.compile(r'proc-vmstat_allocstall_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Alloc stall delta/sec',
+        'title' : r'Alloc stall delta/sec',
     },
-    re.compile('proc-vmstat_balloon_delta.csv$') : {
+    re.compile(r'proc-vmstat_balloon_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Balloon delta/sec',
+        'title' : r'Balloon delta/sec',
     },
-    re.compile('proc-vmstat_compact_delta.csv$') : {
+    re.compile(r'proc-vmstat_compact_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Compact delta/sec',
+        'title' : r'Compact delta/sec',
     },
-    re.compile('proc-vmstat_drop_delta.csv$') : {
+    re.compile(r'proc-vmstat_drop_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Drop delta/sec',
+        'title' : r'Drop delta/sec',
     },
-    re.compile('proc-vmstat_htlb_delta.csv$') : {
+    re.compile(r'proc-vmstat_htlb_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'HTLB delta/sec',
+        'title' : r'HTLB delta/sec',
     },
-    re.compile('proc-vmstat_kswapd_delta.csv$') : {
+    re.compile(r'proc-vmstat_kswapd_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Kswapd delta/sec',
+        'title' : r'Kswapd delta/sec',
     },
-    re.compile('proc-vmstat_nr_delta.csv$') : {
+    re.compile(r'proc-vmstat_nr_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Nr delta/sec',
+        'title' : r'Nr delta/sec',
     },
-    re.compile('proc-vmstat_numa_delta.csv$') : {
+    re.compile(r'proc-vmstat_numa_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'NUMA delta/sec',
+        'title' : r'NUMA delta/sec',
     },
-    re.compile('proc-vmstat_oom_delta.csv$') : {
+    re.compile(r'proc-vmstat_oom_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Oom delta/sec',
+        'title' : r'Oom delta/sec',
     },
-    re.compile('proc-vmstat_pgalloc_delta.csv$') : {
+    re.compile(r'proc-vmstat_pgalloc_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Pgalloc delta/sec',
+        'title' : r'Pgalloc delta/sec',
     },
-    re.compile('proc-vmstat_pgmigrate_delta.csv$') : {
+    re.compile(r'proc-vmstat_pgmigrate_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Pgmigrate delta/sec',
+        'title' : r'Pgmigrate delta/sec',
     },
-    re.compile('proc-vmstat_pgscan_delta.csv$') : {
+    re.compile(r'proc-vmstat_pgscan_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Pgscan delta/sec',
+        'title' : r'Pgscan delta/sec',
     },
-    re.compile('proc-vmstat_pgskip_delta.csv$') : {
+    re.compile(r'proc-vmstat_pgskip_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Pgskip delta/sec',
+        'title' : r'Pgskip delta/sec',
     },
-    re.compile('proc-vmstat_pgsteal_delta.csv$') : {
+    re.compile(r'proc-vmstat_pgsteal_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Pgsteal delta/sec',
+        'title' : r'Pgsteal delta/sec',
     },
-    re.compile('proc-vmstat_slabs_delta.csv$') : {
+    re.compile(r'proc-vmstat_slabs_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Slabs delta/sec',
+        'title' : r'Slabs delta/sec',
     },
-    re.compile('proc-vmstat_swap_delta.csv$') : {
+    re.compile(r'proc-vmstat_swap_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Swap delta/sec',
+        'title' : r'Swap delta/sec',
     },
-    re.compile('proc-vmstat_thp_delta.csv$') : {
+    re.compile(r'proc-vmstat_thp_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Thp delta/sec',
+        'title' : r'Thp delta/sec',
     },
-    re.compile('proc-vmstat_unevictable_delta.csv$') : {
+    re.compile(r'proc-vmstat_unevictable_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Unevictable delta/sec',
+        'title' : r'Unevictable delta/sec',
     },
-    re.compile('proc-vmstat_workingset_delta.csv$') : {
+    re.compile(r'proc-vmstat_workingset_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Workingset delta/sec',
+        'title' : r'Workingset delta/sec',
     },
-    re.compile('proc-vmstat_zone_delta.csv$') : {
+    re.compile(r'proc-vmstat_zone_delta_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Zone delta/sec',
+        'title' : r'Zone delta/sec',
     },
-    re.compile('cpu_all_cpu_busy.csv$') : {
+    re.compile(r'cpu_all_cpu_busy\.csv$') : {
         'type' : 'stack',
-        'title' : '%Busy (All CPU)',
+        'title' : r'%Busy (All CPU)',
     },
-    re.compile('cpu_frequency_MHz.csv$') : {
+    re.compile(r'cpu_frequency_MHz\.csv$') : {
         'type' : 'line',
-        'title' : 'CPU Frequency (MHz)',
+        'title' : r'CPU Frequency (MHz)',
     },
-    re.compile('per_cpu_cpu_(.*).csv$') : {
+    re.compile(r'per_cpu_cpu_(.*)\.csv$') : {
         'type' : 'stack',
-        'title' : 'CPU \\1 States (percent)',
+        'title' : r'CPU \1 States (percent)',
+        'y_max' : 100,
     },
-    re.compile('memory_memory_activity.csv$') : {
+    re.compile(r'memory_memory_activity\.csv$') : {
         'type' : 'line',
-        'title' : 'Memory Activity',
+        'title' : r'Memory Activity',
         'y_axis' : 'Activity (counts/sec)',
     },
-    re.compile('memory_memory_usage.csv$') : {
+    re.compile(r'memory_memory_usage\.csv$') : {
         'type' : 'line',
-        'title' : 'Memory Usage',
+        'title' : r'Memory Usage',
     },
-    re.compile('network_l2_carrier_errors.csv$') : {
+    re.compile(r'network_l2_carrier_errors\.csv$') : {
         'type' : 'line',
-        'title' : 'Carrier Errors',
+        'title' : r'Carrier Errors',
     },
-    re.compile('network_l2_drops_sec.csv$') : {
+    re.compile(r'network_l2_drops_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Carrier Errors',
+        'title' : r'Carrier Errors',
     },
-    re.compile('network_l2_errors_sec.csv$') : {
+    re.compile(r'network_l2_errors_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Errors',
+        'title' : r'Errors',
     },
-    re.compile('network_l2_fifo_overrun_errors.csv$') : {
+    re.compile(r'network_l2_fifo_overrun_errors\.csv$') : {
         'type' : 'line',
-        'title' : 'FIFO Overrun Errors',
+        'title' : r'FIFO Overrun Errors',
     },
-    re.compile('network_l2_frame_alignment_errors.csv$') : {
+    re.compile(r'network_l2_frame_alignment_errors\.csv$') : {
         'type' : 'line',
-        'title' : 'Frame Alignment Errors',
+        'title' : r'Frame Alignment Errors',
     },
-    re.compile('network_l2_network_compressed_packets_sec.csv$') : {
+    re.compile(r'network_l2_network_compressed_packets_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Compressed Packets/sec',
+        'title' : r'Compressed Packets/sec',
     },
-    re.compile('network_l2_network_Mbits_sec.csv$') : {
+    re.compile(r'network_l2_network_Mbits_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Network traffic (Mbits/sec)',
+        'title' : r'Network traffic (Mbits/sec)',
     },
-    re.compile('network_l2_network_multicast_packets_sec.csv$') : {
+    re.compile(r'network_l2_network_multicast_packets_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Multicast Packets/sec',
+        'title' : r'Multicast Packets/sec',
     },
-    re.compile('network_l2_network_packets_sec.csv$') : {
+    re.compile(r'network_l2_network_packets_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Packets/sec',
+        'title' : r'Packets/sec',
     },
-    re.compile('network_l345_ip.csv$') : {
+    re.compile(r'network_l345_ip\.csv$') : {
         'type' : 'line',
-        'title' : 'IP Activity (counts/sec)',
+        'title' : r'IP Activity (counts/sec)',
     },
-    re.compile('network_l345_nfs_client.csv$') : {
+    re.compile(r'network_l345_nfs_client\.csv$') : {
         'type' : 'line',
-        'title' : 'NFS Activity (counts/sec)',
+        'title' : r'NFS Activity (counts/sec)',
     },
-    re.compile('network_l345_sockets.csv$') : {
+    re.compile(r'network_l345_sockets\.csv$') : {
         'type' : 'line',
-        'title' : 'Sockets (count)',
+        'title' : r'Sockets (count)',
     },
-    re.compile('network_l345_tcp_sockets.csv$') : {
+    re.compile(r'network_l345_tcp_sockets\.csv$') : {
         'type' : 'line',
-        'title' : 'TCP Activity (counts/sec)',
+        'title' : r'TCP Activity (counts/sec)',
     },
-    re.compile('network_l345_udp.csv$') : {
+    re.compile(r'network_l345_udp\.csv$') : {
         'type' : 'line',
-        'title' : 'UDP Activity (counts/sec)',
+        'title' : r'UDP Activity (counts/sec)',
     },
-    re.compile('system_interrupts_sec.csv$') : {
+    re.compile(r'system_interrupts_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Interrupts/sec',
+        'title' : r'Interrupts/sec',
     },
-    re.compile('system_proc_cswch_sec.csv$') : {
+    re.compile(r'system_proc_cswch_sec\.csv$') : {
         'type' : 'line',
-        'title' : 'Context Switches/sec',
+        'title' : r'Context Switches/sec',
+    },
+    re.compile(r'/[0-9]+-[^/]*/sample[0-9]+/csv/[^/]+\.csv$'): {
+        'type': 'Empty',
+    },
+    re.compile(r'/result\.csv$'): {
+        'type': 'Empty',
     },
 }
 
@@ -410,72 +429,107 @@ def generate_spectrum(steps):
         return answer
 
 
-def generate_linestyles(count):
-    gnuplot_maximum_colors = 255
-    if count > gnuplot_maximum_colors:
-        count = gnuplot_maximum_colors
+# Entirely too much intermingling between generic and Gnuplot code here,
+# although the data processing will be different when we use matplotlib.
+def generate_graph_gnuplot(filename, graphtypename, title, x_axis, y_axis, y_max, blob):
+    def generate_linestyles(count):
+        gnuplot_maximum_colors = 255
+        if count > gnuplot_maximum_colors:
+            count = gnuplot_maximum_colors
 
-    colors = generate_spectrum(count)
-    color_list = []
-    for n in range(count):
-        color_list.append("set style line %d linecolor rgb '#%2.2x%2.2x%2.2x'" % (n + 1, colors[n]['r'], colors[n]['g'], colors[n]['b']))
-    answer = "\n"
-    return answer.join(color_list)
+        colors = generate_spectrum(count)
+        color_list = []
+        for n in range(count):
+            color_list.append("set style line %d linecolor rgb '#%2.2x%2.2x%2.2x'" % (n + 1, colors[n]['r'], colors[n]['g'], colors[n]['b']))
+        answer = "\n"
+        return answer.join(color_list)
 
-
-def genrow(graphtype, row, overflow_elements=0, ordering=None):
-    if ordering is None:
-        ordering = []
-        for i in range(len(row)):
-            ordering.append(i)
-    answer = [str(row[0])]
-    total_elements = len(row)
-    base_elements = total_elements - overflow_elements
-    if graphtype == 'line':
-        for valno in range(1, base_elements):
-            answer.append(str(row[ordering[valno]]))
-    else:
-        stack_row = []
-        acc = 0
-        for valno in range(1, len(row)):
-            acc += row[ordering[len(row) - valno]]
-            if (valno < base_elements):
+    def genrow(graphtype, row, overflow_elements=0, ordering=None):
+        if ordering is None:
+            ordering = []
+            for i in range(len(row)):
+                ordering.append(i)
+        answer = [str(row[0])]
+        total_elements = len(row)
+        base_elements = total_elements - overflow_elements
+        if graphtype == 'line':
+            for valno in range(1, base_elements):
+                answer.append(str(row[ordering[valno]]))
+        else:
+            stack_row = []
+            acc = 0
+            for valno in range(1, len(row)):
+                acc += row[ordering[len(row) - valno]]
+                if (valno < base_elements):
+                    stack_row.append(acc)
+            if (overflow_elements > 0):
                 stack_row.append(acc)
-        if (overflow_elements > 0):
-            stack_row.append(acc)
-        for valno in range(len(stack_row), 0, -1):
-            answer.append(str(stack_row[valno - 1]))
-    return answer
+            for valno in range(len(stack_row), 0, -1):
+                answer.append(str(stack_row[valno - 1]))
+        return answer
 
+    def sort_columns(criterion, reverse=False):
+        """Sort data by column value.
+        Ignore the first column, which is the time series"""
 
-def sort_columns(criterion, reverse=False):
-    """Sort data by column value.
-    Ignore the first column, which is the time series"""
+        def column_val(col):
+            return col[0]
 
-    def column_val(col):
-        return col[0]
+        if (len(criterion) == 1):
+            return [0]
+        if (len(criterion) == 2):
+            return [0, 1]
+        ordering = []
+        for column in range(1, len(criterion)):
+            ordering.append([criterion[column], column])
 
-    if (len(criterion) == 1):
-        return [0]
-    if (len(criterion) == 2):
-        return [0, 1]
-    ordering = []
-    for column in range(1, len(criterion)):
-        ordering.append([criterion[column], column])
+        ordering.sort(key=lambda item: item[0], reverse=reverse)
 
-    ordering.sort(key=lambda item: item[0], reverse=reverse)
+        answer = [0]
+        for column in range(0, len(ordering)):
+            answer.append(ordering[column][1])
+        return answer
 
-    answer = [0]
-    for column in range(0, len(ordering)):
-        answer.append(ordering[column][1])
-    return answer
+    def trim_name(name):
+        if args.max_label_size is not None:
+            return name[:args.max_label_size]
+        return name
 
+    def do_generate_graph(fd):
 
-def generate_graph(filename, graphtypename, title, x_axis, y_axis, blob):
+        print("""set yrange [0:%s]
+set xrange [0:%d]
+set key outside
+set terminal pngcairo dashed size %s linewidth %d
+set title '%s'
+%s
+set style fill solid
+set output '%s'
+set xlabel '%s'
+set ylabel '%s'
+set grid""" % (y_max, data[len(data)-1][0], args.size, args.linewidth, title, colors, imgfile, x_axis, y_axis), file=fd)
+
+        for nameidx in range(1, len(names)):
+            comma = ""
+            if len(names) > 1 and nameidx != len(names) - 1:
+                comma = ', \\'
+            plot = "    "
+            if nameidx == 1:
+                plot = "plot"
+            print("%s '-' using 1:2 with %s ls %s title '%s'%s" % (plot, graphtype, nameidx, trim_name(names[nameidx]), comma), file=fd)
+
+        for col in range(1, len(names)):
+            for row in range(1, len(data)):
+                data_elts = genrow(graphtypename, data[row], overflow_elements=overflow_elements, ordering=cmap)
+                print("%s, %s," % (data_elts[0], data_elts[col]), file=fd)
+            print('e', file=fd)
+
     title = title.replace("'", '"')  # So we don't choke gnuplot
     x_axis = x_axis.replace("'", '"')
     y_axis = y_axis.replace("'", '"')
     data = blob['data']
+    if y_max is None:
+        y_max = ''
 
     if graphtypename == "line":
         graphtype = "lines"
@@ -484,7 +538,7 @@ def generate_graph(filename, graphtypename, title, x_axis, y_axis, blob):
     cmap = sort_columns(blob['maxvals'], reverse=(graphtypename == 'line'))
     names_cmap = sort_columns(blob['maxvals'], reverse=True)
 
-    eprint("Plotting ", filename)
+    eprint("Plotting %s" % (filename))
 
     total_elements = len(cmap)
     base_elements = total_elements
@@ -514,151 +568,191 @@ def generate_graph(filename, graphtypename, title, x_axis, y_axis, blob):
     names = [data[0][0]]
     names.extend(tnames)
 
-    imgfile = filename.replace(".csv", ".png")
+    imgfile = "%s/%s" % (args.out_dir, filename.replace(".csv", ".png").replace("/csv/", "/"))
+    if not args.dont_generate_graphs:
+        m = re.compile(r'^(.*/)([^/]*)$').search(imgfile)
+        if m:
+            imgdir = m.expand(r'\1')
+            try:
+                Path(imgdir).mkdir(parents=True, exist_ok=True)
+            except PermissionError:
+                eprint("Cannot create directory %s" % (imgdir))
+                return
     colors = generate_linestyles(len(names) - 1)
 
-    s1 = """
-gnuplot <<'EOF'
-set yrange [0:]
-set xrange [0:%d]
-set key outside
-set terminal pngcairo dashed size %s linewidth %d
-set title '%s'
-%s
-set style fill solid
-set output '%s'
-set xlabel '%s'
-set ylabel '%s'
-set grid
-""" % (data[len(data)-1][0], args.size, args.linewidth, title, colors, imgfile,
-       x_axis, y_axis)
-    print(s1)
-
-    for nameidx in range(1, len(names)):
-        comma = ""
-        if len(names) > 1 and nameidx != len(names) - 1:
-            comma = ", \\"
-        plot = "    "
-        if nameidx == 1:
-            plot = "plot"
-        print("%s '-' using 1:2 with %s ls %s title '%s'%s" % (plot, graphtype, nameidx, names[nameidx], comma))
-
-    for col in range(1, len(names)):
-        for row in range(1, len(data)):
-            data_elts = genrow(graphtypename, data[row], overflow_elements=overflow_elements, ordering=cmap)
-            print("%s, %s," % (data_elts[0], data_elts[col]))
-        print('e')
-    print('EOF')
+    program = 'gnuplot'
+    if args.dont_generate_graphs:
+        program = 'cat'
+    with subprocess.Popen([program], stdin=subprocess.PIPE, encoding='ascii') as proc:
+        do_generate_graph(proc.stdin)
 
 
-def read_file(filename):
+def read_file(f, filename, fixlinefn=None):
     coldata = []
     maxval = []
     minval = []
     abssum = []
-    max_maxval = 0
+    may_maxval = 0
     min_minval = 0
     timestamp_divisor = 1
     base_ts = 0
     rows_read = 0
-    try:
-        with open(filename, 'r') as f:
-            while True:
-                line = f.readline()
-                if not line:
-                    break
-                line = line.rstrip()
-                vals = line.split(',')
-                if rows_read == 0:
-                    if vals[0] == 'timestamp_ms':
-                        timestamp_divisor = 1000
-                        vals[0] = 'timestamp_sec'
-                    for i in range(0, len(vals)):
-                        coldata.append([])
-                        coldata[i].append(vals[i])
-                        maxval.append(0)
-                        minval.append(0)
-                        abssum.append(0)
-                    rows_read = 1
+    col_count = 0
+    for line in f:
+        if fixlinefn is not None:
+            line = fixlinefn(line)
+        line = line.rstrip()
+        vals = line.split(',')
+        if rows_read == 0:
+            if vals[0] == 'timestamp_ms':
+                timestamp_divisor = 1000
+                vals[0] = 'timestamp_sec'
+            for i in range(0, len(vals)):
+                coldata.append([])
+                coldata[i].append(vals[i])
+                maxval.append(0)
+                minval.append(0)
+                abssum.append(0)
+                col_count = col_count + 1
+            rows_read = 1
+        else:
+            if rows_read == 1:
+                base_ts = float(vals[0])
+            coldata[0].append((float(vals[0]) - base_ts) / timestamp_divisor)
+            for i in range(1, len(vals)):
+                # Not ideal, but if there's a missing value,
+                # probably the best we can do
+                try:
+                    val = float(vals[i])
+                except ValueError:
+                    if vals[i] is not None and vals[i] != '':
+                        eprint("Bad value '%s' in %s at row %d, col %d" % (vals[i], filename, rows_read, i))
+                    val = 0.0
+                if i >= col_count:
+                    eprint("Unexpected overflow value '%s' in %s at row %d, col %d" % (vals[i], filename, rows_read, i))
                 else:
-                    if rows_read == 1:
-                        base_ts = float(vals[0])
-                    coldata[0].append((float(vals[0]) - base_ts) / timestamp_divisor)
-                    for i in range(1, len(vals)):
-                        # Not ideal, but if there's a missing value,
-                        # probably the best we can do
-                        try:
-                            val = float(vals[i])
-                        except:
-                            eprint("Missing value in %s at row %d, col %d" % (filename, rows_read, i))
-                            val = 0.0
-                        coldata[i].append(val)
-                        abssum.append(abs(val))
-                        if val > maxval[i]:
-                            maxval[i] = val
-                            if val > max_maxval:
-                                max_maxval = val
-                        if val < minval[i]:
-                            minval[i] = val
-                            if val < min_minval:
-                                min_minval = val
-                    rows_read = rows_read + 1
-        if maxval == minval:
-            return None
-        colmap = []
-        for i in range(len(coldata)):
-            if i == 0 or maxval[i] > minval[i]:
-                colmap.append(i)
-        data = []
-        maxval_n = []
-        minval_n = []
-        abssum_n = []
+                    coldata[i].append(val)
+                abssum.append(abs(val))
+                if val > maxval[i]:
+                    maxval[i] = val
+                    if val > may_maxval:
+                        may_maxval = val
+                if val < minval[i]:
+                    minval[i] = val
+                    if val < min_minval:
+                        min_minval = val
+            rows_read = rows_read + 1
+    if maxval == minval:
+        return None
+    colmap = []
+    for i in range(len(coldata)):
+        if i == 0 or maxval[i] > minval[i]:
+            colmap.append(i)
+    data = []
+    maxval_n = []
+    minval_n = []
+    abssum_n = []
+    for i in range(len(colmap)):
+        mcol = colmap[i]
+        maxval_n.append(maxval[mcol])
+        minval_n.append(minval[mcol])
+        abssum_n.append(abssum[mcol])
+    for j in range(rows_read):
+        row = []
         for i in range(len(colmap)):
-            mcol = colmap[i]
-            maxval_n.append(maxval[mcol])
-            minval_n.append(minval[mcol])
-            abssum_n.append(abssum[mcol])
-        for j in range(rows_read):
-            row = []
-            for i in range(len(colmap)):
-                row.append(coldata[colmap[i]][j])
-            data.append(row)
-        answer = dict()
-        answer['data'] = data
-        answer['maxvals'] = maxval_n
-        answer['minvals'] = minval_n
-        answer['abssum'] = abssum_n
-        answer['max_maxval'] = max_maxval
-        answer['min_minval'] = min_minval
-        return answer
+            row.append(coldata[colmap[i]][j])
+        data.append(row)
+    answer = dict()
+    answer['data'] = data
+    answer['maxvals'] = maxval_n
+    answer['minvals'] = minval_n
+    answer['abssum'] = abssum_n
+    answer['may_maxval'] = may_maxval
+    answer['min_minval'] = min_minval
+    return answer
+
+
+match_res = []
+nomatch_re = None
+
+
+def process_file(filename, openfn=open, fixlinefn=None):
+    def find_pattern_for(filename):
+        def matches(filename):
+            if nomatch_re is not None and nomatch_re.search(filename):
+                return False
+            for regexp in match_res:
+                if not regexp.search(filename):
+                    return False
+            return True
+        doesmatch = matches(filename)
+        if not doesmatch:
+            return (False, None, None)
+        for pattern in pattern_map:
+            m = pattern.search(filename)
+            if m:
+                return (True, m, pattern_map[pattern])
+        return (True, None, None)
+
+    initialized_matches = False
+    if not initialized_matches:
+        if args.match:
+            for pattern in args.match:
+                match_res.append(re.compile(pattern))
+        nomatch_re = None
+        if args.dont_match:
+            nomatch = "|"
+            nomatch = "(%s)" % nomatch.join(args.dont_match)
+            nomatch_re = re.compile(nomatch)
+        initialized_matches = True
+
+    filename = filename.rstrip()
+    if not re.compile(r'\.csv$').search(filename):
+        return
+    matches, m, p = find_pattern_for(filename)
+    if not matches:
+        return
+    if p is None:
+        eprint("Skipping file %s (unknown type)" % filename)
+        return
+    elif p['type'] == 'Empty':
+        eprint("Skipping file %s (not tool output)" % (filename))
+        return
+    try:
+        with openfn(filename, 'r') as f:
+            data = read_file(f, filename, fixlinefn=fixlinefn)
+        if data is not None and data['data'] is not None and len(data['data']) > 0:
+            title = None
+            graph_type = None
+            x_axis = 'Elapsed Time (sec)'
+            y_axis = ''
+            y_max = None
+            if 'y_max' in p:
+                y_max = p['y_max']
+            graph_type = p["type"]
+            title = m.expand(p["title"])
+            if 'x_axis' in p:
+                x_axis = m.expand(p["x_axis"])
+            if 'y_axis' in p:
+                y_axis = m.expand(p["y_axis"])
+            generate_graph_gnuplot(filename, graph_type, title, x_axis, y_axis, y_max, data)
+        else:
+            eprint("Skipping file %s (no data)" % (filename))
     except IOError:
         eprint("Unable to open '%s'" % (filename))
-        return None
 
 
-for line in sys.stdin:
-    line = line.rstrip()
-    if not re.compile('.csv$').search(line):
-        continue
-    data = read_file(line)
-    if data is not None and data['data'] is not None and len(data['data']) > 0:
-        title = None
-        graph_type = None
-        x_axis = 'Elapsed Time (sec)'
-        y_axis = ''
-        for pattern in pattern_map:
-            m = pattern.search(line)
-            if m:
-                p = pattern_map[pattern]
-                title = m.expand(p["title"])
-                graph_type = p["type"]
-                if 'x_axis' in p:
-                    x_axis = m.expand(p["x_axis"])
-                if 'y_axis' in p:
-                    y_axis = m.expand(p["y_axis"])
-                generate_graph(line, graph_type, title, x_axis, y_axis, data)
-                break
-        if graph_type is None:
-            eprint("Can't find handler for $line!")
-    else:
-        eprint("Skipping file %s (no data)" % (line))
+if args.files:
+    for filename in args.files:
+        process_file(filename)
+
+if args.tarfile_name:
+    for filename in args.tarfile_name:
+        with open(filename, 'rb') as f:
+            with tarfile.open(fileobj=f) as t:
+                for tarobj in t:
+                    process_file(tarobj.name, openfn=lambda fn, mode: t.extractfile(tarobj), fixlinefn=lambda line: line.decode())
+
+if not args.files and not args.tarfile_name:
+    for line in sys.stdin:
+        process_file(line.rstrip())
