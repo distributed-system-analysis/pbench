@@ -5,11 +5,6 @@ if [[ "$(realpath -e $(pwd)/jenkins)" != "$(realpath -e $(dirname ${0}))" ]]; th
     exit 1
 fi
 
-if [[ -z "${WORKSPACE_TMP}" ]]; then
-    printf -- "ERROR - missing required Jenkins environment variable, WORKSPACE_TMP\n" >&2
-    exit 1
-fi
-
 if [[ -z "${1}" ]]; then
     printf -- "ERROR - missing required arguments for what to run\n" >&2
     exit 1
@@ -21,16 +16,28 @@ if [[ -z "${IMAGE_REPO}" ]]; then
     IMAGE_REPO="quay.io/pbench"
 fi
 
-# We need a unique working directory for this run.
-mkdir -p ${WORKSPACE_TMP}
-_run_dir=$(mktemp -d -p ${WORKSPACE_TMP})
+if [[ -z "${BUILD_NUMBER}" ]]; then
+    # Not in a Jenkins job ...
+    WORKSPACE_TMP=/tmp/${USER}/jenkins-run
+    BUILD_NUMBER=0
+else
+    if [[ -z "${WORKSPACE_TMP}" ]]; then
+        printf -- "ERROR - missing required Jenkins environment variable, WORKSPACE_TMP\n" >&2
+        exit 1
+    fi
+fi
+
+# Ensure the given workspace temporary directory exists.
+_run_dir="${WORKSPACE_TMP}/${BUILD_NUMBER}"
+mkdir -p ${_run_dir}
+
+# We need a unique working directory for this run, provided by the BUILD_NUMBER.
 
 # Create a separate directory for the container's /tmp
 _tmp="${_run_dir}/tmp"
 rm -rf ${_tmp}
 mkdir ${_tmp}
 if [[ ${?} -ne 0 ]]; then
-    rm -rf ${_run_dir}
     printf -- "ERROR - failed to create a directory for the container's /tmp\n" >&2
     exit 1
 fi
@@ -40,7 +47,6 @@ _var_tmp="${_run_dir}/var-tmp"
 rm -rf ${_var_tmp}
 mkdir ${_var_tmp}
 if [[ ${?} -ne 0 ]]; then
-    rm -rf ${_run_dir}
     printf -- "ERROR - failed to create a directory for the container's /var/tmp\n" >&2
     exit 1
 fi
@@ -49,13 +55,13 @@ _dev_log="${_run_dir}/dev-log"
 rm -f ${_dev_log}
 mkfifo ${_dev_log}
 if [[ ${?} -ne 0 ]]; then
-    rm -rf ${_run_dir}
     printf -- "ERROR - failed to create a fifo for the container's /dev/log\n" >&2
     exit 1
 fi
 
+# We delete any python compiler caches to avoid conflicts with the python compiler
+# in the container.
 find . -name __pycache__ -exec rm -r {} \; > /dev/null 2>&1
-rm -rf /tmp/${USER}/tox
 
 podman run -it --userns=keep-id \
     --volume ${_tmp}:/tmp:z \
@@ -64,6 +70,3 @@ podman run -it --userns=keep-id \
     --volume $(pwd):/home/pbench:z -w /home/pbench \
     --env-host --ulimit nofile=65536:65536 \
     --rm ${IMAGE_REPO}/pbench-devel:${_branch_name} /bin/bash -c "${*}"
-sts=${?}
-rm -rf ${_run_dir}
-exit ${sts}
