@@ -1,17 +1,32 @@
 pipeline {
     agent { label 'pbench' }
     stages {
-        stage('Linting & Pytest Unit Tests') {
+        stage('Linting & Unit Tests') {
             steps {
-                echo 'Linting & pytest-based unit tests'
-                sh 'jenkins/run jenkins/tox -r --current-env -e jenkins-pytests'
+                echo 'Linting, pytest-based unit tests, and legacy unit tests'
+                sh 'jenkins/run jenkins/tox -r --current-env -e jenkins-pytests,jenkins-unittests'
             }
         }
-        stage('Parallelized Agent & Server Unit Tests') {
-            steps {
-                echo 'Running all the Agent and Server unit tests in parallel'
-                sh 'jenkins/run jenkins/tox -r --current-env -e jenkins-unittests'
-            }
+    }
+    post {
+        success {
+            // Unfortunately, the Cobertura Publisher plugin considers the
+            // report file to be a relative-to-WORKSPACE-only file. So we
+            // have to hack the separate report file into the local workspace
+            // with a symlink.
+            sh 'ln -s ${WORKSPACE_TMP}/${BUILD_NUMBER}/tmp/pbench/cov/cov.xml ${WORKSPACE}/cov.xml'
+            step([$class: 'CoberturaPublisher',
+                autoUpdateHealth: false,
+                autoUpdateStability: false,
+                coberturaReportFile: 'cov.xml',
+                failNoReports: false,
+                failUnhealthy: false,
+                failUnstable: false,
+                maxNumberOfBuilds: 10,
+                onlyStable: false,
+                sourceEncoding: 'ASCII',
+                zoomCoverageChart: false])
+            sh 'rm ${WORKSPACE}/cov.xml'
         }
     }
 }
