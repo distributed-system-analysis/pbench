@@ -19,3 +19,5 @@ pip-wheel-metadata
 .vscode
 Pipfile
 Pipfile.lock
+.coverage
+cov.xml

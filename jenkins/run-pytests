@@ -23,5 +23,11 @@ pytest_sts=${?}
 if [[ ${pytest_sts} -ne 0 ]]; then
     printf -- "FAILED: pytest ...\n" >&2
 fi
-final_sts=$(( black_sts + flake_sts + pytest_sts))
+printf -- "\nPython coverage ...\n"
+coverage report
+coverage_sts=${?}
+if [[ ${coverage_sts} -ne 0 ]]; then
+    printf -- "FAILED: coverage .\n" >&2
+fi
+final_sts=$(( black_sts + flake_sts + pytest_sts + coverage_sts))
 exit ${final_sts}
