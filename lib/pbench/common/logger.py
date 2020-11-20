@@ -81,17 +81,21 @@ class _PbenchLogFormatter(logging.Formatter):
     def __init__(self, fmt=None, datefmt=None, style="{", max_line_length=0):
         super().__init__(fmt=fmt, datefmt=datefmt, style=style)
         self.max_line_length = max_line_length
+        self.converter = datetime.utcfromtimestamp
+
+    def formatTime(self, record, datefmt=None):
+        """
+        Return the creation time of the specified LogRecord as formatted text.
+        """
+        return self.converter(record.created).isoformat()
 
     def format(self, record):
         # Included from Python's logging.Formatter and then altered slightly to
         # replace \n with #012
         record.message = record.getMessage()
-        if self._fmt.find("{asctime}") >= 0:
-            try:
-                record.asctime = datetime.utcfromtimestamp(record.asctime).isoformat()
-            except AttributeError:
-                record.asctime = datetime.now().isoformat()
-        msg = (self._fmt.format(**record.__dict__)).replace("\n", "#012")
+        if self.usesTime():
+            record.asctime = self.formatTime(record, self.datefmt)
+        msg = self.formatMessage(record).replace("\n", "#012")
         if record.exc_info:
             # Cache the traceback text to avoid converting it multiple times
             # (it's constant anyway)
@@ -103,6 +107,10 @@ class _PbenchLogFormatter(logging.Formatter):
             if not msg.endswith("#012"):
                 msg = msg + "#012"
             msg = msg + record.exc_text
+        if record.stack_info:
+            if not msg.endswith("#012"):
+                msg = msg + "#012"
+            msg = msg + self.formatStack(record.stack_info).replace("\n", "#012")
         if self.max_line_length > 0 and len(msg) > self.max_line_length:
             if self.max_line_length < 7:
                 msg = msg[: self.max_line_length]
