@@ -1,6 +1,8 @@
++++ setup pbench results dir time stamps
+--- setup pbench results dir time stamps
 +++ Running test-34 pbench-copy-results 
-[error][1900-01-01T00:00:00.000000] The run in directory /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43 has an unexpected metadata name, "pbench-user-benchmark__2019.01.01T12.00.43" - skipping
 tar --create --force-local "pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42" | xz -T0 > "/var/tmp/pbench-test-utils/pbench/tmp/pbench-copy-results.NNNNN/testhost.example.com/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42.tar.xz"
+[error][1900-01-01T00:00:00.000000] The run in directory /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43 has an unexpected metadata name, "pbench-user-benchmark__2019.01.01T12.00.43" - skipping
 --- Finished test-34 pbench-copy-results (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -18,10 +20,10 @@ tar --create --force-local "pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42
 --- pbench tree state
 +++ pbench.log file contents
 Fake log file contents.
+[debug][1900-01-01T00:00:00.000000] preparing to tar up ##### bytes of data from /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42
+[error][1900-01-01T00:00:00.000000] The run in directory /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43 has an unexpected metadata name, "pbench-user-benchmark__2019.01.01T12.00.43" - skipping
 [debug][1900-01-01T00:00:00.000000] The pbench result pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44 does not appear to be a benchmark directory - skipping
 [debug][1900-01-01T00:00:00.000000] The /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44/metadata.log file seems to be missing
-[error][1900-01-01T00:00:00.000000] The run in directory /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43 has an unexpected metadata name, "pbench-user-benchmark__2019.01.01T12.00.43" - skipping
-[debug][1900-01-01T00:00:00.000000] preparing to tar up ##### bytes of data from /var/tmp/pbench-test-utils/pbench/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42
 [debug][1900-01-01T00:00:00.000000] successfully copied 1 runs, encountered 0 failures
 --- pbench.log file contents
 +++ pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42/metadata.log file contents
