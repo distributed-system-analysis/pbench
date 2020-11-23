@@ -138,7 +138,7 @@ tool-scripts = \
 	prometheus-metrics \
 	qemu-migrate \
 	rabbit \
-	README \
+	README.md \
 	sar \
 	strace \
 	sysfs \
