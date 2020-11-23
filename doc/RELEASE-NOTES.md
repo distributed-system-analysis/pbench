@@ -1,4 +1,4 @@
-v0.70.0 (Beta) Release Notes
+v0.70.1 (Beta) Release Notes
 ====
 This is a very *significant* "minor" release of the pbench code base, agent and server.
 
@@ -11,7 +11,7 @@ _**NOTE WELL**_: like all the other "tools" the `pbench-agent` supports, the `no
 Along with the delivery of the "Tool Meister" work, the notion of tool registration has changed significantly, where tools are now recorded as registered only on the local host were `pbench-register-tool` and `pbench-register-tool-set` are invoked.  As a result of this change, the following behavioral changes follow:
 
  * The process of registering tools on local or remote hosts no longer validates that those tools are available during tool registration
- * All tools registered prior to installing `v0.70.0-beta` must be re-registered; tools registered locally or remotely on a controller with a version of the `pbench-agent` prior to `v0.70.0` will be ignored until they are re-registered
+ * All tools registered prior to installing `v0.70.1-beta` must be re-registered; tools registered locally or remotely on a controller with a version of the `pbench-agent` prior to `v0.70.1` will be ignored until they are re-registered
 
 For both the Pbench Agent and the Server we have removed the use of the Software Collections Library (SCL) in order to provide a Python 3 environment for RHEL 7 & CentOS 7 distributions.  We now rely on the Python 3 provided with RHEL 7.7 and later.
 
@@ -21,7 +21,7 @@ Installation
 ====
 There are no other installation changes in this release: see the [Getting Started Guide](https://distributed-system-analysis.github.io/pbench/start.html) for how to install or update.
 
-After installation or update, you should have version `0.70.0-9ga7d1f0d6` of the `pbench-agent` RPM installed.
+After installation or update, you should have version `0.70.1-1g########` of the `pbench-agent` RPM installed.
 
 RPMs are available from [Fedora COPR](https://copr.fedorainfracloud.org/coprs/portante/pbench/), covering Fedora 31, 32, EPEL 7 & 8.
 
@@ -44,11 +44,15 @@ _**NOTE WELL**_: If the inventory file also has a definition for `pbench_repo_ur
 
 While we don't include installation instructions for the new `node-exporter` and `dcgm` tools in the published documentation, you can find a manual installation procedure for the Prometheus "node_exporter" and references to the Nvidia "DCGM" documentation in the [`agent/tool-scripts/README`](https://github.com/distributed-system-analysis/pbench/blob/b0.70/agent/tool-scripts/README.md).
 
-Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `beta`, `v0.70.0-9`, and `a7d1f0d6`.
+Container images built using the above RPMs are available in the [Pbench](https://quay.io/organization/pbench) organization in the Quay.io container image repository using tags `beta`, `v0.70.1-1`, and `########`.
 
 Agent
 ====
 In addition to the major changes described above for this release, the following significant changes for the agent are also worth calling out specifically:
+
+ * There is a new option to `pbench-move|copy-results`, `--controller`
+
+   Use this option to change the name of the controller that will be used on the configured pbench server; you can also use the `PBENCH_CONTROLLER` environment variable instead of the `--controller` option, with the option overriding the environment variable if both are present
 
  * The `pbench-fio` bench script now requires `fio-3.21` or later; see 5048a149
 
@@ -76,6 +80,14 @@ ChangeLog
 ====
 This is the list of visible commits since the [v0.69.3-agent](https://github.com/distributed-system-analysis/pbench/releases/tag/v0.69.3-agent) release:
 
+######## `Version 0.70.1 (Beta) with release notes`
+78b075a1 `Add '--controller' option to 'pbench-move-results'`
+963d60bc `Fix the Python 3 logger to handle time properly`
+738b52e6 `Remove the pbench user and group from the agent`
+62302f49 `Fix typos, grammar in *.md files`
+3ba76de9 `Correct the 'PYTHONPATH' for Jenkins jobs`
+d11cc9ad `Update release notes`
+6d1ccbfe `Enhance 'tool-scripts/README', 'doc/CONTRIBUTING'`
 a7d1f0d6 `Add 'v0.70.0-beta' release notes`
 46aa2add `Update the development image we use for 'b0.70'`
 8ae13674 `Add missing 'net-tools' req agent RPM`
