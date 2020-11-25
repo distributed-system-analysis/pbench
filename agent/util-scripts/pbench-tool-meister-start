@@ -21,6 +21,7 @@ import errno
 import json
 import logging
 import os
+import shlex
 import signal
 import socket
 import sys
@@ -283,6 +284,9 @@ def main(argv):
         logger.exception("failed to load tool group data")
         return 1
 
+    # See if anybody told us to use certain options with SSH commands.
+    ssh_opts = os.environ.get("ssh_opts", "")
+
     try:
         benchmark_run_dir = os.environ["benchmark_run_dir"]
         hostname = os.environ["_pbench_hostname"]
@@ -501,8 +505,11 @@ def main(argv):
     # is the same on the local host as it is on any remote host.
     ssh_cmd = "ssh"
     ssh_path = find_executable(ssh_cmd)
-    args = [
+    base_args = [
         ssh_cmd,
+    ]
+    base_args.extend(shlex.split(ssh_opts))
+    args = [
         "<host replace me>",
         f"{tool_meister_cmd}-remote",
         tm_bind_hostname,
@@ -567,13 +574,16 @@ def main(argv):
             else:
                 successes += 1
             continue
-        args[1] = host
-        args[5] = tm_param_key
+        args[0] = host
+        args[4] = tm_param_key
+        ssh_args = base_args + args
         logger.debug(
-            "d. starting remote tool meister, ssh_path=%r args=%r", ssh_path, args
+            "d. starting remote tool meister, ssh_path=%r ssh_args=%r",
+            ssh_path,
+            ssh_args,
         )
         try:
-            pid = os.spawnv(os.P_NOWAIT, ssh_path, args)
+            pid = os.spawnv(os.P_NOWAIT, ssh_path, ssh_args)
         except Exception:
             logger.exception(
                 "failed to create a tool meister instance for host %s", host
