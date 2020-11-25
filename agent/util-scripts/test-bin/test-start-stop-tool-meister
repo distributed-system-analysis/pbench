@@ -40,7 +40,7 @@ if [[ ${status} -ne 0 ]]; then
     exit 1
 fi
 
-_PBENCH_TOOL_DATA_SINK_LOG_LEVEL="info" _PBENCH_TOOL_MEISTER_START_LOG_LEVEL="debug" pbench-tool-meister-start ${group}
+_PBENCH_TOOL_DATA_SINK_LOG_LEVEL="info" _PBENCH_TOOL_MEISTER_START_LOG_LEVEL="debug" PBENCH_TM_BIND_HOSTNAME="localhost" pbench-tool-meister-start ${group}
 status=${?}
 if [[ ${status} -ne 0 ]]; then
     printf -- "\"pbench-tool-meister-start ${group}\" failed to execute successfully (exit code: ${status})\n" >&2

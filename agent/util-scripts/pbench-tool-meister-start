@@ -22,6 +22,7 @@ import json
 import logging
 import os
 import signal
+import socket
 import sys
 import time
 
@@ -288,7 +289,7 @@ def main(argv):
         full_hostname = os.environ["_pbench_full_hostname"]
     except Exception:
         logger.exception("failed to fetch parameters from the environment")
-        return 1
+        return 2
     else:
         tm_dir = Path(benchmark_run_dir, "tm")
         try:
@@ -296,7 +297,7 @@ def main(argv):
             os.chdir(tm_dir)
         except Exception:
             logger.exception("failed to create the local tool meister directory")
-            return 1
+            return 3
     if not full_hostname or not hostname:
         logger.error(
             "ERROR - _pbench_hostname ('%s') and _pbench_full_hostname ('%s')"
@@ -304,12 +305,61 @@ def main(argv):
             hostname,
             full_hostname,
         )
-        return 1
-    if os.environ.get("_PBENCH_UNIT_TESTS"):
-        # FIXME: this is an artifact of the unit test environment.
-        hostnames = "localhost"
+        return 4
+
+    # Determine the Tool Meister "hostname" to use for the Redis server to
+    # bind to, in addition to "localhost". That same host name will be used by
+    # the Tool Data Sink to bind to as well.  If the caller's environment
+    # contains a PBENCH_TM_BIND_HOSTNAME environment variable, we'll use that,
+    # if not, we'll use the value from the _pbench_full_hostname environment
+    # variable.
+    tm_bind_hostname = os.environ.get("PBENCH_TM_BIND_HOSTNAME", full_hostname)
+    hostnames_l = []
+    try:
+        localhost_ip = socket.gethostbyname("localhost")
+    except socket.error:
+        # Interesting networking environment, no IP address for "localhost" ...
+        localhost_ip = None
     else:
-        hostnames = f"localhost {full_hostname}"
+        # Add to the list of host names the Redis server will use.
+        hostnames_l.append("localhost")
+    try:
+        tm_bind_hostname_ip = socket.gethostbyname(tm_bind_hostname)
+    except socket.error:
+        # The given Tool Meister host name does not map to an IP address, so
+        # we can't use it.
+        if localhost_ip is None:
+            logger.error(
+                "No available host names have usable IP addresses! (checked"
+                ' "localhost", "%s", and "%s"',
+                full_hostname,
+                tm_bind_hostname,
+            )
+            return 5
+        assert (
+            "localhost" in hostnames_l
+        ), f"Logic Bomb! localhost does not map to an IP"
+        tm_bind_hostname = "localhost"
+    else:
+        assert (
+            tm_bind_hostname_ip is not None
+        ), "Logic Bomb!  socket.gethostbyname() return None"
+        if tm_bind_hostname_ip != localhost_ip:
+            assert (
+                tm_bind_hostname != "localhost"
+            ), f"Logic Bomb! tm_bind_hostname ({tm_bind_hostname:r}) == 'localhost'?"
+            # The Tool Meister host name is not the same as "localhost" so we
+            # can add it to the list of host names the Redis server will use.
+            hostnames_l.append(tm_bind_hostname)
+        else:
+            assert (
+                "localhost" in hostnames_l
+            ), f"Logic Bomb! localhost does not map to an IP"
+            # Whatever the tm_bind_hostname was it maps to the same IP address as
+            # localhost, so just use "localhost" for the Tool Meister host
+            # name.
+            tm_bind_hostname = "localhost"
+    hostnames = " ".join(hostnames_l)
     params = {"hostnames": hostnames, "tm_dir": tm_dir, "redis_port": redis_port}
 
     # 2. Start the Redis Server (config of port from agent config)
@@ -406,7 +456,12 @@ def main(argv):
     # 3. Start the tool-data-sink process
     #   - leave a PID file for the tool data sink process
     tds_param_key = "tds-{}".format(group)
-    tds = dict(channel=channel, benchmark_run_dir=benchmark_run_dir, group=group)
+    tds = dict(
+        channel=channel,
+        benchmark_run_dir=benchmark_run_dir,
+        bind_hostname=tm_bind_hostname,
+        group=group,
+    )
     try:
         redis_server.set(tds_param_key, json.dumps(tds, sort_keys=True))
     except Exception:
@@ -450,7 +505,7 @@ def main(argv):
         ssh_cmd,
         "<host replace me>",
         f"{tool_meister_cmd}-remote",
-        full_hostname,
+        tm_bind_hostname,
         str(redis_port),
         "<tm param key>",
     ]
