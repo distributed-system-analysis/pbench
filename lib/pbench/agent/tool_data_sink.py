@@ -286,7 +286,15 @@ class ToolDataSink(Bottle):
     class Terminate(Exception):
         pass
 
-    def __init__(self, redis_server, channel, benchmark_run_dir, tool_group, logger):
+    def __init__(
+        self,
+        bind_hostname,
+        redis_server,
+        channel,
+        benchmark_run_dir,
+        tool_group,
+        logger,
+    ):
         super(ToolDataSink, self).__init__()
         # Save external state
         self.redis_server = redis_server
@@ -318,7 +326,7 @@ class ToolDataSink(Bottle):
         )
         # The list of states where we expect Tool Meisters to send data to us.
         self._data_states = frozenset(("send", "sysinfo"))
-        self._server = DataSinkWsgiServer(host="0.0.0.0", port=8080, logger=logger)
+        self._server = DataSinkWsgiServer(host=bind_hostname, port=8080, logger=logger)
         # Setup the Redis server channel subscription
         logger.debug("pubsub")
         self._pubsub = redis_server.pubsub()
@@ -923,6 +931,7 @@ def main(argv):
         params = json.loads(params_str)
         channel = params["channel"]
         benchmark_run_dir = Path(params["benchmark_run_dir"]).resolve(strict=True)
+        bind_hostname = params["bind_hostname"]
         tool_group = params["group"]
     except Exception as ex:
         logger.error("Unable to fetch and decode parameter key, %s: %s", param_key, ex)
@@ -973,7 +982,12 @@ def main(argv):
                 logger.debug("constructed Redis() object")
 
             tds_app = ToolDataSink(
-                redis_server, channel, benchmark_run_dir, tool_group, logger
+                bind_hostname,
+                redis_server,
+                channel,
+                benchmark_run_dir,
+                tool_group,
+                logger,
             )
             tds_app.execute()
         except OSError as exc:

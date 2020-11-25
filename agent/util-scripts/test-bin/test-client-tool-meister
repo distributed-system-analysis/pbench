@@ -61,7 +61,7 @@ function _timeout {
     timeout --kill-after=30 --signal TERM 60 $*
 }
 
-_timeout pbench-tool-meister-start ${group}
+PBENCH_TM_BIND_HOSTNAME="localhost" _timeout pbench-tool-meister-start ${group}
 status=${?}
 if [[ ${status} -ne 0 ]]; then
     printf -- "ERROR - \"pbench-tool-meister-start %s\" failed to execute successfully (exit code: %s)\n" "${group}" "${status}" >&2
