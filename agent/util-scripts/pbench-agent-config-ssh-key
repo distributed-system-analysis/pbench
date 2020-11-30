@@ -14,22 +14,11 @@
 
 configfile=$1
 keyfile=$2
-user=$(pbench-config -C $configfile pbench_user pbench-agent)
-group=$(pbench-config -C $configfile pbench_group pbench-agent)
-
-# fallbacks assume the existence of user/group pbench
-if [ -z "$user" ] ;then
-    user=pbench
-fi
-if [ -z "$group" ] ;then
-    group=pbench
-fi
 
 pbenchdir=$(pbench-config -C $configfile install-dir pbench-agent)
 # copy the key file and adjust perms
 if [ -f $keyfile ] ;then
     cp $keyfile $pbenchdir/id_rsa
-    chown $user.$group $pbenchdir/id_rsa
     chmod 600 $pbenchdir/id_rsa
 else
     exit 3

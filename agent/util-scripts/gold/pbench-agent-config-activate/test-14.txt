@@ -10,8 +10,6 @@ pbench_install_dir = /var/tmp/pbench-test-utils/opt/pbench-agent
 
 [pbench-agent]
 install-dir = %(pbench_install_dir)s
-pbench_user = upbench
-pbench_group = gpbench
 
 [config]
 path = %(pbench_install_dir)s/config

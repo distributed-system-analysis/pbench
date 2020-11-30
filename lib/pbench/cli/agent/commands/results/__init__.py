@@ -25,9 +25,6 @@ def move_results(ctx, _user, _prefix, _show_server):
         )
         logger.debug("'webserver' variable in 'results' section not set")
 
-    if not _user:
-        _user = config.agent.get("pbench_user")
-
     server_rest_url = config.results.get("server_rest_url")
     response = requests.get(f"{server_rest_url}/host_info")
     if response.status_code not in [200, 201]:
