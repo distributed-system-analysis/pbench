@@ -11,6 +11,9 @@ install-dir = {TMP}/opt/pbench-server
 [pbench-server]
 pbench-top-dir = {TMP}/srv/pbench
 
+[Postgres]
+db_uri = sqlite:///:memory:
+
 [elasticsearch]
 host = elasticsearch.example.com
 port = 7080
