@@ -221,7 +221,7 @@ class PromCollector(BaseCollector):
                 )
                 return 0
 
-            args = ["podman", "pull", "prom/prometheus"]
+            args = ["podman", "pull", "quay.io/prometheus/prometheus"]
             try:
                 prom_pull = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
                 prom_pull.wait()
@@ -245,7 +245,7 @@ class PromCollector(BaseCollector):
                 f"{self.volume}:/prometheus:Z",
                 "-v",
                 f"{self.benchmark_run_dir}/tm/prometheus.yml:/etc/prometheus/prometheus.yml:Z",
-                "prom/prometheus",
+                "quay.io/prometheus/prometheus",
             ]
             try:
                 self.run = subprocess.Popen(args, stdout=prom_logs, stderr=prom_logs)
