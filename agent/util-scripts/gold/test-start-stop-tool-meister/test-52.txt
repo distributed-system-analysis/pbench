@@ -17,8 +17,8 @@ w. channel payload, '{"hostname": "testhost.example.com", "kind": "tm", "pid": N
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-mygroup-testhost.example.com.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-mygroup-testhost.example.com.log
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-mygroup-testhost.example.com.out
+/var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-mygroup
@@ -40,7 +40,6 @@ Hit Ctrl-C to quit.
 INFO pbench-tool-data-sink run -- Running Bottle web server ...
 INFO pbench-tool-data-sink execute -- Terminate bottle server
 INFO pbench-tool-data-sink run -- Bottle web server exited
-INFO pbench-tool-data-sink main -- Remove pid file ... (pbench-tool-data-sink.pid)
 --- mock-run/tm/pbench-tool-data-sink.log file contents
 +++ mock-run/tm/pbench-tool-data-sink.out file contents
 --- mock-run/tm/pbench-tool-data-sink.out file contents
@@ -63,11 +62,10 @@ port 17001
 # Redis is now ready to exit, bye bye...
 --- mock-run/tm/redis.log file contents
 +++ mock-run/tm/tm-mygroup-testhost.example.com.err file contents
+INFO pbench-tool-meister driver -- terminating
 --- mock-run/tm/tm-mygroup-testhost.example.com.err file contents
-+++ mock-run/tm/tm-mygroup-testhost.example.com.log file contents
-INFO pbench-tool-meister main -- params_key (tm-mygroup-testhost.example.com): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "channel": "tool-meister-chan", "controller": "testhost.example.com", "group": "mygroup", "hostname": "testhost.example.com", "tools": {"mpstat": ""}}'
-INFO pbench-tool-meister main -- terminating
-INFO pbench-tool-meister main -- Remove pid file ... (tm-mygroup-testhost.example.com.pid)
---- mock-run/tm/tm-mygroup-testhost.example.com.log file contents
 +++ mock-run/tm/tm-mygroup-testhost.example.com.out file contents
 --- mock-run/tm/tm-mygroup-testhost.example.com.out file contents
++++ mock-run/tm/tm.logs file contents
+testhost.example.com 0000 INFO pbench-tool-meister driver -- terminating
+--- mock-run/tm/tm.logs file contents
