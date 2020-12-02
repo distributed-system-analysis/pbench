@@ -327,6 +327,7 @@ class ToolDataSink(Bottle):
         # The list of states where we expect Tool Meisters to send data to us.
         self._data_states = frozenset(("send", "sysinfo"))
         self._server = DataSinkWsgiServer(host=bind_hostname, port=8080, logger=logger)
+
         # Setup the Redis server channel subscription
         logger.debug("pubsub")
         self._pubsub = redis_server.pubsub()
@@ -343,6 +344,19 @@ class ToolDataSink(Bottle):
         assert resp["channel"].decode("utf-8") == channel, f"bad channel: {resp!r}"
         assert resp["data"] == 1, f"bad data: {resp!r}"
         logger.debug("next success")
+
+        # Setup the Redis server channel subscription
+        self._tm_logging_pubsub = redis_server.pubsub()
+        self._tm_logging_pubsub.subscribe("tm-logging")
+        self._tm_logging_chan = self._tm_logging_pubsub.listen()
+        # Pull off first message which is an acknowledgement we have
+        # successfully subscribed.
+        resp = next(self._tm_logging_chan)
+        assert resp["type"] == "subscribe", f"bad type: {resp!r}"
+        assert resp["pattern"] is None, f"bad pattern: {resp!r}"
+        assert resp["channel"].decode("utf-8") == "tm-logging", f"bad channel: {resp!r}"
+        assert resp["data"] == 1, f"bad data: {resp!r}"
+
         # Tell the entity that started us who we are indicating we're ready.
         started_msg = dict(kind="ds", hostname=self._hostname, pid=os.getpid())
         logger.debug("publish *-start")
@@ -351,6 +365,7 @@ class ToolDataSink(Bottle):
         )
         logger.debug("published *-start")
         self.web_server_thread = None
+        self.tm_log_capture_thread = None
 
     def run(self):
         """run - Start the Bottle web server running and the watcher thread."""
@@ -362,23 +377,69 @@ class ToolDataSink(Bottle):
         finally:
             self.logger.info("Bottle web server exited")
 
+    def tm_log_capture(self):
+        """tm_log_capture - capture all logs written by local and remote Tool
+        Meisters through the Redis server into one file.
+        """
+        tm_log_file = self.benchmark_run_dir / "tm" / "tm.logs"
+        with tm_log_file.open("w") as fp:
+            try:
+                for payload in self._tm_logging_chan:
+                    self.logger.debug("payload: %r", payload)
+                    assert (
+                        payload["channel"].decode("utf-8") == "tm-logging"
+                    ), f"{payload!r}"
+                    if payload["type"] == "unsubscribe":
+                        assert payload["pattern"] is None, f"{payload!r}"
+                        assert payload["data"] == 0, f"{payload!r}"
+                        break
+                    assert payload["type"] == "message", f"{payload!r}"
+                    try:
+                        log_str = payload["data"].decode("utf-8")
+                    except Exception:
+                        self.logger.warning(
+                            "log payload in message not UTF-8, %r", payload
+                        )
+                        continue
+                    else:
+                        fp.write(f"{log_str}\n")
+                        fp.flush()
+            except redis.ConnectionError:
+                # We don't bother reporting any connection errors.
+                self._tm_logging_pubsub = None
+            except Exception:
+                self.logger.exception("Failed to capture logs from Redis server")
+
     def execute(self):
         """execute - Start the Bottle web server running and the watcher thread."""
         self.web_server_thread = Thread(target=self.run)
         self.web_server_thread.start()
-        self.logger.debug("web server 'run' thread started, processing payloads ...")
+        self.tm_log_capture_thread = Thread(target=self.tm_log_capture)
+        self.tm_log_capture_thread.start()
+        self.logger.debug(
+            "web server 'run' and 'tm_log_capture' thread started, processing payloads ..."
+        )
 
         try:
             for payload in self._chan:
-                self.logger.debug("payload")
+                self.logger.debug("payload: %r", payload)
+                assert (
+                    payload["channel"].decode("utf-8") == self.channel
+                ), f"{payload!r}"
+                if payload["type"] == "unsubscribe":
+                    assert payload["pattern"] is None, f"{payload!r}"
+                    assert payload["data"] == 0, f"{payload!r}"
+                    self.logger.warning("Unexpected channel unsubscribe: %r", payload)
+                    break
+                assert payload["type"] == "message", f"{payload!r}"
                 try:
                     json_str = payload["data"].decode("utf-8")
                 except Exception:
                     self.logger.warning(
-                        "data payload in message not UTF-8, '%r'", json_str
+                        "data payload in message not UTF-8, %r", payload
                     )
                     continue
-                self.logger.debug('watcher: channel payload, "%r"', json_str)
+                self.logger.debug("channel payload, %r", json_str)
                 try:
                     data = json.loads(json_str)
                 except json.JSONDecodeError:
@@ -398,10 +459,13 @@ class ToolDataSink(Bottle):
                         self.state_change(data)
         except self.Terminate as exc:
             self.logger.info("%s", exc)
-        except redis.exceptions.ConnectionError:
+            self._tm_logging_pubsub.unsubscribe()
+        except redis.ConnectionError:
             self.logger.warning(
                 "run closing down after losing connection to redis server"
             )
+            self._tm_logging_pubsub = None
+            self._pubsub = None
         except Exception:
             self.logger.exception("execute exception")
         finally:
@@ -414,10 +478,21 @@ class ToolDataSink(Bottle):
         """_cleanup - Encapsulates the proper shutdown sequence for the WSGI server
         and Redis Server connection.
         """
-        self.logger.debug("unsubscribe")
-        self._pubsub.unsubscribe()
-        self.logger.debug("pubsub close")
-        self._pubsub.close()
+        if self._pubsub:
+            self.logger.debug("unsubscribe client")
+            self._pubsub.unsubscribe()
+            self.logger.debug("pubsub close client")
+            self._pubsub.close()
+        try:
+            self.tm_log_capture_thread.join()
+        except Exception:
+            pass
+        if self._tm_logging_pubsub:
+            self.logger.debug("unsubscribe tm-logging")
+            self._tm_logging_pubsub.unsubscribe()
+            self.logger.debug("pubsub close tm-logging")
+            self._tm_logging_pubsub.close()
+
         self.logger.debug("web server stop")
         try:
             self._server.stop()
@@ -969,7 +1044,6 @@ def main(argv):
             logger.debug("constructing Redis() object")
             try:
                 redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
-
             except Exception as e:
                 logger.error(
                     "Unable to connect to redis server, %s:%s: %s",
@@ -999,12 +1073,6 @@ def main(argv):
                 logger.exception("ERROR - failed to start the tool data sink")
         except Exception:
             logger.exception("ERROR - failed to start the tool data sink")
-        finally:
-            logger.info("Remove pid file ... (%s)", pidfile_name)
-            try:
-                os.unlink(pidfile_name)
-            except Exception:
-                logger.exception("Failed to remove pid file %s", pidfile_name)
 
     return 0
 

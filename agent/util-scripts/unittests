@@ -508,9 +508,17 @@ function sort_testlog {
     mv ${_testlog}.sorted ${_testlog}
 }
 
+function sort_log_file {
+    sort ${1} > ${1}.sorted
+    mv ${1}.sorted ${1}
+}
+
 function sort_tdslog {
-    sort ${_testdir}/mock-run/tm/pbench-tool-data-sink.log > ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted
-    mv ${_testdir}/mock-run/tm/pbench-tool-data-sink.log.sorted ${_testdir}/mock-run/tm/pbench-tool-data-sink.log
+    sort_log_file ${_testdir}/mock-run/tm/pbench-tool-data-sink.log
+}
+
+function sort_tmlogs {
+    sort_log_file ${_testdir}/mock-run/tm/tm.logs
 }
 
 declare -A post_hooks=(
@@ -520,8 +528,8 @@ declare -A post_hooks=(
     [test-19]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-53]='sort_testlog'
     [test-55]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
-    [test-56]='sort_testlog; sort_tdslog'
-    [test-57]='sort_testlog; sort_tdslog'
+    [test-56]='sort_testlog; sort_tdslog; sort_tmlogs'
+    [test-57]='sort_testlog; sort_tdslog; sort_tmlogs'
     [test-61]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-62]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
 )

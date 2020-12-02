@@ -515,6 +515,7 @@ def main(argv):
         tm_bind_hostname,
         str(redis_port),
         "<tm param key>",
+        "yes",
     ]
     ssh_pids = []
     for host in tool_group.hostnames.keys():
@@ -555,6 +556,7 @@ def main(argv):
                             "localhost",
                             str(redis_port),
                             tm_param_key,
+                            "yes",
                         ]
                     )
                     sys.exit(status)
@@ -568,6 +570,7 @@ def main(argv):
                             " daemonized; return code: %d",
                             retcode,
                         )
+                        failures += 1
             except Exception:
                 logger.exception("failed to create localhost tool meister, daemonized")
                 failures += 1

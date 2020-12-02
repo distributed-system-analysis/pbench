@@ -50,22 +50,61 @@ import time
 from distutils.spawn import find_executable
 from pathlib import Path
 
-import daemon
 import pidfile
 import redis
 
-from pbench.common.utils import md5sum
+from daemon import DaemonContext
+from redis.connection import SERVER_CLOSED_CONNECTION_ERROR
+
 import pbench.agent.toolmetadata as toolmetadata
 
+from pbench.common.utils import md5sum
 
-# Path to external tar executable.
-tar_path = None
-
-# Path to external pbench-sysinfo-dump executable.
-sysinfo_dump = None
 
 # FIXME: The client response channel should be in a shared constants module.
 client_channel = "tool-meister-client"
+
+# Logging format string for unit tests
+fmtstr_ut = "%(levelname)s %(name)s %(funcName)s -- %(message)s"
+fmtstr = "%(asctime)s %(levelname)s %(process)s %(thread)s %(name)s %(funcName)s %(lineno)d -- %(message)s"
+
+
+class RedisHandler(logging.Handler):
+    """Publish messages to a given channel on a Redis server.
+    """
+
+    def __init__(
+        self,
+        channel,
+        hostname=None,
+        redis_client=None,
+        level=logging.NOTSET,
+        **redis_kwargs,
+    ):
+        """Create a new logger for the given channel and redis_client.
+        """
+        super().__init__(level)
+        self.channel = channel
+        self.hostname = hostname
+        self.redis_client = redis_client or redis.Redis(**redis_kwargs)
+        self.counter = 0
+        self.errors = 0
+        self.redis_errors = 0
+
+    def emit(self, record):
+        """Publish record to redis logging channel
+        """
+        try:
+            formatted_record = self.format(record)
+            self.redis_client.publish(
+                self.channel, f"{self.hostname} {self.counter:04d} {formatted_record}"
+            )
+        except redis.RedisError:
+            self.redis_errors += 1
+        except Exception:
+            self.errors += 1
+        finally:
+            self.counter += 1
 
 
 class ToolException(Exception):
@@ -265,8 +304,16 @@ class Tool:
             raise ToolException(f"Tool({self.name}) wait not called after 'stop'")
 
 
+class RedisDisconnected(Exception):
+    """Simple exception to be raised when we lose the connection to the Redis
+    server.
+    """
+
+    pass
+
+
 class Terminate(Exception):
-    """Simple exception to be raised when the tool meister main loop should exit
+    """Simple exception to be raised when the Tool Meister main loop should exit
     gracefully.
     """
 
@@ -360,13 +407,12 @@ class ToolMeister:
         else:
             return benchmark_run_dir, channel, controller, group, hostname, tools
 
-    def __init__(self, pbench_bin, params, redis_server, logger):
-        self.logger = logger
-        self.tool_metadata = toolmetadata.ToolMetadata(
-            "redis", redis_server, self.logger
-        )
-        self.persist_tools = self.tool_metadata.getPersistentTools()
+    def __init__(
+        self, pbench_bin, tar_path, sysinfo_dump, params, redis_server, logger
+    ):
         self.pbench_bin = pbench_bin
+        self.tar_path = tar_path
+        self.sysinfo_dump = sysinfo_dump
         ret_val = self.fetch_params(params)
         (
             self._benchmark_run_dir,
@@ -376,9 +422,14 @@ class ToolMeister:
             self._hostname,
             self._tools,
         ) = ret_val
+        self._rs = redis_server
+        self.logger = logger
+        self.tool_metadata = toolmetadata.ToolMetadata(
+            "redis", redis_server, self.logger
+        )
+        self.persist_tools = self.tool_metadata.getPersistentTools()
         self._running_tools = dict()
         self._persistent_tools = dict()
-        self._rs = redis_server
         logger.debug("pubsub")
         self._pubsub = self._rs.pubsub()
         logger.debug("subscribe %s", self._channel)
@@ -446,10 +497,11 @@ class ToolMeister:
     def cleanup(self):
         """cleanup - close down the Redis pubsub object."""
         self.logger.debug("%s: cleanup", self._hostname)
-        self.logger.debug("unsubscribe")
-        self._pubsub.unsubscribe()
-        self.logger.debug("pubsub close")
-        self._pubsub.close()
+        if self._pubsub:
+            self.logger.debug("unsubscribe")
+            self._pubsub.unsubscribe()
+            self.logger.debug("pubsub close")
+            self._pubsub.close()
 
     def _get_data(self):
         """_get_data - fetch and decode the JSON object off the "wire".
@@ -463,11 +515,19 @@ class ToolMeister:
             self.logger.debug("next")
             try:
                 payload = next(self._chan)
-            except Exception:
-                # FIXME: Add connection drop error handling, retry loop
-                # re-establishing a connection.
-                self.logger.exception("Error fetching 'next' data off channel")
-                continue
+            except redis.ConnectionError as exc:
+                try:
+                    msg = exc.args[0]
+                except Exception:
+                    msg = ""
+                if msg.startswith(SERVER_CLOSED_CONNECTION_ERROR):
+                    # Redis disconnected, shutdown as gracefully as possible.
+                    # FIXME: Consider adding connection drop error handling, retry loop
+                    # re-establishing a connection, etc..
+                    self._pubsub = None
+                    raise RedisDisconnected()
+                else:
+                    raise
             else:
                 self.logger.debug("next success")
             msg = None
@@ -818,7 +878,7 @@ class ToolMeister:
             # Invoke tar directly for efficiency.
             with o_file.open("w") as ofp, e_file.open("w") as efp:
                 cp = subprocess.run(
-                    [tar_path, "-Jcf", tar_file, self._hostname],
+                    [self.tar_path, "-Jcf", tar_file, self._hostname],
                     cwd=parent_dir,
                     stdin=None,
                     stdout=ofp,
@@ -1083,9 +1143,8 @@ class ToolMeister:
                 self._send_client_status("internal-error")
                 return 1
 
-        global sysinfo_dump
         command = [
-            sysinfo_dump,
+            self.sysinfo_dump,
             str(sysinfo_dir),
             sysinfo,
             label,
@@ -1137,6 +1196,185 @@ class ToolMeister:
         return failures
 
 
+def get_logger(PROG, daemon=False):
+    """get_logger - contruct a logger for a Tool Meister instance.
+
+    If in the Unit Test environment, just log to console.
+    If in non-unit test environment:
+       If daemonized, log to syslog and log back to Redis.
+       If not daemonized, log to console AND log back to Redis
+    """
+    logger = logging.getLogger(PROG)
+    if os.environ.get("_PBENCH_TOOL_MEISTER_LOG_LEVEL") == "debug":
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.INFO
+    logger.setLevel(log_level)
+
+    unit_tests = bool(os.environ.get("_PBENCH_UNIT_TESTS"))
+    if unit_tests or not daemon:
+        sh = logging.StreamHandler()
+    else:
+        sh = logging.SysLogHandler()
+    sh.setLevel(log_level)
+    shf = logging.Formatter(fmtstr_ut if unit_tests else fmtstr)
+    sh.setFormatter(shf)
+    logger.addHandler(sh)
+
+    return logger
+
+
+def driver(
+    PROG,
+    tar_path,
+    sysinfo_dump,
+    pbench_bin,
+    param_key,
+    params,
+    redis_server,
+    logger=None,
+):
+    """driver - responsible for creating and driving operation of the Tool
+    Meister instance
+    """
+    if logger is None:
+        logger = get_logger(PROG)
+
+    # Add a logging handler to send logs back to the Redis server, with each
+    # log entry prepended with the given hostname parameter.
+    rh = RedisHandler(
+        channel="tm-logging", hostname=params["hostname"], redis_client=redis_server
+    )
+    if os.environ.get("_PBENCH_TOOL_MEISTER_LOG_LEVEL") == "debug":
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.INFO
+    rh.setLevel(log_level)
+    redis_fmtstr = fmtstr_ut if os.environ.get("_PBENCH_UNIT_TESTS") else fmtstr
+    rhf = logging.Formatter(redis_fmtstr)
+    rh.setFormatter(rhf)
+    logger.addHandler(rh)
+
+    logger.debug("params_key (%s): %r", param_key, params)
+
+    # FIXME: we should establish signal handlers that do the following:
+    #   a. handle graceful termination (TERM, INT, QUIT)
+    #   b. log operational state (HUP maybe?)
+
+    try:
+        tm = ToolMeister(
+            pbench_bin, tar_path, sysinfo_dump, params, redis_server, logger
+        )
+    except Exception:
+        logger.exception(
+            "Unable to construct the ToolMeister object with params, %r", params,
+        )
+        return 8
+
+    ret_val = 0
+    terminate = False
+    try:
+        while not terminate:
+            try:
+                logger.debug("waiting ...")
+                action, data = tm.wait_for_command()
+                logger.debug("acting ... %r, %r", action, data)
+                failures = action(data)
+                if failures > 0:
+                    logger.warning(
+                        "%d failures encountered for action, %r," " on data, %r",
+                        failures,
+                        action,
+                        data,
+                    )
+            except Terminate:
+                logger.info("terminating")
+                terminate = True
+            except RedisDisconnected:
+                logger.error("lost connection to redis server")
+                ret_val = 9
+                terminate = True
+    except Exception:
+        logger.exception("Unexpected error encountered")
+        ret_val = 10
+    finally:
+        tm.cleanup()
+        if rh.errors > 0 or rh.redis_errors > 0:
+            logger.warning(
+                "RedisHandler redis_errors: %d, errors: %d", rh.errors, rh.redis_errors
+            )
+    return ret_val
+
+
+def daemon(
+    PROG,
+    tar_path,
+    sysinfo_dump,
+    pbench_bin,
+    param_key,
+    params,
+    redis_server,
+    redis_host,
+    redis_port,
+):
+    """daemon - responsible for properly daemonizing the operation of the Tool
+    Meister.
+    """
+    # Disconnect any Redis server object connection pools to avoid problems
+    # when we daemonize.
+    redis_server.connection_pool.disconnect()
+    del redis_server
+
+    # Before we daemonize, flush any data written to stdout or stderr.
+    sys.stderr.flush()
+    sys.stdout.flush()
+
+    pidfile_name = f"{param_key}.pid"
+    pfctx = pidfile.PIDFile(pidfile_name)
+    with open(f"{param_key}.out", "w") as sofp, open(
+        f"{param_key}.err", "w"
+    ) as sefp, DaemonContext(
+        stdout=sofp,
+        stderr=sefp,
+        working_directory=os.getcwd(),
+        umask=0o022,
+        pidfile=pfctx,
+    ):
+        # We need a logger earlier than the driver now that we are daemonized.
+        logger = get_logger(PROG, daemon=True)
+
+        # Previously we validated the Tool Meister parameters, and in doing so
+        # made sure we had proper access to the Redis server.
+        #
+        # We can safely re-create the ToolMeister object now that we are
+        # "daemonized".
+        try:
+            # NOTE: we have to recreate the connection to the redis service
+            # since all open file descriptors were closed as part of the
+            # daemonizing process.
+            redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
+        except Exception as exc:
+            logger.error(
+                "Unable to construct to Redis server object, %s:%s: %s",
+                redis_host,
+                redis_port,
+                exc,
+            )
+            return 7
+        else:
+            logger.debug("re-constructed Redis server object")
+        return driver(
+            PROG,
+            tar_path,
+            sysinfo_dump,
+            pbench_bin,
+            param_key,
+            params,
+            redis_server,
+            logger=logger,
+        )
+
+
 def main(argv):
     """Main program for the Tool Meister.
 
@@ -1147,8 +1385,14 @@ def main(argv):
 
     Arguments:  argv - a list of parameters
 
-    Returns 0 on success, > 0 when an error occurs.
+                argv[1] - host name or IP address of Redis Server
+                argv[2] - port number of Redis Server
+                argv[3] - name of key in Redis Server for operational
+                          parameters
+                argv[4] - (optional) if value is "yes", then the Tool Meister
+                          should daemonize itself.
 
+    Returns 0 on success, > 0 when an error occurs.
     """
     _prog = Path(argv[0])
     PROG = _prog.name
@@ -1161,52 +1405,35 @@ def main(argv):
     except IndexError as e:
         print(f"Invalid arguments: {e}", file=sys.stderr)
         return 1
+    try:
+        daemonize = argv[4]
+    except IndexError:
+        daemonize = "no"
 
-    global tar_path
     tar_path = find_executable("tar")
     if tar_path is None:
         print("External 'tar' executable not found.", file=sys.stderr)
         return 2
 
-    global sysinfo_dump
     sysinfo_dump = find_executable("pbench-sysinfo-dump")
     if sysinfo_dump is None:
         print("External 'pbench-sysinfo-dump' executable not found.", file=sys.stderr)
-        return 2
-
-    logger = logging.getLogger(PROG)
-    fh = logging.FileHandler(f"{param_key}.log")
-    if os.environ.get("_PBENCH_UNIT_TESTS"):
-        fmtstr = "%(levelname)s %(name)s %(funcName)s -- %(message)s"
-    else:
-        fmtstr = (
-            "%(asctime)s %(levelname)s %(process)s %(thread)s"
-            " %(name)s %(funcName)s %(lineno)d -- %(message)s"
-        )
-    fhf = logging.Formatter(fmtstr)
-    fh.setFormatter(fhf)
-    if os.environ.get("_PBENCH_TOOL_MEISTER_LOG_LEVEL") == "debug":
-        log_level = logging.DEBUG
-    else:
-        log_level = logging.INFO
-    fh.setLevel(log_level)
-    logger.addHandler(fh)
-    logger.setLevel(log_level)
+        return 3
 
     try:
         redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
-    except Exception as e:
-        logger.error(
-            "Unable to construct Redis client, %s:%s: %s", redis_host, redis_port, e
+    except Exception as exc:
+        print(
+            f"Unable to construct Redis client, {redis_host}:{redis_port}: {exc}",
+            file=sys.stderr,
         )
-        return 3
+        return 4
 
     try:
         params_raw = redis_server.get(param_key)
         if params_raw is None:
-            logger.error('Parameter key, "%s" does not exist.', param_key)
-            return 4
-        logger.info("params_key (%s): %r", param_key, params_raw)
+            print(f'Parameter key, "{param_key}" does not exist.', file=sys.stderr)
+            return 5
         params_str = params_raw.decode("utf-8")
         params = json.loads(params_str)
         # Validate the tool meister parameters without constructing an object
@@ -1214,101 +1441,27 @@ def main(argv):
         # before we go through the trouble of daemonizing below.
         ToolMeister.fetch_params(params)
     except Exception as exc:
-        logger.error(
-            "Unable to fetch and decode parameter key, '%s': %s", param_key, exc
+        print(
+            f"Unable to fetch and decode parameter key, '{param_key}': {exc}",
+            file=sys.stderr,
         )
-        return 5
+        return 6
+
+    if daemonize == "yes":
+        ret_val = daemon(
+            PROG,
+            tar_path,
+            sysinfo_dump,
+            pbench_bin,
+            param_key,
+            params,
+            redis_server,
+            redis_host,
+            redis_port,
+        )
     else:
-        redis_server.connection_pool.disconnect()
-        del redis_server
-
-    # Before we daemonize, flush any data written to stdout or stderr.
-    sys.stderr.flush()
-    sys.stdout.flush()
-
-    ret_val = 0
-    pidfile_name = f"{param_key}.pid"
-    pfctx = pidfile.PIDFile(pidfile_name)
-    with open(f"{param_key}.out", "w") as sofp, open(
-        f"{param_key}.err", "w"
-    ) as sefp, daemon.DaemonContext(
-        stdout=sofp,
-        stderr=sefp,
-        working_directory=os.getcwd(),
-        umask=0o022,
-        pidfile=pfctx,
-        files_preserve=[fh.stream.fileno()],
-    ):
-        try:
-            # Previously we validated the tool meister parameters, and in
-            # doing so made sure we had proper access to the redis server.
-            #
-            # We can safely create the ToolMeister object now that we are
-            # "daemonized".
-            logger.debug("constructing Redis() object")
-            try:
-                # NOTE: we have to recreate the connection to the redis
-                # service since all open file descriptors were closed as part
-                # of the daemonizing process.
-                redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
-            except Exception as e:
-                logger.error(
-                    "Unable to connect to redis server, %s:%s: %s",
-                    redis_host,
-                    redis_port,
-                    e,
-                )
-                return 6
-            else:
-                logger.debug("constructed Redis() object")
-
-            # FIXME: we should establish signal handlers that do the following:
-            #   a. handle graceful termination (TERM, INT, QUIT)
-            #   b. log operational state (HUP maybe?)
-
-            try:
-                tm = ToolMeister(pbench_bin, params, redis_server, logger)
-            except Exception:
-                logger.exception(
-                    "Unable to construct the ToolMeister object with params, %r",
-                    params,
-                )
-                return 7
-
-            terminate = False
-            try:
-                while not terminate:
-                    try:
-                        logger.debug("waiting ...")
-                        action, data = tm.wait_for_command()
-                        logger.debug("acting ... %r, %r", action, data)
-                        failures = action(data)
-                        if failures > 0:
-                            logger.warning(
-                                "%d failures encountered for action, %r,"
-                                " on data, %r",
-                                failures,
-                                action,
-                                data,
-                            )
-                    except Terminate:
-                        logger.info("terminating")
-                        terminate = True
-            except Exception:
-                logger.exception("Unexpected error encountered")
-                ret_val = 8
-            finally:
-                tm.cleanup()
-        finally:
-            logger.info("Remove pid file ... (%s)", pidfile_name)
-            try:
-                os.unlink(pidfile_name)
-            except Exception:
-                logger.exception("Failed to remove pid file %s", pidfile_name)
+        ret_val = driver(
+            PROG, tar_path, sysinfo_dump, pbench_bin, param_key, params, redis_server
+        )
 
     return ret_val
-
-
-if __name__ == "__main__":
-    status = main(sys.argv)
-    sys.exit(status)
