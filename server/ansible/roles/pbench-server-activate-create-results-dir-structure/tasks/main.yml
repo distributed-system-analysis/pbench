@@ -2,7 +2,7 @@
 # activate the server - create results dir structure
 
 # The sefcontext module is available from Galaxy with
-#    ansibble-galacy collection install community.general
+#    ansible-galaxy collection install community.general
 #
 # We have two tasks to set the SELinux context with semanage on the
 # top level directory (typically /pbench or /srv/pbench) and its
@@ -90,4 +90,13 @@
 
 - name: Apply new SELinux file context to filesystem
   command:
-    cmd: "restorecon -irv {{ pbench_dir }}"
+    cmd: "restorecon -iv {{ pbench_dir }}/{{ item }}"
+  with_items:
+    - ""
+    - archive
+    - archive/fs-version-001
+    - public_html
+    - public_html/incoming
+    - public_html/results
+    - public_html/users
+    - public_html/static
