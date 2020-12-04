@@ -41,6 +41,6 @@ def main():
             "/run/pbench-server/gunicorn.pid",
             "--bind",
             f"{host}:{port}",
-            "pbench.cli.server.shell:app())",
+            "pbench.cli.server.shell:app()",
         ]
     )
