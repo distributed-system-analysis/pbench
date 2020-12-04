@@ -15,6 +15,7 @@ from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.server.api.resources.upload_api import Upload, HostInfo
 from pbench.server.api.resources.graphql_api import GraphQL
+from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.query_controllers import QueryControllers
@@ -49,6 +50,11 @@ def register_endpoints(api, app, config):
     )
     api.add_resource(
         HostInfo, f"{base_uri}/host_info", resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        EndpointConfig,
+        f"{base_uri}/endpoints",
+        resource_class_args=(config, app.logger),
     )
     api.add_resource(
         Elasticsearch,
