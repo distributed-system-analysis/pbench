@@ -7,7 +7,21 @@ source $(dirname "${0}")/python-setup.sh
 
 printf -- "black --check ...\n"
 black --check .
+black_sts=${?}
+if [[ ${black_sts} -ne 0 ]]; then
+    printf -- "FAILED: black --check .\n" >&2
+fi
 printf -- "\nflake8 --verbose ...\n"
 flake8 --verbose .
+flake_sts=${?}
+if [[ ${flake_sts} -ne 0 ]]; then
+    printf -- "FAILED: flake8 --verbose .\n" >&2
+fi
 printf -- "\n"
 pytest ./lib/pbench/test/unit/common ./lib/pbench/test/unit/agent ./lib/pbench/test/unit/server ./lib/pbench/test/functional
+pytest_sts=${?}
+if [[ ${pytest_sts} -ne 0 ]]; then
+    printf -- "FAILED: pytest ...\n" >&2
+fi
+final_sts=$(( black_sts + flake_sts + pytest_sts))
+exit ${final_sts}
