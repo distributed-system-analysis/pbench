@@ -54,6 +54,9 @@ if [[ ${?} -ne 0 ]]; then
     exit 1
 fi
 
+find . -name __pycache__ -exec rm -r {} \; > /dev/null 2>&1
+rm -rf /tmp/${USER}/tox
+
 podman run -it --userns=keep-id \
     --volume ${_tmp}:/tmp:z \
     --volume ${_var_tmp}:/var/tmp:z \
