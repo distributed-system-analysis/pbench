@@ -1,0 +1,9 @@
+#!/bin/bash
+
+_script_path="$(dirname ${0})"
+pbench_bin="$(realpath -e ${_script_path}/..)"
+
+# source the base script
+. "${pbench_bin}"/base
+
+pbench-tool-meister-start "bad"

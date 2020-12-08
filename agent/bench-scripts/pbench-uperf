@@ -119,7 +119,7 @@ function usage {
 	printf    "\t\t\t\t   part of the label, just use --tool-label-pattern= to tell this script\n"
 	printf    "\t\t\t\t   the prefix pattern to use for CPU information.\n"
 	printf -- "\t--sysinfo=str,             str= comma separated values of sysinfo to be collected\n"
-	printf -- "\t                                available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t                                available: $(pbench-display-sysinfo-options)\n"
 }
 
 function gen_xml {
@@ -499,19 +499,16 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	done
 done
 
-# Start the tool meisters on each registered local/remote host
-pbench-tool-meister-start "${tool_group}"
-if [[ ${?} != 0 ]]; then
-	error_log "[${script_name}]: failed to start the tool meisters."
-	exit 1
+if [[ $postprocess_only == "n" ]]; then
+	# Start the tool meisters on each registered local/remote host
+	pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to start the tool meisters."
+		exit 1
+	fi
+
+	trap "interrupt" INT QUIT TERM
 fi
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-
-trap "interrupt" INT QUIT TERM
-pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 # start the server processes
 count=1
@@ -674,7 +671,6 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								# stop tools and clean up
 								pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
 								pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
-								pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
 
 								server_nr=1
 								for server in `echo $servers | sed -e s/,/" "/g`; do
@@ -713,6 +709,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								echo "Not going to run uperf.  Only postprocesing existing data"
 								log "Not going to run uperf.  Only postprocesing existing data"
 							fi
+							pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
 							echo "$script_path/postprocess/$benchmark-postprocess \"$benchmark_results_dir\" \"$protocol\" \"$message_size\" \"$instance\" \"$test_type\" \"$clients\" \"$servers\" \"$tool_label_pattern\" \"$tool_group\" \"${ver}\"" >"$benchmark_results_dir/$benchmark-postprocess.cmd"
 							chmod +x "$benchmark_results_dir/$benchmark-postprocess.cmd"
 							$benchmark_results_dir/$benchmark-postprocess.cmd
@@ -743,15 +740,13 @@ done
 echo "$script_path/postprocess/generate-benchmark-summary \"$benchmark\" \"$orig_cmd\" \"$benchmark_run_dir\"" >"$benchmark_run_dir/generate-benchmark-summary.cmd"
 chmod +x "$benchmark_run_dir/generate-benchmark-summary.cmd"
 $benchmark_run_dir/generate-benchmark-summary.cmd
-pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
-
-# Stop the tool meisters on each registered local/remote host
-pbench-tool-meister-stop
-if [[ ${?} != 0 ]]; then
-	error_log "[${script_name}]: failed to stop the tool meisters."
+if [[ $postprocess_only == "n" ]]; then
+	# Stop the tool meisters on each registered local/remote host
+	pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to stop the tool meisters."
+	fi
 fi
 
 rmdir $benchmark_run_dir/.running

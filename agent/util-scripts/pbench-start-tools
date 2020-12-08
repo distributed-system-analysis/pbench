@@ -10,7 +10,7 @@ action=${_suffix%%-*}
 # source the base script
 . "${pbench_bin}"/base
 
-if [[ "${action}" != "end" && "${action}" != "init" && "${action}" != "kill" && "${action}" != "send" && "${action}" != "start" && "${action}" != "stop" ]]; then
+if [[ "${action}" != "kill" && "${action}" != "send" && "${action}" != "start" && "${action}" != "stop" ]]; then
 	error_log "[${script_name}] action \"${action}\" is not supported"
 	exit 1
 fi

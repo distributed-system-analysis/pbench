@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+# -*- mode: python -*-
+
+"""pbench-display-sysinfo-options - helper CLI interface for the bench-scripts
+   to display the system information collection options.
+"""
+
+import sys
+
+from pbench.agent.utils import verify_sysinfo, error_log
+
+
+good_l, bad_l = verify_sysinfo(sys.argv[1])
+if bad_l:
+    items = ",".join(bad_l)
+    # No good items, just a list of bad items.
+    error_log(f'invalid sysinfo option, "{items}"')
+    sts = 1
+else:
+    # No bad items, declare success.
+    sts = 0
+sys.exit(sts)

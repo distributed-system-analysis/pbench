@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+# -*- mode: python -*-
+
+"""pbench-display-sysinfo-options - helper CLI interface for the bench-scripts to display the system information collection options.
+"""
+
+import sys
+
+from pbench.agent.constants import sysinfo_opts_available
+
+opts = ", ".join(sorted(list(sysinfo_opts_available)))
+print(f"default, none, all, {opts}")
+sys.exit(0)

@@ -21,13 +21,15 @@ export _testdir=${_testroot}/pbench
 # Copy util-scripts execution environment to _testroot
 _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p ${_testopt}/config ${_testopt}/util-scripts/tool-meister ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
+mkdir -p ${_testopt}/config ${_testopt}/templates ${_testopt}/util-scripts/tool-meister ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
 let res=res+${?}
 cat ${_tdir}/../base.ut.pre ${_tdir}/../base ${_tdir}/../base.ut.post > ${_testopt}/base
 let res=res+${?}
 cp -rL ${_tdir}/../config/* ${_testopt}/config/
 # rename pbench-agent.cfg - we need to process it for each test but it gets cleaned up after each test.
 mv ${_testopt}/config/pbench-agent.cfg ${_testopt}/config/pbench-agent.cfg.orig
+let res=res+${?}
+cp -a ${_tdir}/../templates/* ${_testopt}/templates/
 let res=res+${?}
 cp -a ${_tdir}/{require-rpm,pbench-*} ${_testopt}/util-scripts/
 let res=res+${?}
@@ -104,7 +106,7 @@ function _run {
     local sortit=${1}
     shift
 
-    pushd ${_testdir} > /dev/null 2>&1
+    pushd ${_testdir} > /dev/null
     if [[ ${?} -ne 0 ]]; then
         exit 1
     fi
@@ -117,7 +119,7 @@ function _run {
     eval ${tscrpt} ${opts} > ${_runout} 2>&1
     sts=${?}
 
-    popd > /dev/null 2>&1
+    popd > /dev/null
     if [[ ${?} -ne 0 ]]; then
         exit 1
     fi
@@ -216,6 +218,8 @@ function _verify_output {
            -e 's;raw_size = [0-9][0-9]*;raw_size = #####;g' \
            -e 's;v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*;v#.##.##;g' \
            -e 's;"pid": [0-9][0-9]*\([,}]\);"pid": NNNNN\1;g' \
+           -e "s;'pid': [0-9][0-9]*\([,}]\);'pid': NNNNN\1;g" \
+           -e "s;\(waiting for tool-data-sink\) ([0-9][0-9]*) \(to exit\);\1 (#####) \2;g" \
            -e 's;tar up [0-9][0-9]* bytes;tar up ##### bytes;g' \
            ${_testout}
     if [[ ${?} -ne 0 ]]; then
@@ -311,10 +315,6 @@ let errs=0
 
 declare -A tools=(
     [test-00]="pbench-register-tool"
-    [test-01]="pbench-metadata-log"
-    [test-02]="pbench-metadata-log"
-    [test-03]="pbench-metadata-log"
-    [test-04]="pbench-metadata-log"
     [test-05]="pbench-start-tools"
     [test-06]="pbench-stop-tools"
     [test-07]="pbench-postprocess-tools"
@@ -336,18 +336,17 @@ declare -A tools=(
     [test-11.12]="pbench-register-tool-set"
     [test-11.13]="pbench-register-tool-set"
     [test-11.14]="pbench-register-tool-set"
+    [test-17]="test-tm-start-bad-group"
+    [test-18]="test-tm-stop-bad-group"
     [test-19]="test-tool-trigger"
     [test-20]="pbench-move-results"
     [test-21]="pbench-move-results"
-    [test-22]="pbench-metadata-log"
-    [test-23]="pbench-collect-sysinfo"
-    [test-24]="pbench-collect-sysinfo"
-    [test-25]="pbench-collect-sysinfo"
-    [test-26]="pbench-collect-sysinfo"
-    [test-27]="pbench-collect-sysinfo"
-    [test-28]="pbench-collect-sysinfo"
-    [test-29]="pbench-collect-sysinfo"
-    [test-30]="pbench-collect-sysinfo"
+    [test-25]="pbench-verify-sysinfo-options"
+    [test-26]="pbench-verify-sysinfo-options"
+    [test-27]="pbench-verify-sysinfo-options"
+    [test-28]="pbench-verify-sysinfo-options"
+    [test-29]="test-verify-sysinfo-options"
+    [test-30]="pbench-verify-sysinfo-options"
     [test-31]="pbench-copy-results"
     [test-32]="pbench-copy-results"
     [test-33]="pbench-move-results"
@@ -365,19 +364,16 @@ declare -A tools=(
     [test-47]="pbench-register-tool"
     [test-48]="test-add-metalog-%-option"
     [test-49]="pbench-copy-results"
-    [test-50]="test-pbench-metadata-log"
     [test-51]="test-start-stop-tool-meister"
     [test-52]="test-start-stop-tool-meister"
     [test-53]="test-client-tool-meister"
-    [test-54]="pbench-collect-sysinfo"
-    [test-55]="pbench-collect-sysinfo"
+    [test-54]="pbench-tool-meister-start"
+    [test-55]="pbench-tool-meister-stop"
     [test-56]="test-client-tool-meister"
     [test-57]="test-client-tool-meister"
     [test-58]="pbench-stop-tools"
     [test-59]="pbench-postprocess-tools"
     [test-60]="pbench-send-tools"
-    [test-61]="pbench-init-tools"
-    [test-62]="pbench-end-tools"
 )
 
 declare -A sortem=(
@@ -387,10 +383,6 @@ declare -A sortem=(
 
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
-    [test-01]="--dir=${_testdir}/mock-run beg"
-    [test-02]="--dir=${_testdir}/mock-run beg"
-    [test-03]="--dir=${_testdir}/mock-run beg"
-    [test-04]="--dir=${_testdir}/mock-run beg"
     [test-05]="--group=default --dir=42-iter/sample42"
     [test-06]="--group=default --dir=42-iter/sample42"
     [test-07]="--group=foobar --dir=${_testdir}/42-iter/sample42"
@@ -423,15 +415,12 @@ declare -A options=(
     [test-20]="--help"
     # pbench-move-results - no args, nothing to do
     #[test-21]=""
-    [test-22]="--dir=${_testdir}/mock-run end"
-    [test-23]="--help"
-    [test-24]="--options"
-    [test-25]="--check --sysinfo=all"
-    [test-26]="--check --sysinfo=none"
-    [test-27]="--check --sysinfo=default"
-    [test-28]="--check --sysinfo=block,libvirt,kernel_config,sos,topology"
-    [test-29]="--check --sysinfo=block,sos,bad,topology"
-    [test-30]="--check --sysinfo=libvirt,default,kernel_config,all,topology,none"
+    [test-25]="all"
+    [test-26]="none"
+    [test-27]="default"
+    [test-28]="block,libvirt,kernel_config,sos,topology"
+    [test-29]="block,sos,bad,topology,bad2"
+    [test-30]="libvirt,default,kernel_config,all,topology,none"
     # pbench-copy-results - verify prefix and user are recorded
     [test-31]="--prefix=foo/bar --user=ndk"
     # pbench-copy-results
@@ -459,29 +448,27 @@ declare -A options=(
     # pbench-copy-results - verify handling of "%"
     [test-49]="--prefix=foo/bar3% --user=ndk20%"
     [test-52]="mygroup"
-    [test-54]="bad"
-    [test-55]="--dir=${_testdir}/mock-run end"
+    [test-54]="--help"
+    [test-55]="--help"
     [test-56]="lite with-remotes"
-    [test-57]="lite with-remotes delayed-send"
+    [test-57]="lite with-remotes delayed-send interrupt"
     [test-58]="--group=default --dir=42-iter/sample42"
     [test-59]="--group=foobar --dir=42-iter/sample42"
     [test-60]="--group=default --dir=42-iter/sample42"
-    [test-61]="--group=default --dir=${_testdir}/mock-run"
-    [test-62]="--group=default --dir=${_testdir}/mock-run"
 )
 
 declare -A expected_status=(
-    [test-01]=1
     [test-09]=1
     [test-10]=1
     [test-11.07]=1
     [test-11.08]=1
     [test-11.11]=1
+    [test-17]=1
+    [test-18]=1
     [test-29]=1
     [test-44]=1
     [test-46]=1
     [test-47]=1
-    [test-54]=1
     [test-58]=1
     [test-59]=1
     [test-60]=1
@@ -498,9 +485,6 @@ declare -A pre_hooks=(
     [test-46]='mkdir ${_testdir}/tmp; printf -- "# bad list\none.example.com\ntwo.example.com,labelTwo\n\nthree.example.com,labelThree,junk\n" > ${_testdir}/tmp/remotes.lis'
     [test-47]='mkdir ${_testdir}/tmp; printf -- "# good list with no labels\none.example.com\ntwo.example.com\nthree.example.com\n" > ${_testdir}/tmp/remotes.lis'
     [test-48]='mkdir ${_testdir}/tmp; printf -- "%s\n" "30%" > ${_testdir}/tmp/foo.txt'
-    [test-55]='pbench-register-tool --name=mpstat --remote=localhost > /dev/null; mkdir ${_testdir}/mock-run; ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
-    [test-61]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
-    [test-62]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client; mkdir -p ${_testdir}/mock-run/tools-default'
 )
 
 function sort_testlog {
@@ -527,11 +511,8 @@ declare -A post_hooks=(
     [test-07]='cat ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/postprocess.log >> ${_testout} 2>&1'
     [test-19]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-53]='sort_testlog'
-    [test-55]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-56]='sort_testlog; sort_tdslog; sort_tmlogs'
     [test-57]='sort_testlog; sort_tdslog; sort_tmlogs'
-    [test-61]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
-    [test-62]='rm ${_testopt}/unittest-scripts/pbench-tool-meister-client'
 )
 
 # Verify that there are no dangling gold files and sample directories.
@@ -545,6 +526,11 @@ while read -r _path; do
     if [[ -z "${tool}" ]]; then
         printf -- "Dangling sample: ${_path}\n" >&2
         (( cnt = cnt + 1 ))
+        continue
+    fi
+    if [[ ! -e ${_tdir}/samples/${tool}/${_name} ]]; then
+        printf -- "Incorrect sample file: ${_path}\n" >&2
+        (( cnt = cnt + 1 ))
     fi
 done <<< "$(ls -1d ${_tdir}/samples/*/test-*)"
 while read -r _path; do
@@ -555,6 +541,11 @@ while read -r _path; do
     tool=${tools[${_name%.*}]}
     if [[ -z "${tool}" ]]; then
         printf -- "Dangling gold: ${_path}\n" >&2
+        (( cnt = cnt + 1 ))
+        continue
+    fi
+    if [[ ! -e ${_tdir}/gold/${tool}/${_name} ]]; then
+        printf -- "Incorrect gold file: ${_path}\n" >&2
         (( cnt = cnt + 1 ))
     fi
 done <<< "$(ls -1d ${_tdir}/gold/*/test-*)"

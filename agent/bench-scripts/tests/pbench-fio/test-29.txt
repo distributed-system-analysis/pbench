@@ -86,7 +86,7 @@ The following options are available:
 		set the histogram logging interval in seconds (default 10)
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
-		available: default collect sysinfo options
+		available: default, none, all, ara, block, insights, kernel_config, libvirt, security_mitigations, sos, stockpile, topology
 
 	--unique-ports           Use unique ports for each server
 --- Finished test-29 pbench-fio (status=1)
@@ -99,6 +99,3 @@ The following options are available:
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
-+++ test-execution.log file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --options
---- test-execution.log file contents

@@ -24,14 +24,18 @@ use PbenchCDM        qw(create_run_doc create_config_osrelease_doc create_config
 use PbenchBase       qw(get_json_file put_json_file get_benchmark_names get_pbench_run_dir
                         get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir
                         get_benchmark_results_dir get_params remove_params get_hostname
-                        metadata_log_begin_run metadata_log_end_run metadata_log_record_iteration);
+                        begin_run end_run interrupt_run metadata_log_record_iteration
+                        get_pbench_datetime);
 use PbenchAnsible    qw(ssh_hosts ping_hosts copy_files_to_hosts copy_files_from_hosts
                         remove_files_from_hosts remove_dir_from_hosts create_dir_hosts
                         sync_dir_from_hosts verify_success stockpile_hosts);
 
-my %defaults = ( "num-samples" => 1,
-                 "tool-group" => "default",
-                 "postprocess-mode" => "html"); # other mode is "cdm"
+my %defaults = (
+    "num-samples" => 1,
+    "tool-group" => "default",
+    "sysinfo" => "default",
+    "postprocess-mode" => "html"  # other mode is "cdm"
+);
 
 my $pp_only = 0;
 my $base_bench_dir = "";
@@ -143,13 +147,15 @@ for my $def (keys %defaults) {
     }
 }
 
+my $date = get_pbench_datetime();
+
 # Prepare all the dirs for the run
 if ($pp_only) {
     if (! -e $base_bench_dir) {
         die "Expected the base benchmark directory, [$base_bench_dir], to already exist, since this is a post-process only mode";
     }
 } else {
-    $base_bench_dir = get_benchmark_results_dir($benchmark, $params{"user-tags"});
+    $base_bench_dir = get_benchmark_results_dir($benchmark, $params{"user-tags"}, $date);
     # Spaces in directories, just don't do it
     $base_bench_dir =~ s/\s+/_/g;
     mkdir("$base_bench_dir");
@@ -202,23 +208,26 @@ if ($rc != 0) {
 }
 my @iteration_names;
 my %param_sets_common_params = find_common_parameters(@param_sets);
-my $fh;
+
+my $iterations_and_params_fh;
+my $iterations_fh;
 
 if (! $pp_only) {
-    open($fh, ">" . $base_bench_dir . "/iteration-list.txt");
+    mkdir($base_bench_dir);
+    open($iterations_and_params_fh, ">" . $base_bench_dir . "/iteration-list.txt");
+    open($iterations_fh, ">" . $base_bench_dir . "/.iterations");
 
     sub signal_handler {
-        system("pbench-tool-meister-stop");
-        metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $tool_group, @iteration_names);
+        interrupt_run($tool_group);
     }
 
     $SIG{INT} = "signal_handler";
     $SIG{QUIT} = "signal_handler";
     $SIG{TERM} = "signal_handler";
 
-    # start tool meister
-    system("pbench-tool-meister-start " . $tool_group);
-    metadata_log_begin_run($base_bench_dir, $benchmark, $tool_group);
+    # start tool meister ensuring benchmark, config, and date ENVs are presented so
+    # that they are recorded by the Tool Data Sink in the metadata.log file.
+    begin_run($base_bench_dir, $benchmark, $params{"user-tags"}, $date, $params{"sysinfo"}, $tool_group);
 }
 
 # There can be multiple parts of a run if the user generated multiple parameter-sets
@@ -325,7 +334,8 @@ while (scalar @param_sets > 0) {
         if (! $pp_only) {
             put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
             metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params, $iteration_name);
-            printf $fh "%d %s\n", $iteration_id, $iteration_params;
+            printf $iterations_fh "%d\n", $iteration_id;
+            printf $iterations_and_params_fh "%d %s\n", $iteration_id, $iteration_params;
         }
         printf "\n\n\niteration_ID: %d\niteration_params: %s\n", $iteration_id, $iteration_params;
         my $iteration_dir = $base_bench_dir . "/" . $iteration_name;
@@ -412,12 +422,13 @@ while (scalar @param_sets > 0) {
     %last_run_doc = %run_doc; # We need to keep at least 1 run doc to create the config docs later
     $run_part++;
 }
+
 if (! $pp_only) {
-    metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $tool_group, @iteration_names);
-    # stop tool meister
-    system("pbench-tool-meister-stop");
-    close $fh;
+    close $iterations_fh;
+    close $iterations_and_params_fh;
+    end_run($params{"sysinfo"}, $tool_group);
 }
+
 if ($params{'postprocess-mode'} eq 'html') {
     # Generate the result.html (to go away once CDM/Elastic UI is available)
     print "Running generate-benchmark-summary...";

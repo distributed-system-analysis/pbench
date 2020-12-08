@@ -24,28 +24,41 @@ else
      group="${1}"
 fi
 
+sysinfo="block,security_mitigations,sos"
+
 function register {
     if [[ -z "${2}" ]]; then
         local remote_arg=""
     else
         local remote_arg=" --remote ${2}"
     fi
-    pbench-register-tool --group "${group}" --name ${1}${remote_arg} -- --interval=42 --options=forty-two
+    if [[ -z "${3}" ]]; then
+        local label_arg=""
+    else
+        local label_arg=" --label ${3}"
+    fi
+    if [[ "${1}" == "node-exporter" || "${1}" == "dcgm" ]]; then
+        pbench-register-tool --group "${group}" --name ${1}${remote_arg}${label_arg} -- --inst=${_script_path}
+    else
+        pbench-register-tool --group "${group}" --name ${1}${remote_arg}${label_arg} -- --interval=42 --options=forty-two
+    fi
     status=${?}
     if [[ ${status} -ne 0 ]]; then
-        printf -- "ERROR - \"pbench-register-tool --group %s --name %s\" failed to execute successfully (exit code: %s)\n" "${group}" "${1}${remote_arg}" "${status}" >&2
+        printf -- "ERROR - \"pbench-register-tool --group %s --name %s\" failed to execute successfully (exit code: %s)\n" "${group}" "${1}${remote_arg}${label_arg}" "${status}" >&2
         exit 1
     fi
 }
 
-# Always register a local tool
+# Always register local tools, transient and persistent
 register mpstat
-register iostat
+register dcgm
 
 if [[ "${2}" == "with-remotes" ]]; then
     register mpstat remote_a.example.com
-    register mpstat remote_b.example.com
-    register mpstat remote_c.example.com
+    register mpstat remote_b.example.com blue
+    register node-exporter remote_b.example.com blue
+    register dcgm remote_c.example.com red
+    register pcp remote_c.example.com red
 fi
 
 # We created the benchmark_run_dir directory as the tool meister expects it to
@@ -61,31 +74,22 @@ function _timeout {
     timeout --kill-after=30 --signal TERM 60 $*
 }
 
-PBENCH_TM_BIND_HOSTNAME="localhost" _timeout pbench-tool-meister-start ${group}
-status=${?}
-if [[ ${status} -ne 0 ]]; then
-    printf -- "ERROR - \"pbench-tool-meister-start %s\" failed to execute successfully (exit code: %s)\n" "${group}" "${status}" >&2
-    exit 1
-fi
+source ${_script_path}/common-tm-cleanup
 
-_timeout pbench-collect-sysinfo --group="${group}" --dir="${benchmark_run_dir}" --sysinfo="block,security_mitigations,sos" beg
+PBENCH_TM_BIND_HOSTNAME="localhost" _timeout pbench-tool-meister-start --sysinfo="${sysinfo}" "${group}"
 status=${?}
 if [[ ${status} -ne 0 ]]; then
-    printf -- "ERROR - \"pbench-collect-sysinfo\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
-    exit 1
-fi
-
-_timeout pbench-init-tools --group="${group}" --dir="${benchmark_run_dir}"
-status=${?}
-if [[ ${status} -ne 0 ]]; then
-    printf -- "ERROR - \"pbench-init-tools\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+    printf -- "ERROR - \"pbench-tool-meister-start --sysinfo='%s' '%s'\" failed to execute successfully (exit code: %s)\n" "${sysinfo}" "${group}" "${status}" >&2
     exit 1
 fi
 
 sample="sample42"
 iterations="0-iter-zero 1-iter-one"
 
+> ${benchmark_run_dir}/.iterations
+
 for iteration in ${iterations}; do
+    echo "${iteration}" >> ${benchmark_run_dir}/.iterations
     benchmark_results_dir="${benchmark_run_dir}/${iteration}/${sample}"
     mkdir -p ${benchmark_results_dir}
     status=${?}
@@ -127,23 +131,13 @@ if [[ "${3}" == "delayed-send" ]]; then
     done
 fi
 
-_timeout pbench-end-tools --group="${group}" --dir="${benchmark_run_dir}"
-status=${?}
-if [[ ${status} -ne 0 ]]; then
-    printf -- "ERROR - \"pbench-end-tools\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
-    exit 1
+if [[ "${4}" == "interrupt" ]]; then
+    _timeout pbench-tool-meister-stop --sysinfo="${sysinfo}" --interrupt "${group}"
+else
+    _timeout pbench-tool-meister-stop --sysinfo="${sysinfo}" "${group}"
 fi
-
-_timeout pbench-collect-sysinfo --group="${group}" --dir="${benchmark_run_dir}" --sysinfo="block,security_mitigations,sos" end
 status=${?}
 if [[ ${status} -ne 0 ]]; then
-    printf -- "ERROR - \"pbench-collect-sysinfo\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
-    exit 1
-fi
-
-_timeout pbench-tool-meister-stop
-status=${?}
-if [[ ${status} -ne 0 ]]; then
-    printf -- "ERROR - \"pbench-tool-meister-stop\" failed to execute successfully (exit code: %s)\n" "${status}" >&2
+    printf -- "ERROR - \"pbench-tool-meister-stop --sysinfo='%s' '%s'\" failed to execute successfully (exit code: %s)\n" "${sysinfo}" "${group}" "${status}" >&2
     exit 1
 fi

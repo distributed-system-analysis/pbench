@@ -14,14 +14,5 @@ with open(os.environ["_testlog"], "a") as ofp:
 
 tgtdir = Path(sys.argv[1])
 sysinfo = sys.argv[2]
-try:
-    label = sys.argv[3]
-except IndexError:
-    label = ""
-hostname = os.environ["_pbench_full_hostname"]
-hostdir = f"{label}:{hostname}" if label else hostname
-
-(tgtdir / hostdir).mkdir()
-
-(tgtdir / hostdir / "contents.lis").write_text(sysinfo)
+(tgtdir / "contents.lis").write_text(sysinfo)
 sys.exit(0)
