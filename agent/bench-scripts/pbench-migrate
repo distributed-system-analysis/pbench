@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
 # This is a script to run the migrate benchmark
 # Author: Andrew Theurer
@@ -43,7 +43,6 @@ clients=`cat /proc/cpuinfo | grep processor | wc -l`
 samples=5
 maxstddevpct=3 # maximum allowable standard deviation in percent
 max_failures=6 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
-postprocess_only=n
 start_iteration_num=1
 orig_cmd="$*"
 postprocess=yes
@@ -74,7 +73,7 @@ function usage {
 	printf -- "\t\t                                        0 = 1 migration, just to dest-host (no round-trip migration, VM ends up on dest-host).\n"
 	printf -- "\t\t                                        1 = 2 migrations, 2 = 4 migrations, etc.  VM ends up on src-host\n"
 	printf -- "\t\t--sysinfo=str,                          str= comma separated values of sysinfo to be collected\n"
-	printf -- "\t\t                                             available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t                                             available: $(pbench-display-sysinfo-options)\n"
 }
 
 # Process options and arguments
@@ -348,19 +347,16 @@ if [ $loops -eq 0 ]; then
 	loops=1
 fi
 
-# Start the tool meisters on each registered local/remote host
-pbench-tool-meister-start "${tool_group}"
-if [[ ${?} != 0 ]]; then
-	error_log "[${script_name}]: failed to start the tool meisters."
-	exit 1
+if [[ "$postprocess" != "only" ]]; then
+	# Start the tool meisters on each registered local/remote host
+	pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to start the tool meisters."
+		exit 1
+	fi
+
+	trap "interrupt" INT QUIT TERM
 fi
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-
-trap "interrupt" INT QUIT TERM
-pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 count=1
 for i in `seq 1 $loops`; do
@@ -408,22 +404,22 @@ for postprocess_dir in $postprocess_dirs; do
 	fi
 	iteration_path=$(dirname "${postprocess_dir}")
 	ln -s sample1 ${iteration_path}/reference-result
-	# We request all remote Tool Meisters send the data for a given iteration
-	# sequentially, but we'll post-process the data in parallel.
-	pbench-send-tools --group=${tool_group} --dir=${postprocess_dir}
+	if [[ "$postprocess" != "only" ]]; then
+		# We request all remote Tool Meisters send the data for a
+		# given iteration sequentially, but we'll post-process the
+		# data in parallel.
+		pbench-send-tools --group=${tool_group} --dir=${postprocess_dir}
+	fi
 	pbench-postprocess-tools --group=${tool_group} --dir=${postprocess_dir} &
 done
 wait
 
-pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
-
-# Stop the tool meisters on each registered local/remote host
-pbench-tool-meister-stop
-if [[ ${?} != 0 ]]; then
-	error_log "[${script_name}]: failed to stop the tool meisters."
+if [[ "$postprocess" != "only" ]]; then
+	# Stop the tool meisters on each registered local/remote host
+	pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to stop the tool meisters."
+	fi
 fi
 
 rmdir $benchmark_run_dir/.running

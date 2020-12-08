@@ -15,7 +15,7 @@ if [[ "${lastidx}" -lt 0 ]] ;then
 fi
 
 last=${args[${lastidx}]}
-if [[ "${prog}" == "pbench-metadata-log" && "${last}" == "beg" ]]; then
+if [[ "${prog}" == "pbench-tool-meister-start" ]]; then
     echo [pbench] > ${benchmark_run_dir}/metadata.log
 elif [[ "${prog}" == "cat" && "${args[0]}" == "/proc/cmdline" ]]; then
     echo "intel_iommu=on"

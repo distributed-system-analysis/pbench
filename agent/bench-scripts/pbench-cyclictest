@@ -43,7 +43,7 @@ function usage {
 	printf -- "\t\t-s --stress                                   run stress process on the same cpu as --cpu\n"
 	printf -- "\t\t--tool-group=str\n"
 	printf -- "\t\t--sysinfo=str,                                str= comma separated values of sysinfo to be collected\n"
-	printf -- "\t\t                                                   available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t                                                   available: $(pbench-display-sysinfo-options)\n"
 }
 
 # Process options and arguments
@@ -142,15 +142,11 @@ printf "<pre>\n# these results generated with:\n# uperf %s\n\n" "$scrtip_name $o
 printf "\n" >>$benchmark_summary_html_file
 
 # Start the tool meisters on each registered local/remote host
-pbench-tool-meister-start "${tool_group}"
+pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to start the tool meisters."
 	exit 1
 fi
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
 
 trap "interrupt" INT QUIT TERM
 
@@ -165,7 +161,6 @@ if [ $stress ]; then
 fi
 sample="sample1"
 count=1
-pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	benchmark_cmd="cyclictest -m -n -q -p99 -h60 -D $runtime"
 	iteration="${count}-runtime_${runtime}"
@@ -192,16 +187,12 @@ for runtime in `echo $runtimes | sed -e s/,/" "/g`; do
 	printf "%20s%20s%20s%20s\n" "$iteration" "$min" "$avg" "$max" >>$benchmark_summary_txt_file
 	let count=$count+1
 done
-pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
 if [ $stress ]; then
 	kill $stress_pid
 fi
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 # Stop the tool meisters on each registered local/remote host
-pbench-tool-meister-stop
+pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to stop the tool meisters."
 fi

@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
 # This is a script to run the netperf benchmark
 # Note: This script is under development, and since netperf and uperf have very similar
@@ -184,7 +184,7 @@ function usage {
 	printf -- "\t\t             --server-label=str             provide the pbench netperf-server tool label and postprocessing will\n"
 	printf    "\t\t                                            compute a netperf-server result/CPU metric\n"
 	printf -- "\t\t             --sysinfo=str,                 str= comma separated values of sysinfo to be collected\n"
-	printf -- "\t\t                                                 available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t                                                 available: $(pbench-display-sysinfo-options)\n"
 }
 
 # Process options and arguments
@@ -436,22 +436,16 @@ printf "<pre>\n# these results generated with:\n# netperf %s\n\n" "$orig_cmd" >$
 printf "\n" >>$benchmark_summary_txt_file
 printf "\n" >>$benchmark_summary_html_file
 
-# disable firewall on local system
-systemctl stop firewalld
+if [[ "$postprocess_only" != "y" ]]; then
+	# Start the tool meisters on each registered local/remote host
+	pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to start the tool meisters."
+		exit 1
+	fi
 
-# Start the tool meisters on each registered local/remote host
-pbench-tool-meister-start "${tool_group}"
-if [[ ${?} != 0 ]]; then
-	error_log "[${script_name}]: failed to start the tool meisters."
-	exit 1
+	trap "interrupt" INT QUIT TERM
 fi
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-
-trap "interrupt" INT QUIT TERM
-pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 # start the server processes
 count=1
@@ -532,10 +526,10 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 								fi
 								pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
 								pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
-								pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
 							else
 								echo "Not going to run netperf.  Only postprocesing existing data"
 							fi
+							pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
 							debug_log "$script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration $server_label $client_label"
 							$script_path/postprocess/$benchmark-postprocess $benchmark_results_dir $iteration "$server_label" "$client_label"
 							mv $benchmark_results_dir/netperf-average.txt $benchmark_results_dir/result.txt
@@ -638,15 +632,13 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 	done
 done
 printf -- "</pre>\n" >>$benchmark_summary_html_file
-pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
 
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
-
-# Stop the tool meisters on each registered local/remote host
-pbench-tool-meister-stop
-if [[ ${?} != 0 ]]; then
-	error_log "[${script_name}]: failed to stop the tool meisters."
+if [[ "$postprocess_only" != "y" ]]; then
+	# Stop the tool meisters on each registered local/remote host
+	pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
+	if [[ ${?} != 0 ]]; then
+		error_log "[${script_name}]: failed to stop the tool meisters."
+	fi
 fi
 
 rmdir $benchmark_run_dir/.running

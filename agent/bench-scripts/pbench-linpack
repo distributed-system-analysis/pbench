@@ -36,10 +36,9 @@ threads=`cat /proc/cpuinfo | grep processor | wc -l`
 
 # Defaults
 baseconfig="`uname -r`"
-postprocess_only=n
 start_iteration_num=1
 orig_cmd="$*"
-tool_group=default
+tool_group="default"
 export config=""
 sysinfo="default"
 
@@ -49,7 +48,7 @@ function usage {
 	printf -- "\t       --threads=int[,int]  number of threads to use (default is num_cpus)\n"
 	printf -- "\t       --tool-group=str\n"
 	printf -- "\t       --sysinfo=str,       str= comma separated values of sysinfo to be collected\n"
-	printf -- "\t                                available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t                                available: $(pbench-display-sysinfo-options)\n"
 }
 
 # Process options and arguments
@@ -136,35 +135,27 @@ result_file=$benchmark_results_dir/result.txt
 mkdir -p $benchmark_results_dir
 
 # Start the tool meisters on each registered local/remote host
-pbench-tool-meister-start "${tool_group}"
+pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to start the tool meisters."
 	exit 1
 fi
 
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-
 trap "interrupt" INT QUIT TERM
-pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 ## Run the benchmark and start/stop perf analysis tools
 pbench-start-tools --group=$tool_group --dir=$benchmark_results_dir
 
 OMP_NUM_THREADS=$threads ${linpack_dir}/${linpack_cmd} < ${linpack_dir}/${linpack_dat} | tee $result_file
 
+pbench-stop-tools --group=$tool_group --dir=$benchmark_results_dir
 pbench-send-tools --group=$tool_group --dir=$benchmark_results_dir
 pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
 
 ln -s ${sample} $benchmark_run_dir/$iteration/reference-result
-pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 # Stop the tool meisters on each registered local/remote host
-pbench-tool-meister-stop
+pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to stop the tool meisters."
 fi

@@ -87,7 +87,7 @@ function usage {
 	printf    "\t\t\tnumber of iozone runs - default is 10 runs\n"
 	printf -- "\t\t--tool-group=str\n"
 	printf -- "\t\t--sysinfo=str, str= comma separated values of sysinfo to be collected\n"
-	printf -- "\t\t                    available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t                    available: $(pbench-display-sysinfo-options)\n"
 }
 
 opts=$(getopt -q -o C:d:hn:r:s: --longoptions "config:,targets:,file_sizes:,record_sizes:,number_of_runs:,tool-group:,sysinfo:,help" -n "getopt.sh" -- "$@");
@@ -194,18 +194,13 @@ mkdir -p $benchmark_run_dir/.running
 > ${benchmark_iterations}
 
 # Start the tool meisters on each registered local/remote host
-pbench-tool-meister-start "${tool_group}"
+pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to start the tool meisters."
 	exit 1
 fi
 
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-
 trap "interrupt" INT QUIT TERM
-pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 benchmark_results_dir="$benchmark_run_dir/$iteration/${sample}"
 echo $iteration >> $benchmark_iterations
@@ -229,13 +224,8 @@ pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
 
 ln -s ${sample} $benchmark_run_dir/$iteration/reference-result
 
-pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
-
 # Stop the tool meisters on each registered local/remote host
-pbench-tool-meister-stop
+pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to stop the tool meisters."
 fi

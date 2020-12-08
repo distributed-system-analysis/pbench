@@ -25,19 +25,16 @@ util-scripts = \
 	cdm-get-iterations \
 	pbench-add-metalog-option \
 	pbench-avg-stddev \
-	pbench-collect-sysinfo \
 	pbench-copy-results \
 	pbench-copy-result-tb \
-	pbench-end-tools \
+	pbench-display-sysinfo-options \
 	pbench-get-iteration-metrics \
 	pbench-get-metric-data \
 	pbench-get-primary-metric \
 	pbench-import-cdm \
-	pbench-init-tools \
 	pbench-kill-tools \
 	pbench-log-timestamp \
 	pbench-make-result-tb \
-	pbench-metadata-log \
 	pbench-move-results \
 	pbench-output-monitor \
 	pbench-postprocess-tools \
@@ -47,12 +44,12 @@ util-scripts = \
 	pbench-send-tools \
 	pbench-start-tools \
 	pbench-stop-tools \
-	pbench-sysinfo-dump \
 	pbench-tool-meister-client \
 	pbench-tool-meister-start \
 	pbench-tool-meister-stop \
 	pbench-tool-trigger \
-	README \
+	pbench-verify-sysinfo-options \
+	README.md \
 	require-rpm \
 	tool-meister
 
