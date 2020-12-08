@@ -38,6 +38,7 @@ import errno
 import hashlib
 import json
 import logging
+import logging.handlers
 import os
 import requests
 import requests.exceptions
@@ -1215,7 +1216,7 @@ def get_logger(PROG, daemon=False):
     if unit_tests or not daemon:
         sh = logging.StreamHandler()
     else:
-        sh = logging.SysLogHandler()
+        sh = logging.handlers.SysLogHandler()
     sh.setLevel(log_level)
     shf = logging.Formatter(fmtstr_ut if unit_tests else fmtstr)
     sh.setFormatter(shf)
