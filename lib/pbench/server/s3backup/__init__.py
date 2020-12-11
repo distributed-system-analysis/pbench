@@ -306,7 +306,7 @@ class S3Connector(Connector):
         md5s = []
 
         with open(tb, "rb") as fp:
-            for data in fp.read(chunk_size):
+            for data in iter(lambda: fp.read(chunk_size), b""):
                 md5s.append(hashlib.md5(data))
 
         if len(md5s) > 1:
