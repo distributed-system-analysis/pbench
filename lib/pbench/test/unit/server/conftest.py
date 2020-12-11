@@ -37,7 +37,6 @@ files = pbench-server-default.cfg
 @pytest.fixture(scope="session", autouse=True)
 def setup(request, pytestconfig):
     """Test package setup for pbench-server"""
-    print("\nTest SETUP for pbench-server")
 
     # Create a single temporary directory for the "/srv/pbench" and
     # "/opt/pbench-server" directories.
@@ -75,7 +74,6 @@ def setup(request, pytestconfig):
 
     def teardown():
         """Test package teardown for pbench-server"""
-        print("\nTest TEARDOWN for pbench-server")
         TMP.cleanup()
 
     request.addfinalizer(teardown)
