@@ -8,6 +8,7 @@ import os
 
 from flask import Flask
 from flask_restful import Api
+from flask_cors import CORS
 
 from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
@@ -16,6 +17,7 @@ from pbench.server.api.resources.graphql_api import GraphQL
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.query_controllers import QueryControllers
+from pbench.server.api.resources.query_apis.query_month_indices import QueryMonthIndices
 
 
 def register_endpoints(api, app, config):
@@ -41,10 +43,14 @@ def register_endpoints(api, app, config):
     api.add_resource(
         GraphQL, f"{base_uri}/graphql", resource_class_args=(config, app.logger),
     )
-
     api.add_resource(
         QueryControllers,
         f"{base_uri}/controllers/list",
+        resource_class_args=(config, app.logger),
+    )
+    api.add_resource(
+        QueryMonthIndices,
+        f"{base_uri}/controllers/months",
         resource_class_args=(config, app.logger),
     )
 
@@ -69,6 +75,7 @@ def create_app(server_config):
 
     app = Flask("api-server")
     api = Api(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     app.logger = get_pbench_logger(__name__, server_config)
 

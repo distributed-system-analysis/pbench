@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, jsonify
 from flask_restful import Resource, abort
 import requests
 
@@ -94,14 +94,6 @@ class QueryControllers(Resource):
         cluster by choosing unique prefixes to generate unique index
         names.
 
-        TODO: This implementation currently returns the raw Elasticsearch
-        JSON response payload to the caller. The intent is to make this
-        more attuned to the Pbench domain by removing the Elasticsearch
-        "boilerplate" without dropping information required by a client
-        (including, in particular, the Pbench dashboard). Essentially,
-        this will extend the implementation up through the dashboard
-        "model" layer instead of simply replacing the "service" layer.
-
         Required headers include
 
         X-auth-token:   Pbench session authorization token authorized to access
@@ -114,6 +106,10 @@ class QueryControllers(Resource):
         returned Elasticsearch query results, showing the Pbench controller
         name, the number of runs using that controller name, and the start
         timestamp of the latest run both in binary and string form.
+
+        TODO: We probably need to return all *unowned* controllers when called
+        without a session token or user parameter. We need to define precisely
+        how this should work.
 
         NOTE: This is the format currently constructed by the Pbench
         dashboard `src/model/dashboard.js` fetchControllers method, which
@@ -131,10 +127,8 @@ class QueryControllers(Resource):
         """
         json_data = request.get_json(silent=True)
         if not json_data:
-            self.logger.info(
-                "QueryControllers: Invalid JSON object. Query: {}", request.url
-            )
-            abort(400, message="QueryControllers: Missing request payload")
+            self.logger.info("Invalid JSON object. Query: {}", request.url)
+            abort(400, message="Missing request payload")
 
         try:
             user = json_data["user"]
@@ -142,12 +136,8 @@ class QueryControllers(Resource):
             end_arg = json_data["end"]
         except KeyError:
             keys = [k for k in ("user", "start", "end") if k not in json_data]
-            self.logger.info(
-                "QueryControllers: Missing required JSON keys {}", ",".join(keys)
-            )
-            abort(
-                400, message=f"QueryControllers: Missing request data: {','.join(keys)}"
-            )
+            self.logger.info("Missing required JSON keys {}", ",".join(keys))
+            abort(400, message=f"Missing request data: {','.join(keys)}")
 
         # We need to support a query for public data without requiring
         # authorization; however if an Authorization header is given,
@@ -167,7 +157,7 @@ class QueryControllers(Resource):
                     '"Authorization" header specifies unsupported or missing '
                     ' schema; use "Authorization: Bearer <JWT-token>"'
                 )
-                abort(401, message="QueryControllers: invalid user authorization")
+                abort(401, message="invalid user authorization")
 
         try:
             start = parser.parse(start_arg)
@@ -176,7 +166,7 @@ class QueryControllers(Resource):
             self.logger.info(
                 "Invalid start or end time string: {}, {}: {}", start_arg, end_arg, e
             )
-            abort(400, message="QueryControllers: Invalid start or end time string")
+            abort(400, message="Invalid start or end time string")
 
         # We have nothing to authorize against yet, but print the specified
         # user and session token to prove we got them (and so the variables
@@ -234,7 +224,7 @@ class QueryControllers(Resource):
             es_response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             self.logger.exception("HTTP error {} from Elasticsearch post request", e)
-            abort(500, message=f"HTTP error {e} from Elasticsearch")
+            abort(502, message="INTERNAL ERROR")
         except requests.exceptions.ConnectionError:
             self.logger.exception(
                 "Connection refused during the Elasticsearch post request"
@@ -244,22 +234,17 @@ class QueryControllers(Resource):
             self.logger.exception(
                 "Connection timed out during the Elasticsearch post request"
             )
-            abort(
-                504, message="Connection timed out, could not post to Elasticsearch",
-            )
+            abort(504, message="Connection timed out, could not post to Elasticsearch")
         except requests.exceptions.InvalidURL:
             self.logger.exception(
                 "Invalid url {} during the Elasticsearch post request", uri
             )
-            abort(
-                500,
-                message=f"Invalid Elasticsearch url {uri}, could not complete the post request",
-            )
+            abort(500, message="INTERNAL ERROR")
         except Exception as e:
             self.logger.exception(
                 "Exception {!r} occurred during the Elasticsearch post request", e
             )
-            abort(500, message=f"Could not post to Elasticsearch: {e!r}")
+            abort(500, message="INTERNAL ERROR")
         else:
             controllers = []
             try:
@@ -276,7 +261,7 @@ class QueryControllers(Resource):
                     controllers.append(c)
             except KeyError:
                 self.logger.exception("ES response not formatted as expected")
-                abort(500, message="Elasticsearch response is odd")
+                abort(500, message="INTERNAL ERROR")
             else:
                 # construct response object
-                return controllers
+                return jsonify(controllers)
