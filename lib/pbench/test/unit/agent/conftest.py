@@ -7,7 +7,6 @@ from pathlib import Path
 
 def base_setup(request, pytestconfig):
     """Test package setup for pbench-agent"""
-    print("Test SETUP for pbench-agent")
 
     # Create a single temporary directory for the "/opt/pbench-agent" and
     # "/var/lib/pbench-agent" directories.
@@ -32,7 +31,6 @@ def base_setup(request, pytestconfig):
 
     def teardown():
         """Test package teardown for pbench-agent"""
-        print("Test TEARDOWN for pbench-agent")
         TMP.cleanup()
 
     request.addfinalizer(teardown)

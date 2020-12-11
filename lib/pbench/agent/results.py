@@ -5,11 +5,11 @@ import requests
 import sys
 import tarfile
 
+from configparser import ConfigParser
 from pathlib import Path
+
 from werkzeug.utils import secure_filename
 
-from pbench.cli.agent.commands.log import add_metalog_option
-from pbench.common import configtools
 from pbench.common.utils import md5sum
 
 
@@ -62,18 +62,17 @@ class MakeResultTb:
             )
             sys.exit(0)
 
+        mdlog_name = self.result_dir / "metadata.log"
+        mdlog = ConfigParser()
         try:
-            md_log = (self.result_dir / "metadata.log").resolve(strict=True)
+            with mdlog_name.open("r") as fp:
+                mdlog.read_file(fp)
         except FileNotFoundError:
             self.logger.debug(
                 "The {}/metadata.log file seems to be missing", pbench_run_name
             )
             sys.exit(0)
-
-        opts, _ = configtools.parse_args()
-        opts.filename = md_log
-        conf_md, _ = configtools.init(opts, None)
-        md_config = conf_md["pbench"]
+        md_config = mdlog["pbench"]
         res_name = md_config.get("name")
         if res_name != pbench_run_name:
             self.logger.warning(
@@ -85,22 +84,23 @@ class MakeResultTb:
             sys.exit(1)
 
         if self.user:
-            add_metalog_option(md_log, "run", "user", self.user)
+            mdlog.set("run", "user", self.user)
 
         if self.prefix:
-            add_metalog_option(md_log, "run", "prefix", self.prefix)
+            mdlog.set("run", "prefix", self.prefix)
 
         # FIXME: subprocess "du" command
         result_size = sum(f.stat().st_size for f in self.result_dir.rglob("*"))
         self.logger.debug(
             "preparing to tar up {} bytes of data from {}", result_size, self.result_dir
         )
-        add_metalog_option(md_log, "run", "raw_size", f"{result_size}")
+        mdlog.set("run", "raw_size", f"{result_size}")
 
         timestamp = datetime.datetime.isoformat(datetime.datetime.now())
-        add_metalog_option(
-            md_log, "pbench", "tar-ball-creation-timestamp", f"{timestamp}"
-        )
+        mdlog.set("pbench", "tar-ball-creation-timestamp", f"{timestamp}")
+
+        with mdlog_name.open("w") as fp:
+            mdlog.write(fp)
 
         # FIXME: subprocess "tar" command
         tarball = self.target_dir / f"{pbench_run_name}.tar.xz"
