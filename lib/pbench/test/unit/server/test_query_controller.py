@@ -67,9 +67,7 @@ class TestQueryControllers:
         """
         response = client.post(f"{server_config.rest_uri}/controllers/list")
         assert response.status_code == 400
-        assert (
-            response.json.get("message") == "QueryControllers: Missing request payload"
-        )
+        assert response.json.get("message") == "Missing request payload"
 
     @pytest.mark.parametrize(
         "keys",
@@ -95,8 +93,7 @@ class TestQueryControllers:
         assert response.status_code == 400
         missing = [k for k in ("user", "start", "end") if k not in keys]
         assert (
-            response.json.get("message")
-            == f"QueryControllers: Missing request data: {','.join(missing)}"
+            response.json.get("message") == f"Missing request data: {','.join(missing)}"
         )
 
     def test_bad_dates(self, client, server_config):
@@ -113,10 +110,7 @@ class TestQueryControllers:
             },
         )
         assert response.status_code == 400
-        assert (
-            response.json.get("message")
-            == "QueryControllers: Invalid start or end time string"
-        )
+        assert response.json.get("message") == "Invalid start or end time string"
 
     def test_query(self, client, server_config, query_helper):
         """
@@ -182,7 +176,7 @@ class TestQueryControllers:
     @pytest.mark.parametrize(
         "exceptions",
         (
-            {"exception": requests.exceptions.HTTPError, "status": 500},
+            {"exception": requests.exceptions.HTTPError, "status": 502},
             {"exception": requests.exceptions.ConnectionError, "status": 502},
             {"exception": requests.exceptions.Timeout, "status": 504},
             {"exception": requests.exceptions.InvalidURL, "status": 500},

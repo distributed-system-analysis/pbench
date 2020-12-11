@@ -1,7 +1,6 @@
 import requests
 from flask_restful import Resource, abort
 from flask import request, make_response
-from flask_cors import cross_origin
 
 
 class GraphQL(Resource):
@@ -12,7 +11,6 @@ class GraphQL(Resource):
         self.graphql_host = config.get_conf(__name__, "graphql", "host", self.logger)
         self.graphql_port = config.get_conf(__name__, "graphql", "port", self.logger)
 
-    @cross_origin()
     def post(self):
         self.graphql = f"http://{self.graphql_host}:{self.graphql_port}"
 
@@ -27,6 +25,9 @@ class GraphQL(Resource):
             # query GraphQL
             gql_response = requests.post(self.graphql, json=json_data)
             gql_response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            self.logger.exception("HTTP error {} from Elasticsearch post request", e)
+            abort(gql_response.status_code, message=f"HTTP error {e} from GraphQL")
         except requests.exceptions.ConnectionError:
             self.logger.exception("Connection refused during the GraphQL post request")
             abort(502, message="Network problem, could not post to GraphQL Endpoint")

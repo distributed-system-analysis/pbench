@@ -1,7 +1,6 @@
 import requests
 from flask_restful import Resource, abort
 from flask import request, make_response
-from flask_cors import cross_origin
 from pbench.server.api.resources.query_apis import get_es_url
 
 
@@ -12,7 +11,6 @@ class Elasticsearch(Resource):
         self.logger = logger
         self.elasticsearch = get_es_url(config)
 
-    @cross_origin()
     def post(self):
         json_data = request.get_json(silent=True)
         if not json_data:
