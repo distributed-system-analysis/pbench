@@ -235,7 +235,7 @@ class PbenchTemplates:
             toolname = m.group("toolname")
             if self.known_tool_handlers is not None:
                 if toolname not in self.known_tool_handlers:
-                    MappingFileError(
+                    raise MappingFileError(
                         "Unsupported tool '{}' mapping file {}".format(
                             toolname, mapping_fn
                         )

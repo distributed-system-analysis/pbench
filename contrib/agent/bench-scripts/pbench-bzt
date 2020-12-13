@@ -58,7 +58,7 @@ class OSType:
         elif attr == "unknown":
             return "unknown"
         else:
-            raise (AttributeError, attr)
+            raise AttributeError(attr)
 
     def platform_type(self):
         if platform.dist()[0] == self.rhel:
