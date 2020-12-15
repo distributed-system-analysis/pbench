@@ -811,8 +811,12 @@ stop)
 				fi
 				rc=${?}
 				;;
-			blktrace|bpftrace|iostat|mpstat|pcp|sar|systemtap|tcpdump|vmstat)
+			blktrace|bpftrace|iostat|mpstat|pcp|sar|systemtap|tcpdump|turbostat|vmstat)
 				safe_kill "${tool_name}" "${pid}"
+				rc=${?}
+				;;
+			pidstat)
+				safe_kill "pidstat-convert" "${pid}"
 				rc=${?}
 				;;
 			proc-interrupts|proc-sched_debug|proc-vmstat)
