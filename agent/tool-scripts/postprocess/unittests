@@ -2,7 +2,7 @@
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 
-_tdir=$(dirname $(readlink -f $0))
+export _tdir=$(dirname $(readlink -f $0))
 cd $_tdir
 
 if [[ ! -z "$1" ]]; then
@@ -273,9 +273,10 @@ function testpidstat {
 
     mkdir ${_testroot}/${1}
 
+    export pidstat_data="${_tdir}/samples/${1}/pidstat-stdout.txt"
     # Generate pidstat converted data as tool would.
-    cvt_path=$(dirname $(realpath ../datalog/pidstat-convert))
-    cat samples/${1}/pidstat-stdout.txt | (cd ${_testroot}/${1}; pbench_lib_dir=${cvt_path}/../../lib ${cvt_path}/pidstat-convert ${_testroot}/${1})
+    datalog_path=$(dirname $(realpath ../datalog/pidstat-datalog))
+    (cd ${_testroot}/${1}; _tool_bin=${_tdir}/mock-bin/pidstat pbench_lib_dir=${datalog_path}/../../lib ${datalog_path}/pidstat-datalog ${_testroot}/${1} 42 false "p=")
 
     pbench_lib_dir=$(pwd)/../../lib ./pidstat-postprocess ${_testroot}/${1} > ${_testroot}/${1}/stdout 2> ${_testroot}/${1}/stderr
 

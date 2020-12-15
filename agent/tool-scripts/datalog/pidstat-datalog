@@ -37,12 +37,12 @@ elif [[ "${patterns}" == "p=" ]]; then
 	patterns_arg=""
 else
 	patterns_arg="${patterns:2}"  # Drop leading 'p=' prefix
-	patterns_arg="-C ${patterns_arg//,/|}"
+	patterns_arg="${patterns_arg//,/|}"
 fi
 
 options="${5}"
 
-default_options="-l -H -w -u -h -d -r ${threads_arg} -p ALL ${patterns_arg}"
+default_options="-l -H -w -u -h -d -r ${threads_arg} -p ALL"
 
 if [[ -z "${_tool_bin}" ]]; then
 	_tool_bin="/usr/local/bin/pidstat"
@@ -57,4 +57,5 @@ if [[ "${_PBENCH_UNIT_TESTS}" != "" ]] ;then
     enable -n ulimit
 fi
 # ulimit is for all the files that might be opened by pidstat-convert
-${_tool_bin} ${default_options} ${options} ${interval} | (ulimit -n 102400; $(dirname ${0})/pidstat-convert ${tool_output_dir})
+ulimit -n 102400
+exec $(dirname ${0})/pidstat-convert ${tool_output_dir} ${_tool_bin} "${default_options}" "${patterns_arg}" "${options}" "${interval}"

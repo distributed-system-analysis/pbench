@@ -19,7 +19,7 @@ use Digest::MD5 qw(md5_hex);
 my %previous_stats; # used to detect repeated value
 my %current_stats;
 my @attributes = get_pidstat_attributes();
-my $tool_output_dir = shift; # the one and only argument to this script, the directory where these files should be written
+my $tool_output_dir = shift; # the first argument to this script, the directory where these files should be written
 if (not defined $tool_output_dir) {
 	print "Directory to store PIDs is required\n";
 	exit 1;
@@ -30,8 +30,23 @@ if ( -e $tool_output_dir . '/pids') {
 	rmtree($tool_output_dir . '/pids');
 }
 mkdir($tool_output_dir . '/pids');
+
+my $pidstat_bin = shift; # the second argument to this script, the location of the pidstat binary to use
+my $default_args = shift; # the third argument contains all the default arguments to pidstat
+my $patterns_arg = shift; # the fourth argument contains the pattern argument to pidstat, if any
+my $options_arg = shift; # the fifth argument contains user specified options, if any
+my $interval_arg = shift; # the sixth and final argument contains the interval pidstat should operate at 
+
+my $pidstat_cmd;
+if ($patterns_arg) {
+	$pidstat_cmd = $pidstat_bin . " " . $default_args . " -C '" . $patterns_arg . "' " . $options_arg . " " . $interval_arg;
+} else {
+	$pidstat_cmd = $pidstat_bin . " " . $default_args . " " . $options_arg . " " . $interval_arg;
+}
+open(PIDSTAT_F, $pidstat_cmd . "|") || die "Could not create pidstat command, '$pidstat_cmd'";
+
 my $prev_pid;
-while (my $line = <>) {
+while (my $line = <PIDSTAT_F>) {
 	# example STDIN
 	#
 	###v12 no threads -- 'pidstat -l -H -w -u -h -d -r -p ALL'
