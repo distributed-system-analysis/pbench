@@ -13,5 +13,11 @@ pipeline {
                 sh 'jenkins/run jenkins/tox -r --current-env -e jenkins-unittests'
             }
         }
+        stage('Test Pipeline') {
+            steps {
+                echo 'Running all the Agent and Server unit tests in parallel'
+                echo 'Test Branch'
+            }
+        }
     }
 }
