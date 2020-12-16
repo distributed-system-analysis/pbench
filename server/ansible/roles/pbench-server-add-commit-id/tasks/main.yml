@@ -4,6 +4,6 @@
     path: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
     section: pbench-server
     option: commit_id
-    value: "{{ pbench_version }}-{{ pbench_seqno }}{{ pbench_sha1 }}"
+    value: "{{ pbench_version }}-{{ pbench_seqno }}g{{ pbench_sha1 }}"
     backup: yes
 
