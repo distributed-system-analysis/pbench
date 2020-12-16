@@ -2,8 +2,6 @@
 - name: install pbench-server
   hosts: servers
   remote_user: root
-  become: yes
-  become_user: root
 
   vars:
     pbench_configuration_environment: "{{ cenv | default('production') }}"

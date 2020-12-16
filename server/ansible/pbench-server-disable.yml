@@ -1,0 +1,12 @@
+---
+- name: disable pbench-server
+  hosts: servers
+  remote_user: pbench
+
+  vars:
+    pbench_configuration_environment: "{{ cenv | default('production') }}"
+
+  roles:
+    - pbench-server-vars
+    - { role: pbench-server-set-state, pbench_server_state: off}
+    - pbench-server-crontab-disable
