@@ -19,7 +19,7 @@
 === /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/mpstat:
 --interval=3
 === /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/perf:
---record-opts='record -a --freq=100'
+--record-opts='-a --freq=100'
 === /var/tmp/pbench-test-utils/pbench/tools-v1-default/testhost.example.com/vmstat:
 --interval=3
 --- pbench tree state
@@ -30,6 +30,6 @@
 [info][1900-01-01T00:00:00.000000] "vmstat" tool is now registered for host "testhost.example.com" in group "default"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=3"
 [info][1900-01-01T00:00:00.000000] "iostat" tool is now registered for host "testhost.example.com" in group "default"
-[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts='record -a --freq=100'"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--record-opts='-a --freq=100'"
 [info][1900-01-01T00:00:00.000000] "perf" tool is now registered for host "testhost.example.com" in group "default"
 --- pbench.log file contents
