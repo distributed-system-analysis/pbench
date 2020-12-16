@@ -15,8 +15,16 @@ pipeline {
         }
         stage('Test Pipeline') {
             steps {
-                echo 'Running all the Agent and Server unit tests in parallel'
-                sh '/home/pbench/server/rpm/make rpm'
+                echo 'Testing Jenkins'
+                sh 'ls /home/jenkins/slave'
+                sh 'ls /home/jenkins/slave/caches'
+                sh 'ls /home/jenkins/slave/remoting'
+                sh 'cat /home/jenkins/slave/remoting.jar'
+                sh 'ls /home/jenkins/slave/workspace'
+                sh 'ls /home/jenkins/slave/workspace/pbench-ci-multi_PR-2039'
+                sh 'ls /home/jenkins/slave/workspace/pbench-ci-multi_PR-2039/server/'
+                sh 'cd /home/jenkins/slave/workspace/pbench-ci-multi_PR-2039/server/rpm'
+                sh 'make rpm'
             }
         }
     }
