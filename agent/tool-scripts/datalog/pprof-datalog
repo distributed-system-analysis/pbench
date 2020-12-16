@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import sys
-import os
 import logging
+import os
+import sys
 
 PROG = os.path.basename(sys.argv[0])
+PROG_dir = os.path.dirname(sys.argv[0])
 try:
     tool_output_dir = sys.argv[1]
 except IndexError:
@@ -56,44 +57,23 @@ else:
         )
         sys.exit(1)
 
-try:
-    from ansible.parsing.dataloader import DataLoader
-    from ansible.inventory.manager import InventoryManager
-except ImportError as exc:
-    logging.error(
-        "[%s]: required Ansible python3 modules not available, '%s'", PROG, exc
-    )
+import subprocess  # noqa E402
+
+pmn_bin = os.path.join(PROG_dir, "pprof-master-n-nodes")
+pmn_cmd = f"{pmn_bin} {inv_file}"
+pmn_proc = subprocess.run(
+    pmn_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+)
+if pmn_proc.returncode != 0:
+    logging.error("%r", pmn_proc)
     sys.exit(1)
 
-try:
-    data_loader = DataLoader()
-    inventory = InventoryManager(loader=data_loader, sources=[inv_file])
-except Exception as exc:
-    logging.error("[%s]: invalid ansible inventory file, '%s': %s", PROG, inv_file, exc)
-    sys.exit(1)
+json_str = pmn_proc.stdout.decode("UTF-8")
+import json  # noqa E402
 
-try:
-    groups = inventory.get_groups_dict()
-except Exception as exc:
-    logging.error(
-        "[%s]: error processing groups in ansible inventory file," " '%s': %s",
-        PROG,
-        inv_file,
-        exc,
-    )
-    sys.exit(1)
-
-try:
-    masters = groups["masters"]
-    nodes = groups["pprof"]
-except KeyError as exc:
-    logging.error(
-        "[%s]: missing expected group in ansible inventory file," " '%s': %s",
-        PROG,
-        inv_file,
-        exc,
-    )
-    sys.exit(1)
+doc = json.loads(json_str)
+masters = doc["masters"]
+nodes = doc["nodes"]
 
 goroot = os.environ.get("GOROOT")
 ut = os.environ.get("_PBENCH_UNIT_TESTS")
@@ -106,7 +86,6 @@ else:
 
 
 # The Operation class using subprocess internally.
-import subprocess  # noqa E402
 import math  # noqa E402
 import errno  # noqa E402
 from time import time, sleep  # noqa E402
