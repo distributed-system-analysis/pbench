@@ -185,10 +185,10 @@ if [[ ! -z "${show_server}" ]] ;then
 fi
 
 # ssh probe test
-ssh -q -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} exit
+ssh -n -q -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} exit
 if [[ $? -ne 0 ]]; then
     error_log "ERROR: results host unreachable: ${results_repo}"
-    debug_log "the following ssh command failed: \"ssh -q -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} exit\""
+    debug_log "the following ssh command failed: \"ssh -n -q -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} exit\""
     exit 1
 fi
 

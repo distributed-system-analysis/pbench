@@ -74,7 +74,7 @@ fi
 # Verify the remotely copied bits are good
 md5name=$(basename ${tarball}).md5
 controller=$(basename ${controller_dir})
-ssh -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} "cd ${results_path_prefix}/${controller}; md5sum --check ${md5name}.check && mv ${md5name}.check ${md5name}"
+ssh -n -i ${pbench_bin}/id_rsa ${ssh_opts} ${results_repo} "cd ${results_path_prefix}/${controller}; md5sum --check ${md5name}.check && mv ${md5name}.check ${md5name}"
 chk_res=${?}
 if [[ ${chk_res} -ne 0 ]]; then
     error_log "ERROR: remote copy failed, remote tarball MD5 does not match original"
