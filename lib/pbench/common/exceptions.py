@@ -6,10 +6,6 @@ class BadConfig(Exception):
     pass
 
 
-class InvalidDataFormat(Exception):
-    pass
-
-
 class BadDate(Exception):
     pass
 

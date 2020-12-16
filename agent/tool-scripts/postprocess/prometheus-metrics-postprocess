@@ -8,7 +8,9 @@ import json
 import math
 
 
-from pbench.common.exceptions import InvalidDataFormat
+class InvalidDataFormat(Exception):
+    pass
+
 
 PROG = os.path.basename(sys.argv[0])
 try:
