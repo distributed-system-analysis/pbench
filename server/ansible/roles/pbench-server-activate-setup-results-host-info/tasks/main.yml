@@ -1,4 +1,8 @@
 ---
+# Example: /var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL002
+#          ^-----------^ ^-------------------pbench_host_info_prefix-------------------^
+#                ^
+#     httpd_document_root_dir
 - name: "make sure the directory exists"
   file:
     path: "{{ httpd_document_root_dir }}/{{ pbench_host_info_prefix | dirname }}"
@@ -27,10 +31,11 @@
   with_items:
     - "002"
 
-- name: "set up links to the active files"
+- name: "set up links to the maintenance files"
   file:
     path: "{{ httpd_document_root_dir }}/{{ pbench_host_info_prefix }}{{ item }}"
-    src:  "{{ pbench_host_info_prefix | basename }}{{ item }}.active"
+    src:  "{{ pbench_host_info_prefix | basename }}{{ item }}.maint"
     state: link
+    force: yes
   with_items:
     - "002"

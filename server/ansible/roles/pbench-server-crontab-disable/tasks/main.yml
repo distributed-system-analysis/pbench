@@ -1,0 +1,10 @@
+---
+- name: "save the current crontab before disabling"
+  shell:
+    cmd: "crontab -l > {{ pbench_server_install_dir }}/lib/crontab/crontab.back.{{ ansible_date_time.iso8601 }}"
+  when: ansible_user_id == pbench_user
+
+- name: "disable crontab"
+  command:
+    cmd: crontab -r
+  when: ansible_user_id == pbench_user

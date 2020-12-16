@@ -1,0 +1,5 @@
+---
+- name: "enable crontab for user 'pbench' - this role is supposed to be run as that user, *not* as root"
+  command:
+    cmd: crontab {{ pbench_server_install_dir }}/lib/crontab/crontab
+  when: ansible_user_id == pbench_user

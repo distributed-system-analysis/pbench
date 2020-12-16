@@ -1,0 +1,18 @@
+---
+# Example: /var/www/html/pbench-results-host-info.versioned/pbench-results-host-info.URL002
+#          ^-----------^ ^-------------------pbench_host_info_prefix-------------------^
+#                ^
+#     httpd_document_root_dir
+- name: "debug"
+  debug:
+    msg: State is {{ pbench_server_state }}
+    verbosity: 1
+
+- name: "set up links to the appropriate file(s), depending on desired state (on or off)"
+  file:
+    path: "{{ httpd_document_root_dir }}/{{ pbench_host_info_prefix }}{{ item }}"
+    src:  "{{ pbench_host_info_prefix | basename }}{{ item }}.{{'active' if pbench_server_state else 'maint' }}"
+    state: link
+    force: yes
+  with_items:
+    - "002"
