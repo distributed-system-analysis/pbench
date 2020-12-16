@@ -16,7 +16,7 @@ pipeline {
         stage('Test Pipeline') {
             steps {
                 echo 'Running all the Agent and Server unit tests in parallel'
-                sh 'server/rpm/make rpm'
+                sh '/home/pbench/server/rpm/make rpm'
             }
         }
     }
