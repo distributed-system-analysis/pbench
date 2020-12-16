@@ -14,7 +14,7 @@ group = default
 hostname-s = testhost
 iostat = --interval=3
 mpstat = --interval=3
-perf = --record-opts=record -a --freq=100
+perf = --record-opts=-a --freq=100
 pidstat = --interval=30
 proc-interrupts = --interval=3
 proc-vmstat = --interval=3
