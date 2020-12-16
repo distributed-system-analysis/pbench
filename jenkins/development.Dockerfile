@@ -46,6 +46,7 @@ RUN \
         iproute \
         iputils \
         less \
+        make \
         net-tools \
         openssh-clients \
         openssh-server \

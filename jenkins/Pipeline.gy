@@ -23,8 +23,7 @@ pipeline {
                 sh 'ls /home/jenkins/slave/workspace'
                 sh 'ls /home/jenkins/slave/workspace/pbench-ci-multi_PR-2039'
                 sh 'ls /home/jenkins/slave/workspace/pbench-ci-multi_PR-2039/server/'
-                sh 'cd /home/jenkins/slave/workspace/pbench-ci-multi_PR-2039/server/rpm'
-                sh 'make rpm'
+                sh 'make /home/jenkins/slave/workspace/pbench-ci-multi_PR-2039/server/rpm/rpm'
             }
         }
     }
