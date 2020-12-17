@@ -43,6 +43,8 @@ export PATH=$(remove_path /opt/pbench-agent/util-scripts $PATH)
 # timestamps will show a constant offset.
 export TZ=UTC
 
+export _PBENCH_UNIT_TESTS
+
 export _TEST_SKIP_CPU_MAP=1
 
 function testit {
