@@ -7,14 +7,14 @@ Dashboard or any number of pbench agent users.
 import os
 import sys
 
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Api
 from flask_cors import CORS
 
 from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.server.api.resources.upload_api import Upload, HostInfo
-from pbench.server.api.resources.graphql_api import GraphQL
+from pbench.server.api.resources.graphql_api import GraphQL, UserMetadata
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.query_controllers import QueryControllers
@@ -84,6 +84,10 @@ def register_endpoints(api, app, config):
         resource_class_args=(logger, token_auth),
     )
 
+    api.add_resource(
+        UserMetadata, f"{base_uri}/user/metadata", resource_class_args=(config, logger),
+    )
+
 
 def get_server_config():
     cfg_name = os.environ.get("_PBENCH_SERVER_CONFIG")
@@ -120,6 +124,11 @@ def create_app(server_config):
     except Exception:
         app.logger.exception("Exception while initializing sqlalchemy database")
         sys.exit(1)
+
+    @app.before_request
+    def before_request():
+        print(request.path)
+        print(request.remote_addr)
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):
