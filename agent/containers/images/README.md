@@ -3,7 +3,7 @@
 Container image building requires both the `buildah` and `jinja2` CLI
 commands to be present.
 
-On Fedora 31 and later systems, use the following command to install the
+On Fedora 32 and later systems, use the following command to install the
 required CLI interface RPMs:
 
     sudo dnf install buildah python3-jinja2-cli
@@ -24,7 +24,7 @@ and place them in a single yum/dnf repository accessible via HTTPS.  By
 default, we use Fedora COPR repos under the `ndokos` user (one can
 override the yum/dnf repos and user via the `URL_PREFIX` and `USER`
 environment variables, and use `pbench-test` repos by setting the `TEST`
-environment variable to `test`). 
+environment variable to `test`).
 
 Once the proper RPMs are available in the target repo, the default
 `Makefile` target, `all`, will build all the default images, and tag
@@ -50,10 +50,10 @@ localhost/pbench-agent-all-centos-8   v0.69.3-1  9396f0337681 ...
 ```
 
 There are make targets for each of the four supported distributions,
-CentOS 8 (`centos-8`), CentOS 7 (`centos-7`), Fedora 32 (`fedora-32`),
-and Fedora 31 (`fedora-31`).  There are also make targets for each
+CentOS 8 (`centos-8`), CentOS 7 (`centos-7`), Fedora 33 (`fedora-33`),
+and Fedora 32 (`fedora-32`).  There are also make targets for each
 subset of the four images (all, base, tools, workloads) built for
-each distribution, e.g. `centos-8-tools`, `fedora-31-base`, etc.
+each distribution, e.g. `centos-8-tools`, `fedora-32-base`, etc.
 
 Two tags are always applied to an image that is built, the `<git
 commit ID>` derived from the RPM version, and the version string of
@@ -71,6 +71,10 @@ appropriate (these tags are not automatically applied at build time):
 
  * `tag-major-minor` -adds the `v<Major>.<Minor>-latest` label to
    the images ...
+
+ * `tag-alpha` - adds the `alpha` label to the images ...
+
+ * `tag-beta` - adds the `beta` label to the images ...
 
 Finally, there are "push" targets to copy the locally built and
 tagged images to a non-local container image repository.  By default
@@ -90,6 +94,10 @@ published already.  The push targets are:
 
  * `push-major-minor` - pushes all the images by their
    `v<Major>.<Minor>-latest` tag
+
+ * `push-alpha` - pushes all the images by their `alpha` tag
+
+ * `push-beta` - pushes all the images by their `beta` tag
 
 NOTE WELL: Each separate tag for each image needs to be pushed to
 the non-local container image repository.  This does NOT result in
