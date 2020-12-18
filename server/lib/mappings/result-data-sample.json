@@ -9,7 +9,8 @@
             "format": "dateOptionalTime"
         },
         "@timestamp_original": {
-            "type": "text"
+            "type": "keyword",
+            "index": false
         },
         "@generated-by": {
             "type": "keyword"
@@ -73,7 +74,12 @@
                     "type": "long"
                 },
                 "measurement_title": {
-                    "type": "text"
+                    "type": "text",
+                    "fields": {
+                        "raw": {
+                            "type": "keyword"
+                        }
+                    }
                 },
                 "category": {
                     "type": "keyword"

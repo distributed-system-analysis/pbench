@@ -2335,7 +2335,8 @@ Template: pbench-unittests.v5.result-data
                 "type": "date"
             },
             "@timestamp_original": {
-                "type": "text"
+                "index": false,
+                "type": "keyword"
             },
             "iteration": {
                 "properties": {
@@ -2445,7 +2446,8 @@ Template: pbench-unittests.v5.result-data-sample
                 "type": "date"
             },
             "@timestamp_original": {
-                "type": "text"
+                "index": false,
+                "type": "keyword"
             },
             "benchmark": {
                 "properties": {
@@ -3072,6 +3074,11 @@ Template: pbench-unittests.v5.result-data-sample
                         "type": "long"
                     },
                     "measurement_title": {
+                        "fields": {
+                            "raw": {
+                                "type": "keyword"
+                            }
+                        },
                         "type": "text"
                     },
                     "measurement_type": {

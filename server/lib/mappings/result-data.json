@@ -9,7 +9,8 @@
             "format": "dateOptionalTime"
         },
         "@timestamp_original": {
-            "type": "text"
+            "type": "keyword",
+            "index": false
         },
         "result_data_sample_parent": {
             "type": "keyword"
