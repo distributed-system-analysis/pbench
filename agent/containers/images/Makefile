@@ -39,9 +39,9 @@ _WORKLOAD_RPMS = fio uperf
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
 # By default we only build images for the following distributions:
-_DISTROS = centos-8 centos-7 fedora-32 fedora-31
+_DISTROS = centos-8 centos-7 fedora-33 fedora-32
 
-all: $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
+all: all-tags $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
 
 #+
 # Tagging targets
@@ -49,6 +49,12 @@ all: $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
 
 # Add the "latest" tag to the local images.
 tag-latest: $(foreach distro, ${_DISTROS}, ${distro}-tag-latest)
+
+# Add the "beta" tag to the local images.
+tag-beta: $(foreach distro, ${_DISTROS}, ${distro}-tag-beta)
+
+# Add the "alpha" tag to the local images.
+tag-alpha: $(foreach distro, ${_DISTROS}, ${distro}-tag-alpha)
 
 # Add the "v<Major>-latest" tag to the local images.
 tag-major: $(foreach distro, ${_DISTROS}, ${distro}-tag-major)
@@ -65,6 +71,12 @@ push: $(foreach distro, ${_DISTROS}, ${distro}-push)
 
 # Push images with the "latest" tag.
 push-latest: $(foreach distro, ${_DISTROS}, ${distro}-push-latest)
+
+# Push images with the "beta" tag.
+push-beta: $(foreach distro, ${_DISTROS}, ${distro}-push-beta)
+
+# Push images with the "alpha" tag.
+push-alpha: $(foreach distro, ${_DISTROS}, ${distro}-push-alpha)
 
 # Push images with the "v<Major>-latest" tag.
 push-major: $(foreach distro, ${_DISTROS}, ${distro}-push-major)
@@ -125,6 +137,12 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-push-latest: %-tags.lis
 	./push ${IMAGE_REPO} $* latest
 
+%-push-beta: %-tags.lis
+	./push ${IMAGE_REPO} $* beta
+
+%-push-alpha: %-tags.lis
+	./push ${IMAGE_REPO} $* alpha
+
 %-push-major: %-tags.lis
 	./push ${IMAGE_REPO} $* _major
 
@@ -138,6 +156,12 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-tag-latest: %-tags.lis
 	./tagit $* latest
 
+%-tag-beta: %-tags.lis
+	./tagit $* beta
+
+%-tag-alpha: %-tags.lis
+	./tagit $* alpha
+
 %-tag-major: %-tags.lis
 	./tagit $* major-latest
 
@@ -147,6 +171,15 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 # Build the tags file for the given distribution.
 %-tags.lis:
 	./gen-tags-from-rpm "${URL_PREFIX}" "$*" "${_ARCH}" "${_TEST_SUFFIX}" > ${@}
+
+# Helper target to build each distro's "-tags.lis" file and verify they
+# are consistent.
+all-tags: pkgmgr-clean $(foreach distro, ${_DISTROS}, ${distro}-tags.lis)
+	./verify-tags *-tags.lis
+
+# Helper target to ensure local cache consistent by "cleaning"
+pkgmgr-clean:
+	dnf clean all
 
 #+
 # For the following rules, the various CentOS "base" images need a mapping
@@ -162,11 +195,14 @@ centos-8-base.Dockerfile: Dockerfile.base.j2 epel-8-pbench.repo
 centos-7-base.Dockerfile: Dockerfile.base.j2 epel-7-pbench.repo
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=epel-7-pbench.repo -D pkgmgr=yum -D distro_image=centos:7 -D distro_image_name="CentOS 7" -o $@
 
+fedora-33-base.Dockerfile: Dockerfile.base.j2 fedora-33-pbench.repo
+	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-33-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:33 -D distro_image_name="Fedora 33" -o $@
+
 fedora-32-base.Dockerfile: Dockerfile.base.j2 fedora-32-pbench.repo
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-32-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:32 -D distro_image_name="Fedora 32" -o $@
 
-fedora-31-base.Dockerfile: Dockerfile.base.j2 fedora-31-pbench.repo
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-31-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:31 -D distro_image_name="Fedora 31" -o $@
+# Helper target to build each distro's ".repo" and ".Dockerfile"
+all-dockerfiles: $(foreach distro, ${_DISTROS}, ${distro}-base.Dockerfile ${distro}-tools.Dockerfile ${distro}-workloads.Dockerfile ${distro}-all.Dockerfile)
 
 # Rule pattern dependencies on non-patterned targets have to be set up
 # separately for some reason.
