@@ -1,6 +1,6 @@
 _prefix="${1}"
 
-pip3 install --no-cache-dir --progress-bar off --no-color --prefix="${_prefix}" -r ${progdir}/lint-requirements.txt -r ${progdir}/agent/requirements.txt -r ${progdir}/server/requirements.txt -r ${progdir}/agent/test-requirements.txt -r ${progdir}/server/test-requirements.txt
+pip3 install --no-cache-dir --prefix="${_prefix}" -r ${progdir}/lint-requirements.txt -r ${progdir}/agent/requirements.txt -r ${progdir}/server/requirements.txt -r ${progdir}/agent/test-requirements.txt -r ${progdir}/server/test-requirements.txt
 
 _pdir=${_prefix}/bin
 if [[ ":${PATH:-}:" != *":${_pdir}:"* ]]; then
