@@ -39,7 +39,7 @@ _WORKLOAD_RPMS = fio uperf
 _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 
 # By default we only build images for the following distributions:
-_DISTROS = centos-8 centos-7 fedora-33 fedora-32
+_DISTROS = centos-8 centos-7 fedora-32 fedora-31
 
 all: all-tags $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
 
@@ -195,11 +195,11 @@ centos-8-base.Dockerfile: Dockerfile.base.j2 epel-8-pbench.repo
 centos-7-base.Dockerfile: Dockerfile.base.j2 epel-7-pbench.repo
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=epel-7-pbench.repo -D pkgmgr=yum -D distro_image=centos:7 -D distro_image_name="CentOS 7" -o $@
 
-fedora-33-base.Dockerfile: Dockerfile.base.j2 fedora-33-pbench.repo
-	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-33-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:33 -D distro_image_name="Fedora 33" -o $@
-
 fedora-32-base.Dockerfile: Dockerfile.base.j2 fedora-32-pbench.repo
 	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-32-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:32 -D distro_image_name="Fedora 32" -o $@
+
+fedora-31-base.Dockerfile: Dockerfile.base.j2 fedora-31-pbench.repo
+	jinja2 Dockerfile.base.j2 -D pbench_repo_file=fedora-31-pbench.repo -D pkgmgr=dnf -D distro_image=fedora:31 -D distro_image_name="Fedora 31" -o $@
 
 # Helper target to build each distro's ".repo" and ".Dockerfile"
 all-dockerfiles: $(foreach distro, ${_DISTROS}, ${distro}-base.Dockerfile ${distro}-tools.Dockerfile ${distro}-workloads.Dockerfile ${distro}-all.Dockerfile)
