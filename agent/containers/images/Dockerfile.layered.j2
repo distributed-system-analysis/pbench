@@ -5,6 +5,6 @@ FROM pbench-agent-base-{{ distro }}:{{ tag }}
 #
 # FIXME: this is not exhaustive, it does not include RPMs to support
 #        Kubernetes or RHV environments.
-RUN {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} install -y {% if distro == 'centos-8' %}--enablerepo PowerTools {% endif %}--enablerepo copr-pbench {{ rpms }} && \
+RUN {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} install -y {% if distro == 'centos-8' %}--enablerepo powertools {% endif %}--enablerepo copr-pbench {{ rpms }} && \
     {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} -y clean all && \
     rm -rf /var/cache/{% if distro == 'centos-7' %}yum{% else %}dnf{% endif %}
