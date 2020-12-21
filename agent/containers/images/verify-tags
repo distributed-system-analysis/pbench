@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [[ -z "${1}" ]]; then
+    printf -- "No tags files given to process!\n" >&2
+    exit 1
+fi
+
+# Use the first argument as the check-sum to verify against.
+cksum="$(cksum ${1} | awk '{print $1}')"
+shift
+
+ret_val=0
+while [[ ! -z "${1}" ]]; do
+    new_cksum="$(cksum ${1} | awk '{print $1}')"
+    shift
+    if [[ "${cksum}" != "${new_cksum}" ]]; then
+        ret_val=1
+        printf -- "Checksums don't match!\n" >&2
+        break
+    fi
+done
+
+exit ${ret_val}
