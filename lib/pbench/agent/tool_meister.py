@@ -43,6 +43,7 @@ import os
 import requests
 import requests.exceptions
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -57,7 +58,6 @@ import redis
 from daemon import DaemonContext
 
 from pbench.common.utils import md5sum
-from pbench.agent import PbenchAgentConfig
 from pbench.agent.constants import (
     tm_allowed_actions,
     tm_channel_suffix_to_tms,
@@ -83,136 +83,6 @@ class ToolException(Exception):
     pass
 
 
-class PersistentTool:
-    """
-    Encapsulates all the states needed to run persistent tooling in the background.
-    The ToolMeister class uses one PersistentTool object per persistent tool.
-    """
-
-    def __init__(self, name, tool_opts, podman, benchmark_run_dir, logger):
-        if name not in ("dcgm", "node-exporter", "pcp"):
-            raise ToolException(f"Unsupported persistent tool '{name}'")
-        self.name = name
-        self.tool_opts = tool_opts.split(" ")
-        self.podman = podman
-        self.logger = logger
-        self.process = None
-        benchmark_run_dir_bytes = str(benchmark_run_dir).encode("utf-8")
-        suffix = hashlib.md5(benchmark_run_dir_bytes).hexdigest()
-        self.podname = f"exposer-{suffix}"
-        # Looking for required "--inst" option, reformatting appropriately if
-        # found.
-        for opt in self.tool_opts:
-            if opt.startswith("--inst="):
-                if opt[-1] == "\n":
-                    self.install_path = opt[7:-1]
-                else:
-                    self.install_path = opt[7:]
-                self.logger.debug(
-                    "install path for tool %s, %s", name, self.install_path
-                )
-                break
-        else:
-            if name != "pcp":
-                raise ToolException(f"missing install path for tool {name}")
-
-    def start(self):
-        process = None
-        if self.name == "node-exporter":
-            self.logger.debug(self.install_path)
-
-            if not os.path.isfile(self.install_path + "/node_exporter"):
-                self.logger.info(
-                    self.install_path + "/node_exporter" + " does not exist"
-                )
-                return 0
-
-            args = [self.install_path + "/node_exporter"]
-            process = subprocess.Popen(
-                args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
-            )
-        elif self.name == "dcgm":
-            os.environ["PYTHONPATH"] = (
-                self.install_path
-                + "/bindings:"
-                + self.install_path
-                + "/bindings/common"
-            )
-
-            script_path = self.install_path + "/samples/scripts/dcgm_prometheus.py"
-            if not os.path.isfile(script_path):
-                self.logger.info(script_path + " does not exist")
-                return 0
-
-            args = [f"python2 {script_path}"]
-            process = subprocess.Popen(
-                args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT, shell=True
-            )
-        else:
-            assert (
-                self.name == "pcp"
-            ), f"Logic bomb!  unexpected persistent tool name, '{self.name}'"
-            self.logger.debug("PMCD STARTUP")
-            try:
-                pcp_reg = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"]).pmcd_reg
-            except Exception as exc:
-                self.logger.error(
-                    "Unexpected error encountered logging pbench agent configuration: '%s'",
-                    exc,
-                )
-                return 0
-
-            with open("pcp-meister.log", "w") as pcp_logs:
-                args = [self.podman, "pull", pcp_reg]
-                try:
-                    pcp_pull = subprocess.Popen(args, stdout=pcp_logs, stderr=pcp_logs)
-                    pcp_pull.wait()
-                except Exception as exc:
-                    self.logger.error("Podman pull process failed: '%s'", exc)
-                    return 0
-                args = [
-                    self.podman,
-                    "run",
-                    "--network",
-                    "host",
-                    "--name",
-                    self.podname,
-                    pcp_reg,
-                ]
-                try:
-                    process = subprocess.Popen(args, stdout=pcp_logs, stderr=pcp_logs)
-                except Exception as exc:
-                    self.logger.error("Podman run process failed: '%s', %r", exc, args)
-                    return 0
-
-        assert process is not None, "Logic bomb!  No process was created!"
-        self.process = process
-        self.logger.info("Started persistent tool %s, %r", self.name, args)
-        return 1
-
-    def stop(self):
-        if self.process is None:
-            self.logger.error("Nothing to terminate")
-            return 0
-
-        if self.name == "pcp":
-            args = [
-                self.podman,
-                "kill",
-                self.podname,
-            ]
-            try:
-                pcp_kill = subprocess.Popen(args)
-                pcp_kill.wait()
-            except Exception as exc:
-                self.logger.warning("Podman kill process failed: '%s'", exc)
-
-        self.process.terminate()
-        self.process.wait()
-        self.logger.info("Stopped persistent tool %s", self.name)
-        return 1
-
-
 class Tool:
     """Encapsulates all the state needed to manage a tool running as a background
     process.
@@ -223,11 +93,18 @@ class Tool:
     "tool-scripts/base-tool" bash script.
     """
 
-    def __init__(self, name, group, tool_opts, pbench_install_dir, tool_dir, logger):
+    _tool_type = "Transient"
+
+    def __init__(
+        self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None,
+    ):
+        assert logger is not None, "Logic bomb!  no logger provided!"
         self.logger = logger
         self.name = name
-        self.group = group
         self.tool_opts = tool_opts
+        assert (
+            pbench_install_dir is not None
+        ), "Logic bomb!  no installation directory provided!"
         self.pbench_install_dir = pbench_install_dir
         self.tool_dir = tool_dir
         self.start_process = None
@@ -250,7 +127,6 @@ class Tool:
         args = [
             f"{self.pbench_install_dir}/tool-scripts/{self.name}",
             "--install",
-            f"--dir={self.tool_dir}",
             self.tool_opts,
         ]
         cp = subprocess.run(
@@ -265,6 +141,7 @@ class Tool:
     def start(self):
         """Creates the background process running the tool's "start" operation.
         """
+        assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
         self._check_no_processes()
         args = [
             f"{self.pbench_install_dir}/tool-scripts/{self.name}",
@@ -277,12 +154,17 @@ class Tool:
         e_file = self.tool_dir / f"tm-{self.name}-start.err"
         with o_file.open("w") as ofp, e_file.open("w") as efp:
             self.start_process = subprocess.Popen(
-                args, stdin=subprocess.DEVNULL, stdout=ofp, stderr=efp
+                args,
+                cwd=self.tool_dir,
+                stdin=subprocess.DEVNULL,
+                stdout=ofp,
+                stderr=efp,
             )
 
     def stop(self):
         """Stops the background process by running the tool's "stop" operation.
         """
+        assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
         if self.start_process is None:
             raise ToolException(f"Tool({self.name})'s start process not running")
         if self.stop_process is not None:
@@ -317,8 +199,35 @@ class Tool:
         e_file = self.tool_dir / f"tm-{self.name}-stop.err"
         with o_file.open("w") as ofp, e_file.open("w") as efp:
             self.stop_process = subprocess.Popen(
-                args, stdin=subprocess.DEVNULL, stdout=ofp, stderr=efp
+                args,
+                cwd=self.tool_dir,
+                stdin=subprocess.DEVNULL,
+                stdout=ofp,
+                stderr=efp,
             )
+
+    def _wait_for_process(self, process):
+        """_wait_for_process - generic method to wait for a given process to
+        stop after 30 seconds, emitting a message every 5 seconds in between.
+
+        Returns the process return code on success, or None if the process
+        failed to exit.
+        """
+        count = 6
+        sts = None
+        while count > 0 and sts is None:
+            try:
+                sts = process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                count -= 1
+                if count > 0:
+                    self.logger.info(
+                        "%s tool %s has not stopped after %d seconds",
+                        self._tool_type,
+                        self.name,
+                        5 * (6 - count),
+                    )
+        return sts
 
     def wait(self):
         """Wait for any tool processes to terminate after a "stop" process has
@@ -327,20 +236,281 @@ class Tool:
         Waits for the tool's "stop" process to complete, if started, then
         waits for the tool's start process to complete.
         """
-        if self.stop_process is not None:
-            if self.start_process is None:
-                raise ToolException(
-                    f"Tool({self.name}) does not have a start process running"
-                )
-            self.logger.info("waiting for stop %s", self.name)
-            # We wait for the stop process to finish first ...
-            self.stop_process.wait()
-            self.stop_process = None
-            # ... then we wait for the start process to finish
-            self.start_process.wait()
-            self.start_process = None
-        else:
+        if self.stop_process is None:
             raise ToolException(f"Tool({self.name}) wait not called after 'stop'")
+        if self.start_process is None:
+            raise ToolException(
+                f"Tool({self.name}) does not have a start process running"
+            )
+
+        self.logger.info("Waiting for transient tool %s stop process", self.name)
+        # We wait for the stop process to finish first ...
+        sts = self._wait_for_process(self.stop_process)
+        if sts is None:
+            # The stop process did not terminate gracefully after 30 seconds,
+            # so we bring out the big guns ...
+            self.stop_process.kill()
+            self.logger.error(
+                "Killed un-responsive transient tool %s stop process after"
+                " 30 seconds",
+                self.name,
+            )
+        elif sts != 0 and sts != -(signal.SIGTERM):
+            self.logger.warning(
+                "Transient tool %s stop process failed with %d", self.name, sts
+            )
+        self.stop_process = None
+
+        # ... then we wait for the start process to finish, but we only wait
+        # for 30 seconds before we kill it.
+        self.logger.info("Waiting for transient tool %s start process", self.name)
+        try:
+            sts = self.start_process.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            self.start_process.kill()
+            self.logger.warning(
+                "Killed un-responsive transient tool %s start process after"
+                " 30 seconds",
+                self.name,
+            )
+        else:
+            if sts != 0 and sts != -(signal.SIGTERM):
+                self.logger.warning(
+                    "Transient tool %s start process failed with %d", self.name, sts
+                )
+        self.start_process = None
+
+
+class PersistentTool(Tool):
+    """PersistentTool - Encapsulates all the states needed to run persistent
+    tooling in the background.  A PersistentTool extends the base Tool class
+    with some simple modifications for stopping the tool without the need for
+    an external stop script.
+
+    Each persistent tool extends this intermediate "base" class with its
+    own particular behaviors.
+    """
+
+    _tool_type = "Persistent"
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        self.args = None
+        self.process = None
+
+    def start(self, env=None):
+        assert self.args is not None, "Logic bomb!  {self.name} install had failed!"
+        assert (
+            self.tool_dir is not None
+        ), "Logic bomb!  No persistent tool directory provided!"
+        self.tool_dir = self.tool_dir / self.name
+        self.tool_dir.mkdir()
+        o_file = self.tool_dir / f"tm-{self.name}-start.out"
+        e_file = self.tool_dir / f"tm-{self.name}-start.err"
+        with o_file.open("w") as ofp, e_file.open("w") as efp:
+            if env:
+                pp = env["PYTHONPATH"]
+                self.logger.debug(
+                    "Starting persistent tool %s, env PYTHONPATH=%s, args %r",
+                    self.name,
+                    pp,
+                    self.args,
+                )
+                self.process = subprocess.Popen(
+                    " ".join(self.args),
+                    cwd=self.tool_dir,
+                    stdout=ofp,
+                    stderr=efp,
+                    env=self.env,
+                    shell=True,
+                )
+            else:
+                self.logger.debug(
+                    "Starting persistent tool %s, args %r", self.name, self.args
+                )
+                self.process = subprocess.Popen(
+                    self.args, cwd=self.tool_dir, stdout=ofp, stderr=efp,
+                )
+        if env:
+            pp = env["PYTHONPATH"]
+            self.logger.info(
+                "Started persistent tool %s, env PYTHONPATH=%s, args %r",
+                self.name,
+                pp,
+                self.args,
+            )
+        else:
+            self.logger.info("Started persistent tool %s, %r", self.name, self.args)
+
+    def stop(self):
+        """stop - terminate the persistent tool sub-process.
+
+        This method does not wait for the process to actually exit. The caller
+        should issue a wait() for that.
+        """
+        if self.process is None:
+            self.logger.error("Nothing to terminate")
+            return
+
+        # First try to gracefully terminate.
+        self.process.terminate()
+        self.logger.info("Terminate issued for persistent tool %s", self.name)
+
+    def wait(self):
+        """wait - Wait for the persistent tool to exit.
+
+        Requires the caller to issue a stop() first.
+
+        The wait() method will wait for 30 seconds before forcibly killing
+        the persistent tool sub-process.  It will emit an informational log
+        message every 5 seconds in between.
+        """
+        if self.process is None:
+            self.logger.error("Nothing to terminate")
+            return
+
+        sts = self._wait_for_process(self.process)
+        if sts is None:
+            self.process.kill()
+            self.logger.error(
+                "Killed un-responsive persistent tool %s after 30 seconds", self.name
+            )
+        elif sts != 0 and sts != -(signal.SIGTERM):
+            o_file = self.tool_dir / f"tm-{self.name}-start.out"
+            e_file = self.tool_dir / f"tm-{self.name}-start.err"
+            stdout = o_file.read_text()
+            stderr = e_file.read_text()
+            self.logger.warning(
+                "Persistent tool %s failed to return success, %d, stdout %r, stderr %r",
+                self.name,
+                self.process.returncode,
+                stdout,
+                stderr,
+            )
+        else:
+            self.logger.info("Stopped persistent tool %s", self.name)
+        self.process = None
+
+
+class DcgmTool(PersistentTool):
+    """DcgmTool - provide specific persistent tool behaviors for the "dcgm"
+    tool.
+
+    In particular, the dcgm tool requires the "--inst" option, requires the
+    PYTHONPATH environment variable be set properly, and must use a python2
+    environment.
+    """
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        # Looking for required "--inst" option, reformatting appropriately if
+        # found.
+        tool_opts_l = self.tool_opts.split(" ")
+        for opt in tool_opts_l:
+            if opt.startswith("--inst="):
+                if opt[-1] == "\n":
+                    install_path = opt[7:-1]
+                else:
+                    install_path = opt[7:]
+                self.install_path = Path(install_path)
+                self.logger.debug(
+                    "install path for tool %s, %s", name, self.install_path
+                )
+                break
+        else:
+            self.install_path = None
+            self.logger.debug("missing install path")
+        if self.install_path is None:
+            self.script_path = None
+            self.args = None
+            self.env = None
+        else:
+            self.script_path = (
+                self.install_path / "samples" / "scripts" / "dcgm_prometheus.py"
+            )
+            if not self.script_path.exists():
+                self.logger.error("missing script path, %s", self.script_path)
+                self.args = None
+                self.env = None
+            else:
+                self.args = ["python2", f"{self.script_path}"]
+                new_path_l = [
+                    str(self.install_path / "bindings"),
+                    str(self.install_path / "bindings" / "common"),
+                ]
+                unit_tests = bool(os.environ.get("_PBENCH_UNIT_TESTS"))
+                prev_path = os.environ.get("PYTHONPATH", "")
+                if prev_path and not unit_tests:
+                    new_path_l.append(prev_path)
+                self.env = os.environ.copy()
+                self.env["PYTHONPATH"] = ":".join(new_path_l)
+
+    def install(self):
+        if self.install_path is None:
+            return (1, "dcgm tool --inst argument missing")
+        elif self.args is None:
+            return (1, f"dcgm tool path, '{self.script_path}', not found")
+        return (0, "dcgm tool properly installed")
+
+    def start(self):
+        # The dcgm tool needs PYTHONPATH, and run via the shell.
+        super().start(env=self.env)
+
+
+class NodeExporterTool(PersistentTool):
+    """NodeExporterTool - provide specifics for running the "node-exporter"
+    tool.
+
+    The only particular behavior is that we find the proper "node_exporter"
+    executable in our PATH.
+    """
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        executable = find_executable("node_exporter")
+        if executable is None:
+            self.args = None
+        else:
+            self.args = [executable]
+
+    def install(self):
+        if self.args is None:
+            return (1, "node_exporter tool not found")
+        return (0, "node_exporter tool properly installed")
+
+
+class PcpTool(PersistentTool):
+    """PcpTool - provide specifics for running the "pcp" tool, which is really the "pmcd" process.
+    """
+
+    # Default path to the "pmcd" executable.
+    _pmcd_path_def = "/usr/libexec/pcp/bin/pmcd"
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        pmcd_path = find_executable("pmcd")
+        if pmcd_path is None:
+            pmcd_path = self._pmcd_path_def
+        executable = os.access(pmcd_path, os.X_OK)
+        if executable:
+            # FIXME - The Tool Data Sink and Tool Meister have to agree on the
+            # exact port number to use.  We can't use the default `pmcd` port
+            # number because it might conflict with an existing `pmcd`
+            # deployment out of our control.
+            self.args = [
+                pmcd_path,
+                "--foreground",
+                "--socket=./pmcd.socket",
+                "--port=55677",
+                f"--config={self.pbench_install_dir}/templates/pmcd.conf",
+            ]
+        else:
+            self.args = None
+
+    def install(self):
+        if self.args is None:
+            return (1, "pcp tool (pmcd) not found")
+        return (0, "pcp tool (pmcd) properly installed")
 
 
 class Terminate(Exception):
@@ -453,6 +623,15 @@ class ToolMeister:
 
     _valid_states = frozenset(["startup", "idle", "running", "shutdown"])
     _message_keys = frozenset(["action", "args", "directory", "group"])
+    # Most tools we have today are "transient" tools, and are handled by external
+    # scripts.  Our two persistent tools are handled in the code directly.
+    #
+    # FIXME - we should eventually allow them to be loaded externally.
+    _tool_name_class_mappings = {
+        "dcgm": DcgmTool,
+        "node-exporter": NodeExporterTool,
+        "pcp": PcpTool,
+    }
 
     def __init__(
         self,
@@ -460,7 +639,6 @@ class ToolMeister:
         tmp_dir,
         tar_path,
         sysinfo_dump,
-        podman,
         params,
         redis_server,
         logger,
@@ -474,7 +652,6 @@ class ToolMeister:
         self._tmp_dir = tmp_dir
         self.tar_path = tar_path
         self.sysinfo_dump = sysinfo_dump
-        self.podman = podman
         ret_val = self.fetch_params(params)
         (
             self._benchmark_run_dir,
@@ -492,7 +669,11 @@ class ToolMeister:
         self._running_tools = dict()
         # No persistent tools at first
         self._persistent_tools = dict()
-        self.persist_tools = self._tool_metadata.getPersistentTools()
+        self.persistent_tool_names = self._tool_metadata.getPersistentTools()
+        for name in self.persistent_tool_names:
+            assert (
+                name in self._tool_name_class_mappings
+            ), f"Logic bomb! {name} not in tool name class mappings"
         # We start in the "startup" state, waiting for first "init" action.
         self.state = "startup"
 
@@ -545,23 +726,29 @@ class ToolMeister:
 
         tool_installs = {}
         for name, tool_opts in sorted(self._tools.items()):
-            if name in self.persist_tools:
-                # Persistent tools do not have install checks
-                continue
             try:
-                tool = Tool(
+                tklass = self._tool_name_class_mappings[name]
+            except KeyError:
+                tklass = Tool
+            try:
+                tool = tklass(
                     name,
-                    self._group,
                     tool_opts,
-                    self.pbench_install_dir,
-                    self._tool_dir,
-                    self.logger,
+                    pbench_install_dir=self.pbench_install_dir,
+                    tool_dir=self._tool_dir,
+                    logger=self.logger,
                 )
                 # FIXME - consider running these in parallel.
                 tool_installs[name] = tool.install()
             except Exception:
                 self.logger.exception("Failed to run tool %s install check", name)
                 tool_installs[name] = (-42, "internal-error")
+        self._failed_tools = {}
+        for name, res in tool_installs.items():
+            if res[0] != 0:
+                self.logger.debug("Recording failed tool, %s", name)
+                self._failed_tools[name] = self._tools[name]
+                del self._tools[name]
 
         started_msg = dict(
             hostname=self._hostname,
@@ -710,27 +897,73 @@ class ToolMeister:
         The Tool Data Sink will be setting up the actual processes which
         collect data from these tools.
         """
-        failures = 0
-        tool_cnt = 0
-        for name, tool_opts in self._tools.items():
-            if name not in self.persist_tools:
-                continue
-            tool_cnt += 1
+        # Name of the temporary tool data directory to use when invoking
+        # tools.  This is a local temporary directory when the Tool Meister is
+        # remote from the pbench controller.
+        if self._controller == self._hostname:
+            # This is the case when the Tool Meister instance is running on
+            # the same host as the controller.  We just use the directory
+            # given to us in the `start` message.
             try:
-                persistent_tool = PersistentTool(
-                    name, tool_opts, self.podman, self._benchmark_run_dir, self.logger
-                )
-                persistent_tool.start()
-
-                self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
+                _dir = Path(data["directory"]).resolve(strict=True)
             except Exception:
                 self.logger.exception(
-                    "Failed to init PersistentTool %s running in background", name
+                    "Failed to access provided result directory, %s", data["directory"]
                 )
-                failures += 1
-                continue
+                self._send_client_status("internal-error")
+                return False
+        else:
+            try:
+                _dir = Path(
+                    tempfile.mkdtemp(
+                        dir=self._tmp_dir, prefix=f"tm.{self._group}.{os.getpid()}."
+                    )
+                )
+            except Exception:
+                self.logger.exception(
+                    "Failed to create temporary directory for start operation"
+                )
+                self._send_client_status("internal-error")
+                return False
+        if self._label:
+            sub_dir = f"{self._label}:{self._hostname}"
+        else:
+            sub_dir = self._hostname
+        _tool_dir = _dir / sub_dir
+        try:
+            _tool_dir.mkdir()
+        except Exception:
+            self.logger.exception(
+                "Failed to create local result directory, %s", _tool_dir
+            )
+            self._send_client_status("internal-error")
+            return False
+        failures = 0
+        tool_cnt = 0
+        for name, tool_opts in sorted(self._tools.items()):
+            try:
+                tklass = self._tool_name_class_mappings[name]
+            except KeyError:
+                pass
             else:
-                self._persistent_tools[name] = persistent_tool
+                tool_cnt += 1
+                try:
+                    persistent_tool = tklass(
+                        name,
+                        tool_opts,
+                        pbench_install_dir=self.pbench_install_dir,
+                        tool_dir=_tool_dir,
+                        logger=self.logger,
+                    )
+                    persistent_tool.start()
+                except Exception:
+                    self.logger.exception(
+                        "Failed to init PersistentTool %s running in background", name
+                    )
+                    failures += 1
+                else:
+                    self._persistent_tools[name] = persistent_tool
+                    self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
         if failures > 0:
             msg = f"{failures} of {tool_cnt} persistent tools failed to start"
             self._send_client_status(msg)
@@ -818,17 +1051,16 @@ class ToolMeister:
         failures = 0
         tool_cnt = 0
         for name, tool_opts in sorted(self._tools.items()):
-            if name in self.persist_tools:
+            if name in self.persistent_tool_names:
                 continue
             tool_cnt += 1
             try:
                 tool = Tool(
                     name,
-                    self._group,
                     tool_opts,
-                    self.pbench_install_dir,
-                    self._tool_dir,
-                    self.logger,
+                    pbench_install_dir=self.pbench_install_dir,
+                    tool_dir=self._tool_dir,
+                    logger=self.logger,
                 )
                 tool.start()
             except Exception:
@@ -855,23 +1087,20 @@ class ToolMeister:
         """
         failures = 0
         for name in sorted(self._tools.keys()):
-            if name in self.persist_tools:
-                continue
             try:
                 tool = self._running_tools[name]
             except KeyError:
-                self.logger.error(
-                    "INTERNAL ERROR - tool %s not found in list of running tools", name
-                )
-                failures += 1
-                continue
-            try:
-                tool.wait()
-            except Exception:
-                self.logger.exception(
-                    "Failed to wait for tool %s to stop running in background", name
-                )
-                failures += 1
+                assert (
+                    name in self.persistent_tool_names
+                ), f"tool {name} not found in list of persistent tools"
+            else:
+                try:
+                    tool.wait()
+                except Exception:
+                    self.logger.exception(
+                        "Failed to wait for tool %s to stop running in background", name
+                    )
+                    failures += 1
         return failures
 
     def stop_tools(self, data):
@@ -897,39 +1126,30 @@ class ToolMeister:
         failures = 0
         tool_cnt = 0
         for name in sorted(self._tools.keys()):
-            if name in self.persist_tools:
-                continue
             tool_cnt += 1
             try:
                 tool = self._running_tools[name]
             except KeyError:
-                self.logger.error(
-                    "INTERNAL ERROR - tool %s not found in list of running tools", name
-                )
-                failures += 1
-                continue
-            try:
-                tool.stop()
-            except Exception:
-                self.logger.exception(
-                    "Failed to stop tool %s running in background", name
-                )
-                failures += 1
+                assert (
+                    name in self.persistent_tool_names
+                ), f"tool {name} not found in list of persistent tools"
+            else:
+                try:
+                    tool.stop()
+                except Exception:
+                    self.logger.exception(
+                        "Failed to stop tool %s running in background", name
+                    )
+                    failures += 1
         failures += self._wait_for_tools()
 
         # Clean up the running tools data structure explicitly ahead of
         # potentially receiving another start tools.
         for name in sorted(self._tools.keys()):
-            if name in self.persist_tools:
-                continue
             try:
                 del self._running_tools[name]
             except KeyError:
-                self.logger.error(
-                    "INTERNAL ERROR - tool %s not found in list of running tools", name,
-                )
-                failures += 1
-                continue
+                pass
 
         # Remember this tool directory so that we can send its data when
         # requested.
@@ -1128,7 +1348,8 @@ class ToolMeister:
             self._send_client_status(msg)
             return 1
 
-        if len(set(self._tools.keys()) - set(self.persist_tools)) == 0:
+        if len(set(self._tools.keys()) - set(self.persistent_tool_names)) == 0:
+            # We only have persistent tools, nothing to send.
             self._send_client_status("success")
             return 0
 
@@ -1184,18 +1405,12 @@ class ToolMeister:
         """end_tools - stop all the persistent data collection tools."""
         failures = 0
         tool_cnt = 0
-        for name in self._tools.keys():
-            if name not in self.persist_tools:
-                continue
+        for name, persistent_tool in self._persistent_tools.items():
+            assert name in self._tools, (
+                f"Logic bomb!  Persistent tool, '{name}' not in registered"
+                f" list of tools, '{self._tools!r}'."
+            )
             tool_cnt += 1
-            try:
-                persistent_tool = self._persistent_tools[name]
-            except KeyError:
-                self.logger.error(
-                    "INTERNAL ERROR - tool %s not in list of persistent tools", name,
-                )
-                failures += 1
-                continue
             try:
                 persistent_tool.stop()
             except Exception:
@@ -1203,7 +1418,17 @@ class ToolMeister:
                     "Failed to stop persistent tool %s running in background", name
                 )
                 failures += 1
-
+        for name, persistent_tool in self._persistent_tools.items():
+            tool_cnt += 1
+            try:
+                persistent_tool.wait()
+            except Exception:
+                self.logger.exception(
+                    "Failed to wait for persistent tool %s to stop running"
+                    " in background",
+                    name,
+                )
+                failures += 1
         if failures > 0:
             msg = f"{failures} of {tool_cnt} failed stopping persistent tools"
             self._send_client_status(msg)
@@ -1351,7 +1576,6 @@ def driver(
     PROG,
     tar_path,
     sysinfo_dump,
-    podman,
     pbench_install_dir,
     tmp_dir,
     param_key,
@@ -1396,7 +1620,6 @@ def driver(
             tmp_dir,
             tar_path,
             sysinfo_dump,
-            podman,
             params,
             redis_server,
             logger,
@@ -1431,7 +1654,6 @@ def daemon(
     PROG,
     tar_path,
     sysinfo_dump,
-    podman,
     pbench_install_dir,
     tmp_dir,
     param_key,
@@ -1452,14 +1674,18 @@ def daemon(
     sys.stderr.flush()
     sys.stdout.flush()
 
-    pidfile_name = f"{param_key}.pid"
+    if params["hostname"] != params["controller"]:
+        working_dir = tmp_dir
+    else:
+        working_dir = Path(".")
+    pidfile_name = working_dir / f"{param_key}.pid"
+    d_out = working_dir / f"{param_key}.out"
+    d_err = working_dir / f"{param_key}.err"
     pfctx = pidfile.PIDFile(pidfile_name)
-    with open(f"{param_key}.out", "w") as sofp, open(
-        f"{param_key}.err", "w"
-    ) as sefp, DaemonContext(
+    with d_out.open("w") as sofp, d_err.open("w") as sefp, DaemonContext(
         stdout=sofp,
         stderr=sefp,
-        working_directory=os.getcwd(),
+        working_directory=working_dir,
         umask=0o022,
         pidfile=pfctx,
     ):
@@ -1491,7 +1717,6 @@ def daemon(
             PROG,
             tar_path,
             sysinfo_dump,
-            podman,
             pbench_install_dir,
             tmp_dir,
             param_key,
@@ -1569,21 +1794,25 @@ def main(argv):
         )
         return 3
 
-    podman = find_executable("podman")
-    if podman is None:
+    try:
+        # The temporary directory to use for capturing all tool data.
+        tmp_dir = Path(os.environ["pbench_tmp"]).resolve(strict=True)
+    except KeyError:
+        print(f"{PROG}: Missing pbench_tmp environment variable", file=sys.stderr)
+        return 4
+    except Exception as e:
         print(
-            "Podman is not installed on this system (required by some tools,"
-            " aborting launch)",
+            f"{PROG}: Error working with pbench_tmp environment variable, '{tmp_dir}': {e}",
             file=sys.stderr,
         )
         return 4
-
-    try:
-        # The temporary directory to use for capturing all tool data.
-        tmp_dir = os.environ["pbench_tmp"]
-    except Exception as e:
-        print(f"{PROG}: Missing pbench_tmp environment variable: {e}", file=sys.stderr)
-        return 4
+    else:
+        if not tmp_dir.is_dir():
+            print(
+                f"{PROG}: The pbench_tmp environment variable, '{tmp_dir}', does not resolve to a directory",
+                file=sys.stderr,
+            )
+            return 4
 
     try:
         redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
@@ -1619,7 +1848,6 @@ def main(argv):
             PROG,
             tar_path,
             sysinfo_dump,
-            podman,
             pbench_install_dir,
             tmp_dir,
             param_key,
@@ -1633,7 +1861,6 @@ def main(argv):
             PROG,
             tar_path,
             sysinfo_dump,
-            podman,
             pbench_install_dir,
             tmp_dir,
             param_key,
