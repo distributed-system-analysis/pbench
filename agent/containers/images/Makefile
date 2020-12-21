@@ -29,7 +29,7 @@ _REPO_TEMPLATE = ../../ansible/pbench/agent/roles/pbench_repo_install/templates/
 
 # The list of RPMs which provide the various tools we offer.
 # Not intended to be overridden with an environment variable.
-_TOOL_RPMS = blktrace bpftrace cpupowerutils golang kernel-tools libvirt-client nmap-ncat numactl pbench-sysstat pcp-system-tools perf procps-ng strace tcpdump trace-cmd
+_TOOL_RPMS = prometheus2 node_exporter blktrace bpftrace cpupowerutils golang kernel-tools libvirt-client nmap-ncat numactl pbench-sysstat pcp-system-tools perf procps-ng strace tcpdump trace-cmd
 
 # The list of RPMs for the default workloads we offer.
 # Not intended to be overridden with an environment variable.

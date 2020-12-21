@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>pbench-pmproxy</short>
+  <description>Pbench Agent PCP pmproxy</description>
+  <port protocol="tcp" port="44566"/>
+</service>

@@ -138,17 +138,21 @@ function _run {
 function _save_tree {
     # Save state of the tree
     echo "+++ pbench tree state" >> ${_testout}
-    find ${_testdir} 2> /dev/null | sort >> ${_testout}
+    find ${_testdir} 2> /dev/null \
+		| sed -e 's;tmp/\([a-z-]*\)\.[0-9][0-9]*;tmp/\1.NNNNN;g' \
+		  	  -e 's;\(tm\.[a-z-]*\)\.[0-9][0-9]*\.[a-z0-9_][a-z0-9_]*;\1.NNNNN.nnnnnnnn;g' \
+        | sort >> ${_testout}
 
-    for x in $(find "${_testdir}/tools"-* -type f 2> /dev/null | sort); do
-        echo "=== ${x}:"
+    for x in $(find "${_testdir}/tools"-* "${_testdir}/tmp" -type f 2> /dev/null | sort); do
+		y=$(echo "${x}" | sed -e 's;tmp/\([a-z-]*\)\.[0-9][0-9]*;tmp/\1.NNNNN;g' \
+		  	                  -e 's;\(tm\.[a-z-]*\)\.[0-9][0-9]*\.[a-z0-9_][a-z0-9_]*;\1.NNNNN.nnnnnnnn;g')
+        echo "${y} ${x}"
+    done | sort > ${_testroot}/tools.hier
+    while read y x; do
+        echo "=== ${y}:"
         cat ${x}
-    done >> ${_testout}
-
-    for x in $(find "${_testdir}/tmp" -type f 2> /dev/null | sort); do
-        echo "=== ${x}:"
-        cat ${x}
-    done >> ${_testout}
+    done < ${_testroot}/tools.hier >> ${_testout}
+    rm ${_testroot}/tools.hier
     echo "--- pbench tree state" >> ${_testout}
 }
 
@@ -177,17 +181,43 @@ function _dump_logs {
         echo "--- ${actionlog} file contents" >> ${_testout}
     done
     for tmfile in ${_testdir}/*/tm/*; do
-        if [[ -f ${tmfile} ]]; then
-            tmdir=$(basename $(dirname $(dirname "${tmfile}")))
-            tmfilename=$(basename ${tmfile})
-            echo "+++ ${tmdir}/tm/${tmfilename} file contents" >> ${_testout}
-            if [[ "${tmfilename}" == "redis.log" ]]; then
-                grep -E -o -- '# Configuration loaded|# Server initialized|\* Ready to accept connections|# User requested shutdown\.\.\.|\* Removing the pid file\.|# Redis is now ready to exit, bye bye\.\.\.' ${_testdir}/${tmdir}/tm/${tmfilename} >> ${_testout} 2>&1
-            else
-                cat ${_testdir}/${tmdir}/tm/${tmfilename} >> ${_testout} 2>&1
-            fi
-            echo "--- ${tmdir}/tm/${tmfilename} file contents" >> ${_testout}
+        if [[ ! -f ${tmfile} ]]; then
+            continue
         fi
+        tmdir=$(basename $(dirname $(dirname "${tmfile}")))
+        tmfilename=$(basename "${tmfile}")
+        echo "+++ ${tmdir}/tm/${tmfilename} file contents" >> ${_testout}
+        if [[ "${tmfilename}" == "redis.log" ]]; then
+            grep -E -o -- '# Configuration loaded|# Server initialized|\* Ready to accept connections|# User requested shutdown\.\.\.|\* Removing the pid file\.|# Redis is now ready to exit, bye bye\.\.\.' ${_testdir}/${tmdir}/tm/${tmfilename} >> ${_testout} 2>&1
+        else
+            cat ${_testdir}/${tmdir}/tm/${tmfilename} >> ${_testout} 2>&1
+        fi
+        echo "--- ${tmdir}/tm/${tmfilename} file contents" >> ${_testout}
+    done
+    for persist_dir in ${_testdir}/*/tools-*; do
+        if [[ ! -d ${persist_dir} ]]; then
+            continue
+        fi
+        pdir=$(basename "${persist_dir}")
+        for tb in ${persist_dir}/*.tar.xz; do
+            if [[ ! -f ${tb} ]]; then
+                continue
+            fi
+            tar -C ${persist_dir} -x -f ${tb} >> ${_testout} 2>&1
+        done
+    done
+    for persist_dir in ${_testdir}/*/tools-*; do
+        if [[ ! -d ${persist_dir} ]]; then
+            continue
+        fi
+        pdir=$(basename "${persist_dir}")
+        for file in $(cd ${persist_dir}; find * ! -name '*.tar.xz' \( -type f -o -type l \) 2> /dev/null | sort); do
+            file_dir=$(dirname "${file}")
+            file_name=$(basename "${file}")
+            echo "+++ ${pdir}/${file_dir}/${file_name} file contents" >> ${_testout}
+            cat ${persist_dir}/${file} >> ${_testout} 2>&1
+            echo "--- ${pdir}/${file_dir}/${file_name} file contents" >> ${_testout}
+        done
     done
     if [[ -f ${_testlog} ]]; then
         echo "+++ test-execution.log file contents" >> ${_testout}
@@ -214,7 +244,7 @@ function _verify_output {
     # Fix up any pids or temporary file or directory numbers that have snuck
     # into the output.
     sed -i -e 's;tmp/\([a-z-]*\)\.[0-9][0-9]*;tmp/\1.NNNNN;g' \
-           -e 's;\(tm\.[a-z-]*\)\.[0-9][0-9]*\.[a-z0-9_][a-z0-9_]*;\1.NNNNN.nnnnnnnn;g' \
+		   -e 's;\(tm\.[a-z-]*\)\.[0-9][0-9]*\.[a-z0-9_][a-z0-9_]*;\1.NNNNN.nnnnnnnn;g' \
            -e 's;raw_size = [0-9][0-9]*;raw_size = #####;g' \
            -e 's;v[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*;v#.##.##;g' \
            -e 's;"pid": [0-9][0-9]*\([,}]\);"pid": NNNNN\1;g' \

@@ -19,17 +19,17 @@
 /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/__label__
 /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/mpstat
 /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/mpstat.__noinstall__
-=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/mpstat:
-=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/mpstat:
-=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/__label__:
-labelTwo
-=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/mpstat:
 === /var/tmp/pbench-test-utils/pbench/tmp/remotes.lis:
 # good list
 one.example.com
 two.example.com,labelTwo
 
 three.example.com
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/one.example.com/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/three.example.com/mpstat:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/__label__:
+labelTwo
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-default/two.example.com/mpstat:
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] tool_opts: ""

@@ -41,6 +41,7 @@ waiting for tool-data-sink (#####) to exit
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-mygroup-testhost.example.com.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 /var/tmp/pbench-test-utils/pbench/tools-v1-mygroup

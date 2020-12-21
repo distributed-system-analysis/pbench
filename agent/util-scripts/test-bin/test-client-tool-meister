@@ -71,7 +71,7 @@ if [[ ${status} -ne 0 ]]; then
 fi
 
 function _timeout {
-    timeout --kill-after=30 --signal TERM 60 $*
+    timeout --kill-after=10 --signal TERM 20 $*
 }
 
 source ${_script_path}/common-tm-cleanup
