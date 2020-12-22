@@ -1,8 +1,8 @@
 +++ Running test-46 pbench-register-tool --name=mpstat --no-install --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis
 [error][1900-01-01T00:00:00.000000] --remotes=@/var/tmp/pbench-test-utils/pbench/tmp/remotes.lis contains an invalid file format, expected lines with "<hostname>[,<label>]" at line #4
 usage:
-pbench-register-tool --name=<tool-name> [--group=<group-name>] [--no-install] [--remotes=<remote-host>[,<remote-host>]] [--labels=<label>[,<label>]] -- [all tool specific options here]
-pbench-register-tool --name=<tool-name> [--group=<group-name>] [--no-install] [--remotes=@<remotes-file>] -- [all tool specific options here]
+pbench-register-tool --name=<tool-name> [--group=<group-name>] [--no-install] [--persistent] [--transient] [--remotes=<remote-host>[,<remote-host>]] [--labels=<label>[,<label>]] -- [all tool specific options here]
+pbench-register-tool --name=<tool-name> [--group=<group-name>] [--no-install] [--persistent] [--transient] [--remotes=@<remotes-file>] -- [all tool specific options here]
 
 	Where the list of labels must match the list of remotes, one label per
 	host.
@@ -15,7 +15,10 @@ pbench-register-tool --name=<tool-name> [--group=<group-name>] [--no-install] [-
 	separated by a comma (","); empty lines are ignored, and comments are
 	denoted by a leading hash, or pound ("#"), character.
 
+	--persistent or --transient can be used to specify tool run type.
+
 Available tools:
+  Transient:
 	blktrace
 	bpftrace
 	cpuacct
@@ -36,6 +39,7 @@ Available tools:
 	numastat
 	oc
 	openvswitch
+	pcp-transient
 	perf
 	pidstat
 	pprof
@@ -54,6 +58,7 @@ Available tools:
 	user-tool
 	virsh-migrate
 	vmstat
+  Persistent:
 	node-exporter
 	dcgm
 	pcp

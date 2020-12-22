@@ -23,6 +23,7 @@ INSTALLOPTS = --directory
 # all the scripts that's fit to install
 util-scripts = \
 	cdm-get-iterations \
+	get-internal-tool \
 	pbench-add-metalog-option \
 	pbench-avg-stddev \
 	pbench-copy-results \

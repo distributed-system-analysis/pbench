@@ -20,6 +20,7 @@
 		"numastat": null,
 		"oc": null,
 		"openvswitch": null,
+		"pcp-transient": null,
 		"perf": null,
 		"pidstat": null,
 		"pprof": null,
