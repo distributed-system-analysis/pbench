@@ -98,12 +98,12 @@ function usage() {
 	# Usage is formatted for a 80 column width screen.
 	printf -- "usage:\n"
 	printf -- "${script_name} --name=<tool-name> [--group=<group-name>]"
-	printf -- " [--no-install] [--remotes=<remote-host>[,<remote-host>]]"
-	printf -- " [--labels=<label>[,<label>]] -- [all tool specific"
-	printf -- " options here]\n"
+	printf -- " [--no-install] [--persistent] [--transient]"
+	printf -- " [--remotes=<remote-host>[,<remote-host>]] [--labels=<label>[,<label>]]"
+	printf -- " -- [all tool specific options here]\n"
 	printf -- "${script_name} --name=<tool-name> [--group=<group-name>]"
-	printf -- " [--no-install] [--remotes=@<remotes-file>] -- [all tool"
-	printf -- " specific options here]\n\n"
+	printf -- " [--no-install] [--persistent] [--transient] [--remotes=@<remotes-file>]"
+	printf -- " -- [all tool specific options here]\n\n"
 	#             1         2         3         4         5         6         7         8
 	# (tab)    1 901234567890123456789012345678901234567890123456789012345678901234567890
 	printf -- "\tWhere the list of labels must match the list of remotes, one label per\n"
@@ -115,9 +115,10 @@ function usage() {
 	printf -- "\tof the file should contain a host name, optionally followed by a label\n"
 	printf -- "\tseparated by a comma (\",\"); empty lines are ignored, and comments are\n"
 	printf -- "\tdenoted by a leading hash, or pound (\"#\"), character.\n"
+	printf -- "\n\t--persistent or --transient can be used to specify tool run type.\n"
 	printf -- "\nAvailable tools:\n"
 	local tool=""
-	python3 -c "import sys, json; meta = json.load(open(sys.argv[1])); [print(f'\t{tool}') for tool in (*meta['transient'].keys(), *meta['persistent'].keys()) ]" ${pbench_bin}/tool-scripts/meta.json
+	python3 -c "import sys, json; meta = json.load(open(sys.argv[1])); print('  Transient:', *[f'\t{tool}' for tool in meta['transient'].keys()], '  Persistent:', *[f'\t{tool}' for tool in meta['persistent'].keys()], sep='\n')" ${pbench_bin}/tool-scripts/meta.json
 	#                     1         2         3         4         5         6         7         8
 	# (no tab)   12345678901234567890123456789012345678901234567890123456789012345678901234567890
 	printf -- "\nFor a list of tool specific options, run:\n"
@@ -125,7 +126,7 @@ function usage() {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o hn:g:r:l: --longoptions "help,name:,group:,no-install,remote:,remotes:,label:,labels:,test-labels" -n "getopt.sh" -- "${@}")
+opts=$(getopt -q -o hn:g:r:l: --longoptions "help,name:,group:,no-install,remote:,remotes:,label:,labels:,test-labels, persistent, transient" -n "getopt.sh" -- "${@}")
 if [[ ${?} -ne 0 ]]; then
 	printf -- "\n${*}\n" >&2
 	printf -- "${script_name}: you specified an invalid option\n\n" >&2
@@ -175,6 +176,24 @@ while true; do
 		shift
 		_do_test_labels=1
 		;;
+	--persistent)
+		shift
+		display_name=${name}
+		name=$(${pbench_bin}/util-scripts/get-internal-tool ${pbench_bin}/tool-scripts ${name} persistent)
+		if [[ -z "${name}" ]]; then
+			name="internal-tool-not-found"
+		fi
+		type="persistent"
+		;;
+	--transient)
+		shift
+		display_name=${name}
+		name=$(${pbench_bin}/util-scripts/get-internal-tool ${pbench_bin}/tool-scripts ${name} transient)
+		if [[ -z "${name}" ]]; then
+			name="internal-tool-not-found"
+		fi
+		type="transient"
+		;;
 	-h|--help)
 		usage
 		exit 0
@@ -192,7 +211,11 @@ if [[ -z ${name} ]]; then
 	exit 1
 fi
 if [[ ! -x "${pbench_bin}/tool-scripts/${name}" ]]; then
-	error_log "Could not find ${name} in ${pbench_bin}/tool-scripts/: has this tool been integrated into the pbench-agent?"
+	if [[ ${name} == "internal-tool-not-found" ]]; then
+		error_log "Could not find ${display_name} with type ${type} in ${pbench_bin}/tool-scripts/: has the right type been specified?"
+	else
+		error_log "Could not find ${name} in ${pbench_bin}/tool-scripts/: has this tool been integrated into the pbench-agent?"
+	fi
 	usage >&2
 	exit 1
 fi
@@ -424,8 +447,10 @@ function record_tool() {
 	else
 		_label_msg=""
 	fi
-
-	local _msg="\"${name}\" tool is now registered for host \"${remote_arg}\"${_label_msg} in group \"${group}\""
+	if [[ -z "${display_name}" ]]; then
+		display_name=${name}
+	fi
+	local _msg="\"${display_name}\" tool is now registered for host \"${remote_arg}\"${_label_msg} in group \"${group}\""
 	log "${_msg}"
 	printf "${_msg}\n"
 	return 0

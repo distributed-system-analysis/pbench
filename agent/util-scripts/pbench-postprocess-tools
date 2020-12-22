@@ -108,7 +108,7 @@ for dirent in $(/bin/ls -1 ${tool_group_dir}); do
 				# Ignore unrecognized tools
 				continue
 			fi
-			if [[ "${filent}" == "node-exporter" || "${filent}" == "dcgm" || "${filent}" == "pcp" ]]; then
+			if [[ "${filent}" == "node-exporter" || "${filent}" == "dcgm" || "${filent}" == "pcp" || "${filent}" == "pcp-transient" ]]; then
                                 # To be removed when converted to python
                                 continue
 			fi

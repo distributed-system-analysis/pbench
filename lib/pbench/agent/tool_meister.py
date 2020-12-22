@@ -100,7 +100,13 @@ class Tool:
     _tool_type = "Transient"
 
     def __init__(
-        self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None, controller=None,
+        self,
+        name,
+        tool_opts,
+        pbench_install_dir=None,
+        tool_dir=None,
+        logger=None,
+        controller=None,
     ):
         assert logger is not None, "Logic bomb!  no logger provided!"
         self.logger = logger
@@ -286,6 +292,126 @@ class Tool:
         self.start_process = None
 
 
+class PcpTransTool(Tool):
+    """PcpTransTool - A more traditional alternative to the pcp persistent tool that
+                      allows one to run both the pmlogger and pmcd locally on each
+                      registered node. Additionally, this tool starts, stops, and
+                      sends data alongside other transient tools, rather than always
+                      running in the background.
+    """
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        if self.tool_dir:
+            self.tool_dir = self.tool_dir / self.name.replace("-transient", "")
+        if "/usr/libexec/pcp/bin" not in os.environ["PATH"]:
+            os.environ["PATH"] += os.pathsep + "/usr/libexec/pcp/bin"
+        pmcd_path = find_executable("pmcd")
+        if pmcd_path:
+            self.pmcd_args = [
+                pmcd_path,
+                "--foreground",
+                "--socket=./pmcd.socket",
+                "--port=55677",
+                f"--config={self.pbench_install_dir}/templates/pmcd.conf",
+            ]
+        else:
+            self.pmcd_args = None
+        pmlogger_path = find_executable("pmlogger")
+        if pmlogger_path:
+            self.pmlogger_args = [
+                pmlogger_path,
+                "--log=-",
+                "--report",
+                "-t",
+                "3s",
+                "-c",
+                f"{self.pbench_install_dir}/templates/pmlogger.conf",
+                "--host=localhost:55677",
+                f"{self.tool_dir}/%Y%m%d.%H.%M",
+            ]
+        else:
+            self.pmlogger_args = None
+        self.pmcd_process = None
+        self.pmlogger_process = None
+        if self.tool_dir:
+            try:
+                self.tool_dir.mkdir()
+            except Exception as exc:
+                self.logger.error(
+                    "Failed to create tool directory '%s': '%s'", self.tool_dir, exc
+                )
+
+    def install(self):
+        if self.pmcd_args is None:
+            return (1, "pcp tool (pmcd) not found")
+        elif self.pmlogger_args is None:
+            return (1, "pcp tool (pmlogger) not found")
+        return (0, "pcp tool (pmcd and pmlogger properly installed")
+
+    def start(self):
+        assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
+        if self.pmcd_process or self.pmlogger_process:
+            raise ToolException(
+                f"Tool({self.name}) has an unexpected process still running"
+            )
+
+        self.logger.info(
+            "%s: start_tool -- %s -- %s",
+            self.name,
+            " ".join(self.pmcd_args),
+            " ".join(self.pmlogger_args),
+        )
+        o_file = self.tool_dir / f"tm-{self.name}-start.out"
+        e_file = self.tool_dir / f"tm-{self.name}-start.err"
+        with o_file.open("w") as ofp, e_file.open("w") as efp:
+            try:
+                self.pmcd_process = subprocess.Popen(
+                    self.pmcd_args,
+                    cwd=self.tool_dir,
+                    stdin=subprocess.DEVNULL,
+                    stdout=ofp,
+                    stderr=efp,
+                )
+            except Exception as exc:
+                self.logger.error(
+                    "Pmcd run process failed: '%s', %r", exc, self.pmcd_args
+                )
+            try:
+                self.pmlogger_process = subprocess.Popen(
+                    self.pmlogger_args,
+                    cwd=self.tool_dir,
+                    stdin=subprocess.DEVNULL,
+                    stdout=ofp,
+                    stderr=efp,
+                )
+            except Exception as exc:
+                self.logger.error(
+                    "Pmlogger run process failed: '%s', %r", exc, self.pmlogger_args
+                )
+
+    def stop(self):
+        self.logger.info("%s: stop_tool", self.name)
+        try:
+            self.pmlogger_process.terminate()
+        except Exception as exc:
+            self.logger.error("Failed to terminate pmlogger: '%s", exc)
+        try:
+            self.pmcd_process.terminate()
+        except Exception as exc:
+            self.logger.error("Failed to terminate pmcd: '%s", exc)
+
+    def wait(self):
+        try:
+            self.pmlogger_process.wait(timeout=20)
+        except subprocess.TimeoutExpired:
+            self.logger.error("pmlogger not properly terminated after 20s")
+        try:
+            self.pmcd_process.wait(timeout=20)
+        except subprocess.TimeoutExpired:
+            self.logger.error("pmcd not properly terminated after 20s")
+
+
 class PersistentTool(Tool):
     """PersistentTool - Encapsulates all the states needed to run persistent
     tooling in the background.  A PersistentTool extends the base Tool class
@@ -468,6 +594,7 @@ class PcpTool(PersistentTool):
             return (1, "pcp tool (pmcd) not found")
         return (0, "pcp tool (pmcd) properly installed")
 
+
 class JaegerTool(PersistentTool):
     """JaegerTool - provides specifics for running a Jaeger Agent on the host"""
 
@@ -483,7 +610,8 @@ class JaegerTool(PersistentTool):
         if executable:
             self.args = [
                 executable,
-                f"--reporter.grpc.host-port={self.controller}:{DEFAULT_COLLECTOR_PORT}",
+                "--reporter.grpc.host-port="
+                f"{self.controller}:{self.DEFAULT_COLLECTOR_PORT}",
             ]
         else:
             self.args = None
@@ -605,14 +733,16 @@ class ToolMeister:
     _valid_states = frozenset(["startup", "idle", "running", "shutdown"])
     _message_keys = frozenset(["action", "args", "directory", "group"])
     # Most tools we have today are "transient" tools, and are handled by external
-    # scripts.  Our two persistent tools are handled in the code directly.
+    # scripts.  Our three persistent tools (and pcp-transient) are handled in the
+    # code directly.
     #
     # FIXME - we should eventually allow them to be loaded externally.
     _tool_name_class_mappings = {
         "dcgm": DcgmTool,
+        "jaeger": JaegerTool,
         "node-exporter": NodeExporterTool,
         "pcp": PcpTool,
-        "jaeger": JaegerTool,
+        "pcp-transient": PcpTransTool,
     }
 
     def __init__(
@@ -923,6 +1053,8 @@ class ToolMeister:
         failures = 0
         tool_cnt = 0
         for name, tool_opts in sorted(self._tools.items()):
+            if name not in self.persistent_tool_names:
+                continue
             try:
                 tklass = self._tool_name_class_mappings[name]
             except KeyError:
@@ -1042,7 +1174,11 @@ class ToolMeister:
                 continue
             tool_cnt += 1
             try:
-                tool = Tool(
+                tklass = self._tool_name_class_mappings[name]
+            except KeyError:
+                tklass = Tool
+            try:
+                tool = tklass(
                     name,
                     tool_opts,
                     pbench_install_dir=self.pbench_install_dir,
