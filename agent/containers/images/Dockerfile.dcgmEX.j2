@@ -1,0 +1,15 @@
+# NOTE: Must be run with --privileged
+# RECOMMENDED: Use with the fedora image variants for direct compatibility
+FROM pbench-agent-tool-meister-{{ distro }}:{{ tag }}
+
+RUN {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} install -y 'dnf-command(config-manager)' && \
+    {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} config-manager --add-repo https://developer.download.nvidia.com/compute/cuda/repos/{{ distro.split("-")|join("") }}/x86_64/cuda-{{ distro.split("-")|join("") }}.repo && \
+    {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} clean expire-cache && \
+    {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} install -y nvidia-driver-cuda nvidia-modprobe datacenter-gpu-manager-2.1.4 golang && \
+    git clone https://github.com/NVIDIA/gpu-monitoring-tools.git && \
+    (cd gpu-monitoring-tools; git checkout tags/2.1.2 -b build; make binary install) && \
+    {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} -y clean all && \
+    rm -rf /var/cache/{% if distro == 'centos-7' %}yum{% else %}dnf{% endif %}
+
+ENV NVIDIA_DISABLE_REQUIRE="true" \
+    NVIDIA_VISIBLE_DEVICES=all

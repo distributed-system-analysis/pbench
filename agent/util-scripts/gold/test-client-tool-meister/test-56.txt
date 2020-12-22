@@ -245,7 +245,7 @@ INFO pbench-tool-meister __exit__ -- remote_b.example.com: terminating
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote_c.example.com.err:
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote_c.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote_c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote_c.example.com
-INFO pbench-tool-meister start -- Started persistent tool dcgm, env PYTHONPATH=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/bindings:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/bindings/common, args ['python2', '/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/samples/scripts/dcgm_prometheus.py']
+INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
 INFO pbench-tool-meister start -- Started persistent tool pcp, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmcd', '--foreground', '--socket=./pmcd.socket', '--port=55677', '--config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmcd.conf']
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 INFO pbench-tool-meister stop -- Terminate issued for persistent tool pcp
@@ -260,7 +260,7 @@ INFO pbench-tool-meister __exit__ -- remote_c.example.com: terminating
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote_b.example.com/node-exporter/tm-node-exporter-start.err:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote_b.example.com/node-exporter/tm-node-exporter-start.out:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote_c.example.com/dcgm/dcgm.file:
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/samples/scripts/dcgm_prometheus.py
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote_c.example.com/dcgm/tm-dcgm-start.err:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote_c.example.com/dcgm/tm-dcgm-start.out:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote_c.example.com/pcp/pmcd.file:
@@ -457,7 +457,7 @@ port 17001
 +++ mock-run/tm/tm-lite-testhost.example.com.err file contents
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
-INFO pbench-tool-meister start -- Started persistent tool dcgm, env PYTHONPATH=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/bindings:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/bindings/common, args ['python2', '/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/samples/scripts/dcgm_prometheus.py']
+INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
@@ -513,7 +513,7 @@ remote_b.example.com 0016 INFO pbench-tool-meister _send_directory -- remote_b.e
 remote_b.example.com 0017 INFO pbench-tool-meister __exit__ -- remote_b.example.com: terminating
 remote_c.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote_c.example.com block,security_mitigations,sos parallel
 remote_c.example.com 0001 INFO pbench-tool-meister _send_directory -- remote_c.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote_c.example.com
-remote_c.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool dcgm, env PYTHONPATH=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/bindings:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/bindings/common, args ['python2', '/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/samples/scripts/dcgm_prometheus.py']
+remote_c.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
 remote_c.example.com 0003 INFO pbench-tool-meister start -- Started persistent tool pcp, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmcd', '--foreground', '--socket=./pmcd.socket', '--port=55677', '--config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmcd.conf']
 remote_c.example.com 0004 INFO pbench-tool-meister stop -- Terminate issued for persistent tool dcgm
 remote_c.example.com 0005 INFO pbench-tool-meister stop -- Terminate issued for persistent tool pcp
@@ -524,7 +524,7 @@ remote_c.example.com 0009 INFO pbench-tool-meister _send_directory -- remote_c.e
 remote_c.example.com 0010 INFO pbench-tool-meister __exit__ -- remote_c.example.com: terminating
 testhost.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com block,security_mitigations,sos parallel
 testhost.example.com 0001 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/beg/testhost.example.com
-testhost.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool dcgm, env PYTHONPATH=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/bindings:/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/bindings/common, args ['python2', '/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/samples/scripts/dcgm_prometheus.py']
+testhost.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool dcgm, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter']
 testhost.example.com 0003 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
 testhost.example.com 0004 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/mock-run/0-iter-zero/sample42/tools-lite/testhost.example.com --interval=42 --options=forty-two
 testhost.example.com 0005 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
@@ -577,15 +577,15 @@ scrape_configs:
 
   - job_name: 'remote_c.example.com_dcgm'
     static_configs:
-    - targets: ['remote_c.example.com:8000']
+    - targets: ['remote_c.example.com:9400']
 
 
   - job_name: 'testhost.example.com_dcgm'
     static_configs:
-    - targets: ['testhost.example.com:8000']
+    - targets: ['testhost.example.com:9400']
 --- tools-lite/prometheus/prometheus.yml file contents
 +++ tools-lite/testhost.example.com/dcgm/dcgm.file file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/samples/scripts/dcgm_prometheus.py
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
 --- tools-lite/testhost.example.com/dcgm/dcgm.file file contents
 +++ tools-lite/testhost.example.com/dcgm/tm-dcgm-start.err file contents
 --- tools-lite/testhost.example.com/dcgm/tm-dcgm-start.err file contents
@@ -593,6 +593,8 @@ scrape_configs:
 --- tools-lite/testhost.example.com/dcgm/tm-dcgm-start.out file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL --options=forty-two 42
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL --options=forty-two 42
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL --options=forty-two 42
@@ -617,8 +619,6 @@ scrape_configs:
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmlogger --log=- --report -t 3s -c /var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmlogger.conf --host=remote_c.example.com:55677 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/pcp/data/red:remote_c.example.com/%Y%m%d.%H.%M
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmproxy --log=- --foreground --timeseries --port=44566 --redishost=localhost --redisport=17001 --config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmproxy.conf
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/prometheus --config.file=/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/prometheus/prometheus.yml --storage.tsdb.path=/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/samples/scripts/dcgm_prometheus.py
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/samples/scripts/dcgm_prometheus.py
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no remote_a.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote_a.example.com yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no remote_b.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote_b.example.com yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no remote_c.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote_c.example.com yes
