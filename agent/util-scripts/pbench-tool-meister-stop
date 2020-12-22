@@ -19,14 +19,10 @@ import time
 from argparse import ArgumentParser
 from pathlib import Path
 
-from pbench.agent.constants import redis_port, cli_tm_channel_prefix
+from pbench.agent.constants import def_redis_port, cli_tm_channel_prefix
+from pbench.agent.tool_group import BadToolGroup, ToolGroup
 from pbench.agent.tool_meister_client import Client
-from pbench.agent.utils import (
-    cli_verify_sysinfo,
-    info_log,
-    verify_tool_group,
-    BadToolGroup,
-)
+from pbench.agent.utils import cli_verify_sysinfo, error_log, info_log
 
 
 def is_running(pid):
@@ -40,6 +36,87 @@ def is_running(pid):
         if err.errno == errno.ESRCH:
             return False
     return True
+
+
+def wait_for_pid(pid):
+    """wait_for_pid - wait for a process to actually stop running.
+    """
+    while is_running(pid):
+        time.sleep(0.1)
+
+
+def graceful_shutdown(
+    benchmark_run_dir, full_hostname, group, redis_server_pid_file, logger
+):
+    # The assumption/assertion here is that the tool meister "stop" command is
+    # run on the same node as the tool meister "start" command ran, creating
+    # the local Tool Data Sink and the optional local Tool Meister. We want to
+    # make sure anything "local" to this stop command is shut down gracefully
+    # before we report back to the user.  If Tool Meisters from remote nodes
+    # have already reported that they have received the "terminate" message,
+    # then we trust they will shutdown gracefully themselves.
+    try:
+        tds_pid_file = benchmark_run_dir / "tm" / "pbench-tool-data-sink.pid"
+        try:
+            pid_str = tds_pid_file.read_text()
+        except OSError as exc:
+            if exc.errno != errno.ENOENT:
+                raise
+        else:
+            tds_pid = int(pid_str)
+            logger.debug("waiting for tool-data-sink (%d) to exit", tds_pid)
+            wait_for_pid(tds_pid)
+    except Exception:
+        logger.exception("Exception encountered waiting for tool-data-sink")
+        ret_val = 1
+    else:
+        ret_val = 0
+
+    try:
+        ltm_pid_file = benchmark_run_dir / "tm" / f"tm-{group}-{full_hostname}.pid"
+        try:
+            pid_str = ltm_pid_file.read_text()
+        except OSError as exc:
+            if exc.errno != errno.ENOENT:
+                raise
+        else:
+            ltm_pid = int(pid_str)
+            logger.debug("waiting for local tool-meister (%d) to exit", ltm_pid)
+            wait_for_pid(ltm_pid)
+    except Exception:
+        logger.exception("Exception encountered waiting for local tool-meister")
+        ret_val = 1
+
+    # All was good so far, so we can terminate the redis server.
+    try:
+        try:
+            pid_str = redis_server_pid_file.read_text()
+        except OSError as exc:
+            if exc.errno != errno.ENOENT:
+                raise
+        else:
+            redis_server_pid = int(pid_str)
+            pid_exists = True
+            timeout = time.time() + 60
+            while pid_exists:
+                try:
+                    os.kill(redis_server_pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pid_exists = False
+                else:
+                    if time.time() > timeout:
+                        try:
+                            os.kill(redis_server_pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pid_exists = False
+                        except Exception:
+                            raise
+                    time.sleep(0.1)
+    except Exception:
+        logger.exception("Exception encountered terminating Redis server")
+        ret_val = 1
+
+    return ret_val
 
 
 def main(_prog, cli_params):
@@ -81,7 +158,7 @@ def main(_prog, cli_params):
     logger.addHandler(sh)
 
     try:
-        verify_tool_group(cli_params.tool_group)
+        ToolGroup.verify_tool_group(cli_params.tool_group)
     except BadToolGroup as exc:
         logger.error(str(exc))
         return 1
@@ -103,20 +180,38 @@ def main(_prog, cli_params):
         full_hostname = os.environ["_pbench_full_hostname"]
         benchmark_run_dir = Path(os.environ["benchmark_run_dir"]).resolve(strict=True)
     except Exception:
-        logger.exception("failed to fetch parameters from the environment")
+        logger.exception("failed to fetch required parameters from the environment")
         return 1
 
-    try:
-        redis_server_pid_file = (
-            benchmark_run_dir / "tm" / f"redis_{redis_port:d}.pid"
-        ).resolve(strict=True)
-    except FileNotFoundError:
-        # No Redis server, nothing to do.
-        return 0
+    if cli_params.redis_server is None:
+        # No Redis server was given, so look locally to see if we can find it.
+        # If no Redis server locally, we're done.
+        try:
+            redis_server_pid_file = (
+                benchmark_run_dir / "tm" / f"redis_{def_redis_port:d}.pid"
+            ).resolve(strict=True)
+        except FileNotFoundError:
+            # No Redis server, nothing to do.
+            return 0
+        else:
+            redis_host = "localhost"
+            redis_port = def_redis_port
+    else:
+        parts = cli_params.redis_server.split(":", 1)
+        if len(parts) != 2:
+            logger.error("Bad Redis server specified, '%s'", cli_params.redis_server)
+            return 1
+        try:
+            redis_port = int(parts[1])
+        except Exception:
+            logger.error("Bad Redis port specified, '%s'", cli_params.redis_server)
+            return 1
+        else:
+            redis_host = parts[0]
 
     # The Redis server is always running on the local host with the CLI.
     with Client(
-        redis_host="localhost",
+        redis_host=redis_host,
         redis_port=redis_port,
         channel_prefix=cli_tm_channel_prefix,
         logger=logger,
@@ -126,23 +221,19 @@ def main(_prog, cli_params):
         try:
             tool_dir.mkdir(exist_ok=True)
         except Exception as exc:
-            logger.error(
-                'failed to create tool output directory, "{}": {}', tool_dir, exc
-            )
+            error_log(f"failed to create tool output directory, '{tool_dir}': {exc}")
             end_ret_val = 1
         else:
             end_ret_val = client.publish(group, tool_dir, "end", None)
-
-        # Next we collect the system configuration information, but only if the
-        # "end" operation was successful, and if it was requested.
+        # Next we collect the system configuration information only if we were
+        # successfully able to end the persistent tools run.
         if end_ret_val == 0 and sysinfo:
             sysinfo_path = benchmark_run_dir / "sysinfo" / "end"
             try:
                 sysinfo_path.mkdir(parents=True)
             except Exception:
-                logger.error(
-                    "Unable to create sysinfo-dump directory base path: {}",
-                    sysinfo_path,
+                error_log(
+                    f"Unable to create sysinfo-dump directory base path: {sysinfo_path}",
                 )
             else:
                 logger.info("Collecting system information")
@@ -163,65 +254,19 @@ def main(_prog, cli_params):
     # just return the success/failure of the terminate operation.
     ret_val = end_ret_val if end_ret_val != 0 else term_ret_val
 
-    # The assumption/assertion here is that the tool meister "stop" command is
-    # run on the same node as the tool meister "start" command ran, creating
-    # the local Tool Data Sink and the optional local Tool Meister. We want to
-    # make sure anything "local" to this stop command is shut down gracefully
-    # before we report back to the user.  If Tool Meisters from remote nodes
-    # have already reported that they have received the "terminate" message,
-    # then we trust they will shutdown gracefully themselves.
-    try:
-        tds_pid_file = benchmark_run_dir / "tm" / "pbench-tool-data-sink.pid"
-        try:
-            pid_str = tds_pid_file.read_text()
-        except OSError as exc:
-            if exc.errno != errno.ENOENT:
-                raise
-        else:
-            tds_pid = int(pid_str)
-            logger.debug("waiting for tool-data-sink (%d) to exit", tds_pid)
-            while is_running(tds_pid):
-                time.sleep(0.1)
-    except Exception:
-        logger.exception("Exception encountered waiting for tool-data-sink")
-        ret_val = 1
-
-    try:
-        ltm_pid_file = benchmark_run_dir / "tm" / f"tm-{group}-{full_hostname}.pid"
-        try:
-            pid_str = ltm_pid_file.read_text()
-        except OSError as exc:
-            if exc.errno != errno.ENOENT:
-                raise
-        else:
-            ltm_pid = int(pid_str)
-            logger.debug("waiting for local tool-meister (%d) to exit", ltm_pid)
-            while is_running(ltm_pid):
-                time.sleep(0.1)
-    except Exception:
-        logger.exception("Exception encountered waiting for local tool-meister")
-        ret_val = 1
-
-    # All was good so far, so we can terminate the Redis server.
-    try:
-        try:
-            pid_str = redis_server_pid_file.read_text()
-        except OSError as exc:
-            if exc.errno != errno.ENOENT:
-                raise
-        else:
-            redis_server_pid = int(pid_str)
-            pid_exists = True
-            while pid_exists:
-                try:
-                    os.kill(redis_server_pid, signal.SIGTERM)
-                except ProcessLookupError:
-                    pid_exists = False
-                else:
-                    time.sleep(0.1)
-    except Exception:
-        logger.exception("Exception encountered terminating Redis server")
-        ret_val = 1
+    if cli_params.redis_server is None:
+        # The client operations have finished, successful or unsuccessfully,
+        # and we were not given an explicit Redis server to use.  So the
+        # previous pbench-tool-meister-start must have set up the local Tool
+        # Data Sink, Tool Meister (if registered), and the Redis server.  It is
+        # our responsibility to make sure these processes shut down correctly.
+        shutdown_ret_val = graceful_shutdown(
+            benchmark_run_dir, full_hostname, group, redis_server_pid_file, logger
+        )
+        if ret_val == 0:
+            # If client termination was successful, report the status of the
+            # graceful shutdown of the Tool Data Sink and the Redis server.
+            ret_val = shutdown_ret_val
 
     return ret_val
 
@@ -243,7 +288,18 @@ if __name__ == "__main__":
         help="Whether or not the stop operation is in response to an interrupt.",
     )
     parser.add_argument(
-        "tool_group", help="The tool group of items being run in the Tool Meisters."
+        "--redis-server",
+        dest="redis_server",
+        default=os.environ.get("PBENCH_REDIS_SERVER", None),
+        help=(
+            "Use an existing Redis server specified by <hostname>:<port>;"
+            " implies the use of an existing Tool Data Sink and Tool Meisters"
+            " as well."
+        ),
+    )
+    parser.add_argument(
+        "tool_group",
+        help="The tool group name of tools being run in the Tool Meisters.",
     )
     parsed = parser.parse_args()
     status = main(sys.argv[0], parsed)

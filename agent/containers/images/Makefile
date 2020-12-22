@@ -29,7 +29,7 @@ _REPO_TEMPLATE = ../../ansible/pbench/agent/roles/pbench_repo_install/templates/
 
 # The list of RPMs which provide the various tools we offer.
 # Not intended to be overridden with an environment variable.
-_TOOL_RPMS = prometheus2 node_exporter blktrace bpftrace cpupowerutils golang kernel-tools libvirt-client nmap-ncat numactl pbench-sysstat pcp-system-tools perf procps-ng strace tcpdump trace-cmd
+_TOOL_RPMS = prometheus2 node_exporter blktrace bpftrace cpupowerutils golang kernel-tools libvirt-client nmap-ncat numactl pbench-sysstat pcp-gui pcp-system-tools pcp-zeroconf perf procps-ng strace tcpdump trace-cmd
 
 # The list of RPMs for the default workloads we offer.
 # Not intended to be overridden with an environment variable.
@@ -41,7 +41,12 @@ _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 # By default we only build images for the following distributions:
 _DISTROS = centos-8 centos-7 fedora-33 fedora-32
 
+# By default we won't build the Tool Data Sink and Tool Meister images
 all: all-tags $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
+
+tds: all-tags $(foreach distro, ${_DISTROS}, ${distro}-tool-data-sink-tagged)
+
+tm: all-tags $(foreach distro, ${_DISTROS}, ${distro}-tool-meister-tagged)
 
 # We also offer targets per distribution target
 centos-8: all-tags centos-8-all-tagged
@@ -51,6 +56,22 @@ centos-7: all-tags centos-7-all-tagged
 fedora-33: all-tags fedora-33-all-tagged
 
 fedora-32: all-tags fedora-32-all-tagged
+
+centos-8-tds: all-tags centos-8-tool-data-sink-tagged
+
+centos-7-tds: all-tags centos-7-tool-data-sink-tagged
+
+fedora-33-tds: all-tags fedora-33-tool-data-sink-tagged
+
+fedora-32-tds: all-tags fedora-32-tool-data-sink-tagged
+
+centos-8-tm: all-tags centos-8-tool-meister-tagged
+
+centos-7-tm: all-tags centos-7-tool-meister-tagged
+
+fedora-33-tm: all-tags fedora-33-tool-meister-tagged
+
+fedora-32-tm: all-tags fedora-32-tool-meister-tagged
 
 #+
 # Tagging targets
@@ -106,11 +127,29 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-all-tagged: %-all %-tags.lis
 	./apply-tags pbench-agent-all-$* $*-tags.lis
 
-%-all: %-tools-tagged %-workloads-tagged %-all.Dockerfile
+%-all: %-workloads-tagged %-tool-data-sink-tagged %-tool-meister-tagged %-all.Dockerfile
 	./build-image all $* $*-tags.lis
 
 %-all.Dockerfile: Dockerfile.layered.j2 %-tags.lis
 	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="all" -D rpms="${_ALL_RPMS}" > ./$@
+
+%-tool-data-sink-tagged: %-tool-data-sink %-tags.lis
+	./apply-tags pbench-agent-tool-data-sink-$* $*-tags.lis
+
+%-tool-data-sink: %-tools-tagged %-tool-data-sink.Dockerfile
+	./build-image tool-data-sink $* $*-tags.lis
+
+%-tool-data-sink.Dockerfile: Dockerfile.tds.j2 %-tags.lis
+	jinja2 Dockerfile.tds.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" > ./$@
+
+%-tool-meister-tagged: %-tool-meister %-tags.lis
+	./apply-tags pbench-agent-tool-meister-$* $*-tags.lis
+
+%-tool-meister: %-tools-tagged %-tool-meister.Dockerfile
+	./build-image tool-meister $* $*-tags.lis
+
+%-tool-meister.Dockerfile: Dockerfile.tm.j2 %-tags.lis
+	jinja2 Dockerfile.tm.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" > ./$@
 
 %-tools-tagged: %-tools %-tags.lis
 	./apply-tags pbench-agent-tools-$* $*-tags.lis

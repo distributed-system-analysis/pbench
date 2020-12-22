@@ -1,6 +1,8 @@
 +++ Running test-53 test-client-tool-meister 
 "mpstat" tool is now registered for host "testhost.example.com" in group "default"
 "dcgm" tool is now registered for host "testhost.example.com" in group "default"
+pbench-tool-data-sink: connected to redis server localhost:17001
+pbench-tool-meister: connected to redis server localhost:17001
 Collecting system information
 --- Finished test-53 test-client-tool-meister (status=0)
 +++ pbench tree state
@@ -55,7 +57,6 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com/tm-sysinfo.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.log
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
@@ -139,17 +140,15 @@ install_check_output = mpstat: pbench-sysstat-12.0.3 is installed
 
 --- mock-run/metadata.log file contents
 +++ mock-run/tm/pbench-tool-data-sink.err file contents
+INFO pbench-tool-data-sink web_server_run -- Running Bottle web server ...
 Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class 'pbench.agent.tool_data_sink.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
 Listening on http://localhost:8080/
 Hit Ctrl-C to quit.
 
---- mock-run/tm/pbench-tool-data-sink.err file contents
-+++ mock-run/tm/pbench-tool-data-sink.log file contents
-INFO pbench-tool-data-sink web_server_run -- Running Bottle web server ...
 INFO pbench-tool-data-sink tm_log_capture -- Running Tool Meister log capture ...
 INFO pbench-tool-data-sink execute -- Tool Data Sink terminating
 INFO pbench-tool-data-sink web_server_run -- Bottle web server exited
---- mock-run/tm/pbench-tool-data-sink.log file contents
+--- mock-run/tm/pbench-tool-data-sink.err file contents
 +++ mock-run/tm/pbench-tool-data-sink.out file contents
 --- mock-run/tm/pbench-tool-data-sink.out file contents
 +++ mock-run/tm/redis.conf file contents

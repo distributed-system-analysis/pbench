@@ -8,6 +8,7 @@ import sys
 import click
 
 from pbench.agent import PbenchAgentConfig
+from pbench.agent.tool_group import ToolGroup, BadToolGroup
 from pbench.agent.utils import setup_logging
 
 
@@ -108,15 +109,16 @@ class BaseCommand(metaclass=abc.ABCMeta):
 
     def verify_tool_group(self, group):
         """Ensure we have a tools group directory to work with"""
-        self.tool_group_dir = self.pbench_run / f"tools-v1-{group}"
-        if not self.tool_group_dir.exists():
-            click.secho(
-                f'\t{self.name}: invalid --group option ("{group}"), directory not found: {self.tool_group_dir}'
-            )
+        try:
+            self.tool_group_dir = self.gen_tools_group_dir(group)
+        except BadToolGroup as exc:
+            click.echo(f'\t{self.name}: invalid --group option ("{group}"), {exc}')
             ctxt = click.get_current_context()
             click.echo(ctxt.get_help())
-            return 1
-        return 0
+            ret_code = 1
+        else:
+            ret_code = 0
+        return ret_code
 
     def gen_tools_group_dir(self, group):
-        return self.pbench_run / f"tools-v1-{group}"
+        return ToolGroup.verify_tool_group(group, pbench_run=self.pbench_run)

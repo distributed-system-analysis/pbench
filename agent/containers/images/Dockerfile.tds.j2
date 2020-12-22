@@ -1,0 +1,8 @@
+# {{ distro }} pbench-agent-tool-data-sink  image
+FROM pbench-agent-tools-{{ distro }}:{{ tag }}
+
+VOLUME /var/lib/pbench-agent
+
+# Port 8080 should be Bottle server, 9090 optional Prometheus server
+EXPOSE 8080 9090
+ENTRYPOINT [ "/opt/pbench-agent/util-scripts/tool-meister/tool-data-sink-ep" ]

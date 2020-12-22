@@ -2,10 +2,10 @@
 """
 
 # Default Redis server port number used is "One Tool" in hex 0x17001
-redis_port = 17001
+def_redis_port = 17001
 
 # Default port number used for the Tool Data Sink
-tds_port = 8080
+def_tds_port = 8080
 
 # The amount of time a TM tries to publish its setup message.
 TDS_RETRY_PERIOD_SECS = 60

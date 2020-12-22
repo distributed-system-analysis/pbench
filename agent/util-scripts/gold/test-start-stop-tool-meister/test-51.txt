@@ -5,7 +5,7 @@
 3. push tool group data and metadata
 4. starting tool data sink
 5a. starting localhost tool meister
-6. waiting for all successfully spawned SSH processes to show up as subscribers
+6. waiting for all successfully created Tool Meister processes to show up as subscribers
 8. Initialize persistent tools
 channel pbench-agent-cli-to-client payload, '{"action": "end", "kind": "ds", "status": "success"}'
 channel pbench-agent-cli-to-client payload, '{"action": "init", "kind": "ds", "status": "success"}'
@@ -18,6 +18,8 @@ next pbench-agent-cli-to-client
 payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "end", "kind": "ds", "status": "success"}'}
 payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "init", "kind": "ds", "status": "success"}'}
 payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "startup", "kind": "ds", "status": "success"}'}
+pbench-tool-data-sink: connected to redis server localhost:17001
+pbench-tool-meister: connected to redis server localhost:17001
 publish end on chan pbench-agent-cli-from-client
 publish init on chan pbench-agent-cli-from-client
 publish terminate on chan pbench-agent-cli-from-client
@@ -33,7 +35,6 @@ waiting for tool-data-sink (#####) to exit
 /var/tmp/pbench-test-utils/pbench/mock-run/ssh_config.d
 /var/tmp/pbench-test-utils/pbench/mock-run/tm
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.err
-/var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.log
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/pbench-tool-data-sink.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.conf
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
@@ -108,22 +109,20 @@ install_check_output = perf: perf is installed
 
 --- mock-run/metadata.log file contents
 +++ mock-run/tm/pbench-tool-data-sink.err file contents
+DEBUG pbench-tool-data-sink daemon -- re-constructing Redis server object
+DEBUG pbench-tool-data-sink daemon -- reconstructed Redis server object
+DEBUG pbench-tool-data-sink driver -- params_key (tds-default): {'benchmark_run_dir': '/var/tmp/pbench-test-utils/pbench/mock-run', 'bind_hostname': 'localhost', 'channel_prefix': 'pbench-agent-cli', 'group': 'default', 'optional_md': {'config': '', 'date': '1900-01-01T00:00:00', 'script': 'fake-bm', 'ssh_opts': '-o StrictHostKeyChecking=no'}, 'tool_metadata': {'persistent': {'dcgm': {'collector': 'prometheus', 'port': '8000'}, 'node-exporter': {'collector': 'prometheus', 'port': '9100'}, 'pcp': {'collector': 'pcp', 'port': '44321'}}, 'transient': {'blktrace': None, 'bpftrace': None, 'cpuacct': None, 'disk': None, 'dm-cache': None, 'docker': None, 'docker-info': None, 'external-data-source': None, 'haproxy-ocp': None, 'iostat': None, 'jmap': None, 'jstack': None, 'kvm-spinlock': None, 'kvmstat': None, 'kvmtrace': None, 'lockstat': None, 'mpstat': None, 'numastat': None, 'oc': None, 'openvswitch': None, 'perf': None, 'pidstat': None, 'pprof': None, 'proc-interrupts': None, 'proc-sched_debug': None, 'proc-vmstat': None, 'prometheus-metrics': None, 'qemu-migrate': None, 'rabbit': None, 'sar': None, 'strace': None, 'sysfs': None, 'systemtap': None, 'tcpdump': None, 'turbostat': None, 'user-tool': None, 'virsh-migrate': None, 'vmstat': None}}, 'tool_trigger': None, 'tools': {'testhost.example.com': {'mpstat': '', 'perf': '--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"'}}}
+INFO pbench-tool-data-sink web_server_run -- Running Bottle web server ...
 Bottle v#.##.## server starting up (using DataSinkWsgiServer(handler_class=<class 'pbench.agent.tool_data_sink.DataSinkWsgiServer.__init__.<locals>.DataSinkWsgiRequestHandler'>))...
 Listening on http://localhost:8080/
 Hit Ctrl-C to quit.
 
---- mock-run/tm/pbench-tool-data-sink.err file contents
-+++ mock-run/tm/pbench-tool-data-sink.log file contents
-DEBUG pbench-tool-data-sink main -- params_key (tds-default): b'{"benchmark_run_dir": "/var/tmp/pbench-test-utils/pbench/mock-run", "bind_hostname": "localhost", "channel_prefix": "pbench-agent-cli", "group": "default", "optional_md": {"config": "", "date": "1900-01-01T00:00:00", "script": "fake-bm", "ssh_opts": "-o StrictHostKeyChecking=no"}, "tool_metadata": {"persistent": {"dcgm": {"collector": "prometheus", "port": "8000"}, "node-exporter": {"collector": "prometheus", "port": "9100"}, "pcp": {"collector": "pcp", "port": "44321"}}, "transient": {"blktrace": null, "bpftrace": null, "cpuacct": null, "disk": null, "dm-cache": null, "docker": null, "docker-info": null, "external-data-source": null, "haproxy-ocp": null, "iostat": null, "jmap": null, "jstack": null, "kvm-spinlock": null, "kvmstat": null, "kvmtrace": null, "lockstat": null, "mpstat": null, "numastat": null, "oc": null, "openvswitch": null, "perf": null, "pidstat": null, "pprof": null, "proc-interrupts": null, "proc-sched_debug": null, "proc-vmstat": null, "prometheus-metrics": null, "qemu-migrate": null, "rabbit": null, "sar": null, "strace": null, "sysfs": null, "systemtap": null, "tcpdump": null, "turbostat": null, "user-tool": null, "virsh-migrate": null, "vmstat": null}}, "tool_trigger": null, "tools": {"testhost.example.com": {"mpstat": "", "perf": "--record-opts=\\"-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions\\" --report-opts=\\"-I -g\\""}}}'
-DEBUG pbench-tool-data-sink main -- Tool Data Sink parameters check out, daemonizing ...
-DEBUG pbench-tool-data-sink main -- constructing Redis() object
-DEBUG pbench-tool-data-sink main -- constructed Redis() object
-INFO pbench-tool-data-sink web_server_run -- Running Bottle web server ...
 DEBUG pbench-tool-data-sink run -- Making tool data sink WSGI server ...
+DEBUG pbench-tool-data-sink run -- Successfully created WSGI server
 DEBUG pbench-tool-data-sink run -- Running tool data sink WSGI server ...
 DEBUG pbench-tool-data-sink __enter__ -- web server 'run' thread started, processing payloads ...
 INFO pbench-tool-data-sink tm_log_capture -- Running Tool Meister log capture ...
-DEBUG pbench-tool-data-sink __enter__ -- 'tm_log_capture' thread started, processing logs ...
+DEBUG pbench-tool-data-sink __enter__ -- 'tm_log_capture' thread started, processing Tool Meister logs ...
 DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-tms
 DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-tms', 'data': b'{"hostname": "testhost.example.com", "hostname_A": "agent.example.com", "hostname_I": "agent.example.com", "hostname_f": "agent.example.com", "hostname_i": "agent.example.com", "hostname_s": "agent.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'}
 DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-tms payload, '{"hostname": "testhost.example.com", "hostname_A": "agent.example.com", "hostname_I": "agent.example.com", "hostname_f": "agent.example.com", "hostname_i": "agent.example.com", "hostname_s": "agent.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'
@@ -170,7 +169,7 @@ INFO pbench-tool-data-sink web_server_run -- Bottle web server exited
 DEBUG pbench-tool-data-sink __exit__ -- Waiting for the web server thread to exit ...
 DEBUG pbench-tool-data-sink __exit__ -- Waiting for the log capture thread to exit ...
 DEBUG pbench-tool-data-sink __exit__ -- Exiting Tool Data Sink context ...
---- mock-run/tm/pbench-tool-data-sink.log file contents
+--- mock-run/tm/pbench-tool-data-sink.err file contents
 +++ mock-run/tm/pbench-tool-data-sink.out file contents
 --- mock-run/tm/pbench-tool-data-sink.out file contents
 +++ mock-run/tm/redis.conf file contents
