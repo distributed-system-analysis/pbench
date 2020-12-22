@@ -400,65 +400,19 @@ class DcgmTool(PersistentTool):
     """DcgmTool - provide specific persistent tool behaviors for the "dcgm"
     tool.
 
-    In particular, the dcgm tool requires the "--inst" option, requires the
-    PYTHONPATH environment variable be set properly, and must use a python2
-    environment.
+    The only particular behavior is that we find the proper "dcgm-exporter"
+    executable in our PATH.
     """
 
     def __init__(self, name, tool_opts, logger=None, **kwargs):
         super().__init__(name, tool_opts, logger=logger, **kwargs)
-        # Looking for required "--inst" option, reformatting appropriately if
-        # found.
-        tool_opts_l = self.tool_opts.split(" ")
-        for opt in tool_opts_l:
-            if opt.startswith("--inst="):
-                if opt[-1] == "\n":
-                    install_path = opt[7:-1]
-                else:
-                    install_path = opt[7:]
-                self.install_path = Path(install_path)
-                self.logger.debug(
-                    "install path for tool %s, %s", name, self.install_path
-                )
-                break
-        else:
-            self.install_path = None
-            self.logger.debug("missing install path")
-        if self.install_path is None:
-            self.script_path = None
-            self.args = None
-            self.env = None
-        else:
-            self.script_path = (
-                self.install_path / "samples" / "scripts" / "dcgm_prometheus.py"
-            )
-            if not self.script_path.exists():
-                self.logger.error("missing script path, %s", self.script_path)
-                self.args = None
-                self.env = None
-            else:
-                self.args = ["python2", f"{self.script_path}"]
-                new_path_l = [
-                    str(self.install_path / "bindings"),
-                    str(self.install_path / "bindings" / "common"),
-                ]
-                unit_tests = bool(os.environ.get("_PBENCH_UNIT_TESTS"))
-                prev_path = os.environ.get("PYTHONPATH", "")
-                if prev_path and not unit_tests:
-                    new_path_l.append(prev_path)
-                self.env = os.environ.copy()
-                self.env["PYTHONPATH"] = ":".join(new_path_l)
+        executable = find_executable("dcgm-exporter")
+        self.args = None if executable is None else [executable]
 
     def install(self):
-        if self.install_path is None:
-            return (1, "dcgm tool --inst argument missing")
-        elif self.args is None:
-            return (1, f"dcgm tool path, '{self.script_path}', not found")
+        if self.args is None:
+            return (1, "dcgm-exporter tool not found")
         return (0, "dcgm tool properly installed")
-
-    def start(self):
-        # The dcgm tool needs PYTHONPATH, and run via the shell.
-        super().start(env=self.env)
 
 
 class NodeExporterTool(PersistentTool):

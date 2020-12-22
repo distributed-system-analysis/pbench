@@ -15,10 +15,9 @@ import sys
 if len(sys.argv) == 2 and sys.argv[1] == "--help":
     help = """Options:
 
---inst=<LOCATION OF dcgm INSTALL> (required)
 --interval=# (number of seconds between collections)
 
-For more information on this tool, please Nvidia's "dcgm-exporter" at:
+For more information on this tool, please see Nvidia's "dcgm-exporter" at:
 \thttps://ngc.nvidia.com/catalog/containers/nvidia:k8s:dcgm-exporter
 """
     print(help)

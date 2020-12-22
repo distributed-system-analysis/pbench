@@ -123,7 +123,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_gpu_temp",
+          "expr": "DCGM_FI_DEV_GPU_TEMP",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -227,7 +227,7 @@
       "pluginVersion": "7.1.2",
       "targets": [
         {
-          "expr": "avg(dcgm_gpu_temp)",
+          "expr": "avg(DCGM_FI_DEV_GPU_TEMP)",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -286,7 +286,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_power_usage",
+          "expr": "DCGM_FI_DEV_POWER_USAGE",
           "interval": "",
           "legendFormat": "GPU {{gpu}}",
           "refId": "A"
@@ -408,7 +408,7 @@
       "pluginVersion": "7.1.2",
       "targets": [
         {
-          "expr": "sum(dcgm_power_usage)",
+          "expr": "sum(DCGM_FI_DEV_POWER_USAGE)",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -471,7 +471,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_sm_clock",
+          "expr": "DCGM_FI_DEV_SM_CLOCK",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -507,6 +507,97 @@
           "logBase": 1,
           "max": null,
           "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "hiddenSeries": false,
+      "id": 4,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "DCGM_FI_DEV_MEM_CLOCK",
+          "interval": "",
+          "legendFormat": "GPU {{gpu}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "interval": "3",
+      "title": "GPU Memory Clocks",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "hertz",
+          "label": null,
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
           "show": true
         },
         {
@@ -570,7 +661,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_gpu_utilization",
+          "expr": "DCGM_FI_DEV_GPU_UTIL",
           "interval": "",
           "legendFormat": "GPU {{gpu}}",
           "refId": "A"
@@ -602,6 +693,97 @@
           "logBase": 1,
           "max": null,
           "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "hiddenSeries": false,
+      "id": 8,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "DCGM_FI_DEV_MEM_COPY_UTIL",
+          "interval": "",
+          "legendFormat": "GPU {{gpu}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "interval": 3,
+      "title": "GPU Mem Cpy Utilization",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "label": null,
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
           "show": true
         },
         {
@@ -664,7 +846,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_fb_used",
+          "expr": "DCGM_FI_DEV_FB_USED",
           "interval": "",
           "legendFormat": "GPU {{gpu}}",
           "refId": "A"
@@ -759,7 +941,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "dcgm_fb_free",
+          "expr": "DCGM_FI_DEV_FB_FREE",
           "interval": "",
           "legendFormat": "GPU {{gpu}}",
           "refId": "A"

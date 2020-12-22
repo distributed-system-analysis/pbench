@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>pbench-dcgm-exporter</short>
+  <description>Pbench Agent Prometheus dcgm-exporter</description>
+  <port protocol="tcp" port="9400"/>
+</service>
+
