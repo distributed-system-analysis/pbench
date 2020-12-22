@@ -4,7 +4,6 @@ import subprocess
 import sys
 
 from datetime import datetime
-from pathlib import Path
 
 from pbench.agent.constants import (
     sysinfo_opts_available,
@@ -189,40 +188,3 @@ def collect_local_info(pbench_bin):
         hostdata[arg] = cp.stdout.strip() if cp.stdout is not None else ""
 
     return (version, seqno, sha1, hostdata)
-
-
-class BadToolGroup(Exception):
-    """Exception representing a tool group that does not exist or is invalid.
-    """
-
-    pass
-
-
-# Current tool group prefix in use.
-TOOL_GROUP_PREFIX = "tools-v1"
-
-
-def verify_tool_group(group, pbench_run=None):
-    """verify_tool_group - given a tool group name, verify it exists in the
-    ${pbench_run} directory as a properly prefixed tool group directory name.
-
-    Raises a BadToolGroup exception if the directory is invalid or does not
-    exist.
-
-    Returns a Pathlib object of the tool group directory on success.
-    """
-    _pbench_run = os.environ["pbench_run"] if pbench_run is None else pbench_run
-    tg_dir_name = Path(_pbench_run, f"{TOOL_GROUP_PREFIX}-{group}")
-    try:
-        tg_dir = tg_dir_name.resolve(strict=True)
-    except FileNotFoundError:
-        raise BadToolGroup(
-            f"Bad tool group, '{group}': directory {tg_dir_name} does not exist"
-        )
-    else:
-        if not tg_dir.is_dir():
-            raise BadToolGroup(
-                f"Bad tool group, '{group}': directory {tg_dir_name} not valid"
-            )
-        else:
-            return tg_dir

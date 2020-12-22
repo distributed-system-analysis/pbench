@@ -13,7 +13,7 @@ import sys
 from pbench.agent.constants import (
     cli_tm_allowed_actions,
     cli_tm_channel_prefix,
-    redis_port,
+    def_redis_port,
 )
 from pbench.agent.tool_meister_client import Client
 
@@ -47,30 +47,48 @@ def main(argv):
     try:
         group = argv[1]
     except IndexError:
-        raise Exception("Missing group argument")
+        logger.error("Missing group argument")
+        return 1
     try:
         directory = argv[2]
     except IndexError:
-        raise Exception("Missing directory argument")
+        logger.error("Missing directory argument")
+        return 1
     try:
         action = argv[3]
     except IndexError:
-        raise Exception("Missing action argument")
+        logger.error("Missing action argument")
+        return 1
     else:
         if action not in cli_tm_allowed_actions:
-            raise Exception(
-                f"Unrecognized action, '{action}', allowed actions are:"
-                f" {cli_tm_allowed_actions}"
+            logger.error(
+                "Unrecognized action, '{}', allowed actions are: {}",
+                action,
+                cli_tm_allowed_actions,
             )
+            return 1
         elif action == "kill":
             # FIXME: we need to implement the gritty method of killing all the
             # tool meisters, locally and remotely, and ensuring they are all
             # properly shut down.
             return 0
 
+    redis_server = os.environ.get("PBENCH_REDIS_SERVER", f"localhost:{def_redis_port}")
+    parts = redis_server.split(":", 1)
+    if len(parts) != 2:
+        logger.error("Bad Redis server specified, {!r}", redis_server)
+        return 1
+    try:
+        redis_port = int(parts[1])
+    except Exception:
+        logger.error("Bad port for Redis server specified in {!r}", redis_server)
+        return 1
+    else:
+        redis_host = parts[0]
+
     # The Redis server is always running on the local host with the CLI.
     with Client(
-        redis_host="localhost",
+        redis_host=redis_host,
         redis_port=redis_port,
         channel_prefix=cli_tm_channel_prefix,
         logger=logger,

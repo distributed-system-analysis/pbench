@@ -65,7 +65,11 @@ from pbench.agent.constants import (
     tm_channel_suffix_to_logging,
     TDS_RETRY_PERIOD_SECS,
 )
-from pbench.agent.redis import RedisHandler, RedisChannelSubscriber
+from pbench.agent.redis import (
+    RedisHandler,
+    RedisChannelSubscriber,
+    wait_for_conn_and_key,
+)
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
 
@@ -468,10 +472,7 @@ class NodeExporterTool(PersistentTool):
     def __init__(self, name, tool_opts, logger=None, **kwargs):
         super().__init__(name, tool_opts, logger=logger, **kwargs)
         executable = find_executable("node_exporter")
-        if executable is None:
-            self.args = None
-        else:
-            self.args = [executable]
+        self.args = None if executable is None else [executable]
 
     def install(self):
         if self.args is None:
@@ -779,7 +780,7 @@ class ToolMeister:
                 num_present = 0
             if num_present == 0 and time.time() >= timeout:
                 raise Exception(
-                    "Unable to publish startup ack message, {started_msg!r}"
+                    f"Unable to publish startup ack message, {started_msg!r}"
                 )
         self.logger.debug("published %s", self._from_tms_channel)
         return self
@@ -999,13 +1000,17 @@ class ToolMeister:
 
         # Name of the temporary tool data directory to use when invoking
         # tools.  This is a local temporary directory when the Tool Meister is
-        # remote from the pbench controller.
-        if self._controller == self._hostname:
+        # remote from the pbench controller.  When the Tool Meister is run in
+        # a container the "directory" parameter will not map into its
+        # namespace, so we always consider containerized Tool Meisters as
+        # remote.
+        _dir = Path(data["directory"])
+        if self._controller == self._hostname and _dir.exists():
             # This is the case when the Tool Meister instance is running on
             # the same host as the controller.  We just use the directory
             # given to us in the `start` message.
             try:
-                _dir = Path(data["directory"]).resolve(strict=True)
+                _dir = _dir.resolve(strict=True)
             except Exception:
                 self.logger.exception(
                     "Failed to access provided result directory, %s", data["directory"]
@@ -1705,7 +1710,7 @@ def daemon(
             redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
         except Exception as exc:
             logger.error(
-                "Unable to construct to Redis server object, %s:%s: %s",
+                "Unable to construct Redis server object, %s:%s: %s",
                 redis_host,
                 redis_port,
                 exc,
@@ -1755,10 +1760,17 @@ def main(argv):
     except IndexError as e:
         print(f"{PROG}: Invalid arguments: {e}", file=sys.stderr)
         return 1
+    else:
+        if not redis_host or not redis_port or not param_key:
+            print(f"{PROG}: Invalid arguments: {argv!r}", file=sys.stderr)
+            return 1
     try:
         daemonize = argv[4]
     except IndexError:
         daemonize = "no"
+    else:
+        if not daemonize:
+            daemonize = "no"
 
     tar_path = find_executable("tar")
     if tar_path is None:
@@ -1824,13 +1836,10 @@ def main(argv):
         return 5
 
     try:
-        params_raw = redis_server.get(param_key)
-        if params_raw is None:
-            print(
-                f'{PROG}: Parameter key, "{param_key}" does not exist.', file=sys.stderr
-            )
-            return 6
-        params_str = params_raw.decode("utf-8")
+        # Wait for the key to show up with a value.
+        params_str = wait_for_conn_and_key(
+            redis_server, param_key, PROG, redis_host, redis_port
+        )
         params = json.loads(params_str)
         # Validate the tool meister parameters without constructing an object
         # just yet, as we want to make sure we can talk to the redis server
@@ -1841,30 +1850,20 @@ def main(argv):
             f"{PROG}: Unable to fetch and decode parameter key, '{param_key}': {exc}",
             file=sys.stderr,
         )
-        return 7
+        return 6
 
+    func_args = (
+        PROG,
+        tar_path,
+        sysinfo_dump,
+        pbench_install_dir,
+        tmp_dir,
+        param_key,
+        params,
+        redis_server,
+    )
     if daemonize == "yes":
-        ret_val = daemon(
-            PROG,
-            tar_path,
-            sysinfo_dump,
-            pbench_install_dir,
-            tmp_dir,
-            param_key,
-            params,
-            redis_server,
-            redis_host,
-            redis_port,
-        )
+        ret_val = daemon(*func_args, redis_host, redis_port)
     else:
-        ret_val = driver(
-            PROG,
-            tar_path,
-            sysinfo_dump,
-            pbench_install_dir,
-            tmp_dir,
-            param_key,
-            params,
-            redis_server,
-        )
+        ret_val = driver(*func_args)
     return ret_val

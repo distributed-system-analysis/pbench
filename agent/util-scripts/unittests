@@ -528,7 +528,7 @@ function sort_log_file {
 }
 
 function sort_tdslog {
-    sort_log_file ${_testdir}/mock-run/tm/pbench-tool-data-sink.log
+    sort_log_file ${_testdir}/mock-run/tm/pbench-tool-data-sink.err
 }
 
 function sort_tmlogs {

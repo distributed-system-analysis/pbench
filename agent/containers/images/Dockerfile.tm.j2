@@ -1,0 +1,6 @@
+# {{ distro }} pbench-agent-tool-meister image
+FROM pbench-agent-tools-{{ distro }}:{{ tag }}
+
+# Port 8000 should be the optional dcgm tool, and 9100 the optional node_exporter tool.
+EXPOSE 8000 9100
+ENTRYPOINT [ "/opt/pbench-agent/util-scripts/tool-meister/tool-meister-ep" ]

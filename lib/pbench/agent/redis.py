@@ -220,3 +220,41 @@ class RedisHandler(logging.Handler):
                 self.dropped += 1
         finally:
             self.counter += 1
+
+
+def wait_for_conn_and_key(redis_server, key, prog, redis_host, redis_port):
+    """wait_for_conn_and_key - convenience method of both the Tool Meister and
+    the Tool Data Sink to startup and wait for an initial connection to the
+    Redis server, and for the expected key to show up.
+    """
+    # Loop waiting for the key to show up.
+    connected = None
+    payload = None
+    while payload is None:
+        try:
+            payload = redis_server.get(key)
+        except redis.ConnectionError:
+            if connected is None:
+                print(
+                    f"{prog}: waiting to connect to redis server {redis_host}:{redis_port}",
+                    flush=True,
+                )
+                connected = False
+            elif connected:
+                print(
+                    f"{prog}: disconnected from redis server {redis_host}:{redis_port}",
+                    flush=True,
+                )
+                connected = False
+            time.sleep(1)
+        else:
+            if not connected:
+                print(
+                    f"{prog}: connected to redis server {redis_host}:{redis_port}",
+                    flush=True,
+                )
+                connected = True
+            if payload is None:
+                print(f'{prog}: key, "{key}" does not exist yet', flush=True)
+                time.sleep(1)
+    return payload.decode("utf-8")
