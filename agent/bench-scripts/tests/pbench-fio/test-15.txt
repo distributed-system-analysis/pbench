@@ -24,6 +24,8 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/1-rw-42KiB/fio.job (sample1)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 fio job complete
 Created the following job file (/var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/2-randwrite-42KiB/fio.job):
 [global]
@@ -50,6 +52,8 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/2-randwrite-42KiB/fio.job (sample1)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 fio job complete
 Created the following job file (/var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/3-read-42KiB/fio.job):
 [global]
@@ -76,6 +80,8 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/3-read-42KiB/fio.job (sample1)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 fio job complete
 Created the following job file (/var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/4-randrw-42KiB/fio.job):
 [global]
@@ -102,6 +108,8 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/4-randrw-42KiB/fio.job (sample1)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 fio job complete
 Created the following job file (/var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/5-write-42KiB/fio.job):
 [global]
@@ -128,6 +136,8 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/5-write-42KiB/fio.job (sample1)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 fio job complete
 Created the following job file (/var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/6-randread-42KiB/fio.job):
 [global]
@@ -154,6 +164,8 @@ size=4096M
 numjobs=1
 
 running fio job: /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/6-randread-42KiB/fio.job (sample1)
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 fio job complete
 --- Finished test-15 pbench-fio (status=0)
 +++ pbench tree state
@@ -235,16 +247,28 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] [pbench-fio] fio-3.21 is installed
 [debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/tmp/fio", clients="")
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/1-rw-42KiB/fio.job ]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/2-randwrite-42KiB/fio.job ]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/3-read-42KiB/fio.job ]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/4-randrw-42KiB/fio.job ]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/5-write-42KiB/fio.job ]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/6-randread-42KiB/fio.job ]
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
+[warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/*/fio_clat_hist.*.log*) to process for histograms
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 --- pbench.log file contents
 +++ test-execution.log file contents
