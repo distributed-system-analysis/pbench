@@ -80,14 +80,14 @@ sub remove_params { # remove any parameters with "arg"
     my @args = @_;
     for my $arg (@args) {
         my $index = 0;
-                # Copy the argv so we can iterate over all elements even if some are removed
-                my @argv = @$argv_ref;
+        # Copy the argv so we can iterate over all elements even if some are removed
+        my @argv = @$argv_ref;
         for my $param (@argv) {
-                        chomp $param;
+            chomp $param;
             if ($param =~ /--(\S+)=(\S+)/) {
                 if ($1 eq $arg) {
                     splice(@{ $argv_ref }, $index, 1);
-                                        $index--;
+                    $index--;
                 }
             }
             $index++;
@@ -120,7 +120,6 @@ sub put_json_file {
 }
 
 # Find all the benchmarks in the pbench configuraton data
-# todo: return as an array instead of printing
 sub get_benchmark_names {
     my $dir = shift;
     my @benchmarks;
@@ -145,8 +144,13 @@ sub get_clients {
     return @clients;
 }
 
-sub get_pbench_datetime { #our common date & time forma
-    my $datetime = `date --utc +"%Y.%m.%dT%H.%M.%S"`;
+sub get_pbench_datetime { #our common date & time format
+    my $datetime = $ENV{'date'};
+    if (defined $datetime) {
+        $datetime = `date --date $datetime --utc +"%Y.%m.%dT%H.%M.%S"`;
+    } else {
+        $datetime = `date --utc +"%Y.%m.%dT%H.%M.%S"`;
+    }
     chomp $datetime;
     return $datetime;
 }
@@ -197,19 +201,18 @@ sub metadata_log_end_run {
     system("echo " . $iteration_names . " | pbench-add-metalog-option " . $mdlog . " pbench iterations");
     system("echo " . $config . " | pbench-add-metalog-option " . $mdlog . " pbench config");
     system("echo " . $benchmark_name . " | pbench-add-metalog-option " . $mdlog . " pbench script");
+    system("echo pbench-run-benchmark | pbench-add-metalog-option " . $mdlog . " pbench bench_script");
     system("benchmark=" . $benchmark_name . " pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " end");
 }
 
 sub metadata_log_record_iteration {
     my $benchmark_run_dir = shift;
-    my $num = shift;
+    my $iteration_id = shift;
     my $iteration_params = shift;
-    my $iteration_label = shift;
-
-    my $iteration_name = $num . "__" . $iteration_label;
+    my $iteration_name = shift;
 
     my $mdlog = $benchmark_run_dir . "/metadata.log";
-    system("echo " . $num .      " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_number");
+    system("echo " . $iteration_id    . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_number");
     system("echo " . $iteration_name  . " | pbench-add-metalog-option " . $mdlog . " iterations/" . $iteration_name . " iteration_name");
     my @params = split(/\s+/, $iteration_params);
     while (scalar @params > 0) {

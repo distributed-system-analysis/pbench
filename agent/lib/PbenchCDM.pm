@@ -38,7 +38,11 @@ sub get_cdm_rel {
 }
 
 sub get_uuid {
-    return $uuid->create_str();
+    if (exists $ENV{"_PBENCH_UNIT_TESTS"}) {
+        return "AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE";
+    } else {
+        return $uuid->create_str();
+    }
 }
 
 sub get_user_name { # Looks for USER_NAME in %ENV

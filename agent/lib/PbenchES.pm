@@ -14,7 +14,6 @@ use Time::HiRes qw(gettimeofday);
 use REST::Client;
 use JSON;
 use Data::Dumper;
-use Data::UUID;
 use SigFigs;
 use Array::Diff qw(:all);
 use PbenchCDM qw(get_cdm_ver get_cdm_rel);

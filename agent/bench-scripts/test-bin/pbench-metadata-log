@@ -1,1 +1,41 @@
-mock-cmd
+#!/bin/bash
+
+if [[ -z "${*}" ]]; then
+    echo "${0}" >> ${_testlog}
+else
+    echo "${0} ${*}" >> ${_testlog}
+fi
+
+opts=$(getopt -q -o d:g: --longoptions "dir:,group:" -n "getopt.sh" -- "${@}");
+if [[ ${?} -ne 0 ]]; then
+    printf -- "\ntest-bin/pbench-metadata-log: you specified an invalid option\n\n" >&2
+    exit 1
+fi
+eval set -- "${opts}"
+while true; do
+    case "${1}" in
+	-d|--dir)
+	    shift
+	    if [[ -n "${1}" ]]; then
+		dir="${1}"
+		shift
+	    fi
+	    ;;
+	-g|--group)
+	    shift
+	    if [[ -n "${1}" ]]; then
+		    group="${1}"
+		    shift
+	    fi
+	    ;;
+	--)
+	    shift
+	    break
+	    ;;
+    esac
+done
+
+if [[ "${1}" == "beg" ]]; then
+    echo [pbench] > ${dir}/metadata.log
+fi
+exit 0

@@ -36,18 +36,23 @@ my %defaults = ( "num-samples" => 1,
 my $pp_only = 0;
 my $base_bench_dir = "";
 
+my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
 # The only required [positional] argument is the benchmark name; verify it now
 if (scalar @ARGV == 0) {
-    print "You must supply at least a benchmark name:\n";
-    my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
-    printf "%s\n",  join(" ", @benchmarks);
-    exit;
+    print "You must supply at least one of the following supported benchmark names:\n";
+    printf "\t%s\n",  join(" ", @benchmarks);
+    exit 1;
 }
 my $benchmark = shift(@ARGV);
 if ($benchmark eq "list") {
-    my @benchmarks = get_benchmark_names(get_pbench_bench_config_dir);
     printf "%s\n",  join(" ", @benchmarks);
     exit;
+}
+my %benchmarks_hash = map { $_ => 1 } @benchmarks;
+if (! exists($benchmarks_hash{$benchmark})) {
+    print "Unsupported benchmark " . $benchmark . "; please supply one of the following supported benchmark names:\n";
+    printf "\t%s\n",  join(" ", @benchmarks);
+    exit 1;
 }
 
 # The rest of the parameters are --arg=val, most of which we just pass to other scripts,
@@ -176,6 +181,7 @@ if (-e "/tmp/stockpile") {
                     $base_bench_dir . "/stockpile.json");
 }
 
+my $tool_group = $params{"tool-group"};
 my $iteration_id = 0;
 my $run_id = get_uuid;
 my %last_run_doc;
@@ -196,21 +202,24 @@ if ($rc != 0) {
 }
 my @iteration_names;
 my %param_sets_common_params = find_common_parameters(@param_sets);
-mkdir($base_bench_dir);
-open(my $fh, ">" . $base_bench_dir . "/iteration-list.txt");
+my $fh;
 
-sub signal_handler {
-    system("pbench-tool-meister-stop");
-    metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $params{'tool-group'}, @iteration_names);
+if (! $pp_only) {
+    open($fh, ">" . $base_bench_dir . "/iteration-list.txt");
+
+    sub signal_handler {
+        system("pbench-tool-meister-stop");
+        metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $tool_group, @iteration_names);
+    }
+
+    $SIG{INT} = "signal_handler";
+    $SIG{QUIT} = "signal_handler";
+    $SIG{TERM} = "signal_handler";
+
+    # start tool meister
+    system("pbench-tool-meister-start " . $tool_group);
+    metadata_log_begin_run($base_bench_dir, $benchmark, $tool_group);
 }
-
-$SIG{INT} = signal_handler;
-$SIG{QUIT} = signal_handler;
-$SIG{TERM} = signal_handler;
-
-# start tool meister
-system("pbench-tool-meister-start " . $params{"tool-group"});
-metadata_log_begin_run($base_bench_dir, $benchmark, $params{"tool-group"});
 
 # There can be multiple parts of a run if the user generated multiple parameter-sets
 # (used a "--" in their cmdline).  Each part of the run has it's own run document,
@@ -225,7 +234,6 @@ while (scalar @param_sets > 0) {
         printf "%s\n", $param_set;
         next;
     }
-    printf "param_set[%s]\n", $param_set;
     # Process --samples= here, since it can be different for each parameter-set,
     # and we need this below for running pbench-run-benchmark-sample N times
     if ($param_set =~ s/--samples=(\S+)\s*//) {
@@ -311,11 +319,14 @@ while (scalar @param_sets > 0) {
             printf "%s\n", $param_set;
             next;
         }
-        my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,);
-        put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
-        my $iteration_name = metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params, $iteration_label);
+        my $iteration_name = $iteration_id . "__" . $iteration_label;
         push(@iteration_names, $iteration_name);
-        printf $fh "%d %s\n", $iteration_id, $iteration_params;
+        my %iter_doc = create_bench_iter_doc(\%run_doc, $iteration_params,);
+        if (! $pp_only) {
+            put_json_file(\%iter_doc, $es_dir . "/bench/iteration-" . $iter_doc{'iteration'}{'id'} . ".json");
+            metadata_log_record_iteration($base_bench_dir, $iteration_id, $iteration_params, $iteration_name);
+            printf $fh "%d %s\n", $iteration_id, $iteration_params;
+        }
         printf "\n\n\niteration_ID: %d\niteration_params: %s\n", $iteration_id, $iteration_params;
         my $iteration_dir = $base_bench_dir . "/" . $iteration_name;
         my @sample_dirs;
@@ -350,8 +361,8 @@ while (scalar @param_sets > 0) {
             }
             my $benchmark_cmd = "pbench-run-benchmark-sample " . $es_dir . "/bench/iteration-" .
                                 $iter_doc{'iteration'}{'id'} . ".json " . $iteration_sample_dir .
-                                " " . $base_bench_dir . " " . $params{"tool-group"} .
-                                " " .  $last_sample . " " . $params{"postprocess-mode"} .
+                                " " . $base_bench_dir . " " . $tool_group .
+                                " " . $last_sample . " " . $params{"postprocess-mode"} .
                                 " " . $pp_only;
             if ($pp_only) {
                 if ($params{'postprocess-mode'} eq 'html') {
@@ -394,17 +405,19 @@ while (scalar @param_sets > 0) {
         close(BULK_FH);
         system(". ./bulk-sample.sh");
     } else {
-	system("pbench-end-tools --group=" . $tool_group . " --dir=" . $base_bench_dir);
+        system("pbench-end-tools --group=" . $tool_group . " --dir=" . $base_bench_dir);
     }
     $run_doc{'run'}{'end'} = int time * 1000; # time in milliseconds
     put_json_file(\%run_doc, $es_dir . "/run/run" . $run_part . "-" . $run_doc{'run'}{'id'} . ".json");
     %last_run_doc = %run_doc; # We need to keep at least 1 run doc to create the config docs later
     $run_part++;
 }
-metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $params{'tool-group'}, @iteration_names);
-# stop tool meister
-system("pbench-tool-meister-stop");
-close $fh;
+if (! $pp_only) {
+    metadata_log_end_run($base_bench_dir, $benchmark, $params{'user-tags'}, $tool_group, @iteration_names);
+    # stop tool meister
+    system("pbench-tool-meister-stop");
+    close $fh;
+}
 if ($params{'postprocess-mode'} eq 'html') {
     # Generate the result.html (to go away once CDM/Elastic UI is available)
     print "Running generate-benchmark-summary...";
@@ -443,4 +456,5 @@ if (-e $base_bench_dir . "/stockpile.json") {
     }
     close($scribe_fh);
 }
+
 printf "Run complete\n\n";
