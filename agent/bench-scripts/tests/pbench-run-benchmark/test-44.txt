@@ -1,0 +1,90 @@
++++ Running test-44 pbench-run-benchmark
+
+***** it is highly recommended you do one of the following:
+- export this variable before calling this script USER_NAME
+- use this parameter when calling this script: --user-name
+
+
+***** it is highly recommended you do one of the following:
+- export this variable before calling this script USER_EMAIL
+- use this parameter when calling this script: --user-email
+
+
+***** it is highly recommended you do one of the following:
+- export this variable before calling this script USER_DESC
+- use this parameter when calling this script: --user-desc
+
+
+***** it is highly recommended you do one of the following:
+- export this variable before calling this script USER_TAGS
+- use this parameter when calling this script: --user-tags
+
+cmdfile: /var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/pbench-run-benchmark.cmd
+Generating all benchmark iterations
+resolving default first with pbench-gen-iterations fio --defaults-only --clients=testhost.example.com
+
+
+
+iteration_ID: 0
+iteration_params: --log_avg_msec=1000  --log_hist_msec=10000  --log_unix_epoch=1  --output=fio-result.json  --output-format=json  --write_bw_log=fio  --write_hist_log=fio  --write_iops_log=fio  --write_lat_log=fio  --clients=testhost.example.com
+sample0
+Running generate-benchmark-summary...finished
+Run complete
+
+--- Finished test-44 pbench-run-benchmark (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/0__fio
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/0__fio/sample0
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/0__fio/sample0/benchmark-sample.cmd
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/es
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/es/bench
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/es/bench/iteration-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE.json
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/es/config
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/es/metrics
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/es/run
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/es/run/run0-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE.json
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/iteration-list.txt
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/metadata.log
+/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/pbench-run-benchmark.cmd
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
+--- pbench tree state
++++ test-execution.log file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio fio /var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-end-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-init-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00 beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00 end
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-run-benchmark-sample /var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/es/bench/iteration-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE.json /var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00/0__fio/sample0 /var/tmp/pbench-test-bench/pbench-agent/fio__1900.01.01T00.00.00 default 1 html 0
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop
+--- test-execution.log file contents
++++ fio__1900.01.01T00.00.00/metadata.log file contents
+[pbench]
+name = fio__1900.01.01T00.00.00
+iterations = 0__fio
+config = 
+script = fio
+bench_script = pbench-run-benchmark
+
+[iterations/0__fio]
+iteration_number = 0
+iteration_name = 0__fio
+log_avg_msec = 1000
+log_hist_msec = 10000
+log_unix_epoch = 1
+output = fio-result.json
+output-format = json
+write_bw_log = fio
+write_hist_log = fio
+write_iops_log = fio
+write_lat_log = fio
+clients = testhost.example.com
+
+--- fio__1900.01.01T00.00.00/metadata.log file contents
