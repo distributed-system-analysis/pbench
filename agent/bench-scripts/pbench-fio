@@ -1,5 +1,5 @@
 #!/bin/bash
-# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; sh-indent-for-case-alt: + -*-
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
 
 # This is a script to run the fio benchmark
 
@@ -179,11 +179,11 @@ function fio_process_options() {
 	eval set -- "$opts";
 	while true; do
 		case "$1" in
-			-h|--help)
+		-h|--help)
 			usage
 			exit
 			;;
-			--install)
+		--install)
 			shift;
 			if [[ "$postprocess_only" != "n" ]]; then
 				printf -- "${script_name} $*\n"
@@ -194,88 +194,88 @@ function fio_process_options() {
 			fi
 			install_only="y"
 			;;
-			--remote-only)
+		--remote-only)
 			shift;
 			warn_log "--remote-only is deprecated, ignoring (was non-operational previously)"
 			;;
-			--max-stddev)
+		--max-stddev)
 			shift;
 			if [ -n "$1" ]; then
 				maxstddevpct="$1"
 				shift;
 			fi
 			;;
-			--max-failures)
+		--max-failures)
 			shift;
 			if [ -n "$1" ]; then
 				max_failures="$1"
 				shift;
 			fi
 			;;
-			--samples)
+		--samples)
 			shift;
 			if [ -n "$1" ]; then
 				nr_samples="$1"
 				shift;
 			fi
 			;;
-			--direct)
+		--direct)
 			shift;
 			if [ -n "$1" ]; then
 				direct=$1
 				shift;
 			fi
 			;;
-			--sync)
+		--sync)
 			shift;
 			if [ -n "$1" ]; then
 				sync=$1
 				shift;
 			fi
 			;;
-			-t|--test-types)
+		-t|--test-types)
 			shift;
 			if [ -n "$1" ]; then
 				test_types="$1"
 				shift;
 			fi
 			;;
-			-b|--block-sizes)
+		-b|--block-sizes)
 			shift;
 			if [ -n "$1" ]; then
 				block_sizes="$1"
 				shift;
 			fi
 			;;
-			-s|--file-size)
+		-s|--file-size)
 			shift;
 			if [ -n "$1" ]; then
 				file_size="$1"
 				shift;
 			fi
 			;;
-			--ramptime)
+		--ramptime)
 			shift;
 			if [ -n "$1" ]; then
 				ramptime="$1"
 				shift;
 			fi
 			;;
-			--rate-iops)
+		--rate-iops)
 			shift;
 			if [ -n "$1" ]; then
 				rate_iops="$1"
 				shift;
 			fi
 			;;
-			-r|--runtime)
+		-r|--runtime)
 			shift;
 			if [ -n "$1" ]; then
 				runtime="$1"
 				shift;
 			fi
 			;;
-			-c|--clients)
+		-c|--clients)
 			shift;
 			if [ ! -z "$client_file" ] ;then
 				printf -- "${script_name} $*\n"
@@ -289,7 +289,7 @@ function fio_process_options() {
 				shift;
 			fi
 			;;
-			--client-file)
+		--client-file)
 			shift;
 			if [ ! -z "$clients" ] ;then
 				printf -- "${script_name} $*\n"
@@ -317,49 +317,49 @@ function fio_process_options() {
 			# Remove the leading comma since $clients starts off empty
 			clients=`echo $clients | sed -e 's/^,//'`
 			;;
-			-d|--targets)
+		-d|--targets)
 			shift;
 			if [ -n "$1" ]; then
 				targets="$1"
 				shift;
 			fi
 			;;
-			-j|--job-mode)
+		-j|--job-mode)
 			shift;
 			if [ -n "$1" ]; then
 				job_mode="$1"
 				shift;
 			fi
 			;;
-			--config)
+		--config)
 			shift;
 			if [ -n "$1" ]; then
 				config="$1"
 				shift;
 			fi
 			;;
-			--ioengine)
+		--ioengine)
 			shift;
 			if [ -n "$1" ]; then
 				ioengine="$1"
 				shift;
 			fi
 			;;
-			--iodepth)
+		--iodepth)
 			shift;
 			if [ -n "$1" ]; then
 				iodepth="$1"
 				shift;
 			fi
 			;;
-			--tool-group)
+		--tool-group)
 			shift;
 			if [ -n "$1" ]; then
 				tool_group="$1"
 				shift;
 			fi
 			;;
-			--postprocess-only)
+		--postprocess-only)
 			shift;
 			if [ -n "$1" ]; then
 				postprocess_only="$1"
@@ -373,21 +373,21 @@ function fio_process_options() {
 				fi
 			fi
 			;;
-			--run-dir)
+		--run-dir)
 			shift;
 			if [ -n "$1" ]; then
 				run_dir="$1"
 				shift;
 			fi
 			;;
-			--numjobs)
+		--numjobs)
 			shift;
 			if [ -n "$1" ]; then
 				numjobs="$1"
 				shift;
 			fi
 			;;
-			--job-file)
+		--job-file)
 			shift;
 			if [ -n "$1" ]; then
 				job_file="$1"
@@ -395,7 +395,7 @@ function fio_process_options() {
 
 			fi
 			;;
-			--pre-iteration-script)
+		--pre-iteration-script)
 			shift;
 			if [ -n "$1" ]; then
 				pre_iteration_script="$1"
@@ -406,30 +406,30 @@ function fio_process_options() {
 				shift;
 			fi
 			;;
-			--histogram-interval-sec)
+		--histogram-interval-sec)
 			shift;
 			histogram_interval_sec="$1"
 			shift
 			;;
 			# histogram-interval-msec is only kept for backwards compatibility
 			# it is deprecated and is not documented in the --help output
-			--histogram-interval-msec)
+		--histogram-interval-msec)
 			shift;
 			(( histogram_interval_sec = $1 / 1000 ))
 			shift
 			;;
-			--sysinfo)
+		--sysinfo)
 			shift;
 			if [ -n "$1" ]; then
 				sysinfo="$1"
 				shift;
 			fi
 			;;
-			--)
+		--)
 			shift;
 			break;
 			;;
-			*)
+		*)
 			echo "what's this? [$1]"
 			shift;
 			break;
