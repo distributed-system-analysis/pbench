@@ -46,9 +46,10 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/max.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/median.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/min.log
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/p90.log
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/p95.log
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/p99.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/p90.0.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/p95.0.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/p99.0.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/p99.5.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/results.html
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/hist/samples.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo
@@ -58,9 +59,10 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/max.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/median.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/min.log
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/p90.log
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/p95.log
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/p99.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/p90.0.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/p95.0.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/p99.0.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/p99.5.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/results.html
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/hist/samples.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/fio-postprocess.cmd
@@ -71,9 +73,10 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/max.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/median.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/min.log
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/p90.log
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/p95.log
-/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/p99.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/p90.0.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/p95.0.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/p99.0.log
+/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/p99.5.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/results.html
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/hist/samples.log
 /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/tools-default
@@ -105,9 +108,9 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary fio --config=test-32 --test-type=rw --samples=1 --block-sizes=42 --clients=hist.foo,hist.bar /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB readwrite_IOPS 5 0 6 y y
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/fio-client.file --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/fio_clat_hist.empty.log
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/fio_clat_hist.empty.log /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/fio_clat_hist.empty.log
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/fio_clat_hist.empty.log
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 99.5 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/fio_clat_hist.empty.log
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 99.5 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/fio_clat_hist.empty.log /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/fio_clat_hist.empty.log
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 99.5 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/fio_clat_hist.empty.log
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00 --sysinfo=default beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00 --sysinfo=default end
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
@@ -154,7 +157,7 @@ iteration_name = 1-rw-42KiB
     <div id='jschart_latency'>
       <script>
         create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
-            { plotfiles: [ "min.log", "median.log", "p90.log", "p95.log", "p99.log", "max.log" ],
+            { plotfiles: [ "min.log", "median.log", "p90.0.log", "p95.0.log", "p99.0.log", "p99.5.log", "max.log" ],
               sort_datasets: false, x_log_scale: false
             });
       </script>
@@ -177,7 +180,7 @@ iteration_name = 1-rw-42KiB
     <div id='jschart_latency'>
       <script>
         create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
-            { plotfiles: [ "min.log", "median.log", "p90.log", "p95.log", "p99.log", "max.log" ],
+            { plotfiles: [ "min.log", "median.log", "p90.0.log", "p95.0.log", "p99.0.log", "p99.5.log", "max.log" ],
               sort_datasets: false, x_log_scale: false
             });
       </script>
@@ -200,7 +203,7 @@ iteration_name = 1-rw-42KiB
     <div id='jschart_latency'>
       <script>
         create_jschart(0, "xy", "jschart_latency", "Percentiles", "Time (msec)", "Latency (usec)",
-            { plotfiles: [ "min.log", "median.log", "p90.log", "p95.log", "p99.log", "max.log" ],
+            { plotfiles: [ "min.log", "median.log", "p90.0.log", "p95.0.log", "p99.0.log", "p99.5.log", "max.log" ],
               sort_datasets: false, x_log_scale: false
             });
       </script>
