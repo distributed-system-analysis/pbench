@@ -41,7 +41,7 @@ def main(ctx):
         elif pct == 100.0:
             col = "max"
         else:
-            col = "p{:1.0f}".format(pct)
+            col = "p{:1.1f}".format(pct)
         columns.append(col)
         plot_files.append("{}.log".format(col))
     columns_l = len(columns)
