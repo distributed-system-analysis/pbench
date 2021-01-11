@@ -75,7 +75,7 @@
 #   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=64k --rw=read
 #   pbench_fio --ioengine=sync --filename=/tmp/fio-tst --numjobs=1 --bs=64k --rw=randr
 #
-#   Since --defaults=default was used after --bs and --rw, those parameters were over-written.
+#   Since --defaults=default was used after --bs and --rw, those parameters were overwritten.
 #   This is by design.
 
 use strict;

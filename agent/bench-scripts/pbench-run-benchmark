@@ -7,4 +7,4 @@ pbench_bin="$(dirname $(realpath ${script_path}))"
 # source the base script
 . "${pbench_bin}"/base
 
-exec ${pbench_bin}/${script_name}.pl
+exec ${pbench_bin}/bench-scripts/${script_name}.pl ${*}
