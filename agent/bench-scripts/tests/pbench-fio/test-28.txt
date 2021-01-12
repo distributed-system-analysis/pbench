@@ -53,8 +53,8 @@ fio job complete
 /var/tmp/pbench-test-bench/pbench-agent/tools-default/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] fio-3.19 is installed
-[debug][1900-01-01T00:00:00.000000] [pbench-fio] fio-3.19 is installed
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] fio-3.21 is installed
+[debug][1900-01-01T00:00:00.000000] [pbench-fio] fio-3.21 is installed
 [debug][1900-01-01T00:00:00.000000] fio_device_check(devs="/tmp/fio", clients="")
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-28_1900.01.01T00.00.00/1-read-8KiB/fio.job ]
 [warn][1900-01-01T00:00:00.000000] log_hist_msec specified in job file but failed to find any log files (.../clients/localhost/fio_clat_hist.*.log*) to process for histograms
