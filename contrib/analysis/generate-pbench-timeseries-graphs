@@ -342,35 +342,35 @@ def generate_spectrum(steps):
 
     """
 
-    def normalize_hue(h):
-        while h < 0:
-            h = h + 6.0
-        return h % 6.0
+    def normalize_hue(hue):
+        while hue < 0:
+            hue = hue + 6.0
+        return hue % 6.0
 
-    def hsl_value(n1, n2, h):
+    def hsl_value(n1, n2, hue):
         """Generate an RGB coordinate from HSL space.
         """
-        h = normalize_hue(h)
-        if h < 1.0:
-            return n1 + ((n2 - n1) * h)
-        elif h < 3.0:
+        hue = normalize_hue(hue)
+        if hue < 1.0:
+            return n1 + ((n2 - n1) * hue)
+        elif hue < 3.0:
             return n2
-        elif h < 4.0:
-            return n1 + ((n2 - n1) * (4 - h))
+        elif hue < 4.0:
+            return n1 + ((n2 - n1) * (4 - hue))
         else:
             return n1
 
-    def color_from_hsl(h, s, l):
+    def color_from_hsl(hue, sat, lum):
         gamma = 1.05
         m2 = 0
-        if (l < .5):
-            m2 = l * (1 + s)
+        if (lum < .5):
+            m2 = lum * (1 + sat)
         else:
-            m2 = l + s - (l * s)
-        m1 = (l * 2) - m2
-        r = hsl_value(m1, m2, h + 2)
-        g = hsl_value(m1, m2, h)
-        b = hsl_value(m1, m2, h - 2)
+            m2 = lum + sat - (lum * sat)
+        m1 = (lum * 2) - m2
+        r = hsl_value(m1, m2, hue + 2)
+        g = hsl_value(m1, m2, hue)
+        b = hsl_value(m1, m2, hue - 2)
         r = int(255 * (r ** (1.0 / gamma)))
         g = int(255 * (g ** (1.0 / gamma)))
         b = int(255 * (b ** (1.0 / gamma)))
@@ -381,10 +381,10 @@ def generate_spectrum(steps):
     # blue.
     lgt_base = [.6, .5, .55, .5, .9, .55, .6]
 
-    def interpolate_base_lgt(h):
-        h = normalize_hue(h)
-        lower = math.floor(h)
-        return (lgt_base[lower] * (1 - (h - lower))) + (lgt_base[lower + 1] * (h - lower))
+    def interpolate_base_lgt(hue):
+        hue = normalize_hue(hue)
+        lower = math.floor(hue)
+        return (lgt_base[lower] * (1 - (hue - lower))) + (lgt_base[lower + 1] * (hue - lower))
 
     direction = 1
     if steps < 0:
@@ -422,10 +422,10 @@ def generate_spectrum(steps):
             hue_steps = range(0, steps, 1)
 
         for n in hue_steps:
-            h = min_hue + (n * increment)
-            answer.append(color_from_hsl(h,
+            hue = min_hue + (n * increment)
+            answer.append(color_from_hsl(hue,
                                          sat_base - (sat_incr * ((n * sat_step) % sat_mod)),
-                                         interpolate_base_lgt(h) - (lgt_incr * ((n * lgt_step) % lgt_mod))))
+                                         interpolate_base_lgt(hue) - (lgt_incr * ((n * lgt_step) % lgt_mod))))
         return answer
 
 
