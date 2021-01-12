@@ -20,6 +20,23 @@
   notify:
     - restart apache
 
+- name: "Install the pbench server proxy config file"
+  template:
+    src: etc/httpd/conf.d/pbench.conf.j2
+    dest: /etc/httpd/conf.d/pbench.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart apache
+
+- name: Allow application HTTP connections
+  # command: "setsebool -P httpd_can_network_connect on"
+  seboolean:
+    name: httpd_can_network_connect
+    persistent: yes
+    state: yes
+
 - name: "Make sure rsync is installed. Used below."
   package:
     name: rsync

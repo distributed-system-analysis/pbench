@@ -14,7 +14,7 @@ pbench-backup-dir = /mnt/pbench.archive.backup
 # Add role for sync'ing with satellites
 roles = pbench-maintenance, pbench-prep, pbench-results, pbench-backup, pbench-sync-satellites
 # pbench-server rest api variables
-rest_port = 8001
+bind_port = 8001
 rest_version = 1
 rest_max_content_length = 100 * 1024 * 1024
 rest_uri = /api/v%(rest_version)s

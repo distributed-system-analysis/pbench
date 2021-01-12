@@ -1,0 +1,6 @@
+<VirtualHost *:80>
+    ProxyPreserveHost On
+    ProxyPass /api/ http://{{ pbench_host }}:{{ bind_port }}/api/
+    ProxyPassReverse /api/ http://{{ pbench_host }}:{{ bind_port }}/api/
+    ProxyPass / !
+</VirtualHost>

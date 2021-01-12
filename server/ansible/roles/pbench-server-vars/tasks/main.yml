@@ -185,6 +185,22 @@
     msg: "{{ pbench_host }}"
     verbosity: 1
 
+# pbench server port
+- name: fetch the pbench server API port
+  shell: "pbench-config bind_port pbench-server"
+  register: cmd_output
+  environment:
+    _PBENCH_SERVER_CONFIG: "{{ pbench_server_install_dir }}/lib/config/pbench-server.cfg"
+    PATH: "{{ pbench_server_install_dir }}/bin:/usr/bin"
+    PYTHONPATH: "{{ pbench_server_install_dir }}/lib"
+
+- set_fact:
+    bind_port: "{{ cmd_output.stdout_lines[0].strip() }}"
+
+- debug:
+    msg: "{{ bind_port }}"
+    verbosity: 1
+
 # pbench contact email address
 - name: fetch the contact email address
   shell: "pbench-config admin-email pbench-server"

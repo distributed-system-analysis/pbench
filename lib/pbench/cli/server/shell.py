@@ -25,8 +25,8 @@ def main():
         print(e)
         sys.exit(1)
     try:
-        port = str(server_config.get("pbench-server", "rest_port"))
         host = str(server_config.get("pbench-server", "bind_host"))
+        port = str(server_config.get("pbench-server", "bind_port"))
         workers = str(server_config.get("pbench-server", "workers"))
     except (NoOptionError, NoSectionError) as e:
         print(f"{__name__}: ERROR: {e.__traceback__}")
