@@ -1,12 +1,7 @@
 language: python
-dist: bionic
+dist: focal
 python:
  - "3.6"
-env:
- matrix:
-  - TOXENV=lint
-  - TOXENV=agent
-  - TOXENV=server
 before_install:
  - sudo apt-get update
 install:
@@ -14,7 +9,8 @@ install:
  - sudo apt-get install libjson-perl libjson-xs-perl
  - travis_retry pip install tox
 script:
- - tox
+ - perl --version
+ - tox -e lint,agent,server
 cache:
  directories:
   - $HOME/.cache/pip
