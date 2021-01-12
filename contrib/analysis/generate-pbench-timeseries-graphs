@@ -744,7 +744,13 @@ def process_file(filename, openfn=open, fixlinefn=None):
 
 if args.files:
     for filename in args.files:
-        process_file(filename)
+        if re.compile(r'\.(tgz|tar(\.[0-9a-z]+)?)$').search(filename):
+            if args.tarfile_name is None:
+                args.tarfile_name = [filename]
+            else:
+                args.tarfile_name.append(filename)
+        else:
+            process_file(filename)
 
 if args.tarfile_name:
     for filename in args.tarfile_name:
