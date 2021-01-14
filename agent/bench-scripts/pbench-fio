@@ -82,6 +82,9 @@ if [ -z "$histogram_interval_sec" ] ;then
 	histogram_interval_sec=10
 fi
 sysinfo="default"
+declare -a client_names=()
+declare -A client_ports=()
+unique_ports=0
 
 function usage {
 	printf "The following options are available:\n"
@@ -169,10 +172,12 @@ function usage {
 	printf "\n"
 	printf -- "\t--sysinfo=str            str= comma separated values of sysinfo to be collected\n"
 	printf "\t\tavailable: $(pbench-collect-sysinfo --options)\n"
+	printf "\n"
+	printf -- "\t--unique-ports           Use unique ports for each server\n"
 }
 
 function fio_process_options() {
-	opts=$(getopt -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:" -n "getopt.sh" -- "$@");
+	opts=$(getopt -q -o b:c:d:hj:r:s:t: --longoptions "help,max-stddev:,max-failures:,samples:,direct:,sync:,install,remote-only,clients:,client-file:,iodepth:,ioengine:,config:,jobs-per-dev:,job-mode:,rate-iops:,ramptime:,runtime:,test-types:,block-sizes:,file-size:,targets:,tool-group:,postprocess-only:,run-dir:,numjobs:,job-file:,sysinfo:,pre-iteration-script:,histogram-interval-sec:,histogram-interval-msec:,unique-ports" -n "getopt.sh" -- "$@");
 	if [ $? -ne 0 ]; then
 		printf -- "${script_name} $*\n"
 		printf -- "\n"
@@ -429,6 +434,10 @@ function fio_process_options() {
 				shift;
 			fi
 			;;
+		--unique-ports)
+			shift;
+			unique_ports=1
+			;;
 		--)
 			shift;
 			break;
@@ -476,6 +485,24 @@ function fio_process_options() {
 		benchmark_fullname="$(basename $run_dir)"
 		benchmark_run_dir="$run_dir"
 	fi
+	if [[ -n "$clients" ]] ; then
+		for client in ${clients//,/ } ; do
+			client_name=
+			client_port=
+			if [[ $client = *':'* ]] ; then
+				client_name=${client%%:*}
+				client_port=${client#*:}
+			else
+				client_name=$client
+				if (( unique_ports )) ; then
+					client_port=$fio_server_port
+					fio_server_port=$((fio_server_port+1))
+				fi
+			fi
+			client_names+=("$client_name")
+			client_ports["$client_name"]=$client_port
+		done
+	fi
 }
 
 function record_iteration {
@@ -505,7 +532,7 @@ function fio_install() {
 	if [ ! -z "$clients" ] ; then
 		debug_log "verifying clients have fio installed"
 		echo "verifying clients have fio installed"
-		for client in `echo $clients | sed -e s/,/" "/g`; do
+		for client in "${client_names[@]}" ; do
 			ssh $ssh_opts $client ${pbench_install_dir}/bench-scripts/$script_name --install &
 		done
 		# FIXME - save the pid and wait for each pid to ensure it returns with success
@@ -525,7 +552,7 @@ function fio_device_check() {
 	for dev in `echo $devs | sed -e s/,/" "/g`; do
 		if echo $dev | grep -q "^/dev/"; then
 			if [ ! -z "$clients" ]; then
-				for client in `echo $clients | sed -e s/,/" "/g`; do
+				for client in "${client_names[@]}" ; do
 					debug_log "checking to see if $dev exists on client $client"
 					ssh $ssh_opts $client "if [ -L $dev ]; then dev=`dirname $dev`/`readlink $dev`; fi; test -b $dev" || rc=1
 				done
@@ -603,28 +630,28 @@ function fio_run_job() {
 
 	if [ ! -z "$clients" ]; then
 		debug_log "creating directories on the clients"
-		for client in `echo $clients | sed -e s/,/" "/g`; do
+		for client in "${client_names[@]}"; do
 			ssh $ssh_opts $client mkdir -p $benchmark_results_dir &
 		done
 		wait
 		debug_log "opening port 8765 on firewall on the clients"
-		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_opts $client "firewall-cmd --add-port=$fio_server_port/tcp >/dev/null" &
+		for client in "${client_names[@]}"; do
+			ssh $ssh_opts $client "firewall-cmd --add-port=${client_ports[$client]:-$fio_server_port}/tcp >/dev/null" &
 		done
 		wait
 		debug_log "killing any old fio process on the clients"
-		for client in `echo $clients | sed -e s/,/" "/g`; do
+		for client in "${client_names[@]}"; do
 			ssh $ssh_opts $client "killall fio >/dev/null 2>&1" &
 		done
 		wait
 		debug_log "starting new fio process on the clients"
-		for client in `echo $clients | sed -e s/,/" "/g`; do
-			ssh $ssh_opts $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$benchmark_bin' --server 2>&1 >client-result.txt'"
+		for client in "${client_names[@]}"; do
+			ssh $ssh_opts $client "pushd $benchmark_results_dir >/dev/null; screen -dmS fio-server bash -c ''$benchmark_bin' --server${client_ports[$client]:+=,${client_ports[$client]}} 2>&1 >client-result.txt'"
 		done
 		wait
 		debug_log "waiting for fio process(server) to start on clients"
-		for client in `echo $clients | sed -e s/,/" "/g`; do
-			timeout --kill-after=1 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' $client $fio_server_port
+		for client in "${client_names[@]}"; do
+			timeout --kill-after=1 60 bash -c 'until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done' $client ${client_ports[$client]:-${fio_server_port}}
 			if [[ $? -eq 124 ]]; then
 				error_log "fio process took more than 60 seconds to start in client $client, failing"
 				exit 1
@@ -683,7 +710,7 @@ function fio_run_job() {
 	# First move all fio log files to the appropriate client directory.
 	if [ ! -z "${clients}" ]; then
 		local client
-		for client in `echo ${clients} | sed -e s/,/" "/g`; do
+		for client in "${client_names[@]}"; do
 			mkdir -p ${benchmark_results_dir}/clients/${client}
 			/bin/mv ${benchmark_results_dir}/*.log.${client} ${benchmark_results_dir}/clients/${client}/ 2> /dev/null
 			# remove the trailing client name in the log file names
@@ -755,8 +782,12 @@ function fio_run_benchmark() {
 			# clients were specified.  We only need to save the
 			# client list once in the benchmark run directory.
 			_client_file=$benchmark_run_dir/fio-client.file
-			for client in `echo $clients | sed -e s/,/" "/g`; do
-				echo $client
+			for client in "${client_names[@]}"; do
+				if [[ -n "${client_ports[$client]:-}" ]] ; then
+					echo ip:$client,${client_ports[$client]}
+				else
+					echo "$client"
+				fi
 			done > $_client_file
 		fi
 	fi

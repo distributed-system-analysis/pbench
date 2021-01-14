@@ -206,6 +206,9 @@ from the fio man page.
 +---------------+-------------------------------------------------------------------------------+
 | --job-file    | if you need to go beyond the recognized options, you can use a fio job file.  |
 +---------------+-------------------------------------------------------------------------------+
+| --unique-ports| use different ports for each client (needed if e.g. multiple clients on one   |
+|               | system)                                                                       |
++---------------+-------------------------------------------------------------------------------+
 
 pbench-linpack
 ===============

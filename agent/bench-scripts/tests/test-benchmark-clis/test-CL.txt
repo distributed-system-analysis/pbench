@@ -240,6 +240,8 @@ The following options are available:
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
 		available: default collect sysinfo options
 
+	--unique-ports           Use unique ports for each server
+
 Bench Script: pbench-fio --tool-group=bad --sysinfo=bad
 ------------
 	pbench-fio: invalid --tool-group option ("bad"), directory not found: /var/tmp/pbench-test-bench/pbench-agent/tools-v1-bad
@@ -328,6 +330,8 @@ The following options are available:
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
 		available: default collect sysinfo options
+
+	--unique-ports           Use unique ports for each server
 
 Bench Script: pbench-fio --bad-to-the-bone
 ------------
@@ -419,6 +423,8 @@ The following options are available:
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
 		available: default collect sysinfo options
+
+	--unique-ports           Use unique ports for each server
 
 Bench Script: pbench-iozone --help
 ------------

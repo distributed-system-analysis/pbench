@@ -84,6 +84,8 @@ The following options are available:
 
 	--sysinfo=str            str= comma separated values of sysinfo to be collected
 		available: default collect sysinfo options
+
+	--unique-ports           Use unique ports for each server
 --- Finished test-17 pbench-fio (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
