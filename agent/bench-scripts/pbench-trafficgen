@@ -7,18 +7,17 @@
 # It is intended to test a network function, like a bridge or router.
 #
 # Hardware prerequisites:
-# - A Linux host with 1 to 2 network adapters.  These adapters must be either Intel XL710 or Intel 82599
-#   Ideally this host should have x86-64 processors (current or previous generation) 1GB HW pages, and PCI-E v2 or v3
+# - A Linux host with 1 to 2 network adapters.  These adapters must be either Intel XL710 or Intel 82599.
+#   Ideally this host should have x86-64 processors (current or previous generation) 1GB HW pages, and PCI-E v2 or v3.
 # - A "device-under-test" (DUT) which network traffic will pass through.
-#   The DUT will need to be configured to pass traffic before running this benchmark script
+#   The DUT will need to be configured to pass traffic before running this benchmark script.
 #
 
-# This script attempts to automate potentially a very large number of tests
-# This script will take multiple samples of the same test type and try to achieve a standard deviation of <3%
+# This script attempts to automate potentially a very large number of tests.
+# This script will take multiple samples of the same test type and try to achieve a standard deviation of <3%.
 # This script will repeat a test type 6 times in order to try to achieve target stddev.
-# If a run (with several samples) fails the stddev, its directory is appended with -fail
-# This script will also generate a "results.txt" with a table of all
-# results, efficiency, and other stats.
+# If a run (with several samples) fails the stddev, its directory is appended with -fail.
+# This script will also generate a "results.txt" with a table of all results, efficiency, and other stats.
 
 pbench_cmd="$@"
 script_path=`dirname $0`
@@ -62,7 +61,7 @@ encap_dst_ips=""
 encap_src_ips=""
 encap_dst_macs=""
 encap_src_macs=""
-frame_sizes="64" # size in bytes of the Ethernet frame inccluding CRC
+frame_sizes="64" # size in bytes of the Ethernet frame including CRC
 export config=""
 maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=1 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
@@ -237,7 +236,7 @@ function usage {
 	printf -- "  Measurement period in seconds when running final validation or a latency test\n"
 	printf -- "  Default is ${df_validation_runtime}\n"
 	printf -- "\n\n"
-	printf -- "      The follwoing options can take 1 or more values and will control how many\n"
+	printf -- "      The following options can take 1 or more values and will control how many\n"
 	printf -- "      tests will be conducted.  For example, the following options:\n"
 	printf -- "\n"
 	printf -- "        --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1\n"
@@ -254,7 +253,7 @@ function usage {
 	printf -- "--rate[s]=value[,value]]\n"
 	printf -- "  A list of packet rates, in millions of packets per second (mpps), unless\n"
 	printf -- "  --rate-unit=%% is used, where the rate value is interpreted as a percentage\n"
-	printf -- "  of line rate for the trasmitting device.\n"
+	printf -- "  of line rate for the transmitting device.\n"
 	printf -- "\n"
 	printf -- "  Only use this option when:\n"
 	printf -- "    1) Using the --one-shot option (skip binary search) and only 1 frame size\n"
@@ -262,7 +261,7 @@ function usage {
 	printf -- "      10%%, 50%%, 90%% of line rate with 64-byte frames:\n"
 	printf -- "      --rates=10%%,50%%,90%% --rate-unit=%% --frame-size=64 --one-shot\n"
 	printf -- "    2) Performing a binary search, but you want the search to start with a rate\n"
-	printf -- "       lower than 100%%.  Wen doing this, it is recommended that only 1 frame\n"
+	printf -- "       lower than 100%%.  When doing this, it is recommended that only 1 frame\n"
 	printf -- "       size is used:\n"
 	printf -- "       --rate=50%% --rate-unit=%% --frame-size=64\n"
 	printf -- "\n"
@@ -442,179 +441,179 @@ if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
 	printf -- "\tunrecognized option specified\n\n"
-	usage
+	usage >&2
 	exit 1
 fi
 eval set -- "$opts"
 while true; do
 	case "$1" in
-		--tool-label-pattern)
+	--tool-label-pattern)
 		shift
 		if [ -n "$1" ]; then
 			tool_label_pattern="$1"
 			shift
 		fi
 		;;
-		--postprocess-only)
+	--postprocess-only)
 		shift
 		if [ -n "$1" ]; then
 			postprocess_only="$1"
 			shift
 		fi
 		;;
-		--run-dir)
+	--run-dir)
 		shift
 		if [ -n "$1" ]; then
 			benchmark_run_dir="$1"
 			shift
 		fi
 		;;
-		--max-stddev)
+	--max-stddev)
 		shift
 		if [ -n "$1" ]; then
 			maxstddevpct="$1"
 			shift
 		fi
 		;;
-		--max-failures)
+	--max-failures)
 		shift
 		if [ -n "$1" ]; then
 			max_failures="$1"
 			shift
 		fi
 		;;
-		--samples)
+	--samples)
 		shift
 		if [ -n "$1" ]; then
 			num_samples="$1"
 			shift
 		fi
 		;;
-		--traffic-generator)
+	--traffic-generator)
 		shift
 		if [ -n "$1" ]; then
 			traffic_generator="$1"
 			shift
 		fi
 		;;
-		--num-flows)
+	--num-flows)
 		shift
 		if [ -n "$1" ]; then
 			num_flows="$1"
 			shift
 		fi
 		;;
-		--rate-unit)
+	--rate-unit)
 		shift
 		if [ -n "$1" ]; then
 			rate_unit="$1"
 			shift
 		fi
 		;;
-		--rate|--rates)
+	--rate|--rates)
 		shift
 		if [ -n "$1" ]; then
 			rates="$1"
 			shift
 		fi
 		;;
-		--rate-tolerance-pct)
+	--rate-tolerance-pct)
 		shift
 		if [ -n "$1" ]; then
 			rate_tolerance_pct="$1"
 			shift
 		fi
 		;;
-		--max-loss-pct|--max-loss-pcts)
+	--max-loss-pct|--max-loss-pcts)
 		shift
 		if [ -n "$1" ]; then
 			max_loss_pcts="$1"
 			shift
 		fi
 		;;
-		--traffic-direction|--traffic-directions)
+	--traffic-direction|--traffic-directions)
 		shift
 		if [ -n "$1" ]; then
 			traffic_directions="$1"
 			shift
 		fi
 		;;
-		--tool-group)
+	--tool-group)
 		shift
 		if [ -n "$1" ]; then
 			tool_group="$1"
 			shift
 		fi
 		;;
-		--frame-size|--frame-sizes)
+	--frame-size|--frame-sizes)
 		shift
 		if [ -n "$1" ]; then
 			frame_sizes="$1"
 			shift
 		fi
 		;;
-		--devices)
+	--devices)
 		shift
 		if [ -n "$1" ]; then
 			devices="$1"
 			shift
 		fi
 		;;
-		--active-devices)
+	--active-devices)
 		shift
 		if [ -n "${1}" ]; then
 			active_devices="${1}"
 			shift
 		fi
 		;;
-		--config)
+	--config)
 		shift
 		if [ -n "$1" ]; then
 			config="$1"
 			shift
 		fi
 		;;
-		--start-iteration-num)
+	--start-iteration-num)
 		shift
 		if [ -n "$1" ]; then
 			start_iteration_num=$1
 			shift
 		fi
 		;;
-		--pre-benchmark-cmd)
+	--pre-benchmark-cmd)
 		shift
 		if [ -n "$1" ]; then
 			pre_benchmark_cmd=$1
 			shift
 		fi
 		;;
-		--tool-period)
+	--tool-period)
 		shift
 		if [ -n "$1" ]; then
 			tool_period=$1
 			shift
 		fi
 		;;
-		--one-shot)
+	--one-shot)
 		shift
 		one_shot="y"
 		;;
-		--trex-use-ht)
+	--trex-use-ht)
 		shift
 		trex_use_ht="y"
 		;;
-		--trex-use-l2)
+	--trex-use-l2)
 		shift
 		trex_use_l2="y"
 		;;
-		--flow-mods)
+	--flow-mods)
 		shift
 		if [ -n "$1" ]; then
 			flow_mods="$1"
 			shift
 		fi
 		;;
-		--validation-runtime|--sniff-runtime|--search-runtime)
+	--validation-runtime|--sniff-runtime|--search-runtime)
 		arg="$1"
 		shift
 		if [ -n "$1" ]; then
@@ -626,7 +625,7 @@ while true; do
 		;;
 		# for options which if not used, do not affect the binary-search.py options (and binary-search should not use them by default)
 		# these options must match the options to binary-search.py *exactly*
-		--overlay-ids|--vlan-ids|--overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs|--src-ports|--dst-ports|--packet-protocol)
+	--overlay-ids|--vlan-ids|--overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs|--src-ports|--dst-ports|--packet-protocol)
 		arg="$1"
 		shift
 		if [ -n "$1" ]; then
@@ -637,26 +636,26 @@ while true; do
 			shift
 		fi
 		;;
-		--skip-trex-install)
+	--skip-trex-install)
 		shift
 		skip_trex_install="y"
 		;;
-		--skip-trex-server)
+	--skip-trex-server)
 		shift
 		skip_trex_server="y"
 		;;
-		--skip-git-pull)
+	--skip-git-pull)
 		shift
 		skip_git_pull="y"
 		;;
-		--traffic-profile|--traffic-profiles)
+	--traffic-profile|--traffic-profiles)
 		shift
 		if [ -n "$1" ]; then
 			traffic_profiles="$1"
 			shift
 		fi
 		;;
-		--sysinfo)
+	--sysinfo)
 		shift;
 		if [ -n "$1" ]; then
 			sysinfo="$1"
@@ -667,7 +666,7 @@ while true; do
 		usage
 		exit 0
 		;;
-		--)
+	--)
 		shift
 		while true; do
 			arg="$1"
@@ -680,9 +679,9 @@ while true; do
 		done
 		break
 		;;
-		*)
+	*)
 		error_log "[$script_name] bad option, \"$1 $2\""
-		usage
+		usage >&2
 		exit 1
 		;;
 	esac
