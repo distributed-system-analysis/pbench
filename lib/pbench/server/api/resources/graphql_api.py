@@ -1,8 +1,11 @@
 import requests
+import datetime
+import json
 from flask_restful import Resource, abort
 from flask import request, make_response, jsonify
 from pbench.server.api.resources.auth import auth
-from pbench.server.api.resources.graphql_schema import schema
+from pbench.server.api.resources.models import MetadataModel
+from pbench.server.api.resources.database import Database
 
 
 class UserMetadata(Resource):
@@ -54,34 +57,198 @@ class UserMetadata(Resource):
             self.logger.warning("Description not provided during metadata creation")
             abort(400, message="Please provide a description string")
         current_user_id = auth.current_user().id
+
         try:
-            # query GraphQL
-            query = f"""
-                    mutation {{ 
-                        createMetadata (input: {{config:"{config}", description:"{description}", user_id:{current_user_id}}}) {{ 
-                                metadata {{
-                                    id 
-                                    config 
-                                    description
-                                    }} 
-                                }} 
-                        }}
-                    """
-            result = schema.execute(query)
-        except Exception as e:
+            # Create a new metadata session
+            metadata_session = MetadataModel(
+                created=str(datetime.datetime.now()),
+                config=config,
+                description=description,
+                user_id=current_user_id
+            )
+            # insert the metadata session for a user
+            Database.db_session.add(metadata_session)
+            Database.db_session.commit()
+            self.logger.info("New user metadata session created")
+        except Exception:
             self.logger.exception("Exception occurred during Metadata creation")
             abort(500, message="INTERNAL ERROR")
         else:
-            data = result.data["createMetadata"]["metadata"]
             response_object = {
                 "status": "success",
                 "data": {
-                    "id": data["id"],
-                    "config": data["config"],
-                    "description": data["description"],
+                    "id": metadata_session.id,
+                    "config": metadata_session.config,
+                    "description": metadata_session.description,
                 },
             }
             return make_response(jsonify(response_object), 201)
+
+    @auth.login_required()
+    def get(self):
+        """
+        Get request for querying all the metadata sessions for a user.
+        This requires a JWT auth token in the header field
+
+        Required headers include
+            Authorization:   JWT token (user received upon login)
+
+        :return: JSON Payload
+            response_object = {
+                    "status": "success"
+                    "data": {
+                        "sessions": [
+                            {"id": "metadata_id",
+                            "config": "Config string"
+                            "description": "Description string"},
+                            {}]
+                        }
+                }
+        """
+        current_user_id = auth.current_user().id
+        try:
+            # Fetch the metadata session
+            sessions = (
+                Database.db_session.query(MetadataModel)
+                .filter_by(user_id=current_user_id)
+                .all()
+            )
+
+            req_keys = ["id", "config", "description", "created"]
+            data = json.dumps([{key: session.as_dict()[key] for key in req_keys} for session in sessions])
+        except Exception:
+            self.logger.exception("Exception occurred during querying Metadata model")
+            abort(500, message="INTERNAL ERROR")
+
+        response_object = {
+            "status": "success",
+            "data": {
+                "sessions": data
+            },
+        }
+        return make_response(jsonify(response_object), 200)
+
+
+class QueryMetadata(Resource):
+    """
+    Abstracted pbench API for querying a single user metadata session
+    """
+
+    def __init__(self, config, logger):
+        self.server_config = config
+        self.logger = logger
+
+    @auth.login_required()
+    def get(self, id=None):
+        """
+        Get request for querying a metadata session for a user given a metadata id.
+        This requires a JWT auth token in the header field
+
+        This requires a JSON data with required user metadata fields to update
+        {
+            "description": "description",
+        }
+
+        The url requires a metadata session id such as /user/metadata/<string:id>
+
+        Required headers include
+            Authorization:   JWT token (user received upon login)
+
+        :return: JSON Payload
+            response_object = {
+                    "status": "success"
+                    "data" {
+                        "id": "metadata_id",
+                        "config": "Config string"
+                        "description": "Description string"
+                        }
+                }
+        """
+        if not id:
+            self.logger.warning("Meatadata id not provided during metadata query")
+            abort(400, message="Please provide a metadata id to query")
+
+        try:
+            # Fetch the metadata session
+            session = (
+                Database.db_session.query(MetadataModel)
+                .filter_by(id=id)
+                .first()
+            )
+        except Exception:
+            self.logger.exception("Exception occurred during querying Metadata model")
+            abort(500, message="INTERNAL ERROR")
+        else:
+            response_object = {
+                "status": "success",
+                "data": {
+                    "id": session.id,
+                    "config": session.config,
+                    "description": session.description,
+                },
+            }
+            return make_response(jsonify(response_object), 200)
+
+    @auth.login_required()
+    def put(self, id=None):
+        """
+        Put request for updating a metadata session for a user given a metadata id.
+        This requires a JWT auth token in the header field
+
+        The url requires a metadata session id such as /user/metadata/<string:id>
+
+        Required headers include
+            Authorization:   JWT token (user received upon login)
+
+        :return: JSON Payload
+            response_object = {
+                    "status": "success"
+                    "data" {
+                        "id": "metadata_id",
+                        "config": "Config string"
+                        "description": "Description string"
+                        }
+                }
+        """
+        if not id:
+            self.logger.warning("Meatadata id not provided during metadata query")
+            abort(400, message="Please provide a metadata id to query")
+
+        post_data = request.get_json()
+        if not post_data:
+            self.logger.warning("Invalid json object: %s", request.url)
+            abort(400, message="Invalid json object in request")
+
+        description = post_data.get("description")
+        if not description:
+            self.logger.warning("Description not provided during metadata update")
+            abort(400, message="Please provide a description string")
+
+        try:
+            # Fetch the metadata session
+            session = (
+                Database.db_session.query(MetadataModel)
+                .filter_by(id=id)
+                .first()
+            )
+            session.description = description
+            # Update the metadata session for a user
+            Database.db_session.add(session)
+            Database.db_session.commit()
+            self.logger.info("User metadata session updated")
+        except Exception:
+            self.logger.exception("Exception occurred during querying Metadata model")
+            abort(500, message="INTERNAL ERROR")
+        else:
+            response_object = {
+                "status": "success",
+                "data": {
+                    "id": session.id,
+                    "config": session.config,
+                    "description": session.description,
+                },
+            }
+            return make_response(jsonify(response_object), 200)
 
 
 class GraphQL(Resource):

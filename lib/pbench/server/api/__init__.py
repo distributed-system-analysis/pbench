@@ -14,7 +14,7 @@ from flask_cors import CORS
 from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.server.api.resources.upload_api import Upload, HostInfo
-from pbench.server.api.resources.graphql_api import GraphQL, UserMetadata
+from pbench.server.api.resources.graphql_api import GraphQL, UserMetadata, QueryMetadata
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.query_controllers import QueryControllers
@@ -86,6 +86,9 @@ def register_endpoints(api, app, config):
 
     api.add_resource(
         UserMetadata, f"{base_uri}/user/metadata", resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        QueryMetadata, f"{base_uri}/user/metadata/<string:id>", resource_class_args=(config, logger),
     )
 
 
