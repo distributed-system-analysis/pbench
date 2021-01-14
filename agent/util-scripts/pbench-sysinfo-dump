@@ -85,45 +85,50 @@ function collect_block {
 }
 
 function collect_sos {
-	_name="pbench-$(hostname -f)"
-	debug_log "[$script_name]collecting sosreport"
 	read sos_ver sos_ver_minor sos_ver_subminor <<< `rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $1" "$2" "$3}'`
-	if [[ "$sos_ver" -ge 3 ]]; then
-		_quiet="--quiet"
-		_block="-o block"
-		_processor="-o processor"
-		if [[ "$sos_ver_minor" -ge 4 ]]; then
-			# ref for plugin collectd: https://github.com/sosreport/sos/pull/866
-			_collectd="-o collectd"
-		else
-			_collectd=""
-		fi
-		if [[ "$sos_ver_minor" -eq 0 ]]; then
-			# No tuned plug-in in sosreport v3.0
-			_tuned=""
-		else
-			# tuned plug-in in sosreport v3.1+
-			_tuned="-o tuned"
-		fi
-		if [[ "$sos_ver_minor" -ge 6 || ( "$sos_ver_minor" -eq 5 && ! -z "$sos_ver_subminor" ) ]]; then
-			_general="-o date -o host"
-			_release="-o release"
-		else
-			_general="-o general"
-			_release="-o lsbrelease"
-		fi
-	else
+	if [[ "${sos_ver}" -lt 3 ]]; then
 		_quiet=""
-		_block=""
-		_processor=""
-		_tuned=""
-		_collectd=""
-		_general="-o general"
-		_release="-o lsbrelease"
+	else
+		_quiet=" --quiet"
 	fi
-	sosreport ${_general} -o kernel -o filesys -o devicemapper -o system -o memory \
-	    -o hardware -o networking ${_release} ${_block} ${_processor} ${_tuned} \
-	    ${_collectd} --batch ${_quiet} --tmp-dir=${dir} --name "${_name}" > ${dir}/sosreport-${_name}.log 2>&1
+	if [[ ${sos_ver} -lt 3 || ( ${sos_ver} -eq 3 && ( "${sos_ver_minor}" -lt 5 || ( "${sos_ver_minor}" -eq 5 && -z "${sos_ver_subminor}" ) ) ) ]]; then
+		# Pre-v3.5.1+
+		_modules="general lsbrelease"
+	else
+		# date host release plugins in sosreport v3.5.1+
+		# ref for plugin refactoring: https://github.com/sosreport/sos/commit/971b9581779da20384f0a4d8de5177c0b87d6892
+		_modules="date host release"
+	fi
+	_modules="${_modules} kernel filesys devicemapper system memory hardware networking"
+	if [[ "${sos_ver}" -ge 3 ]]; then
+		# block processor plugins in sosreport v3.0+
+		# ref for plugin block: https://github.com/sosreport/sos/commit/ae0ed73bc855171b353fd0cf42a6dd75755b8c80
+		# ref for plugin processor: https://github.com/sosreport/sos/commit/af5e6f75f8ca7794e34f6b57ced9d2ec683564af
+		_modules="${_modules} block processor"
+	fi
+	if [[ "${sos_ver}" -gt 3 || ( "${sos_ver}" -eq 3 && "${sos_ver_minor}" -ge 4 ) ]]; then
+		# collectd plugin in sosreport v3.4+
+		# ref for plugin collectd: https://github.com/sosreport/sos/commit/8e63b8e5b1bb907685e2debd169e3e87c360f76b
+		_modules="${_modules} collectd"
+	fi
+	if [[ "${sos_ver}" -gt 3 || ( "${sos_ver}" -eq 3 && "${sos_ver_minor}" -ge 2 ) ]]; then
+		# tuned plugin in sosreport v3.2+
+		# ref for plugin tuned: https://github.com/sosreport/sos/commit/c55c58cf2dabf93c924c839c8ed045c18e31ba1c
+		_modules="${_modules} tuned"
+	fi
+
+	_name="pbench-$(hostname -f)"
+	_cmd="${dir}/sosreport-${_name}.cmd"
+	printf -- "sosreport" > ${_cmd}
+	for mod in ${_modules}; do
+		printf -- " -o %s" "${mod}" >> ${_cmd}
+	done
+	printf -- " --batch%s --tmp-dir=\"%s\" --name \"%s\"" "${_quiet}" "${dir}" "${_name}" >> ${_cmd}
+	chmod +x ${_cmd}
+
+	debug_log "[${script_name}]collecting sosreport"
+	${_cmd} > ${dir}/sosreport-${_name}.log 2>&1
+
 	# The latest version of sosreport (3.6 right now) generates different names
 	# for the sosreport tar balls, inserting a short hostname before the label.
 	# Since older versions of sosreport did not do that, we use a wildcard
