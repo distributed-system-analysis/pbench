@@ -3,6 +3,7 @@ import datetime
 from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.database import Database
+from pbench.server.api.resources.models import MetadataModel
 
 
 def register_user(
@@ -422,4 +423,51 @@ class TestUserAuthentication:
             )
             data = response.json
             assert data["message"] == "Successfully deleted."
+            assert response.status_code == 200
+
+
+class TestMetadataSession:
+    @staticmethod
+    def test_registration(client, server_config, pytestconfig):
+        client.config["SESSION_FILE_DIR"] = pytestconfig.cache.get("TMP", None)
+        """ Test for user registration """
+        with client:
+            response = register_user(
+                client,
+                server_config,
+                username="user",
+                firstname="firstname",
+                lastname="lastName",
+                email="user@domain.com",
+                password="12345",
+            )
+            data = response.json
+            assert data["status"] == "success"
+
+            response = login_user(client, server_config, "user", "12345")
+            data_login = response.json
+            assert data_login["status"] == "success"
+
+            response = client.post(
+                f"{server_config.rest_uri}/user/metadata",
+                json={"config": "config1", "description": "description1"},
+                headers=dict(Authorization="Bearer " + data_login["auth_token"])
+            )
+            data = response.json
+            assert data["status"] == "success"
+
+            response = client.post(
+                f"{server_config.rest_uri}/user/metadata",
+                json={"config": "config2", "description": "description2"},
+                headers=dict(Authorization="Bearer " + data_login["auth_token"])
+            )
+            data = response.json
+            assert data["status"] == "success"
+
+            response = client.get(
+                f"{server_config.rest_uri}/user/metadata",
+                headers=dict(Authorization="Bearer " + data_login["auth_token"])
+            )
+            data = response.json
+            assert data["status"] == "success"
             assert response.status_code == 200
