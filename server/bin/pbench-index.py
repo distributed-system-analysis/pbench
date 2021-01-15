@@ -12,6 +12,7 @@ import signal
 from pathlib import Path
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
+from pbench.server.database.database import Database
 
 from pbench.common.exceptions import (
     BadConfig,
@@ -147,6 +148,9 @@ def main(options, name):
         # Exit early if we encounter any errors.
         return res.value
 
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    Database.init_db(idxctx.config, idxctx.logger)
     idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
 
     index_obj = Index(name, options, idxctx, INCOMING_rp, ARCHIVE_rp, qdir)

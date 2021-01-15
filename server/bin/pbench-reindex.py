@@ -25,6 +25,13 @@ from argparse import ArgumentParser
 from pbench import BadConfig
 import pbench.server
 from pbench.server import PbenchServerConfig
+from pbench.server.database.models.tracker import (
+    Dataset,
+    Metadata,
+    DatasetError,
+)
+from pbench.server.database.database import Database
+from pbench.common.logger import get_pbench_logger
 
 
 _NAME_ = "pbench-reindex"
@@ -91,6 +98,11 @@ def reindex(controller_name, tb_name, archive_p, incoming_p, dry_run=False):
     try:
         if not dry_run:
             paths[0].rename(newpath)
+            ds = Dataset.attach(controller=controller_name, path=tb_name)
+            Metadata.create(dataset=ds, key=Metadata.REINDEX, value="True")
+    except DatasetError as exc:
+        msg = f"WARNING: unable to set REINDEX metadata for {controller_name}:{tb_name}: {str(exc)}"
+        res = "error"
     except Exception as exc:
         msg = (
             f"WARNING: failed to rename symlink '{paths[0]}' to"
@@ -167,6 +179,12 @@ def main(options):
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2
+
+    logger = get_pbench_logger(_NAME_, config)
+
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    Database.init_db(config, logger)
 
     archive_p = config.ARCHIVE
 

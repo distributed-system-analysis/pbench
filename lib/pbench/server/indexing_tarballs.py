@@ -19,6 +19,13 @@ from pbench.server.indexer import (
     es_index,
     VERSION,
 )
+from pbench.server.database.models.tracker import (
+    Dataset,
+    States,
+    Metadata,
+    DatasetNotFound,
+    DatasetTransitionError,
+)
 from pbench.server.report import Report
 from pbench.server.utils import rename_tb_link, quarantine
 
@@ -310,17 +317,34 @@ class Index:
                         )
 
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
-
+                        dataset = None
                         ptb = None
                         try:
+                            path = os.path.realpath(tb)
+
                             # "Open" the tar ball represented by the tar ball object
                             idxctx.logger.debug("open tar ball")
                             ptb = PbenchTarBall(
-                                idxctx,
-                                os.path.realpath(tb),
-                                tmpdir,
-                                Path(self.incoming, controller),
+                                idxctx, path, tmpdir, Path(self.incoming, controller),
                             )
+
+                            try:
+                                dataset = Dataset.attach(
+                                    path=path, state=States.INDEXING,
+                                )
+                            except DatasetNotFound:
+                                idxctx.logger.warn(
+                                    "Unable to locate Dataset {}", path,
+                                )
+                            except DatasetTransitionError as e:
+                                # TODO: This means the Dataset is known, but not in a
+                                # state where we'd expect to be indexing it. So what do
+                                # we do with it? (Note: this is where an audit log will
+                                # be handy; i.e., how did we get here?) For now, just
+                                # let it go.
+                                idxctx.logger.warn(
+                                    "Unable to advance dataset state: {}", str(e)
+                                )
 
                             # Construct the generator for emitting all actions.  The
                             # `idxctx` dictionary is passed along to each generator so
@@ -393,6 +417,18 @@ class Index:
                                 retries,
                             )
                             tb_res = error_code["OP_ERROR" if failures > 0 else "OK"]
+                        finally:
+                            if dataset:
+                                try:
+                                    dataset.advance(
+                                        States.INDEXED
+                                        if tb_res.success
+                                        else States.QUARANTINED
+                                    )
+                                    Metadata.remove(dataset, Metadata.REINDEX)
+                                except DatasetTransitionError:
+                                    idxctx.logger.exception("Dataset state error")
+
                         try:
                             ie_len = ie_filepath.stat().st_size
                         except FileNotFoundError:

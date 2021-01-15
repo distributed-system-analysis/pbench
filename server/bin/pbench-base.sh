@@ -135,6 +135,14 @@ function quarantine () {
         if [ ! -e $afile -a ! -L $afile ] ;then
             continue
         fi
+        # Create/update state record if we're not moving a .md5 file
+        if [ ${afile} != ${afile%.tar.xz} ] ;then
+            pbench-state-manager.py -c --path="${afile}" --state=quarantined
+            sts=${?}
+            if [[ ${sts} -ne 0 ]]; then
+                log_error "$TS: quarantine $afile: \"set state\" failed with status $sts"
+            fi
+        fi
         mv $afile $dest/ > /dev/null 2>&1
         sts=$?
         if [ $sts -ne 0 ] ;then

@@ -21,7 +21,6 @@ from pbench.server.api.resources.query_apis.query_controllers import QueryContro
 from pbench.server.database.database import Database
 from pbench.server.api.resources.query_apis.query_month_indices import QueryMonthIndices
 from pbench.server.api.auth import Auth
-
 from pbench.server.api.resources.users_api import (
     RegisterUser,
     Login,
