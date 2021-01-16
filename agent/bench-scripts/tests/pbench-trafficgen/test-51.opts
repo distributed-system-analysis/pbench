@@ -1,0 +1,1 @@
+--samples=3 --traffic-generator=trex-txrx-profile --devices=d8:00.0,d8:00.1 --max-loss-pcts=0.002,0.001 --traffic-profiles=profile1,profile2 --skip-git-pull

@@ -815,24 +815,27 @@ trafficgen general test options
   Default is 300
 
 
-      The follwoing options can take 1 or more values and will control how many
+      The following options can take 1 or more values and will control how many
       tests will be conducted.  For example, the following options:
 
-        --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
-        --frame-sizes=64,256 --nr-flows=1024,65536
+        --rates=50%,90% --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
+        --frame-sizes=64,256 --num-flows=1024,65536
 
       would produce 32 different test permutations
 
 --traffic-profile[s]=FILE[,FILE]
-  A list of traffic profiles to load when --traffic-generator=trex-txrx-profile.  The
+  A list of traffic profiles to load when --traffic-generator='trex-txrx-profile'.  The
   profile contains a list of streams, each with fine grained options defined on a per
   stream basis.  See README-trex-txrx-profile.md in the trafficgen distribution for
   documentation on the file format.
 
+  If no profile file names are provided, then the options below are used to
+  generate a profile.
+
 --rate[s]=value[,value]]
   A list of packet rates, in millions of packets per second (mpps), unless
   --rate-unit=% is used, where the rate value is interpreted as a percentage
-  of line rate for the trasmitting device.
+  of line rate for the transmitting device.
 
   Only use this option when:
     1) Using the --one-shot option (skip binary search) and only 1 frame size
@@ -840,7 +843,7 @@ trafficgen general test options
       10%, 50%, 90% of line rate with 64-byte frames:
       --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
     2) Performing a binary search, but you want the search to start with a rate
-       lower than 100%.  Wen doing this, it is recommended that only 1 frame
+       lower than 100%.  When doing this, it is recommended that only 1 frame
        size is used:
        --rate=50% --rate-unit=% --frame-size=64
 
@@ -1054,24 +1057,27 @@ trafficgen general test options
   Default is 300
 
 
-      The follwoing options can take 1 or more values and will control how many
+      The following options can take 1 or more values and will control how many
       tests will be conducted.  For example, the following options:
 
-        --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
-        --frame-sizes=64,256 --nr-flows=1024,65536
+        --rates=50%,90% --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
+        --frame-sizes=64,256 --num-flows=1024,65536
 
       would produce 32 different test permutations
 
 --traffic-profile[s]=FILE[,FILE]
-  A list of traffic profiles to load when --traffic-generator=trex-txrx-profile.  The
+  A list of traffic profiles to load when --traffic-generator='trex-txrx-profile'.  The
   profile contains a list of streams, each with fine grained options defined on a per
   stream basis.  See README-trex-txrx-profile.md in the trafficgen distribution for
   documentation on the file format.
 
+  If no profile file names are provided, then the options below are used to
+  generate a profile.
+
 --rate[s]=value[,value]]
   A list of packet rates, in millions of packets per second (mpps), unless
   --rate-unit=% is used, where the rate value is interpreted as a percentage
-  of line rate for the trasmitting device.
+  of line rate for the transmitting device.
 
   Only use this option when:
     1) Using the --one-shot option (skip binary search) and only 1 frame size
@@ -1079,7 +1085,7 @@ trafficgen general test options
       10%, 50%, 90% of line rate with 64-byte frames:
       --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
     2) Performing a binary search, but you want the search to start with a rate
-       lower than 100%.  Wen doing this, it is recommended that only 1 frame
+       lower than 100%.  When doing this, it is recommended that only 1 frame
        size is used:
        --rate=50% --rate-unit=% --frame-size=64
 
@@ -1295,24 +1301,27 @@ trafficgen general test options
   Default is 300
 
 
-      The follwoing options can take 1 or more values and will control how many
+      The following options can take 1 or more values and will control how many
       tests will be conducted.  For example, the following options:
 
-        --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
-        --frame-sizes=64,256 --nr-flows=1024,65536
+        --rates=50%,90% --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
+        --frame-sizes=64,256 --num-flows=1024,65536
 
       would produce 32 different test permutations
 
 --traffic-profile[s]=FILE[,FILE]
-  A list of traffic profiles to load when --traffic-generator=trex-txrx-profile.  The
+  A list of traffic profiles to load when --traffic-generator='trex-txrx-profile'.  The
   profile contains a list of streams, each with fine grained options defined on a per
   stream basis.  See README-trex-txrx-profile.md in the trafficgen distribution for
   documentation on the file format.
 
+  If no profile file names are provided, then the options below are used to
+  generate a profile.
+
 --rate[s]=value[,value]]
   A list of packet rates, in millions of packets per second (mpps), unless
   --rate-unit=% is used, where the rate value is interpreted as a percentage
-  of line rate for the trasmitting device.
+  of line rate for the transmitting device.
 
   Only use this option when:
     1) Using the --one-shot option (skip binary search) and only 1 frame size
@@ -1320,7 +1329,7 @@ trafficgen general test options
       10%, 50%, 90% of line rate with 64-byte frames:
       --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
     2) Performing a binary search, but you want the search to start with a rate
-       lower than 100%.  Wen doing this, it is recommended that only 1 frame
+       lower than 100%.  When doing this, it is recommended that only 1 frame
        size is used:
        --rate=50% --rate-unit=% --frame-size=64
 
