@@ -1,0 +1,104 @@
++++ Running test-50 pbench-trafficgen
+tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: "default"
+found IOMMU option, continuing
+found dpdk-tools, continuing
+Total number of benchmark iterations: 1
+Starting iteration[1-none-bidirectional-1500B-128flows-0.002pct_drop] (1 of 1)
+test sample 1 of 3
+[pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+[pbench-tool-trigger] start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
+Starting binary-search
+[pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample1
+Finished binary-search
+[pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample1
+test sample 2 of 3
+[pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+[pbench-tool-trigger] start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
+Starting binary-search
+[pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample2
+Finished binary-search
+[pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample2
+test sample 3 of 3
+[pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+[pbench-tool-trigger] start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
+Starting binary-search
+[pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample3
+Finished binary-search
+[pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample3
+Iteration 1-none-bidirectional-1500B-128flows-0.002pct_drop complete (1 of 1), with 1 pass and 0 failures
+--- Finished test-50 pbench-trafficgen (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/.iterations
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample1/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample2
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample2/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample2/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample2/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample2/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample3
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample3/result.txt
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample3/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample3/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample3/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/trafficgen.cmd
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/generate-benchmark-summary.cmd
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/metadata.log
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/pbench-trafficgen.cmd
+--- pbench tree state
++++ pbench.log file contents
+[debug][1900-01-01T00:00:00.000000] [check_install_rpm] dpdk-tools is installed
+[info][1900-01-01T00:00:00.000000] Starting iteration[1-none-bidirectional-1500B-128flows-0.002pct_drop] (1 of 1)
+[info][1900-01-01T00:00:00.000000] test sample 1 of 3
+[info][1900-01-01T00:00:00.000000] test sample 2 of 3
+[info][1900-01-01T00:00:00.000000] test sample 3 of 3
+[debug][1900-01-01T00:00:00.000000] Moving to the next iteration
+[info][1900-01-01T00:00:00.000000] Iteration 1-none-bidirectional-1500B-128flows-0.002pct_drop complete (1 of 1), with 1 pass and 0 failures
+--- pbench.log file contents
++++ test-execution.log file contents
+./binary-search.py --traffic-generator=trex-txrx --rate-tolerance=3 --use-src-ip-flows=1 --use-dst-ip-flows=0 --use-src-mac-flows=0 --use-dst-mac-flows=0 --use-src-port-flows=0 --use-dst-port-flows=0 --use-encap-src-ip-flows=0 --use-encap-dst-ip-flows=0 --use-encap-src-mac-flows=0 --use-encap-dst-mac-flows=0 --use-protocol-flows=0 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=120 --validation-runtime=300 --max-loss-pct=0.002 --rate-unit=% --rate=100 --traffic-direction=bidirectional --frame-size=1500 --num-flows=128 --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample1
+./binary-search.py --traffic-generator=trex-txrx --rate-tolerance=3 --use-src-ip-flows=1 --use-dst-ip-flows=0 --use-src-mac-flows=0 --use-dst-mac-flows=0 --use-src-port-flows=0 --use-dst-port-flows=0 --use-encap-src-ip-flows=0 --use-encap-dst-ip-flows=0 --use-encap-src-mac-flows=0 --use-encap-dst-mac-flows=0 --use-protocol-flows=0 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=120 --validation-runtime=300 --max-loss-pct=0.002 --rate-unit=% --rate=100 --traffic-direction=bidirectional --frame-size=1500 --num-flows=128 --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample2
+./binary-search.py --traffic-generator=trex-txrx --rate-tolerance=3 --use-src-ip-flows=1 --use-dst-ip-flows=0 --use-src-mac-flows=0 --use-dst-mac-flows=0 --use-src-port-flows=0 --use-dst-port-flows=0 --use-encap-src-ip-flows=0 --use-encap-dst-ip-flows=0 --use-encap-src-mac-flows=0 --use-encap-dst-mac-flows=0 --use-protocol-flows=0 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=120 --validation-runtime=300 --max-loss-pct=0.002 --rate-unit=% --rate=100 --traffic-direction=bidirectional --frame-size=1500 --num-flows=128 --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary trafficgen --config=test-50 --samples=3 --frame-sizes=1500 --num-flows=128 --traffic-directions=bidirectional --flow-mods=src-ip --traffic-generator=trex-txrx --devices=d8:00.0,d8:00.1 --search-runtime=120 --validation-runtime=300 --max-loss-pcts=0.002 --skip-git-pull --skip-trex-server /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop Mframes_sec 5 0 1 n y
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample1 testhost.example.com none 1500 128  unknown
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample2 testhost.example.com none 1500 128  unknown
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample3 testhost.example.com none 1500 128  unknown
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/cat /proc/cmdline
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00 --sysinfo=none beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00 --sysinfo=none end
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=none --check
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-end-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-init-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00 beg
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00 end
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample2
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample3
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop
+--- test-execution.log file contents
