@@ -1,0 +1,1 @@
+--samples=3 --frame-sizes=1500 --num-flows=128 --traffic-directions=bidirectional --flow-mods=src-ip --traffic-generator=trex-txrx --devices=d8:00.0,d8:00.1 --search-runtime=120 --validation-runtime=300 --max-loss-pcts=0.002 --skip-git-pull

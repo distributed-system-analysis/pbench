@@ -2,4 +2,4 @@
 
 prog=$(basename ${0})
 dir=$(basename $(dirname ${0}))
-cp -r ${_tdir}/tests/${dir}/${prog%%.*}.trafficgen ${_testtmp}/trafficgen
+cp -Lr ${_tdir}/tests/${dir}/${prog%%.*}.trafficgen ${_testtmp}/trafficgen

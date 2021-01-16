@@ -11,12 +11,13 @@ no lib ".";
 use BenchPostprocess qw(get_uid get_label get_cpubusy_series calc_ratio_series calc_sum_series);
 use File::Basename;
 use Data::Dumper;
+$Data::Dumper::Sortkeys = 1;
 use List::Util('sum');
 use SigFigs;
 use JSON;
 
 # This script produces a JSON array containing the information for
-# 1 benchmark iteration, wich can include 1 or more run samples.
+# 1 benchmark iteration, which can include 1 or more run samples.
 # This uses the standard metric types for pbench, which are:
 # %workload{parameters,throughput|latency|resource|efficiency}
 #
@@ -28,6 +29,7 @@ my %workload;   # root hash for all data, contains hash refs to
 
 my %parameters;	# a hash of parameter-type:parameter-value that was
 		# $parameters{benchmark[0].rate}
+
 my @benchmark;	# each array element contains a hash with:
 		# benchmark_name:
 	    	# :
@@ -36,6 +38,7 @@ my @benchmark;	# each array element contains a hash with:
 
 my %resource;	# a hash of resource-type:array-of-resource-values,
 		# for example $resource{cpu_busy[0..1]}
+
 #my @cpu_busy;	# each array element contains a hash with
 		# hostname: hostname or IP
 		# role: client, server, host, kvm-host, container-host, etc.
@@ -43,6 +46,7 @@ my %resource;	# a hash of resource-type:array-of-resource-values,
 
 my %efficiency; # a hash of throughput-per-resource-type:array-of-throughput-per-resource-values
 		# for example $efficincy{Mframes_cpu[0..1]}
+
 #my @Mframes_cpu;# each array element contains a hash with:
 		# hostname:
 	    	# port_id:
@@ -52,6 +56,7 @@ my %efficiency; # a hash of throughput-per-resource-type:array-of-throughput-per
 
 my %latency;    # a hash of latency-type:array-of-latency-values,
 		# for example $latency{usec[0..1]}
+
 #my @usec;	# each array element contains a hash with:
 	    	# hostname:
 	    	# port_id:
@@ -61,7 +66,7 @@ my %latency;    # a hash of latency-type:array-of-latency-values,
 
 my %throughput; # a hash of throughput-type:array-of-throughput-values,
 		# for example $throughput{Mframes_sec[0..1]
-		# The throughput-type can vary from one benchmarkto another
+		# The throughput-type can vary from one benchmark to another
 		# For example, dbench may use "MB_sec" and uperf may use "Gb_sec"
 		#
 		# each array element contains a hash with:
@@ -72,6 +77,7 @@ my %throughput; # a hash of throughput-type:array-of-throughput-values,
 	    	# stddevpct: a percent standard deviation for the result based on the samples' results
 
 my $script = basename($0);
+
 my $dir = $ARGV[0];  # The iteration directory
 my $primary_metric = $ARGV[1]; # this metric is used to test against maximum allowed stddev
 my $max_stddevpct = $ARGV[2];
@@ -79,7 +85,7 @@ my $num_failures = $ARGV[3]; # number of times a set of samples have failed the 
 my $max_failures = $ARGV[4]; # the maxium number of failures allowed
 my $tar_nonref_data = $ARGV[5]; # (y/n) tar/compress the data samples that are not the reference result?
 my $keep_failed_tool_data = $ARGV[6]; # (y/n) keep the tool data for a set of samples that failed?
-my @json_samples;
+
 my $nr_significant_figures = 4;
 
 sub get_avg_stddev {
@@ -141,7 +147,6 @@ sub get_avg_stddev {
 	}
 }
 
-my $samples_start_index;
 my $file;
 my $dh;
 # It's possible some of the sample directories have already been archived
@@ -153,6 +158,8 @@ foreach $file ( readdir($dh) ) {
 	}
 }
 # get json data for all samples
+my $samples_start_index;
+my @json_samples;
 opendir($dh, $dir) || die "$script: could not open directory $dir: $!\n";
 foreach $file ( sort readdir($dh) ) {
 	if ($file =~ /^sample(\d+)$/) {
@@ -209,9 +216,13 @@ foreach $sample (@json_samples) { # samples 0..N
 						my %sample = (get_label('uid_label') => $sample_hash{$metric_type}{$metric_name}[$i]{get_label('uid_label')});
 						unshift( @{ $iteration{$metric_type}{$metric_name} }, \%sample);
 						$iteration_matching_index = 0;
+						#print "NEW $mapped_uid -- [$metric_type][$metric_name][$i] ==> [$metric_type][$metric_name][$iteration_matching_index]\n";
+					} else {
+						#print "EXISTING $mapped_uid -- [$metric_type][$metric_name][$i] ==> [$metric_type][$metric_name][$iteration_matching_index]\n";
 					}
 					foreach my $key (sort keys %{$sample_hash{$metric_type}{$metric_name}[$i]}) {
 						my $sample_value = $sample_hash{$metric_type}{$metric_name}[$i]{$key};
+						#print "[$metric_type][$metric_name][$i][$key] = $sample_value \n";
 						# There are a few keys which are not simply duplicates across all samples.
 						# For example, $json_samples[1]{'throughput'}{Gb_sec}[0].mean is the average Gigabits per second for that test sample.
 						# Other test samples for this benchmark iteration also contain a value like that, but the actual value differs (usually slightly if it is a consistent workload).
@@ -237,7 +248,17 @@ foreach $sample (@json_samples) { # samples 0..N
 								if ($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key}) {
 									my $iteration_value = $iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key};
 									if ("$sample_value" ne "$iteration_value") {
-										print "Error: values do not match\nkey: $key values: $iteration_value $sample_value\n";
+										my $sv = ref($sample_value);
+										my $iv = ref($iteration_value);
+										if ($sv and ($sv eq $iv)) {
+											my $sv_s = Dumper($sample_value);
+											my $iv_s = Dumper($iteration_value);
+											if ($sv_s ne $iv_s) {
+												print "Error: values do not match\nkey: $key\n\titeration value: $iv_s\n\tsample    value: $sv_s\n";
+											}
+										} else {
+											print "Error: values do not match\nkey: $key\n\titeration value: $iteration_value\n\tsample    value: $sample_value\n";
+										}
 									}
 								} else {
 									$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key} = $sample_value;
@@ -261,6 +282,8 @@ foreach my $metric_name (sort keys %iteration) {
 		for ($i = 0; $i < scalar @{$iteration{$metric_name}{$metric_type}}; $i++) {
 			my $key;
 			foreach $key (sort keys %{$iteration{$metric_name}{$metric_type}[$i]}) {
+				#my $sample_value = $iteration{$metric_name}{$metric_type}[$i]{$key};
+				#print "[$metric_name][$metric_type][$i][$key] = $sample_value \n";
 				if ($key eq get_label('samples_label')) {
 					# compute mean, stabdard deviation, and the sample value that is closest to the mean value
 					($iteration{$metric_name}{$metric_type}[$i]{get_label('mean_label')},
