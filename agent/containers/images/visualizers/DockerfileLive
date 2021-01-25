@@ -1,0 +1,34 @@
+# Use with the following command from the 'visualizers' directory: podman build -t <name> -f DockerfileLive .
+FROM fedora:latest
+
+WORKDIR /
+
+ENV GRAFANA_VERSION=7.3.6-1
+
+RUN dnf install -y wget python3-pip && \
+    pip3 install requests && \
+    dnf -y install https://dl.grafana.com/oss/release/grafana-${GRAFANA_VERSION}.x86_64.rpm && \
+    dnf -y install grafana-pcp && \
+    dnf -y clean all && rm -rf /var/cache/yum/* && rm -rf ~/.cache/pip/*
+    
+ADD run.py .
+ADD nodefull.json .
+ADD dcgm.json .
+ADD combo.json .
+
+## THE FOLLOWING LINE WAS PARTIALLY TAKEN FROM https://github.com/grafana/grafana-docker/blob/master/Dockerfile#L7#L13
+ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    GF_DEFAULT_APP_MODE="development" \
+    GF_PATHS_CONFIG="/etc/grafana/grafana.ini" \
+    GF_PATHS_DATA="/var/lib/grafana" \
+    GF_PATHS_HOME="/usr/share/grafana" \
+    GF_PATHS_LOGS="/var/log/grafana" \
+    GF_PATHS_PLUGINS="/var/lib/grafana/plugins" \
+    GF_PATHS_PROVISIONING="/etc/grafana/provisioning"
+
+EXPOSE 3000
+
+ENV VIS_TYPE="live" \
+    COLLECTOR=":"
+
+CMD ["python3", "run.py"]
