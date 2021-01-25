@@ -1,5 +1,5 @@
 #!/bin/bash
-python3 prom_ds.py &
+python3 grafana_setup.py &
 exec grafana-server                                         \
   --homepath="$GF_PATHS_HOME"                               \
   --config="$GF_PATHS_CONFIG"                               \

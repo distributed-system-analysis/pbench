@@ -1,6 +1,7 @@
+# To be ran from parent 'visualize' directory: podman build -t <name> -f live-metric-visualizer/Dockerfile .
 FROM fedora:latest
 
-WORKDIR /
+WORKDIR = /
 
 ENV GRAFANA_VERSION=7.3.6-1
 
@@ -10,7 +11,7 @@ RUN yum install -y wget pip && \
     dnf -y install https://dl.grafana.com/oss/release/grafana-${GRAFANA_VERSION}.x86_64.rpm && \
     yum -y install grafana-pcp
     
-ADD prom_ds.py .
+ADD grafana_setup.py .
 ADD nodefull.json .
 ADD dcgm.json .
 ADD combo.json .
@@ -27,7 +28,8 @@ ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 
 EXPOSE 3000
 
-COPY run.sh .
+COPY live-metric-visualizer/run.sh .
+ENV VIS_TYPE=live
 
 RUN chmod +x run.sh
 

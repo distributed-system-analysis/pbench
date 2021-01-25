@@ -1,3 +1,4 @@
+# To be ran from parent 'visualize' directory: podman build -t <name> -f prom-graf-visualizer/Dockerfile .
 FROM fedora:latest
 
 WORKDIR /
@@ -14,8 +15,8 @@ RUN yum install -y wget pip && \
     dnf -y install https://dl.grafana.com/oss/release/grafana-${GRAFANA_VERSION}.x86_64.rpm && \
     mkdir data
     
-ADD prometheus.yml .
-ADD prom_ds.py .
+ADD prom-graf-visualizer/prometheus.yml .
+ADD grafana_setup.py .
 ADD nodefull.json .
 ADD dcgm.json .
 ADD combo.json .
@@ -32,7 +33,8 @@ ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 EXPOSE 3000
 EXPOSE 9090
 
-COPY run.sh .
+COPY prom-graf-visualizer/run.sh .
+ENV VIS_TYPE="prom"
 
 RUN chmod +x run.sh
 
