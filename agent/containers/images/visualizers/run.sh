@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# Run collector (if needed), grafana setup, and grafana in parallel as grafana/collector are continuous processes
+# and the grafana setup needs to be run while grafana is up
 ${COLLECTOR} &
 python3 grafana_setup.py &
 exec grafana-server                                         \
