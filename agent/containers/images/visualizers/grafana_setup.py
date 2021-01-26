@@ -32,7 +32,7 @@ args = [
     "-d",
     '{"role":"Admin","name":"new_api_key"}',
 ]
-process = subprocess.run(args, stdout=tokenholder)
+subprocess.run(args, stdout=tokenholder)
 tokenholder.close()
 
 tokenholder = open("key.txt", "r")

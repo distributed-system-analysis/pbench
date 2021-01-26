@@ -1,5 +1,5 @@
 #!/bin/bash
-/prometheus-${PROM_VERSION}.linux-amd64/prometheus --config.file=/prometheus.yml --storage.tsdb.path=/data </dev/null &>/dev/null &
+${COLLECTOR} &
 python3 grafana_setup.py &
 exec grafana-server                                         \
   --homepath="$GF_PATHS_HOME"                               \

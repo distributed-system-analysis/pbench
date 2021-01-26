@@ -33,8 +33,9 @@ ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 EXPOSE 3000
 EXPOSE 9090
 
-COPY prom-graf-visualizer/run.sh .
+COPY run.sh .
 ENV VIS_TYPE="prom"
+ENV COLLECTOR="/prometheus-${PROM_VERSION}.linux-amd64/prometheus --config.file=/prometheus.yml --storage.tsdb.path=/data </dev/null &>/dev/null"
 
 RUN chmod +x run.sh
 

@@ -28,8 +28,9 @@ ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 
 EXPOSE 3000
 
-COPY live-metric-visualizer/run.sh .
-ENV VIS_TYPE=live
+COPY run.sh .
+ENV VIS_TYPE="live"
+ENV COLLECTOR=":"
 
 RUN chmod +x run.sh
 
