@@ -676,24 +676,28 @@ class ToolMeister:
         try:
             benchmark_run_dir = params["benchmark_run_dir"]
             channel_prefix = params["channel_prefix"]
+            tds_hostname = params["tds_hostname"]
+            tds_port = params["tds_port"]
             controller = params["controller"]
             group = params["group"]
             hostname = params["hostname"]
+            label = params["label"]
             tool_metadata = ToolMetadata.tool_md_from_dict(params["tool_metadata"])
             tools = params["tools"]
-            label = params["label"]
         except KeyError as exc:
             raise ToolMeisterError(f"Invalid parameter block, missing key {exc}")
         else:
             return (
                 benchmark_run_dir,
                 channel_prefix,
+                tds_hostname,
+                tds_port,
                 controller,
                 group,
                 hostname,
+                label,
                 tool_metadata,
                 tools,
-                label,
             )
 
     _valid_states = frozenset(["startup", "idle", "running", "shutdown"])
@@ -733,12 +737,14 @@ class ToolMeister:
         (
             self._benchmark_run_dir,
             self._channel_prefix,
+            self._tds_hostname,
+            self._tds_port,
             self._controller,
             self._group,
             self._hostname,
+            self._label,
             self._tool_metadata,
             self._tools,
-            self._label,
         ) = ret_val
         self._rs = redis_server
         self.logger = logger
@@ -1338,7 +1344,7 @@ class ToolMeister:
                         )
                         headers = {"md5sum": tar_md5}
                         url = (
-                            f"http://{self._controller}:8080/{uri}"
+                            f"http://{self._tds_hostname}:{self._tds_port}/{uri}"
                             f"/{ctx}/{self._hostname}"
                         )
                         sent = False

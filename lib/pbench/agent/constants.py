@@ -5,7 +5,7 @@
 def_redis_port = 17001
 
 # Default port number used for the Tool Data Sink
-def_tds_port = 8080
+def_wsgi_port = 8080
 
 # The amount of time a TM tries to publish its setup message.
 TDS_RETRY_PERIOD_SECS = 60

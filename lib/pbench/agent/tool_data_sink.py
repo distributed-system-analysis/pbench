@@ -35,7 +35,6 @@ from bottle import Bottle, ServerAdapter, request, abort
 from daemon import DaemonContext
 
 from pbench.agent.constants import (
-    def_tds_port,
     tm_allowed_actions,
     tm_channel_suffix_from_client,
     tm_channel_suffix_from_tms,
@@ -742,6 +741,7 @@ class ToolDataSink(Bottle):
         try:
             _benchmark_run_dir = params["benchmark_run_dir"]
             bind_hostname = params["bind_hostname"]
+            port = params["port"]
             channel_prefix = params["channel_prefix"]
             tool_group = params["group"]
             tool_metadata = ToolMetadata.tool_md_from_dict(params["tool_metadata"])
@@ -754,6 +754,7 @@ class ToolDataSink(Bottle):
             return (
                 benchmark_run_dir,
                 bind_hostname,
+                port,
                 channel_prefix,
                 tool_group,
                 tool_metadata,
@@ -792,6 +793,7 @@ class ToolDataSink(Bottle):
         (
             self.benchmark_run_dir,
             self.bind_hostname,
+            self.port,
             self.channel_prefix,
             self.tool_group,
             self.tool_metadata,
@@ -837,7 +839,7 @@ class ToolDataSink(Bottle):
             callback=self.put_document,
         )
         self._server = DataSinkWsgiServer(
-            host=self.bind_hostname, port=def_tds_port, logger=self.logger
+            host=self.bind_hostname, port=self.port, logger=self.logger
         )
         self.web_server_thread = Thread(target=self.web_server_run)
         self.web_server_thread.start()
@@ -1906,7 +1908,7 @@ def driver(
             logger.error(
                 "ERROR - tool data sink failed to start, %s:%s already in use",
                 params["bind_hostname"],
-                def_tds_port,
+                params["port"],
             )
             ret_val = 8
         else:
@@ -2073,7 +2075,7 @@ def main(argv):
         )
         return 6
 
-    optional_md = params["optional_md"]
+    optional_md = params.get("optional_md", dict())
 
     func = daemon if daemonize == "yes" else driver
     ret_val = func(
