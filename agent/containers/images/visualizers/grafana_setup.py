@@ -1,14 +1,25 @@
 """
-Sets up all grafana plugins, data sources, and dashboards through grafana API
-Includes PCP and prometheus options if run for live-metric-visualizer
-Only prometheus options used for prom-graf-visualizer
-Once PCP visualizer is made, will use only PCP options
+Sets up all grafana plugins, data sources, and dashboards through grafana API.
+Chooses what to upload/enable based off VIS_TYPE environment variable.
+
+If VIS_TYPE is 'live' (default for live-metric-visualizer):
+    - Node exporter/DCGM dashboards will be uploaded
+    - Prometheus data source will be configured
+    - Grafana-pcp plugin will be enabled
+    - PCP redis and vector datasources will be configured
+    - PCP default dashboards will be enabled
+If VIS_TYPE is 'prom' (default for prom-graf-visualizer):
+    - Node exporter/DCGM dashboards will be uploaded
+    - Prometheus data source will be configured
+If VIS_TYPE is 'pcp' (default for soon-to-come pcp-graf-visualizer):
+    - Grafana-pcp plugin will be enabled
+    - PCP redis and vector datasources will be configured
+    - PCP default dashboards will be enabled
 """
 
 import os
 import json
 import requests
-import subprocess
 import time
 
 graf_base = "http://localhost:3000/"
@@ -21,28 +32,13 @@ while True:
     except Exception:
         time.sleep(0.1)
 
-tokenholder = open("key.txt", "w")
-args = [
-    "curl",
-    "http://localhost:3000/api/auth/keys",
-    "-XPOST",
-    "-uadmin:admin",
-    "-H",
-    "Content-Type: application/json",
-    "-d",
-    '{"role":"Admin","name":"new_api_key"}',
-]
-subprocess.run(args, stdout=tokenholder)
-tokenholder.close()
-
-tokenholder = open("key.txt", "r")
-token_raw = tokenholder.readline()
-tokenholder.close()
-token_dict = json.loads(token_raw)
-print(token_dict["key"])
-token = token_dict["key"]
-
-headers = {"Content-Type": "application/json", "Authorization": f"Bearer {token}"}
+headers = {"Content-Type": "application/json", "Authorization": None}
+payload = {"role": "Admin", "name": "new_api_key"}
+response = requests.post(
+    "http://admin:admin@localhost:3000/api/auth/keys", headers=headers, json=payload
+)
+token = json.loads(response.content.decode("utf-8"))["key"]
+headers["Authorization"] = f"Bearer {token}"
 
 metric_type = os.environ["VIS_TYPE"]
 if metric_type == "live" or metric_type == "prom":

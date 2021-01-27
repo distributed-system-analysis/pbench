@@ -1,7 +1,7 @@
 # To be ran from parent 'visualize' directory: podman build -t <name> -f live-metric-visualizer/Dockerfile .
 FROM fedora:latest
 
-WORKDIR = /
+WORKDIR /
 
 ENV GRAFANA_VERSION=7.3.6-1
 
