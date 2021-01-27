@@ -76,7 +76,7 @@ function _timeout {
 
 source ${_script_path}/common-tm-cleanup
 
-PBENCH_TM_BIND_HOSTNAME="localhost" _timeout pbench-tool-meister-start --sysinfo="${sysinfo}" "${group}"
+PBENCH_REDIS_SERVER="localhost" PBENCH_TOOL_DATA_SINK="localhost" _timeout pbench-tool-meister-start --sysinfo="${sysinfo}" "${group}"
 status=${?}
 if [[ ${status} -ne 0 ]]; then
     printf -- "ERROR - \"pbench-tool-meister-start --sysinfo='%s' '%s'\" failed to execute successfully (exit code: %s)\n" "${sysinfo}" "${group}" "${status}" >&2

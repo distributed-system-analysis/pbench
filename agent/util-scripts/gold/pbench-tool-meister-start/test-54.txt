@@ -1,6 +1,8 @@
 +++ Running test-54 pbench-tool-meister-start --help
 usage: Usage: pbench-tool-meister-start [--sysinfo <list of system information items>]
-       [-h] [--sysinfo SYSINFO] [--redis-server REDIS_SERVER] tool_group
+       [-h] [--sysinfo SYSINFO] [--orchestrate {create,existing}]
+       [--redis-server REDIS_SERVER] [--tool-data-sink TOOL_DATA_SINK]
+       tool_group
 
 positional arguments:
   tool_group            The tool group name of tools to be run by the Tool
@@ -9,10 +11,34 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --sysinfo SYSINFO     The list of system information items to be collected.
+  --orchestrate {create,existing}
+                        The `create` keyword directs the command to create the
+                        various instances of the Redis server, Tool Data Sink,
+                        and Tool Meisters, while the `existing` keyword
+                        directs the command to use existing instances of all
+                        three. The default is `create`.
   --redis-server REDIS_SERVER
-                        Use an existing Redis server specified by
-                        <hostname>:<port>; implies an existing Tool Data Sink
-                        and Tool Meisters as well.
+                        Specifies the IP/port to use for the Redis server - if
+                        not present, the defaults are used,
+                        ${_pbench_full_hostname}:17001; the specified value
+                        can take either of two forms: `<bind
+                        host>:<port>;<host>:<port>`, a semi-colon separated
+                        IP/port specified for both how the Redis server will
+                        bind itself, and how clients will connect;
+                        `<host>:<port>`, the IP/port combination is used both
+                        for binding and connecting (NOTE: binding is not used
+                        with --orchestrate=existing);
+  --tool-data-sink TOOL_DATA_SINK
+                        Specifies the IP/port to use for the Tool Data Sink -
+                        if not present, the defaults are used,
+                        ${_pbench_full_hostname}:8080; the specified value can
+                        take either of two forms: `<bind
+                        host>:<port>;<host>:<port>`, a semi-colon separated
+                        IP/port specified for both how the Tool Data Sink will
+                        bind itself, and how clients will connect;
+                        `<host>:<port>`, the IP/port combination is used both
+                        for binding and connecting (NOTE: binding is not used
+                        with --orchestrate=existing);
 --- Finished test-54 pbench-tool-meister-start (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

@@ -49,7 +49,7 @@ fi
 
 source ${_script_path}/common-tm-cleanup
 
-_PBENCH_TOOL_MEISTER_LOG_LEVEL="debug" _PBENCH_TOOL_DATA_SINK_LOG_LEVEL="debug" _PBENCH_TOOL_MEISTER_START_LOG_LEVEL="debug" PBENCH_TM_BIND_HOSTNAME="localhost" pbench-tool-meister-start --sysinfo="none" ${group}
+_PBENCH_TOOL_MEISTER_LOG_LEVEL="debug" _PBENCH_TOOL_DATA_SINK_LOG_LEVEL="debug" _PBENCH_TOOL_MEISTER_START_LOG_LEVEL="debug" PBENCH_REDIS_SERVER="localhost" PBENCH_TOOL_DATA_SINK="localhost" pbench-tool-meister-start --sysinfo="none" ${group}
 status=${?}
 if [[ ${status} -ne 0 ]]; then
     printf -- "\"pbench-tool-meister-start ${group}\" failed to execute successfully (exit code: ${status})\n" >&2
