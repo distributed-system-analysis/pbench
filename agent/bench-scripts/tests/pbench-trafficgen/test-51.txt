@@ -3,8 +3,6 @@ tool trigger strings for start: "Starting binary-search" and for stop: "Finished
 found IOMMU option, continuing
 found dpdk-tools, continuing
 Total number of benchmark iterations: 4
-cp: cannot stat '/var/tmp/pbench-test-bench/pbench-agent/tmp/trex_cfg.yaml': No such file or directory
-cp: cannot stat 'profile1': No such file or directory
 Starting iteration[1-profile1-0.002pct_drop] (1 of 4)
 test sample 1 of 3
 [pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
@@ -28,7 +26,6 @@ Starting binary-search
 Finished binary-search
 [pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/1-default/sample3
 Iteration 1-profile1-0.002pct_drop complete (1 of 4), with 1 pass and 0 failures
-cp: cannot stat 'profile1': No such file or directory
 Starting iteration[2-profile1-0.001pct_drop] (2 of 4)
 test sample 1 of 3
 [pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
@@ -52,7 +49,6 @@ Starting binary-search
 Finished binary-search
 [pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/2-default/sample3
 Iteration 2-profile1-0.001pct_drop complete (2 of 4), with 1 pass and 0 failures
-cp: cannot stat 'profile2': No such file or directory
 Starting iteration[3-profile2-0.002pct_drop] (3 of 4)
 test sample 1 of 3
 [pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
@@ -76,7 +72,6 @@ Starting binary-search
 Finished binary-search
 [pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-default/sample3
 Iteration 3-profile2-0.002pct_drop complete (3 of 4), with 1 pass and 0 failures
-cp: cannot stat 'profile2': No such file or directory
 Starting iteration[4-profile2-0.001pct_drop] (4 of 4)
 test sample 1 of 3
 [pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
@@ -115,6 +110,7 @@ Iteration 4-profile2-0.001pct_drop complete (4 of 4), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/1-profile1-0.002pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/1-profile1-0.002pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/1-profile1-0.002pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/1-profile1-0.002pct_drop/profile1
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/1-profile1-0.002pct_drop/sample1
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/1-profile1-0.002pct_drop/sample1/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/1-profile1-0.002pct_drop/sample1/tools-default
@@ -134,6 +130,7 @@ Iteration 4-profile2-0.001pct_drop complete (4 of 4), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/2-profile1-0.001pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/2-profile1-0.001pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/2-profile1-0.001pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/2-profile1-0.001pct_drop/profile1
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/2-profile1-0.001pct_drop/sample1
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/2-profile1-0.001pct_drop/sample1/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/2-profile1-0.001pct_drop/sample1/tools-default
@@ -153,6 +150,7 @@ Iteration 4-profile2-0.001pct_drop complete (4 of 4), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/profile2
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/sample1
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/sample1/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/sample1/tools-default
@@ -172,6 +170,7 @@ Iteration 4-profile2-0.001pct_drop complete (4 of 4), with 1 pass and 0 failures
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/4-profile2-0.001pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/4-profile2-0.001pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/4-profile2-0.001pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/4-profile2-0.001pct_drop/profile2
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/4-profile2-0.001pct_drop/sample1
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/4-profile2-0.001pct_drop/sample1/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/4-profile2-0.001pct_drop/sample1/tools-default
@@ -232,7 +231,7 @@ Iteration 4-profile2-0.001pct_drop complete (4 of 4), with 1 pass and 0 failures
 ./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=120 --validation-runtime=300 --max-loss-pct=0.002 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/profile2 --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/sample1
 ./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=120 --validation-runtime=300 --max-loss-pct=0.002 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/profile2 --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/sample2
 ./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=120 --validation-runtime=300 --max-loss-pct=0.002 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/profile2 --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop/sample3
-/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary trafficgen --config=test-51 --samples=3 --traffic-generator=trex-txrx-profile --devices=d8:00.0,d8:00.1 --max-loss-pcts=0.002,0.001 --traffic-profiles=profile1,profile2 --skip-git-pull /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary trafficgen --config=test-51 --samples=3 --traffic-generator=trex-txrx-profile --devices=d8:00.0,d8:00.1 --max-loss-pcts=0.002,0.001 --traffic-profiles=/var/tmp/pbench-test-bench/tmp/profile1,/var/tmp/pbench-test-bench/tmp/profile2 --skip-git-pull --skip-trex-server /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/1-profile1-0.002pct_drop Mframes_sec 5 0 1 n y
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/2-profile1-0.001pct_drop Mframes_sec 5 0 1 n y
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-51_tg:trex-profile_pf:profile1,profile2_ml:0.002,0.001_tt:bs_1900-01-01T00:00:00/3-profile2-0.002pct_drop Mframes_sec 5 0 1 n y
