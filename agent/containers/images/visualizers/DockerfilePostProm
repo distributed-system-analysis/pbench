@@ -1,4 +1,4 @@
-# To be ran from parent 'visualize' directory: podman build -t <name> -f DockerfilePostProm .
+# Use with the following command from the 'visualizers' directory: podman build -t <name> -f DockerfilePostProm .
 FROM quay.io/pbench/live-metric-visualizer:latest
 
 ENV PROM_VERSION=2.18.1 \
@@ -9,7 +9,6 @@ ENV COLLECTOR="/prometheus-${PROM_VERSION}.linux-amd64/prometheus --config.file=
 RUN wget -P /opt/ https://github.com/prometheus/prometheus/releases/download/v${PROM_VERSION}/prometheus-${PROM_VERSION}.linux-amd64.tar.gz && \
     tar xf /opt/prometheus-${PROM_VERSION}.linux-amd64.tar.gz && \
     rm -f /prometheus-${PROM_VERSION}.linux-amd64/prometheus.yml && \
-    yum -y clean all && rm -rf /var/cache/yum/* && rm -rf ~/.cache/pip/* && \
     mkdir data
     
 ADD prometheus.yml .

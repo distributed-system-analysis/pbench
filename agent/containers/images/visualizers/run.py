@@ -1,15 +1,17 @@
 """
-Sets up all grafana plugins, data sources, and dashboards through grafana API.
+Starts by starting up grafana server, as well as any collectors (prometheus, pmproxy) if needed.
+
+Then sets up all grafana plugins, data sources, and dashboards through grafana API.
 Chooses what to upload/enable based off VIS_TYPE environment variable.
 
 If VIS_TYPE is 'live' (default for live-metric-visualizer):
-    - Node exporter/DCGM dashboards will be uploaded
+    - Node exporter/DCGM dashboards will be uploaded and enabled
     - Prometheus data source will be configured
     - Grafana-pcp plugin will be enabled
     - PCP redis and vector datasources will be configured
     - PCP default dashboards will be enabled
 If VIS_TYPE is 'prom' (default for prom-graf-visualizer):
-    - Node exporter/DCGM dashboards will be uploaded
+    - Node exporter/DCGM dashboards will be uploaded and enabled
     - Prometheus data source will be configured
 If VIS_TYPE is 'pcp' (default for soon-to-come pcp-graf-visualizer):
     - Grafana-pcp plugin will be enabled
@@ -21,6 +23,26 @@ import os
 import json
 import requests
 import time
+import subprocess
+
+# Start the collector (if needed)
+collector_cmd = os.environ["COLLECTOR"]
+if not collector_cmd == ":":
+    collector = subprocess.Popen(collector_cmd.split(" "))
+else:
+    collector = None
+
+# Start the grafana server
+args = [
+    "grafana-server",
+    "-homepath",
+    os.environ["GF_PATHS_HOME"],
+    "-config",
+    os.environ["GF_PATHS_CONFIG"],
+    "$@",
+    "cfg:default.log.mode=console",
+]
+grafana = subprocess.Popen(args)
 
 graf_base = "http://localhost:3000/"
 
@@ -68,7 +90,7 @@ if metric_type == "live" or metric_type == "prom":
     response = requests.post(
         dashboard_url, headers=headers, data=open("dcgm.json", "rb")
     )
-    print(json.loads(response.content.decode("utf-8")))
+    print(json.loads(response.content.decode("utf-8")), flush=True)
 
 if metric_type == "live" or metric_type == "pcp":
     plugin_url = f"{graf_base}api/plugins/performancecopilot-pcp-app/settings"
@@ -96,4 +118,11 @@ if metric_type == "live" or metric_type == "pcp":
         "basicAuth": False,
     }
     response = requests.post(pcp_source_url, headers=headers, json=payload)
-    print(json.loads(response.content.decode("utf-8")))
+    print(json.loads(response.content.decode("utf-8")), flush=True)
+
+try:
+    grafana.wait()
+    if collector:
+        collector.wait()
+except KeyboardInterrupt:
+    print("\nVisualizer closed!")

@@ -1,22 +1,24 @@
 # LiveMetricVisualizer
-- Build locally with podman build -t <name> -f DockerfileLive .
-- Available at quay.io/pbench/live-metric-visualizer
 - A tool available to visualize Prometheus and PCP data live during a Pbench benchmark run
+
+- Build locally with `podman build -t <name> -f DockerfileLive .`
+- Available at quay.io/pbench/live-metric-visualizer
 
 - Directions:
   -   `podman pull pbench/live-metric-visualizer`
   -   `podman run --network host pbench/live-metric-visualizer`
 
 - NOTES:
-  - Only the grafana server with preconfigured data sources for prometheus and PCP, as well as preloaded dashboards
+  - Container includes grafana server with preconfigured data sources and dashboards for both prometheus and PCP
   - Will work for live metric viewing (as pbench launches prometheus and pmlogger/pmproxy), but not for post-run visualization
   - Default Grafana credentials are: admin/admin
 
 
 # PromGrafContainer
-- Build locally with podman build -t <name> -f DockerfilePostProm .
-- Available at quay.io/pbench/prom-graf-visualizer
 - A tool available to visualize Prometheus data collected through Pbench after a benchmark run
+
+- Build locally with `podman build -t <name> -f DockerfilePostProm .`
+- Available at quay.io/pbench/prom-graf-visualizer
 - Preloaded dashboards for node-exporter and grafana
 
 - Directions:
