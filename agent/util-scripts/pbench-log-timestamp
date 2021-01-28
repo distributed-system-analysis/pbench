@@ -1,8 +1,0 @@
-#!/usr/bin/perl
-use Time::HiRes qw(gettimeofday);
-
-# turn on autoflushing
-$| = 1;
-while (<STDIN>) {
-	printf "%d: %s", int (gettimeofday * 1000), $_;
-}
