@@ -74,9 +74,11 @@ Template:  pbench-unittests.v5.result-data
 Template:  pbench-unittests.v5.result-data-sample
 Template:  pbench-unittests.v6.run-data
 Template:  pbench-unittests.v6.run-toc
+Index:  pbench-unittests.v5.result-data-sample.2021-01-28 1
+Index:  pbench-unittests.v5.result-data.2021-01-28 1
 Index:  pbench-unittests.v6.run-data.2021-01 1
-Index:  pbench-unittests.v6.run-toc.2021-01 15
-len(actions) = 16
+Index:  pbench-unittests.v6.run-toc.2021-01 6
+len(actions) = 9
 [
     {
         "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
@@ -86,10 +88,10 @@ len(actions) = 16
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@metadata": {
                 "controller_dir": "ctlrA",
-                "file-date": "2021-01-28T19:11:49",
+                "file-date": "2021-01-29T03:27:27",
                 "file-name": "/var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz",
-                "file-size": 109984,
-                "md5": "abe18cc1d6b414fb1c2b5bd26e81d84b",
+                "file-size": 109188,
+                "md5": "bc17a97cb5c4f5569dc8006dfa7b2057",
                 "pbench-agent-version": "unit-tests",
                 "raw_size": 111993913,
                 "tar-ball-creation-timestamp": "2021-01-28T18:00:29.779059",
@@ -109,7 +111,7 @@ len(actions) = 16
                 "controller": "ctlrA",
                 "date": "2021-01-28T17:22:57",
                 "end": "2021-01-28T17:41:03.079326",
-                "id": "abe18cc1d6b414fb1c2b5bd26e81d84b",
+                "id": "bc17a97cb5c4f5569dc8006dfa7b2057",
                 "iterations": "1-default",
                 "name": "pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57",
                 "script": "pbench-user-benchmark",
@@ -172,7 +174,7 @@ len(actions) = 16
             "mode": "0o755",
             "mtime": "2021-01-28T19:11:25",
             "parent": "/",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
+            "run_data_parent": "bc17a97cb5c4f5569dc8006dfa7b2057"
         }
     },
     {
@@ -196,7 +198,7 @@ len(actions) = 16
             "mtime": "2021-01-28T17:41:03",
             "name": "1-default",
             "parent": "/",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
+            "run_data_parent": "bc17a97cb5c4f5569dc8006dfa7b2057"
         }
     },
     {
@@ -250,7 +252,7 @@ len(actions) = 16
             "mtime": "2021-01-28T19:11:25",
             "name": "sample1",
             "parent": "/1-default",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
+            "run_data_parent": "bc17a97cb5c4f5569dc8006dfa7b2057"
         }
     },
     {
@@ -268,7 +270,7 @@ len(actions) = 16
             "mtime": "2021-01-28T19:05:10",
             "name": "tools-default",
             "parent": "/1-default/sample1",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
+            "run_data_parent": "bc17a97cb5c4f5569dc8006dfa7b2057"
         }
     },
     {
@@ -284,326 +286,10 @@ len(actions) = 16
             ],
             "directory": "/1-default/sample1/tools-default/ctrlA",
             "mode": "0o755",
-            "mtime": "2021-01-28T19:05:49",
+            "mtime": "2021-01-29T03:27:02",
             "name": "ctrlA",
             "parent": "/1-default/sample1/tools-default",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
-        }
-    },
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v6.run-toc.2021-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "2021-01-28T17:22:57.531604",
-            "ancestor_path_elements": [
-                "1-default",
-                "sample1",
-                "tools-default",
-                "ctrlA"
-            ],
-            "directory": "/1-default/sample1/tools-default/ctrlA/.screen.d",
-            "mode": "0o755",
-            "mtime": "2021-01-28T17:23:00",
-            "name": ".screen.d",
-            "parent": "/1-default/sample1/tools-default/ctrlA",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
-        }
-    },
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v6.run-toc.2021-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "2021-01-28T17:22:57.531604",
-            "ancestor_path_elements": [
-                "1-default",
-                "sample1",
-                "tools-default",
-                "ctrlA",
-                ".screen.d"
-            ],
-            "directory": "/1-default/sample1/tools-default/ctrlA/.screen.d/default-iostat",
-            "files": [
-                {
-                    "mode": "0o755",
-                    "mtime": "2021-01-28T17:22:59",
-                    "name": "command",
-                    "size": 241,
-                    "type": "reg"
-                },
-                {
-                    "mode": "0o644",
-                    "mtime": "2021-01-28T17:23:09",
-                    "name": "screenlog.0",
-                    "size": 76,
-                    "type": "reg"
-                }
-            ],
-            "mode": "0o755",
-            "mtime": "2021-01-28T17:22:59",
-            "name": "default-iostat",
-            "parent": "/1-default/sample1/tools-default/ctrlA/.screen.d",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
-        }
-    },
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v6.run-toc.2021-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "2021-01-28T17:22:57.531604",
-            "ancestor_path_elements": [
-                "1-default",
-                "sample1",
-                "tools-default",
-                "ctrlA",
-                ".screen.d"
-            ],
-            "directory": "/1-default/sample1/tools-default/ctrlA/.screen.d/default-mpstat",
-            "files": [
-                {
-                    "mode": "0o755",
-                    "mtime": "2021-01-28T17:22:59",
-                    "name": "command",
-                    "size": 241,
-                    "type": "reg"
-                },
-                {
-                    "mode": "0o644",
-                    "mtime": "2021-01-28T17:40:23",
-                    "name": "screenlog.0",
-                    "size": 223,
-                    "type": "reg"
-                }
-            ],
-            "mode": "0o755",
-            "mtime": "2021-01-28T17:22:59",
-            "name": "default-mpstat",
-            "parent": "/1-default/sample1/tools-default/ctrlA/.screen.d",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
-        }
-    },
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v6.run-toc.2021-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "2021-01-28T17:22:57.531604",
-            "ancestor_path_elements": [
-                "1-default",
-                "sample1",
-                "tools-default",
-                "ctrlA",
-                ".screen.d"
-            ],
-            "directory": "/1-default/sample1/tools-default/ctrlA/.screen.d/default-perf",
-            "files": [
-                {
-                    "mode": "0o755",
-                    "mtime": "2021-01-28T17:22:59",
-                    "name": "command",
-                    "size": 261,
-                    "type": "reg"
-                },
-                {
-                    "mode": "0o644",
-                    "mtime": "2021-01-28T17:23:09",
-                    "name": "screenlog.0",
-                    "size": 212,
-                    "type": "reg"
-                }
-            ],
-            "mode": "0o755",
-            "mtime": "2021-01-28T17:22:59",
-            "name": "default-perf",
-            "parent": "/1-default/sample1/tools-default/ctrlA/.screen.d",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
-        }
-    },
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v6.run-toc.2021-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "2021-01-28T17:22:57.531604",
-            "ancestor_path_elements": [
-                "1-default",
-                "sample1",
-                "tools-default",
-                "ctrlA",
-                ".screen.d"
-            ],
-            "directory": "/1-default/sample1/tools-default/ctrlA/.screen.d/default-pidstat",
-            "files": [
-                {
-                    "mode": "0o755",
-                    "mtime": "2021-01-28T17:22:59",
-                    "name": "command",
-                    "size": 244,
-                    "type": "reg"
-                },
-                {
-                    "mode": "0o644",
-                    "mtime": "2021-01-28T17:40:23",
-                    "name": "screenlog.0",
-                    "size": 363,
-                    "type": "reg"
-                }
-            ],
-            "mode": "0o755",
-            "mtime": "2021-01-28T17:22:59",
-            "name": "default-pidstat",
-            "parent": "/1-default/sample1/tools-default/ctrlA/.screen.d",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
-        }
-    },
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v6.run-toc.2021-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "2021-01-28T17:22:57.531604",
-            "ancestor_path_elements": [
-                "1-default",
-                "sample1",
-                "tools-default",
-                "ctrlA",
-                ".screen.d"
-            ],
-            "directory": "/1-default/sample1/tools-default/ctrlA/.screen.d/default-proc-interrupts",
-            "files": [
-                {
-                    "mode": "0o755",
-                    "mtime": "2021-01-28T17:22:59",
-                    "name": "command",
-                    "size": 259,
-                    "type": "reg"
-                },
-                {
-                    "mode": "0o644",
-                    "mtime": "2021-01-28T17:40:23",
-                    "name": "screenlog.0",
-                    "size": 263,
-                    "type": "reg"
-                }
-            ],
-            "mode": "0o755",
-            "mtime": "2021-01-28T17:22:59",
-            "name": "default-proc-interrupts",
-            "parent": "/1-default/sample1/tools-default/ctrlA/.screen.d",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
-        }
-    },
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v6.run-toc.2021-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "2021-01-28T17:22:57.531604",
-            "ancestor_path_elements": [
-                "1-default",
-                "sample1",
-                "tools-default",
-                "ctrlA",
-                ".screen.d"
-            ],
-            "directory": "/1-default/sample1/tools-default/ctrlA/.screen.d/default-proc-vmstat",
-            "files": [
-                {
-                    "mode": "0o755",
-                    "mtime": "2021-01-28T17:22:59",
-                    "name": "command",
-                    "size": 251,
-                    "type": "reg"
-                },
-                {
-                    "mode": "0o644",
-                    "mtime": "2021-01-28T17:40:23",
-                    "name": "screenlog.0",
-                    "size": 251,
-                    "type": "reg"
-                }
-            ],
-            "mode": "0o755",
-            "mtime": "2021-01-28T17:22:59",
-            "name": "default-proc-vmstat",
-            "parent": "/1-default/sample1/tools-default/ctrlA/.screen.d",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
-        }
-    },
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v6.run-toc.2021-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "2021-01-28T17:22:57.531604",
-            "ancestor_path_elements": [
-                "1-default",
-                "sample1",
-                "tools-default",
-                "ctrlA",
-                ".screen.d"
-            ],
-            "directory": "/1-default/sample1/tools-default/ctrlA/.screen.d/default-sar",
-            "files": [
-                {
-                    "mode": "0o755",
-                    "mtime": "2021-01-28T17:22:59",
-                    "name": "command",
-                    "size": 235,
-                    "type": "reg"
-                },
-                {
-                    "mode": "0o644",
-                    "mtime": "2021-01-28T17:40:23",
-                    "name": "screenlog.0",
-                    "size": 335,
-                    "type": "reg"
-                }
-            ],
-            "mode": "0o755",
-            "mtime": "2021-01-28T17:23:00",
-            "name": "default-sar",
-            "parent": "/1-default/sample1/tools-default/ctrlA/.screen.d",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
-        }
-    },
-    {
-        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
-        "_index": "pbench-unittests.v6.run-toc.2021-01",
-        "_op_type": "create",
-        "_source": {
-            "@timestamp": "2021-01-28T17:22:57.531604",
-            "ancestor_path_elements": [
-                "1-default",
-                "sample1",
-                "tools-default",
-                "ctrlA",
-                ".screen.d"
-            ],
-            "directory": "/1-default/sample1/tools-default/ctrlA/.screen.d/default-turbostat",
-            "files": [
-                {
-                    "mode": "0o755",
-                    "mtime": "2021-01-28T17:23:00",
-                    "name": "command",
-                    "size": 247,
-                    "type": "reg"
-                },
-                {
-                    "mode": "0o644",
-                    "mtime": "2021-01-28T17:40:23",
-                    "name": "screenlog.0",
-                    "size": 231,
-                    "type": "reg"
-                }
-            ],
-            "mode": "0o755",
-            "mtime": "2021-01-28T17:23:00",
-            "name": "default-turbostat",
-            "parent": "/1-default/sample1/tools-default/ctrlA/.screen.d",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
+            "run_data_parent": "bc17a97cb5c4f5569dc8006dfa7b2057"
         }
     },
     {
@@ -646,7 +332,91 @@ len(actions) = 16
             "mtime": "2021-01-28T17:40:23",
             "name": "turbostat",
             "parent": "/1-default/sample1/tools-default/ctrlA",
-            "run_data_parent": "abe18cc1d6b414fb1c2b5bd26e81d84b"
+            "run_data_parent": "bc17a97cb5c4f5569dc8006dfa7b2057"
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data-sample.2021-01-28",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": "70015f01dedbadbeefc105edcafedead",
+            "@timestamp": "2021-01-28T12:23:08.000000",
+            "@timestamp_original": "2021.01.28.12:23:08",
+            "benchmark": {
+                "Hammerdb-tpcc": {
+                    "Cpus": 20,
+                    "DBVer": "10.3.27-MariaDB",
+                    "Database": "Mariadb",
+                    "Hostname": "ctlrA.example.com",
+                    "Kernel": "4.18.0-275.el8.x86_64",
+                    "Memory": 263815948,
+                    "StorageType": "Storage not specified"
+                },
+                "name": "Hammerdb-tpcc",
+                "version": "HammerDB-3.2"
+            },
+            "iteration": {
+                "name": "1-default",
+                "number": 1
+            },
+            "run": {
+                "config": "1000_80_latency_perf",
+                "controller": "ctlrA",
+                "date": "2021-01-28T17:22:57",
+                "end": "2021-01-28T17:41:03.079326",
+                "id": "bc17a97cb5c4f5569dc8006dfa7b2057",
+                "name": "pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57",
+                "script": "pbench-user-benchmark",
+                "start": "2021-01-28T17:22:57.531604"
+            },
+            "sample": {
+                "@idx": 0,
+                "Hammerdb-tpcc": {
+                    "Users": 80
+                },
+                "closest_sample": 1,
+                "end": "2021-01-28T12:40:14.000000",
+                "mean": 639598,
+                "measurement_idx": 0,
+                "measurement_title": "Tpm",
+                "measurement_type": "number",
+                "name": "sample1",
+                "role": "aggregate",
+                "start": "2021-01-28T12:23:08.000000",
+                "stddev": 0,
+                "stddevpct": 0,
+                "uid": "1-default"
+            }
+        }
+    },
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v5.result-data.2021-01-28",
+        "_op_type": "create",
+        "_source": {
+            "@timestamp": "2021-01-28T12:23:08.000000",
+            "@timestamp_original": "2021.01.28.12:23:08",
+            "iteration": {
+                "name": "1-default",
+                "number": 1
+            },
+            "result": {
+                "@idx": 0,
+                "value": 639598
+            },
+            "result_data_sample_parent": "dfc34873d328a4a8179a05cbfba9cc8d",
+            "run": {
+                "id": "bc17a97cb5c4f5569dc8006dfa7b2057",
+                "name": "pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57"
+            },
+            "sample": {
+                "@idx": 0,
+                "measurement_idx": 0,
+                "measurement_title": "Tpm",
+                "measurement_type": "number",
+                "name": "sample1"
+            }
         }
     }
 ]
@@ -1480,7 +1250,7 @@ lrwxrwxrwx         72 archive/fs-version-001/ctlrA/UNPACKED/pbench-user-benchmar
 lrwxrwxrwx         93 archive/fs-version-001/ctlrA/UNPACKED/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz -> ../pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz
 drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-INDEX
 drwxrwxr-x          - archive/fs-version-001/ctlrA/WONT-UNPACK
--rw-rw-r--     109984 archive/fs-version-001/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz
+-rw-rw-r--     109188 archive/fs-version-001/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz
 -rw-rw-r--        104 archive/fs-version-001/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz.md5
 -rw-rw-r--     884748 archive/fs-version-001/ctlrA/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz
 -rw-rw-r--        125 archive/fs-version-001/ctlrA/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz.md5
@@ -1497,31 +1267,6 @@ drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_l
 -rw-r--r--      14514 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/test_mariadb_HDB_tpcc_mariadb_80.out
 drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default
 drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA
-drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d
-drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-iostat
--rwxr-xr-x        241 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-iostat/command
--rw-r--r--         76 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-iostat/screenlog.0
-drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-mpstat
--rwxr-xr-x        241 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-mpstat/command
--rw-r--r--        223 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-mpstat/screenlog.0
-drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-perf
--rwxr-xr-x        261 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-perf/command
--rw-r--r--        212 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-perf/screenlog.0
-drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-pidstat
--rwxr-xr-x        244 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-pidstat/command
--rw-r--r--        363 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-pidstat/screenlog.0
-drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-proc-interrupts
--rwxr-xr-x        259 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-proc-interrupts/command
--rw-r--r--        263 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-proc-interrupts/screenlog.0
-drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-proc-vmstat
--rwxr-xr-x        251 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-proc-vmstat/command
--rw-r--r--        251 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-proc-vmstat/screenlog.0
-drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-sar
--rwxr-xr-x        235 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-sar/command
--rw-r--r--        335 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-sar/screenlog.0
-drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-turbostat
--rwxr-xr-x        247 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-turbostat/command
--rw-r--r--        231 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/.screen.d/default-turbostat/screenlog.0
 drwxr-xr-x          - public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/turbostat
 -rw-r--r--       4196 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/turbostat/turbostat-stderr.txt
 -rw-r--r--     906271 public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57/1-default/sample1/tools-default/ctrlA/turbostat/turbostat-stdout.txt
@@ -1600,7 +1345,7 @@ drwxrwxr-x          - logs/pbench-audit-server
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--       5415 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       6263 logs/pbench-index/pbench-index.log
+-rw-rw-r--       6011 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--       1444 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -1664,7 +1409,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- start processing list of tar balls
-1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz (size 109984)
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz (size 109188)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- open tar ball
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- generator setup
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- begin indexing
@@ -1676,7 +1421,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer mk_tool_data_actions -- end [0 tool data documents]
 1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexing_tarballs process_tb -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 0, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexing_tarballs process_tb -- run-1970-01-01T00:00:42-UTC: ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz: success
-1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz (size 109984)
+1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz (size 109188)
 1970-01-01T00:00:42.000000 INFO pbench-index-tool-data.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX-TOOL/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz (size 884748)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- open tar ball
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- generator setup
@@ -1702,7 +1447,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- start processing list of tar balls
-1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz (size 109984)
+1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz (size 109188)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- generator setup
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- begin indexing
@@ -1714,14 +1459,13 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_tool_info -- end [1 tools processed]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_run_action -- end
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- start
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [15 table-of-contents documents]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_toc_actions -- end [6 table-of-contents documents]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- start
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexer _known_user_benchmark -- Unrecognized user-benchmark driver, 'Hammerdb-tpcc.' (ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz(abe18cc1d6b414fb1c2b5bd26e81d84b))
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [no result data sources]
+1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer mk_result_data_actions -- end [2 result documents]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer make_all_actions -- end
-1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 16, duplicates: 0, failures: 0, retries: 0)
+1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- done indexing (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 9, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- run-1970-01-01T00:00:42-UTC: ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz: success
-1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz (size 109984)
+1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57.tar.xz (size 109188)
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-7.24/pbench/archive/fs-version-001/ctlrA/TO-INDEX/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14.tar.xz (size 884748)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- generator setup
@@ -1750,7 +1494,7 @@ drwxrwxr-x          - tmp
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
 run-1970-01-01T00:00:42-UTC
 ln -s /var/tmp/pbench-test-server/test-7.24/pbench/public_html/incoming/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57 /var/tmp/pbench-test-server/test-7.24/pbench/public_html/results/ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57
-run-1970-01-01T00:00:42-UTC: ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57: success - elapsed time (secs): 0 - size (bytes): 109984
+run-1970-01-01T00:00:42-UTC: ctlrA/pbench-user-benchmark_1000_80_latency_perf_2021.01.28T17.22.57: success - elapsed time (secs): 0 - size (bytes): 109188
 ln -s /var/tmp/pbench-test-server/test-7.24/pbench/public_html/incoming/ctlrA/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14 /var/tmp/pbench-test-server/test-7.24/pbench/public_html/results/ctlrA/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14
 run-1970-01-01T00:00:42-UTC: ctlrA/pbench-user-benchmark_Maridb_tuned_TP_HTon_40P_256Gmem_with_csv_2020.02.06T15.26.14: success - elapsed time (secs): 0 - size (bytes): 884748
 run-1970-01-01T00:00:42-UTC: Processed 2 tarballs
