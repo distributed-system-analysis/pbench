@@ -847,15 +847,21 @@ class ResultData(PbenchData):
         try:
             name, ver = first_line.split(" ", 1)
         except ValueError:
-            name = first_line
+            name = first_line.strip()
             ver = ""
-        name = name.strip()
+        else:
+            name = name.strip()
+            ver = ver.strip()
         try:
             ubm_driver_versions = ResultData.known_user_benchmarks[name]
         except KeyError:
             pass
         else:
-            ver = ver.strip()
+            if name == "Hammerdb-tpcc" and (not ver or ver == "Hammerdb-3.2"):
+                # For compatibiilty with "Hammerdb-tpcc", we'll map an empty
+                # string and "Hammerdb-3.2" to the expected value of
+                # "HammerDB-3.2".
+                ver = "HammerDB-3.2"
             try:
                 ubm_driver = ubm_driver_versions[ver]
             except KeyError:
@@ -3488,7 +3494,9 @@ class Iteration:
             iter_dict.update(items)
             self.name = iter_dict["iteration_name"]
             try:
-                self.number = iter_dict["iteration_number"]
+                self.number = int(iter_dict["iteration_number"])
+            except ValueError:
+                raise BadIterationName(self.name)
             except KeyError:
                 # Certain benchmark scripts fail to record the iteration
                 # number along with the on-disk directory name in
