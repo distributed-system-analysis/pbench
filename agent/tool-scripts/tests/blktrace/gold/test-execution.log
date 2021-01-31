@@ -1,2 +1,2 @@
 blktrace-datalog /dev/sda42 /dev/sdb42 /dev/sdc42
-blktrace-stop-postprocess /var/tmp/pbench-test-tool-scripts/blktrace/tools-group/blktrace
+blktrace-stop-postprocess .

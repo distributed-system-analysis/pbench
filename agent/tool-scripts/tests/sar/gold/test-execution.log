@@ -1,2 +1,2 @@
 sar-datalog /var/tmp/pbench-test-tool-scripts/sar/tools-group/sar 10
-sar-postprocess /var/tmp/pbench-test-tool-scripts/sar/tools-group/sar
+sar-postprocess .

@@ -1,2 +1,2 @@
 openvswitch-datalog /var/tmp/pbench-test-tool-scripts/openvswitch/tools-group/openvswitch 10
-openvswitch-postprocess /var/tmp/pbench-test-tool-scripts/openvswitch/tools-group/openvswitch
+openvswitch-postprocess .

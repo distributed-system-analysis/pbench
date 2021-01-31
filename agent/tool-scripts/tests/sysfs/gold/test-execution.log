@@ -1,2 +1,2 @@
 sysfs-datalog 10 kernel 4 *
-sysfs-postprocess /var/tmp/pbench-test-tool-scripts/sysfs/tools-group/sysfs
+sysfs-postprocess .
