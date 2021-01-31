@@ -160,8 +160,8 @@ class QueryControllers(Resource):
                 abort(401, message="invalid user authorization")
 
         try:
-            start = parser.parse(start_arg)
-            end = parser.parse(end_arg)
+            start = parser.parse(start_arg).replace(day=1)
+            end = parser.parse(end_arg).replace(day=1)
         except Exception as e:
             self.logger.info(
                 "Invalid start or end time string: {}, {}: {}", start_arg, end_arg, e
