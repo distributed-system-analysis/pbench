@@ -1,2 +1,2 @@
 pidstat-datalog /var/tmp/pbench-test-tool-scripts/pidstat/tools-group/pidstat 10 true p=one42,two43,three44 -other-opt
-pidstat-postprocess /var/tmp/pbench-test-tool-scripts/pidstat/tools-group/pidstat
+pidstat-postprocess .

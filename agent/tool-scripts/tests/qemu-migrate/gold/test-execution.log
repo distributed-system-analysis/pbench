@@ -1,2 +1,2 @@
 qemu-migrate-datalog 10 qemu-vm-42
-qemu-migrate-postprocess /var/tmp/pbench-test-tool-scripts/qemu-migrate/tools-group/qemu-migrate
+qemu-migrate-postprocess .

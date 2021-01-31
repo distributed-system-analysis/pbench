@@ -1,2 +1,2 @@
 rabbit-datalog 10 guest guest
-rabbit-postprocess /var/tmp/pbench-test-tool-scripts/rabbit/tools-group/rabbit
+rabbit-postprocess .

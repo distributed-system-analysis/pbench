@@ -1,3 +1,3 @@
 cpuacct-datalog 10
-cpuacct-stop-postprocess /var/tmp/pbench-test-tool-scripts/cpuacct/tools-group/cpuacct
-cpuacct-postprocess /var/tmp/pbench-test-tool-scripts/cpuacct/tools-group/cpuacct
+cpuacct-stop-postprocess .
+cpuacct-postprocess .

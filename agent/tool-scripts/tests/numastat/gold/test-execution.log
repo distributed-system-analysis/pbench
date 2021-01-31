@@ -1,2 +1,2 @@
 numastat-datalog 10 pig42
-numastat-postprocess /var/tmp/pbench-test-tool-scripts/numastat/tools-group/numastat
+numastat-postprocess .

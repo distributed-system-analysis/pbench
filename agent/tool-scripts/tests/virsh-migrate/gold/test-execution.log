@@ -1,2 +1,2 @@
 virsh-migrate-datalog 42 vm42
-virsh-migrate-postprocess /var/tmp/pbench-test-tool-scripts/virsh-migrate/tools-group/virsh-migrate
+virsh-migrate-postprocess .
