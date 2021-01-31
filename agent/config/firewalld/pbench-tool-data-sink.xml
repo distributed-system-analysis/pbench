@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>pbench-redis</short>
+  <description>Pbench Agent Redis Server</description>
+  <port protocol="tcp" port="17001"/>
+</service>
