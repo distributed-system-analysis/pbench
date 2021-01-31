@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>pbench-node_exporter</short>
+  <description>Pbench Agent Prometheus node_exporter</description>
+  <port protocol="tcp" port="9100"/>
+</service>
