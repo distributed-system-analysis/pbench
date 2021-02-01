@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <service>
-  <short>pbench-tool-data-sink</short>
-  <description>Pbench Agent Tool Data Sink</description>
-  <port protocol="tcp" port="8080"/>
+  <short>pbench-redis</short>
+  <description>Pbench Agent Redis Server</description>
+  <port protocol="tcp" port="17001"/>
 </service>
