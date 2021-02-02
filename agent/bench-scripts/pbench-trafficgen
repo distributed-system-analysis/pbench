@@ -1103,27 +1103,13 @@ function inner_most_loop() {
 		echo "Starting iteration[$iteration] ($count of $total_iterations)"
 		log "Starting iteration[$iteration] ($count of $total_iterations)"
 
-		iteration_options=""
-		if [ $traffic_generator != "trex-txrx-profile" ]; then
-			if [ $rate == "none" ]; then
-				if [ $traffic_generator == "trex-txrx" ]; then
-					iteration_options="$iteration_options --rate-unit=% --rate=100"
-				else
-					# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
-					iteration_options="$iteration_options"
-				fi
-			else
-				iteration_options="$iteration_options --rate-unit=$rate_unit --rate=$rate"
-			fi
-		else
+		local iteration_options="--max-loss-pct=${max_loss_pct}"
+		if [ $traffic_generator == "trex-txrx-profile" ]; then
 			if [ "${traffic_profiles}" == "" -o "${rates}" == "none" ]; then
 				iteration_options="${iteration_options} --rate-unit=% --rate=100"
 			else
 				iteration_options="${iteration_options} --rate-unit=% --rate=${rates}"
 			fi
-		fi
-		iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
-		if [ $traffic_generator == "trex-txrx-profile" ]; then
 			if [ "${traffic_profiles}" == "" ]; then
 				profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
 
@@ -1143,6 +1129,16 @@ function inner_most_loop() {
 			fi
 			iteration_options="${iteration_options} --traffic-profile=${traffic_profile_file}"
 		else
+			if [ $rate == "none" ]; then
+				if [ $traffic_generator == "trex-txrx" ]; then
+					iteration_options="$iteration_options --rate-unit=% --rate=100"
+				else
+					# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
+					iteration_options="$iteration_options"
+				fi
+			else
+				iteration_options="$iteration_options --rate-unit=$rate_unit --rate=$rate"
+			fi
 			iteration_options="${iteration_options} --traffic-direction=${traffic_direction}"
 			iteration_options="$iteration_options --frame-size=$frame_size"
 			iteration_options="$iteration_options --num-flows=$num_flow"
