@@ -1104,7 +1104,7 @@ function inner_most_loop() {
 		log "Starting iteration[$iteration] ($count of $total_iterations)"
 
 		local iteration_options="--max-loss-pct=${max_loss_pct}"
-		if [[ $traffic_generator == "trex-txrx-profile" ]]; then
+		if [[ ${traffic_generator} == "trex-txrx-profile" ]]; then
 			if [[ "${traffic_profiles}" == "" || "${rates}" == "none" ]]; then
 				iteration_options="${iteration_options} --rate-unit=% --rate=100"
 			else
@@ -1113,11 +1113,11 @@ function inner_most_loop() {
 			if [[ "${traffic_profiles}" == "" ]]; then
 				profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
 
-				echo "pushd $trafficgen_dir >/dev/null" >${profile_builder_cmd_file}
-				echo "./profile-builder.py --frame-size=${frame_size} --num-flows=${num_flow} --rate=${rate} ${profile_flow_mods} --traffic-direction=${traffic_direction} --measure-latency" >>${profile_builder_cmd_file}
-				echo "cmd_rc=\$?" >>${profile_builder_cmd_file}
-				echo "popd >/dev/null" >>${profile_builder_cmd_file}
-				echo "exit" >>${profile_builder_cmd_file}
+				echo "pushd ${trafficgen_dir} >/dev/null" > ${profile_builder_cmd_file}
+				echo "./profile-builder.py --frame-size=${frame_size} --num-flows=${num_flow} --rate=${rate} ${profile_flow_mods} --traffic-direction=${traffic_direction} --measure-latency" >> ${profile_builder_cmd_file}
+				echo "cmd_rc=\${?}" >> ${profile_builder_cmd_file}
+				echo "popd > /dev/null" >> ${profile_builder_cmd_file}
+				echo "exit" >> ${profile_builder_cmd_file}
 				chmod +x ${profile_builder_cmd_file}
 
 				traffic_profile_file="${iteration_dir}/traffic-profile.json"
@@ -1125,23 +1125,23 @@ function inner_most_loop() {
 				${profile_builder_cmd_file} > ${traffic_profile_file} 2>&1
 			else
 				cp ${traffic_profile} ${iteration_dir}/
-				traffic_profile_file="${iteration_dir}/`basename ${traffic_profile}`"
+				traffic_profile_file="${iteration_dir}/$(basename ${traffic_profile})"
 			fi
 			iteration_options="${iteration_options} --traffic-profile=${traffic_profile_file}"
 		else
-			if [[ $rate == "none" ]]; then
-				if [[ $traffic_generator == "trex-txrx" ]]; then
-					iteration_options="$iteration_options --rate-unit=% --rate=100"
+			if [[ ${rate} == "none" ]]; then
+				if [[ ${traffic_generator} == "trex-txrx" ]]; then
+					iteration_options="${iteration_options} --rate-unit=% --rate=100"
 				else
 					# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
-					iteration_options="$iteration_options"
+					iteration_options="${iteration_options}"
 				fi
 			else
-				iteration_options="$iteration_options --rate-unit=$rate_unit --rate=$rate"
+				iteration_options="${iteration_options} --rate-unit=${rate_unit} --rate=${rate}"
 			fi
 			iteration_options="${iteration_options} --traffic-direction=${traffic_direction}"
-			iteration_options="$iteration_options --frame-size=$frame_size"
-			iteration_options="$iteration_options --num-flows=$num_flow"
+			iteration_options="${iteration_options} --frame-size=${frame_size}"
+			iteration_options="${iteration_options} --num-flows=${num_flow}"
 		fi
 
 		# save benchmark command in file for debugging or running manually
