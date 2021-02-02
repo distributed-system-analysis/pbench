@@ -1014,13 +1014,43 @@ pre_loop_cmd=${cmd}
 
 function inner_most_loop() {
 	local loop_type=$1
+	if [[ "${loop_type}" == "default" ]]; then
+		local fs_unit="B"
+	else
+		if [[ "${loop_type}" != "profile" ]]; then
+			error_log "INTERNAL ERROR - unexpected loop type, '${loop_type}'"
+			exit 1
+		fi
+		local traffic_profile_name=$(basename ${traffic_profile})
+	fi
 
 	for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
-		if [ $rc -ne 0 ]; then
+		if [[ ${rc} -ne 0 ]]; then
 			break
 		fi
 
-		if [ $count -ge $start_iteration_num ]; then
+		let count=${count}+1 # now we can move to the next iteration
+
+		if [ "${loop_type}" == "default" ]; then
+			iteration="${count}-${traffic_direction}-${frame_size}${fs_unit}-${num_flow}flows-${max_loss_pct}pct_drop"
+		else
+			iteration="${count}-${traffic_profile_name}-${max_loss_pct}pct_drop"
+		fi
+
+		if [[ ${count} -lt ${start_iteration_num} ]]; then
+			echo "Skipping iteration ${iteration} (${count} of ${total_iterations})"
+			log "Skipping iteration ${iteration} (${count} of ${total_iterations})"
+			continue
+		fi
+
+		if [ "${postprocess_only}" == "n" ]; then
+			if [ "${loop_type}" == "default" ]; then
+				record_default_iteration "${count}" "${traffic_direction}" "${frame_size}${fs_unit}" "${num_flow}flows" "${max_loss_pct}pct_drop" "$iteration"
+			else
+				record_profile_iteration "${count}" "${traffic_profile_name}" "${max_loss_pct}pct_drop" "${iteration}"
+			fi
+		fi
+
 			# reset the command to run
 			cmd=${pre_loop_cmd}
 
@@ -1064,18 +1094,6 @@ function inner_most_loop() {
 			cmd="$cmd --search-runtime=$iteration_search_runtime"
 			cmd="$cmd --validation-runtime=$iteration_validation_runtime"
 
-			fs_unit=""
-			if [ "${loop_type}" == "default" ]; then
-				if [ "${frame_size}" -eq "${frame_size}" ] 2>/dev/null; then
-					fs_unit="B"
-				fi
-				iteration="${count}-${traffic_direction}-${frame_size}${fs_unit}-${num_flow}flows-${max_loss_pct}pct_drop"
-				record_default_iteration "${count}" "${traffic_direction}" "${frame_size}${fs_unit}" "${num_flow}flows" "${max_loss_pct}pct_drop" "$iteration"
-			elif [ "${loop_type}" == "profile" ]; then
-				tmp_traffic_profile=$(basename ${traffic_profile})
-				iteration="${count}-${tmp_traffic_profile}-${max_loss_pct}pct_drop"
-				record_profile_iteration "${count}" "${tmp_traffic_profile}" "${max_loss_pct}pct_drop" "${iteration}"
-			fi
 			tt_iteration_dir="${benchmark_run_dir}/${count}-default"
 			iteration_dir="$benchmark_run_dir/$iteration"
 			mkdir -p $iteration_dir
@@ -1183,8 +1201,8 @@ function inner_most_loop() {
 								exit 1
 							fi
 						else
-							msg="tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
-							echo "${msg}"; log "${msg}"
+							echo "tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
+							log "tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
 						fi
 					else
 						if [[ ! -d $benchmark_results_dir ]]; then
@@ -1234,15 +1252,11 @@ function inner_most_loop() {
 					exit 1
 				fi
 			fi
-		else
-			echo "Skipping iteration $iteration ($count of $total_iterations)"
-			log "Skipping iteration $iteration ($count of $total_iterations)"
-		fi
-		let count=$count+1 # now we can move to the next iteration
 	done
 }
 
-count=1
+# Inner loop now pre-increments
+count=0
 rc=0
 if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
 	for traffic_profile in `echo $traffic_profiles | sed -e s/,/" "/g`; do
