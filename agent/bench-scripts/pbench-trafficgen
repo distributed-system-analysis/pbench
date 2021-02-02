@@ -693,6 +693,17 @@ if [ -z "${active_devices}" ]; then
 	active_devices=${devices}
 fi
 
+let errors=0
+for traffic_profile in `echo $traffic_profiles | sed -e s/,/" "/g`; do
+	if [[ ! -e "${traffic_profile}" ]]; then
+		error_log "Traffic profile, '${traffic_profile}', does not exist"
+		(( errors++ ))
+	fi
+done
+if [[ ${errors} -ne 0 ]]; then
+	exit 1
+fi
+
 # add test options to $config, so this test result directory is easily identifiable
 if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
 	traffic_profiles_list=""
@@ -1018,15 +1029,26 @@ function echo_log {
 pre_loop_cmd=${cmd}
 
 function inner_most_loop() {
-	local loop_type=$1
+	local loop_type=${1}
+	local traffic_profile_arg=${2}
+	local rate_arg=${3}
+	local traffic_direction_arg=${4}
+	local frame_size_arg=${5}
+	local num_flow_arg=${6}
+
 	if [[ "${loop_type}" == "default" ]]; then
 		local fs_unit="B"
+		unset traffic_profile_arg
 	else
 		if [[ "${loop_type}" != "profile" ]]; then
 			error_log "INTERNAL ERROR - unexpected loop type, '${loop_type}'"
 			exit 1
 		fi
-		local traffic_profile_name=$(basename ${traffic_profile})
+		local traffic_profile_name=$(basename ${traffic_profile_arg})
+		unset rate_arg
+		unset traffic_direction_arg
+		unset frame_size_arg
+		unset num_flow_arg
 	fi
 
 	for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
@@ -1037,7 +1059,7 @@ function inner_most_loop() {
 		let count=${count}+1 # now we can move to the next iteration
 
 		if [ "${loop_type}" == "default" ]; then
-			iteration="${count}-${traffic_direction}-${frame_size}${fs_unit}-${num_flow}flows-${max_loss_pct}pct_drop"
+			iteration="${count}-${traffic_direction_arg}-${frame_size_arg}${fs_unit}-${num_flow_arg}flows-${max_loss_pct}pct_drop"
 		else
 			iteration="${count}-${traffic_profile_name}-${max_loss_pct}pct_drop"
 		fi
@@ -1049,7 +1071,7 @@ function inner_most_loop() {
 
 		if [ "${postprocess_only}" == "n" ]; then
 			if [ "${loop_type}" == "default" ]; then
-				record_default_iteration "${count}" "${traffic_direction}" "${frame_size}${fs_unit}" "${num_flow}flows" "${max_loss_pct}pct_drop" "$iteration"
+				record_default_iteration "${count}" "${traffic_direction_arg}" "${frame_size_arg}${fs_unit}" "${num_flow_arg}flows" "${max_loss_pct}pct_drop" "$iteration"
 			else
 				record_profile_iteration "${count}" "${traffic_profile_name}" "${max_loss_pct}pct_drop" "${iteration}"
 			fi
@@ -1104,16 +1126,16 @@ function inner_most_loop() {
 
 		local iteration_options="--max-loss-pct=${max_loss_pct}"
 		if [[ ${traffic_generator} == "trex-txrx-profile" ]]; then
-			if [[ "${traffic_profiles}" == "" || "${rates}" == "none" ]]; then
+			if [[ "${traffic_profile_arg}" == "" || "${rates}" == "none" ]]; then
 				iteration_options="${iteration_options} --rate-unit=% --rate=100"
 			else
 				iteration_options="${iteration_options} --rate-unit=% --rate=${rates}"
 			fi
-			if [[ "${traffic_profiles}" == "" ]]; then
+			if [[ "${traffic_profile_arg}" == "" ]]; then
 				profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
 
 				echo "pushd ${trafficgen_dir} > /dev/null" > ${profile_builder_cmd_file}
-				echo "./profile-builder.py --frame-size=${frame_size} --num-flows=${num_flow} --rate=${rate} ${profile_flow_mods} --traffic-direction=${traffic_direction} --measure-latency" >> ${profile_builder_cmd_file}
+				echo "./profile-builder.py --frame-size=${frame_size_arg} --num-flows=${num_flow_arg} --rate=${rate_arg} ${profile_flow_mods} --traffic-direction=${traffic_direction_arg} --measure-latency" >> ${profile_builder_cmd_file}
 				echo "cmd_rc=\${?}" >> ${profile_builder_cmd_file}
 				echo "popd > /dev/null" >> ${profile_builder_cmd_file}
 				echo "exit \${cmd_rc}" >> ${profile_builder_cmd_file}
@@ -1123,12 +1145,12 @@ function inner_most_loop() {
 
 				${profile_builder_cmd_file} > ${traffic_profile_file} 2>&1
 			else
-				cp ${traffic_profile} ${iteration_dir}/
-				traffic_profile_file="${iteration_dir}/$(basename ${traffic_profile})"
+				cp ${traffic_profile_arg} ${iteration_dir}/
+				traffic_profile_file="${iteration_dir}/${traffic_profile_name}"
 			fi
 			iteration_options="${iteration_options} --traffic-profile=${traffic_profile_file}"
 		else
-			if [[ ${rate} == "none" ]]; then
+			if [[ ${rate_arg} == "none" ]]; then
 				if [[ ${traffic_generator} == "trex-txrx" ]]; then
 					iteration_options="${iteration_options} --rate-unit=% --rate=100"
 				else
@@ -1136,11 +1158,11 @@ function inner_most_loop() {
 					iteration_options="${iteration_options}"
 				fi
 			else
-				iteration_options="${iteration_options} --rate-unit=${rate_unit} --rate=${rate}"
+				iteration_options="${iteration_options} --rate-unit=${rate_unit} --rate=${rate_arg}"
 			fi
-			iteration_options="${iteration_options} --traffic-direction=${traffic_direction}"
-			iteration_options="${iteration_options} --frame-size=${frame_size}"
-			iteration_options="${iteration_options} --num-flows=${num_flow}"
+			iteration_options="${iteration_options} --traffic-direction=${traffic_direction_arg}"
+			iteration_options="${iteration_options} --frame-size=${frame_size_arg}"
+			iteration_options="${iteration_options} --num-flows=${num_flow_arg}"
 		fi
 
 		# save benchmark command in file for debugging or running manually
@@ -1254,33 +1276,33 @@ function inner_most_loop() {
 # Inner loop now pre-increments
 count=0
 rc=0
-if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
-	for traffic_profile in `echo $traffic_profiles | sed -e s/,/" "/g`; do
-		if [ $rc -ne 0 ]; then
+if [[ ${traffic_generator} == "trex-txrx-profile" && "${traffic_profiles}" != "" ]]; then
+	for traffic_profile in `echo ${traffic_profiles} | sed -e s/,/" "/g`; do
+		if [[ ${rc} -ne 0 ]]; then
 			break
 		fi
 
-		inner_most_loop "profile"
+		inner_most_loop "profile" "${traffic_profile}" "no-rate" "no-traffic-direction" "no-frame-size" "no-num-flow"
 	done
 else
-	for rate in `echo $rates | sed -e s/,/" "/g`; do
-		if [ $rc -ne 0 ]; then
+	for rate in `echo ${rates} | sed -e s/,/" "/g`; do
+		if [[ ${rc} -ne 0 ]]; then
 			break
 		fi
-		for traffic_direction in `echo $traffic_directions | sed -e s/,/" "/g`; do
-			if [ $rc -ne 0 ]; then
+		for traffic_direction in `echo ${traffic_directions} | sed -e s/,/" "/g`; do
+			if [[ ${rc} -ne 0 ]]; then
 				break
 			fi
-			for frame_size in `echo $frame_sizes | sed -e s/,/" "/g`; do
-				if [ $rc -ne 0 ]; then
+			for frame_size in `echo ${frame_sizes} | sed -e s/,/" "/g`; do
+				if [[ ${rc} -ne 0 ]]; then
 					break
 				fi
-				for num_flow in `echo $num_flows | sed -e s/,/" "/g`; do
-					if [ $rc -ne 0 ]; then
+				for num_flow in `echo ${num_flows} | sed -e s/,/" "/g`; do
+					if [[ ${rc} -ne 0 ]]; then
 						break
 					fi
 
-					inner_most_loop "default"
+					inner_most_loop "default" "no-traffic-profile" "${rate}" "${traffic_direction}" "${frame_size}" "${num_flow}"
 				done
 			done
 		done
