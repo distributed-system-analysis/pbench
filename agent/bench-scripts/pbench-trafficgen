@@ -1051,207 +1051,207 @@ function inner_most_loop() {
 			fi
 		fi
 
-			# reset the command to run
-			cmd=${pre_loop_cmd}
+		# reset the command to run
+		cmd=${pre_loop_cmd}
 
-			# if any of the runtimes are provided by the user, then use those
-			unset iteration_sniff_runtime
-			unset iteration_search_runtime
-			unset iteration_validation_runtime
-			if [ ! -z "$sniff_runtime" ]; then
-				iteration_sniff_runtime=$sniff_runtime
+		# if any of the runtimes are provided by the user, then use those
+		unset iteration_sniff_runtime
+		unset iteration_search_runtime
+		unset iteration_validation_runtime
+		if [ ! -z "$sniff_runtime" ]; then
+			iteration_sniff_runtime=$sniff_runtime
+		fi
+		if [ ! -z "$search_runtime" ]; then
+			iteration_search_runtime=$search_runtime
+		fi
+		if [ ! -z "$validation_runtime" ]; then
+			iteration_validation_runtime=$validation_runtime
+		fi
+		# for any runtimes not provided by user, assign a default value
+		# there are different defaults for 0-loss and non-zero-loss
+		if [ -z "$iteration_sniff_runtime" ]; then
+			if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
+				iteration_sniff_runtime=$df_zl_sniff_runtime
+			else
+				iteration_sniff_runtime=$df_sniff_runtime
 			fi
-			if [ ! -z "$search_runtime" ]; then
-				iteration_search_runtime=$search_runtime
+		fi
+		if [ -z "$iteration_search_runtime" ]; then
+			if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
+				iteration_search_runtime=$df_zl_search_runtime
+			else
+				iteration_search_runtime=$df_search_runtime
 			fi
-			if [ ! -z "$validation_runtime" ]; then
-				iteration_validation_runtime=$validation_runtime
+		fi
+		if [ -z "$iteration_validation_runtime" ]; then
+			if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
+				iteration_validation_runtime=$df_zl_validation_runtime
+			else
+				iteration_validation_runtime=$df_validation_runtime
 			fi
-			# for any runtimes not provided by user, assign a default value
-			# there are different defaults for 0-loss and non-zero-loss
-			if [ -z "$iteration_sniff_runtime" ]; then
-				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
-					iteration_sniff_runtime=$df_zl_sniff_runtime
-				else
-					iteration_sniff_runtime=$df_sniff_runtime
-				fi
-			fi
-			if [ -z "$iteration_search_runtime" ]; then
-				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
-					iteration_search_runtime=$df_zl_search_runtime
-				else
-					iteration_search_runtime=$df_search_runtime
-				fi
-			fi
-			if [ -z "$iteration_validation_runtime" ]; then
-				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
-					iteration_validation_runtime=$df_zl_validation_runtime
-				else
-					iteration_validation_runtime=$df_validation_runtime
-				fi
-			fi
-			cmd="$cmd --sniff-runtime=$iteration_sniff_runtime"
-			cmd="$cmd --search-runtime=$iteration_search_runtime"
-			cmd="$cmd --validation-runtime=$iteration_validation_runtime"
+		fi
+		cmd="$cmd --sniff-runtime=$iteration_sniff_runtime"
+		cmd="$cmd --search-runtime=$iteration_search_runtime"
+		cmd="$cmd --validation-runtime=$iteration_validation_runtime"
 
-			tt_iteration_dir="${benchmark_run_dir}/${count}-default"
-			iteration_dir="$benchmark_run_dir/$iteration"
-			mkdir -p $iteration_dir
-			benchmark_cmd_file="$iteration_dir/$benchmark_name.cmd"
-			result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
-			failures=0
-			echo "Starting iteration[$iteration] ($count of $total_iterations)"
-			log "Starting iteration[$iteration] ($count of $total_iterations)"
+		tt_iteration_dir="${benchmark_run_dir}/${count}-default"
+		iteration_dir="$benchmark_run_dir/$iteration"
+		mkdir -p $iteration_dir
+		benchmark_cmd_file="$iteration_dir/$benchmark_name.cmd"
+		result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
+		failures=0
+		echo "Starting iteration[$iteration] ($count of $total_iterations)"
+		log "Starting iteration[$iteration] ($count of $total_iterations)"
 
-			iteration_options=""
-			if [ $traffic_generator != "trex-txrx-profile" ]; then
-				if [ $rate == "none" ]; then
-					if [ $traffic_generator == "trex-txrx" ]; then
-						iteration_options="$iteration_options --rate-unit=% --rate=100"
-					else
-						# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
-						iteration_options="$iteration_options"
-					fi
+		iteration_options=""
+		if [ $traffic_generator != "trex-txrx-profile" ]; then
+			if [ $rate == "none" ]; then
+				if [ $traffic_generator == "trex-txrx" ]; then
+					iteration_options="$iteration_options --rate-unit=% --rate=100"
 				else
-					iteration_options="$iteration_options --rate-unit=$rate_unit --rate=$rate"
+					# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
+					iteration_options="$iteration_options"
 				fi
 			else
-				if [ "${traffic_profiles}" == "" -o "${rates}" == "none" ]; then
-					iteration_options="${iteration_options} --rate-unit=% --rate=100"
-				else
-					iteration_options="${iteration_options} --rate-unit=% --rate=${rates}"
-				fi
+				iteration_options="$iteration_options --rate-unit=$rate_unit --rate=$rate"
 			fi
-			iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
-			if [ $traffic_generator == "trex-txrx-profile" ]; then
-				if [ "${traffic_profiles}" == "" ]; then
-					profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
-
-					echo "pushd $trafficgen_dir >/dev/null" >${profile_builder_cmd_file}
-					echo "./profile-builder.py --frame-size=${frame_size} --num-flows=${num_flow} --rate=${rate} ${profile_flow_mods} --traffic-direction=${traffic_direction} --measure-latency" >>${profile_builder_cmd_file}
-					echo "cmd_rc=\$?" >>${profile_builder_cmd_file}
-					echo "popd >/dev/null" >>${profile_builder_cmd_file}
-					echo "exit" >>${profile_builder_cmd_file}
-					chmod +x ${profile_builder_cmd_file}
-
-					traffic_profile_file="${iteration_dir}/traffic-profile.json"
-
-					${profile_builder_cmd_file} > ${traffic_profile_file} 2>&1
-				else
-					cp ${traffic_profile} ${iteration_dir}/
-					traffic_profile_file="${iteration_dir}/`basename ${traffic_profile}`"
-				fi
-				iteration_options="${iteration_options} --traffic-profile=${traffic_profile_file}"
+		else
+			if [ "${traffic_profiles}" == "" -o "${rates}" == "none" ]; then
+				iteration_options="${iteration_options} --rate-unit=% --rate=100"
 			else
-				iteration_options="${iteration_options} --traffic-direction=${traffic_direction}"
-				iteration_options="$iteration_options --frame-size=$frame_size"
-				iteration_options="$iteration_options --num-flows=$num_flow"
+				iteration_options="${iteration_options} --rate-unit=% --rate=${rates}"
 			fi
+		fi
+		iteration_options="$iteration_options --max-loss-pct=$max_loss_pct"
+		if [ $traffic_generator == "trex-txrx-profile" ]; then
+			if [ "${traffic_profiles}" == "" ]; then
+				profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
 
-			# save benchmark command in file for debugging or running manually
-			echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
-			echo "$cmd $iteration_options $passthrough_arguments \$@" >>$benchmark_cmd_file
-			echo "cmd_rc=\$?" >>$benchmark_cmd_file
-			echo "popd >/dev/null" >>$benchmark_cmd_file
-			echo "exit \$cmd_rc" >>$benchmark_cmd_file
-			chmod +x $benchmark_cmd_file
-			while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
-				if [[ $failures -gt 0 ]]; then
-					echo "Restarting iteration[$iteration] ($count of $total_iterations)"
-					log "Restarting iteration[$iteration] ($count of $total_iterations)"
-				fi
-				# each attempt at a test config requires multiple samples to get stddev
-				for sample in `seq 1 $num_samples`; do
-					if [ $rc -ne 0 ]; then
-						break
-					fi
-					benchmark_results_dir="$iteration_dir/sample$sample"
-					tt_benchmark_results_dir="${tt_iteration_dir}/sample${sample}"
-					if [ "$postprocess_only" != "y" ]; then
-						mkdir -p $benchmark_results_dir
-						echo "test sample $sample of $num_samples"
-						log "test sample $sample of $num_samples"
-						pre_benchmark_cmd_log=$benchmark_results_dir/pre-benchmark-cmd-log.txt
-						result_file=$benchmark_results_dir/result.txt
-						if [ "$pre_benchmark_cmd" != "" ]; then
-							PBENCH_ITERATION=$iteration PBENCH_SAMPLE=$sample $pre_benchmark_cmd 2>&1 | tee -i $pre_benchmark_cmd_log
-						fi
-						${benchmark_cmd_file} --output-dir=${benchmark_results_dir} 2>&1 | pbench-tool-trigger "${count}" "${benchmark_run_dir}" ${tool_group} ${sample} | tee -i ${result_file}
-						rc=$?
-						echo "exit code: $rc"
-						if [ $rc -ne 0 ]; then
-							error_log "iteration ${iteration} sample ${sample} returned non-zero exit code"
-							pbench-stop-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
-						fi
+				echo "pushd $trafficgen_dir >/dev/null" >${profile_builder_cmd_file}
+				echo "./profile-builder.py --frame-size=${frame_size} --num-flows=${num_flow} --rate=${rate} ${profile_flow_mods} --traffic-direction=${traffic_direction} --measure-latency" >>${profile_builder_cmd_file}
+				echo "cmd_rc=\$?" >>${profile_builder_cmd_file}
+				echo "popd >/dev/null" >>${profile_builder_cmd_file}
+				echo "exit" >>${profile_builder_cmd_file}
+				chmod +x ${profile_builder_cmd_file}
 
-						if [[ -e "${tt_benchmark_results_dir}/tools-${tool_group}" ]]; then
-							# Post-process the collected tool data now
-							pbench-postprocess-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
+				traffic_profile_file="${iteration_dir}/traffic-profile.json"
 
-							# Move the tool data collected for the tool-group to its final resting place.
-							mv ${tt_benchmark_results_dir}/tools-${tool_group} ${benchmark_results_dir}/
-							if [[ ${?} -ne 0 ]]; then
-								error_log "INTERNAL ERROR: failed to move tool-trigger data, '${tt_benchmark_results_dir}/tools-${tool_group}' to '${benchmark_results_dir}'"
-								exit 1
-							fi
-							# The "tool-trigger" sample directory should be empty now.
-							rmdir ${tt_benchmark_results_dir}
-							if [[ ${?} -ne 0 ]]; then
-								error_log "INTERNAL ERROR: failed to remove tool-trigger results directory, '${tt_benchmark_results_dir}'"
-								exit 1
-							fi
-						else
-							echo "tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
-							log "tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
-						fi
-					else
-						if [[ ! -d $benchmark_results_dir ]]; then
-							error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
-							continue
-						fi
-						echo "Not going to run $benchmark_name.  Only postprocesing existing data"
-						log "Not going to run $benchmark_name.  Only postprocesing existing data"
-					fi
-					if [ $rc -eq 0 ]; then
-						echo "$script_path/postprocess/$benchmark_name-postprocess \"$benchmark_results_dir\" \"$iteration\" \"$max_loss_pct\" \"$trafficgen_version\" \"$tool_label_pattern\" \"$tool_group\"" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-						chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-						$benchmark_results_dir/$benchmark_name-postprocess.cmd 2>&1 | tee $benchmark_results_dir/$benchmark_name-postprocess.out || rc=1
-					fi
-				done
-				if [ $rc -eq 0 ]; then
-					echo "$script_path/postprocess/process-iteration-samples \"$iteration_dir\" Mframes_sec \"$maxstddevpct\" \"$failures\" \"$max_failures\" \"$tar_nonref_data\" \"$keep_failed_tool_data\"" >"$iteration_dir/process-iteration-samples.cmd"
-					chmod +x "$iteration_dir/process-iteration-samples.cmd"
-					$iteration_dir/process-iteration-samples.cmd 2>&1 | tee $iteration_dir/process-iteration-samples.out
-					fail=$?
-					if [ $fail -ne 0 -a $fail -ne 1 ]; then
-						error_log "process-iteration-samples generated an unknown error, aborting"
-						exit 1
-					fi
-					if [ $fail -eq 1 ]; then
-						error_log "This test iteration failed"
-						((failures++))
-					fi
-					if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
-						debug_log "Moving to the next iteration"
-						break
-					fi
-				else
-					error_log "Aborting benchmark"
+				${profile_builder_cmd_file} > ${traffic_profile_file} 2>&1
+			else
+				cp ${traffic_profile} ${iteration_dir}/
+				traffic_profile_file="${iteration_dir}/`basename ${traffic_profile}`"
+			fi
+			iteration_options="${iteration_options} --traffic-profile=${traffic_profile_file}"
+		else
+			iteration_options="${iteration_options} --traffic-direction=${traffic_direction}"
+			iteration_options="$iteration_options --frame-size=$frame_size"
+			iteration_options="$iteration_options --num-flows=$num_flow"
+		fi
+
+		# save benchmark command in file for debugging or running manually
+		echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
+		echo "$cmd $iteration_options $passthrough_arguments \$@" >>$benchmark_cmd_file
+		echo "cmd_rc=\$?" >>$benchmark_cmd_file
+		echo "popd >/dev/null" >>$benchmark_cmd_file
+		echo "exit \$cmd_rc" >>$benchmark_cmd_file
+		chmod +x $benchmark_cmd_file
+		while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
+			if [[ $failures -gt 0 ]]; then
+				echo "Restarting iteration[$iteration] ($count of $total_iterations)"
+				log "Restarting iteration[$iteration] ($count of $total_iterations)"
+			fi
+			# each attempt at a test config requires multiple samples to get stddev
+			for sample in `seq 1 $num_samples`; do
+				if [ $rc -ne 0 ]; then
 					break
 				fi
-			done # break out of this loop only if the $result_stddevpct is lower than $maxstddevpct
+				benchmark_results_dir="$iteration_dir/sample$sample"
+				tt_benchmark_results_dir="${tt_iteration_dir}/sample${sample}"
+				if [ "$postprocess_only" != "y" ]; then
+					mkdir -p $benchmark_results_dir
+					echo "test sample $sample of $num_samples"
+					log "test sample $sample of $num_samples"
+					pre_benchmark_cmd_log=$benchmark_results_dir/pre-benchmark-cmd-log.txt
+					result_file=$benchmark_results_dir/result.txt
+					if [ "$pre_benchmark_cmd" != "" ]; then
+						PBENCH_ITERATION=$iteration PBENCH_SAMPLE=$sample $pre_benchmark_cmd 2>&1 | tee -i $pre_benchmark_cmd_log
+					fi
+					${benchmark_cmd_file} --output-dir=${benchmark_results_dir} 2>&1 | pbench-tool-trigger "${count}" "${benchmark_run_dir}" ${tool_group} ${sample} | tee -i ${result_file}
+					rc=$?
+					echo "exit code: $rc"
+					if [ $rc -ne 0 ]; then
+						error_log "iteration ${iteration} sample ${sample} returned non-zero exit code"
+						pbench-stop-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
+					fi
+
+					if [[ -e "${tt_benchmark_results_dir}/tools-${tool_group}" ]]; then
+						# Post-process the collected tool data now
+						pbench-postprocess-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
+
+						# Move the tool data collected for the tool-group to its final resting place.
+						mv ${tt_benchmark_results_dir}/tools-${tool_group} ${benchmark_results_dir}/
+						if [[ ${?} -ne 0 ]]; then
+							error_log "INTERNAL ERROR: failed to move tool-trigger data, '${tt_benchmark_results_dir}/tools-${tool_group}' to '${benchmark_results_dir}'"
+							exit 1
+						fi
+						# The "tool-trigger" sample directory should be empty now.
+						rmdir ${tt_benchmark_results_dir}
+						if [[ ${?} -ne 0 ]]; then
+							error_log "INTERNAL ERROR: failed to remove tool-trigger results directory, '${tt_benchmark_results_dir}'"
+							exit 1
+						fi
+					else
+						echo "tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
+						log "tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
+					fi
+				else
+					if [[ ! -d $benchmark_results_dir ]]; then
+						error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
+						continue
+					fi
+					echo "Not going to run $benchmark_name.  Only postprocesing existing data"
+					log "Not going to run $benchmark_name.  Only postprocesing existing data"
+				fi
+				if [ $rc -eq 0 ]; then
+					echo "$script_path/postprocess/$benchmark_name-postprocess \"$benchmark_results_dir\" \"$iteration\" \"$max_loss_pct\" \"$trafficgen_version\" \"$tool_label_pattern\" \"$tool_group\"" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+					chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
+					$benchmark_results_dir/$benchmark_name-postprocess.cmd 2>&1 | tee $benchmark_results_dir/$benchmark_name-postprocess.out || rc=1
+				fi
+			done
 			if [ $rc -eq 0 ]; then
-				echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-				log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-			fi
-			if [[ "$postprocess_only" != "y" && -e "${tt_iteration_dir}" ]]; then
-				# Remove this iteration's "tool-trigger" directory.
-				rmdir ${tt_iteration_dir}
-				if [[ ${?} -ne 0 ]]; then
-					error_log "INTERNAL ERROR: failed to remove tool-trigger directory, '${tt_iteration_dir}'"
+				echo "$script_path/postprocess/process-iteration-samples \"$iteration_dir\" Mframes_sec \"$maxstddevpct\" \"$failures\" \"$max_failures\" \"$tar_nonref_data\" \"$keep_failed_tool_data\"" >"$iteration_dir/process-iteration-samples.cmd"
+				chmod +x "$iteration_dir/process-iteration-samples.cmd"
+				$iteration_dir/process-iteration-samples.cmd 2>&1 | tee $iteration_dir/process-iteration-samples.out
+				fail=$?
+				if [ $fail -ne 0 -a $fail -ne 1 ]; then
+					error_log "process-iteration-samples generated an unknown error, aborting"
 					exit 1
 				fi
+				if [ $fail -eq 1 ]; then
+					error_log "This test iteration failed"
+					((failures++))
+				fi
+				if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
+					debug_log "Moving to the next iteration"
+					break
+				fi
+			else
+				error_log "Aborting benchmark"
+				break
 			fi
+		done # break out of this loop only if the $result_stddevpct is lower than $maxstddevpct
+		if [ $rc -eq 0 ]; then
+			echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+			log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+		fi
+		if [[ "$postprocess_only" != "y" && -e "${tt_iteration_dir}" ]]; then
+			# Remove this iteration's "tool-trigger" directory.
+			rmdir ${tt_iteration_dir}
+			if [[ ${?} -ne 0 ]]; then
+				error_log "INTERNAL ERROR: failed to remove tool-trigger directory, '${tt_iteration_dir}'"
+				exit 1
+			fi
+		fi
 	done
 }
 
