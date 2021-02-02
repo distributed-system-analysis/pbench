@@ -1104,13 +1104,13 @@ function inner_most_loop() {
 		log "Starting iteration[$iteration] ($count of $total_iterations)"
 
 		local iteration_options="--max-loss-pct=${max_loss_pct}"
-		if [ $traffic_generator == "trex-txrx-profile" ]; then
-			if [ "${traffic_profiles}" == "" -o "${rates}" == "none" ]; then
+		if [[ $traffic_generator == "trex-txrx-profile" ]]; then
+			if [[ "${traffic_profiles}" == "" || "${rates}" == "none" ]]; then
 				iteration_options="${iteration_options} --rate-unit=% --rate=100"
 			else
 				iteration_options="${iteration_options} --rate-unit=% --rate=${rates}"
 			fi
-			if [ "${traffic_profiles}" == "" ]; then
+			if [[ "${traffic_profiles}" == "" ]]; then
 				profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
 
 				echo "pushd $trafficgen_dir >/dev/null" >${profile_builder_cmd_file}
@@ -1129,8 +1129,8 @@ function inner_most_loop() {
 			fi
 			iteration_options="${iteration_options} --traffic-profile=${traffic_profile_file}"
 		else
-			if [ $rate == "none" ]; then
-				if [ $traffic_generator == "trex-txrx" ]; then
+			if [[ $rate == "none" ]]; then
+				if [[ $traffic_generator == "trex-txrx" ]]; then
 					iteration_options="$iteration_options --rate-unit=% --rate=100"
 				else
 					# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
