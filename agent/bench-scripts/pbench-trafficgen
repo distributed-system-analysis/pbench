@@ -1010,6 +1010,11 @@ if [ "${postprocess_only}" == "n" ]; then
 	fi
 fi
 
+function echo_log {
+	echo "${1}"
+	log "${1}"
+}
+
 pre_loop_cmd=${cmd}
 
 function inner_most_loop() {
@@ -1038,8 +1043,7 @@ function inner_most_loop() {
 		fi
 
 		if [[ ${count} -lt ${start_iteration_num} ]]; then
-			echo "Skipping iteration ${iteration} (${count} of ${total_iterations})"
-			log "Skipping iteration ${iteration} (${count} of ${total_iterations})"
+			echo_log "Skipping iteration ${iteration} (${count} of ${total_iterations})"
 			continue
 		fi
 
@@ -1097,8 +1101,6 @@ function inner_most_loop() {
 		tt_iteration_dir="${benchmark_run_dir}/${count}-default"
 		iteration_dir="$benchmark_run_dir/$iteration"
 		mkdir -p $iteration_dir
-		echo "Starting iteration[$iteration] ($count of $total_iterations)"
-		log "Starting iteration[$iteration] ($count of $total_iterations)"
 
 		local iteration_options="--max-loss-pct=${max_loss_pct}"
 		if [[ ${traffic_generator} == "trex-txrx-profile" ]]; then
@@ -1150,12 +1152,13 @@ function inner_most_loop() {
 		echo "exit \${cmd_rc}" >> ${benchmark_cmd_file}
 		chmod +x ${benchmark_cmd_file}
 
+		echo_log "Starting iteration[$iteration] ($count of $total_iterations)"
+
 		result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 		failures=0
 		while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
-			if [[ $failures -gt 0 ]]; then
-				echo "Restarting iteration[$iteration] ($count of $total_iterations)"
-				log "Restarting iteration[$iteration] ($count of $total_iterations)"
+			if [[ ${failures} -gt 0 ]]; then
+				echo_log "Restarting iteration[$iteration] ($count of $total_iterations)"
 			fi
 			# each attempt at a test config requires multiple samples to get stddev
 			for sample in `seq 1 $num_samples`; do
@@ -1166,8 +1169,7 @@ function inner_most_loop() {
 				tt_benchmark_results_dir="${tt_iteration_dir}/sample${sample}"
 				if [ "$postprocess_only" != "y" ]; then
 					mkdir -p $benchmark_results_dir
-					echo "test sample $sample of $num_samples"
-					log "test sample $sample of $num_samples"
+					echo_log "test sample $sample of $num_samples"
 					pre_benchmark_cmd_log=$benchmark_results_dir/pre-benchmark-cmd-log.txt
 					result_file=$benchmark_results_dir/result.txt
 					if [ "$pre_benchmark_cmd" != "" ]; then
@@ -1198,16 +1200,14 @@ function inner_most_loop() {
 							exit 1
 						fi
 					else
-						echo "tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
-						log "tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
+						echo_log "tool triggers did not fire for iteration/sample, '${iteration}/sample${sample}'"
 					fi
 				else
 					if [[ ! -d $benchmark_results_dir ]]; then
 						error_log "Results directory $benchmark_results_dir does not exist, skipping post-processing"
 						continue
 					fi
-					echo "Not going to run $benchmark_name.  Only postprocesing existing data"
-					log "Not going to run $benchmark_name.  Only postprocesing existing data"
+					echo_log "Not going to run $benchmark_name.  Only postprocesing existing data"
 				fi
 				if [ $rc -eq 0 ]; then
 					echo "$script_path/postprocess/$benchmark_name-postprocess \"$benchmark_results_dir\" \"$iteration\" \"$max_loss_pct\" \"$trafficgen_version\" \"$tool_label_pattern\" \"$tool_group\"" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
@@ -1238,8 +1238,7 @@ function inner_most_loop() {
 			fi
 		done # break out of this loop only if the $result_stddevpct is lower than $maxstddevpct
 		if [ $rc -eq 0 ]; then
-			echo "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
-			log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
+			echo_log "Iteration $iteration complete ($count of $total_iterations), with 1 pass and $failures failures"
 		fi
 		if [[ "$postprocess_only" != "y" && -e "${tt_iteration_dir}" ]]; then
 			# Remove this iteration's "tool-trigger" directory.
