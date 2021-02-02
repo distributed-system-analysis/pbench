@@ -1097,7 +1097,6 @@ function inner_most_loop() {
 		tt_iteration_dir="${benchmark_run_dir}/${count}-default"
 		iteration_dir="$benchmark_run_dir/$iteration"
 		mkdir -p $iteration_dir
-		benchmark_cmd_file="$iteration_dir/$benchmark_name.cmd"
 		result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
 		failures=0
 		echo "Starting iteration[$iteration] ($count of $total_iterations)"
@@ -1113,11 +1112,11 @@ function inner_most_loop() {
 			if [[ "${traffic_profiles}" == "" ]]; then
 				profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
 
-				echo "pushd ${trafficgen_dir} >/dev/null" > ${profile_builder_cmd_file}
+				echo "pushd ${trafficgen_dir} > /dev/null" > ${profile_builder_cmd_file}
 				echo "./profile-builder.py --frame-size=${frame_size} --num-flows=${num_flow} --rate=${rate} ${profile_flow_mods} --traffic-direction=${traffic_direction} --measure-latency" >> ${profile_builder_cmd_file}
 				echo "cmd_rc=\${?}" >> ${profile_builder_cmd_file}
 				echo "popd > /dev/null" >> ${profile_builder_cmd_file}
-				echo "exit" >> ${profile_builder_cmd_file}
+				echo "exit \${cmd_rc}" >> ${profile_builder_cmd_file}
 				chmod +x ${profile_builder_cmd_file}
 
 				traffic_profile_file="${iteration_dir}/traffic-profile.json"
@@ -1145,12 +1144,14 @@ function inner_most_loop() {
 		fi
 
 		# save benchmark command in file for debugging or running manually
-		echo "pushd >/dev/null $trafficgen_dir" >$benchmark_cmd_file
-		echo "$cmd $iteration_options $passthrough_arguments \$@" >>$benchmark_cmd_file
-		echo "cmd_rc=\$?" >>$benchmark_cmd_file
-		echo "popd >/dev/null" >>$benchmark_cmd_file
-		echo "exit \$cmd_rc" >>$benchmark_cmd_file
-		chmod +x $benchmark_cmd_file
+		benchmark_cmd_file="${iteration_dir}/${benchmark_name}.cmd"
+		echo "pushd ${trafficgen_dir} > /dev/null" > ${benchmark_cmd_file}
+		echo "${cmd} ${iteration_options} ${passthrough_arguments} \${@}" >> ${benchmark_cmd_file}
+		echo "cmd_rc=\${?}" >> ${benchmark_cmd_file}
+		echo "popd > /dev/null" >> ${benchmark_cmd_file}
+		echo "exit \${cmd_rc}" >> ${benchmark_cmd_file}
+		chmod +x ${benchmark_cmd_file}
+
 		while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
 			if [[ $failures -gt 0 ]]; then
 				echo "Restarting iteration[$iteration] ($count of $total_iterations)"
