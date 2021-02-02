@@ -1020,50 +1020,50 @@ function inner_most_loop() {
 			break
 		fi
 
-		# reset the command to run
-		cmd=${pre_loop_cmd}
-
-		# if any of the runtimes are provided by the user, then use those
-		unset iteration_sniff_runtime
-		unset iteration_search_runtime
-		unset iteration_validation_runtime
-		if [ ! -z "$sniff_runtime" ]; then
-			iteration_sniff_runtime=$sniff_runtime
-		fi
-		if [ ! -z "$search_runtime" ]; then
-			iteration_search_runtime=$search_runtime
-		fi
-		if [ ! -z "$validation_runtime" ]; then
-			iteration_validation_runtime=$validation_runtime
-		fi
-		# for any runtimes not provided by user, assign a default value
-		# there are different defaults for 0-loss and non-zero-loss
-		if [ -z "$iteration_sniff_runtime" ]; then
-			if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
-				iteration_sniff_runtime=$df_zl_sniff_runtime
-			else
-				iteration_sniff_runtime=$df_sniff_runtime
-			fi
-		fi
-		if [ -z "$iteration_search_runtime" ]; then
-			if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
-				iteration_search_runtime=$df_zl_search_runtime
-			else
-				iteration_search_runtime=$df_search_runtime
-			fi
-		fi
-		if [ -z "$iteration_validation_runtime" ]; then
-			if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
-				iteration_validation_runtime=$df_zl_validation_runtime
-			else
-				iteration_validation_runtime=$df_validation_runtime
-			fi
-		fi
-		cmd="$cmd --sniff-runtime=$iteration_sniff_runtime"
-		cmd="$cmd --search-runtime=$iteration_search_runtime"
-		cmd="$cmd --validation-runtime=$iteration_validation_runtime"
-
 		if [ $count -ge $start_iteration_num ]; then
+			# reset the command to run
+			cmd=${pre_loop_cmd}
+
+			# if any of the runtimes are provided by the user, then use those
+			unset iteration_sniff_runtime
+			unset iteration_search_runtime
+			unset iteration_validation_runtime
+			if [ ! -z "$sniff_runtime" ]; then
+				iteration_sniff_runtime=$sniff_runtime
+			fi
+			if [ ! -z "$search_runtime" ]; then
+				iteration_search_runtime=$search_runtime
+			fi
+			if [ ! -z "$validation_runtime" ]; then
+				iteration_validation_runtime=$validation_runtime
+			fi
+			# for any runtimes not provided by user, assign a default value
+			# there are different defaults for 0-loss and non-zero-loss
+			if [ -z "$iteration_sniff_runtime" ]; then
+				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
+					iteration_sniff_runtime=$df_zl_sniff_runtime
+				else
+					iteration_sniff_runtime=$df_sniff_runtime
+				fi
+			fi
+			if [ -z "$iteration_search_runtime" ]; then
+				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
+					iteration_search_runtime=$df_zl_search_runtime
+				else
+					iteration_search_runtime=$df_search_runtime
+				fi
+			fi
+			if [ -z "$iteration_validation_runtime" ]; then
+				if [[ $(echo "if (${max_loss_pct} == 0) 1 else 0" | bc) -eq 1 ]]; then
+					iteration_validation_runtime=$df_zl_validation_runtime
+				else
+					iteration_validation_runtime=$df_validation_runtime
+				fi
+			fi
+			cmd="$cmd --sniff-runtime=$iteration_sniff_runtime"
+			cmd="$cmd --search-runtime=$iteration_search_runtime"
+			cmd="$cmd --validation-runtime=$iteration_validation_runtime"
+
 			fs_unit=""
 			if [ "${loop_type}" == "default" ]; then
 				if [ "${frame_size}" -eq "${frame_size}" ] 2>/dev/null; then
