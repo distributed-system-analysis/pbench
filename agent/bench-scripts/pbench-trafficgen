@@ -442,7 +442,7 @@ if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
 	printf -- "\tunrecognized option specified\n\n"
-	usage
+	usage >&2
 	exit 1
 fi
 eval set -- "$opts"
@@ -682,7 +682,7 @@ while true; do
 		;;
 	*)
 		error_log "[$script_name] bad option, \"$1 $2\""
-		usage
+		usage >&2
 		exit 1
 		;;
 	esac
