@@ -1,15 +1,15 @@
 +++ Running test-22 pbench-trafficgen
 [warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-22_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
 Total number of benchmark iterations: 3
-Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
+Starting iteration[1-5000000-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
 Not going to run trafficgen.  Only postprocesing existing data
-Iteration 1-bidirectional-74B-1000flows-0.0pct_drop complete (1 of 3), with 1 pass and 0 failures
-Starting iteration[2-unidirectional-74B-1000flows-0.0pct_drop] (2 of 3)
+Iteration 1-5000000-bidirectional-74B-1000flows-0.0pct_drop complete (1 of 3), with 1 pass and 0 failures
+Starting iteration[2-5000000-unidirectional-74B-1000flows-0.0pct_drop] (2 of 3)
 Not going to run trafficgen.  Only postprocesing existing data
-Iteration 2-unidirectional-74B-1000flows-0.0pct_drop complete (2 of 3), with 1 pass and 0 failures
-Starting iteration[3-revunidirectional-74B-1000flows-0.0pct_drop] (3 of 3)
+Iteration 2-5000000-unidirectional-74B-1000flows-0.0pct_drop complete (2 of 3), with 1 pass and 0 failures
+Starting iteration[3-5000000-revunidirectional-74B-1000flows-0.0pct_drop] (3 of 3)
 Not going to run trafficgen.  Only postprocesing existing data
-Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
+Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
 --- Finished test-22 pbench-trafficgen (status=0)
 [
    {
@@ -2004,6 +2004,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                   "duplicate_packet_failure_mode" : "quit",
                   "enable_flow_cache" : true,
                   "enable_trex_profiler" : true,
+                  "frame_size" : "74",
                   "latency_rate" : 1000,
                   "loaded_traffic_profile" : {
                      "streams" : [
@@ -2047,10 +2048,12 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                      ]
                   },
                   "loss_granularity" : "direction",
+                  "max_loss_pct" : "0",
                   "max_port" : 3,
                   "max_retries" : 3,
                   "max_stddevpct" : 5,
                   "measure_latency" : 1,
+                  "min_rate" : 0,
                   "negative_packet_loss_mode" : "quit",
                   "null_stats" : {
                      "rx_active" : false,
@@ -2081,12 +2084,14 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                      "tx_pps" : 0,
                      "tx_pps_target" : 0
                   },
+                  "num_flows" : "1000",
                   "one_shot" : 1,
-                  "output_dir" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/1-bidirectional-74B-1000flows-0.0pct_drop/sample1",
                   "port_primary_info_file" : "binary-search.port-info.txt",
                   "port_secondary_info_file" : "binary-search.port-info.extra.txt",
+                  "pre_trial_cmd" : "",
                   "random_seed" : 0.833237224490428,
                   "rate" : 100,
+                  "rate_arg" : "5000000",
                   "rate_tolerance" : 3,
                   "rate_tolerance_failure" : "quit",
                   "rate_unit" : "%",
@@ -2116,19 +2121,21 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                   ],
                   "traffic_direction" : "bidirectional",
                   "traffic_generator" : "trex-txrx-profile",
-                  "traffic_profile" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/1-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json",
+                  "traffic_profile" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json",
                   "trex_profiler_interval" : 3,
-                  "trial" : "1",
+                  "trial" : 1,
+                  "trial_gap" : 0,
                   "trial_mode" : "validation",
                   "trial_primary_output_file" : "binary-search.trial-001.txt",
                   "trial_profiler_file" : "binary-search.trial-001.profiler.txt",
                   "trial_secondary_output_file" : "binary-search.trial-001.extra.txt",
-                  "uid" : "trafficgen-unknown-traffic_generator:%traffic_generator%-trial:%trial%",
+                  "uid" : "trafficgen-unknown-rate:%rate_arg%-traffic_direction:%traffic_direction%-frame_size:%frame_size%-num_flows:%num_flows%-pct_drop:%max_loss_pct%",
                   "validation_runtime" : 30
                },
                {
                   "benchmark_name" : "trafficgen",
                   "benchmark_version" : "unknown",
+                  "controller_host" : "testhost.example.com",
                   "primary_metric" : "rx_mpps",
                   "uid" : "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
                }
@@ -14246,7 +14253,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
             ]
          }
       },
-      "iteration_name" : "bidirectional-74B-1000flows-0.0pct_drop",
+      "iteration_name" : "5000000-bidirectional-74B-1000flows-0.0pct_drop",
       "iteration_name_format" : "%d-%s",
       "iteration_number" : 1
    },
@@ -15338,6 +15345,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                   "duplicate_packet_failure_mode" : "quit",
                   "enable_flow_cache" : true,
                   "enable_trex_profiler" : true,
+                  "frame_size" : "74",
                   "latency_rate" : 1000,
                   "loaded_traffic_profile" : {
                      "streams" : [
@@ -15381,10 +15389,12 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                      ]
                   },
                   "loss_granularity" : "direction",
+                  "max_loss_pct" : "0",
                   "max_port" : 3,
                   "max_retries" : 3,
                   "max_stddevpct" : 5,
                   "measure_latency" : 1,
+                  "min_rate" : 0,
                   "negative_packet_loss_mode" : "quit",
                   "null_stats" : {
                      "rx_active" : false,
@@ -15415,12 +15425,14 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                      "tx_pps" : 0,
                      "tx_pps_target" : 0
                   },
+                  "num_flows" : "1000",
                   "one_shot" : 1,
-                  "output_dir" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/2-unidirectional-74B-1000flows-0.0pct_drop/sample1",
                   "port_primary_info_file" : "binary-search.port-info.txt",
                   "port_secondary_info_file" : "binary-search.port-info.extra.txt",
+                  "pre_trial_cmd" : "",
                   "random_seed" : 0.261696861717285,
                   "rate" : 100,
+                  "rate_arg" : "5000000",
                   "rate_tolerance" : 3,
                   "rate_tolerance_failure" : "quit",
                   "rate_unit" : "%",
@@ -15450,19 +15462,21 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                   ],
                   "traffic_direction" : "bidirectional",
                   "traffic_generator" : "trex-txrx-profile",
-                  "traffic_profile" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/2-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json",
+                  "traffic_profile" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json",
                   "trex_profiler_interval" : 3,
-                  "trial" : "1",
+                  "trial" : 1,
+                  "trial_gap" : 0,
                   "trial_mode" : "validation",
                   "trial_primary_output_file" : "binary-search.trial-001.txt",
                   "trial_profiler_file" : "binary-search.trial-001.profiler.txt",
                   "trial_secondary_output_file" : "binary-search.trial-001.extra.txt",
-                  "uid" : "trafficgen-unknown-traffic_generator:%traffic_generator%-trial:%trial%",
+                  "uid" : "trafficgen-unknown-rate:%rate_arg%-traffic_direction:%traffic_direction%-frame_size:%frame_size%-num_flows:%num_flows%-pct_drop:%max_loss_pct%",
                   "validation_runtime" : 30
                },
                {
                   "benchmark_name" : "trafficgen",
                   "benchmark_version" : "unknown",
+                  "controller_host" : "testhost.example.com",
                   "primary_metric" : "rx_mpps",
                   "uid" : "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
                }
@@ -23092,7 +23106,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
             ]
          }
       },
-      "iteration_name" : "unidirectional-74B-1000flows-0.0pct_drop",
+      "iteration_name" : "5000000-unidirectional-74B-1000flows-0.0pct_drop",
       "iteration_name_format" : "%d-%s",
       "iteration_number" : 2
    },
@@ -24184,6 +24198,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                   "duplicate_packet_failure_mode" : "quit",
                   "enable_flow_cache" : true,
                   "enable_trex_profiler" : true,
+                  "frame_size" : "74",
                   "latency_rate" : 1000,
                   "loaded_traffic_profile" : {
                      "streams" : [
@@ -24227,10 +24242,12 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                      ]
                   },
                   "loss_granularity" : "direction",
+                  "max_loss_pct" : "0",
                   "max_port" : 3,
                   "max_retries" : 3,
                   "max_stddevpct" : 5,
                   "measure_latency" : 1,
+                  "min_rate" : 0,
                   "negative_packet_loss_mode" : "quit",
                   "null_stats" : {
                      "rx_active" : false,
@@ -24261,12 +24278,14 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                      "tx_pps" : 0,
                      "tx_pps_target" : 0
                   },
+                  "num_flows" : "1000",
                   "one_shot" : 1,
-                  "output_dir" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1",
                   "port_primary_info_file" : "binary-search.port-info.txt",
                   "port_secondary_info_file" : "binary-search.port-info.extra.txt",
+                  "pre_trial_cmd" : "",
                   "random_seed" : 0.278718091591813,
                   "rate" : 100,
+                  "rate_arg" : "5000000",
                   "rate_tolerance" : 3,
                   "rate_tolerance_failure" : "quit",
                   "rate_unit" : "%",
@@ -24296,19 +24315,21 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
                   ],
                   "traffic_direction" : "bidirectional",
                   "traffic_generator" : "trex-txrx-profile",
-                  "traffic_profile" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/3-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json",
+                  "traffic_profile" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json",
                   "trex_profiler_interval" : 3,
-                  "trial" : "1",
+                  "trial" : 1,
+                  "trial_gap" : 0,
                   "trial_mode" : "validation",
                   "trial_primary_output_file" : "binary-search.trial-001.txt",
                   "trial_profiler_file" : "binary-search.trial-001.profiler.txt",
                   "trial_secondary_output_file" : "binary-search.trial-001.extra.txt",
-                  "uid" : "trafficgen-unknown-traffic_generator:%traffic_generator%-trial:%trial%",
+                  "uid" : "trafficgen-unknown-rate:%rate_arg%-traffic_direction:%traffic_direction%-frame_size:%frame_size%-num_flows:%num_flows%-pct_drop:%max_loss_pct%",
                   "validation_runtime" : 30
                },
                {
                   "benchmark_name" : "trafficgen",
                   "benchmark_version" : "unknown",
+                  "controller_host" : "testhost.example.com",
                   "primary_metric" : "rx_mpps",
                   "uid" : "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
                }
@@ -31938,201 +31959,201 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
             ]
          }
       },
-      "iteration_name" : "revunidirectional-74B-1000flows-0.0pct_drop",
+      "iteration_name" : "5000000-revunidirectional-74B-1000flows-0.0pct_drop",
       "iteration_name_format" : "%d-%s",
       "iteration_number" : 3
    }
 ]
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/result.json
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.json
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.extra.txt
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.txt
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.extra.txt
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.json-port-profiles.txt
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.profiler.txt.xz
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.txt
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global BPS.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global CPU Utilization.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global PPS.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Per Core Bandwidth.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Queue Full.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 0.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 1.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 2.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 3.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port total.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 0.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 1.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 2.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 3.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port total.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 0.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 1.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 2.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 3.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port total.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Profiler data sample collection latency.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1063.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1064.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1190.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1191.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1063.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1064.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1190.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1191.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1000.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1001.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1063.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1064.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1127.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1128.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1190.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1191.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/result.json
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-average.txt
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/result.json
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.json
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.extra.txt
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.txt
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.extra.txt
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.json-port-profiles.txt
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.profiler.txt.xz
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.txt
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global BPS.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global CPU Utilization.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global PPS.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Per Core Bandwidth.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Queue Full.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 0.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 1.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 2.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 3.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port total.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 0.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 1.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 2.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 3.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port total.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 0.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 1.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 2.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 3.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port total.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Profiler data sample collection latency.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1063.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1064.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1063.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1064.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1000.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1001.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1063.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1064.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/result.json
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-average.txt
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/result.json
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.json
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.extra.txt
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.txt
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.extra.txt
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.json-port-profiles.txt
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.profiler.txt.xz
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.txt
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global BPS.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global CPU Utilization.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global PPS.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Per Core Bandwidth.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Queue Full.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 0.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 1.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 2.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 3.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port total.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 0.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 1.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 2.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 3.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port total.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 0.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 1.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 2.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 3.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port total.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Profiler data sample collection latency.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1190.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1191.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1190.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1191.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1127.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1128.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1190.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1191.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total RX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total TX.csv
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/result.json
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-average.txt
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/result.json
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.json
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.extra.txt
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.txt
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.extra.txt
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.json-port-profiles.txt
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.profiler.txt.xz
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.txt
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global BPS.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global CPU Utilization.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global PPS.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Per Core Bandwidth.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Queue Full.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 0.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 1.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 2.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 3.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port total.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 0.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 1.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 2.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 3.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port total.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 0.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 1.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 2.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 3.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port total.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Profiler data sample collection latency.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1063.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1064.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1190.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1191.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1063.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1064.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1190.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1191.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1000.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1001.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1063.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1064.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1127.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1128.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1190.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1191.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/result.json
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-average.txt
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
+/var/tmp/pbench-test-bench/pbench-agent/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/result.json
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.json
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.extra.txt
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.txt
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.extra.txt
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.json-port-profiles.txt
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.profiler.txt.xz
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.txt
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global BPS.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global CPU Utilization.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global PPS.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Per Core Bandwidth.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Queue Full.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 0.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 1.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 2.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 3.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port total.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 0.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 1.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 2.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 3.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port total.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 0.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 1.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 2.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 3.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port total.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Profiler data sample collection latency.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1063.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1064.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1063.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1064.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1000.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1001.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1063.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1064.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/result.json
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-average.txt
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
+/var/tmp/pbench-test-bench/pbench-agent/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/profile-builder-cmd
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/result.json
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.json
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.extra.txt
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.port-info.txt
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.extra.txt
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.json-port-profiles.txt
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.profiler.txt.xz
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/binary-search.trial-001.txt
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global BPS.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global CPU Utilization.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global PPS.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Per Core Bandwidth.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Global Queue Full.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 0.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 1.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 2.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port 3.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface BPS - Port total.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 0.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 1.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 2.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port 3.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface PPS - Port total.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 0.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 1.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 2.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port 3.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Interface Utilization - Port total.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Profiler data sample collection latency.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1190.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency - PGID 1191.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1190.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream Latency Errors - PGID 1191.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1127.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1128.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1190.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - PGID 1191.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 0 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 1 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 2 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port 3 TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total RX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/csv/trafficgen_Stream PPS - Port total TX.csv
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/result.json
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/tools-default
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-average.txt
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
+/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
 /var/tmp/pbench-test-bench/pbench-agent/generate-benchmark-summary.cmd
 /var/tmp/pbench-test-bench/pbench-agent/metadata.log
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
@@ -32149,18 +32170,18 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 --- pbench tree state
 +++ pbench.log file contents
 [warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-22_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
-[info][1900-01-01T00:00:00.000000] Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
+[info][1900-01-01T00:00:00.000000] Starting iteration[1-5000000-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
 [info][1900-01-01T00:00:00.000000] Not going to run trafficgen.  Only postprocesing existing data
 [debug][1900-01-01T00:00:00.000000] Moving to the next iteration
-[info][1900-01-01T00:00:00.000000] Iteration 1-bidirectional-74B-1000flows-0.0pct_drop complete (1 of 3), with 1 pass and 0 failures
-[info][1900-01-01T00:00:00.000000] Starting iteration[2-unidirectional-74B-1000flows-0.0pct_drop] (2 of 3)
+[info][1900-01-01T00:00:00.000000] Iteration 1-5000000-bidirectional-74B-1000flows-0.0pct_drop complete (1 of 3), with 1 pass and 0 failures
+[info][1900-01-01T00:00:00.000000] Starting iteration[2-5000000-unidirectional-74B-1000flows-0.0pct_drop] (2 of 3)
 [info][1900-01-01T00:00:00.000000] Not going to run trafficgen.  Only postprocesing existing data
 [debug][1900-01-01T00:00:00.000000] Moving to the next iteration
-[info][1900-01-01T00:00:00.000000] Iteration 2-unidirectional-74B-1000flows-0.0pct_drop complete (2 of 3), with 1 pass and 0 failures
-[info][1900-01-01T00:00:00.000000] Starting iteration[3-revunidirectional-74B-1000flows-0.0pct_drop] (3 of 3)
+[info][1900-01-01T00:00:00.000000] Iteration 2-5000000-unidirectional-74B-1000flows-0.0pct_drop complete (2 of 3), with 1 pass and 0 failures
+[info][1900-01-01T00:00:00.000000] Starting iteration[3-5000000-revunidirectional-74B-1000flows-0.0pct_drop] (3 of 3)
 [info][1900-01-01T00:00:00.000000] Not going to run trafficgen.  Only postprocesing existing data
 [debug][1900-01-01T00:00:00.000000] Moving to the next iteration
-[info][1900-01-01T00:00:00.000000] Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
+[info][1900-01-01T00:00:00.000000] Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
 --- pbench.log file contents
 +++ test-execution.log file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=none --check

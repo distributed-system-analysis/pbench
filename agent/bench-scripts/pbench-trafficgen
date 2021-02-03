@@ -966,14 +966,16 @@ mdlog=${benchmark_run_dir}/metadata.log
 
 function record_default_iteration {
 	local count=$1
-	local direction=$2
-	local frame_size=$3
-	local num_flow=$4
-	local loss=$5
-	local iteration=$6
+	local rate=$2
+	local direction=$3
+	local frame_size=$4
+	local num_flow=$5
+	local loss=$6
+	local iteration=$7
 
 	echo ${iteration} >> ${benchmark_iterations}
 	echo $count | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_number
+	echo $rate | pbench-add-metalog-option ${mdlog} iterations/${iteration} rate
 	echo $direction | pbench-add-metalog-option ${mdlog} iterations/${iteration} traffic_direction
 	echo $frame_size | pbench-add-metalog-option ${mdlog} iterations/${iteration} frame_size
 	echo $num_flow | pbench-add-metalog-option ${mdlog} iterations/${iteration} num_flow
@@ -1088,7 +1090,7 @@ function inner_most_loop() {
 		let count=${count}+1 # now we can move to the next iteration
 
 		if [ "${loop_type}" == "default" ]; then
-			iteration="${count}-${traffic_direction_arg}-${frame_size_arg}${fs_unit}-${num_flow_arg}flows-${max_loss_pct}pct_drop"
+			iteration="${count}-${rate_arg}-${traffic_direction_arg}-${frame_size_arg}${fs_unit}-${num_flow_arg}flows-${max_loss_pct}pct_drop"
 		else
 			iteration="${count}-${traffic_profile_name}-${max_loss_pct}pct_drop"
 		fi
@@ -1100,7 +1102,7 @@ function inner_most_loop() {
 
 		if [ "${postprocess_only}" == "n" ]; then
 			if [ "${loop_type}" == "default" ]; then
-				record_default_iteration "${count}" "${traffic_direction_arg}" "${frame_size_arg}${fs_unit}" "${num_flow_arg}flows" "${max_loss_pct}pct_drop" "$iteration"
+				record_default_iteration "${count}" "${rate_arg}" "${traffic_direction_arg}" "${frame_size_arg}${fs_unit}" "${num_flow_arg}flows" "${max_loss_pct}pct_drop" "${iteration}"
 			else
 				record_profile_iteration "${count}" "${traffic_profile_name}" "${max_loss_pct}pct_drop" "${iteration}"
 			fi
@@ -1263,9 +1265,9 @@ function inner_most_loop() {
 					echo_log "Not going to run $benchmark_name.  Only postprocesing existing data"
 				fi
 				if [ $rc -eq 0 ]; then
-					echo "$script_path/postprocess/$benchmark_name-postprocess \"$benchmark_results_dir\" \"$iteration\" \"$max_loss_pct\" \"$trafficgen_version\" \"$tool_label_pattern\" \"$tool_group\"" >"$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-					chmod +x "$benchmark_results_dir/$benchmark_name-postprocess.cmd"
-					$benchmark_results_dir/$benchmark_name-postprocess.cmd 2>&1 | tee $benchmark_results_dir/$benchmark_name-postprocess.out || rc=1
+					echo "${script_path}/postprocess/${benchmark_name}-postprocess \"${benchmark_results_dir}\" \"${full_hostname}\" \"${rate_arg}\" \"${frame_size_arg}\" \"${num_flow_arg}\" \"${traffic_profile_name}\" \"${trafficgen_version}\"" > "${benchmark_results_dir}/${benchmark_name}-postprocess.cmd"
+					chmod +x "${benchmark_results_dir}/${benchmark_name}-postprocess.cmd"
+					${benchmark_results_dir}/${benchmark_name}-postprocess.cmd 2>&1 | tee ${benchmark_results_dir}/${benchmark_name}-postprocess.out || rc=1
 				fi
 			done
 			if [ $rc -eq 0 ]; then
