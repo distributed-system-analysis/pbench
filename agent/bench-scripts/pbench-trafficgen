@@ -19,16 +19,16 @@
 # If a run (with several samples) fails the stddev, its directory is appended with -fail.
 # This script will also generate a "results.txt" with a table of all results, efficiency, and other stats.
 
-pbench_cmd="$@"
-script_path=`dirname $0`
-script_name=`basename $0`
-pbench_bin="`cd ${script_path}/..; /bin/pwd`"
-benchmark_name="trafficgen"
-if [[ -z "${trafficgen_dir}" ]]; then
-	trafficgen_dir="/opt/trafficgen"
-fi
+pbench_cmd="${@}"
+script_path="$(dirname ${0})"
+script_name="$(basename ${0})"
+pbench_bin="$(realpath -e ${script_path}/..)"
+
+# Save the original command line invocation
+orig_cmd="${*}"
+
 # source the base script
-. "$pbench_bin"/base
+. "${pbench_bin}"/base
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
@@ -39,11 +39,20 @@ fi
 # 6) postprocess benchmark data
 # 7) postprocess analysis tool data
 
-# Defaults
+benchmark_name="trafficgen"
+export benchmark=${benchmark_name}
+
+# General pbench defaults
+export benchmark_run_dir=""
+export config=""
+postprocess_only="n"
+tool_group="default"
+sysinfo="none"
+
+# Trafficgen specific defaults
 traffic_generator="trex-txrx" # can be either trex-txrx or moongen-txrx
 trex_use_ht="n"
 trex_use_l2="n"
-export benchmark_run_dir=""
 traffic_directions="bidirectional"
 max_loss_pcts="0.002"
 num_flows="1024"
@@ -62,7 +71,6 @@ encap_src_ips=""
 encap_dst_macs=""
 encap_src_macs=""
 frame_sizes="64" # size in bytes of the Ethernet frame including CRC
-config=""
 maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=1 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
 df_sniff_runtime=30
@@ -71,26 +79,26 @@ df_validation_runtime=300
 df_zl_sniff_runtime=30
 df_zl_search_runtime=1200
 df_zl_validation_runtime=7200
-postprocess_only=n
 start_iteration_num=1
 keep_failed_tool_data="y"
 tar_nonref_data="n"
-orig_cmd="$*"
-tool_group=default
 one_shot="n"
 skip_trex_install="n"
 skip_trex_server="n"
 skip_git_pull="n"
 flow_mods="src-ip,dst-ip,src-mac,dst-mac"
 all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac,protocol,none"
-cmd="./binary-search.py"
 passthrough_arguments=""
 packet_protocol="UDP"
 pre_sample_cmd=""
 traffic_profiles=""
-sysinfo="none"
 tool_period="binary-search" # can also be "repeat-final-validation"
 trafficgen_version="unknown"
+if [[ -z "${trafficgen_dir}" ]]; then
+	trafficgen_dir="/opt/trafficgen"
+fi
+
+cmd="./binary-search.py"
 
 function kill_trex() {
 	if [[ "${_PBENCH_UNIT_TESTS}" == 1 ]]; then
@@ -1002,9 +1010,6 @@ else
 	done
 fi
 echo "Total number of benchmark iterations: $total_iterations"
-
-benchmark=${benchmark_name}
-export benchmark config
 
 if [ "${postprocess_only}" == "n" ]; then
 	# Register the tool triggers depending on the tool period preference
