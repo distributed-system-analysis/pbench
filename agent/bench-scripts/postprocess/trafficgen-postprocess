@@ -99,11 +99,12 @@ sub mean {
 
 my $script = basename($0);
 my $dir = $ARGV[0];
-my $iteration = $ARGV[1];
-my $max_loss_pct = $ARGV[2];
-my $benchmark_version = $ARGV[3];
-my $tool_label_pattern = $ARGV[4];
-my $tool_group = $ARGV[5];
+my $controller_host = $ARGV[1];
+my $rate_arg = $ARGV[2];
+my $frame_size_arg = $ARGV[3];
+my $num_flows_arg = $ARGV[4];
+my $traffic_profile_arg = $ARGV[5];
+my $benchmark_version = $ARGV[6];
 
 my $result_file = $dir . "/binary-search.json";
 if (! -e $result_file) {
@@ -128,7 +129,8 @@ my $benchmark_name = 'trafficgen';
 my $primary_metric="rx_mpps";
 my %config;
 
-my %benchmark_parameters_dataset = ( 	get_label('benchmark_name_label') => $benchmark_name,
+my %benchmark_parameters_dataset = ( 	get_label('controller_host_label') => $controller_host,
+					get_label('benchmark_name_label') => $benchmark_name,
 					get_label('benchmark_version_label') => $benchmark_version,
 					get_label('primary_metric_label') => $primary_metric,
 					get_label('uid_label') => create_uid('benchmark_name_label', 'controller_host_label')  );
@@ -178,13 +180,45 @@ my %last_trial = %{ $$json_result{'trials'}[-1] };
 #exit;
 
 foreach my $trial_param ( keys %{ $last_trial{'trial_params'} } ) {
-	if ( $last_trial{'trial_params'}{$trial_param} ) {
+	if ( $trial_param eq 'output_dir' ) {
+		# The output_dir parameter is different per sample; we explicitly omit it
+		# so that when process-iteration-samples runs it will properly merge the
+		# same sample data sets together.
+		next;
+	}
+	if (defined($last_trial{'trial_params'}{$trial_param})) {
 		$config{$trial_param} = $last_trial{'trial_params'}{$trial_param}
 	}
 }
 $config{get_label('uid_label')} = sprintf("%s-%s", $benchmark_name, $benchmark_version);
-if (exists($config{'trial'}) && defined($config{'trial'}) && exists($config{'traffic_generator'}) && defined($config{'traffic_generator'})) {
-	$config{get_label('uid_label')} .= "-traffic_generator:%traffic_generator%-trial:%trial%";
+if (exists($config{'traffic_generator'}) && defined($config{'traffic_generator'})) {
+	my $traffic_generator = $config{'traffic_generator'};
+	if ($traffic_generator eq "trex-txrx-profile" and $traffic_profile_arg ne "") {
+		$config{'traffic_profile_arg'} = $traffic_profile_arg;
+		$config{get_label('uid_label')} .= "-traffic_profile:%traffic_profile_arg%";
+	} else {
+		$config{'rate_arg'} = $rate_arg;
+		$config{get_label('uid_label')} .= "-rate:%rate_arg%";
+		if (exists($config{'traffic_direction'}) && defined($config{'traffic_direction'})) {
+			$config{get_label('uid_label')} .= "-traffic_direction:%traffic_direction%";
+		} else {
+			$config{get_label('uid_label')} .= "-traffic_direction:MISSING";
+		}
+		$config{'frame_size'} = $frame_size_arg;
+		$config{get_label('uid_label')} .= "-frame_size:%frame_size%";
+		$config{'num_flows'} = $num_flows_arg;
+		$config{get_label('uid_label')} .= "-num_flows:%num_flows%";
+	}
+} else {
+	$config{get_label('uid_label')} .= "-rate:MISSING";
+	$config{get_label('uid_label')} .= "-traffic_direction:MISSING";
+	$config{get_label('uid_label')} .= "-frame_size:MISSING";
+	$config{get_label('uid_label')} .= "-num_flows:MISSING";
+}
+if (exists($config{'max_loss_pct'}) && defined($config{'max_loss_pct'})) {
+	$config{get_label('uid_label')} .= "-pct_drop:%max_loss_pct%";
+} else {
+	$config{get_label('uid_label')} .= "-pct_drop:MISSING";
 }
 push(@benchmark, \%config);
 

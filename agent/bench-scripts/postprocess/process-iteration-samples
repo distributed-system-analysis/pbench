@@ -11,6 +11,7 @@ no lib ".";
 use BenchPostprocess qw(get_uid get_label get_cpubusy_series calc_ratio_series calc_sum_series);
 use File::Basename;
 use Data::Dumper;
+$Data::Dumper::Sortkeys = 1;
 use List::Util('sum');
 use SigFigs;
 use JSON;
@@ -84,7 +85,7 @@ my $num_failures = $ARGV[3]; # number of times a set of samples have failed the 
 my $max_failures = $ARGV[4]; # the maxium number of failures allowed
 my $tar_nonref_data = $ARGV[5]; # (y/n) tar/compress the data samples that are not the reference result?
 my $keep_failed_tool_data = $ARGV[6]; # (y/n) keep the tool data for a set of samples that failed?
-my @json_samples;
+
 my $nr_significant_figures = 4;
 
 sub get_avg_stddev {
@@ -146,7 +147,6 @@ sub get_avg_stddev {
 	}
 }
 
-my $samples_start_index;
 my $file;
 my $dh;
 # It's possible some of the sample directories have already been archived
@@ -158,6 +158,8 @@ foreach $file ( readdir($dh) ) {
 	}
 }
 # get json data for all samples
+my $samples_start_index;
+my @json_samples;
 opendir($dh, $dir) || die "$script: could not open directory $dir: $!\n";
 foreach $file ( sort readdir($dh) ) {
 	if ($file =~ /^sample(\d+)$/) {
@@ -231,7 +233,6 @@ foreach $sample (@json_samples) { # samples 0..N
 							if ( not defined $iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')} ) {
 								# Create an array to hold the samples for "value" values
 								# For example, if uperf had 5 sample runs, there would be an array of 5 Gb_sec values in this array
-								#my @samples;
 								$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')} = ();
 							}
 							push @{$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')}}, \%samples_hash;
@@ -242,7 +243,17 @@ foreach $sample (@json_samples) { # samples 0..N
 								if ($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key}) {
 									my $iteration_value = $iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key};
 									if ("$sample_value" ne "$iteration_value") {
-										print "Error: values do not match\nkey: $key values: $iteration_value $sample_value\n";
+										my $sv = ref($sample_value);
+										my $iv = ref($iteration_value);
+										if ($sv and ($sv eq $iv)) {
+											my $sv_s = Dumper($sample_value);
+											my $iv_s = Dumper($iteration_value);
+											if ($sv_s ne $iv_s) {
+												print "Error: values do not match\nkey: $key\n\titeration value: $iv_s\n\tsample    value: $sv_s\n";
+											}
+										} else {
+											print "Error: values do not match\nkey: $key\n\titeration value: $iteration_value\n\tsample    value: $sample_value\n";
+										}
 									}
 								} else {
 									$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key} = $sample_value;
