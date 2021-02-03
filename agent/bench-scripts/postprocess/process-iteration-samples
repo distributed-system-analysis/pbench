@@ -16,18 +16,19 @@ use SigFigs;
 use JSON;
 
 # This script produces a JSON array containing the information for
-# 1 benchmark iteration, wich can include 1 or more run samples.
+# 1 benchmark iteration, which can include 1 or more run samples.
 # This uses the standard metric types for pbench, which are:
 # %workload{parameters,throughput|latency|resource|efficiency}
 #
 # However, metric types throughput, latency, resource, and efficiency
 # contain a samples[] array, which includes those metrics from those
-# test samples.  
+# test samples.
 my %workload;   # root hash for all data, contains hash refs to
 		# %paramters, %throughput, %latency, %resource, %efficiency
-		
+
 my %parameters;	# a hash of parameter-type:parameter-value that was
 		# $parameters{benchmark[0].rate}
+
 my @benchmark;	# each array element contains a hash with:
 		# benchmark_name:
 	    	# :
@@ -36,6 +37,7 @@ my @benchmark;	# each array element contains a hash with:
 
 my %resource;	# a hash of resource-type:array-of-resource-values,
 		# for example $resource{cpu_busy[0..1]}
+
 #my @cpu_busy;	# each array element contains a hash with
 		# hostname: hostname or IP
 		# role: client, server, host, kvm-host, container-host, etc.
@@ -43,6 +45,7 @@ my %resource;	# a hash of resource-type:array-of-resource-values,
 
 my %efficiency; # a hash of throughput-per-resource-type:array-of-throughput-per-resource-values
 		# for example $efficincy{Mframes_cpu[0..1]}
+
 #my @Mframes_cpu;# each array element contains a hash with:
 		# hostname:
 	    	# port_id:
@@ -52,6 +55,7 @@ my %efficiency; # a hash of throughput-per-resource-type:array-of-throughput-per
 
 my %latency;    # a hash of latency-type:array-of-latency-values,
 		# for example $latency{usec[0..1]}
+
 #my @usec;	# each array element contains a hash with:
 	    	# hostname:
 	    	# port_id:
@@ -61,7 +65,7 @@ my %latency;    # a hash of latency-type:array-of-latency-values,
 
 my %throughput; # a hash of throughput-type:array-of-throughput-values,
 		# for example $throughput{Mframes_sec[0..1]
-		# The throughput-type can vary from one benchmarkto another
+		# The throughput-type can vary from one benchmark to another
 		# For example, dbench may use "MB_sec" and uperf may use "Gb_sec"
 		#
 		# each array element contains a hash with:
@@ -72,9 +76,10 @@ my %throughput; # a hash of throughput-type:array-of-throughput-values,
 	    	# stddevpct: a percent standard deviation for the result based on the samples' results
 
 my $script = basename($0);
+
 my $dir = $ARGV[0];  # The iteration directory
 my $primary_metric = $ARGV[1]; # this metric is used to test against maximum allowed stddev
-my $max_stddevpct = $ARGV[2]; 
+my $max_stddevpct = $ARGV[2];
 my $num_failures = $ARGV[3]; # number of times a set of samples have failed the max allowed stddev
 my $max_failures = $ARGV[4]; # the maxium number of failures allowed
 my $tar_nonref_data = $ARGV[5]; # (y/n) tar/compress the data samples that are not the reference result?
@@ -109,12 +114,12 @@ sub get_avg_stddev {
 			$sum += $val;
 		}
 		$avg = $sum / $count;
-		
+
 		$index = $samples_start_index;
 		for ($i=0; $i < scalar @numbers; $i++) {
 			$val = $numbers[$i]{get_label('value_label')};
 			$sqdiff = ($avg - $val)**2;
-		
+
 			# keep track of the value which has the least difference from the average
 			if (!defined $closest_index) {
 				$mindiff = $sqdiff;
@@ -130,7 +135,7 @@ sub get_avg_stddev {
 		$stddev = ($totalsqdiff / ($count)) ** 0.5;
 		# if $stddev is 0 and the avgerage is 0, then return 0 for $stddevpct (do not divide by zero below)
 		if (($stddev == 0) && ($avg == 0)) {
-				$stddevpct = 0;
+			$stddevpct = 0;
 		} else {
 			$stddevpct = 100 * $stddev / $avg;
 		}
@@ -165,11 +170,11 @@ foreach $file ( sort readdir($dh) ) {
 		my $json_text = "";
 		while ( <TXT> ) {
 			$json_text = $json_text . $_;
-			}
+		}
 		close TXT;
 		my $perl_scalar = from_json( $json_text, { utf8  => 1 } );
 		push @json_samples, $perl_scalar;
-		}
+	}
 }
 
 # build our iteration structure which will be converted to JSON
@@ -188,12 +193,12 @@ foreach $sample (@json_samples) { # samples 0..N
 		# array, but it's possible to have more (for a potential multi-benchmark-type workload)
 		foreach my $metric_name (sort keys %{ $sample_hash{$metric_type} }) {
 			for (my $i = 0; $i < scalar @{ $sample_hash{$metric_type}{$metric_name} }; $i++) {
-			my $mapped_uid = get_uid($sample_hash{$metric_type}{$metric_name}[$i]{get_label('uid_label')}, \%{ $sample_hash{$metric_type}{$metric_name}[$i] });
+				my $mapped_uid = get_uid($sample_hash{$metric_type}{$metric_name}[$i]{get_label('uid_label')}, \%{ $sample_hash{$metric_type}{$metric_name}[$i] });
 				if ($mapped_uid) {
 					# either find metric_name element within %iteration with same uid, or create a new one
 					my $iteration_matching_index;
 					if ($iteration{$metric_type}{$metric_name}) {
-						for (my $j = 0; $j < scalar @{$iteration{$metric_type}{$metric_name}}; $j++) {
+						for (my $j = 0; $j < scalar @{ $iteration{$metric_type}{$metric_name} }; $j++) {
 							if ( $iteration{$metric_type}{$metric_name}[$j]{get_label('uid_label')} )  {
 								if ( $mapped_uid eq get_uid($iteration{$metric_type}{$metric_name}[$j]{get_label('uid_label')}, \%{ $iteration{$metric_type}{$metric_name}[$j] }) ) {
 									$iteration_matching_index = $j;
@@ -230,9 +235,9 @@ foreach $sample (@json_samples) { # samples 0..N
 								$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')} = ();
 							}
 							push @{$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')}}, \%samples_hash;
-						# For the rest of the keys, either check to see if it matches existing value in the %iteration, 
-						# or if it does not exist, create it.
 						} else {
+							# For the rest of the keys, either check to see if it matches existing value in the %iteration,
+							# or if it does not exist, create it.
 							if ( $key ne get_label('timeseries_label') and $key ne get_label('uid_label') ) { # timeseries already handled above
 								if ($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key}) {
 									my $iteration_value = $iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key};
@@ -306,7 +311,7 @@ my $json_text   = to_json( \%iteration, { ascii => 1, pretty => 1, canonical => 
 open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
 print JSON $json_text;
 close(JSON);
-	
+
 if ($fail) {
 	print "This iteration's standard deviation percentage was not within $max_stddevpct\n";
 	$num_failures++;
