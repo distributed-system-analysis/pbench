@@ -7,18 +7,17 @@
 # It is intended to test a network function, like a bridge or router.
 #
 # Hardware prerequisites:
-# - A Linux host with 1 to 2 network adapters.  These adapters must be either Intel XL710 or Intel 82599
-#   Ideally this host should have x86-64 processors (current or previous generation) 1GB HW pages, and PCI-E v2 or v3
+# - A Linux host with 1 to 2 network adapters.  These adapters must be either Intel XL710 or Intel 82599.
+#   Ideally this host should have x86-64 processors (current or previous generation) 1GB HW pages, and PCI-E v2 or v3.
 # - A "device-under-test" (DUT) which network traffic will pass through.
-#   The DUT will need to be configured to pass traffic before running this benchmark script
+#   The DUT will need to be configured to pass traffic before running this benchmark script.
 #
 
-# This script attempts to automate potentially a very large number of tests
-# This script will take multiple samples of the same test type and try to achieve a standard deviation of <3%
+# This script attempts to automate potentially a very large number of tests.
+# This script will take multiple samples of the same test type and try to achieve a standard deviation of <3%.
 # This script will repeat a test type 6 times in order to try to achieve target stddev.
-# If a run (with several samples) fails the stddev, its directory is appended with -fail
-# This script will also generate a "results.txt" with a table of all
-# results, efficiency, and other stats.
+# If a run (with several samples) fails the stddev, its directory is appended with -fail.
+# This script will also generate a "results.txt" with a table of all results, efficiency, and other stats.
 
 pbench_cmd="$@"
 script_path=`dirname $0`
@@ -62,7 +61,7 @@ encap_dst_ips=""
 encap_src_ips=""
 encap_dst_macs=""
 encap_src_macs=""
-frame_sizes="64" # size in bytes of the Ethernet frame inccluding CRC
+frame_sizes="64" # size in bytes of the Ethernet frame including CRC
 config=""
 maxstddevpct=5 # maximum allowable standard deviation in percent
 max_failures=1 # after N failed attempts to hit below $maxstddevpct, move on to the nest test
@@ -237,7 +236,7 @@ function usage {
 	printf -- "  Measurement period in seconds when running final validation or a latency test\n"
 	printf -- "  Default is ${df_validation_runtime}\n"
 	printf -- "\n\n"
-	printf -- "      The follwoing options can take 1 or more values and will control how many\n"
+	printf -- "      The following options can take 1 or more values and will control how many\n"
 	printf -- "      tests will be conducted.  For example, the following options:\n"
 	printf -- "\n"
 	printf -- "        --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1\n"
@@ -254,7 +253,7 @@ function usage {
 	printf -- "--rate[s]=value[,value]]\n"
 	printf -- "  A list of packet rates, in millions of packets per second (mpps), unless\n"
 	printf -- "  --rate-unit=%% is used, where the rate value is interpreted as a percentage\n"
-	printf -- "  of line rate for the trasmitting device.\n"
+	printf -- "  of line rate for the transmitting device.\n"
 	printf -- "\n"
 	printf -- "  Only use this option when:\n"
 	printf -- "    1) Using the --one-shot option (skip binary search) and only 1 frame size\n"
@@ -262,7 +261,7 @@ function usage {
 	printf -- "      10%%, 50%%, 90%% of line rate with 64-byte frames:\n"
 	printf -- "      --rates=10%%,50%%,90%% --rate-unit=%% --frame-size=64 --one-shot\n"
 	printf -- "    2) Performing a binary search, but you want the search to start with a rate\n"
-	printf -- "       lower than 100%%.  Wen doing this, it is recommended that only 1 frame\n"
+	printf -- "       lower than 100%%.  When doing this, it is recommended that only 1 frame\n"
 	printf -- "       size is used:\n"
 	printf -- "       --rate=50%% --rate-unit=%% --frame-size=64\n"
 	printf -- "\n"

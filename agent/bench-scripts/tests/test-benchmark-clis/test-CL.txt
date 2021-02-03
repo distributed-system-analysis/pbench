@@ -809,7 +809,7 @@ trafficgen general test options
   Default is 300
 
 
-      The follwoing options can take 1 or more values and will control how many
+      The following options can take 1 or more values and will control how many
       tests will be conducted.  For example, the following options:
 
         --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
@@ -826,7 +826,7 @@ trafficgen general test options
 --rate[s]=value[,value]]
   A list of packet rates, in millions of packets per second (mpps), unless
   --rate-unit=% is used, where the rate value is interpreted as a percentage
-  of line rate for the trasmitting device.
+  of line rate for the transmitting device.
 
   Only use this option when:
     1) Using the --one-shot option (skip binary search) and only 1 frame size
@@ -834,7 +834,7 @@ trafficgen general test options
       10%, 50%, 90% of line rate with 64-byte frames:
       --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
     2) Performing a binary search, but you want the search to start with a rate
-       lower than 100%.  Wen doing this, it is recommended that only 1 frame
+       lower than 100%.  When doing this, it is recommended that only 1 frame
        size is used:
        --rate=50% --rate-unit=% --frame-size=64
 
@@ -1048,7 +1048,7 @@ trafficgen general test options
   Default is 300
 
 
-      The follwoing options can take 1 or more values and will control how many
+      The following options can take 1 or more values and will control how many
       tests will be conducted.  For example, the following options:
 
         --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
@@ -1065,7 +1065,7 @@ trafficgen general test options
 --rate[s]=value[,value]]
   A list of packet rates, in millions of packets per second (mpps), unless
   --rate-unit=% is used, where the rate value is interpreted as a percentage
-  of line rate for the trasmitting device.
+  of line rate for the transmitting device.
 
   Only use this option when:
     1) Using the --one-shot option (skip binary search) and only 1 frame size
@@ -1073,7 +1073,7 @@ trafficgen general test options
       10%, 50%, 90% of line rate with 64-byte frames:
       --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
     2) Performing a binary search, but you want the search to start with a rate
-       lower than 100%.  Wen doing this, it is recommended that only 1 frame
+       lower than 100%.  When doing this, it is recommended that only 1 frame
        size is used:
        --rate=50% --rate-unit=% --frame-size=64
 
@@ -1289,7 +1289,7 @@ trafficgen general test options
   Default is 300
 
 
-      The follwoing options can take 1 or more values and will control how many
+      The following options can take 1 or more values and will control how many
       tests will be conducted.  For example, the following options:
 
         --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
@@ -1306,7 +1306,7 @@ trafficgen general test options
 --rate[s]=value[,value]]
   A list of packet rates, in millions of packets per second (mpps), unless
   --rate-unit=% is used, where the rate value is interpreted as a percentage
-  of line rate for the trasmitting device.
+  of line rate for the transmitting device.
 
   Only use this option when:
     1) Using the --one-shot option (skip binary search) and only 1 frame size
@@ -1314,7 +1314,7 @@ trafficgen general test options
       10%, 50%, 90% of line rate with 64-byte frames:
       --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
     2) Performing a binary search, but you want the search to start with a rate
-       lower than 100%.  Wen doing this, it is recommended that only 1 frame
+       lower than 100%.  When doing this, it is recommended that only 1 frame
        size is used:
        --rate=50% --rate-unit=% --frame-size=64
 
