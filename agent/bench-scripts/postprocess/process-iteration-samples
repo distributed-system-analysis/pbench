@@ -259,24 +259,24 @@ foreach $sample (@json_samples) { # samples 0..N
 }
 # we have the multiple sample values, but still don't have a mean, stddev, and a pointer to the sample data which was closest to the mean
 my $fail = 0;
-foreach my $metric_name (sort keys %iteration) {
-	my $metric_type;
-	foreach $metric_type (sort keys %{ $iteration{$metric_name} }) {
+foreach my $metric_type (sort keys %iteration) {
+	my $metric_name;
+	foreach $metric_name (sort keys %{ $iteration{$metric_type} }) {
 		my $i;
-		for ($i = 0; $i < scalar @{$iteration{$metric_name}{$metric_type}}; $i++) {
+		for ($i = 0; $i < scalar @{$iteration{$metric_type}{$metric_name}}; $i++) {
 			my $key;
-			foreach $key (sort keys %{$iteration{$metric_name}{$metric_type}[$i]}) {
+			foreach $key (sort keys %{$iteration{$metric_type}{$metric_name}[$i]}) {
 				if ($key eq get_label('samples_label')) {
 					# compute mean, stabdard deviation, and the sample value that is closest to the mean value
-					($iteration{$metric_name}{$metric_type}[$i]{get_label('mean_label')},
-					 $iteration{$metric_name}{$metric_type}[$i]{get_label('stddev_label')},
-					 $iteration{$metric_name}{$metric_type}[$i]{get_label('stddevpct_label')},
-					 $iteration{$metric_name}{$metric_type}[$i]{get_label('closest_sample_label')}) = get_avg_stddev($samples_start_index, @{$iteration{$metric_name}{$metric_type}[$i]{get_label('samples_label')}});
-					if ($iteration{$metric_name}{$metric_type}[$i]{get_label('role_label')} and
-						$iteration{$metric_name}{$metric_type}[$i]{get_label('role_label')} eq 'aggregate' and
-						$metric_name eq "throughput" and
-						$metric_type eq $primary_metric and
-						$iteration{$metric_name}{$metric_type}[$i]{get_label('stddevpct_label')} > $max_stddevpct) {
+					($iteration{$metric_type}{$metric_name}[$i]{get_label('mean_label')},
+					 $iteration{$metric_type}{$metric_name}[$i]{get_label('stddev_label')},
+					 $iteration{$metric_type}{$metric_name}[$i]{get_label('stddevpct_label')},
+					 $iteration{$metric_type}{$metric_name}[$i]{get_label('closest_sample_label')}) = get_avg_stddev($samples_start_index, @{$iteration{$metric_type}{$metric_name}[$i]{get_label('samples_label')}});
+					if ($iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')} and
+						$iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')} eq 'aggregate' and
+						$metric_type eq "throughput" and
+						$metric_name eq $primary_metric and
+						$iteration{$metric_type}{$metric_name}[$i]{get_label('stddevpct_label')} > $max_stddevpct) {
 						$fail = 1;
 					}
 				}
