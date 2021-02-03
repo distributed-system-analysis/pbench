@@ -19,7 +19,6 @@
 # If a run (with several samples) fails the stddev, its directory is appended with -fail.
 # This script will also generate a "results.txt" with a table of all results, efficiency, and other stats.
 
-pbench_cmd="${@}"
 script_path="$(dirname ${0})"
 script_name="$(basename ${0})"
 pbench_bin="$(realpath -e ${script_path}/..)"
@@ -983,8 +982,8 @@ if [ "${postprocess_only}" == "n" ]; then
 	> ${benchmark_iterations}
 
 	# save a copy of the command, in case the test needs to be reproduced or post-processed again
-	echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
-	chmod +x $benchmark_run_dir/$script_name.cmd
+	echo "${script_name} ${orig_cmd}" > ${benchmark_run_dir}/${script_name}.cmd
+	chmod +x ${benchmark_run_dir}/${script_name}.cmd
 fi
 
 ## Run the benchmark and start/stop perf analysis tools
