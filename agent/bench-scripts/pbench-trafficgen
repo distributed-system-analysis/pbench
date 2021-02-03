@@ -1097,8 +1097,6 @@ function inner_most_loop() {
 		tt_iteration_dir="${benchmark_run_dir}/${count}-default"
 		iteration_dir="$benchmark_run_dir/$iteration"
 		mkdir -p $iteration_dir
-		result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
-		failures=0
 		echo "Starting iteration[$iteration] ($count of $total_iterations)"
 		log "Starting iteration[$iteration] ($count of $total_iterations)"
 
@@ -1152,6 +1150,8 @@ function inner_most_loop() {
 		echo "exit \${cmd_rc}" >> ${benchmark_cmd_file}
 		chmod +x ${benchmark_cmd_file}
 
+		result_stddevpct=$maxstddevpct # this test case will get a "do-over" if the stddev is not low enough
+		failures=0
 		while [[ $(echo "if (${result_stddevpct} >= ${maxstddevpct}) 1 else 0" | bc) -eq 1 ]]; do
 			if [[ $failures -gt 0 ]]; then
 				echo "Restarting iteration[$iteration] ($count of $total_iterations)"
