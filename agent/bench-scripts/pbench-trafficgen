@@ -448,173 +448,173 @@ fi
 eval set -- "$opts"
 while true; do
 	case "$1" in
-		--tool-label-pattern)
+	--tool-label-pattern)
 		shift
 		if [ -n "$1" ]; then
 			tool_label_pattern="$1"
 			shift
 		fi
 		;;
-		--postprocess-only)
+	--postprocess-only)
 		shift
 		if [ -n "$1" ]; then
 			postprocess_only="$1"
 			shift
 		fi
 		;;
-		--run-dir)
+	--run-dir)
 		shift
 		if [ -n "$1" ]; then
 			benchmark_run_dir="$1"
 			shift
 		fi
 		;;
-		--max-stddev)
+	--max-stddev)
 		shift
 		if [ -n "$1" ]; then
 			maxstddevpct="$1"
 			shift
 		fi
 		;;
-		--max-failures)
+	--max-failures)
 		shift
 		if [ -n "$1" ]; then
 			max_failures="$1"
 			shift
 		fi
 		;;
-		--samples)
+	--samples)
 		shift
 		if [ -n "$1" ]; then
 			num_samples="$1"
 			shift
 		fi
 		;;
-		--traffic-generator)
+	--traffic-generator)
 		shift
 		if [ -n "$1" ]; then
 			traffic_generator="$1"
 			shift
 		fi
 		;;
-		--num-flows)
+	--num-flows)
 		shift
 		if [ -n "$1" ]; then
 			num_flows="$1"
 			shift
 		fi
 		;;
-		--rate-unit)
+	--rate-unit)
 		shift
 		if [ -n "$1" ]; then
 			rate_unit="$1"
 			shift
 		fi
 		;;
-		--rate|--rates)
+	--rate|--rates)
 		shift
 		if [ -n "$1" ]; then
 			rates="$1"
 			shift
 		fi
 		;;
-		--rate-tolerance-pct)
+	--rate-tolerance-pct)
 		shift
 		if [ -n "$1" ]; then
 			rate_tolerance_pct="$1"
 			shift
 		fi
 		;;
-		--max-loss-pct|--max-loss-pcts)
+	--max-loss-pct|--max-loss-pcts)
 		shift
 		if [ -n "$1" ]; then
 			max_loss_pcts="$1"
 			shift
 		fi
 		;;
-		--traffic-direction|--traffic-directions)
+	--traffic-direction|--traffic-directions)
 		shift
 		if [ -n "$1" ]; then
 			traffic_directions="$1"
 			shift
 		fi
 		;;
-		--tool-group)
+	--tool-group)
 		shift
 		if [ -n "$1" ]; then
 			tool_group="$1"
 			shift
 		fi
 		;;
-		--frame-size|--frame-sizes)
+	--frame-size|--frame-sizes)
 		shift
 		if [ -n "$1" ]; then
 			frame_sizes="$1"
 			shift
 		fi
 		;;
-		--devices)
+	--devices)
 		shift
 		if [ -n "$1" ]; then
 			devices="$1"
 			shift
 		fi
 		;;
-		--active-devices)
+	--active-devices)
 		shift
 		if [ -n "${1}" ]; then
 			active_devices="${1}"
 			shift
 		fi
 		;;
-		--config)
+	--config)
 		shift
 		if [ -n "$1" ]; then
 			config="$1"
 			shift
 		fi
 		;;
-		--start-iteration-num)
+	--start-iteration-num)
 		shift
 		if [ -n "$1" ]; then
 			start_iteration_num=$1
 			shift
 		fi
 		;;
-		--pre-benchmark-cmd)
+	--pre-benchmark-cmd)
 		shift
 		if [ -n "$1" ]; then
 			pre_benchmark_cmd=$1
 			shift
 		fi
 		;;
-		--tool-period)
+	--tool-period)
 		shift
 		if [ -n "$1" ]; then
 			tool_period=$1
 			shift
 		fi
 		;;
-		--one-shot)
+	--one-shot)
 		shift
 		one_shot="y"
 		;;
-		--trex-use-ht)
+	--trex-use-ht)
 		shift
 		trex_use_ht="y"
 		;;
-		--trex-use-l2)
+	--trex-use-l2)
 		shift
 		trex_use_l2="y"
 		;;
-		--flow-mods)
+	--flow-mods)
 		shift
 		if [ -n "$1" ]; then
 			flow_mods="$1"
 			shift
 		fi
 		;;
-		--validation-runtime|--sniff-runtime|--search-runtime)
+	--validation-runtime|--sniff-runtime|--search-runtime)
 		arg="$1"
 		shift
 		if [ -n "$1" ]; then
@@ -626,7 +626,7 @@ while true; do
 		;;
 		# for options which if not used, do not affect the binary-search.py options (and binary-search should not use them by default)
 		# these options must match the options to binary-search.py *exactly*
-		--overlay-ids|--vlan-ids|--overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs|--src-ports|--dst-ports|--packet-protocol)
+	--overlay-ids|--vlan-ids|--overlay-types|--src-ips|--src-macs|--dst-ips|--dst-macs|--encap-src-ips|--encap-src-macs|--encap-dst-ips|--encap-dst-macs|--src-ports|--dst-ports|--packet-protocol)
 		arg="$1"
 		shift
 		if [ -n "$1" ]; then
@@ -637,37 +637,37 @@ while true; do
 			shift
 		fi
 		;;
-		--skip-trex-install)
+	--skip-trex-install)
 		shift
 		skip_trex_install="y"
 		;;
-		--skip-trex-server)
+	--skip-trex-server)
 		shift
 		skip_trex_server="y"
 		;;
-		--skip-git-pull)
+	--skip-git-pull)
 		shift
 		skip_git_pull="y"
 		;;
-		--traffic-profile|--traffic-profiles)
+	--traffic-profile|--traffic-profiles)
 		shift
 		if [ -n "$1" ]; then
 			traffic_profiles="$1"
 			shift
 		fi
 		;;
-		--sysinfo)
+	--sysinfo)
 		shift;
 		if [ -n "$1" ]; then
 			sysinfo="$1"
 			shift;
 		fi
 		;;
-		-h|--help)
+	-h|--help)
 		usage
 		exit 0
 		;;
-		--)
+	--)
 		shift
 		while true; do
 			arg="$1"
@@ -680,7 +680,7 @@ while true; do
 		done
 		break
 		;;
-		*)
+	*)
 		error_log "[$script_name] bad option, \"$1 $2\""
 		usage
 		exit 1
