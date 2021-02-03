@@ -1,5 +1,4 @@
 +++ Running test-22 pbench-trafficgen
-tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: default
 [warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-22_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os_" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
 Total number of benchmark iterations: 3
 Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
@@ -31946,7 +31945,6 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 ]
 +++ pbench tree state
 /var/tmp/pbench-test-bench/pbench-agent
-/var/tmp/pbench-test-bench/pbench-agent/.iterations
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
@@ -32015,7 +32013,6 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
 /var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
-/var/tmp/pbench-test-bench/pbench-agent/1-bidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
@@ -32076,7 +32073,6 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
 /var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
-/var/tmp/pbench-test-bench/pbench-agent/2-unidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
@@ -32137,10 +32133,8 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen.html
 /var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
-/var/tmp/pbench-test-bench/pbench-agent/3-revunidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/generate-benchmark-summary.cmd
 /var/tmp/pbench-test-bench/pbench-agent/metadata.log
-/var/tmp/pbench-test-bench/pbench-agent/pbench-trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/pbench.log
 /var/tmp/pbench-test-bench/pbench-agent/result.csv
 /var/tmp/pbench-test-bench/pbench-agent/result.html
@@ -32169,9 +32163,5 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 [info][1900-01-01T00:00:00.000000] Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent --sysinfo=none beg
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent --sysinfo=none beg
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=none --check
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent beg
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent end
 --- test-execution.log file contents
