@@ -776,11 +776,7 @@ if [ $one_shot == "y" ]; then
 	cmd="$cmd --one-shot=1"
 fi
 
-# register the tool triggers depending on the tool period preference
-if [ "$tool_period" == "binary-search" ]; then
-	pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting binary-search" --stop-trigger="Finished binary-search"
-elif [ "$tool_period" == "repeat-final-validation" ]; then
-	pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting repeat final validation for debug collection" --stop-trigger="Finished repeat final validation for debug collection"
+if [ "$tool_period" == "repeat-final-validation" ]; then
 	cmd="$cmd --repeat-final-validation"
 fi
 
@@ -973,14 +969,16 @@ function record_profile_iteration {
 	echo ${iteration} | pbench-add-metalog-option ${mdlog} iterations/${iteration} iteration_name
 }
 
-mkdir -p $benchmark_run_dir/.running
+if [ "${postprocess_only}" == "n" ]; then
+	mkdir -p $benchmark_run_dir/.running
 
-# now that the benchmark_run_dir directory exists, we can initialize the iterations file
-> ${benchmark_iterations}
+	# now that the benchmark_run_dir directory exists, we can initialize the iterations file
+	> ${benchmark_iterations}
 
-# save a copy of the command, in case the test needs to be reproduced or post-processed again
-echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
-chmod +x $benchmark_run_dir/$script_name.cmd
+	# save a copy of the command, in case the test needs to be reproduced or post-processed again
+	echo "$script_name $pbench_cmd" >$benchmark_run_dir/$script_name.cmd
+	chmod +x $benchmark_run_dir/$script_name.cmd
+fi
 
 ## Run the benchmark and start/stop perf analysis tools
 
@@ -1008,12 +1006,21 @@ echo "Total number of benchmark iterations: $total_iterations"
 
 benchmark=${benchmark_name}
 export benchmark config
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-# on abnormal exit, make sure that the metadata log exists and is complete.
-trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
 
 if [ "${postprocess_only}" == "n" ]; then
+	# Register the tool triggers depending on the tool period preference
+	# FIXME - tool triggers should only be registered for the duration of the benchmark run.
+	if [ "$tool_period" == "binary-search" ]; then
+		pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting binary-search" --stop-trigger="Finished binary-search"
+	elif [ "$tool_period" == "repeat-final-validation" ]; then
+		pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting repeat final validation for debug collection" --stop-trigger="Finished repeat final validation for debug collection"
+	fi
+
+	pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+	pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+	# on abnormal exit, make sure that the metadata log exists and is complete.
+	trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+
 	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
 		if [ $skip_trex_server == "n" ]; then
 			cp ${pbench_tmp}/trex_cfg.yaml ${benchmark_run_dir}
@@ -1122,57 +1129,60 @@ function inner_most_loop() {
 
 		tt_iteration_dir="${benchmark_run_dir}/${count}-default"
 		iteration_dir="$benchmark_run_dir/$iteration"
-		mkdir -p $iteration_dir
 
-		local iteration_options="--max-loss-pct=${max_loss_pct}"
-		if [[ ${traffic_generator} == "trex-txrx-profile" ]]; then
-			if [[ "${traffic_profile_arg}" == "" || "${rates}" == "none" ]]; then
-				iteration_options="${iteration_options} --rate-unit=% --rate=100"
-			else
-				iteration_options="${iteration_options} --rate-unit=% --rate=${rates}"
-			fi
-			if [[ "${traffic_profile_arg}" == "" ]]; then
-				profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
+		if [ "${postprocess_only}" == "n" ]; then
+			mkdir -p $iteration_dir
 
-				echo "pushd ${trafficgen_dir} > /dev/null" > ${profile_builder_cmd_file}
-				echo "./profile-builder.py --frame-size=${frame_size_arg} --num-flows=${num_flow_arg} --rate=${rate_arg} ${profile_flow_mods} --traffic-direction=${traffic_direction_arg} --measure-latency" >> ${profile_builder_cmd_file}
-				echo "cmd_rc=\${?}" >> ${profile_builder_cmd_file}
-				echo "popd > /dev/null" >> ${profile_builder_cmd_file}
-				echo "exit \${cmd_rc}" >> ${profile_builder_cmd_file}
-				chmod +x ${profile_builder_cmd_file}
-
-				traffic_profile_file="${iteration_dir}/traffic-profile.json"
-
-				${profile_builder_cmd_file} > ${traffic_profile_file} 2>&1
-			else
-				cp ${traffic_profile_arg} ${iteration_dir}/
-				traffic_profile_file="${iteration_dir}/${traffic_profile_name}"
-			fi
-			iteration_options="${iteration_options} --traffic-profile=${traffic_profile_file}"
-		else
-			if [[ ${rate_arg} == "none" ]]; then
-				if [[ ${traffic_generator} == "trex-txrx" ]]; then
+			local iteration_options="--max-loss-pct=${max_loss_pct}"
+			if [[ ${traffic_generator} == "trex-txrx-profile" ]]; then
+				if [[ "${traffic_profile_arg}" == "" || "${rates}" == "none" ]]; then
 					iteration_options="${iteration_options} --rate-unit=% --rate=100"
 				else
-					# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
-					iteration_options="${iteration_options}"
+					iteration_options="${iteration_options} --rate-unit=% --rate=${rates}"
 				fi
-			else
-				iteration_options="${iteration_options} --rate-unit=${rate_unit} --rate=${rate_arg}"
-			fi
-			iteration_options="${iteration_options} --traffic-direction=${traffic_direction_arg}"
-			iteration_options="${iteration_options} --frame-size=${frame_size_arg}"
-			iteration_options="${iteration_options} --num-flows=${num_flow_arg}"
-		fi
+				if [[ "${traffic_profile_arg}" == "" ]]; then
+					profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
 
-		# save benchmark command in file for debugging or running manually
-		benchmark_cmd_file="${iteration_dir}/${benchmark_name}.cmd"
-		echo "pushd ${trafficgen_dir} > /dev/null" > ${benchmark_cmd_file}
-		echo "${cmd} ${iteration_options} ${passthrough_arguments} \${@}" >> ${benchmark_cmd_file}
-		echo "cmd_rc=\${?}" >> ${benchmark_cmd_file}
-		echo "popd > /dev/null" >> ${benchmark_cmd_file}
-		echo "exit \${cmd_rc}" >> ${benchmark_cmd_file}
-		chmod +x ${benchmark_cmd_file}
+					echo "pushd ${trafficgen_dir} > /dev/null" > ${profile_builder_cmd_file}
+					echo "./profile-builder.py --frame-size=${frame_size_arg} --num-flows=${num_flow_arg} --rate=${rate_arg} ${profile_flow_mods} --traffic-direction=${traffic_direction_arg} --measure-latency" >> ${profile_builder_cmd_file}
+					echo "cmd_rc=\${?}" >> ${profile_builder_cmd_file}
+					echo "popd > /dev/null" >> ${profile_builder_cmd_file}
+					echo "exit \${cmd_rc}" >> ${profile_builder_cmd_file}
+					chmod +x ${profile_builder_cmd_file}
+
+					traffic_profile_file="${iteration_dir}/traffic-profile.json"
+
+					${profile_builder_cmd_file} > ${traffic_profile_file} 2>&1
+				else
+					cp ${traffic_profile_arg} ${iteration_dir}/
+					traffic_profile_file="${iteration_dir}/${traffic_profile_name}"
+				fi
+				iteration_options="${iteration_options} --traffic-profile=${traffic_profile_file}"
+			else
+				if [[ ${rate_arg} == "none" ]]; then
+					if [[ ${traffic_generator} == "trex-txrx" ]]; then
+						iteration_options="${iteration_options} --rate-unit=% --rate=100"
+					else
+						# don't specify a rate and let binary-search.py + whatever traffic-generator figure it out
+						iteration_options="${iteration_options}"
+					fi
+				else
+					iteration_options="${iteration_options} --rate-unit=${rate_unit} --rate=${rate_arg}"
+				fi
+				iteration_options="${iteration_options} --traffic-direction=${traffic_direction_arg}"
+				iteration_options="${iteration_options} --frame-size=${frame_size_arg}"
+				iteration_options="${iteration_options} --num-flows=${num_flow_arg}"
+			fi
+
+			# save benchmark command in file for debugging or running manually
+			benchmark_cmd_file="${iteration_dir}/${benchmark_name}.cmd"
+			echo "pushd ${trafficgen_dir} > /dev/null" > ${benchmark_cmd_file}
+			echo "${cmd} ${iteration_options} ${passthrough_arguments} \${@}" >> ${benchmark_cmd_file}
+			echo "cmd_rc=\${?}" >> ${benchmark_cmd_file}
+			echo "popd > /dev/null" >> ${benchmark_cmd_file}
+			echo "exit \${cmd_rc}" >> ${benchmark_cmd_file}
+			chmod +x ${benchmark_cmd_file}
+		fi
 
 		echo_log "Starting iteration[$iteration] ($count of $total_iterations)"
 
@@ -1324,9 +1334,9 @@ if [ "${postprocess_only}" == "n" ]; then
 			fi
 		fi
 	fi
+
+	pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
+	pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
+
+	rmdir $benchmark_run_dir/.running
 fi
-
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
-rmdir $benchmark_run_dir/.running
