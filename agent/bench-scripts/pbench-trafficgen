@@ -703,10 +703,6 @@ while true; do
 done
 verify_common_bench_script_options $tool_group $sysinfo
 
-if [ -z "${active_devices}" ]; then
-	active_devices=${devices}
-fi
-
 let errors=0
 for traffic_profile in `echo $traffic_profiles | sed -e s/,/" "/g`; do
 	if [[ ! -e "${traffic_profile}" ]]; then
@@ -843,6 +839,10 @@ if [ "${postprocess_only}" == "n" ]; then
 			error_log "only the trex-txrx* traffic generators support more than 1 pair of devices, exiting"
 			exit 1
 		fi
+	fi
+
+	if [ -z "${active_devices}" ]; then
+		active_devices=${devices}
 	fi
 
 	total_active_devices=$(echo ${active_devices} | sed -e "s/,/ /g" | wc -w)
