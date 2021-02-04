@@ -15,6 +15,16 @@
         "result_data_sample_parent": {
             "type": "keyword"
         },
+        "authorization": {
+            "properties": {
+                "user": {
+                    "type": "keyword"
+                },
+                "access": {
+                    "type": "keyword"
+                }
+            }
+        },
         "run": {
             "properties": {
                 "id": {

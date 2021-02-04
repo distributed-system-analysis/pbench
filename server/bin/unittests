@@ -456,8 +456,9 @@ function _setup_state {
     # Setup per-test Dataset DB
     _state_db=${_tdir}/state/${1}.db
     if [ -f ${_state_db} ]; then
-        while read -r controller name state; do
-            pbench-state-manager --create --controller=${controller} --name=${name} --state=${state}
+        while read -r controller name state user; do
+            useropt=${user:+"--user=${user}"}
+            pbench-state-manager --create --controller=${controller} --name=${name} --state=${state} ${useropt}
         done < ${_state_db}
     fi
 }

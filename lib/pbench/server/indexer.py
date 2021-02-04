@@ -42,7 +42,7 @@ from pbench.common.exceptions import (
     BadSampleName,
 )
 from pbench.common.logger import get_pbench_logger
-
+from pbench.server.db.models.tracker import Dataset
 import pbench.server
 from pbench.server import tstos
 
@@ -3544,8 +3544,12 @@ class PbenchTarBall:
     pbench tar ball.
     """
 
-    def __init__(self, idxctx, tbarg, tmpdir, extracted_root):
+    def __init__(self, idxctx, username, tbarg, tmpdir, extracted_root):
         self.idxctx = idxctx
+        self.authorization = {
+            "user": username,
+            "access": "public" if username == Dataset.DEFAULT_USERNAME else "private",
+        }
         self.tbname = tbarg
         self.controller_dir = os.path.basename(os.path.dirname(self.tbname))
         try:
@@ -3967,6 +3971,7 @@ class PbenchTarBall:
         # to the generation of the documents `_id` field since a run document's ID
         # is the MD5 hash of the tar ball.
         source["@generated-by"] = self.idxctx.get_tracking_id()
+        source["authorization"] = self.authorization
         source["run"] = self.run_metadata
         sos_d = self.mk_sosreports()
         if sos_d:
@@ -4244,6 +4249,7 @@ class PbenchTarBall:
 
             # Add "join" metadata to connect TOC doc to parent run doc
             source["run_data_parent"] = self.run_metadata["id"]
+            source["authorization"] = self.authorization
             yield source
 
     def mk_tool_data(self):
@@ -4309,6 +4315,7 @@ class PbenchTarBall:
                     pass
                 else:
                     source["@generated-by"] = self.idxctx.get_tracking_id()
+                    source["authorization"] = self.authorization
                     action = _dict_const(
                         _op_type=_op_type,
                         _index=idx_name,

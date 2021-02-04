@@ -15,6 +15,16 @@
         "@generated-by": {
             "type": "keyword"
         },
+        "authorization": {
+            "properties": {
+                "user": {
+                    "type": "keyword"
+                },
+                "access": {
+                    "type": "keyword"
+                }
+            }
+        },
         "run": {
             "properties": {
                 "id": {

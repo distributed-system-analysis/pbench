@@ -94,6 +94,10 @@ len(actions) = 16
                 "toc-prefix": "pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19"
             },
             "@timestamp": "2018-04-10T19:01:19.927438",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "host_tools_info": [
                 {
                     "hostname": "b03-h01-1029p",
@@ -270,6 +274,10 @@ len(actions) = 16
         "_op_type": "create",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/",
             "files": [
                 {
@@ -313,6 +321,10 @@ len(actions) = 16
         "_op_type": "create",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1",
             "mode": "0o755",
             "mtime": "2018-04-10T19:01:19",
@@ -330,6 +342,10 @@ len(actions) = 16
             "ancestor_path_elements": [
                 "1"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result",
             "files": [
                 {
@@ -357,6 +373,10 @@ len(actions) = 16
                 "1",
                 "reference-result"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:55",
@@ -376,6 +396,10 @@ len(actions) = 16
                 "reference-result",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p",
             "mode": "0o755",
             "mtime": "2018-05-22T20:28:32",
@@ -396,6 +420,10 @@ len(actions) = 16
                 "tools-default",
                 "b03-h01-1029p"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf",
             "files": [
                 {
@@ -461,6 +489,10 @@ len(actions) = 16
                 "b03-h01-1029p",
                 "perf"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf/perf-percpu",
             "files": [
                 {
@@ -931,6 +963,10 @@ len(actions) = 16
                 "tools-default",
                 "b03-h01-1029p"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts",
             "files": [
                 {
@@ -1017,6 +1053,10 @@ len(actions) = 16
                 "b03-h01-1029p",
                 "proc-interrupts"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/csv",
             "files": [
                 {
@@ -4175,6 +4215,10 @@ len(actions) = 16
                 "tools-default",
                 "b03-h01-1029p"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat",
             "files": [
                 {
@@ -4233,6 +4277,10 @@ len(actions) = 16
                 "b03-h01-1029p",
                 "proc-vmstat"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-vmstat/csv",
             "files": [
                 {
@@ -4374,6 +4422,10 @@ len(actions) = 16
                 "tools-default",
                 "b03-h01-1029p"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar",
             "files": [
                 {
@@ -4509,6 +4561,10 @@ len(actions) = 16
                 "b03-h01-1029p",
                 "sar"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar/csv",
             "files": [
                 {
@@ -5119,6 +5175,10 @@ len(actions) = 16
                 "tools-default",
                 "b03-h01-1029p"
             ],
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/turbostat",
             "files": [
                 {
@@ -5156,6 +5216,10 @@ len(actions) = 16
         "_op_type": "create",
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "directory": "/sysinfo",
             "mode": "0o755",
             "mtime": "2018-04-10T19:03:55",
@@ -5263,6 +5327,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5299,6 +5367,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5335,6 +5407,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5371,6 +5447,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5407,6 +5487,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5443,6 +5527,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5479,6 +5567,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5515,6 +5607,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5551,6 +5647,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5587,6 +5687,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5623,6 +5727,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5659,6 +5767,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5695,6 +5807,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5731,6 +5847,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5767,6 +5887,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5803,6 +5927,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:21.050889",
             "@timestamp_original": "1523386881.0508895",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5988,6 +6116,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:24.054128",
             "@timestamp_original": "1523386884.0541282",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -6326,6 +6458,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:27.056722",
             "@timestamp_original": "1523386887.0567222",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -6664,6 +6800,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:30.059692",
             "@timestamp_original": "1523386890.0596917",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -7002,6 +7142,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:33.062879",
             "@timestamp_original": "1523386893.0628786",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -7340,6 +7484,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:36.065718",
             "@timestamp_original": "1523386896.0657184",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -7678,6 +7826,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:39.069022",
             "@timestamp_original": "1523386899.0690217",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -8016,6 +8168,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:42.071981",
             "@timestamp_original": "1523386902.0719812",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -8354,6 +8510,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:45.075373",
             "@timestamp_original": "1523386905.075373",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -8692,6 +8852,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:48.078676",
             "@timestamp_original": "1523386908.0786757",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -9030,6 +9194,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:51.081840",
             "@timestamp_original": "1523386911.0818398",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -9368,6 +9536,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:54.084811",
             "@timestamp_original": "1523386914.0848112",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -9706,6 +9878,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:01:57.087302",
             "@timestamp_original": "1523386917.0873024",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -10044,6 +10220,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:02:00.090138",
             "@timestamp_original": "1523386920.0901384",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -10382,6 +10562,10 @@ len(actions) = 30
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-04-10T19:02:03.092754",
             "@timestamp_original": "1523386923.0927541",
+            "authorization": {
+                "access": "private",
+                "user": "peter"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -11704,5 +11888,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|b03-h01-1029p|pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19|INDEXED|
+peter|b03-h01-1029p|pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19|INDEXED|
 --- SqliteDB Datasets

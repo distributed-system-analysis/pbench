@@ -10,9 +10,18 @@ from pbench.server.api.resources.query_apis import (
 )
 
 
-class QueryControllers(Resource):
+class QueryResults(Resource):
     """
-    Abstracted Pbench API to get date-bounded controller data.
+    Abstracted Pbench API to get date-bounded dataset data for a particular
+    controller.
+
+    Note that although the name "queryResults" is retained for consistency
+    with the existing dashboard UI code, the word "results" is a bit
+    misleading in that this deals with Pbench "run" documents, not Pbench
+    "results" documents. It's a follow-on to queryControllers, which returns
+    the list of controllers having datasets within a specified date range. The
+    queryResults API returns the list of dataset names corresponding to
+    specified controller within the date range.
     """
 
     def __init__(self, config, logger):
@@ -22,11 +31,12 @@ class QueryControllers(Resource):
 
     def post(self):
         """
-        POST for Pbench controllers with datasets within the specified date
-        range, and owned by a specified user:
+        POST for Pbench datasets from a specified controller within the
+        specified date range, and owned by a specified user:
 
         {
             "user": "email-tag",
+            "controller": "controller-name",
             "start": "start-time",
             "end": "end-time"
         }
@@ -39,7 +49,11 @@ class QueryControllers(Resource):
         TODO: When we have authorization infrastructure, we'll need to
         check that "session user" has rights to view "user" data. We might
         also default a missing "user" JSON field with the authorization
-        token's user.
+        token's user. (Or with the default user "public" if there's no
+        token, indicating there's no logged-in user.)
+
+        "controller" is the name of a Pbench agent controller (normally a host
+        name).
 
         "start" is a time string representing the starting range of dates
         to search.
@@ -67,30 +81,27 @@ class QueryControllers(Resource):
         Accept:         application/json
 
         Return payload is a summary of the "aggregations" property of the
-        returned Elasticsearch query results, showing the Pbench controller
-        name, the number of runs using that controller name, and the start
-        timestamp of the latest run both in binary and string form.
+        returned Elasticsearch query results, showing fields from the "run"
+        subdocument, including the controller and name, the start and end
+        time, and a starting UNIX timestamp.
 
-        TODO: Do we automatically return all "public" controllers, or should
-        this be a separate parameter? E.g., when "I" log in, do I see all my
-        own datasets *plus* all published/public controllers owned by others,
-        or should that be a separate option (e.g., a checkbox on the view?)
-
-        TODO: Similarly, a query from an unlogged-in session in the dashboard
-        would presumably show datasets with "user": "public"; but does it show
-        all datasets with "access": "public" as well?
+        TODO: We probably need to return all *unowned* runs when called
+        without a session token or user parameter. We need to define precisely
+        how this should work.
 
         NOTE: This is the format currently constructed by the Pbench
-        dashboard `src/model/dashboard.js` fetchControllers method, which
-        becomes part of the Redux state.
+        dashboard `src/model/dashboard.js` fetchResults method, which
+        becomes part of the Redux state. (Note that the "key" of the sequence
+        is the same as the "run.name".)
 
         [
             {
-                "key": "alphaville.usersys.redhat.com",
-                "controller": "alphaville.usersys.redhat.com",
-                "results": 2,
-                "last_modified_value": 1598473155810.0,
-                "last_modified_string": "2020-08-26T20:19:15.810Z"
+                "key": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                "startUnixTimestamp": 1588178953561,
+                "run.name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                "run.controller": "dhcp31-187.perf.lab.eng.bos.redhat.com",
+                "run.start": "2020-04-29T12:49:13.560620",
+                "run.end": "2020-04-29T13:30:04.918704"
             }
         ]
         """
@@ -101,10 +112,13 @@ class QueryControllers(Resource):
 
         try:
             user = json_data["user"]
+            controller = json_data["controller"]
             start_arg = json_data["start"]
             end_arg = json_data["end"]
         except KeyError:
-            keys = [k for k in ("user", "start", "end") if k not in json_data]
+            keys = [
+                k for k in ("user", "controller", "start", "end") if k not in json_data
+            ]
             self.logger.info("Missing required JSON keys {}", ",".join(keys))
             abort(400, message=f"Missing request data: {','.join(keys)}")
 
@@ -141,30 +155,39 @@ class QueryControllers(Resource):
         # user and session token to prove we got them (and so the variables
         # aren't diagnosed as "unused")
         self.logger.info(
-            "QueryControllers POST for user {}, prefix {}, session {}: ({} - {})",
+            "QueryControllers POST for user {}, prefix {}, session {}: ({}: {} - {})",
             user,
             self.prefix,
             session_token,
+            controller,
             start,
             end,
         )
 
         payload = {
+            "_source": {
+                "includes": [
+                    "@metadata.controller_dir",
+                    "@metadata.satellite",
+                    "run.controller",
+                    "run.start",
+                    "run.end",
+                    "run.name",
+                    "run.config",
+                    "run.prefix",
+                    "run.id",
+                ]
+            },
+            "sort": {"run.end": {"order": "desc"}},
             "query": {
                 "bool": {
                     "filter": [
                         {"term": {"authorization.user": user}},
-                        {"range": {"@timestamp": {"gte": start_arg, "lte": end_arg}}},
+                        {"term": {"run.controller": controller}},
                     ]
                 }
             },
-            "size": 0,  # Don't return "hits", only aggregations
-            "aggs": {
-                "controllers": {
-                    "terms": {"field": "run.controller", "order": [{"runs": "desc"}]},
-                    "aggs": {"runs": {"max": {"field": "run.start"}}},
-                }
-            },
+            "size": 5000,
         }
 
         # TODO: the big assumption here involves the index version we're
@@ -218,22 +241,49 @@ class QueryControllers(Resource):
             )
             abort(500, message="INTERNAL ERROR")
         else:
-            controllers = []
+            datasets = []
             try:
                 es_json = es_response.json()
-                buckets = es_json["aggregations"]["controllers"]["buckets"]
-                self.logger.info("{} controllers found", len(buckets))
-                for controller in buckets:
-                    c = {}
-                    c["key"] = controller["key"]
-                    c["controller"] = controller["key"]
-                    c["results"] = controller["doc_count"]
-                    c["last_modified_value"] = controller["runs"]["value"]
-                    c["last_modified_string"] = controller["runs"]["value_as_string"]
-                    controllers.append(c)
+                hits = es_json["hits"]["hits"]
+                self.logger.info("{} controllers found", len(hits))
+                for dataset in hits:
+                    src = dataset["_source"]
+                    run = src["run"]
+                    d = {
+                        "key": run["name"],
+                        "run.name": run["name"],
+                        "run.controller": run["controller"],
+                        "run.start": run["start"],
+                        "run.end": run["end"],
+                        "id": run["id"],
+                    }
+                    try:
+                        timestamp = parser.parse(run["start"]).utcfromtimestamp()
+                    except Exception as e:
+                        self.logger.info(
+                            "Can't parse start time {} to integer timestamp: {}",
+                            run["start"],
+                            e,
+                        )
+                        # fall back to the end timestamp sort key (why?)
+                        # TODO: Should this just abort instead?
+                        timestamp = dataset["sort"][0]
+
+                    d["startUnixTimestamp"] = timestamp
+                    if "config" in run:
+                        d["run.config"] = run["config"]
+                    if "prefix" in run:
+                        d["run.prefix"] = run["prefix"]
+                    if "@metadata" in src:
+                        meta = src["@metadata"]
+                        if "controller_dir" in meta:
+                            d["@metadata.controller_dir"] = meta["controller_dir"]
+                        if "satellite" in meta:
+                            d["@metadata.satellite"] = meta["satellite"]
+                    datasets.append(d)
             except KeyError:
                 self.logger.exception("ES response not formatted as expected")
                 abort(500, message="INTERNAL ERROR")
             else:
                 # construct response object
-                return jsonify(controllers)
+                return jsonify(datasets)

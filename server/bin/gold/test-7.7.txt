@@ -94,6 +94,10 @@ len(actions) = 5
                 "toc-prefix": "test_7.7_2015.09.21T15.31.08"
             },
             "@timestamp": "2015-09-21T19:31:12.673292",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "host_tools_info": [
                 {
                     "hostname": "alphaville",
@@ -136,6 +140,10 @@ len(actions) = 5
         "_op_type": "create",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/",
             "files": [
                 {
@@ -158,6 +166,10 @@ len(actions) = 5
         "_op_type": "create",
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/sysinfo",
             "mode": "0o775",
             "mtime": "2015-09-21T18:57:56",
@@ -175,6 +187,10 @@ len(actions) = 5
             "ancestor_path_elements": [
                 "sysinfo"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/sysinfo/foo",
             "mode": "0o775",
             "mtime": "2015-09-21T18:58:00",
@@ -193,6 +209,10 @@ len(actions) = 5
                 "sysinfo",
                 "foo"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/sysinfo/foo/end",
             "files": [
                 {

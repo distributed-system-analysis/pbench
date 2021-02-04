@@ -5,6 +5,16 @@
         "@timestamp": { "type": "date" },
         "@timestamp_original": { "type": "text" },
         "@generated-by": { "type": "keyword" },
+        "authorization": {
+            "properties": {
+                "user": {
+                    "type": "keyword"
+                },
+                "access": {
+                    "type": "keyword"
+                }
+            }
+        },
         "run": {
             "properties": {
                 "id": { "type": "keyword" },

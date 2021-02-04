@@ -10,6 +10,16 @@
         "@generated-by": {
             "type": "keyword"
         },
+        "authorization": {
+            "properties": {
+                "user": {
+                    "type": "keyword"
+                },
+                "access": {
+                    "type": "keyword"
+                }
+            }
+        },
         "@metadata": {
             "properties": {
                 "controller_dir": {

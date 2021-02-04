@@ -12,6 +12,16 @@
         "ancestor_path_elements": {
             "type": "keyword"
         },
+        "authorization": {
+            "properties": {
+                "user": {
+                    "type": "keyword"
+                },
+                "access": {
+                    "type": "keyword"
+                }
+            }
+        },
         "directory": {
             "type": "text",
             "analyzer": "path_analyzer"

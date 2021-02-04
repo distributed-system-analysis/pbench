@@ -50,6 +50,8 @@ def main(options):
         Database.init_db(config, logger)
 
         args = {}
+        if options.user:
+            args["user"] = options.user
         if options.controller:
             args["controller"] = options.controller
         if options.path:
@@ -107,6 +109,9 @@ if __name__ == "__main__":
         "--path",
         dest="path",
         help="Specify a tarball filename (from which controller and name will be derived)",
+    )
+    parser.add_argument(
+        "--user", dest="user", help="Specify the owning username for the dataset",
     )
     parser.add_argument(
         "--controller",

@@ -98,6 +98,10 @@ len(actions) = 22
                 "toc-prefix": "linpack_mock_2020.02.28T19.10.55"
             },
             "@timestamp": "2020-02-28T19:10:55.645002",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "host_tools_info": [
                 {
                     "hostname": "ctlrA",
@@ -127,6 +131,10 @@ len(actions) = 22
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/",
             "files": [
                 {
@@ -191,6 +199,10 @@ len(actions) = 22
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64",
             "files": [
                 {
@@ -217,6 +229,10 @@ len(actions) = 22
             "ancestor_path_elements": [
                 "0__linpack-binary=:root:linpack:xlinpack_xeon64"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0",
             "files": [
                 {
@@ -279,6 +295,10 @@ len(actions) = 22
                 "0__linpack-binary=:root:linpack:xlinpack_xeon64",
                 "sample0"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/csv",
             "mode": "0o755",
             "mtime": "2020-02-28T19:13:01",
@@ -297,6 +317,10 @@ len(actions) = 22
                 "0__linpack-binary=:root:linpack:xlinpack_xeon64",
                 "sample0"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-03-02T02:30:14",
@@ -316,6 +340,10 @@ len(actions) = 22
                 "sample0",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default/ctlrA",
             "mode": "0o755",
             "mtime": "2020-03-02T02:29:47",
@@ -336,6 +364,10 @@ len(actions) = 22
                 "tools-default",
                 "ctlrA"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/0__linpack-binary=:root:linpack:xlinpack_xeon64/sample0/tools-default/ctlrA/turbostat",
             "files": [
                 {
@@ -373,6 +405,10 @@ len(actions) = 22
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64",
             "files": [
                 {
@@ -399,6 +435,10 @@ len(actions) = 22
             "ancestor_path_elements": [
                 "1__linpack-binary=:root:linpack:bob:xlinpack_xeon64"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0",
             "files": [
                 {
@@ -461,6 +501,10 @@ len(actions) = 22
                 "1__linpack-binary=:root:linpack:bob:xlinpack_xeon64",
                 "sample0"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/csv",
             "mode": "0o755",
             "mtime": "2020-02-28T19:14:55",
@@ -479,6 +523,10 @@ len(actions) = 22
                 "1__linpack-binary=:root:linpack:bob:xlinpack_xeon64",
                 "sample0"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-03-02T02:30:33",
@@ -498,6 +546,10 @@ len(actions) = 22
                 "sample0",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default/ctlrA",
             "mode": "0o755",
             "mtime": "2020-03-02T02:29:47",
@@ -518,6 +570,10 @@ len(actions) = 22
                 "tools-default",
                 "ctlrA"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1__linpack-binary=:root:linpack:bob:xlinpack_xeon64/sample0/tools-default/ctlrA/turbostat",
             "files": [
                 {
@@ -555,6 +611,10 @@ len(actions) = 22
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T19:10:55.645002",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64",
             "files": [
                 {
@@ -581,6 +641,10 @@ len(actions) = 22
             "ancestor_path_elements": [
                 "2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/2__linpack-binary=:root:linpack:l_mklb_p_2019.6.005:benchmarks_2019:linux:mkl:benchmarks:linpack:xlinpack_xeon64/sample0",
             "files": [
                 {

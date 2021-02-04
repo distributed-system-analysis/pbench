@@ -95,6 +95,10 @@ len(actions) = 16
                 "toc-prefix": "pbench-user-benchmark__2018.02.05T20.35.36"
             },
             "@timestamp": "2018-02-05T20:35:36.317245",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "host_tools_info": [
                 {
                     "hostname": "ec2-34-211-228-38.us-west-2.compute.amazonaws.com",
@@ -294,6 +298,10 @@ len(actions) = 16
         "_op_type": "create",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/",
             "files": [
                 {
@@ -337,6 +345,10 @@ len(actions) = 16
         "_op_type": "create",
         "_source": {
             "@timestamp": "2018-02-05T20:35:36.317245",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1",
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:05",
@@ -354,6 +366,10 @@ len(actions) = 16
             "ancestor_path_elements": [
                 "1"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result",
             "files": [
                 {
@@ -381,6 +397,10 @@ len(actions) = 16
                 "1",
                 "reference-result"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
             "mtime": "2018-02-05T21:08:31",
@@ -400,6 +420,10 @@ len(actions) = 16
                 "reference-result",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216",
             "mode": "0o755",
             "mtime": "2018-02-05T21:07:41",
@@ -420,6 +444,10 @@ len(actions) = 16
                 "tools-default",
                 "svt_master_1_etcd_1:ip-172-31-47-216"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk",
             "files": [
                 {
@@ -478,6 +506,10 @@ len(actions) = 16
                 "svt_master_1_etcd_1:ip-172-31-47-216",
                 "disk"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/disk/csv",
             "files": [
                 {
@@ -542,6 +574,10 @@ len(actions) = 16
                 "tools-default",
                 "svt_master_1_etcd_1:ip-172-31-47-216"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp",
             "files": [
                 {
@@ -1391,6 +1427,10 @@ len(actions) = 16
                 "svt_master_1_etcd_1:ip-172-31-47-216",
                 "haproxy-ocp"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config",
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:13",
@@ -1413,6 +1453,10 @@ len(actions) = 16
                 "haproxy-ocp",
                 "config"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/start",
             "files": [
                 {
@@ -1451,6 +1495,10 @@ len(actions) = 16
                 "haproxy-ocp",
                 "config"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/config/stop",
             "files": [
                 {
@@ -1488,6 +1536,10 @@ len(actions) = 16
                 "svt_master_1_etcd_1:ip-172-31-47-216",
                 "haproxy-ocp"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/csv",
             "files": [
                 {
@@ -1952,6 +2004,10 @@ len(actions) = 16
                 "svt_master_1_etcd_1:ip-172-31-47-216",
                 "haproxy-ocp"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs",
             "mode": "0o755",
             "mtime": "2018-02-05T21:06:11",
@@ -1974,6 +2030,10 @@ len(actions) = 16
                 "haproxy-ocp",
                 "logs"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/start",
             "files": [
                 {
@@ -2012,6 +2072,10 @@ len(actions) = 16
                 "haproxy-ocp",
                 "logs"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1/reference-result/tools-default/svt_master_1_etcd_1:ip-172-31-47-216/haproxy-ocp/logs/stop",
             "files": [
                 {
@@ -2136,6 +2200,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "xvda",
@@ -2187,6 +2255,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "xvdb",
@@ -2238,6 +2310,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:59.000000",
             "@timestamp_original": "1517862959000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "xvda",
@@ -2289,6 +2365,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:59.000000",
             "@timestamp_original": "1517862959000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "xvdb",
@@ -2340,6 +2420,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:36:09.000000",
             "@timestamp_original": "1517862969000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "xvda",
@@ -2391,6 +2475,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:36:09.000000",
             "@timestamp_original": "1517862969000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "xvdb",
@@ -2442,6 +2530,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:36:19.000000",
             "@timestamp_original": "1517862979000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 3,
                 "id": "xvda",
@@ -2493,6 +2585,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:36:19.000000",
             "@timestamp_original": "1517862979000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 3,
                 "id": "xvdb",
@@ -2544,6 +2640,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:36:29.000000",
             "@timestamp_original": "1517862989000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 4,
                 "id": "xvda",
@@ -2595,6 +2695,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:36:29.000000",
             "@timestamp_original": "1517862989000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 4,
                 "id": "xvdb",
@@ -2646,6 +2750,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:36:39.000000",
             "@timestamp_original": "1517862999000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 5,
                 "id": "xvda",
@@ -2697,6 +2805,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:36:39.000000",
             "@timestamp_original": "1517862999000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 5,
                 "id": "xvdb",
@@ -2748,6 +2860,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2799,6 +2915,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2850,6 +2970,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2901,6 +3025,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2952,6 +3080,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3003,6 +3135,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3054,6 +3190,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3105,6 +3245,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3156,6 +3300,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3207,6 +3355,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3258,6 +3410,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3309,6 +3465,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3360,6 +3520,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3411,6 +3575,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3462,6 +3630,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3513,6 +3685,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3547,6 +3723,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3584,6 +3764,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3621,6 +3805,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3658,6 +3846,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3695,6 +3887,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3732,6 +3928,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3769,6 +3969,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3806,6 +4010,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3843,6 +4051,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3880,6 +4092,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3917,6 +4133,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3954,6 +4174,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3994,6 +4218,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -4034,6 +4262,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:40.000000",
             "@timestamp_original": "1517862940",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -4074,6 +4306,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "xvda",
@@ -4125,6 +4361,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:49.000000",
             "@timestamp_original": "1517862949000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "xvdb",
@@ -4176,6 +4416,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-05T20:35:59.000000",
             "@timestamp_original": "1517862959000",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "xvda",

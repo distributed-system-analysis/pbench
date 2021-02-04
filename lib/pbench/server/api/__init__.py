@@ -20,6 +20,8 @@ from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.query_controllers import QueryControllers
 from pbench.server.database.database import Database
+from pbench.server.api.resources.query_apis.query_results import QueryResults
+from pbench.server.api.resources.query_apis.query_result import QueryResult
 from pbench.server.api.resources.query_apis.query_month_indices import QueryMonthIndices
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources.users_api import (
@@ -88,6 +90,16 @@ def register_endpoints(api, app, config):
         UserAPI,
         f"{base_uri}/user/<string:username>",
         resource_class_args=(logger, token_auth),
+    )
+    api.add_resource(
+        QueryResults,
+        f"{base_uri}/datasets/list",
+        resource_class_args=(config, app.logger),
+    )
+    api.add_resource(
+        QueryResult,
+        f"{base_uri}/datasets/detail",
+        resource_class_args=(config, app.logger),
     )
 
 

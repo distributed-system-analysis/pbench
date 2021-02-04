@@ -99,6 +99,10 @@ len(actions) = 46
                 "toc-prefix": "fio_mock_2020.01.19T00.18.06"
             },
             "@timestamp": "2020-01-19T00:19:37.656511",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "host_tools_info": [
                 {
                     "hostname": "ctlrA",
@@ -128,6 +132,10 @@ len(actions) = 46
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/",
             "files": [
                 {
@@ -206,6 +214,10 @@ len(actions) = 46
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB",
             "files": [
                 {
@@ -246,6 +258,10 @@ len(actions) = 46
             "ancestor_path_elements": [
                 "1-read-4KiB"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB/sample1",
             "files": [
                 {
@@ -315,6 +331,10 @@ len(actions) = 46
                 "1-read-4KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB/sample1/clients",
             "mode": "0o755",
             "mtime": "2020-03-03T12:56:25",
@@ -334,6 +354,10 @@ len(actions) = 46
                 "sample1",
                 "clients"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB/sample1/clients/ctlrA",
             "files": [
                 {
@@ -398,6 +422,10 @@ len(actions) = 46
                 "clients",
                 "ctlrA"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB/sample1/clients/ctlrA/hist",
             "files": [
                 {
@@ -481,6 +509,10 @@ len(actions) = 46
                 "1-read-4KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB/sample1/csv",
             "files": [
                 {
@@ -529,6 +561,10 @@ len(actions) = 46
                 "1-read-4KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB/sample1/hist",
             "files": [
                 {
@@ -612,6 +648,10 @@ len(actions) = 46
                 "1-read-4KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2020-03-03T12:20:36",
@@ -631,6 +671,10 @@ len(actions) = 46
                 "sample1",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB/sample1/tools-default/ctlrA",
             "mode": "0o755",
             "mtime": "2020-03-03T12:19:48",
@@ -651,6 +695,10 @@ len(actions) = 46
                 "tools-default",
                 "ctlrA"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/1-read-4KiB/sample1/tools-default/ctlrA/turbostat",
             "files": [
                 {
@@ -688,6 +736,10 @@ len(actions) = 46
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/2-read-64KiB",
             "files": [
                 {
@@ -728,6 +780,10 @@ len(actions) = 46
             "ancestor_path_elements": [
                 "2-read-64KiB"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/2-read-64KiB/sample1",
             "files": [
                 {
@@ -797,6 +853,10 @@ len(actions) = 46
                 "2-read-64KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/2-read-64KiB/sample1/clients",
             "mode": "0o755",
             "mtime": "2020-03-03T12:56:25",
@@ -816,6 +876,10 @@ len(actions) = 46
                 "sample1",
                 "clients"
             ],
+            "authorization": {
+                "access": "public",
+                "user": "public"
+            },
             "directory": "/2-read-64KiB/sample1/clients/ctlrA",
             "files": [
                 {
