@@ -67,6 +67,7 @@ RUN \
         python3-elasticsearch \
         python3-flake8 \
         python3-flask \
+        python3-flask-cors \
         python3-flask-restful \
         python3-gitdb \
         python3-gunicorn \
@@ -82,10 +83,12 @@ RUN \
         python3-pytest-mock \
         python3-redis \
         python3-requests \
+        python3-requests-mock \
         python3-responses \
         python3-s3transfer \
         python3-sh \
         python3-smmap \
+        python3-sphinx \
         python3-tox \
         python3-tox-current-env \
         python3-werkzeug \

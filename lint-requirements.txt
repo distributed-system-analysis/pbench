@@ -1,3 +1,2 @@
 black==19.10b0
-flake8==3.8.3
-sphinx-panels
+flake8==3.7.7
