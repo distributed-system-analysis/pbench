@@ -840,7 +840,7 @@ trafficgen general test options
 
 --traffic-direction[s]=str[,str]
   A list of one or more: unidirectional, revunidirectional, or bidirectional
-  (default bidirectional)
+  Default is bidirectional
   unidirectional: packets will Tx out the 1st device and Rx in the 2nd device
   revunidirectional: packets will Tx out the 2nd device and RX in the 1st device
   bidirectional: packets will Tx out the both devices and Rx in both devices
@@ -854,7 +854,8 @@ trafficgen general test options
   Default is 64
 
 --num-flows=int
-  Number of packet flows to run. Default is 1024
+  Number of packet flows to run
+  Default is 1024
 
 
 trafficgen options that control packet contents
@@ -1079,7 +1080,7 @@ trafficgen general test options
 
 --traffic-direction[s]=str[,str]
   A list of one or more: unidirectional, revunidirectional, or bidirectional
-  (default bidirectional)
+  Default is bidirectional
   unidirectional: packets will Tx out the 1st device and Rx in the 2nd device
   revunidirectional: packets will Tx out the 2nd device and RX in the 1st device
   bidirectional: packets will Tx out the both devices and Rx in both devices
@@ -1093,7 +1094,8 @@ trafficgen general test options
   Default is 64
 
 --num-flows=int
-  Number of packet flows to run. Default is 1024
+  Number of packet flows to run
+  Default is 1024
 
 
 trafficgen options that control packet contents
@@ -1320,7 +1322,7 @@ trafficgen general test options
 
 --traffic-direction[s]=str[,str]
   A list of one or more: unidirectional, revunidirectional, or bidirectional
-  (default bidirectional)
+  Default is bidirectional
   unidirectional: packets will Tx out the 1st device and Rx in the 2nd device
   revunidirectional: packets will Tx out the 2nd device and RX in the 1st device
   bidirectional: packets will Tx out the both devices and Rx in both devices
@@ -1334,7 +1336,8 @@ trafficgen general test options
   Default is 64
 
 --num-flows=int
-  Number of packet flows to run. Default is 1024
+  Number of packet flows to run
+  Default is 1024
 
 
 trafficgen options that control packet contents
