@@ -714,27 +714,6 @@ if [[ ${errors} -ne 0 ]]; then
 	exit 1
 fi
 
-# add test options to $config, so this test result directory is easily identifiable
-if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
-	traffic_profiles_list=""
-	for traffic_profile in `echo $traffic_profiles | sed -e s/,/" "/g`; do
-		traffic_profile=$(basename ${traffic_profile})
-		if [ -n "${traffic_profiles_list}" ]; then
-			traffic_profiles_list+=","
-		fi
-		traffic_profiles_list+="${traffic_profile}"
-	done
-
-	config="${config}_tg:`echo ${traffic_generator} | sed -e 's/-txrx//'`_pf:${traffic_profiles_list}_ml:${max_loss_pcts}_"
-else
-	config="${config}_tg:`echo $traffic_generator | sed -e 's/-txrx//'`_r:${rates}_fs:${frame_sizes}_nf:${num_flows}_fm:`echo $flow_mods | sed -e 's/src-/s/g' -e 's/dst-/d/g' -e 's/ip/i/g' -e 's/mac/m/g' -e 's/port/p/g'`_td:`echo $traffic_directions | sed -e 's/directional//g'`_ml:${max_loss_pcts}_"
-fi
-if [ "$one_shot" == "y" ]; then
-	config="${config}tt:os_"
-else
-	config="${config}tt:bs_"
-fi
-
 if [ "$traffic_generator" == "trex-txrx" -o "$traffic_generator" == "moongen-txrx" -o "$traffic_generator" == "trex-txrx-profile" ]; then
 	cmd="$cmd --traffic-generator=$traffic_generator --rate-tolerance=$rate_tolerance_pct"
 else
@@ -935,6 +914,38 @@ fi
 ###
 # At this point all parameter checking has been done.
 ###
+
+# Build up a result directory identifier from parameters
+tg_config="tg:$(echo ${traffic_generator} | sed -e 's/-txrx//')"
+if [ $traffic_generator == "trex-txrx-profile" -a "${traffic_profiles}" != "" ]; then
+	traffic_profiles_list=""
+	for traffic_profile in $(echo ${traffic_profiles} | sed -e s/,/" "/g); do
+		traffic_profile=$(basename ${traffic_profile})
+		if [ -n "${traffic_profiles_list}" ]; then
+			traffic_profiles_list+=","
+		fi
+		traffic_profiles_list+="${traffic_profile}"
+	done
+	tg_config="${tg_config}_pf:${traffic_profiles_list}"
+else
+	tg_config="${tg_config}_r:${rates}"
+	tg_config="${tg_config}_fs:${frame_sizes}"
+	tg_config="${tg_config}_nf:${num_flows}"
+	tg_config="${tg_config}_fm:$(echo ${flow_mods} | sed -e 's/src-/s/g' -e 's/dst-/d/g' -e 's/ip/i/g' -e 's/mac/m/g' -e 's/port/p/g')"
+	tg_config="${tg_config}_td:$(echo ${traffic_directions} | sed -e 's/directional//g')"
+fi
+tg_config="${tg_config}_ml:${max_loss_pcts}"
+if [ "$one_shot" == "y" ]; then
+	tg_config="${tg_config}_tt:os"
+else
+	tg_config="${tg_config}_tt:bs"
+fi
+# add test options to $config, so this test result directory is easily identifiable
+if [[ -z "${config}" ]]; then
+	config="${tg_config}"
+else
+	config="${config}_${tg_config}"
+fi
 
 if [[ -z "$benchmark_run_dir" ]]; then
 	# We don't have an explicit run directory, construct one
