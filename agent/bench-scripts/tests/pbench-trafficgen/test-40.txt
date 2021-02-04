@@ -1,7 +1,7 @@
 +++ Running test-40 pbench-trafficgen
 found IOMMU option, continuing
 found dpdk-tools, continuing
-[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-40_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os_" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
+[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-40_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
 Total number of benchmark iterations: 3
 tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: default
 Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
@@ -80,7 +80,7 @@ Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 
 --- pbench tree state
 +++ pbench.log file contents
 [debug][1900-01-01T00:00:00.000000] [check_install_rpm] dpdk-tools is installed
-[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-40_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os_" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
+[warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-40_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
 [info][1900-01-01T00:00:00.000000] Starting iteration[1-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
 [info][1900-01-01T00:00:00.000000] test sample 1 of 1
 [info][1900-01-01T00:00:00.000000] tool triggers did not fire for iteration/sample, '1-bidirectional-74B-1000flows-0.0pct_drop/sample1'
