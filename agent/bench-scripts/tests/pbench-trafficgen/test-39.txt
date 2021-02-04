@@ -13,7 +13,6 @@ Starting binary-search
 [pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/1-default/sample1
 Finished binary-search
 [pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/1-default/sample1
-exit code: 0
 Iteration 1-bidirectional-74B-1000flows-0.0pct_drop complete (1 of 3), with 1 pass and 0 failures
 Starting iteration[2-unidirectional-74B-1000flows-0.0pct_drop] (2 of 3)
 test sample 1 of 1
@@ -24,7 +23,6 @@ Starting binary-search
 [pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/2-default/sample1
 Finished binary-search
 [pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/2-default/sample1
-exit code: 0
 Iteration 2-unidirectional-74B-1000flows-0.0pct_drop complete (2 of 3), with 1 pass and 0 failures
 Starting iteration[3-revunidirectional-74B-1000flows-0.0pct_drop] (3 of 3)
 test sample 1 of 1
@@ -35,7 +33,6 @@ Starting binary-search
 [pbench-tool-trigger]pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-default/sample1
 Finished binary-search
 [pbench-tool-trigger]pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-default/sample1
-exit code: 0
 Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
 --- Finished test-39 pbench-trafficgen (status=0)
 +++ pbench tree state

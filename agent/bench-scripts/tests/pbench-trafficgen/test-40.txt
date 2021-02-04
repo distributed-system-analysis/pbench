@@ -11,7 +11,6 @@ test sample 1 of 1
 [pbench-tool-trigger]found trigger: tool-group:default start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
 Starting something other than a binary-search
 Finished something other than a binary-search
-exit code: 0
 tool triggers did not fire for iteration/sample, '1-bidirectional-74B-1000flows-0.0pct_drop/sample1'
 Iteration 1-bidirectional-74B-1000flows-0.0pct_drop complete (1 of 3), with 1 pass and 0 failures
 Starting iteration[2-unidirectional-74B-1000flows-0.0pct_drop] (2 of 3)
@@ -21,7 +20,6 @@ test sample 1 of 1
 [pbench-tool-trigger]found trigger: tool-group:default start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
 Starting something other than a binary-search
 Finished something other than a binary-search
-exit code: 0
 tool triggers did not fire for iteration/sample, '2-unidirectional-74B-1000flows-0.0pct_drop/sample1'
 Iteration 2-unidirectional-74B-1000flows-0.0pct_drop complete (2 of 3), with 1 pass and 0 failures
 Starting iteration[3-revunidirectional-74B-1000flows-0.0pct_drop] (3 of 3)
@@ -31,7 +29,6 @@ test sample 1 of 1
 [pbench-tool-trigger]found trigger: tool-group:default start-trigger:"Starting binary-search" stop-trigger:"Finished binary-search"
 Starting something other than a binary-search
 Finished something other than a binary-search
-exit code: 0
 tool triggers did not fire for iteration/sample, '3-revunidirectional-74B-1000flows-0.0pct_drop/sample1'
 Iteration 3-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
 --- Finished test-40 pbench-trafficgen (status=0)
