@@ -1231,9 +1231,8 @@ function inner_most_loop() {
 					fi
 					${benchmark_cmd_file} --output-dir=${benchmark_results_dir} 2>&1 | pbench-tool-trigger "${count}" "${benchmark_run_dir}" ${tool_group} ${sample} | tee -i ${result_file}
 					rc=$?
-					echo "exit code: $rc"
 					if [ $rc -ne 0 ]; then
-						error_log "iteration ${iteration} sample ${sample} returned non-zero exit code"
+						error_log "iteration ${iteration} sample ${sample} returned non-zero exit code, ${rc}"
 						pbench-stop-tools --group=${tool_group} --dir=${tt_benchmark_results_dir}
 					fi
 
