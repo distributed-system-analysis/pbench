@@ -27,8 +27,19 @@ import subprocess
 
 # Start the collector (if needed)
 collector_cmd = os.environ["COLLECTOR"]
-if not collector_cmd == ":":
+if not collector_cmd == "":
     collector = subprocess.Popen(collector_cmd.split(" "))
+    if os.environ["VIS_TYPE"] == "pcp":
+        subprocess.Popen("redis-server")
+        for item in os.scandir(os.environ["PCP_ARCHIVE_DIR"]):
+            if os.path.isdir(item):
+                args = [
+                    "pmseries",
+                    "--load",
+                    f"{os.environ['PCP_ARCHIVE_DIR']}/{item.name}",
+                ]
+                print(args)
+                subprocess.Popen(args)
 else:
     collector = None
 
