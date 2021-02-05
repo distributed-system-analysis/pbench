@@ -1,5 +1,5 @@
 # Use with the following command from the 'visualizers' directory: podman build -t <name> -f DockerfileLive .
-FROM fedora:latest
+FROM fedora:33
 
 WORKDIR /
 
@@ -29,6 +29,6 @@ ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 EXPOSE 3000
 
 ENV VIS_TYPE="live" \
-    COLLECTOR=":"
+    COLLECTOR=""
 
 CMD ["python3", "run.py"]

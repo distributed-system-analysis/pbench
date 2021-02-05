@@ -14,7 +14,7 @@
   - Default Grafana credentials are: admin/admin
 
 
-# PromGrafContainer
+# PromGrafVisualizer
 - A tool available to visualize Prometheus data collected through Pbench after a benchmark run
 
 - Build locally with `podman build -t <name> -f DockerfilePostProm .`
@@ -27,4 +27,19 @@
 
 - NOTES: 
   - Both prometheus data (from tarball in tools-default/prometheus) and prometheus.yml (in tm dir) are available within pbench results.
+  - Default Grafana credentials are: admin/admin
+
+# PCPGrafVisualizer
+- A tool available to visualize PCP data collected through Pbench after a benchmark run
+
+- Build locally with `podman build -t <name> -f DockerfilePostPCP .`
+- Available at quay.io/pbench/pcp-graf-visualizer
+- Preloaded dashboards for pcp data visualization
+
+- Directions:
+  -   `podman pull pbench/pcp-graf-visualizer`
+  -   `podman run -p 3000:3000 -p 44322:44322 -v /<path>/<to>/<pcp_log_folder>/data:/var/log/pcp/pmlogger:Z  pbench/pcp-graf-visualizer`
+
+- NOTES:
+  - PCP data (from pcp data tarball in tools-default) is available within pbench results.
   - Default Grafana credentials are: admin/admin
