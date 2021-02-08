@@ -31,12 +31,14 @@ if not collector_cmd == "":
     collector = subprocess.Popen(collector_cmd.split(" "))
     if os.environ["VIS_TYPE"] == "pcp":
         subprocess.Popen("redis-server")
-        for item in os.scandir(os.environ["PCP_ARCHIVE_DIR"]):
+        log_path = os.environ["PCP_ARCHIVE_DIR"]
+        for item in os.scandir(log_path):
             if os.path.isdir(item):
+                rec_path = os.path.join(log_path, item.name)
                 args = [
                     "pmseries",
                     "--load",
-                    f"{os.environ['PCP_ARCHIVE_DIR']}/{item.name}",
+                    rec_path,
                 ]
                 print(args)
                 subprocess.Popen(args)
