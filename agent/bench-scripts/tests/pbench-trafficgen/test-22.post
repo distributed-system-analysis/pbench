@@ -1,6 +1,6 @@
 #!/bin/bash
 
-${_real_cat} ${_testdir}/result.json >> ${_testout}
+${_real_cat} ${_testdir}/${_rundir}/result.json >> ${_testout}
 
 function restore_mock() {
     # Remove the real post-processing operation.
