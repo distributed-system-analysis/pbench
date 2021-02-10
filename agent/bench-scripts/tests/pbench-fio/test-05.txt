@@ -254,3 +254,33 @@ dev = /tmp/fio
 iteration_name = 3-rw-1024KiB
 
 --- fio_test-05_1900.01.01T00.00.00/metadata.log file contents
++++ fio_test-05_1900.01.01T00.00.00/./1-rw-4KiB/process-iteration-samples.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/1-rw-4KiB" "readwrite_IOPS" "5" "0" "6" "y" "y"
+--- fio_test-05_1900.01.01T00.00.00/./1-rw-4KiB/process-iteration-samples.cmd file contents
++++ fio_test-05_1900.01.01T00.00.00/./1-rw-4KiB/sample1/fio-postprocess.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/1-rw-4KiB/sample1" "fio-" "default"
+--- fio_test-05_1900.01.01T00.00.00/./1-rw-4KiB/sample1/fio-postprocess.cmd file contents
++++ fio_test-05_1900.01.01T00.00.00/./1-rw-4KiB/sample1/fio.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/fio-client.file --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/1-rw-4KiB/fio.job
+--- fio_test-05_1900.01.01T00.00.00/./1-rw-4KiB/sample1/fio.cmd file contents
++++ fio_test-05_1900.01.01T00.00.00/./2-rw-64KiB/process-iteration-samples.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/2-rw-64KiB" "readwrite_IOPS" "5" "0" "6" "y" "y"
+--- fio_test-05_1900.01.01T00.00.00/./2-rw-64KiB/process-iteration-samples.cmd file contents
++++ fio_test-05_1900.01.01T00.00.00/./2-rw-64KiB/sample1/fio-postprocess.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/2-rw-64KiB/sample1" "fio-" "default"
+--- fio_test-05_1900.01.01T00.00.00/./2-rw-64KiB/sample1/fio-postprocess.cmd file contents
++++ fio_test-05_1900.01.01T00.00.00/./2-rw-64KiB/sample1/fio.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/fio-client.file --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/2-rw-64KiB/fio.job
+--- fio_test-05_1900.01.01T00.00.00/./2-rw-64KiB/sample1/fio.cmd file contents
++++ fio_test-05_1900.01.01T00.00.00/./3-rw-1024KiB/process-iteration-samples.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/3-rw-1024KiB" "readwrite_IOPS" "5" "0" "6" "y" "y"
+--- fio_test-05_1900.01.01T00.00.00/./3-rw-1024KiB/process-iteration-samples.cmd file contents
++++ fio_test-05_1900.01.01T00.00.00/./3-rw-1024KiB/sample1/fio-postprocess.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/fio-postprocess "/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/3-rw-1024KiB/sample1" "fio-" "default"
+--- fio_test-05_1900.01.01T00.00.00/./3-rw-1024KiB/sample1/fio-postprocess.cmd file contents
++++ fio_test-05_1900.01.01T00.00.00/./3-rw-1024KiB/sample1/fio.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/fio-client.file --max-jobs=2 --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00/3-rw-1024KiB/fio.job
+--- fio_test-05_1900.01.01T00.00.00/./3-rw-1024KiB/sample1/fio.cmd file contents
++++ fio_test-05_1900.01.01T00.00.00/./generate-benchmark-summary.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary "fio" "--config=test-05 --test-type=rw --samples=1 --clients=foo,bar" "/var/tmp/pbench-test-bench/pbench-agent/fio_test-05_1900.01.01T00.00.00"
+--- fio_test-05_1900.01.01T00.00.00/./generate-benchmark-summary.cmd file contents

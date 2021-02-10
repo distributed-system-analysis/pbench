@@ -223,3 +223,15 @@ Iteration 2-48thread complete (2 of 2), with 1 pass and 0 failures
 +++ dbench_test-02_1900.01.01T00.00.00/metadata.log file contents
 [pbench]
 --- dbench_test-02_1900.01.01T00.00.00/metadata.log file contents
++++ dbench_test-02_1900.01.01T00.00.00/./1-24thread/dbench-1-127.0.0.1.cmd file contents
+numactl --cpunodebind=0 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24"
+--- dbench_test-02_1900.01.01T00.00.00/./1-24thread/dbench-1-127.0.0.1.cmd file contents
++++ dbench_test-02_1900.01.01T00.00.00/./1-24thread/dbench-2-127.0.0.1.cmd file contents
+numactl --cpunodebind=1 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 24"
+--- dbench_test-02_1900.01.01T00.00.00/./1-24thread/dbench-2-127.0.0.1.cmd file contents
++++ dbench_test-02_1900.01.01T00.00.00/./2-48thread/dbench-1-127.0.0.1.cmd file contents
+numactl --cpunodebind=0 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/1 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48"
+--- dbench_test-02_1900.01.01T00.00.00/./2-48thread/dbench-1-127.0.0.1.cmd file contents
++++ dbench_test-02_1900.01.01T00.00.00/./2-48thread/dbench-2-127.0.0.1.cmd file contents
+numactl --cpunodebind=1 bash -c "/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --machine-readable --directory=/tmp/2 --timelimit=60 --warmup=15 --loadfile /usr/local/share/doc/dbench/loadfiles/client.txt 48"
+--- dbench_test-02_1900.01.01T00.00.00/./2-48thread/dbench-2-127.0.0.1.cmd file contents

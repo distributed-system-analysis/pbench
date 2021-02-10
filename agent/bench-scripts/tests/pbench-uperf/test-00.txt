@@ -156,3 +156,27 @@ instances = 1
 iteration_name = 2-tcp_stream-64B-1i
 
 --- uperf_test-00_1900.01.01T00.00.00/metadata.log file contents
++++ uperf_test-00_1900.01.01T00.00.00/./1-tcp_rr-64B-1i/process-iteration-samples.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/uperf_test-00_1900.01.01T00.00.00/1-tcp_rr-64B-1i" "trans_sec" "5" "0" "6" "n" "y"
+--- uperf_test-00_1900.01.01T00.00.00/./1-tcp_rr-64B-1i/process-iteration-samples.cmd file contents
++++ uperf_test-00_1900.01.01T00.00.00/./1-tcp_rr-64B-1i/sample1/uperf-postprocess.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess "/var/tmp/pbench-test-bench/pbench-agent/uperf_test-00_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample1" "tcp" "64" "1" "rr" "" "127.0.0.1" "uperf-" "default" "1.0.7"
+--- uperf_test-00_1900.01.01T00.00.00/./1-tcp_rr-64B-1i/sample1/uperf-postprocess.cmd file contents
++++ uperf_test-00_1900.01.01T00.00.00/./1-tcp_rr-64B-1i/sample2/uperf-postprocess.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess "/var/tmp/pbench-test-bench/pbench-agent/uperf_test-00_1900.01.01T00.00.00/1-tcp_rr-64B-1i/sample2" "tcp" "64" "1" "rr" "" "127.0.0.1" "uperf-" "default" "1.0.7"
+--- uperf_test-00_1900.01.01T00.00.00/./1-tcp_rr-64B-1i/sample2/uperf-postprocess.cmd file contents
++++ uperf_test-00_1900.01.01T00.00.00/./2-tcp_stream-64B-1i/process-iteration-samples.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/uperf_test-00_1900.01.01T00.00.00/2-tcp_stream-64B-1i" "Gb_sec" "5" "0" "6" "n" "y"
+--- uperf_test-00_1900.01.01T00.00.00/./2-tcp_stream-64B-1i/process-iteration-samples.cmd file contents
++++ uperf_test-00_1900.01.01T00.00.00/./2-tcp_stream-64B-1i/sample1/uperf-postprocess.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess "/var/tmp/pbench-test-bench/pbench-agent/uperf_test-00_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample1" "tcp" "64" "1" "stream" "" "127.0.0.1" "uperf-" "default" "1.0.7"
+--- uperf_test-00_1900.01.01T00.00.00/./2-tcp_stream-64B-1i/sample1/uperf-postprocess.cmd file contents
++++ uperf_test-00_1900.01.01T00.00.00/./2-tcp_stream-64B-1i/sample2/uperf-postprocess.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/uperf-postprocess "/var/tmp/pbench-test-bench/pbench-agent/uperf_test-00_1900.01.01T00.00.00/2-tcp_stream-64B-1i/sample2" "tcp" "64" "1" "stream" "" "127.0.0.1" "uperf-" "default" "1.0.7"
+--- uperf_test-00_1900.01.01T00.00.00/./2-tcp_stream-64B-1i/sample2/uperf-postprocess.cmd file contents
++++ uperf_test-00_1900.01.01T00.00.00/./generate-benchmark-summary.cmd file contents
+/var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary "uperf" "--config=test-00 --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2" "/var/tmp/pbench-test-bench/pbench-agent/uperf_test-00_1900.01.01T00.00.00"
+--- uperf_test-00_1900.01.01T00.00.00/./generate-benchmark-summary.cmd file contents
++++ uperf_test-00_1900.01.01T00.00.00/./pbench-uperf.cmd file contents
+pbench-uperf --config=test-00 --test-types=rr,stream --message-sizes=64 --instances=1 --protocols=tcp --runtime=20 --samples=2
+--- uperf_test-00_1900.01.01T00.00.00/./pbench-uperf.cmd file contents

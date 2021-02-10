@@ -1165,7 +1165,7 @@ function inner_most_loop() {
 					iteration_options="${iteration_options} --rate-unit=% --rate=${rates}"
 				fi
 				if [[ "${traffic_profile_arg}" == "" ]]; then
-					profile_builder_cmd_file="${iteration_dir}/profile-builder-cmd"
+					profile_builder_cmd_file="${iteration_dir}/profile-builder.cmd"
 
 					echo "pushd ${trafficgen_dir} > /dev/null" > ${profile_builder_cmd_file}
 					echo "./profile-builder.py --frame-size=${frame_size_arg} --num-flows=${num_flow_arg} --rate=${rate_arg} ${profile_flow_mods} --traffic-direction=${traffic_direction_arg} --measure-latency" >> ${profile_builder_cmd_file}
