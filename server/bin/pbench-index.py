@@ -170,9 +170,9 @@ def main(options, name):
 
     idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
 
-    idx = Index(name, options, idxctx, INCOMING_rp)
+    idx = Index(name, options, idxctx, INCOMING_rp, ARCHIVE_rp, qdir)
 
-    status, tarballs = idx.collect_tb(ARCHIVE_rp, qdir)
+    status, tarballs = idx.collect_tb()
     if status == 0 and tarballs:
         status = idx.process_tb(tarballs)
 

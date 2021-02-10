@@ -50,7 +50,7 @@ def _count_lines(fname):
 class Index:
     """class used to collect tarballs and index them"""
 
-    def __init__(self, name, options, idxctx, incoming):
+    def __init__(self, name, options, idxctx, incoming, archive, qdir):
 
         self.options = options
         _re_idx = "RE-" if options.re_index else ""
@@ -70,34 +70,36 @@ class Index:
         self.idxctx = idxctx
         self.incoming = incoming
         self.name = name
+        self.archive = archive
+        self.qdir = qdir
 
-    def collect_tb(self, ARCHIVE_rp, qdir):
+    def collect_tb(self):
         """ Collect tarballs that needs indexing"""
 
         # find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
         tarballs = []
         idxctx = self.idxctx
         try:
-            tb_glob = os.path.join(ARCHIVE_rp, "*", self.linksrc, "*.tar.xz")
+            tb_glob = os.path.join(self.archive, "*", self.linksrc, "*.tar.xz")
             for tb in glob.iglob(tb_glob):
                 try:
                     rp = Path(tb).resolve(strict=True)
                 except OSError:
                     idxctx.logger.warning("{} does not resolve to a real path", tb)
-                    quarantine(qdir, idxctx.logger, tb)
+                    quarantine(self.qdir, idxctx.logger, tb)
                     continue
                 controller_path = rp.parent
                 controller = controller_path.name
                 archive_path = controller_path.parent
-                if str(archive_path) != str(ARCHIVE_rp):
+                if str(archive_path) != str(self.archive):
                     idxctx.logger.warning(
-                        "For tar ball {}, original home is not {}", tb, ARCHIVE_rp
+                        "For tar ball {}, original home is not {}", tb, self.archive
                     )
-                    quarantine(qdir, idxctx.logger, tb)
+                    quarantine(self.qdir, idxctx.logger, tb)
                     continue
                 if not Path(f"{rp}.md5").is_file():
                     idxctx.logger.warning("Missing .md5 file for {}", tb)
-                    quarantine(qdir, idxctx.logger, tb)
+                    quarantine(self.qdir, idxctx.logger, tb)
                     # Audit should pick up missing .md5 file in ARCHIVE directory.
                     continue
                 try:
@@ -105,7 +107,7 @@ class Index:
                     size = rp.stat().st_size
                 except OSError:
                     idxctx.logger.warning("Could not fetch tar ball size for {}", tb)
-                    quarantine(qdir, idxctx.logger, tb)
+                    quarantine(self.qdir, idxctx.logger, tb)
                     # Audit should pick up missing .md5 file in ARCHIVE directory.
                     continue
                 else:
