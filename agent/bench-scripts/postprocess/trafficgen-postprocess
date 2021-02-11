@@ -92,10 +92,6 @@ my @tx_L2_Gbps; # each array element contains a hash with:
 				# role: packet-generator
 				# the number value for 10^9 bits per second for physical Ethernet (layer 1, including CRC and padding)
 
-sub mean {
-	return sum(@_)/@_;
-}
-
 my $script = basename($0);
 my $dir = $ARGV[0];
 my $controller_host = $ARGV[1];
