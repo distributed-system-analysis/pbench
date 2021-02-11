@@ -16,7 +16,6 @@ no lib ".";
 use GenData qw(gen_data);
 use BenchPostprocess qw(trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
 use File::Basename;
-use Data::Dumper;
 use List::Util('sum');
 use JSON;
 
@@ -176,9 +175,6 @@ close TXT;
 my $json_result = from_json($json_text);
 my %last_trial = %{ $$json_result{'trials'}[-1] };
 
-#print Dumper $json_result;
-#exit;
-
 foreach my $trial_param ( keys %{ $last_trial{'trial_params'} } ) {
 	if ( $trial_param eq 'output_dir' ) {
 		# The output_dir parameter is different per sample; we explicitly omit it
@@ -253,8 +249,6 @@ foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
 }
 
 if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'})) {
-	#print Dumper $last_trial{'profiler-data'};
-
 	my @profiler_metrics = (
 		{ 'category' => 'global', 'js_label' => 'Global PPS', 'field' => 'pps', 'metric_label' => 'rx', 'group' => 'rx',
 		  'metric_class' => 'throughput', 'desc' => 'The number of packets (Ethernet frames) received per second',
