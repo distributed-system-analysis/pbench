@@ -1,4 +1,6 @@
 [run]
 parallel = True
 data_file = /tmp/${USER}/cov/coverage.db
+
+[run]
 omit = */site-packages/*
