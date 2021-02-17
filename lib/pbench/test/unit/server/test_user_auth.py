@@ -428,8 +428,7 @@ class TestUserAuthentication:
 
 class TestMetadataSession:
     @staticmethod
-    def test_registration(client, server_config, pytestconfig):
-        client.config["SESSION_FILE_DIR"] = pytestconfig.cache.get("TMP", None)
+    def test_registration(client, server_config):
         """ Test for user registration """
         with client:
             response = register_user(
@@ -447,9 +446,10 @@ class TestMetadataSession:
             response = login_user(client, server_config, "user", "12345")
             data_login = response.json
             assert data_login["status"] == "success"
+            assert data_login["auth_token"]
 
             response = client.post(
-                f"{server_config.rest_uri}/user/metadata",
+                f"{server_config.rest_uri}/metadata",
                 json={"config": "config1", "description": "description1"},
                 headers=dict(Authorization="Bearer " + data_login["auth_token"])
             )
@@ -457,7 +457,7 @@ class TestMetadataSession:
             assert data["status"] == "success"
 
             response = client.post(
-                f"{server_config.rest_uri}/user/metadata",
+                f"{server_config.rest_uri}/metadata",
                 json={"config": "config2", "description": "description2"},
                 headers=dict(Authorization="Bearer " + data_login["auth_token"])
             )
@@ -465,7 +465,7 @@ class TestMetadataSession:
             assert data["status"] == "success"
 
             response = client.get(
-                f"{server_config.rest_uri}/user/metadata",
+                f"{server_config.rest_uri}/metadata",
                 headers=dict(Authorization="Bearer " + data_login["auth_token"])
             )
             data = response.json

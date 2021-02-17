@@ -85,10 +85,10 @@ def register_endpoints(api, app, config):
     )
 
     api.add_resource(
-        UserMetadata, f"{base_uri}/user/metadata", resource_class_args=(config, logger),
+        UserMetadata, f"{base_uri}/metadata", resource_class_args=(config, logger, token_auth),
     )
     api.add_resource(
-        QueryMetadata, f"{base_uri}/user/metadata/<string:id>", resource_class_args=(config, logger),
+        QueryMetadata, f"{base_uri}/metadata/<string:id>", resource_class_args=(config, logger),
     )
 
 
@@ -127,11 +127,6 @@ def create_app(server_config):
     except Exception:
         app.logger.exception("Exception while initializing sqlalchemy database")
         sys.exit(1)
-
-    @app.before_request
-    def before_request():
-        print(request.path)
-        print(request.remote_addr)
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):

@@ -3,9 +3,9 @@ import datetime
 import json
 from flask_restful import Resource, abort
 from flask import request, make_response, jsonify
-from pbench.server.api.resources.auth import auth
-from pbench.server.api.resources.models import MetadataModel
-from pbench.server.api.resources.database import Database
+from pbench.server.database.models.metadata import MetadataModel
+from pbench.server.database.database import Database
+from pbench.server.api.auth import Auth
 
 
 class UserMetadata(Resource):
@@ -13,11 +13,12 @@ class UserMetadata(Resource):
     Abstracted pbench API for handling user metadata by using graphql schema
     """
 
-    def __init__(self, config, logger):
+    def __init__(self, config, logger, auth):
         self.server_config = config
         self.logger = logger
+        self.auth = auth
 
-    @auth.login_required()
+    @Auth.token_auth.login_required(f=Auth().verify_auth())
     def post(self):
         """
         Post request for creating metadata instance for a user.
@@ -56,7 +57,7 @@ class UserMetadata(Resource):
         if not description:
             self.logger.warning("Description not provided during metadata creation")
             abort(400, message="Please provide a description string")
-        current_user_id = auth.current_user().id
+        current_user_id = self.auth.token_auth.current_user().id
 
         try:
             # Create a new metadata session
@@ -84,7 +85,7 @@ class UserMetadata(Resource):
             }
             return make_response(jsonify(response_object), 201)
 
-    @auth.login_required()
+    @Auth.token_auth.login_required(f=Auth().verify_auth())
     def get(self):
         """
         Get request for querying all the metadata sessions for a user.
@@ -105,7 +106,7 @@ class UserMetadata(Resource):
                         }
                 }
         """
-        current_user_id = auth.current_user().id
+        current_user_id = self.auth.token_auth.current_user().id
         try:
             # Fetch the metadata session
             sessions = (
@@ -138,7 +139,7 @@ class QueryMetadata(Resource):
         self.server_config = config
         self.logger = logger
 
-    @auth.login_required()
+    @Auth.token_auth.login_required(f=Auth().verify_auth())
     def get(self, id=None):
         """
         Get request for querying a metadata session for a user given a metadata id.
@@ -189,7 +190,7 @@ class QueryMetadata(Resource):
             }
             return make_response(jsonify(response_object), 200)
 
-    @auth.login_required()
+    @Auth.token_auth.login_required(f=Auth().verify_auth())
     def put(self, id=None):
         """
         Put request for updating a metadata session for a user given a metadata id.
