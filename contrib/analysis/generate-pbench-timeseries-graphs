@@ -20,21 +20,21 @@
 #
 # Lots of TODOs:
 #
-# 1) Command line arguments for image size, max # of data sets, what else?
-# 2) Actually feed the output into gnuplot rather than just sending it to stdout
-# 3) Optionally sort data sets by max value or max average
-# 4) Combine multiple samples into 1.
-#    This will require that generate-pbench-timeseries-graphs enumerate the files
-#    (or accept the file list on stdin rather than command line) because the command
-#    line won't be able to accept all of the files in a data set.
-# 5) Handle .csv files from perf and any other tools I've missed.
-# 6) Allow scaling of Y and possibly X axis.
-# 7) Allow command line override of per-file settings.
-# 8) Allow additional gnuplot options
-# 9) Error checking
-# 10) Make data max/minvals available to graph generator so that it can set
-#    the axis bounds in gnuplot correctly.
-# 11->Graham's number ...
+# DONE 1) Command line arguments for image size, max # of data sets, what else?
+#      2) Actually feed the output into gnuplot rather than just sending it to stdout
+#      3) Optionally sort data sets by max value or max average
+#      4) Combine multiple samples into 1.
+#         This will require that generate-pbench-timeseries-graphs enumerate the files
+#         (or accept the file list on stdin rather than command line) because the command
+#         line won't be able to accept all of the files in a data set.
+#      5) Handle .csv files from perf and any other tools I've missed.
+#      6) Allow scaling of Y and possibly X axis.
+#      7) Allow command line override of per-file settings.
+#      8) Allow additional gnuplot options
+#      9) Error checking
+#      10) Make data max/minvals available to graph generator so that it can set
+#         the axis bounds in gnuplot correctly.
+#      11->Graham's number ...
 
 from __future__ import print_function
 from pathlib import Path
@@ -57,6 +57,16 @@ parser.add_argument('-L', "--max-label-size", type=int, help="Maximum label size
 parser.add_argument('-n', "--dont-generate-graphs", action='store_true', help="Don't actually generate graph")
 parser.add_argument('files', metavar='file', type=str, nargs="*", help="files")
 args = parser.parse_args()
+
+match_res = []
+nomatch_re = None
+if args.match:
+    for pattern in args.match:
+        match_res.append(re.compile(pattern))
+if args.dont_match:
+    nomatch = "|"
+    nomatch = "(%s)" % nomatch.join(args.dont_match)
+    nomatch_re = re.compile(nomatch)
 
 pattern_map = {
     re.compile(r'disk_IOPS\.csv$') : {
@@ -472,9 +482,6 @@ def generate_graph_gnuplot(filename, graphtypename, title, x_axis, y_axis, y_max
         """Sort data by column value.
         Ignore the first column, which is the time series"""
 
-        def column_val(col):
-            return col[0]
-
         if (len(criterion) == 1):
             return [0]
         if (len(criterion) == 2):
@@ -496,7 +503,6 @@ def generate_graph_gnuplot(filename, graphtypename, title, x_axis, y_axis, y_max
         return name
 
     def do_generate_graph(fd):
-
         print("""set yrange [0:%s]
 set xrange [0:%d]
 set key outside
@@ -672,11 +678,8 @@ def read_file(f, filename, fixlinefn=None):
     return answer
 
 
-match_res = []
-nomatch_re = None
-
-
 def process_file(filename, openfn=open, fixlinefn=None):
+
     def find_pattern_for(filename):
         def matches(filename):
             if nomatch_re is not None and nomatch_re.search(filename):
@@ -693,18 +696,6 @@ def process_file(filename, openfn=open, fixlinefn=None):
             if m:
                 return (True, m, pattern_map[pattern])
         return (True, None, None)
-
-    initialized_matches = False
-    if not initialized_matches:
-        if args.match:
-            for pattern in args.match:
-                match_res.append(re.compile(pattern))
-        nomatch_re = None
-        if args.dont_match:
-            nomatch = "|"
-            nomatch = "(%s)" % nomatch.join(args.dont_match)
-            nomatch_re = re.compile(nomatch)
-        initialized_matches = True
 
     filename = filename.rstrip()
     if not re.compile(r'\.csv$').search(filename):
