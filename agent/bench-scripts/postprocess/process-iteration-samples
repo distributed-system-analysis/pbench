@@ -249,10 +249,10 @@ foreach $sample (@json_samples) { # samples 0..N
 											my $sv_s = Dumper($sample_value);
 											my $iv_s = Dumper($iteration_value);
 											if ($sv_s ne $iv_s) {
-												print "Error: values do not match\nkey: $key\n\titeration value: $iv_s\n\tsample    value: $sv_s\n";
+												print "Error: values do not match\n\tkey: $key\n\titeration value: $iv_s\n\tsample    value: $sv_s\n";
 											}
 										} else {
-											print "Error: values do not match\nkey: $key\n\titeration value: $iteration_value\n\tsample    value: $sample_value\n";
+											print "Error: values do not match\n\tkey: $key\n\titeration value: $iteration_value\n\tsample    value: $sample_value\n";
 										}
 									}
 								} else {
