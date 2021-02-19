@@ -182,36 +182,41 @@ foreach my $trial_param ( keys %{ $last_trial{'trial_params'} } ) {
 		$config{$trial_param} = $last_trial{'trial_params'}{$trial_param}
 	}
 }
-$config{get_label('uid_label')} = sprintf("%s-%s", $benchmark_name, $benchmark_version);
+
+my $uid_label = sprintf("%s-%s", $benchmark_name, $benchmark_version);
 if (exists($config{'traffic_generator'}) && defined($config{'traffic_generator'})) {
 	my $traffic_generator = $config{'traffic_generator'};
 	if ($traffic_generator eq "trex-txrx-profile" and $traffic_profile_arg ne "") {
 		$config{'traffic_profile_arg'} = $traffic_profile_arg;
-		$config{get_label('uid_label')} .= "-traffic_profile:%traffic_profile_arg%";
+		$uid_label .= "-traffic_profile:%traffic_profile_arg%";
 	} else {
 		$config{'rate_arg'} = $rate_arg;
-		$config{get_label('uid_label')} .= "-rate:%rate_arg%";
+		$uid_label .= "-rate:%rate_arg%";
+		$uid_label .= "-traffic_direction:";
 		if (exists($config{'traffic_direction'}) && defined($config{'traffic_direction'})) {
-			$config{get_label('uid_label')} .= "-traffic_direction:%traffic_direction%";
+			$uid_label .= "%traffic_direction%";
 		} else {
-			$config{get_label('uid_label')} .= "-traffic_direction:MISSING";
+			$uid_label .= "MISSING";
 		}
 		$config{'frame_size'} = $frame_size_arg;
-		$config{get_label('uid_label')} .= "-frame_size:%frame_size%";
+		$uid_label .= "-frame_size:%frame_size%";
 		$config{'num_flows'} = $num_flows_arg;
-		$config{get_label('uid_label')} .= "-num_flows:%num_flows%";
+		$uid_label .= "-num_flows:%num_flows%";
 	}
 } else {
-	$config{get_label('uid_label')} .= "-rate:MISSING";
-	$config{get_label('uid_label')} .= "-traffic_direction:MISSING";
-	$config{get_label('uid_label')} .= "-frame_size:MISSING";
-	$config{get_label('uid_label')} .= "-num_flows:MISSING";
+	$uid_label .= "-rate:MISSING";
+	$uid_label .= "-traffic_direction:MISSING";
+	$uid_label .= "-frame_size:MISSING";
+	$uid_label .= "-num_flows:MISSING";
 }
+$uid_label .= "-pct_drop:";
 if (exists($config{'max_loss_pct'}) && defined($config{'max_loss_pct'})) {
-	$config{get_label('uid_label')} .= "-pct_drop:%max_loss_pct%";
+	$uid_label .= "%max_loss_pct%";
 } else {
-	$config{get_label('uid_label')} .= "-pct_drop:MISSING";
+	$uid_label .= "MISSING";
 }
+$config{get_label('uid_label')} = $uid_label;
+
 push(@benchmark, \%config);
 
 foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
