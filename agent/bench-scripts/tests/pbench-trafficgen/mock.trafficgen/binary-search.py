@@ -7,11 +7,10 @@ with open(os.environ["_testlog"], "a") as ofp:
     args = " ".join(sys.argv)
     ofp.write(f"{args}\n")
 
-val = os.environ.get("_PBENCH_UNIT_TESTS_NO_MATCH_BINARY_SEARCH", "")
 if os.environ.get("_PBENCH_UNIT_TESTS_NO_MATCH_BINARY_SEARCH", ""):
     bad_msg = "something other than a "
 else:
-    bad_msg = val
+    bad_msg = ""
 
 print(f"Starting {bad_msg}binary-search")
 if not os.environ.get("_PBENCH_UNIT_TESTS_UNFINISHED_BINARY_SEARCH", ""):
