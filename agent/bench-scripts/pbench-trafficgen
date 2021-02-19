@@ -763,8 +763,16 @@ if [ $one_shot == "y" ]; then
 	cmd="$cmd --one-shot=1"
 fi
 
-if [ "$tool_period" == "repeat-final-validation" ]; then
+if [[ "$tool_period" == "binary-search" ]]; then
+	start_trigger="Starting binary-search"
+	stop_trigger="Finished binary-search"
+elif [[ "$tool_period" == "repeat-final-validation" ]]; then
 	cmd="$cmd --repeat-final-validation"
+	start_trigger="Starting repeat final validation for debug collection"
+	stop_trigger="Finished repeat final validation for debug collection"
+else
+	error_log "invalid --tool-period argument, '${tool_period}'"
+	exit 1
 fi
 
 if [ "${postprocess_only}" == "n" ]; then
@@ -1032,11 +1040,7 @@ echo "Total number of benchmark iterations: $total_iterations"
 if [ "${postprocess_only}" == "n" ]; then
 	# Register the tool triggers depending on the tool period preference
 	# FIXME - tool triggers should only be registered for the duration of the benchmark run.
-	if [ "$tool_period" == "binary-search" ]; then
-		pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting binary-search" --stop-trigger="Finished binary-search"
-	elif [ "$tool_period" == "repeat-final-validation" ]; then
-		pbench-register-tool-trigger --group=$tool_group --start-trigger="Starting repeat final validation for debug collection" --stop-trigger="Finished repeat final validation for debug collection"
-	fi
+	pbench-register-tool-trigger --group="${tool_group}" --start-trigger="${start_trigger}" --stop-trigger="${stop_trigger}"
 
 	pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
 	pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
