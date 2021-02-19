@@ -1072,16 +1072,15 @@ function inner_most_loop() {
 	if [[ "${loop_type}" == "default" ]]; then
 		local fs_unit="B"
 		unset traffic_profile_arg
-	else
-		if [[ "${loop_type}" != "profile" ]]; then
-			error_log "INTERNAL ERROR - unexpected loop type, '${loop_type}'"
-			exit 1
-		fi
+	elif [[ "${loop_type}" == "profile" ]]; then
 		local traffic_profile_name=$(basename ${traffic_profile_arg})
 		unset rate_arg
 		unset traffic_direction_arg
 		unset frame_size_arg
 		unset num_flow_arg
+	else
+		error_log "INTERNAL ERROR - unexpected loop type, '${loop_type}'"
+		exit 1
 	fi
 
 	for max_loss_pct in `echo $max_loss_pcts | sed -e s/,/" "/g`; do
