@@ -199,9 +199,9 @@ foreach $sample (@json_samples) { # samples 0..N
 				if ($mapped_uid) {
 					# either find metric_name element within %iteration with same uid, or create a new one
 					my $iteration_matching_index;
-					if ($iteration{$metric_type}{$metric_name}) {
+					if (exists($iteration{$metric_type}{$metric_name})) {
 						for (my $j = 0; $j < scalar @{ $iteration{$metric_type}{$metric_name} }; $j++) {
-							if ( $iteration{$metric_type}{$metric_name}[$j]{get_label('uid_label')} )  {
+							if (exists($iteration{$metric_type}{$metric_name}[$j]{get_label('uid_label')}))  {
 								if ( $mapped_uid eq get_uid($iteration{$metric_type}{$metric_name}[$j]{get_label('uid_label')}, \%{ $iteration{$metric_type}{$metric_name}[$j] }) ) {
 									$iteration_matching_index = $j;
 									last;
@@ -227,10 +227,10 @@ foreach $sample (@json_samples) { # samples 0..N
 						if ($key eq get_label('value_label')) {
 							my %samples_hash;
 							$samples_hash{get_label('value_label')} = $sample_value;
-							if ($sample_hash{$metric_type}{$metric_name}[$i]{get_label('timeseries_label')}) {
+							if (exists($sample_hash{$metric_type}{$metric_name}[$i]{get_label('timeseries_label')})) {
 								$samples_hash{get_label('timeseries_label')} = $sample_hash{$metric_type}{$metric_name}[$i]{get_label('timeseries_label')};
 							}
-							if ( not defined $iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')} ) {
+							if (not exists($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')})) {
 								# Create an array to hold the samples for "value" values
 								# For example, if uperf had 5 sample runs, there would be an array of 5 Gb_sec values in this array
 								$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')} = ();
@@ -240,7 +240,7 @@ foreach $sample (@json_samples) { # samples 0..N
 							# For the rest of the keys, either check to see if it matches existing value in the %iteration,
 							# or if it does not exist, create it.
 							if ( $key ne get_label('timeseries_label') and $key ne get_label('uid_label') ) { # timeseries already handled above
-								if ($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key}) {
+								if (exists($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key})) {
 									my $iteration_value = $iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key};
 									if ("$sample_value" ne "$iteration_value") {
 										my $sv = ref($sample_value);
@@ -283,7 +283,7 @@ foreach my $metric_type (sort keys %iteration) {
 					 $iteration{$metric_type}{$metric_name}[$i]{get_label('stddev_label')},
 					 $iteration{$metric_type}{$metric_name}[$i]{get_label('stddevpct_label')},
 					 $iteration{$metric_type}{$metric_name}[$i]{get_label('closest_sample_label')}) = get_avg_stddev($samples_start_index, @{$iteration{$metric_type}{$metric_name}[$i]{get_label('samples_label')}});
-					if ($iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')} and
+					if (exists($iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')}) and
 						$iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')} eq 'aggregate' and
 						$metric_type eq "throughput" and
 						$metric_name eq $primary_metric and
@@ -299,9 +299,9 @@ foreach my $metric_type (sort keys %iteration) {
 $iteration{'parameters'}{'benchmark'}[0]{get_label('max_stddevpct_label')} = 1.0 * $max_stddevpct;
 
 # Link reference result
-if ( $iteration{'throughput'}{$primary_metric} ) {
+if (exists($iteration{'throughput'}{$primary_metric})) {
 	for (my $sample_num = 1; $sample_num < scalar @{$iteration{'throughput'}{$primary_metric}[0]{get_label('samples_label')}} + 1; $sample_num++) {
-		if ($iteration{'throughput'}{$primary_metric}[0]{'closest_sample'} and $sample_num == $iteration{'throughput'}{$primary_metric}[0]{'closest_sample'}) {
+		if (exists($iteration{'throughput'}{$primary_metric}[0]{'closest_sample'}) and $sample_num == $iteration{'throughput'}{$primary_metric}[0]{'closest_sample'}) {
 			# use "reference-result" to point to result which is closest to the average
 			system("rm -rf $dir/reference-result");
 			system("ln -sf sample$sample_num $dir/reference-result");
