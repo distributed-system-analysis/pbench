@@ -3,7 +3,6 @@ import datetime
 from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.database import Database
-from pbench.server.api.resources.models import MetadataModel
 
 
 def register_user(
@@ -428,7 +427,7 @@ class TestUserAuthentication:
 
 class TestMetadataSession:
     @staticmethod
-    def test_registration(client, server_config):
+    def test_metadata_creation(client, server_config):
         """ Test for user registration """
         with client:
             response = register_user(
