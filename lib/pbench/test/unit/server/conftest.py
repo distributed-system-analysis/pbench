@@ -10,6 +10,7 @@ install-dir = {TMP}/opt/pbench-server
 
 [pbench-server]
 pbench-top-dir = {TMP}/srv/pbench
+proxy_host = pbench.example.com:8901
 
 [Postgres]
 db_uri = sqlite:///:memory:
