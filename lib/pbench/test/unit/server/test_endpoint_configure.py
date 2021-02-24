@@ -14,22 +14,20 @@ class TestEnpointConfig:
         """
         test_query Check that endpoint data matches the config file.
         """
-        port = server_config.get("pbench-server", "rest_port")
-        host = server_config.get("pbench-server", "host")
+        host = server_config.get("pbench-server", "proxy_host")
         uri_prefix = server_config.rest_uri
-        uri = f"{host}:{port}{uri_prefix}"
+        uri = f"{host}{uri_prefix}"
         prefix = get_index_prefix(server_config)
         expected_results = {
             "metadata": {
                 "identification": f"Pbench server {server_config.COMMIT_ID}",
-                "prefix": prefix,
                 "run_index": f"{prefix}.v6.run-data.",
                 "run_toc_index": f"{prefix}.v6.run-toc.",
                 "result_index": f"{prefix}.v5.result-data-sample.",
                 "result_data_index": f"{prefix}.v5.result-data.",
             },
             "api": {
-                "results": f"{host}:8901",
+                "results": f"{host}",
                 "elasticsearch": f"{uri}/elasticsearch",
                 "endpoints": f"{uri}/endpoints",
                 "graphql": f"{uri}/graphql",
