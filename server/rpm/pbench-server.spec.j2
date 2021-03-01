@@ -101,101 +101,22 @@ fi
 %posttrans
 
 %files
+
 %defattr(644, pbench, pbench, 755)
 /%{installdir}/VERSION
 /%{installdir}/SEQNO
 /%{installdir}/SHA1
-/%{installdir}/%{static}/VERSION
 /%{installdir}/package.json
 /%{installdir}/requirements.txt
 
-/%{installdir}/lib/config/pbench-server-satellite.cfg.example
-/%{installdir}/lib/config/pbench-server.cfg.example
-/%{installdir}/lib/config/pbench-server-default.cfg
+# pbench-base.sh %attr overrides previous /bin %attr
+%attr(755, pbench, pbench) /%{installdir}/bin
+%attr(644, pbench, pbench) /%{installdir}/bin/pbench-base.sh
 
-/%{installdir}/lib/crontab
-/%{installdir}/lib/mappings
-/%{installdir}/lib/settings
-
-/%{installdir}/lib/pbench/common/configtools.py
-/%{installdir}/lib/pbench/common/__init__.py
-/%{installdir}/lib/pbench/common/conf.py
-/%{installdir}/lib/pbench/common/constants.py
-/%{installdir}/lib/pbench/common/exceptions.py
-/%{installdir}/lib/pbench/common/logger.py
-/%{installdir}/lib/pbench/common/utils.py
-/%{installdir}/lib/pbench/__init__.py
-/%{installdir}/lib/pbench/server/__init__.py
-/%{installdir}/lib/pbench/server/indexer.py
-/%{installdir}/lib/pbench/server/report.py
-/%{installdir}/lib/pbench/server/mock.py
-/%{installdir}/lib/pbench/server/utils.py
-/%{installdir}/lib/pbench/server/api/__init__.py
-/%{installdir}/lib/pbench/server/api/resources/graphql_api.py
-/%{installdir}/lib/pbench/server/api/resources/upload_api.py
-/%{installdir}/lib/pbench/server/api/resources/query_apis/__init__.py
-/%{installdir}/lib/pbench/server/api/resources/query_apis/elasticsearch_api.py
-/%{installdir}/lib/pbench/server/api/resources/query_apis/query_controllers.py
-/%{installdir}/lib/pbench/server/s3backup/__init__.py
-/%{installdir}/lib/pbench/cli/__init__.py
-/%{installdir}/lib/pbench/cli/getconf.py
-/%{installdir}/lib/pbench/cli/server/shell.py
-
-/%{installdir}/bin/pbench-base.sh
-
-%defattr(755, pbench, pbench, 755)
-/%{installdir}/bin/pbench-config
-/%{installdir}/bin/pbench-server
-/%{installdir}/bin/pbench-server-activate-create-crontab
-/%{installdir}/bin/pbench-server-prep-shim-002
-/%{installdir}/bin/pbench-audit-server
-/%{installdir}/bin/pbench-backup-tarballs
-/%{installdir}/bin/pbench-verify-backup-tarballs
-/%{installdir}/bin/pbench-clean-up-dangling-results-links
-/%{installdir}/bin/pbench-copy-sosreports
-/%{installdir}/bin/pbench-index
-/%{installdir}/bin/pbench-reindex
-/%{installdir}/bin/pbench-unpack-tarballs
-/%{installdir}/bin/pbench-satellite-cleanup
-/%{installdir}/bin/pbench-satellite-state-change
-/%{installdir}/bin/pbench-remote-satellite-state-change
-/%{installdir}/bin/pbench-remote-sync-package-tarballs
-/%{installdir}/bin/pbench-dispatch
-/%{installdir}/bin/pbench-report-status
-/%{installdir}/bin/pbench-pp-status
-/%{installdir}/bin/pbench-sync-package-tarballs
-/%{installdir}/bin/pbench-sync-satellite
-/%{installdir}/bin/pbench-server-set-result-state
-/%{installdir}/bin/pbench-audit-server.sh
-/%{installdir}/bin/pbench-backup-tarballs.py
-/%{installdir}/bin/pbench-base.py
-/%{installdir}/bin/pbench-clean-up-dangling-results-links.sh
-/%{installdir}/bin/pbench-copy-sosreports.sh
-/%{installdir}/bin/pbench-dispatch.sh
-/%{installdir}/bin/pbench-index.py
-/%{installdir}/bin/pbench-reindex.py
-/%{installdir}/bin/pbench-report-status.py
-/%{installdir}/bin/pbench-satellite-cleanup.sh
-/%{installdir}/bin/pbench-satellite-state-change.py
-/%{installdir}/bin/pbench-server-prep-shim-002.py
-/%{installdir}/bin/pbench-sync-package-tarballs.sh
-/%{installdir}/bin/pbench-sync-satellite.sh
-/%{installdir}/bin/pbench-trampoline
-/%{installdir}/bin/pbench-unpack-tarballs.sh
-/%{installdir}/bin/pbench-verify-backup-tarballs.py
-/%{installdir}/bin/pbench-check-tb-age
-/%{installdir}/bin/pbench-check-tb-age.py
-/%{installdir}/bin/pbench-cull-unpacked-tarballs
-/%{installdir}/bin/pbench-cull-unpacked-tarballs.py
-
-/%{installdir}/lib/systemd/pbench-server.service
-
-%defattr(644, pbench, pbench, 755)
-/%{installdir}/%{static}/css/v0.2/pbench_utils.css
-/%{installdir}/%{static}/js/v0.2/pbench_utils.js
-/%{installdir}/%{static}/js/v0.2/app.js
-/%{installdir}/%{static}/css/v0.3/jschart.css
-/%{installdir}/%{static}/js/v0.3/jschart.js
+# service script %attr overrides %defattr on later /lib
+%attr(755, pbench, pbench) /%{installdir}/lib/systemd/pbench-server.service
+/%{installdir}/lib
+/%{installdir}/%{static}
 
 %doc
 /%{installdir}/lib/pbench/server/s3backup/README
