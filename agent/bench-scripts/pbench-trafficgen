@@ -1042,10 +1042,10 @@ if [ "${postprocess_only}" == "n" ]; then
 	# FIXME - tool triggers should only be registered for the duration of the benchmark run.
 	pbench-register-tool-trigger --group="${tool_group}" --start-trigger="${start_trigger}" --stop-trigger="${stop_trigger}"
 
-	pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-	pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
+	pbench-collect-sysinfo --group=${tool_group} --dir=${benchmark_run_dir} --sysinfo=${sysinfo} beg
+	pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} beg
 	# on abnormal exit, make sure that the metadata log exists and is complete.
-	trap "pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir int" INT QUIT
+	trap "pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} int" INT QUIT
 
 	if [ $traffic_generator == "trex-txrx" -o $traffic_generator == "trex-txrx-profile" ]; then
 		if [ $skip_trex_server == "n" ]; then
