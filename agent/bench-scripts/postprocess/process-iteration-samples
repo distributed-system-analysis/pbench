@@ -245,7 +245,7 @@ foreach $sample (@json_samples) { # samples 0..N
 									if ("$sample_value" ne "$iteration_value") {
 										my $sv = ref($sample_value);
 										my $iv = ref($iteration_value);
-										if ($sv and ($sv eq $iv)) {
+										if (($sv ne "") and ($sv eq $iv)) {
 											my $sv_s = Dumper($sample_value);
 											my $iv_s = Dumper($iteration_value);
 											if ($sv_s ne $iv_s) {
