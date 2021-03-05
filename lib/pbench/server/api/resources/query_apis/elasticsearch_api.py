@@ -25,12 +25,10 @@ class Elasticsearch(Resource):
 
         try:
             # query Elasticsearch
+            url = f"{self.elasticsearch}/{json_data['indices']}"
             if "params" in json_data:
-                url = (
-                    f"{self.elasticsearch}/{json_data['indices']}?{json_data['params']}"
-                )
-            else:
-                url = f"{self.elasticsearch}/{json_data['indices']}"
+                if "ignore_unavailable" in json_data["params"]:
+                    url = f"{url}?ignore_unavailable={json_data['params']['ignore_unavailable']}"
 
             if "payload" in json_data:
                 es_response = requests.post(url, json=json_data["payload"])
