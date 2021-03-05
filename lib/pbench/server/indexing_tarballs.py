@@ -6,6 +6,7 @@ import signal
 import tarfile
 import tempfile
 from pathlib import Path
+from collections import deque
 
 from pbench.common.exceptions import (
     BadDate,
@@ -50,7 +51,7 @@ def _count_lines(fname):
 class Index:
     """class used to collect tarballs and index them"""
 
-    def __init__(self, name, options, idxctx, incoming):
+    def __init__(self, name, options, idxctx, incoming, archive, qdir):
 
         self.options = options
         _re_idx = "RE-" if options.re_index else ""
@@ -70,34 +71,36 @@ class Index:
         self.idxctx = idxctx
         self.incoming = incoming
         self.name = name
+        self.archive = archive
+        self.qdir = qdir
 
-    def collect_tb(self, ARCHIVE_rp, qdir):
+    def collect_tb(self):
         """ Collect tarballs that needs indexing"""
 
         # find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
         tarballs = []
         idxctx = self.idxctx
         try:
-            tb_glob = os.path.join(ARCHIVE_rp, "*", self.linksrc, "*.tar.xz")
+            tb_glob = os.path.join(self.archive, "*", self.linksrc, "*.tar.xz")
             for tb in glob.iglob(tb_glob):
                 try:
                     rp = Path(tb).resolve(strict=True)
                 except OSError:
                     idxctx.logger.warning("{} does not resolve to a real path", tb)
-                    quarantine(qdir, idxctx.logger, tb)
+                    quarantine(self.qdir, idxctx.logger, tb)
                     continue
                 controller_path = rp.parent
                 controller = controller_path.name
                 archive_path = controller_path.parent
-                if str(archive_path) != str(ARCHIVE_rp):
+                if str(archive_path) != str(self.archive):
                     idxctx.logger.warning(
-                        "For tar ball {}, original home is not {}", tb, ARCHIVE_rp
+                        "For tar ball {}, original home is not {}", tb, self.archive
                     )
-                    quarantine(qdir, idxctx.logger, tb)
+                    quarantine(self.qdir, idxctx.logger, tb)
                     continue
                 if not Path(f"{rp}.md5").is_file():
                     idxctx.logger.warning("Missing .md5 file for {}", tb)
-                    quarantine(qdir, idxctx.logger, tb)
+                    quarantine(self.qdir, idxctx.logger, tb)
                     # Audit should pick up missing .md5 file in ARCHIVE directory.
                     continue
                 try:
@@ -105,7 +108,7 @@ class Index:
                     size = rp.stat().st_size
                 except OSError:
                     idxctx.logger.warning("Could not fetch tar ball size for {}", tb)
-                    quarantine(qdir, idxctx.logger, tb)
+                    quarantine(self.qdir, idxctx.logger, tb)
                     # Audit should pick up missing .md5 file in ARCHIVE directory.
                     continue
                 else:
@@ -126,7 +129,7 @@ class Index:
                 idxctx.logger.info("No tar balls found that need processing")
                 return (0, [])
 
-        return (0, sorted(tarballs))
+        return (0, tarballs)
 
     def process_tb(self, tarballs):
         """Process Tarballs For Indexing and creates report
@@ -137,9 +140,11 @@ class Index:
         # We always process the smallest tar balls first.
         idxctx = self.idxctx
 
+        tb_deque = deque(sorted(tarballs))
+
         # At this point, tarballs contains a list of tar balls sorted by size
         # that were available as symlinks in the various 'linksrc' directories.
-        idxctx.logger.debug("Preparing to index {:d} tar balls", len(tarballs))
+        idxctx.logger.debug("Preparing to index {:d} tar balls", len(tb_deque))
 
         try:
             # Now that we are ready to begin the actual indexing step, ensure we
@@ -218,13 +223,22 @@ class Index:
                 def sigquit_handler(*args):
                     sigquit_interrupt[0] = True
 
+                sighup_interrupt = [False]
+
+                def sighup_handler(*args):
+                    sighup_interrupt[0] = True
+
                 signal.signal(signal.SIGQUIT, sigquit_handler)
+                signal.signal(signal.SIGHUP, sighup_handler)
+                count_processed_tb = 0
 
                 try:
-                    for size, controller, tb in tarballs:
+                    while len(tb_deque) > 0:
+                        size, controller, tb = tb_deque.popleft()
                         # Sanity check source tar ball path
                         linksrc_dir = Path(tb).parent
                         linksrc_dirname = linksrc_dir.name
+                        count_processed_tb += 1
                         assert linksrc_dirname == self.linksrc, (
                             f"Logic bomb!  tar ball "
                             f"path {tb} does not contain {self.linksrc}"
@@ -425,13 +439,33 @@ class Index:
 
                         if sigquit_interrupt[0]:
                             break
+                        if sighup_interrupt[0]:
+                            status, new_tb = self.collect_tb()
+                            if status == 0:
+                                if not set(new_tb).issuperset(tb_deque):
+                                    idxctx.logger.info(
+                                        "Tarballs supposed to be in 'TO-INDEX' are no longer present",
+                                        set(tb_deque).difference(new_tb),
+                                    )
+                                tb_deque = deque(sorted(new_tb))
+                            idxctx.logger.info(
+                                "SIGHUP status (Current tar ball indexed: ({}), Remaining: {}, Completed: {}, Errors_encountered: {}, Status: {})",
+                                Path(tb).name,
+                                len(tb_deque),
+                                count_processed_tb,
+                                _count_lines(erred),
+                                tb_res,
+                            )
+                            sighup_interrupt[0] = False
+                            continue
                 except SigTermException:
                     idxctx.logger.exception(
                         "Indexing interrupted by SIGQUIT, stop processing tarballs"
                     )
                 finally:
-                    # Turn off the SIGQUIT handler when not indexing.
+                    # Turn off the SIGQUIT and SIGHUP handler when not indexing.
                     signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+                    signal.signal(signal.SIGHUP, signal.SIG_IGN)
             except SigTermException:
                 # Re-raise a SIGTERM to avoid it being lumped in with general
                 # exception handling below.

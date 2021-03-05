@@ -105,6 +105,17 @@ def main(options, name):
                 - Raises an exception caught be a new, outer-most, try/except
                   block that does not have a finally clause (as you don't want
                   any code execution in the finally block).
+
+        4. Re-evaluate the list of tar balls to index after indexing of the
+            current tar ball has finished
+            - SIGHUP
+            - Report the current state of indexing
+                - Current tar ball being processed
+                - Count of Remaining tarballs
+                - Count of Completed tarballs
+                - No. of Errors encountered
+            - Handler Behavior:
+                - No exception raised
     """
 
     _name_suf = "-tool-data" if options.index_tool_data else ""
@@ -170,11 +181,11 @@ def main(options, name):
 
     idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
 
-    idx = Index(name, options, idxctx, INCOMING_rp)
+    index_obj = Index(name, options, idxctx, INCOMING_rp, ARCHIVE_rp, qdir)
 
-    status, tarballs = idx.collect_tb(ARCHIVE_rp, qdir)
+    status, tarballs = index_obj.collect_tb()
     if status == 0 and tarballs:
-        status = idx.process_tb(tarballs)
+        status = index_obj.process_tb(tarballs)
 
     return status
 
@@ -236,6 +247,7 @@ if __name__ == "__main__":
         signal.signal(signal.SIGTERM, sigterm_handler)
         signal.signal(signal.SIGINT, signal.SIG_IGN)
         signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+        signal.signal(signal.SIGHUP, signal.SIG_IGN)
         status = main(parsed, run_name)
     except SigTermException:
         # If a SIGTERM escapes the main indexing function, silently set our
