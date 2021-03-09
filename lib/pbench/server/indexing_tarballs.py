@@ -3,7 +3,6 @@
 import os
 import glob
 import signal
-import tarfile
 import tempfile
 from pathlib import Path
 from collections import deque
@@ -11,7 +10,6 @@ from collections import deque
 from pbench.common.exceptions import (
     BadDate,
     UnsupportedTarballFormat,
-    SosreportHostname,
     BadMDLogFormat,
     TemplateError,
 )
@@ -302,16 +300,6 @@ class Index:
                                 "The metadata.log file is curdled in" " tar ball: {}", e
                             )
                             tb_res = 7
-                        except SosreportHostname as e:
-                            idxctx.logger.warning("Bad hostname in sosreport: {}", e)
-                            tb_res = 10
-                        except tarfile.TarError as e:
-                            idxctx.logger.error(
-                                "Can't unpack tar ball into {}: {}",
-                                ptb.extracted_root,
-                                e,
-                            )
-                            tb_res = 11
                         except SigTermException:
                             idxctx.logger.exception(
                                 "Indexing interrupted by SIGTERM, terminating"
