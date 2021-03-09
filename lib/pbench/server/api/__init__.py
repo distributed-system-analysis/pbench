@@ -7,14 +7,15 @@ Dashboard or any number of pbench agent users.
 import os
 import sys
 
-from flask import Flask, request
+from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
 
 from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
 from pbench.server.api.resources.upload_api import Upload, HostInfo
-from pbench.server.api.resources.graphql_api import GraphQL, UserMetadata, QueryMetadata
+from pbench.server.api.resources.graphql_api import GraphQL
+from pbench.server.api.resources.metadata_api import UserMetadata, QueryMetadata
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.query_controllers import QueryControllers
@@ -85,10 +86,14 @@ def register_endpoints(api, app, config):
     )
 
     api.add_resource(
-        UserMetadata, f"{base_uri}/metadata", resource_class_args=(config, logger, token_auth),
+        UserMetadata,
+        f"{base_uri}/metadata",
+        resource_class_args=(config, logger, token_auth),
     )
     api.add_resource(
-        QueryMetadata, f"{base_uri}/metadata/<string:id>", resource_class_args=(config, logger),
+        QueryMetadata,
+        f"{base_uri}/metadata/<string:id>",
+        resource_class_args=(config, logger),
     )
 
 
