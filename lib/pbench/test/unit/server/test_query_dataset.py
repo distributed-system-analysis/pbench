@@ -38,9 +38,9 @@ def query_helper(client, server_config, requests_mock):
     return query_helper
 
 
-class TestQueryResults:
+class TestQueryDataset:
     """
-    Unit testing for resources/QueryResults class.
+    Unit testing for resources/QueryDataset class.
 
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class

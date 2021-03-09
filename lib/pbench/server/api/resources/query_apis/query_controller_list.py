@@ -10,7 +10,7 @@ from pbench.server.api.resources.query_apis import (
 )
 
 
-class QueryControllers(Resource):
+class QueryControllerList(Resource):
     """
     Abstracted Pbench API to get date-bounded controller data.
     """

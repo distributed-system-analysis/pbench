@@ -319,7 +319,7 @@ class Index:
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
                         dataset = None
                         ptb = None
-                        username = Dataset.DEFAULT_USERNAME
+                        username = Dataset.ANTI_USER
                         try:
                             path = os.path.realpath(tb)
 

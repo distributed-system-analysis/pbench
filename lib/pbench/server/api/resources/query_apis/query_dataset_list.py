@@ -10,7 +10,7 @@ from pbench.server.api.resources.query_apis import (
 )
 
 
-class QueryResults(Resource):
+class QueryDatasetList(Resource):
     """
     Abstracted Pbench API to get date-bounded dataset data for a particular
     controller.

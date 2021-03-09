@@ -10,7 +10,7 @@ from pbench.server.api.resources.query_apis import (
 )
 
 
-class QueryResult(Resource):
+class QueryDataset(Resource):
     """
     Abstracted Pbench API to get detailed data for a particular
     dataset by name. The date range given isn't used for the search
