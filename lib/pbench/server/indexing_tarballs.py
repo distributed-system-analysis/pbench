@@ -3,7 +3,6 @@
 import os
 import glob
 import signal
-import tarfile
 import tempfile
 from pathlib import Path
 from collections import deque
@@ -11,7 +10,6 @@ from collections import deque
 from pbench.common.exceptions import (
     BadDate,
     UnsupportedTarballFormat,
-    SosreportHostname,
     BadMDLogFormat,
     TemplateError,
 )
@@ -37,6 +35,23 @@ class SigTermException(Exception):
     pass
 
 
+class ErrorCode:
+    def __init__(self, name, value, tarball_error, message):
+        self.name = name
+        self.value = value
+        self.success = value == 0
+        self.tarball_error = tarball_error
+        self.message = message
+
+
+class Errors:
+    def __init__(self, *codes):
+        self.errors = {code.name: code for code in codes}
+
+    def __getitem__(self, key):
+        return self.errors[key]
+
+
 def _count_lines(fname):
     """Simple method to count the lines of a file.
     """
@@ -49,7 +64,38 @@ def _count_lines(fname):
 
 
 class Index:
-    """class used to collect tarballs and index them"""
+    """ class used to collect tarballs and index them
+
+        Status codes used by es_index and the error below are defined to
+        maintain compatibility with the previous code base when pbench-index
+        was a bash script.
+    """
+
+    error_code = Errors(
+        ErrorCode("OK", 0, None, "Successful completion"),
+        ErrorCode("OP_ERROR", 1, False, "Operational error while indexing"),
+        ErrorCode("CFG_ERROR", 2, False, "Configuration file not specified"),
+        ErrorCode("BAD_CFG", 3, False, "Bad configuration file"),
+        ErrorCode(
+            "TB_META_ABSENT", 4, True, "Tar ball does not contain a metadata.log file",
+        ),
+        ErrorCode("BAD_DATE", 5, True, "Bad start run date value encountered"),
+        ErrorCode("FILE_NOT_FOUND_ERROR", 6, True, "File Not Found error"),
+        ErrorCode("BAD_METADATA", 7, True, "Bad metadata.log file encountered"),
+        ErrorCode(
+            "MAPPING_ERROR",
+            8,
+            False,
+            "Error reading a mapping file for Elasticsearch templates",
+        ),
+        ErrorCode(
+            "TEMPLATE_CREATION_ERROR",
+            9,
+            False,
+            "Error creating one of the Elasticsearch templates",
+        ),
+        ErrorCode("GENERIC_ERROR", 12, False, "Unexpected error encountered"),
+    )
 
     def __init__(self, name, options, idxctx, incoming, archive, qdir):
 
@@ -80,6 +126,7 @@ class Index:
         # find -L $ARCHIVE/*/$linksrc -name '*.tar.xz' -printf "%s\t%p\n" 2>/dev/null | sort -n > $list
         tarballs = []
         idxctx = self.idxctx
+        error_code = self.error_code
         try:
             tb_glob = os.path.join(self.archive, "*", self.linksrc, "*.tar.xz")
             for tb in glob.iglob(tb_glob):
@@ -119,26 +166,45 @@ class Index:
             raise
         except Exception:
             idxctx.logger.exception(
-                "Unexpected error encountered generating list"
-                " of tar balls to process"
+                "{} generating list of tar balls to process",
+                error_code["GENERIC_ERROR"].message,
             )
             # tuple to return the status and return value
-            return (12, [])
+            return (error_code["GENERIC_ERROR"].value, [])
         else:
             if not tarballs:
                 idxctx.logger.info("No tar balls found that need processing")
-                return (0, [])
 
-        return (0, tarballs)
+        return (error_code["OK"].value, sorted(tarballs))
+
+    def emit_error(self, logger_method, error, exception):
+        """Helper method to write a log message in a standard format from an error code
+
+            Args
+                logger_method -- Reference to a method of a Python logger object,
+                                like idxctx.logger.warning
+                error -- An error code name from the Errors collection, like "OK"
+                exception -- the original exception leading to the error
+
+            Returns
+                Relevant error_code object
+
+            Although all log messages will appear to have originated from this method,
+            the origin can easily be identified from the error code value, and this
+            interface provides simplicity and consistency.
+        """
+        ec = self.error_code[error]
+        logger_method("{}: {}", ec.message, exception)
+        return ec
 
     def process_tb(self, tarballs):
         """Process Tarballs For Indexing and creates report
 
             "tarballs" - List of tarball, it is the second value of
                 the tuple returned by collect_tb() """
-
-        # We always process the smallest tar balls first.
+        res = 0
         idxctx = self.idxctx
+        error_code = self.error_code
 
         tb_deque = deque(sorted(tarballs))
 
@@ -152,8 +218,7 @@ class Index:
             idxctx.logger.debug("update_templates [start]")
             idxctx.templates.update_templates(idxctx.es)
         except TemplateError as e:
-            idxctx.logger.error("update_templates [end], error {}", repr(e))
-            res = 9
+            res = self.emit_error(idxctx.logger.error, "TEMPLATE_CREATION_ERROR", e)
         except SigTermException:
             # Re-raise a SIGTERM to avoid it being lumped in with general
             # exception handling below.
@@ -162,14 +227,14 @@ class Index:
             idxctx.logger.exception(
                 "update_templates [end]: Unexpected template" " processing error"
             )
-            res = 12
+            res = error_code["GENERIC_ERROR"]
         else:
             idxctx.logger.debug("update_templates [end]")
-            res = 0
+            res = error_code["OK"]
 
-        if res != 0:
+        if not res.success:
             # Exit early if we encounter any errors.
-            return res
+            return res.value
 
         report = Report(
             idxctx.config,
@@ -192,7 +257,7 @@ class Index:
             raise
         except Exception:
             idxctx.logger.error("Failed to post initial report status")
-            return 12
+            return error_code["GENERIC_ERROR"].value
         else:
             idxctx.set_tracking_id(tracking_id)
 
@@ -289,37 +354,30 @@ class Index:
                                     # Turn off the SIGINT handler when not indexing.
                                     signal.signal(signal.SIGINT, signal.SIG_IGN)
                         except UnsupportedTarballFormat as e:
-                            idxctx.logger.warning("Unsupported tar ball format: {}", e)
-                            tb_res = 4
+                            tb_res = self.emit_error(
+                                idxctx.logger.warning, "TB_META_ABSENT", e
+                            )
                         except BadDate as e:
-                            idxctx.logger.warning("Bad Date: {!r}", e)
-                            tb_res = 5
+                            tb_res = self.emit_error(
+                                idxctx.logger.warning, "BAD_DATE", e
+                            )
                         except FileNotFoundError as e:
-                            idxctx.logger.warning("No such file: {}", e)
-                            tb_res = 6
+                            tb_res = self.emit_error(
+                                idxctx.logger.warning, "FILE_NOT_FOUND_ERROR", e
+                            )
                         except BadMDLogFormat as e:
-                            idxctx.logger.warning(
-                                "The metadata.log file is curdled in" " tar ball: {}", e
+                            tb_res = self.emit_error(
+                                idxctx.logger.warning, "BAD_METADATA", e
                             )
-                            tb_res = 7
-                        except SosreportHostname as e:
-                            idxctx.logger.warning("Bad hostname in sosreport: {}", e)
-                            tb_res = 10
-                        except tarfile.TarError as e:
-                            idxctx.logger.error(
-                                "Can't unpack tar ball into {}: {}",
-                                ptb.extracted_root,
-                                e,
-                            )
-                            tb_res = 11
                         except SigTermException:
                             idxctx.logger.exception(
                                 "Indexing interrupted by SIGTERM, terminating"
                             )
                             break
                         except Exception as e:
-                            idxctx.logger.exception("Other indexing error: {}", e)
-                            tb_res = 12
+                            tb_res = self.emit_error(
+                                idxctx.logger.exception, "GENERIC_ERROR", e
+                            )
                         else:
                             beg, end, successes, duplicates, failures, retries = es_res
                             idxctx.logger.info(
@@ -334,7 +392,7 @@ class Index:
                                 failures,
                                 retries,
                             )
-                            tb_res = 1 if failures > 0 else 0
+                            tb_res = error_code["OP_ERROR" if failures > 0 else "OK"]
                         try:
                             ie_len = ie_filepath.stat().st_size
                         except FileNotFoundError:
@@ -378,7 +436,7 @@ class Index:
                         # `linkerrdest` for later retry.
                         controller_path = linksrc_dir.parent
 
-                        if tb_res == 0:
+                        if tb_res is error_code["OK"]:
                             idxctx.logger.info(
                                 "{}: {}/{}: success",
                                 idxctx.TS,
@@ -391,7 +449,7 @@ class Index:
                             rename_tb_link(
                                 tb, Path(controller_path, self.linkdest), idxctx.logger
                             )
-                        elif tb_res == 1:
+                        elif tb_res is error_code["OP_ERROR"]:
                             idxctx.logger.warning(
                                 "{}: index failures encountered on {}", idxctx.TS, tb
                             )
@@ -402,25 +460,28 @@ class Index:
                                 Path(controller_path, f"{self.linkerrdest}.1"),
                                 idxctx.logger,
                             )
-                        elif tb_res in (2, 3):
+                        elif tb_res in (error_code["CFG_ERROR"], error_code["BAD_CFG"]):
                             assert False, (
                                 f"Logic Bomb!  Unexpected tar ball handling "
-                                f"result status {tb_res:d} for tar ball {tb}"
+                                f"result status {tb_res.value:d} for tar ball {tb}"
                             )
-                        elif tb_res >= 4 and tb_res <= 11:
+                        elif tb_res.tarball_error:
                             # # Quietly skip these errors
                             with skipped.open(mode="a") as fp:
                                 print(tb, file=fp)
                             rename_tb_link(
                                 tb,
-                                Path(controller_path, f"{self.linkerrdest}.{tb_res:d}"),
+                                Path(
+                                    controller_path,
+                                    f"{self.linkerrdest}.{tb_res.value:d}",
+                                ),
                                 idxctx.logger,
                             )
                         else:
                             idxctx.logger.error(
                                 "{}: index error {:d} encountered on {}",
                                 idxctx.TS,
-                                tb_res,
+                                tb_res.value,
                                 tb,
                             )
                             with erred.open(mode="a") as fp:
@@ -471,11 +532,11 @@ class Index:
                 # exception handling below.
                 raise
             except Exception:
-                idxctx.logger.exception("Unexpected setup error")
-                res = 12
+                idxctx.logger.exception(error_code["GENERIC_ERROR"].message)
+                res = error_code["GENERIC_ERROR"]
             else:
                 # No exceptions while processing tar ball, success.
-                res = 0
+                res = error_code["OK"]
             finally:
                 if idxctx:
                     idxctx.dump_opctx()
@@ -541,4 +602,4 @@ class Index:
                 except Exception:
                     pass
 
-        return res
+        return res.value
