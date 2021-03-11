@@ -93,9 +93,9 @@ def server_config(pytestconfig, monkeypatch):
 
 @pytest.fixture
 def client(server_config):
+    """A test client for the app."""
     app = create_app(server_config)
 
-    """A test client for the app."""
     app_client = app.test_client()
     app_client.logger = app.logger
     app_client.config = app.config

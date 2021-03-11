@@ -10735,6 +10735,8 @@ drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--      10315 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       3643 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-state-manager
+-rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--        883 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -10874,6 +10876,8 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 1 (skipped 0) results, 0 errors
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
++++++ pbench-state-manager/pbench-state-manager.log
+----- pbench-state-manager/pbench-state-manager.log
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -10888,3 +10892,6 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
++++ SqliteDB Datasets
+public|dhcp31-44|uperf_uperftest_2018.02.02T20.58.00|INDEXED|
+--- SqliteDB Datasets

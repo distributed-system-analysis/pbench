@@ -97,6 +97,7 @@ RUN \
         rsync \
         screen \
         sos \
+        sqlite \
         tar \
         xz \
         && \

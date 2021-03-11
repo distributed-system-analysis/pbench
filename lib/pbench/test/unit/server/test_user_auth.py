@@ -60,7 +60,7 @@ class TestUserAuthentication:
                 },
             )
             data = response.json
-            assert data["message"] == "Missing firstName field"
+            assert data["message"] == "Missing first_name field"
             assert response.content_type == "application/json"
             assert response.status_code == 400
 

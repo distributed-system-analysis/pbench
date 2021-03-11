@@ -3,10 +3,14 @@ import humanize
 import tempfile
 import hashlib
 from pathlib import Path
+from http import HTTPStatus
+
 from flask_restful import Resource, abort
 from flask import request, jsonify
 from werkzeug.utils import secure_filename
 from pbench.server.utils import filesize_bytes
+from pbench.server.database.models.tracker import Dataset, States
+
 
 ALLOWED_EXTENSIONS = {"xz"}
 
@@ -109,6 +113,20 @@ class Upload(Resource):
         md5_full_path = Path(path, f"{filename}.md5")
         bytes_received = 0
 
+        # TODO: Need real user from PUT!
+
+        # Create a tracking dataset object; it'll begin in UPLOADING state
+        try:
+            dataset = Dataset(controller=controller, path=tar_full_path, md5=md5sum)
+            dataset.add()
+        except Exception:
+            self.logger.exception("unable to create dataset for {}", filename)
+            abort(
+                HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
+            )
+
+        self.logger.info("Uploading file {} to {}", filename, dataset)
+
         with tempfile.NamedTemporaryFile(mode="wb", dir=path) as ofp:
             chunk_size = 4096
             self.logger.debug("Writing chunks")
@@ -181,6 +199,11 @@ class Upload(Resource):
                 )
                 raise
 
+        try:
+            dataset.advance(States.UPLOADED)
+        except Exception:
+            self.logger.exception("Unable to finalize {}", dataset)
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         response = jsonify(dict(message="File successfully uploaded"))
         response.status_code = 201
         return response

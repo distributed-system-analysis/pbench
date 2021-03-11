@@ -92,13 +92,13 @@ class RegisterUser(Resource):
 
         first_name = user_data.get("first_name")
         if not first_name:
-            self.logger.warning("Missing firstName field")
-            abort(400, message="Missing firstName field")
+            self.logger.warning("Missing first_name field")
+            abort(400, message="Missing first_name field")
 
         last_name = user_data.get("last_name")
         if not last_name:
-            self.logger.warning("Missing lastName field")
-            abort(400, message="Missing lastName field")
+            self.logger.warning("Missing last_name field")
+            abort(400, message="Missing last_name field")
 
         try:
             user = User(
@@ -325,8 +325,8 @@ class UserAPI(Resource):
                     "message": "Success"/"failure message",
                     "data": {
                         "username": <username>,
-                        "firstName": <firstName>,
-                        "lastName": <lastName>,
+                        "first_name": <firstName>,
+                        "last_name": <lastName>,
                         "registered_on": registered_on,
                     }
                 }
