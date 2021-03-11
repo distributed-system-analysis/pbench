@@ -1,6 +1,13 @@
+import enum
 import datetime
 from pbench.server.database.database import Database
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, DateTime, ForeignKey, Text
+from sqlalchemy.orm import validates
+
+
+class MetadataKeys(enum.Enum):
+    FAVORITE = 1
+    SAVED = 2
 
 
 class Metadata(Database.Base):
@@ -12,38 +19,34 @@ class Metadata(Database.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     created = Column(DateTime, nullable=False, default=datetime.datetime.now())
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now())
-    config = Column(Text, unique=False, nullable=False)
-    description = Column(String(255), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    value = Column(Text, unique=False, nullable=False)
+    key = Column(Integer, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
 
-    def __str__(self):
-        return f"Url id: {self.id}, created on: {self.created}, description: {self.description}"
+    @validates("key")
+    def evaluate_key(self, key, value):
+        return MetadataKeys[value].value
 
     def get_json(self):
         return {
             "id": self.id,
-            "config": self.config,
-            "description": self.description,
+            "value": self.value,
             "created": self.created,
             "updated": self.updated,
+            "key": MetadataKeys(self.key).name,
         }
 
     @staticmethod
     def get_protected():
-        return ["id", "created"]
+        return ["id", "created", "user_id"]
 
     @staticmethod
-    def query(id=None, user_id=None):
-        # Currently we would only query with single argument. Argument need to be either id/user_id
-        if id:
-            metadata = Database.db_session.query(Metadata).filter_by(id=id).first()
-        elif user_id:
-            # If the query parameter is user_id then we return the list of all the metadata linked to that user
-            metadata = Database.db_session.query(Metadata).filter_by(user_id=user_id)
-        else:
-            metadata = None
-
-        return metadata
+    def query(**kwargs):
+        query = Database.db_session.query(Metadata)
+        for attr, value in kwargs.items():
+            print(getattr(Metadata, attr), value)
+            query = query.filter(getattr(Metadata, attr) == value)
+        return query.all()
 
     def add(self):
         """

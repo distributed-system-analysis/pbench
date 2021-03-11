@@ -1,6 +1,6 @@
 from flask_restful import Resource, abort
 from flask import request, make_response, jsonify
-from pbench.server.database.models.metadata import Metadata
+from pbench.server.database.models.metadata import Metadata, MetadataKeys
 from pbench.server.api.auth import Auth
 
 
@@ -14,58 +14,70 @@ class UserMetadata(Resource):
         self.logger = logger
         self.auth = auth
 
-    @Auth.token_auth.login_required()
-    def post(self):
+    @Auth.token_auth.login_required(optional=True)
+    def post(self, key):
         """
         Post request for creating metadata instance for a user.
-        This requires a Pbench auth token in the header field
+
+        The url requires a metadata session key such as /metadata/<key>
+        the only keys acceptable to create the metadata sessions are favourite/saved
 
         This requires a JSON data with required user metadata fields
         {
-            "config": "config",
-            "description": "description",
+            "value": "blog text" <Client defined text, can be a string of json>,
         }
+        Example: {"value": '{"config": "config", "description": "description"}'}
 
-        Required headers include
+        Authorization header can be included as
             Authorization:   Bearer <Pbench authentication token (user received upon login)>
+        If the authorization header is not present, the created metadata session becomes public by default
 
         :return: JSON Payload
             response_object = {
                     "message": "success"
                     "data" {
                         "id": "metadata_id",
-                        "config": "Config string"
-                        "description": "Description string"
+                        "value": "client text blob",
+                        "created": "datetime string",
+                        "updated": "datetime string",
+                        "key": favorite/saved
                         }
                 }
         """
+        metadata_key = key.upper()
+        if metadata_key not in [key.name for key in MetadataKeys]:
+            self.logger.warning(
+                "Invalid Metadata key provided during metadata creation. Key: {}",
+                metadata_key,
+            )
+            abort(
+                400,
+                message="Invalid metadata key. Key need to be either Favorite/Saved",
+            )
+
         post_data = request.get_json()
         if not post_data:
             self.logger.warning("Invalid json object: {}", request.url)
             abort(400, message="Invalid json object in request")
 
-        current_user_id = self.auth.token_auth.current_user().id
+        current_user = self.auth.token_auth.current_user()
+        if current_user:
+            current_user_id = current_user.id
+        else:
+            current_user_id = None
 
-        config = post_data.get("config")
-        if not config:
+        value = post_data.get("value")
+        if not value:
             self.logger.warning(
-                "Config not provided during metadata creation. user_id: {}",
+                "value not provided during metadata creation. user_id: {}",
                 current_user_id,
             )
-            abort(400, message="Config field missing")
-
-        description = post_data.get("description")
-        if not description:
-            self.logger.warning(
-                "Description not provided during metadata creation by user: {}",
-                current_user_id,
-            )
-            abort(400, message="Description field missing")
+            abort(400, message="Value field missing")
 
         try:
             # Create a new metadata session
             metadata_session = Metadata(
-                config=config, description=description, user_id=current_user_id
+                value=value, key=metadata_key, user_id=current_user_id
             )
             # insert the metadata session for a user
             metadata_session.add()
@@ -78,16 +90,12 @@ class UserMetadata(Resource):
         else:
             response_object = {
                 "message": "success",
-                "data": {
-                    "id": metadata_session.id,
-                    "config": metadata_session.config,
-                    "description": metadata_session.description,
-                },
+                "data": metadata_session.get_json(),
             }
             return make_response(jsonify(response_object), 201)
 
-    @Auth.token_auth.login_required()
-    def get(self):
+    @Auth.token_auth.login_required(optional=True)
+    def get(self, key):
         """
         Get request for querying all the metadata sessions for a user.
         returns the list of all the metadata sessions associated with a logged in user.
@@ -98,20 +106,38 @@ class UserMetadata(Resource):
 
         :return: JSON Payload
             response_object = {
-                    "status": "success"
+                    "message": "success"
                     "data": {
                         "sessions": [
                             {"id": "metadata_id",
-                            "config": "Config string"
-                            "description": "Description string"},
+                            "value": "client text blob",
+                            "key": "key string",
+                            "created": "datetime string",
+                            "updated": "datetime string", },
                             {}]
                         }
                 }
         """
-        current_user_id = self.auth.token_auth.current_user().id
+        if not key:
+            self.logger.warning("Metadata key not provided during metadata query")
+            abort(400, message="Missing metadata key in the query url")
+
+        current_user = self.auth.token_auth.current_user()
+        if current_user:
+            current_user_id = current_user.id
+        else:
+            current_user_id = None
+        print(current_user_id)
         try:
-            # Fetch the metadata session
-            metadata_sessions = Metadata.query(user_id=current_user_id)
+            # Fetch the metadata sessions
+            # If the key is favorite, we return only favorite sessions,
+            # else we return all the saved and favorite sessions
+            if key.upper() == "FAVORITE":
+                metadata_sessions = Metadata.query(
+                    user_id=current_user_id, key=MetadataKeys[key.upper()].value
+                )
+            else:
+                metadata_sessions = Metadata.query(user_id=current_user_id)
             data = [session.get_json() for session in metadata_sessions]
         except Exception:
             self.logger.exception(
@@ -153,18 +179,20 @@ class QueryMetadata(Resource):
         Get request for querying a metadata session of a user given a metadata id.
         This requires a Pbench auth token in the header field
 
-        The url requires a metadata session id such as /user/metadata/<string:id>
+        The url requires a metadata session id such as /user/metadata/<int:id>
 
         Required headers include
             Authorization:   Bearer <Pbench authentication token (user received upon login)>
 
         :return: JSON Payload
             response_object = {
-                    "message": "success"
-                    "data" {
+                    "message": "success",
+                    "data": {
                         "id": "metadata_id",
-                        "config": "Config string"
-                        "description": "Description string"
+                        "value": "client text blob"
+                        "created": "Datetime string"
+                        "updated": "Datetime String"
+                        "key": "key string"
                         }
                 }
         """
@@ -174,7 +202,7 @@ class QueryMetadata(Resource):
 
         try:
             # Fetch the metadata session
-            metadata_session = Metadata.query(id=id)
+            metadata_session = Metadata.query(id=id)[0]
         except Exception:
             self.logger.exception(
                 "Exception occurred in the GET request while querying the Metadata model, id: {}",
@@ -187,11 +215,7 @@ class QueryMetadata(Resource):
 
         response_object = {
             "message": "success",
-            "data": {
-                "id": metadata_session.id,
-                "config": metadata_session.config,
-                "description": metadata_session.description,
-            },
+            "data": metadata_session.get_json(),
         }
         return make_response(jsonify(response_object), 200)
 
@@ -201,23 +225,27 @@ class QueryMetadata(Resource):
         Put request for updating a metadata session of a user given a metadata id.
         This requires a Pbench auth token in the header field
 
-        The url requires a metadata session id such as /user/metadata/<string:id>
+        The url requires a metadata session id such as /user/metadata/<int:id>
 
         This requires a JSON data with required user metadata fields to update
         {
-            "description": "description",
+            "value": "new text value",
+            ...
         }
+        To update the value field, it is required to send the complete text blob again
 
         Required headers include
             Authorization:   Bearer <Pbench authentication token (user received upon login)>
 
         :return: JSON Payload
             response_object = {
-                    "message": "success"
-                    "data" {
+                    "message": "success",
+                    "data": {
                         "id": "metadata_id",
-                        "config": "Config string"
-                        "description": "Description string"
+                        "value": "client text blob"
+                        "created": "Datetime string"
+                        "updated": "Datetime String"
+                        "key": "key string"
                         }
                 }
         """
@@ -231,7 +259,7 @@ class QueryMetadata(Resource):
             abort(400, message="Invalid json object in request")
 
         try:
-            metadata_session = Metadata.query(id=id)
+            metadata_session = Metadata.query(id=id)[0]
         except Exception:
             self.logger.exception(
                 "Exception occurred in the PUT request while querying the Metadata model, id: {}",
@@ -274,11 +302,7 @@ class QueryMetadata(Resource):
         else:
             response_object = {
                 "message": "success",
-                "data": {
-                    "id": metadata_session.id,
-                    "config": metadata_session.config,
-                    "description": metadata_session.description,
-                },
+                "data": metadata_session.get_json(),
             }
             return make_response(jsonify(response_object), 200)
 
@@ -288,7 +312,7 @@ class QueryMetadata(Resource):
         Delete request for deleting a metadata session of a user given a metadata id.
         This requires a Pbench auth token in the header field
 
-        The url requires a metadata session id such as /user/metadata/<string:id>
+        The url requires a metadata session id such as /user/metadata/<int:id>
 
         Required headers include
             Authorization:   Bearer <Pbench authentication token (user received upon login)>
@@ -304,7 +328,7 @@ class QueryMetadata(Resource):
 
         try:
             # Fetch the metadata session
-            metadata_session = Metadata.query(id=id)
+            metadata_session = Metadata.query(id=id)[0]
         except Exception:
             self.logger.exception(
                 "Exception occurred in the Delete request while querying the Metadata model, id: {}",

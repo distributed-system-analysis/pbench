@@ -87,12 +87,12 @@ def register_endpoints(api, app, config):
 
     api.add_resource(
         UserMetadata,
-        f"{base_uri}/metadata",
+        f"{base_uri}/metadata/<string:key>",
         resource_class_args=(config, logger, token_auth),
     )
     api.add_resource(
         QueryMetadata,
-        f"{base_uri}/metadata/<string:id>",
+        f"{base_uri}/metadata/<int:id>",
         resource_class_args=(config, logger),
     )
 
