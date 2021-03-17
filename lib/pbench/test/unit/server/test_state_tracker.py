@@ -28,9 +28,9 @@ class TestStateTracker:
     def test_construct(self):
         """ Test dataset contructor
         """
-        ds = Dataset(user="drb", controller="frodo", name="fio")
+        ds = Dataset(owner="drb", controller="frodo", name="fio")
         ds.add()
-        assert ds.user == "drb"
+        assert ds.owner == "drb"
         assert ds.controller == "frodo"
         assert ds.name == "fio"
         assert ds.state == States.UPLOADING
@@ -49,12 +49,12 @@ class TestStateTracker:
         """ Test that we can attach to a dataset
         """
         ds1 = Dataset(
-            user="drb", controller="frodo", name="fido", state=States.INDEXING
+            owner="drb", controller="frodo", name="fido", state=States.INDEXING
         )
         ds1.add()
 
         ds2 = Dataset.attach(controller="frodo", name="fido", state=States.INDEXED)
-        assert ds2.user == ds1.user
+        assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name
         assert ds2.state == States.INDEXED
@@ -73,12 +73,12 @@ class TestStateTracker:
         dataset created by file path.
         """
         ds1 = Dataset(
-            user="pete", path="/foo/frodo/rover.tar.xz", state=States.INDEXING,
+            owner="pete", path="/foo/frodo/rover.tar.xz", state=States.INDEXING,
         )
         ds1.add()
 
         ds2 = Dataset.attach(controller="frodo", name="rover")
-        assert ds2.user == ds1.user
+        assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name
         assert ds2.state == States.INDEXING
@@ -90,12 +90,12 @@ class TestStateTracker:
         file path.
         """
         ds1 = Dataset(
-            user="webb", path="/foo/bilbo/rover.tar.xz", state=States.QUARANTINED
+            owner="webb", path="/foo/bilbo/rover.tar.xz", state=States.QUARANTINED
         )
         ds1.add()
 
         ds2 = Dataset.attach(controller="bilbo", name="rover")
-        assert ds2.user == ds1.user
+        assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name
         assert ds2.state == States.QUARANTINED
@@ -105,7 +105,7 @@ class TestStateTracker:
     def test_advanced_good(self):
         """ Test advancing the state of a dataset
         """
-        ds = Dataset(user="drb", controller="frodo", name="precious")
+        ds = Dataset(owner="drb", controller="frodo", name="precious")
         ds.add()
         ds.advance(States.UPLOADED)
         assert ds.state == States.UPLOADED
@@ -123,7 +123,7 @@ class TestStateTracker:
         """ Test that we can't advance to a state that's not a
         successor to the initial state.
         """
-        ds = Dataset(user="drb", controller="sam", name="fio")
+        ds = Dataset(owner="drb", controller="sam", name="fio")
         ds.add()
         with pytest.raises(DatasetBadStateTransition):
             ds.advance(States.EXPIRED)
@@ -131,7 +131,7 @@ class TestStateTracker:
     def test_advanced_terminal(self):
         """ Test that we can't advance from a terminal state
         """
-        ds = Dataset(user="drb", controller="gimli", name="fio", state=States.EXPIRED)
+        ds = Dataset(owner="drb", controller="gimli", name="fio", state=States.EXPIRED)
         ds.add()
         with pytest.raises(DatasetTerminalStateViolation):
             ds.advance(States.UPLOADING)
@@ -140,7 +140,7 @@ class TestStateTracker:
         """ Advance a dataset through the entire lifecycle using the state
         transition dict.
         """
-        ds = Dataset(user="dave", controller="bilbo", name="Fred")
+        ds = Dataset(owner="dave", controller="bilbo", name="Fred")
         ds.add()
         assert ds.state == States.UPLOADING
         beenthere = [ds.state]
@@ -165,7 +165,7 @@ class TestStateTracker:
         """ Various tests on Metadata keys
         """
         # See if we can create a metadata row
-        ds = Dataset.create(user="user", controller="controller", name="name")
+        ds = Dataset.create(controller="controller", name="name")
         assert ds.metadatas == []
         m = Metadata.create(key=Metadata.REINDEX, value="TRUE", dataset=ds)
         assert m is not None
@@ -179,7 +179,7 @@ class TestStateTracker:
         assert m.dataset_ref == m1.dataset_ref
 
         # Check the str()
-        assert "user|controller|name>>REINDEX" == str(m)
+        assert "None|controller|name>>REINDEX" == str(m)
 
         # Try to get a metadata key that doesn't exist
         with pytest.raises(MetadataNotFound) as exc:
@@ -241,7 +241,7 @@ class TestStateTracker:
     def test_metadata_remove(self):
         """ Test that we can remove a Metadata key
         """
-        ds = Dataset.create(user="user1", controller="controller", name="other")
+        ds = Dataset.create(owner="user1", controller="controller", name="other")
         assert ds.metadatas == []
         m = Metadata(key=Metadata.ARCHIVED, value="TRUE")
         m.add(ds)

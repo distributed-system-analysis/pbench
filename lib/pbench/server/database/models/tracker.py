@@ -277,7 +277,7 @@ class Dataset(Database.Base):
 
     Columns:
         id          Generated unique ID of table row
-        user        User associated with the dataset
+        owner       Owning username of the dataset
         controller  Name of controller node
         name        Base name of dataset (tarball)
         md5         The dataset MD5 hash (Elasticsearch ID)
@@ -286,7 +286,7 @@ class Dataset(Database.Base):
         transition  The timestamp of the last state transition
     """
 
-    __tablename__ = "dataset"
+    __tablename__ = "datasets"
 
     transitions = {
         States.UPLOADING: [States.UPLOADED, States.QUARANTINED],
@@ -300,16 +300,14 @@ class Dataset(Database.Base):
         # because they're terminal states that cannot be exited.
     }
 
-    ANTI_USER = "public"  # The "user" that owns unowned datasets
-
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user = Column(String(255), unique=False, nullable=False, default=ANTI_USER)
+    owner = Column(String(255), unique=False, nullable=True, default=None)
     controller = Column(String(255), unique=False, nullable=False)
     name = Column(String(255), unique=False, nullable=False)
 
     # FIXME:
-    # Ideally, `md5` would not be `nullable`: this allows the
-    # pbench-server-prep-shim-002 utility to construct a Dataset object
+    # Ideally, `md5` would not be `nullable`: but allowing it means that
+    # pbench-server-prep-shim-002 utility can construct a Dataset object
     # before accessing and checking the MD5 (in order to ensure that we
     # always have a Dataset before deciding to `quarantine` a dataset.)
     #
@@ -326,10 +324,10 @@ class Dataset(Database.Base):
 
     # Require that the combination of controller and name is unique.
     #
-    # FIXME: I would prefer to check user+controller+name, although
+    # FIXME: I would prefer to check owner+controller+name, although
     # in practice the chances of controller+name collision are small.
     # This is necessary because our current filesystem-based server
-    # components cannot infer user ownership except by referencing
+    # components cannot infer ownership except by referencing
     # this database using filesystem-based tags (controller, name).
     # In the future when we change the server components to operate
     # entirely by database and messages, we can improve this.
@@ -401,7 +399,7 @@ class Dataset(Database.Base):
 
         Args:
             kwargs (dict):
-                "user": The owner of the dataset; defaults to "public".
+                "owner": The owner of the dataset; defaults to None.
                 "path": A tarball file path from which the controller (host)
                     name, the tarball dataset name (basename minus extension),
                     or both will be derived.
@@ -490,7 +488,7 @@ class Dataset(Database.Base):
         Returns:
             string: Representation of the dataset
         """
-        return f"{self.user}|{self.controller}|{self.name}"
+        return f"{self.owner}|{self.controller}|{self.name}"
 
     def advance(self, new_state: States):
         """
@@ -587,7 +585,7 @@ class Metadata(Database.Base):
         value       Metadata value string
     """
 
-    __tablename__ = "metadata"
+    __tablename__ = "dataset_metadata"
 
     # Currently defined metadata keys
     REINDEX = "REINDEX"
@@ -600,7 +598,7 @@ class Metadata(Database.Base):
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(String(2048), unique=False, nullable=True)
     dataset_ref = Column(
-        Integer, ForeignKey("dataset.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("datasets.id", ondelete="CASCADE"), nullable=False
     )
 
     @validates("key")

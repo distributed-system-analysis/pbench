@@ -7,6 +7,7 @@ from pbench.server.api.resources.query_apis import (
     get_es_url,
     get_index_prefix,
     gen_month_range,
+    get_user_term,
 )
 
 
@@ -153,7 +154,7 @@ class QueryControllerList(Resource):
             "query": {
                 "bool": {
                     "filter": [
-                        {"term": {"authorization.user": user}},
+                        {"term": get_user_term(user)},
                         {"range": {"@timestamp": {"gte": start_arg, "lte": end_arg}}},
                     ]
                 }

@@ -51,7 +51,7 @@ def main(options):
 
         args = {}
         if options.user:
-            args["user"] = options.user
+            args["owner"] = options.user
         if options.controller:
             args["controller"] = options.controller
         if options.path:
@@ -83,6 +83,7 @@ def main(options):
         doit(**args)
     except Exception as e:
         # Stringify any exception and report it; then fail
+        logger.exception("Failed")
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 1
     else:

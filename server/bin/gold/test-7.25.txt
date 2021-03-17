@@ -98,7 +98,7 @@ len(actions) = 41
             "@timestamp": "2019-06-21T01:29:37.976771",
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "host_tools_info": [
                 {
@@ -389,7 +389,7 @@ len(actions) = 41
             "@timestamp": "2019-06-21T01:29:37.976771",
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/",
             "files": [
@@ -457,7 +457,7 @@ len(actions) = 41
             "@timestamp": "2019-06-21T01:29:37.976771",
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i",
             "files": [
@@ -523,7 +523,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample1",
             "files": [
@@ -589,7 +589,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample1/csv",
             "files": [
@@ -620,7 +620,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample1/tools-default",
             "mode": "0o755",
@@ -643,7 +643,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1",
             "mode": "0o755",
@@ -666,7 +666,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2",
             "mode": "0o755",
@@ -690,7 +690,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-2/turbostat",
             "files": [
@@ -736,7 +736,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3",
             "mode": "0o755",
@@ -760,7 +760,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1-3/turbostat",
             "files": [
@@ -807,7 +807,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample1/tools-default/rhel8-1/turbostat",
             "files": [
@@ -851,7 +851,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample2",
             "files": [
@@ -917,7 +917,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample2/csv",
             "files": [
@@ -948,7 +948,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample2/tools-default",
             "mode": "0o755",
@@ -971,7 +971,7 @@ len(actions) = 41
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/1-tcp_stream-64B-1i/sample2/tools-default/rhel8-1",
             "mode": "0o755",
@@ -2571,5 +2571,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|rhel8-1|uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57|INDEXED|
+|rhel8-1|uperf_rhel8.1_4.18.0-107.el8_snap4_25gb_virt_2019.06.21T01.28.57|INDEXED|
 --- SqliteDB Datasets

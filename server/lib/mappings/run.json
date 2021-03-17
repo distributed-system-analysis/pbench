@@ -12,7 +12,7 @@
         },
         "authorization": {
             "properties": {
-                "user": {
+                "owner": {
                     "type": "keyword"
                 },
                 "access": {

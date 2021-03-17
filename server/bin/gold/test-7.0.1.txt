@@ -107,7 +107,7 @@ Template: pbench-unittests.v4.tool-data-iostat
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -278,7 +278,7 @@ Template: pbench-unittests.v4.tool-data-mpstat
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -431,7 +431,7 @@ Template: pbench-unittests.v4.tool-data-pidstat
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -602,7 +602,7 @@ Template: pbench-unittests.v4.tool-data-proc-interrupts
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -736,7 +736,7 @@ Template: pbench-unittests.v4.tool-data-proc-vmstat
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -1973,7 +1973,7 @@ Template: pbench-unittests.v4.tool-data-prometheus-metrics
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -2223,7 +2223,7 @@ Template: pbench-unittests.v4.tool-data-vmstat
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -2413,7 +2413,7 @@ Template: pbench-unittests.v5.result-data
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -2534,7 +2534,7 @@ Template: pbench-unittests.v5.result-data-sample
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -3308,7 +3308,7 @@ Template: pbench-unittests.v6.run-data
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }
@@ -3508,7 +3508,7 @@ Template: pbench-unittests.v6.run-toc
                     "access": {
                         "type": "keyword"
                     },
-                    "user": {
+                    "owner": {
                         "type": "keyword"
                     }
                 }

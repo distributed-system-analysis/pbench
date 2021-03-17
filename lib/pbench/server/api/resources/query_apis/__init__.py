@@ -7,6 +7,23 @@ from dateutil import rrule
 from configparser import NoSectionError, NoOptionError
 
 
+def get_user_term(user: str):
+    """Elasticsearch doesn't index (or search for) null values, and it's not
+    clear we really want to consider "owner": null to be "owned" datasets, in
+    any case. (Nor will they be possible beyond the transition period where we
+    may retain limited support for 0.69 data.)
+
+    Instead, let a query for data with a missing or null "user" parameter find
+    all data that's set to allow public access. This by default includes all
+    "unowned" data, but also data owned by a user that's been published.
+    """
+    if user:
+        term = {"authorization.owner": user}
+    else:
+        term = {"authorization.access": "public"}
+    return term
+
+
 def get_es_host(config):
     try:
         return config.get("elasticsearch", "host")

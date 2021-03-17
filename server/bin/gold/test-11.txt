@@ -271,5 +271,5 @@ ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-11/opt/pbench-
 ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-11/opt/pbench-server-satellite/bin/pbench-satellite-state-change /var/tmp/pbench-test-server/test-11/pbench-satellite/archive/fs-version-001
 --- test-execution.log file contents
 +++ SqliteDB Datasets
-public|ONE::controller|fio__2016-08-16_22:03:11|UPLOADED|
+|ONE::controller|fio__2016-08-16_22:03:11|UPLOADED|
 --- SqliteDB Datasets

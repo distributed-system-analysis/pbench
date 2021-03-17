@@ -42,7 +42,6 @@ from pbench.common.exceptions import (
     BadSampleName,
 )
 from pbench.common.logger import get_pbench_logger
-from pbench.server.database.models.tracker import Dataset
 import pbench.server
 from pbench.server import tstos
 
@@ -3547,8 +3546,8 @@ class PbenchTarBall:
     def __init__(self, idxctx, username, tbarg, tmpdir, extracted_root):
         self.idxctx = idxctx
         self.authorization = {
-            "user": username,
-            "access": "public" if username == Dataset.ANTI_USER else "private",
+            "owner": username,
+            "access": "public" if username is None else "private",
         }
         self.tbname = tbarg
         self.controller_dir = os.path.basename(os.path.dirname(self.tbname))

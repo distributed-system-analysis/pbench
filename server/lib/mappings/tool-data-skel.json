@@ -7,7 +7,7 @@
         "@generated-by": { "type": "keyword" },
         "authorization": {
             "properties": {
-                "user": {
+                "owner": {
                     "type": "keyword"
                 },
                 "access": {

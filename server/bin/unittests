@@ -224,7 +224,7 @@ function _dump_logs {
     # Be quiet if there's no database, or if the `dataset` table hasn't been
     # created.
     db=${_testroot}/test_db
-    select='select user,controller,name,state,(select " " || key || " = " || value from metadata where dataset_ref = dataset.id) from dataset order by user,controller,name asc'
+    select='select owner,controller,name,state,(select " " || key || " = " || value from dataset_metadata where dataset_ref = datasets.id) from datasets order by owner,controller,name asc'
     sqlite3 ${db} "${select}" > ${_testdir_local}/db 2>/dev/null
     if [ -s ${_testdir_local}/db ] ;then
         echo "+++ SqliteDB Datasets" >> $_testout

@@ -7,6 +7,7 @@ from pbench.server.api.resources.query_apis import (
     get_es_url,
     get_index_prefix,
     gen_month_range,
+    get_user_term,
 )
 
 
@@ -182,7 +183,7 @@ class QueryDataset(Resource):
                 "bool": {
                     "filter": [
                         {"match": {"run.name": name}},
-                        {"match": {"authorization.user": user}},
+                        {"match": get_user_term(user)},
                     ]
                 }
             },

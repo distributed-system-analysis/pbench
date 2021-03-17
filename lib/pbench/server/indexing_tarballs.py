@@ -319,7 +319,7 @@ class Index:
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
                         dataset = None
                         ptb = None
-                        username = Dataset.ANTI_USER
+                        username = None
                         try:
                             path = os.path.realpath(tb)
 
@@ -341,7 +341,7 @@ class Index:
                                     "Unable to advance dataset state: {}", str(e)
                                 )
                             else:
-                                username = dataset.user
+                                username = dataset.owner
 
                             # "Open" the tar ball represented by the tar ball object
                             idxctx.logger.debug("open tar ball")

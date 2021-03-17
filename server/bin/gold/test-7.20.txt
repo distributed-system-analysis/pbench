@@ -101,7 +101,7 @@ len(actions) = 46
             "@timestamp": "2020-02-27T22:16:14.663380",
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "host_tools_info": [
                 {
@@ -134,7 +134,7 @@ len(actions) = 46
             "@timestamp": "2020-02-27T22:16:14.663380",
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/",
             "files": [
@@ -202,7 +202,7 @@ len(actions) = 46
             "@timestamp": "2020-02-27T22:16:14.663380",
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio",
             "files": [
@@ -232,7 +232,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample0",
             "files": [
@@ -320,7 +320,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample0/clients",
             "mode": "0o755",
@@ -343,7 +343,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample0/clients/localhost",
             "files": [
@@ -381,7 +381,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample0/csv",
             "files": [
@@ -426,7 +426,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample0/tools-default",
             "mode": "0o755",
@@ -449,7 +449,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample0/tools-default/ctlrA",
             "mode": "0o755",
@@ -473,7 +473,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample0/tools-default/ctlrA/turbostat",
             "files": [
@@ -517,7 +517,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample1",
             "files": [
@@ -605,7 +605,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample1/clients",
             "mode": "0o755",
@@ -628,7 +628,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample1/clients/localhost",
             "files": [
@@ -666,7 +666,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample1/csv",
             "files": [
@@ -711,7 +711,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample1/tools-default",
             "mode": "0o755",
@@ -734,7 +734,7 @@ len(actions) = 46
             ],
             "authorization": {
                 "access": "public",
-                "user": "public"
+                "owner": null
             },
             "directory": "/0__fio/sample1/tools-default/ctlrA",
             "mode": "0o755",
@@ -2713,5 +2713,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|ctlrA|fio_mock_2020.02.27T22.16.14|INDEXED|
+|ctlrA|fio_mock_2020.02.27T22.16.14|INDEXED|
 --- SqliteDB Datasets
