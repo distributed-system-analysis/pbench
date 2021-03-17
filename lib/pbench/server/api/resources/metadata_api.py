@@ -4,6 +4,28 @@ from pbench.server.database.models.metadata import UserMetadata
 from pbench.server.api.auth import Auth
 
 
+def verify_metadata(metadata, logger):
+    current_user = Auth.token_auth.current_user()
+    metadata_user_id = metadata.user_id
+    if current_user is None:
+        # The request is not from a logged-in user
+        if metadata_user_id is None:
+            return True
+        logger.warning(
+            "Metadata user verification: Public user is trying to access private metadata object for user {}",
+            metadata_user_id,
+        )
+        return False
+    if current_user.id != metadata_user_id and not current_user.is_admin():
+        logger.warning(
+            "Metadata user verification: Logged in user_id {} is different than the one provided in the URI {}",
+            current_user.id,
+            metadata_user_id,
+        )
+        return False
+    return True
+
+
 class CreateMetadata(Resource):
     """
     Abstracted pbench API for handling user metadata
@@ -14,7 +36,7 @@ class CreateMetadata(Resource):
         self.logger = logger
         self.auth = auth
 
-    @Auth.token_auth.login_required(optional=True)
+    @Auth.token_auth.login_required()
     def post(self):
         """
         Post request for creating metadata instance for a user.
@@ -27,9 +49,9 @@ class CreateMetadata(Resource):
             "value": "blog text" <Client defined text, can be a string of json>,
         }
 
-        Authorization header can be included as
+        Authorization token must be included in the header for creating metadata object
             Authorization:   Bearer <Pbench authentication token (user received upon login)>
-        If the authorization header is not present, the created metadata object becomes public by default
+        If the authorization header is not present, the user can not create the metadata objects on the server
 
         :return: JSON Payload
             response_object = {
@@ -46,11 +68,7 @@ class CreateMetadata(Resource):
             self.logger.warning("Invalid json object: {}", request.url)
             abort(400, message="Invalid json object in request")
 
-        current_user = self.auth.token_auth.current_user()
-        if current_user:
-            current_user_id = current_user.id
-        else:
-            current_user_id = None
+        current_user_id = self.auth.token_auth.current_user().id
 
         value = post_data.get("value")
         if value is None:
@@ -104,9 +122,12 @@ class GetMetadata(Resource):
     def get(self, key):
         """
         Get request for querying all the metadata objects for a user.
-        returns the list of all the metadata objects of a specified key associated with a logged in user.
-        If the user is not logged in we return all the public metadata objects of a specified key.
-        This requires a Pbench auth token in the header field
+        If the Pbench authorization token is provided in the header,
+        we return the list of all the metadata objects of a specified
+        key associated with a logged in user.
+
+        If the authorization token is not provided in the header,
+        the access is restricted to only public metadata objects.
 
         Optional headers include
             Authorization:   Bearer <Pbench authentication token (user received upon login)>
@@ -159,33 +180,13 @@ class QueryMetadata(Resource):
         self.server_config = config
         self.logger = logger
 
-    def verify_metadata(self, metadata):
-        current_user = Auth.token_auth.current_user()
-        metadata_user_id = metadata.user_id
-        if current_user is None:
-            # The request is not from a logged-in user
-            if metadata_user_id is None:
-                return True
-            self.logger.warning(
-                "Metadata user verification: Public user is trying to access private metadata object for user {}",
-                metadata_user_id,
-            )
-            return False
-        if current_user.id != metadata_user_id and not current_user.is_admin():
-            self.logger.warning(
-                "Metadata user verification: Logged in user_id {} is different than the one provided in the URI {}",
-                current_user.id,
-                metadata_user_id,
-            )
-            return False
-        return True
-
     @Auth.token_auth.login_required(optional=True)
     def get(self, id):
         """
         Get request for querying a metadata object of a user given a metadata id.
         This requires a Pbench auth token in the header field if the metadata object is private to a user
 
+        If the authorization token is not provided in the header, only public metadata objects are accessible
 
         The url requires a metadata object id such as /user/metadata/<int:id>
 
@@ -223,8 +224,8 @@ class QueryMetadata(Resource):
             abort(404, message="Not found")
 
         # Verify if the metadata object id in the url belongs to the logged in user
-        if not self.verify_metadata(metadata_object):
-            abort(403, message="Not authorized to perform the GET request")
+        if not verify_metadata(metadata_object, self.logger):
+            abort(403, message="Not authorized to get the metadata object")
 
         response_object = {
             "data": metadata_object.get_json(
@@ -233,11 +234,12 @@ class QueryMetadata(Resource):
         }
         return make_response(jsonify(response_object), 200)
 
-    @Auth.token_auth.login_required(optional=True)
+    @Auth.token_auth.login_required()
     def put(self, id):
         """
         Put request for updating a metadata object of a user given a metadata id.
-        This requires a Pbench auth token in the header field
+        This requires a Pbench auth token in the header field.
+        Public metadata objects are read-only accept for an admin users.
 
         The url requires a metadata object id such as /user/metadata/<int:id>
 
@@ -285,8 +287,8 @@ class QueryMetadata(Resource):
             abort(404, message="Not found")
 
         # Verify if the metadata object id in the url belongs to the logged in user
-        if not self.verify_metadata(metadata_object):
-            abort(403, message="Not authorized to perform the PUT request")
+        if not verify_metadata(metadata_object, self.logger):
+            abort(403, message="Not authorized to update the metadata object")
 
         # Check if the metadata payload contain fields that are either protected or
         # not present in the metadata db. If any key in the payload does not match
@@ -323,11 +325,12 @@ class QueryMetadata(Resource):
             }
             return make_response(jsonify(response_object), 200)
 
-    @Auth.token_auth.login_required(optional=True)
+    @Auth.token_auth.login_required()
     def delete(self, id):
         """
         Delete request for deleting a metadata object of a user given a metadata id.
-        This requires a Pbench auth token in the header field
+        This requires a Pbench auth token in the header field.
+        Public metadata objects can only be deleted by admin users.
 
         The url requires a metadata object id such as /user/metadata/<int:id>
 
@@ -359,8 +362,8 @@ class QueryMetadata(Resource):
             abort(404, message="Not found")
 
         # Verify if the metadata object id in the url belongs to the logged in user
-        if not self.verify_metadata(metadata_object):
-            abort(403, message="Not authorized to perform the DELETE request")
+        if not verify_metadata(metadata_object, self.logger):
+            abort(403, message="Not authorized to DELETE the metadata object")
 
         try:
             # Delete the metadata object
@@ -374,5 +377,69 @@ class QueryMetadata(Resource):
 
         response_object = {
             "message": "Metadata object deleted",
+        }
+        return make_response(jsonify(response_object), 200)
+
+
+class PublishMetadata(Resource):
+    """
+    Abstracted pbench API for handling user metadata
+    """
+
+    def __init__(self, config, logger):
+        self.server_config = config
+        self.logger = logger
+
+    @Auth.token_auth.login_required()
+    def post(self, id):
+        """
+        Post request for publishing the metadata object for public access.
+        This requires a Pbench auth token in the header field. Only authorized users can make their metadata public.
+        Right now once the metadata object is made public it can not be reverted back to the private entity
+        TODO: Is it desirable to be able to revert the object back as a private entity
+
+        Headers include
+            Authorization:   Bearer <Pbench authentication token (user received upon login)>
+
+        :return: JSON Payload
+            response_object = {
+                    "message": "Metadata object is published"
+                }
+        """
+        if id is None:
+            self.logger.warning("Metadata id not provided during metadata query")
+            abort(400, message="Missing metadata id in the post request uri")
+
+        try:
+            # Fetch the metadata object
+            metadata_objects = UserMetadata.query(id=id)
+        except Exception:
+            self.logger.exception(
+                "Exception occurred in the Delete request while querying the Metadata model, id: {}",
+                id,
+            )
+            abort(500, message="INTERNAL ERROR")
+
+        if metadata_objects:
+            metadata_object = metadata_objects[0]
+        else:
+            abort(404, message="Not found")
+
+        # Verify if the metadata object id in the url belongs to the logged in user
+        if not verify_metadata(metadata_object, self.logger):
+            abort(403, message="Not authorized to publish the metadata object")
+
+        try:
+            # Update the metadata object user_id to Null to make them public
+            metadata_object.update(**{"user_id": None})
+        except Exception:
+            self.logger.exception(
+                "Exception occurred in the Delete request while querying the Metadata model, id: {}",
+                id,
+            )
+            abort(500, message="INTERNAL ERROR")
+
+        response_object = {
+            "message": "Metadata object is published",
         }
         return make_response(jsonify(response_object), 200)

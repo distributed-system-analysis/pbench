@@ -85,9 +85,7 @@ class TestMetadataObjects:
                     "value": '{"config": "config1", "description": "description1"}',
                 },
             )
-            data = response.json
-            assert data
-            assert response.status_code == 201
+            assert response.status_code == 401
 
             # Create a favorite metadata object
             response = client.post(
@@ -97,24 +95,19 @@ class TestMetadataObjects:
                     "value": '{"config": "config2", "description": "description2"}',
                 },
             )
-            assert response.status_code == 201
-            data = response.json
-            assert data["data"]["key"] == "favorite"
+            assert response.status_code == 401
 
-            # Get all the favorite metadata objects of non-logged in user
+            # Get all the favorite metadata objects of non-logged in user, should not return any data
             response = client.get(f"{server_config.rest_uri}/metadata/favorite")
             assert response.status_code == 200
             data = response.json
-            assert (
-                data["data"][0]["value"]
-                == '{"config": "config2", "description": "description2"}'
-            )
+            assert data["data"] == []
 
-            # Get all the saved metadata objects of non-logged in user
+            # Get all the saved metadata objects of non-logged in user, should not return any data
             response = client.get(f"{server_config.rest_uri}/metadata/saved",)
             assert response.status_code == 200
             data = response.json
-            assert len(data["data"]) == 1
+            assert len(data["data"]) == 0
 
     @staticmethod
     def test_single_metadata_query(client, server_config):
@@ -212,7 +205,7 @@ class TestMetadataObjects:
                 headers=dict(Authorization="Bearer " + data_login_2["auth_token"]),
             )
             data = response.json
-            assert data["message"] == "Not authorized to perform the GET request"
+            assert data["message"] == "Not authorized to get the metadata object"
             assert response.status_code == 403
 
     @staticmethod
@@ -289,3 +282,33 @@ class TestMetadataObjects:
             data = response.json
             assert data["message"] == "Metadata object deleted"
             assert response.status_code == 200
+
+    @staticmethod
+    def test_publish_metadata_object(client, server_config):
+        data_login = user_register_login(client, server_config)
+        with client:
+            response = client.post(
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config1", "description": "description2"}',
+                },
+                headers=dict(Authorization="Bearer " + data_login["auth_token"]),
+            )
+            data = response.json
+            assert data["data"]["id"]
+
+            metadata_id = data["data"]["id"]
+            response = client.post(
+                f"{server_config.rest_uri}/metadata/{metadata_id}/publish",
+                headers=dict(Authorization="Bearer " + data_login["auth_token"]),
+            )
+            data = response.json
+            assert data["message"] == "Metadata object is published"
+            assert response.status_code == 200
+
+            # Test if non logged-in user can access this data now
+            response = client.get(f"{server_config.rest_uri}/metadata/favorite")
+            assert response.status_code == 200
+            data = response.json
+            assert len(data["data"]) == 1

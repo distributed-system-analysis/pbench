@@ -19,6 +19,7 @@ from pbench.server.api.resources.metadata_api import (
     CreateMetadata,
     GetMetadata,
     QueryMetadata,
+    PublishMetadata,
 )
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
@@ -102,6 +103,11 @@ def register_endpoints(api, app, config):
     api.add_resource(
         QueryMetadata,
         f"{base_uri}/metadata/<int:id>",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        PublishMetadata,
+        f"{base_uri}/metadata/<int:id>/publish",
         resource_class_args=(config, logger),
     )
 
