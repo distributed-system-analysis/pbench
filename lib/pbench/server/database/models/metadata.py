@@ -3,11 +3,11 @@ from pbench.server.database.database import Database
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 
 
-class Metadata(Database.Base):
+class UserMetadata(Database.Base):
     """ Metadata Model for storing user metadata details """
 
     # TODO: Think about the better name
-    __tablename__ = "metadata"
+    __tablename__ = "user_metadata"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     created = Column(DateTime, nullable=False, default=datetime.datetime.now())
@@ -28,9 +28,9 @@ class Metadata(Database.Base):
 
     @staticmethod
     def query(**kwargs):
-        query = Database.db_session.query(Metadata)
+        query = Database.db_session.query(UserMetadata)
         for attr, value in kwargs.items():
-            query = query.filter(getattr(Metadata, attr) == value)
+            query = query.filter(getattr(UserMetadata, attr) == value)
         return query.all()
 
     def add(self):
@@ -64,7 +64,7 @@ class Metadata(Database.Base):
         :return:
         """
         try:
-            metadata_query = Database.db_session.query(Metadata).filter_by(id=id)
+            metadata_query = Database.db_session.query(UserMetadata).filter_by(id=id)
             metadata_query.delete()
             Database.db_session.commit()
             return True

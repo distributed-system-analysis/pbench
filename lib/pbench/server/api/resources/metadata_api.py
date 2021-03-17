@@ -1,6 +1,6 @@
 from flask_restful import Resource, abort
 from flask import request, make_response, jsonify
-from pbench.server.database.models.metadata import Metadata
+from pbench.server.database.models.metadata import UserMetadata
 from pbench.server.api.auth import Auth
 
 
@@ -46,25 +46,31 @@ class CreateMetadata(Resource):
             self.logger.warning("Invalid json object: {}", request.url)
             abort(400, message="Invalid json object in request")
 
-        value = post_data.get("value")
-        if value is None:
-            self.logger.warning("Value not provided during metadata creation.")
-            abort(400, message="Value field missing")
-
-        metadata_key = post_data.get("key")
-        if metadata_key is None:
-            self.logger.warning("Key not provided during metadata creation.")
-            abort(400, message="Key field missing")
-
         current_user = self.auth.token_auth.current_user()
         if current_user:
             current_user_id = current_user.id
         else:
             current_user_id = None
 
+        value = post_data.get("value")
+        if value is None:
+            self.logger.warning(
+                "Value not provided during metadata creation. User_id: {}",
+                current_user_id,
+            )
+            abort(400, message="Value field missing")
+
+        metadata_key = post_data.get("key")
+        if metadata_key is None:
+            self.logger.warning(
+                "Key not provided during metadata creation. User_id: {}",
+                current_user_id,
+            )
+            abort(400, message="Key field missing")
+
         try:
             # Create a new metadata object
-            metadata_object = Metadata(
+            metadata_object = UserMetadata(
                 value=value, key=metadata_key.lower(), user_id=current_user_id
             )
             # insert the metadata object for a user
@@ -125,7 +131,9 @@ class GetMetadata(Resource):
             current_user_id = None
         try:
             # Query the metadata object with a given key
-            metadata_objects = Metadata.query(user_id=current_user_id, key=key.lower())
+            metadata_objects = UserMetadata.query(
+                user_id=current_user_id, key=key.lower()
+            )
             data = [
                 metadata.get_json(include=["id", "created", "updated", "value"])
                 for metadata in metadata_objects
@@ -173,7 +181,7 @@ class QueryMetadata(Resource):
         return True
 
     @Auth.token_auth.login_required(optional=True)
-    def get(self, id=None):
+    def get(self, id):
         """
         Get request for querying a metadata object of a user given a metadata id.
         This requires a Pbench auth token in the header field if the metadata object is private to a user
@@ -201,7 +209,7 @@ class QueryMetadata(Resource):
 
         try:
             # Fetch the metadata object
-            metadata_objects = Metadata.query(id=id)
+            metadata_objects = UserMetadata.query(id=id)
         except Exception:
             self.logger.exception(
                 "Exception occurred in the GET request while querying the Metadata model, id: {}",
@@ -226,7 +234,7 @@ class QueryMetadata(Resource):
         return make_response(jsonify(response_object), 200)
 
     @Auth.token_auth.login_required(optional=True)
-    def put(self, id=None):
+    def put(self, id):
         """
         Put request for updating a metadata object of a user given a metadata id.
         This requires a Pbench auth token in the header field
@@ -255,7 +263,7 @@ class QueryMetadata(Resource):
         """
         if id is None:
             self.logger.warning("Metadata id not provided during metadata query")
-            abort(400, message="Please provide a metadata id to query")
+            abort(400, message="Missing metadata id in the URI for update operation")
 
         post_data = request.get_json()
         if not post_data:
@@ -263,7 +271,7 @@ class QueryMetadata(Resource):
             abort(400, message="Invalid json object in request")
 
         try:
-            metadata_objects = Metadata.query(id=id)
+            metadata_objects = UserMetadata.query(id=id)
         except Exception:
             self.logger.exception(
                 "Exception occurred in the PUT request while querying the Metadata model, id: {}",
@@ -284,7 +292,7 @@ class QueryMetadata(Resource):
         # not present in the metadata db. If any key in the payload does not match
         # with the column name we will abort the update request.
         non_existent = set(post_data.keys()).difference(
-            set(Metadata.__table__.columns.keys())
+            set(UserMetadata.__table__.columns.keys())
         )
         if non_existent:
             self.logger.warning(
@@ -292,7 +300,9 @@ class QueryMetadata(Resource):
                 non_existent,
             )
             abort(400, message="Invalid fields in update request payload")
-        protected = set(post_data.keys()).intersection(set(Metadata.get_protected()))
+        protected = set(post_data.keys()).intersection(
+            set(UserMetadata.get_protected())
+        )
         for field in protected:
             if getattr(metadata_object, field) != post_data[field]:
                 self.logger.warning(
@@ -314,7 +324,7 @@ class QueryMetadata(Resource):
             return make_response(jsonify(response_object), 200)
 
     @Auth.token_auth.login_required(optional=True)
-    def delete(self, id=None):
+    def delete(self, id):
         """
         Delete request for deleting a metadata object of a user given a metadata id.
         This requires a Pbench auth token in the header field
@@ -331,11 +341,11 @@ class QueryMetadata(Resource):
         """
         if id is None:
             self.logger.warning("Metadata id not provided during metadata query")
-            abort(400, message="Please provide a metadata id to query")
+            abort(400, message="Missing metadata id in the URI for delete operation")
 
         try:
             # Fetch the metadata object
-            metadata_objects = Metadata.query(id=id)
+            metadata_objects = UserMetadata.query(id=id)
         except Exception:
             self.logger.exception(
                 "Exception occurred in the Delete request while querying the Metadata model, id: {}",
@@ -354,7 +364,7 @@ class QueryMetadata(Resource):
 
         try:
             # Delete the metadata object
-            Metadata.delete(id=id)
+            UserMetadata.delete(id=id)
         except Exception:
             self.logger.exception(
                 "Exception occurred in the while deleting the metadata entry, id: {}",
