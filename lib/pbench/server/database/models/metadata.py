@@ -1,13 +1,6 @@
-import enum
 import datetime
 from pbench.server.database.database import Database
-from sqlalchemy import Column, Integer, DateTime, ForeignKey, Text
-from sqlalchemy.orm import validates
-
-
-class MetadataKeys(enum.Enum):
-    FAVORITE = 1
-    SAVED = 2
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 
 
 class Metadata(Database.Base):
@@ -20,21 +13,14 @@ class Metadata(Database.Base):
     created = Column(DateTime, nullable=False, default=datetime.datetime.now())
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now())
     value = Column(Text, unique=False, nullable=False)
-    key = Column(Integer, nullable=False)
+    key = Column(String(128), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
 
-    @validates("key")
-    def evaluate_key(self, key, value):
-        return MetadataKeys[value].value
-
-    def get_json(self):
-        return {
-            "id": self.id,
-            "value": self.value,
-            "created": self.created,
-            "updated": self.updated,
-            "key": MetadataKeys(self.key).name,
-        }
+    def get_json(self, include):
+        data = {}
+        for key in include:
+            data.update({key: getattr(self, key)})
+        return data
 
     @staticmethod
     def get_protected():
@@ -44,7 +30,6 @@ class Metadata(Database.Base):
     def query(**kwargs):
         query = Database.db_session.query(Metadata)
         for attr, value in kwargs.items():
-            print(getattr(Metadata, attr), value)
             query = query.filter(getattr(Metadata, attr) == value)
         return query.all()
 
@@ -61,7 +46,7 @@ class Metadata(Database.Base):
 
     def update(self, **kwargs):
         """
-        Update the current user object with given keyword arguments
+        Update the current metadata object with given keyword arguments
         """
         try:
             for key, value in kwargs.items():
@@ -74,8 +59,8 @@ class Metadata(Database.Base):
     @staticmethod
     def delete(id):
         """
-        Delete the metadata session with a given id
-        :param username:
+        Delete the metadata object with a given id
+        :param id: metadata_object_id
         :return:
         """
         try:

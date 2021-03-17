@@ -27,34 +27,41 @@ class TestMetadataSession:
     def test_metadata_creation_with_authorization(client, server_config):
         data_login = user_register_login(client, server_config)
         with client:
-            # create a favorite session
+            # create a favorite object
             response = client.post(
-                f"{server_config.rest_uri}/metadata/favorite",
-                json={"value": '{"config": "config1", "description": "description1"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config1", "description": "description1"}',
+                },
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
+            assert response.status_code == 201
             data = response.json
-            assert data["message"] == "success"
+            assert data["data"]["key"] == "favorite"
 
-            # create a saved session
+            # create a saved metadata object
             response = client.post(
-                f"{server_config.rest_uri}/metadata/saved",
-                json={"value": '{"config": "config2", "description": "description2"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "saved",
+                    "value": '{"config": "config2", "description": "description2"}',
+                },
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
+            assert response.status_code == 201
             data = response.json
-            assert data["message"] == "success"
+            assert data["data"]["key"] == "saved"
 
-            # Get all the favorite sessions of logged in user
+            # Get all the favorite metadata objects of logged in user
             response = client.get(
                 f"{server_config.rest_uri}/metadata/favorite",
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             assert response.status_code == 200
             data = response.json
-            assert data["message"] == "success"
             assert (
-                data["data"]["sessions"][0]["value"]
+                data["data"][0]["value"]
                 == '{"config": "config1", "description": "description1"}'
             )
 
@@ -65,16 +72,18 @@ class TestMetadataSession:
             )
             assert response.status_code == 200
             data = response.json
-            assert data["message"] == "success"
-            assert len(data["data"]["sessions"]) == 2
+            assert len(data["data"]) == 1
 
     @staticmethod
     def test_unauthorized_metadata_creation(client, server_config):
         with client:
             # Create a saved session
             response = client.post(
-                f"{server_config.rest_uri}/metadata/saved",
-                json={"value": '{"config": "config1", "description": "description1"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "saved",
+                    "value": '{"config": "config1", "description": "description1"}',
+                },
             )
             data = response.json
             assert data
@@ -82,19 +91,22 @@ class TestMetadataSession:
 
             # Create a favorite session
             response = client.post(
-                f"{server_config.rest_uri}/metadata/favorite",
-                json={"value": '{"config": "config2", "description": "description2"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config2", "description": "description2"}',
+                },
             )
+            assert response.status_code == 201
             data = response.json
-            assert data["message"] == "success"
+            assert data["data"]["key"] == "favorite"
 
             # Get all the favorite sessions of non-logged in user
             response = client.get(f"{server_config.rest_uri}/metadata/favorite")
             assert response.status_code == 200
             data = response.json
-            assert data["message"] == "success"
             assert (
-                data["data"]["sessions"][0]["value"]
+                data["data"][0]["value"]
                 == '{"config": "config2", "description": "description2"}'
             )
 
@@ -102,21 +114,22 @@ class TestMetadataSession:
             response = client.get(f"{server_config.rest_uri}/metadata/saved",)
             assert response.status_code == 200
             data = response.json
-            assert data["message"] == "success"
-            assert len(data["data"]["sessions"]) == 2
+            assert len(data["data"]) == 1
 
     @staticmethod
     def test_single_metadata_query(client, server_config):
         data_login = user_register_login(client, server_config)
         with client:
             response = client.post(
-                f"{server_config.rest_uri}/metadata/favorite",
-                json={"value": '{"config": "config1", "description": "description1"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config1", "description": "description1"}',
+                },
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             data = response.json
             assert response.status_code == 201
-            assert data["message"] == "success"
             assert data["data"]["id"]
 
             metadata_id = data["data"]["id"]
@@ -125,8 +138,7 @@ class TestMetadataSession:
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             data = response.json
-            assert data["message"] == "success"
-            assert data["data"]["key"] == "FAVORITE"
+            assert data["data"]["key"] == "favorite"
 
     @staticmethod
     def test_unauthorized_metadata_query1(client, server_config):
@@ -134,12 +146,14 @@ class TestMetadataSession:
         data_login = user_register_login(client, server_config)
         with client:
             response = client.post(
-                f"{server_config.rest_uri}/metadata/favorite",
-                json={"value": '{"config": "config1", "description": "description1"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config1", "description": "description1"}',
+                },
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             data = response.json
-            assert data["message"] == "success"
             assert data["data"]["id"]
 
             metadata_id = data["data"]["id"]
@@ -152,12 +166,14 @@ class TestMetadataSession:
         data_login_1 = user_register_login(client, server_config)
         with client:
             response = client.post(
-                f"{server_config.rest_uri}/metadata/favorite",
-                json={"value": '{"config": "config1", "description": "description1"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config1", "description": "description1"}',
+                },
                 headers=dict(Authorization="Bearer " + data_login_1["auth_token"]),
             )
             data_1 = response.json
-            assert data_1["message"] == "success"
             assert data_1["data"]["id"]
 
             # Create another user and login
@@ -179,12 +195,14 @@ class TestMetadataSession:
 
             # Create metadata session for 2nd user
             response = client.post(
-                f"{server_config.rest_uri}/metadata/favorite",
-                json={"value": '{"config": "config2", "description": "description2"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config2", "description": "description2"}',
+                },
                 headers=dict(Authorization="Bearer " + data_login_2["auth_token"]),
             )
             data_2 = response.json
-            assert data_2["message"] == "success"
             assert data_2["data"]["id"]
 
             # Query the metadata session id of the 1st user with an auth token of 2nd user
@@ -194,7 +212,7 @@ class TestMetadataSession:
                 headers=dict(Authorization="Bearer " + data_login_2["auth_token"]),
             )
             data = response.json
-            assert data["message"] == "Not authorized to perform the specified action"
+            assert data["message"] == "Not authorized to perform the GET request"
             assert response.status_code == 403
 
     @staticmethod
@@ -202,13 +220,16 @@ class TestMetadataSession:
         data_login = user_register_login(client, server_config)
         with client:
             response = client.post(
-                f"{server_config.rest_uri}/metadata/favorite",
-                json={"value": '{"config": "config1", "description": "description1"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config1", "description": "description1"}',
+                },
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
+            assert response.status_code == 201
             data = response.json
-            assert data["message"] == "success"
-            assert data["data"]["id"]
+            assert data["data"]["key"] == "favorite"
 
             metadata_id = data["data"]["id"]
             response = client.put(
@@ -217,24 +238,23 @@ class TestMetadataSession:
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             data = response.json
-            assert data["message"] == "success"
-            assert (
-                data["data"]["value"]
-                == '{"config": "config1", "description": "description2"}'
-            )
+            assert data["data"]["key"] == "favorite"
 
     @staticmethod
     def test_metadata_update_with_invalid_fields(client, server_config):
         data_login = user_register_login(client, server_config)
         with client:
             response = client.post(
-                f"{server_config.rest_uri}/metadata/favorite",
-                json={"value": '{"config": "config1", "description": "description2"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config1", "description": "description2"}',
+                },
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
+            assert response.status_code == 201
             data = response.json
-            assert data["message"] == "success"
-            assert data["data"]["id"]
+            assert data["data"]["key"] == "favorite"
 
             metadata_id = data["data"]["id"]
             response = client.put(
@@ -251,12 +271,14 @@ class TestMetadataSession:
         data_login = user_register_login(client, server_config)
         with client:
             response = client.post(
-                f"{server_config.rest_uri}/metadata/favorite",
-                json={"value": '{"config": "config1", "description": "description2"}'},
+                f"{server_config.rest_uri}/metadata",
+                json={
+                    "key": "favorite",
+                    "value": '{"config": "config1", "description": "description2"}',
+                },
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             data = response.json
-            assert data["message"] == "success"
             assert data["data"]["id"]
 
             metadata_id = data["data"]["id"]
@@ -265,5 +287,5 @@ class TestMetadataSession:
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             data = response.json
-            assert data["message"] == "success"
+            assert data["message"] == "Metadata object deleted"
             assert response.status_code == 200
