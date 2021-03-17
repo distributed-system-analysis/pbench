@@ -154,6 +154,15 @@ class QueryMetadata(Resource):
     def verify_metadata(self, metadata):
         current_user = Auth.token_auth.current_user()
         metadata_user_id = metadata.user_id
+        if current_user is None:
+            # The request is not from a logged-in user
+            if metadata_user_id is None:
+                return True
+            self.logger.warning(
+                "Metadata user verification: Public user is trying to access private metadata object for user {}",
+                metadata_user_id,
+            )
+            return False
         if current_user.id != metadata_user_id and not current_user.is_admin():
             self.logger.warning(
                 "Metadata user verification: Logged in user_id {} is different than the one provided in the URI {}",
@@ -163,15 +172,16 @@ class QueryMetadata(Resource):
             return False
         return True
 
-    @Auth.token_auth.login_required()
+    @Auth.token_auth.login_required(optional=True)
     def get(self, id=None):
         """
         Get request for querying a metadata object of a user given a metadata id.
-        This requires a Pbench auth token in the header field
+        This requires a Pbench auth token in the header field if the metadata object is private to a user
+
 
         The url requires a metadata object id such as /user/metadata/<int:id>
 
-        Required headers include
+        Optional headers include
             Authorization:   Bearer <Pbench authentication token (user received upon login)>
 
         :return: JSON Payload
@@ -191,13 +201,18 @@ class QueryMetadata(Resource):
 
         try:
             # Fetch the metadata object
-            metadata_object = Metadata.query(id=id)[0]
+            metadata_objects = Metadata.query(id=id)
         except Exception:
             self.logger.exception(
                 "Exception occurred in the GET request while querying the Metadata model, id: {}",
                 id,
             )
             abort(500, message="INTERNAL ERROR")
+
+        if metadata_objects:
+            metadata_object = metadata_objects[0]
+        else:
+            abort(404, message="Not found")
 
         # Verify if the metadata object id in the url belongs to the logged in user
         if not self.verify_metadata(metadata_object):
@@ -210,7 +225,7 @@ class QueryMetadata(Resource):
         }
         return make_response(jsonify(response_object), 200)
 
-    @Auth.token_auth.login_required()
+    @Auth.token_auth.login_required(optional=True)
     def put(self, id=None):
         """
         Put request for updating a metadata object of a user given a metadata id.
@@ -248,13 +263,18 @@ class QueryMetadata(Resource):
             abort(400, message="Invalid json object in request")
 
         try:
-            metadata_object = Metadata.query(id=id)[0]
+            metadata_objects = Metadata.query(id=id)
         except Exception:
             self.logger.exception(
                 "Exception occurred in the PUT request while querying the Metadata model, id: {}",
                 id,
             )
             abort(500, message="INTERNAL ERROR")
+
+        if metadata_objects:
+            metadata_object = metadata_objects[0]
+        else:
+            abort(404, message="Not found")
 
         # Verify if the metadata object id in the url belongs to the logged in user
         if not self.verify_metadata(metadata_object):
@@ -293,7 +313,7 @@ class QueryMetadata(Resource):
             }
             return make_response(jsonify(response_object), 200)
 
-    @Auth.token_auth.login_required()
+    @Auth.token_auth.login_required(optional=True)
     def delete(self, id=None):
         """
         Delete request for deleting a metadata object of a user given a metadata id.
@@ -315,13 +335,18 @@ class QueryMetadata(Resource):
 
         try:
             # Fetch the metadata object
-            metadata_object = Metadata.query(id=id)[0]
+            metadata_objects = Metadata.query(id=id)
         except Exception:
             self.logger.exception(
                 "Exception occurred in the Delete request while querying the Metadata model, id: {}",
                 id,
             )
             abort(500, message="INTERNAL ERROR")
+
+        if metadata_objects:
+            metadata_object = metadata_objects[0]
+        else:
+            abort(404, message="Not found")
 
         # Verify if the metadata object id in the url belongs to the logged in user
         if not self.verify_metadata(metadata_object):

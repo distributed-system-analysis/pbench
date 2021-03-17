@@ -22,7 +22,7 @@ def user_register_login(client, server_config):
         return data_login
 
 
-class TestMetadataSession:
+class TestMetadataObjects:
     @staticmethod
     def test_metadata_creation_with_authorization(client, server_config):
         data_login = user_register_login(client, server_config)
@@ -65,7 +65,7 @@ class TestMetadataSession:
                 == '{"config": "config1", "description": "description1"}'
             )
 
-            # Get all the saved sessions of logged in user
+            # Get all the saved metadata objects of logged in user
             response = client.get(
                 f"{server_config.rest_uri}/metadata/saved",
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
@@ -77,7 +77,7 @@ class TestMetadataSession:
     @staticmethod
     def test_unauthorized_metadata_creation(client, server_config):
         with client:
-            # Create a saved session
+            # Create a saved object
             response = client.post(
                 f"{server_config.rest_uri}/metadata",
                 json={
@@ -89,7 +89,7 @@ class TestMetadataSession:
             assert data
             assert response.status_code == 201
 
-            # Create a favorite session
+            # Create a favorite metadata object
             response = client.post(
                 f"{server_config.rest_uri}/metadata",
                 json={
@@ -101,7 +101,7 @@ class TestMetadataSession:
             data = response.json
             assert data["data"]["key"] == "favorite"
 
-            # Get all the favorite sessions of non-logged in user
+            # Get all the favorite metadata objects of non-logged in user
             response = client.get(f"{server_config.rest_uri}/metadata/favorite")
             assert response.status_code == 200
             data = response.json
@@ -110,7 +110,7 @@ class TestMetadataSession:
                 == '{"config": "config2", "description": "description2"}'
             )
 
-            # Get all the saved sessions of non-logged in user
+            # Get all the saved metadata objects of non-logged in user
             response = client.get(f"{server_config.rest_uri}/metadata/saved",)
             assert response.status_code == 200
             data = response.json
@@ -158,7 +158,7 @@ class TestMetadataSession:
 
             metadata_id = data["data"]["id"]
             response = client.get(f"{server_config.rest_uri}/metadata/{metadata_id}",)
-            assert response.status_code == 401
+            assert response.status_code == 403
 
     @staticmethod
     def test_unauthorized_metadata_query2(client, server_config):
@@ -193,7 +193,7 @@ class TestMetadataSession:
             data_login_2 = response.json
             assert data_login_2["auth_token"]
 
-            # Create metadata session for 2nd user
+            # Create metadata objects for 2nd user
             response = client.post(
                 f"{server_config.rest_uri}/metadata",
                 json={
@@ -205,7 +205,7 @@ class TestMetadataSession:
             data_2 = response.json
             assert data_2["data"]["id"]
 
-            # Query the metadata session id of the 1st user with an auth token of 2nd user
+            # Query the metadata object id of the 1st user with an auth token of 2nd user
             metadata_id = data_1["data"]["id"]
             response = client.get(
                 f"{server_config.rest_uri}/metadata/{metadata_id}",
