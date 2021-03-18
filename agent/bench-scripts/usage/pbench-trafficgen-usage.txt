@@ -1,0 +1,405 @@
+Usage:
+------
+        pbench-trafficgen [options]
+
+Trafficgen options that control packet contents:
+------------------------------------------------
+
+  --output-dir OUTPUT_DIR
+                        Directory where the output should be stored
+
+  --frame-sizes FRAME_SIZE
+                        A list of Ethernet L2 frame sizes (including CRC) in bytes or IMIX. Default is 64
+                        Use comma seprate the frame size for each test cycle.
+
+  --num-flows NUM_FLOWS
+                        number of unique network flows to run. Default is 1024
+
+  --use-src-ip-flows USE_SRC_IP_FLOWS
+                        implement flows by source IP
+
+  --use-dst-ip-flows USE_DST_IP_FLOWS
+                        implement flows by destination IP
+
+  --use-src-mac-flows USE_SRC_MAC_FLOWS
+                        implement flows by source MAC
+
+  --use-dst-mac-flows USE_DST_MAC_FLOWS
+                        implement flows by destination MAC
+
+  --use-src-port-flows USE_SRC_PORT_FLOWS
+                        implement flows by source port
+
+  --use-dst-port-flows USE_DST_PORT_FLOWS
+                        implement flows by destination port
+
+  --use-protocol-flows USE_PROTOCOL_FLOWS
+                        implement flows by IP protocol
+
+  --use-encap-src-ip-flows USE_ENCAP_SRC_IP_FLOWS
+                        implement flows by source IP in the encapsulated packet
+
+  --use-encap-dst-ip-flows USE_ENCAP_DST_IP_FLOWS
+                        implement flows by destination IP in the encapsulated packet
+
+  --use-encap-src-mac-flows USE_ENCAP_SRC_MAC_FLOWS
+                        implement flows by source MAC in the encapsulated packet
+
+  --use-encap-dst-mac-flows USE_ENCAP_DST_MAC_FLOWS
+                        implement flows by destination MAC in the encapsulated packet
+
+  --one-shot ONE_SHOT   0 = run regular binary seach, 1 = run single trial
+
+  --traffic-direction[s] {bidirectional,unidirectional,revunidirectional}
+                        A list of one or more: unidirectional, revunidirectional, or bidirectional
+                        Default is bidirectional
+                                unidirectional: packets will Tx out the 1st device and Rx in the 2nd device
+                                revunidirectional: packets will Tx out the 2nd device and RX in the 1st device
+                                bidirectional: packets will Tx out the both devices and Rx in both devices
+
+  --validation-runtime VALIDATION_RUNTIME
+                        Measurement period in seconds when running final validation or a latency test. Default is 300
+                        The following options can take 1 or more values and will control how many tests will be conducted.
+                        For example, the following options:
+                                --rates=1,2 --traffic-directions=unidirec,bidirec --max-loss-pcts=0,1
+                                --frame-sizes=64,256 --nr-flows=1024,65536
+                                
+                                ## ^^-- would produce 32 different test permutations
+                                
+
+  --search-runtime SEARCH_RUNTIME
+                        Measurement period in seconds when searching for max throughput. Default is 120
+
+  --sniff-runtime SNIFF_RUNTIME
+                        Measurement period in seconds for a "sniff" trial, right before the search trial if the sniff test fails, 
+                        the search trial is skipped and moves on to the next trial. Default is 30
+
+  --rate[s]=value1,value2
+                        A list of packet rates, in millions of packets per second (mpps), unless --rate-unit=% is used, where the rate value is interpreted as a percentage of line rate for the transmitting device.
+                        Only use this option when:
+
+                        1) Using the --one-shot option (skip binary search) and only 1 frame size. For example, you may want to use this when measuring latency for 10%, 50%, 90% of line rate with 64-byte frames:
+                           --rates=10%,50%,90% --rate-unit=% --frame-size=64 --one-shot
+
+                        2) Performing a binary search, but you want the search to start with a rate lower than 100%.  When doing this, it is recommended that only 1 frame size is used:
+                           --rate=50% --rate-unit=% --frame-size=64
+
+  --min-rate MIN_RATE   
+                        minimum rate per device
+
+  --rate-unit {%,mpps}  
+                        rate unit per device
+
+  --packet-protocol {UDP,TCP}
+                        IP protocol to use when constructing packets
+
+  --rate-tolerance RATE_TOLERANCE
+                        percentage that TX rate is allowed to vary from requested rate and still be considered valid
+
+  --duplicate-packet-failure {fail,quit,retry-to-fail,retry-to-quit}
+                        What to do when a duplicate packet failure is encountered
+
+  --rate-tolerance-failure {fail,quit}
+                        What to do when a rate tolerance failure is encountered
+
+  --runtime-tolerance RUNTIME_TOLERANCE
+                        percentage that runtime is allowed to vary from requested runtime and still be considered valid
+
+  --negative-packet-loss {fail,quit,retry-to-fail,retry-to-quit}
+                        What to do when negative packet loss is encountered
+
+  --search-granularity SEARCH_GRANULARITY
+                        the binary search will stop once the percent throughput difference between the most recent passing and failing trial is lower than this
+
+  --max-loss-pct[s]
+                        A list of maximum allowed percentage of dropped frames, used for binary search. Default is 0.002
+                        comma separated list of loss scenarios.
+
+  --src-ports SRC_PORTS
+                        A list of source ports. comma separated list of source ports, 1 per device
+
+  --dst-ports DST_PORTS
+                        A list of destination ports. comma separated list of destination ports, 1 per device
+
+  --dst-macs DST_MACS   
+                        A list of two destination MAC addresses. comma separated list of destination MACs, 1 per device
+
+  --src-macs SRC_MACS   
+                        A list of two source MAC addresses. comma separated list of src MACs, 1 per device
+
+  --encap-dst-macs ENCAP_DST_MACS
+                        A list of two destination MAC addresses for the encapsulated network. Only used on conjuction with an overlay network like VxLAN.
+                        comma separated list of destination MACs for encapulsated network, 1 per device
+
+  --encap-src-macs ENCAP_SRC_MACS
+                        A list of two source MAC addresses for the encapsulated network. Only used in conjuction with an overlay network like VxLAN
+                        comma separated list of src MACs for encapulsated network, 1 per device
+
+  --dst-ips DST_IPS     
+                        A list of two destination IP addresses. comma separated list of destination IPs 1 per device
+
+  --src-ips SRC_IPS     
+                        A list of two source IP addresses. comma separated list of destination IPs 1 per device
+
+  --vxlan-ids VXLAN_IDS
+                        If a value is provided, the corresponding device will encapsulate the packetand use VNI = value provided when transmitting packets.  
+                        Received packets for the this device are expected to be encapsulated and use same VNI. comma separated list of VxLAN IDs, 1 per device
+
+  --vlan-ids VLAN_IDS   
+                        If a value is provided, the corresponding device will use a VLAN tag when transmitting and expect received packets to also have the VLAN tag.
+                        comma separated list of VxLAN IDs, 1 per device
+
+  --encap-dst-ips ENCAP_DST_IPS
+                        A list of two destination IP addresses for the encapsulated network. Only used on conjuction with an overlay network like VxLAN.
+                        comma separated list of destination IPs for encapsulated network, 1 per device
+
+  --encap-src-ips ENCAP_SRC_IPS
+                        A list of two source IP addresses for the encapsulated network. Only used in conjuction with an overlay network like VxLAN.
+                        comma separated list of src IPs for excapsulated network, 1 per device
+
+  --traffic-generator {trex-txrx,trex-txrx-profile,valkyrie2544,null-txrx}
+                        The traffic generation engine to use (trex-txrx OR trex-txrx-profile OR valkyrie2544 OR null-txrx). Default is trex-txrx
+
+  --measure-latency MEASURE_LATENCY
+                        Collect latency statistics or not
+
+  --latency-rate LATENCY_RATE
+                        Rate to send latency packets per second
+
+  --trial-gap TRIAL_GAP
+                        Time to sleep between trial attempts
+
+  --max-retries MAX_RETRIES
+                        Maximum number of trial retries before aborting
+
+  --loss-granularity {direction,device,segment}
+                        Test for packet loss at a granularity of direction, device, or segment
+
+  --stream-mode {continuous,segmented}
+                        How the packet streams are constructed
+
+  --use-device-stats    
+                        Should device stats be used instead of stream stats
+
+  --enable-segment-monitor
+                        Should individual segments be monitored for pass/fail status relative to --max-loss-pct in order to short circuit trials
+
+  --devices PCI_DEVICE
+                        List of 2 (or more) DPDK devices to use, by PCI location ID (0000:04:00.0,0000:04:00.1)
+                        This argument attempt to bind the device to vfio-pci kernel module.
+                        You must ensure your system has IOMMU enabled.  Devices must be listed in increments of 2.
+
+  --active-devices PCI_DEVICE
+                        List of 2 (ore more) DPDK devices to use as active participants in the test.
+                        These devices must be a subset of what is supplied for --devices.
+                        Devices must be listed in increments of 2.
+
+  --device-pairs DEVICE_PAIRS
+                        List of device pairs in the form A:B[,C:D][,E:F][,...]
+
+  --active-device-pairs ACTIVE_DEVICE_PAIRS
+                        List of active device pairs in the form A:B[,C:D][,E:F][,...]
+
+  --latency-device-pair LATENCY_DEVICE_PAIR
+                        Latency device pair in the form A:B
+
+  --disable-flow-cache  
+                        Force disablement of the TRex flow cache
+
+  --send-teaching-warmup
+                        Send teaching packets from the receiving port during a warmup phase
+
+  --send-teaching-measurement
+                        Send teaching packets from the receiving port during the measurement phase
+
+  --teaching-measurement-interval TEACHING_MEASUREMENT_INTERVAL
+                        Interval to send teaching packets on from the receiving port during the measurement phase in seconds
+
+  --teaching-warmup-packet-rate TEACHING_WARMUP_PACKET_RATE
+                        Rate to send teaching packets at from the receiving port in packets per second (pps) during the warmup
+
+  --teaching-measurement-packet-rate TEACHING_MEASUREMENT_PACKET_RATE
+                        Rate to send teaching packets at from the receiving port in packets per second (pps) during the measurement phase
+
+  --teaching-warmup-packet-type {garp,icmp,generic}
+                        Type of packet to send for the teaching warmup from the receiving port
+
+  --teaching-measurement-packet-type {garp,icmp,generic}
+                        Type of packet to send for the teaching measurement from the receiving port
+
+  --traffic-profile[s]=PROFILE1,PROFILE2
+                        A list of traffic profiles to load when --traffic-generator=trex-txrx-profile. The profile contains a list of streams, each with fine grained options defined on a perstream basis.
+                        Test traffic profiles are available in "/opt/trafficgen/trex-profiles/".
+                        See README-trex-txrx-profile.md in the trafficgen distribution for documentation on the file format.Name of the file containing traffic profiles to load
+
+  --random-seed RANDOM_SEED
+                        Specify a fixed random seed for repeatable results
+                        (defaults to not repeatable)
+
+  --pre-trial-cmd PRE_TRIAL_CMD
+                        Specify a script/binary to execute prior to each trial
+
+  --disable-trex-profiler
+                        Force disablement of the TRex profiler
+
+  --trex-profiler-interval TREX_PROFILER_INTERVAL
+                        Interval to collect samples on when using the TRex profiler
+
+  --process-all-profiler-data
+                        Force processing of profiler data for all trials instead of just the last one
+
+  --repeat-final-validation
+                        Repeat the final validation trial (if passed) to allow more invasive performance tools to be used
+
+  --warmup-trial        
+                        Perform a warmup trial prior to performing the binary search. The warmup trial results are ignored.
+
+  --warmup-trial-runtime WARMUP_TRIAL_RUNTIME
+                        trial period in seconds during warmup
+
+  --warmup-traffic-profile WARMUP_TRAFFIC_PROFILE
+                        Name of the file containing traffic profiles to load for the warmup trial
+
+  --disable-upward-search
+                        Do not allow binary search to increase beyond the initial rate if it passes final validation
+
+  --trex-host TREX_HOST
+                        Hostname/IP address of the server where TRex is running
+
+  --no-promisc          
+                        Do not use promiscuous mode for interfaces (usually needed for virtual functions)
+
+trafficgen additional options:
+------------------------------
+
+  --skip-trex-install
+                        Do no install TRex server process (assumes you have one) installed already
+
+  --skip-trex-server
+                        Do no kill existing or start a new TRex server process (assumes you have one running already).
+
+  --skip-git-pull
+                        Do not call git pull on the trafficgen repo if it already exists
+
+
+Common options for pbench benchmark scripts:
+-------------------------------------------
+
+  --config=str
+                        Name of the test config (i.e. jumbo_frames_and_network_throughput)
+
+  --samples=int
+                        The number of times each different test is run (to compute average)
+
+  --max-failures=int
+                        The maximm number of failures to get below stddev
+
+  --max-stddev=int
+                        The maximm percent stddev allowed to pass
+
+  --postprocess-only=y|n
+                        Don't run the benchmark, but postprocess data from previous test
+
+  --run-dir=str
+                        Optionally specify what directory should be used (usually only used if
+                        postprocess-only=y)
+
+  --start-iteration-num=int
+                        Optionally skip the first (n-1) tests
+
+  --tool-group=str
+                        Start/stop/post-process tools using this group
+
+  --pre-sample-cmd=str
+                        run this command before executing each test sample
+
+  --sysinfo=str,
+                        comma separated values of sysinfo to be collected, default="none"
+                        available: default, none, all, block, libvirt, kernel_config, security_mitigations, sos, topology, ara, stockpile, insights
+
+  --tool-period=str
+                        str = [binary-search|repeat-final-validation]
+                        binary-search (default): tools are collected during binary-search
+                        repeat-final-validation: tools are collected during a repeat-run of the final validation trial
+
+
+Examples of network performance test:
+-------------------------------------
+
+Note:-The below examples are common for all fast-datapath network performance validation. The test parameters can be change based hardware resource specifications and test requirement. 
+
+    1) Using --traffic-generator=trex-txrx
+      ------------------------------------
+
+        a) Binary-Search Test for 0.0 Loss for 64,128,256,512,1024,1500 bytes frames
+                            # pbench-trafficgen --config=NoLossTest --sample=3 --frame-sizes=64,128,256,512,1024,1500 --num-flows=128 \
+                                  --flow-mods=src-ip --traffic-generator=trex-txrx --devices=06:00.0,06:00.1 --search-runtime=120 \
+                                  --traffic-directions=bidirectional --validation-runtime=1200 --max-loss-pcts=0.0 --tool-period=binary-search \
+                                  --skip-git-pull -- --send-teaching-measurement --send-teaching-warmup --teaching-measurement-packet-type=generic \
+                                  --teaching-warmup-packet-type=generic --rate-tolerance-failure=fail --disable-upward-search --loss-granularity=segment
+
+        b) Binary-Search Test for 0.002,0.0001,0.0005 Loss for 64,128,256,512,1024,1500 bytes frames
+                            # pbench-trafficgen --config=LossTest --sample=3 --frame-sizes=64,128,256,512,1024,1500 --num-flows=128 \
+                                  --traffic-directions=bidirectional --flow-mods=src-ip --traffic-generator=trex-txrx --devices=06:00.0,06:00.1 \
+                                  --search-runtime=120 --validation-runtime=300 --max-loss-pcts=0.002,0.0001,0.0005 --tool-period=binary-search \
+                                  --skip-git-pull -- --send-teaching-measurement --send-teaching-warmup --teaching-measurement-packet-type=generic \
+                                  --teaching-warmup-packet-type=generic
+
+        c) One-Shot for 0.0 loss test for 64 byte frame
+                            # pbench-trafficgen --config=OneShotTest --sample=1 --frame-sizes=64 --num-flows=128 \
+                                  --traffic-directions=bidirectional --flow-mods=src-ip --traffic-generator=trex-txrx \
+                                  --devices=06:00.0,06:00.1 --search-runtime=120 --validation-runtime=300 --max-loss-pcts=0.002 \
+                                  --one-shot --skip-git-pull -- --send-teaching-measurement --send-teaching-warmup \
+                                  --teaching-measurement-packet-type=generic --teaching-warmup-packet-type=generic
+
+        d) Map source IPs with --devices list
+                            The values provided for the following options correspond to the devices device list (--devices).
+                            For example: --devices=0000:04:00.0,0000:04:00.1 --src-ips=10.0.0.1,8.0.0.1
+                                  ^^ In the example above, device 0000:04:00.0 would use source IP address 10.0.0.1 and device 0000:04:00.1 would use source IP adress 8.0.0.1
+
+
+    2) Using --traffic-generator=trex-txrx-profile
+       -------------------------------------------
+
+        a) Binary-Search Test:
+                            # pbench-trafficgen --traffic-generator=trex-txrx-profile --devices=06:00.0,06:00.1 \
+                                  --traffic-profile=/opt/trafficgen/trex-profiles/test/test-profile-01.json --samples=3 \
+                                  --max-loss-pct=0.0 --config=BinarySearchTest --tool-period=binary-search --skip-git-pull \
+                                  --search-runtime=60 --validation-runtime=300 -- --rate-tolerance-failure=fail \
+                                  --disable-upward-search --loss-granularity=segment
+
+        b) One-Shot Test:
+                            # pbench-trafficgen --traffic-generator=trex-txrx-profile --devices=06:00.0,06:00.1 \
+                                  --traffic-profile=/opt/trafficgen/trex-profiles/test/test-profile-01.json --rate=50 --rate-unit=% \
+                                  --samples=1 --max-loss-pct=0.0 --config=OneShotTest --one-shot --skip-git-pull --search-runtime=120 \
+                                  --validation-runtime=300 -- --rate-tolerance-failure=fail --disable-upward-search --loss-granularity=segment
+
+
+Examples of trafficgen utility commands:
+---------------------------------------
+
+    1) Use "profile-builder.py" to create custom traffic profile for "--traffic-generator=trex-txrx-profile" test.
+                            # cd /opt/trafficgen/; 
+                            # ./profile-builder.py --frame-size 64 --num-flows 1024 --rate 100 \
+                                  --measure-latency --measure-latency --send-teaching-warmup \
+                                  --send-teaching-measurement --teaching-warmup-packet-type generic \
+                                  --teaching-measurement-packet-type generic --traffic-direction bidirectional --packet-protocol UDP
+
+    2) Use "reporter.py" to check binary-search result summary:
+                            # reporter.py --input $PATH-to-Binary-search.json --type search-summary
+
+
+Pbench Utility Commands:
+------------------------
+
+    1) Clear benchmark results:
+            # pbench-clear-results
+
+    2) Move reulsts to Pbench server:
+            Example: pbench-move-results --user user@domain.com --prefix benchmark
+
+    3) Kill the pbench process forcefully:
+            # pbench-kill-tools --dir=/var/lib/pbench-agent/
+
+    4) Stop pbench data collection service agent:
+            # pbench-stop-tools --dir=/var/lib/pbench-agent/
