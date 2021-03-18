@@ -116,6 +116,13 @@ function collect_sos {
 		# ref for plugin tuned: https://github.com/sosreport/sos/commit/c55c58cf2dabf93c924c839c8ed045c18e31ba1c
 		_modules="${_modules} tuned"
 	fi
+	if [[ "${sos_ver}" -ge 3 || "${sos_ver}" -le 3 ]]; then
+		# sos-plugins for OpenStack cloud
+		OSP=/etc/rhosp-release
+		if [[ -f "$OSP" ]] ; then
+			_modules="${_modules} openstack_ansible openstack_aodh openstack_ceilometer openstack_cinder openstack_glance openstack_heat openstack_horizon openstack_instack openstack_ironic openstack_keystone openstack_manila openstack_neutron openstack_nova openstack_novajoin openstack_octavia openstack_placement openstack_swift os_net_config mssql cman ceph openvswitch ovn_central ovn_host pacemaker podman rabbitmq kernelrt ceph kvm corosync"
+		fi
+        fi
 
 	_name="pbench-${_pbench_full_hostname}"
 	_cmd="${dir}/sosreport-${_name}.cmd"
