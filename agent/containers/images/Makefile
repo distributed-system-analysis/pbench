@@ -43,6 +43,15 @@ _DISTROS = centos-8 centos-7 fedora-33 fedora-32
 
 all: all-tags $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
 
+# We also offer targets per distribution target
+centos-8: all-tags centos-8-all-tagged
+
+centos-7: all-tags centos-7-all-tagged
+
+fedora-33: all-tags fedora-33-all-tagged
+
+fedora-32: all-tags fedora-32-all-tagged
+
 #+
 # Tagging targets
 #-
@@ -208,11 +217,11 @@ all-dockerfiles: $(foreach distro, ${_DISTROS}, ${distro}-base.Dockerfile ${dist
 # separately for some reason.
 %.repo: ${_REPO_TEMPLATE}
 
-%.repo: %.yml
-	jinja2 ${_REPO_TEMPLATE} $*.yml -o $@
+%-pbench.repo: %-pbench.yml
+	jinja2 ${_REPO_TEMPLATE} $*-pbench.yml -o $@
 
-%.yml: repo.yml.j2
-	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -D user=${USER} -o $@
+%-pbench.yml: repo.yml.j2
+	jinja2 repo.yml.j2 -D distro=$* -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -D user=${USER} -o $@
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis
