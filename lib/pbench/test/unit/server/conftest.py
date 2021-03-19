@@ -7,10 +7,10 @@ from pbench.server.api import create_app, get_server_config
 
 server_cfg_tmpl = """[DEFAULT]
 install-dir = {TMP}/opt/pbench-server
+default-host = pbench.example.com
 
 [pbench-server]
 pbench-top-dir = {TMP}/srv/pbench
-proxy_host = pbench.example.com:8901
 
 [Postgres]
 db_uri = sqlite:///:memory:
