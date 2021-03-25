@@ -1,10 +1,12 @@
 import re
-from flask.globals import current_app
+from logging import Logger
 
+from flask.globals import current_app
 from flask_restful import Resource, abort
 from flask import request, jsonify
 from urllib.parse import urljoin
 
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.query_apis import get_index_prefix
 
 
@@ -15,17 +17,17 @@ class EndpointConfig(Resource):
     config file.
     """
 
-    forward_pattern = re.compile(r";\s*host\s*=\s*(?P<host>[^;\s]*)")
-    x_forward_pattern = re.compile(r"^\s*(?P<host>[^;\s,]*)")
-    param_template = re.compile(r"<[\w_\d]+:[\d_\w]+>")
+    forward_pattern = re.compile(r";\s*host\s*=\s*(?P<host>[^;\s]+)")
+    x_forward_pattern = re.compile(r"\s*(?P<host>[^;\s,]+)")
+    param_template = re.compile(r"<\w+:\w+>")
 
-    def __init__(self, config, logger):
+    def __init__(self, config: PbenchServerConfig, logger: Logger):
         """
         __init__ Construct the API resource
 
         Args:
-            config (PbenchServerConfig): server config values
-            logger (Logger): message logging
+            :config: server config values
+            :logger: message logging
 
         Report the server configuration to a web client. By default, the Pbench
         server ansible script sets up a local Apache reverse proxy routing
@@ -46,8 +48,9 @@ class EndpointConfig(Resource):
         Return server configuration information required by web clients
         including the Pbench dashboard UI. This includes:
 
-        metadata: Information about the server configuration
-            identification: The Pbench server name and version
+        indices: Information about the server's ES indices. (NOTE: once
+                we've removed all direct Elasticsearch queries from the
+                dashboard, these won't be necessary.)
             result_index: The "root" index name for Pbench result data,
                 qualified by the current index version and prefix. In the
                 current ES schema, this is "v5.result-data-sample."
@@ -59,6 +62,7 @@ class EndpointConfig(Resource):
                 schema, this is "v6.run-data."
             run_toc_index: The Elasticsearch V7 index for run TOC data. In
                 the current ES schema, this is "v6.run-toc."
+        identification: The Pbench server name and version
         api:    A dict of the server APIs supported; we give a name, which
                 identifies the service, and the full URI relative to the
                 configured host name and port (local or remote reverse proxy).
@@ -95,7 +99,7 @@ class EndpointConfig(Resource):
         if not origin:
             header = request.headers.get("X-Forwarded-Host")
             if header:
-                m = self.x_forward_pattern.search(header)
+                m = self.x_forward_pattern.match(header)
                 if m:
                     origin = m.group("host")
                     host_source = "X-Forwarded-Host"
@@ -137,9 +141,7 @@ class EndpointConfig(Resource):
                 # which we're not currently using anywhere; but it'll require
                 # adjustment later if we add any. (E.g., something like
                 # "/api/v1/foo/<string:name>/detail/<string:param>")
-                m = re.search(self.param_template, url)
-                if m:
-                    url = re.sub(self.param_template, "", url)
+                url = self.param_template.sub("", url)
                 path = url[len(self.uri_prefix) + 1 :]
                 if path.endswith("/"):
                     path = path[:-1]
