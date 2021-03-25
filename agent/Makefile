@@ -53,6 +53,18 @@ util-scripts = \
 	require-rpm \
 	tool-meister
 
+# Scripts based on the Python Click package, which are generated during
+# installation.
+click-scripts = \
+	pbench-generate-token \
+	pbench-cleanup \
+	pbench-clear-results \
+	pbench-clear-tools \
+	pbench-config \
+	pbench-list-tools \
+	pbench-list-triggers \
+	pbench-register-tool-trigger
+
 bench-scripts = \
 	pbench-cyclictest \
 	pbench-dbench \
@@ -241,13 +253,7 @@ install-python3-setup: install-util-scripts install-lib
 	${COPY} requirements.txt ${DESTDIR}
 	mkdir -p ${DESTDIR}/python3
 	(cd ..; SKIP_GENERATE_AUTHORS=1 SKIP_WRITE_GIT_CHANGELOG=1 python3 setup.py install --prefix=${DESTDIR}/python3)
-	${COPY} ${DESTDIR}/python3/bin/pbench-config ${UTILDIR}/
-	${COPY} ${DESTDIR}/python3/bin/pbench-clear-tools ${UTILDIR}/
-	${COPY} ${DESTDIR}/python3/bin/pbench-list-triggers ${UTILDIR}/
-	${COPY} ${DESTDIR}/python3/bin/pbench-clear-results ${UTILDIR}/
-	${COPY} ${DESTDIR}/python3/bin/pbench-cleanup ${UTILDIR}/
-	${COPY} ${DESTDIR}/python3/bin/pbench-list-tools ${UTILDIR}/
-	${COPY} ${DESTDIR}/python3/bin/pbench-register-tool-trigger ${UTILDIR}/
+	${COPY} $(addprefix ${DESTDIR}/python3/bin/, ${click-scripts}) ${UTILDIR}/
 	rm -rf ${DESTDIR}/python3
 	${COPY} ../lib/pbench ${LIBDIR}/
 	rm -r $$(find ${LIBDIR} -name __pycache__) ${LIBDIR}/pbench/test ${LIBDIR}/pbench/server ${LIBDIR}/pbench/cli/server
@@ -255,34 +261,34 @@ install-python3-setup: install-util-scripts install-lib
 install-util-scripts: install-destdir
 	${INSTALL} ${INSTALLOPTS} ${UTILDIR}
 	cd util-scripts; \
-	${COPY} ${util-scripts} ${UTILDIR}
+	    ${COPY} ${util-scripts} ${UTILDIR}
 
 install-bench-scripts: install-destdir
 	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}
 	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/templates
 	cd bench-scripts; \
-	${COPY} ${bench-scripts} ${BENCHDIR}
+	    ${COPY} ${bench-scripts} ${BENCHDIR}
 	${INSTALL} ${INSTALLOPTS} ${BENCHDIR}/postprocess
 	cd bench-scripts/postprocess; \
-	${COPY} ${bench-postprocess} ${BENCHDIR}/postprocess
+	    ${COPY} ${bench-postprocess} ${BENCHDIR}/postprocess
 	cd ${BENCHDIR}; \
-	ln -sf postprocess/compare-bench-results compare-bench-results
+	    ln -sf postprocess/compare-bench-results compare-bench-results
 
 install-tool-scripts: install-destdir
 	${INSTALL} ${INSTALLOPTS} ${TOOLDIR}
 	cd tool-scripts; \
-	${COPY} ${tool-scripts} ${TOOLDIR}
+	    ${COPY} ${tool-scripts} ${TOOLDIR}
 	${INSTALL} ${INSTALLOPTS} ${TOOLDIR}/datalog
 	cd tool-scripts/datalog; \
-	${COPY} ${tool-datalogs} ${TOOLDIR}/datalog
+	    ${COPY} ${tool-datalogs} ${TOOLDIR}/datalog
 	${INSTALL} ${INSTALLOPTS} ${TOOLDIR}/postprocess
 	cd tool-scripts/postprocess; \
-	${COPY} ${tool-postprocess} ${TOOLDIR}/postprocess
+	    ${COPY} ${tool-postprocess} ${TOOLDIR}/postprocess
 
 install-ansible: install-destdir
 	${INSTALL} ${INSTALLOPTS} ${ANSIBLEDIR}
 	cd ansible; \
-	${COPY} ara ${ANSIBLEDIR}
+	    ${COPY} ara ${ANSIBLEDIR}
 
 clean:
 	rm -rf ${DESTDIR}
