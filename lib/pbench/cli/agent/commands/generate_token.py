@@ -24,12 +24,11 @@ class GenerateToken(BaseCommand):
             "password": self.context.password,
             "token_duration": self.context.token_duration,
         }
+        uri = f"{server}/login"
         try:
-            response = requests.post(f"{server}/login", headers=headers, json=payload)
+            response = requests.post(uri, headers=headers, json=payload)
         except requests.exceptions.ConnectionError as exc:
-            if hasattr(exc.args[0], "reason"):
-                raise exc.args[0].reason
-            raise
+            raise RuntimeError(f"Cannot connect to '{uri}'") from exc
 
         payload = response.json()
         if response.ok:
