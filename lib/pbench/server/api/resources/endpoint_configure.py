@@ -108,7 +108,10 @@ class EndpointConfig(Resource):
             origin = self.host
         host = f"http://{origin}"
         self.logger.info(
-            "Advertising endpoints relative to {}: {}", host_source, host_value
+            "Advertising endpoints at {} relative to {} ({})",
+            host,
+            host_source,
+            host_value,
         )
 
         # We pre-load the APIs list with the "results" link, which isn't yet
