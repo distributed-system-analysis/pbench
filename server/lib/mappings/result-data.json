@@ -15,16 +15,6 @@
         "result_data_sample_parent": {
             "type": "keyword"
         },
-        "authorization": {
-            "properties": {
-                "owner": {
-                    "type": "keyword"
-                },
-                "access": {
-                    "type": "keyword"
-                }
-            }
-        },
         "run": {
             "properties": {
                 "id": {

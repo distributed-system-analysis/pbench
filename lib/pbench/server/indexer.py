@@ -280,6 +280,19 @@ class PbenchTemplates:
             )
             self.templates[tool_template_name] = tool_template_body
 
+            # Add a standard "authorization" sub-document into each of the
+            # document templates we've collected. With the single exception
+            # of the server reports template, which isn't owned by any
+            # user.
+            for name, body in self.templates.items():
+                if name != server_reports_template_name:
+                    body["mappings"]["properties"]["authorization"] = {
+                        "properties": {
+                            "owner": {"type": "keyword"},
+                            "access": {"type": "keyword"},
+                        }
+                    }
+
         self.counters = Counter()
 
     index_patterns = {

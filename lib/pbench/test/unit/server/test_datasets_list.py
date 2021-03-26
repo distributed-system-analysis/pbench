@@ -36,9 +36,9 @@ def query_helper(client, server_config, requests_mock):
     return query_helper
 
 
-class TestQueryDatasetList:
+class TestDatasetsList:
     """
-    Unit testing for resources/QueryDatasetList class.
+    Unit testing for resources/DatasetsList class.
 
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
@@ -65,7 +65,7 @@ class TestQueryDatasetList:
         """
         response = client.post(f"{server_config.rest_uri}/datasets/list")
         assert response.status_code == 400
-        assert response.json.get("message") == "Missing request payload"
+        assert response.json.get("message") == "Invalid request payload"
 
     @pytest.mark.parametrize(
         "keys",

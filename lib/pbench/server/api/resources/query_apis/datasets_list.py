@@ -1,8 +1,11 @@
+from logging import Logger
+
 from flask import request, jsonify
 from flask_restful import Resource, abort
 import requests
 
 from dateutil import parser
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.query_apis import (
     get_es_url,
     get_index_prefix,
@@ -11,23 +14,41 @@ from pbench.server.api.resources.query_apis import (
 )
 
 
-class QueryControllerList(Resource):
+class DatasetsList(Resource):
     """
-    Abstracted Pbench API to get date-bounded controller data.
+    Abstracted Pbench API to get date-bounded dataset data for a particular
+    controller.
+
+    This is generally a follow-on to controllers_list, which returns
+    the list of controllers having datasets within a specified date range. The
+    datasets_list API returns the list of dataset names corresponding to the
+    specified controller.
+
+    The date range is used to define the indices in which the data may appear,
+    and should be the same as the range specified to controllers_list (or some
+    datasets may not be found).
     """
 
-    def __init__(self, config, logger):
+    def __init__(self, config: PbenchServerConfig, logger: Logger):
+        """
+        __init__ Initialize the resource with info each call will need.
+
+        Args:
+            :config: The Pbench server config object
+            :logger: a logger
+        """
         self.logger = logger
         self.es_url = get_es_url(config)
         self.prefix = get_index_prefix(config)
 
     def post(self):
         """
-        POST for Pbench controllers with datasets within the specified date
-        range, and owned by a specified user:
+        Report Pbench datasets from a specified controller within the
+        specified date range, and owned by a specified user:
 
         {
-            "user": "email-tag",
+            "user": "username",
+            "controller": "controller-name",
             "start": "start-time",
             "end": "end-time"
         }
@@ -40,13 +61,14 @@ class QueryControllerList(Resource):
         TODO: When we have authorization infrastructure, we'll need to
         check that "session user" has rights to view "user" data. We might
         also default a missing "user" JSON field with the authorization
-        token's user.
+        token's user. (Or with the default user "public" if there's no
+        token, indicating there's no logged-in user.)
 
-        "start" is a time string representing the starting range of dates
-        to search.
+        "controller" is the name of a Pbench agent controller (normally a host
+        name).
 
-        "end" is a time string representing the end range of dates to
-        to search.
+        "start" and "end" are time strings representing a set of Elasticsearch
+        run document indices in which the dataset will be found.
 
         The Elasticsearch URL string is also dependent upon the configured
         "prefix". This is a Pbench artifact that allows multiple Pbench
@@ -61,51 +83,52 @@ class QueryControllerList(Resource):
 
         Required headers include
 
-        X-auth-token:   Pbench session authorization token authorized to access
+        Authorization:  Pbench session authorization token authorized to access
                         "user"'s data. E.g., "user", "admin" or a user with
                         whom the dataset has been shared.
         Content-Type:   application/json
         Accept:         application/json
 
-        Return payload is a summary of the "aggregations" property of the
-        returned Elasticsearch query results, showing the Pbench controller
-        name, the number of runs using that controller name, and the start
-        timestamp of the latest run both in binary and string form.
+        Return payload includes fields from the "run" subdocument, including
+        the controller and name, the start and end time, and a starting UNIX
+        timestamp.
 
-        TODO: Do we automatically return all "public" controllers, or should
-        this be a separate parameter? E.g., when "I" log in, do I see all my
-        own datasets *plus* all published/public controllers owned by others,
-        or should that be a separate option (e.g., a checkbox on the view?)
-
-        TODO: Similarly, a query from an unlogged-in session in the dashboard
-        would presumably show datasets with "user": "public"; but does it show
-        all datasets with "access": "public" as well?
+        TODO: We probably need to return all *unowned* runs when called
+        without a session token or user parameter. We need to define precisely
+        how this should work.
 
         NOTE: This is the format currently constructed by the Pbench
-        dashboard `src/model/dashboard.js` fetchControllers method, which
-        becomes part of the Redux state.
+        dashboard `src/model/dashboard.js` fetchResults method, which
+        becomes part of the Redux state. (Note that the "key" of the sequence
+        is the same as the "run.name"; the requirement for "key" is placed by
+        Redux/Javascript, and is inherited here as we're currently replacing
+        the dashboard queries as they were.)
 
         [
             {
-                "key": "alphaville.usersys.redhat.com",
-                "controller": "alphaville.usersys.redhat.com",
-                "results": 2,
-                "last_modified_value": 1598473155810.0,
-                "last_modified_string": "2020-08-26T20:19:15.810Z"
+                "key": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                "startUnixTimestamp": 1588178953561,
+                "run.name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                "run.controller": "dhcp31-187.perf.lab.eng.bos.redhat.com",
+                "run.start": "2020-04-29T12:49:13.560620",
+                "run.end": "2020-04-29T13:30:04.918704"
             }
         ]
         """
         json_data = request.get_json(silent=True)
         if not json_data:
             self.logger.info("Invalid JSON object. Query: {}", request.url)
-            abort(400, message="Missing request payload")
+            abort(400, message="Invalid request payload")
 
         try:
             user = json_data["user"]
+            controller = json_data["controller"]
             start_arg = json_data["start"]
             end_arg = json_data["end"]
         except KeyError:
-            keys = [k for k in ("user", "start", "end") if k not in json_data]
+            keys = [
+                k for k in ("user", "controller", "start", "end") if k not in json_data
+            ]
             self.logger.info("Missing required JSON keys {}", ",".join(keys))
             abort(400, message=f"Missing request data: {','.join(keys)}")
 
@@ -139,33 +162,41 @@ class QueryControllerList(Resource):
             abort(400, message="Invalid start or end time string")
 
         # We have nothing to authorize against yet, but print the specified
-        # user and session token to prove we got them (and so the variables
-        # aren't diagnosed as "unused")
+        # user and session token to prove we got them.
         self.logger.info(
-            "QueryControllers POST for user {}, prefix {}, session {}: ({} - {})",
+            "Discover datasets for user {}, prefix {}, authorization {}: ({}: {} - {})",
             user,
             self.prefix,
             session_token,
+            controller,
             start,
             end,
         )
 
         payload = {
+            "_source": {
+                "includes": [
+                    "@metadata.controller_dir",
+                    "@metadata.satellite",
+                    "run.controller",
+                    "run.start",
+                    "run.end",
+                    "run.name",
+                    "run.config",
+                    "run.prefix",
+                    "run.id",
+                ]
+            },
+            "sort": {"run.end": {"order": "desc"}},
             "query": {
                 "bool": {
                     "filter": [
                         {"term": get_user_term(user)},
-                        {"range": {"@timestamp": {"gte": start_arg, "lte": end_arg}}},
+                        {"term": {"run.controller": controller}},
                     ]
                 }
             },
-            "size": 0,  # Don't return "hits", only aggregations
-            "aggs": {
-                "controllers": {
-                    "terms": {"field": "run.controller", "order": [{"runs": "desc"}]},
-                    "aggs": {"runs": {"max": {"field": "run.start"}}},
-                }
-            },
+            "size": 5000,
         }
 
         # TODO: the big assumption here involves the index version we're
@@ -213,28 +244,53 @@ class QueryControllerList(Resource):
                 "Invalid url {} during the Elasticsearch post request", uri
             )
             abort(500, message="INTERNAL ERROR")
-        except Exception as e:
+        except Exception:
             self.logger.exception(
-                "Exception {!r} occurred during the Elasticsearch post request", e
+                "Exception occurred during the Elasticsearch post request"
             )
             abort(500, message="INTERNAL ERROR")
         else:
-            controllers = []
+            datasets = []
             try:
                 es_json = es_response.json()
-                buckets = es_json["aggregations"]["controllers"]["buckets"]
-                self.logger.info("{} controllers found", len(buckets))
-                for controller in buckets:
-                    c = {}
-                    c["key"] = controller["key"]
-                    c["controller"] = controller["key"]
-                    c["results"] = controller["doc_count"]
-                    c["last_modified_value"] = controller["runs"]["value"]
-                    c["last_modified_string"] = controller["runs"]["value_as_string"]
-                    controllers.append(c)
+                hits = es_json["hits"]["hits"]
+                self.logger.info("{} controllers found", len(hits))
+                for dataset in hits:
+                    src = dataset["_source"]
+                    run = src["run"]
+                    d = {
+                        "key": run["name"],
+                        "run.name": run["name"],
+                        "run.controller": run["controller"],
+                        "run.start": run["start"],
+                        "run.end": run["end"],
+                        "id": run["id"],
+                    }
+                    try:
+                        timestamp = parser.parse(run["start"]).utcfromtimestamp()
+                    except Exception as e:
+                        self.logger.info(
+                            "Can't parse start time {} to integer timestamp: {}",
+                            run["start"],
+                            e,
+                        )
+                        timestamp = dataset["sort"][0]
+
+                    d["startUnixTimestamp"] = timestamp
+                    if "config" in run:
+                        d["run.config"] = run["config"]
+                    if "prefix" in run:
+                        d["run.prefix"] = run["prefix"]
+                    if "@metadata" in src:
+                        meta = src["@metadata"]
+                        if "controller_dir" in meta:
+                            d["@metadata.controller_dir"] = meta["controller_dir"]
+                        if "satellite" in meta:
+                            d["@metadata.satellite"] = meta["satellite"]
+                    datasets.append(d)
             except KeyError:
                 self.logger.exception("ES response not formatted as expected")
                 abort(500, message="INTERNAL ERROR")
             else:
                 # construct response object
-                return jsonify(controllers)
+                return jsonify(datasets)

@@ -306,7 +306,7 @@ class Dataset(Database.Base):
     name = Column(String(255), unique=False, nullable=False)
 
     # FIXME:
-    # Ideally, `md5` would not be `nullable`: but allowing it means that
+    # Ideally, `md5` would not be `nullable`, but allowing it means that
     # pbench-server-prep-shim-002 utility can construct a Dataset object
     # before accessing and checking the MD5 (in order to ensure that we
     # always have a Dataset before deciding to `quarantine` a dataset.)

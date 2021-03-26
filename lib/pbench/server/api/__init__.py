@@ -18,13 +18,11 @@ from pbench.server.api.resources.graphql_api import GraphQL
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
-from pbench.server.api.resources.query_apis.query_controller_list import (
-    QueryControllerList,
-)
 from pbench.server.database.database import Database
-from pbench.server.api.resources.query_apis.query_dataset_list import QueryDatasetList
-from pbench.server.api.resources.query_apis.query_dataset import QueryDataset
-from pbench.server.api.resources.query_apis.query_month_indices import QueryMonthIndices
+from pbench.server.api.resources.query_apis.controllers_list import ControllersList
+from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
+from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
+from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources.users_api import (
     RegisterUser,
@@ -69,22 +67,22 @@ def register_endpoints(api, app, config):
         GraphQL, f"{base_uri}/graphql", resource_class_args=(config, logger),
     )
     api.add_resource(
-        QueryControllerList,
+        ControllersList,
         f"{base_uri}/controllers/list",
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        QueryMonthIndices,
+        MonthIndices,
         f"{base_uri}/controllers/months",
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        QueryDatasetList,
+        DatasetsList,
         f"{base_uri}/datasets/list",
         resource_class_args=(config, app.logger),
     )
     api.add_resource(
-        QueryDataset,
+        DatasetsDetail,
         f"{base_uri}/datasets/detail",
         resource_class_args=(config, app.logger),
     )

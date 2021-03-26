@@ -1,8 +1,11 @@
+from logging import Logger
+
 from flask import request, jsonify
 from flask_restful import Resource, abort
 import requests
 
 from dateutil import parser
+from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.query_apis import (
     get_es_url,
     get_index_prefix,
@@ -11,39 +14,46 @@ from pbench.server.api.resources.query_apis import (
 )
 
 
-class QueryDatasetList(Resource):
+class DatasetsDetail(Resource):
     """
-    Abstracted Pbench API to get date-bounded dataset data for a particular
-    controller.
+    Abstracted Pbench API to get detailed data for a particular
+    dataset by name.
 
-    Note that although the name "queryResults" is retained for consistency
-    with the existing dashboard UI code, the word "results" is a bit
-    misleading in that this deals with Pbench "run" documents, not Pbench
-    "results" documents. It's a follow-on to queryControllers, which returns
-    the list of controllers having datasets within a specified date range. The
-    queryResults API returns the list of dataset names corresponding to
-    specified controller within the date range.
+    This API a follow-on to datasets_list, which returns the names of datasets
+    for a given controller. The datasets_detail API returns details from
+    the dataset's run document.
+
+    TODO: This implementation closely follows the Javascript effect. The date
+    range given isn't used for the search directly, but rather defines the set
+    of Elasticsearch index names to search. This could be improved.
     """
 
-    def __init__(self, config, logger):
+    def __init__(self, config: PbenchServerConfig, logger: Logger):
+        """
+        __init__ Initialize the resource with info each call will need.
+
+        Args:
+            :config: The Pbench server config object
+            :logger: a logger
+        """
         self.logger = logger
         self.es_url = get_es_url(config)
         self.prefix = get_index_prefix(config)
 
     def post(self):
         """
-        POST for Pbench datasets from a specified controller within the
-        specified date range, and owned by a specified user:
+        Get details for a specific Pbench dataset if it is owned by the
+        specified user:
 
         {
-            "user": "email-tag",
-            "controller": "controller-name",
+            "user": "username",
+            "name": "dataset-name",
             "start": "start-time",
             "end": "end-time"
         }
 
         "user" specifies the owner of the data to be searched; it need not
-        necessarily be the user represented by the session token header,
+        necessarily be the user represented by the authorization header,
         assuming the session user is authorized to view "user"s data. This
         will be used to constrain the Elasticsearch query.
 
@@ -53,14 +63,10 @@ class QueryDatasetList(Resource):
         token's user. (Or with the default user "public" if there's no
         token, indicating there's no logged-in user.)
 
-        "controller" is the name of a Pbench agent controller (normally a host
-        name).
+        "name" is the name of a Pbench agent dataset (tarball).
 
-        "start" is a time string representing the starting range of dates
-        to search.
-
-        "end" is a time string representing the end range of dates to
-        to search.
+        "start" and "end" are time strings representing a set of Elasticsearch
+        run document indices in which the dataset will be found.
 
         The Elasticsearch URL string is also dependent upon the configured
         "prefix". This is a Pbench artifact that allows multiple Pbench
@@ -75,51 +81,54 @@ class QueryDatasetList(Resource):
 
         Required headers include
 
-        X-auth-token:   Pbench session authorization token authorized to access
+        Authorization:  Pbench authorization token authorized to access
                         "user"'s data. E.g., "user", "admin" or a user with
                         whom the dataset has been shared.
         Content-Type:   application/json
         Accept:         application/json
 
-        Return payload is a summary of the "aggregations" property of the
-        returned Elasticsearch query results, showing fields from the "run"
-        subdocument, including the controller and name, the start and end
-        time, and a starting UNIX timestamp.
+        NOTE: This is the format currently constructed by the Pbench
+        dashboard `src/model/dashboard.js` fetchResults effect. The
+        "runMetadata" property is a union of the run document's "@metadata
+        and "run" sub-documents, while "hostTools" is the run document's
+        "host_tools_info" nested array.
 
         TODO: We probably need to return all *unowned* runs when called
         without a session token or user parameter. We need to define precisely
         how this should work.
 
-        NOTE: This is the format currently constructed by the Pbench
-        dashboard `src/model/dashboard.js` fetchResults method, which
-        becomes part of the Redux state. (Note that the "key" of the sequence
-        is the same as the "run.name".)
-
         [
             {
-                "key": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
-                "startUnixTimestamp": 1588178953561,
-                "run.name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
-                "run.controller": "dhcp31-187.perf.lab.eng.bos.redhat.com",
-                "run.start": "2020-04-29T12:49:13.560620",
-                "run.end": "2020-04-29T13:30:04.918704"
+                "runMetadata": {
+                    "file-name": "/pbench/archive/fs-version-001/dhcp31-187.perf.lab.eng.bos.redhat.com/fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13.tar.xz",
+                    "file-size": 216319392,
+                    "md5": "12fb1e952fd826727810868c9327254f",
+                    [...]
+                },
+                "hostTools": [
+                    {
+                        "hostname": "dhcp31-187",
+                        "tools": {
+                            "iostat": "--interval=3",
+                            [...]
+                        }
+                    }
+                ]
             }
         ]
         """
         json_data = request.get_json(silent=True)
         if not json_data:
             self.logger.info("Invalid JSON object. Query: {}", request.url)
-            abort(400, message="Missing request payload")
+            abort(400, message="Invalid request payload")
 
         try:
             user = json_data["user"]
-            controller = json_data["controller"]
+            name = json_data["name"]
             start_arg = json_data["start"]
             end_arg = json_data["end"]
         except KeyError:
-            keys = [
-                k for k in ("user", "controller", "start", "end") if k not in json_data
-            ]
+            keys = [k for k in ("user", "name", "start", "end") if k not in json_data]
             self.logger.info("Missing required JSON keys {}", ",".join(keys))
             abort(400, message=f"Missing request data: {','.join(keys)}")
 
@@ -153,42 +162,27 @@ class QueryDatasetList(Resource):
             abort(400, message="Invalid start or end time string")
 
         # We have nothing to authorize against yet, but print the specified
-        # user and session token to prove we got them (and so the variables
-        # aren't diagnosed as "unused")
+        # user and authorization token to prove we got them.
         self.logger.info(
-            "QueryControllers POST for user {}, prefix {}, session {}: ({}: {} - {})",
+            "Return dataset {} for user {}, prefix {}, authorization {}: ({} - {})",
+            name,
             user,
             self.prefix,
             session_token,
-            controller,
             start,
             end,
         )
 
         payload = {
-            "_source": {
-                "includes": [
-                    "@metadata.controller_dir",
-                    "@metadata.satellite",
-                    "run.controller",
-                    "run.start",
-                    "run.end",
-                    "run.name",
-                    "run.config",
-                    "run.prefix",
-                    "run.id",
-                ]
-            },
-            "sort": {"run.end": {"order": "desc"}},
             "query": {
                 "bool": {
                     "filter": [
-                        {"term": get_user_term(user)},
-                        {"term": {"run.controller": controller}},
+                        {"match": {"run.name": name}},
+                        {"match": get_user_term(user)},
                     ]
                 }
             },
-            "size": 5000,
+            "sort": "_index",
         }
 
         # TODO: the big assumption here involves the index version we're
@@ -236,55 +230,37 @@ class QueryDatasetList(Resource):
                 "Invalid url {} during the Elasticsearch post request", uri
             )
             abort(500, message="INTERNAL ERROR")
-        except Exception as e:
+        except Exception:
             self.logger.exception(
-                "Exception {!r} occurred during the Elasticsearch post request", e
+                "Exception occurred during the Elasticsearch post request"
             )
             abort(500, message="INTERNAL ERROR")
         else:
-            datasets = []
+            run_metadata = {}
             try:
                 es_json = es_response.json()
                 hits = es_json["hits"]["hits"]
-                self.logger.info("{} controllers found", len(hits))
-                for dataset in hits:
-                    src = dataset["_source"]
-                    run = src["run"]
-                    d = {
-                        "key": run["name"],
-                        "run.name": run["name"],
-                        "run.controller": run["controller"],
-                        "run.start": run["start"],
-                        "run.end": run["end"],
-                        "id": run["id"],
-                    }
-                    try:
-                        timestamp = parser.parse(run["start"]).utcfromtimestamp()
-                    except Exception as e:
-                        self.logger.info(
-                            "Can't parse start time {} to integer timestamp: {}",
-                            run["start"],
-                            e,
-                        )
-                        # fall back to the end timestamp sort key (why?)
-                        # TODO: Should this just abort instead?
-                        timestamp = dataset["sort"][0]
 
-                    d["startUnixTimestamp"] = timestamp
-                    if "config" in run:
-                        d["run.config"] = run["config"]
-                    if "prefix" in run:
-                        d["run.prefix"] = run["prefix"]
-                    if "@metadata" in src:
-                        meta = src["@metadata"]
-                        if "controller_dir" in meta:
-                            d["@metadata.controller_dir"] = meta["controller_dir"]
-                        if "satellite" in meta:
-                            d["@metadata.satellite"] = meta["satellite"]
-                    datasets.append(d)
+                # NOTE: we're expecting just one. We're matching by just the
+                # dataset name, which ought to be unique.
+                if len(hits) != 1:
+                    self.logger.warn(
+                        "{} datasets found: expected exactly 1!", len(hits)
+                    )
+                src = hits[0]["_source"]
+
+                # We're merging the "run" and "@metadata" sub-documents into
+                # one dictionary, and then tacking on the host tools info in
+                # its original form.
+                run_metadata.update(src["run"])
+                run_metadata.update(src["@metadata"])
+                result = {
+                    "runMetadata": run_metadata,
+                    "hostTools": src["host_tools_info"],
+                }
             except KeyError:
                 self.logger.exception("ES response not formatted as expected")
                 abort(500, message="INTERNAL ERROR")
             else:
                 # construct response object
-                return jsonify(datasets)
+                return jsonify(result)
