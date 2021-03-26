@@ -164,4 +164,6 @@ class TestGenerateToken:
         )
         assert result.exit_code == 1
         assert not result.stdout
-        assert str(result.stderr).find("Failed to establish a new connection") != -1
+        assert -1 != str(result.stderr).find(
+            "Cannot connect to 'http://pbench.example.com/api/v1/login'"
+        )
