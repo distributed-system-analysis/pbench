@@ -74,6 +74,7 @@ RUN \
         python3-humanize \
         python3-itsdangerous \
         python3-jinja2 \
+        python3-jinja2-cli \
         python3-libselinux \
         python3-mock \
         python3-pip \
@@ -94,6 +95,8 @@ RUN \
         python3-tox-current-env \
         python3-werkzeug \
         redis \
+        rpmlint \
+        rpm-build \
         rsync \
         screen \
         sos \
