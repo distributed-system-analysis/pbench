@@ -22,20 +22,20 @@
       full re-index.
 """
 
-import sys
-import os
 import glob
-from pathlib import Path
+import os
+import sys
+from argparse import ArgumentParser, Namespace
 from logging import Logger
+from pathlib import Path
 from typing import Generator
 
-from argparse import ArgumentParser, Namespace
-
 from pbench import BadConfig
+from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.database.models.tracker import Dataset, States, DatasetNotFound
+from pbench.server.database.models.users import User
 from pbench.server.database.database import Database
-from pbench.common.logger import get_pbench_logger
 
 
 _NAME_ = "pbench-import-datasets"
@@ -111,7 +111,7 @@ class Import:
         fail = 0
         ignore = 0
         args = {}
-        owner = self.options.user
+        owner = User.validate_user(self.options.user)
 
         for tarball in self._collect_tb(link):
             if self.options.verify:
@@ -138,7 +138,7 @@ class Import:
                     done = done + 1
             except Exception as e:
                 # Stringify any exception and report it; then fail
-                logger.exception("{} failed", e)
+                logger.exception("Import of dataset {} failed", tarball)
                 print(f"{_NAME_}: dataset {tarball} failed with {e}", file=sys.stderr)
                 fail = fail + 1
         print(
@@ -196,7 +196,9 @@ def main(options):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(f"Usage: {_NAME_} [--config <path-to-config-file>]")
+    parser = ArgumentParser(
+        prog=_NAME_, description="Import existing tarballs into the dataset database"
+    )
     parser.add_argument(
         "-C",
         "--config",
@@ -210,7 +212,10 @@ if __name__ == "__main__":
         help="Specify a tarball filename (from which controller and name will be derived)",
     )
     parser.add_argument(
-        "--user", dest="user", help="Specify the owning username for the dataset",
+        "--user",
+        dest="user",
+        required=True,
+        help="Specify the owning username for the dataset",
     )
     parser.add_argument(
         "--verify", "-v", dest="verify", action="store_true", help="Show progress"

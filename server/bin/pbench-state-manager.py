@@ -14,14 +14,14 @@ of those requirements first.
 
 import sys
 import os
-
 from argparse import ArgumentParser
 
 from pbench import BadConfig
+from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.database.models.tracker import Dataset, States
+from pbench.server.database.models.users import User
 from pbench.server.database.database import Database
-from pbench.common.logger import get_pbench_logger
 
 
 _NAME_ = "pbench-state-manager"
@@ -51,7 +51,7 @@ def main(options):
 
         args = {}
         if options.user:
-            args["owner"] = options.user
+            args["owner"] = User.validate_user(options.user)
         if options.controller:
             args["controller"] = options.controller
         if options.path:
@@ -91,7 +91,7 @@ def main(options):
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(f"Usage: {_NAME_} [--config <path-to-config-file>]")
+    parser = ArgumentParser(prog=_NAME_, description="Create a new dataset record")
     parser.add_argument(
         "-C",
         "--config",
@@ -112,7 +112,10 @@ if __name__ == "__main__":
         help="Specify a tarball filename (from which controller and name will be derived)",
     )
     parser.add_argument(
-        "--user", dest="user", help="Specify the owning username for the dataset",
+        "--user",
+        dest="user",
+        required=True,
+        help="Specify the owning username for the dataset",
     )
     parser.add_argument(
         "--controller",
