@@ -398,13 +398,13 @@ class TestUserAuthentication:
             )
             assert logout_response.status_code == 200
 
-            # invalid token logout
+            # Logout using invalid token
+            # Expect 200 on response, since the invalid token can not be used anymore
             response = client.post(
                 f"{server_config.rest_uri}/logout",
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
-            data = response.json
-            assert data is None
+            assert response.status_code == 200
 
     @staticmethod
     def test_delete_user(client, server_config):
