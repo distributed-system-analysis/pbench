@@ -79,7 +79,7 @@ class Auth:
                 )
                 abort(
                     401,
-                    message="Malformed Authorization header, request auth needs bearer token: Bearer <session_token>",
+                    message="Malformed Authorization header, request needs bearer token: Bearer <session_token>",
                 )
             return auth_token
 
