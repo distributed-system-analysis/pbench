@@ -253,7 +253,6 @@ class Logout(Resource):
         self.logger = logger
         self.auth = auth
 
-    @Auth.token_auth.login_required()
     def post(self):
         """
         post request for logging out a user for the current auth token.
@@ -269,17 +268,23 @@ class Logout(Resource):
                         "message": "failure message"
                     }
         """
-        auth_token = self.auth.token_auth.get_auth()["token"]
-        user = self.auth.token_auth.current_user()
+        auth_token = self.auth.get_auth_token(self.logger)
+        user = Auth.verify_auth(auth_token=auth_token)
 
-        try:
-            ActiveTokens.delete(auth_token)
-            self.logger.info(
-                "Auth token entry deleted for user with username {}", user.email
-            )
-        except Exception:
-            self.logger.exception("Exception occurred during deleting the user entry")
-            abort(500, message="INTERNAL ERROR")
+        # "None" user represents that either the token is not present in our database or it is an expired token.
+        # Expired token is already deleted by now if we reach here.
+        # In either case we will return suceess to a client, since the same token can not be used again.
+
+        if user:
+            try:
+                ActiveTokens.delete(auth_token)
+            except Exception:
+                self.logger.exception("Exception occurred deleting an auth token")
+                abort(500, message="INTERNAL ERROR")
+            else:
+                self.logger.debug("User {} logged out", user.username)
+        else:
+            self.logger.debug("User logout with invalid or expired token")
 
         return "", 200
 
