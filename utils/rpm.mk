@@ -1,4 +1,4 @@
-# Common definitions for make an RPM, used by both the Agent and the Server.
+# Common definitions for making an RPM, used by both the Agent and the Server.
 #
 # Making a pbench component RPM requires a few steps:
 # 1. Get version number.
@@ -63,17 +63,9 @@ rpm-dirs:
 submodules:
 	git submodule update --init --recursive
 
-# FIXME:  Do we still need the sed command to correct for Python3?
-#	  (Previous, only the server was doing it, and only for two files.)
 .PHONY: ${subcomps}
 ${subcomps}:
 	make -C ${PBENCHTOP}/$@ DESTDIR=${TBDIR}/$@ install
-	# sed -i '1s;.*python$$;#!/usr/bin/env python3;' ${TBDIR}/$@/bin/*
-
-.PHONY: check
-check:
-	if [ "${version}" == "" ] ;then echo "version undefined" > /dev/stderr; exit 1 ;fi
-	if [ "${prog}" == "" ] ;then echo "prog undefined" > /dev/stderr ; exit 2 ;fi
 
 $(RPMSRPM)/$(prog)-$(version)-$(seqno)$(sha1).src.rpm: srpm
 
@@ -83,21 +75,18 @@ else
 _copr_user = ${USER}
 endif
 
-COPR_TARGETS = copr copr-test copr-interim copr-index copr-inotify copr-dashboard
+COPR_TARGETS = copr copr-test
 .PHONY: ${COPR_TARGETS}
 ${COPR_TARGETS}: $(RPMSRPM)/$(prog)-$(version)-$(seqno)$(sha1).src.rpm
 	copr-cli build $(_copr_user)/$(subst copr,pbench,$@) $(RPMSRPM)/$(prog)-$(VERSION)-$(seqno)g$(sha1).src.rpm
 
-.PHONY: veryclean
-veryclean:: clean rpm-clean
+.PHONY: distclean
+distclean:
+	rm -rf $(addprefix ${HOME}/rpmbuild/,${RPMDIRS})
 
 .PHONY: clean
 clean:: rpm-clean
 
-.PHONY: clean-sha1
-clean-sha1:
-	rm -f ${upstmtree}/${prog}.SHA1
-
 .PHONY: rpm-clean
 rpm-clean:
-	rm -rf $(addprefix ${HOME}/rpmbuild/,${RPMDIRS})
+	rm -rf $(foreach dir,${RPMDIRS},${HOME}/rpmbuild/${dir}/*)
