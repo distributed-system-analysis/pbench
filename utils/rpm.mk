@@ -46,7 +46,7 @@ spec: rpm-dirs ${prog}.spec.j2
 
 .PHONY: patches
 patches: rpm-dirs
-	if [ -d ./patches ] ;then cp ./patches/* ${RPMSRC} ;fi
+	if [ -d ./patches ] ;then cp ./patches/* ${RPMSRC}/ ;fi
 
 .PHONY: tarball
 tarball: rpm-dirs submodules ${subcomps}
