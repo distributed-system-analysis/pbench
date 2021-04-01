@@ -191,7 +191,7 @@ class Login(Resource):
             self.logger.warning(
                 "No user found in the db for Username: {} while login", username
             )
-            abort(403, message="Bad login")
+            abort(401, message="Bad login")
 
         # Validate the password
         if not check_password_hash(user.password, password):
