@@ -211,7 +211,7 @@ class TestUserAuthentication:
             response = login_user(client, server_config, "username", "12345")
             data = response.json
             assert data["message"] == "Bad login"
-            assert response.status_code == 403
+            assert response.status_code == 401
 
     @staticmethod
     def test_get_user(client, server_config):
