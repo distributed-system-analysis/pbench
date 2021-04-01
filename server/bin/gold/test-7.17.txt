@@ -96,8 +96,8 @@ len(actions) = 16
             },
             "@timestamp": "2018-10-24T14:38:18.299722",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "host_tools_info": [
                 {
@@ -164,8 +164,8 @@ len(actions) = 16
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/",
             "files": [
@@ -211,8 +211,8 @@ len(actions) = 16
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1",
             "mode": "0o755",
@@ -232,8 +232,8 @@ len(actions) = 16
                 "1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result",
             "files": [
@@ -263,8 +263,8 @@ len(actions) = 16
                 "reference-result"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
@@ -286,8 +286,8 @@ len(actions) = 16
                 "tools-default"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/ansible-host",
             "mode": "0o755",
@@ -310,8 +310,8 @@ len(actions) = 16
                 "ansible-host"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/ansible-host/iostat",
             "files": [
@@ -372,8 +372,8 @@ len(actions) = 16
                 "iostat"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/ansible-host/iostat/csv",
             "files": [
@@ -447,8 +447,8 @@ len(actions) = 16
                 "ansible-host"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/ansible-host/pidstat",
             "files": [
@@ -565,8 +565,8 @@ len(actions) = 16
                 "pidstat"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/ansible-host/pidstat/csv",
             "files": [
@@ -653,8 +653,8 @@ len(actions) = 16
                 "tools-default"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com",
             "mode": "0o755",
@@ -677,8 +677,8 @@ len(actions) = 16
                 "app-node-0.scale-ci.example.com"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat",
             "files": [
@@ -739,8 +739,8 @@ len(actions) = 16
                 "vmstat"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv",
             "files": [
@@ -806,8 +806,8 @@ len(actions) = 16
                 "tools-default"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com",
             "mode": "0o755",
@@ -830,8 +830,8 @@ len(actions) = 16
                 "app-node-1.scale-ci.example.com"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat",
             "files": [
@@ -892,8 +892,8 @@ len(actions) = 16
                 "vmstat"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/csv",
             "files": [
@@ -1048,8 +1048,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 0,
@@ -1104,8 +1104,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:40:21.000000",
             "@timestamp_original": "1540392021000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 1,
@@ -1160,8 +1160,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:41:21.000000",
             "@timestamp_original": "1540392081000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 2,
@@ -1216,8 +1216,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:42:21.000000",
             "@timestamp_original": "1540392141000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 3,
@@ -1272,8 +1272,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:43:21.000000",
             "@timestamp_original": "1540392201000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 4,
@@ -1328,8 +1328,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:44:21.000000",
             "@timestamp_original": "1540392261000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 5,
@@ -1384,8 +1384,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:45:21.000000",
             "@timestamp_original": "1540392321000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 6,
@@ -1440,8 +1440,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:46:21.000000",
             "@timestamp_original": "1540392381000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 7,
@@ -1496,8 +1496,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:47:21.000000",
             "@timestamp_original": "1540392441000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 8,
@@ -1552,8 +1552,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:48:21.000000",
             "@timestamp_original": "1540392501000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 9,
@@ -1608,8 +1608,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:49:21.000000",
             "@timestamp_original": "1540392561000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 10,
@@ -1664,8 +1664,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:50:21.000000",
             "@timestamp_original": "1540392621000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 11,
@@ -1720,8 +1720,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:51:21.000000",
             "@timestamp_original": "1540392681000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 12,
@@ -1776,8 +1776,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:52:21.000000",
             "@timestamp_original": "1540392741000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 13,
@@ -1832,8 +1832,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:53:21.000000",
             "@timestamp_original": "1540392801000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iostat": {
                 "@idx": 14,
@@ -1888,8 +1888,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -1944,8 +1944,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2000,8 +2000,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2056,8 +2056,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2112,8 +2112,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2168,8 +2168,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2224,8 +2224,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2280,8 +2280,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2336,8 +2336,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2392,8 +2392,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2448,8 +2448,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2504,8 +2504,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2560,8 +2560,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2616,8 +2616,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2672,8 +2672,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2728,8 +2728,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:39:22.000000",
             "@timestamp_original": "1540391962000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2793,8 +2793,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:40:22.000000",
             "@timestamp_original": "1540392022000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2858,8 +2858,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:41:22.000000",
             "@timestamp_original": "1540392082000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2923,8 +2923,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:42:22.000000",
             "@timestamp_original": "1540392142000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -2988,8 +2988,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:43:22.000000",
             "@timestamp_original": "1540392202000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3053,8 +3053,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:44:22.000000",
             "@timestamp_original": "1540392262000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3118,8 +3118,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:45:22.000000",
             "@timestamp_original": "1540392322000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3183,8 +3183,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:46:22.000000",
             "@timestamp_original": "1540392382000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3248,8 +3248,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:47:22.000000",
             "@timestamp_original": "1540392442000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3313,8 +3313,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:48:22.000000",
             "@timestamp_original": "1540392502000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3378,8 +3378,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:49:22.000000",
             "@timestamp_original": "1540392562000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3443,8 +3443,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:50:22.000000",
             "@timestamp_original": "1540392622000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3508,8 +3508,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:51:22.000000",
             "@timestamp_original": "1540392682000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3573,8 +3573,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:52:22.000000",
             "@timestamp_original": "1540392742000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -3638,8 +3638,8 @@ len(actions) = 45
             "@timestamp": "2018-10-24T14:53:22.000000",
             "@timestamp_original": "1540392802000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "iteration": {
                 "name": "1",
@@ -4128,5 +4128,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-|ansible-host|pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18|INDEXED|
+test|ansible-host|pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18|INDEXED|
 --- SqliteDB Datasets

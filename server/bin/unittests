@@ -109,7 +109,7 @@ function _run_allscripts {
     _run pbench-verify-backup-tarballs
     # Invoke pbench-satellite-cleanup in the context of the satellite
     PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} \
-        PYTHONPATH=${_testopt_sat}/unittest-lib:${_orig_PYTHONPATH} \
+        PYTHONPATH=${_testopt_sat}/unittest-lib:${_testopt_sat}/common/lib:${_orig_PYTHONPATH} \
         _PBENCH_SERVER_CONFIG=${SATCONFIG} \
         _run pbench-satellite-cleanup
 }
@@ -279,10 +279,12 @@ function _setup_state {
     let res=res+$?
     mkdir -p $_testopt_sat/bin
     let res=res+$?
-    mkdir -p $_testopt/common/lib
+    mkdir -p $_testopt/common/
     let res=res+$?
     cp -a $_tdir/{unittests,pbench*} $_testopt/bin
     let res=res+$?
+    cp -a ${_tdir}/../../lib ${_testopt}/common/
+    let res=res+${?}
     mkdir -p $_testopt/html/static/{js,css}/v0.{2,3}
     let res=res+$?
     cp -a $_tdir/../../web-server/v0.2/js/ $_testopt/html/static/js/v0.2
@@ -337,15 +339,16 @@ function _setup_state {
     fi
 
     # All the "real" scripts are found at $_testopt/bin, the mock scripts
-    # are found in $_testopt/unittest-scripts.
+    # are found in ${_testopt}/unittest-scripts. The pbench Python library
+    # tree starts at ${_testopt}/common/lib.
     _orig_PATH=$PATH
     _orig_PYTHONPATH=$PYTHONPATH
-    export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
-    export PYTHONPATH=$_testopt/unittest-lib:$PYTHONPATH
+    export PATH=${_testopt}/unittest-scripts:${_testopt}/bin:$PATH
+    export PYTHONPATH=${_testopt}/unittest-lib:${_testopt}/common/lib:$PYTHONPATH
 
     # Expected location of the final configuration files
-    export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg
-    export SATCONFIG=$_testopt_sat/lib/config/pbench-server.cfg
+    export _PBENCH_SERVER_CONFIG=${_testopt}/lib/config/pbench-server.cfg
+    export SATCONFIG=${_testopt_sat}/lib/config/pbench-server.cfg
 
     # The activate invocations are supposed to work without _PBENCH_SERVER_CONFIG being set,
     # so they do *not* use the global _PBENCH_SERVER_CONFIG file that the rest of the tests
@@ -457,8 +460,7 @@ function _setup_state {
     _state_db=${_tdir}/state/${1}.db
     if [ -f ${_state_db} ]; then
         while read -r controller name state user; do
-            useropt=${user:+"--user=${user}"}
-            pbench-state-manager --create --controller=${controller} --name=${name} --state=${state} ${useropt}
+            pbench-state-manager --create=${user} --controller=${controller} --name=${name} --state=${state}
         done < ${_state_db}
     fi
 }

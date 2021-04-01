@@ -97,8 +97,8 @@ len(actions) = 38
             },
             "@timestamp": "2019-08-27T15:00:07.506390",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "host_tools_info": [
                 {
@@ -129,8 +129,8 @@ len(actions) = 38
         "_source": {
             "@timestamp": "2019-08-27T15:00:07.506390",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/",
             "files": [
@@ -211,8 +211,8 @@ len(actions) = 38
         "_source": {
             "@timestamp": "2019-08-27T15:00:07.506390",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-forwarding_test.json-5pct_drop",
             "files": [
@@ -262,8 +262,8 @@ len(actions) = 38
                 "1-forwarding_test.json-5pct_drop"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-forwarding_test.json-5pct_drop/sample1",
             "files": [
@@ -902,8 +902,8 @@ len(actions) = 38
                 "sample1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-forwarding_test.json-5pct_drop/sample1/csv",
             "files": [
@@ -1255,8 +1255,8 @@ len(actions) = 38
                 "sample1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default",
             "mode": "0o755",
@@ -1278,8 +1278,8 @@ len(actions) = 38
                 "tools-default"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124",
             "mode": "0o755",
@@ -1302,8 +1302,8 @@ len(actions) = 38
                 "perf124"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-forwarding_test.json-5pct_drop/sample1/tools-default/perf124/turbostat",
             "files": [
@@ -7137,5 +7137,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-|perf122|trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38|INDEXED|
+test|perf122|trafficgen_basic-forwarding-example_tg:trex-profile_pf:forwarding_test.json_ml:5_tt:bs__2019-08-27T14:58:38|INDEXED|
 --- SqliteDB Datasets

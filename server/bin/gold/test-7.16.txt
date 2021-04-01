@@ -113,8 +113,8 @@ len(actions) = 35
             },
             "@timestamp": "2018-10-04T06:53:52.212763",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "host_tools_info": [
                 {
@@ -180,8 +180,8 @@ len(actions) = 35
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/",
             "files": [
@@ -248,8 +248,8 @@ len(actions) = 35
         "_source": {
             "@timestamp": "2018-10-04T06:53:52.212763",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i",
             "files": [
@@ -306,8 +306,8 @@ len(actions) = 35
                 "21-tcp_rr-1024B-1i"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1",
             "files": [
@@ -365,8 +365,8 @@ len(actions) = 35
                 "sample1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/csv",
             "files": [
@@ -403,8 +403,8 @@ len(actions) = 35
                 "sample1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default",
             "mode": "0o755",
@@ -426,8 +426,8 @@ len(actions) = 35
                 "tools-default"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4",
             "mode": "0o755",
@@ -450,8 +450,8 @@ len(actions) = 35
                 "rhel8-4"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/iostat",
             "files": [
@@ -512,8 +512,8 @@ len(actions) = 35
                 "iostat"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/iostat/csv",
             "files": [
@@ -587,8 +587,8 @@ len(actions) = 35
                 "rhel8-4"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/mpstat",
             "files": [
@@ -705,8 +705,8 @@ len(actions) = 35
                 "mpstat"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/mpstat/csv",
             "files": [
@@ -766,8 +766,8 @@ len(actions) = 35
                 "rhel8-4"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/perf",
             "files": [
@@ -835,8 +835,8 @@ len(actions) = 35
                 "perf"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/perf/perf-percpu",
             "files": [
@@ -889,8 +889,8 @@ len(actions) = 35
                 "rhel8-4"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/pidstat",
             "files": [
@@ -1007,8 +1007,8 @@ len(actions) = 35
                 "pidstat"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/pidstat/csv",
             "files": [
@@ -1096,8 +1096,8 @@ len(actions) = 35
                 "rhel8-4"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/21-tcp_rr-1024B-1i/sample1/tools-default/rhel8-4/proc-interrupts",
             "files": [
@@ -1955,8 +1955,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:25.000000",
             "@timestamp_original": "1538656645000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 0,
@@ -2011,8 +2011,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:25.000000",
             "@timestamp_original": "1538656645000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 0,
@@ -2067,8 +2067,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:25.000000",
             "@timestamp_original": "1538656645000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 0,
@@ -2123,8 +2123,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:28.000000",
             "@timestamp_original": "1538656648000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 1,
@@ -2179,8 +2179,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:28.000000",
             "@timestamp_original": "1538656648000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 1,
@@ -2235,8 +2235,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:28.000000",
             "@timestamp_original": "1538656648000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 1,
@@ -2291,8 +2291,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:31.000000",
             "@timestamp_original": "1538656651000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 2,
@@ -2347,8 +2347,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:31.000000",
             "@timestamp_original": "1538656651000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 2,
@@ -2403,8 +2403,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:31.000000",
             "@timestamp_original": "1538656651000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 2,
@@ -2459,8 +2459,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:34.000000",
             "@timestamp_original": "1538656654000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 3,
@@ -2515,8 +2515,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:34.000000",
             "@timestamp_original": "1538656654000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 3,
@@ -2571,8 +2571,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:34.000000",
             "@timestamp_original": "1538656654000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 3,
@@ -2627,8 +2627,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:37.000000",
             "@timestamp_original": "1538656657000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 4,
@@ -2683,8 +2683,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:37.000000",
             "@timestamp_original": "1538656657000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 4,
@@ -2739,8 +2739,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:37.000000",
             "@timestamp_original": "1538656657000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iostat": {
                 "@idx": 4,
@@ -2795,8 +2795,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:25.000000",
             "@timestamp_original": "1538656645000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -2843,8 +2843,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:28.000000",
             "@timestamp_original": "1538656648000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -2891,8 +2891,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:31.000000",
             "@timestamp_original": "1538656651000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -2939,8 +2939,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:34.000000",
             "@timestamp_original": "1538656654000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -2987,8 +2987,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:37.000000",
             "@timestamp_original": "1538656657000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3035,8 +3035,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:40.000000",
             "@timestamp_original": "1538656660000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3083,8 +3083,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:43.000000",
             "@timestamp_original": "1538656663000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3131,8 +3131,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:46.000000",
             "@timestamp_original": "1538656666000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3179,8 +3179,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:49.000000",
             "@timestamp_original": "1538656669000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3227,8 +3227,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3275,8 +3275,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:55.000000",
             "@timestamp_original": "1538656675000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3323,8 +3323,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:58.000000",
             "@timestamp_original": "1538656678000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3371,8 +3371,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:38:01.000000",
             "@timestamp_original": "1538656681000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3419,8 +3419,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:38:04.000000",
             "@timestamp_original": "1538656684000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3467,8 +3467,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:38:07.000000",
             "@timestamp_original": "1538656687000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3515,8 +3515,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3571,8 +3571,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3627,8 +3627,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3683,8 +3683,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3739,8 +3739,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3795,8 +3795,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3851,8 +3851,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3907,8 +3907,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -3963,8 +3963,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4019,8 +4019,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4075,8 +4075,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4131,8 +4131,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4187,8 +4187,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4243,8 +4243,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4299,8 +4299,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.000000",
             "@timestamp_original": "1538656672000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4355,8 +4355,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4395,8 +4395,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4435,8 +4435,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4475,8 +4475,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4515,8 +4515,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4555,8 +4555,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4595,8 +4595,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4635,8 +4635,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4675,8 +4675,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4715,8 +4715,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4755,8 +4755,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4795,8 +4795,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4835,8 +4835,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4875,8 +4875,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4915,8 +4915,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.783812",
             "@timestamp_original": "1538656642.7838123",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -4955,8 +4955,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:22.839122",
             "@timestamp_original": "1538656642.839122",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -5166,8 +5166,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:25.842371",
             "@timestamp_original": "1538656645.8423715",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -5552,8 +5552,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:28.845930",
             "@timestamp_original": "1538656648.8459303",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -5938,8 +5938,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:31.849220",
             "@timestamp_original": "1538656651.8492196",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -6324,8 +6324,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:34.852475",
             "@timestamp_original": "1538656654.852475",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -6710,8 +6710,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:37.855739",
             "@timestamp_original": "1538656657.8557394",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -7096,8 +7096,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:40.859007",
             "@timestamp_original": "1538656660.859007",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -7482,8 +7482,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:43.862335",
             "@timestamp_original": "1538656663.8623354",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -7868,8 +7868,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:46.865469",
             "@timestamp_original": "1538656666.865469",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -8254,8 +8254,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:49.868721",
             "@timestamp_original": "1538656669.8687208",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -8640,8 +8640,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:52.872014",
             "@timestamp_original": "1538656672.872014",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -9026,8 +9026,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:55.875071",
             "@timestamp_original": "1538656675.8750713",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -9412,8 +9412,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:37:58.878210",
             "@timestamp_original": "1538656678.87821",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -9798,8 +9798,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:38:01.881485",
             "@timestamp_original": "1538656681.8814852",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -10184,8 +10184,8 @@ len(actions) = 75
             "@timestamp": "2018-10-04T12:38:04.884761",
             "@timestamp_original": "1538656684.884761",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "21-tcp_rr-1024B-1i",
@@ -11725,5 +11725,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-|rhel8-4|uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43|INDEXED|
+fake|rhel8-4|uperf_rhel8_4.18.0-18.el8_40gb_pass_2018.10.04T06.53.43|INDEXED|
 --- SqliteDB Datasets

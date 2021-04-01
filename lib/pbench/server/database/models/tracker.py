@@ -14,7 +14,7 @@ from sqlalchemy import (
     event,
 )
 from sqlalchemy.orm import relationship, validates
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from pbench.server.database.database import Database
 
@@ -44,7 +44,20 @@ class DatasetSqlError(DatasetError):
         self.name = name
 
     def __str__(self):
-        return f"Error {self.operation} {self.controller}|{self.name}"
+        return f"Error {self.operation} dataset {self.controller}|{self.name}"
+
+
+class DatasetDuplicate(DatasetError):
+    """
+    DatasetDuplicate Attempt to create a Dataset that already exists.
+    """
+
+    def __init__(self, controller, name):
+        self.controller = controller
+        self.name = name
+
+    def __str__(self):
+        return f"Duplicate dataset {self.controller}|{self.name}"
 
 
 class DatasetNotFound(DatasetError):
@@ -301,7 +314,7 @@ class Dataset(Database.Base):
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    owner = Column(String(255), unique=False, nullable=True, default=None)
+    owner = Column(String(255), unique=False, nullable=False, default=None)
     controller = Column(String(255), unique=False, nullable=False)
     name = Column(String(255), unique=False, nullable=False)
 
@@ -422,9 +435,8 @@ class Dataset(Database.Base):
             Dataset.logger.exception(
                 "Failed create: {}|{}", kwargs.get("controller"), kwargs.get("name")
             )
-            return None
-        else:
-            return dataset
+            raise
+        return dataset
 
     @staticmethod
     def attach(path=None, controller=None, name=None, state=None):
@@ -531,8 +543,13 @@ class Dataset(Database.Base):
         try:
             Database.db_session.add(self)
             Database.db_session.commit()
+        except IntegrityError as e:
+            Dataset.logger.exception(
+                "Duplicate dataset {}|{}", self.controller, self.name
+            )
+            raise DatasetDuplicate(self.controller, self.name) from e
         except Exception as e:
-            self.logger.error("Can't add {} to DB", str(self))
+            self.logger.exception("Can't add {} to DB", str(self))
             Database.db_session.rollback()
             raise DatasetSqlError("adding", self.controller, self.name) from e
 

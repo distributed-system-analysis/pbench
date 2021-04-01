@@ -19,9 +19,10 @@ from argparse import ArgumentParser
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
+from pbench.server.api.auth import Auth, UnknownUser
+from pbench.server.database.database import Database
 from pbench.server.database.models.tracker import Dataset, States
 from pbench.server.database.models.users import User
-from pbench.server.database.database import Database
 
 
 _NAME_ = "pbench-state-manager"
@@ -50,14 +51,37 @@ def main(options):
         Database.init_db(config, logger)
 
         args = {}
-        if options.user:
-            args["owner"] = User.validate_user(options.user)
+        if options.create:
+            user = options.create
+            try:
+                user = Auth.validate_user(user)
+            except UnknownUser:
+                # FIXME: I don't want to be creating the user here or
+                # dealing with a non-existing user. The unittest setup
+                # should create the test users we want ahead of time
+                # using a pbench-user-manager command and we should
+                # depend on having them here! The following is a hack
+                # until that command exists.
+                #
+                # The desired behavior would be to remove this try and
+                # except and allow UnknownUser to be handled below with
+                # an error message and termination.
+                User(
+                    username=user,
+                    first_name=user.capitalize(),
+                    last_name="Account",
+                    password=f"{user}_password",
+                    email=f"{user}@example.com",
+                ).add()
+            args["owner"] = user
         if options.controller:
             args["controller"] = options.controller
         if options.path:
             args["path"] = options.path
         if options.name:
             args["name"] = options.name
+        if options.md5:
+            args["md5"] = options.md5
         if options.state:
             try:
                 new_state = States[options.state.upper()]
@@ -80,7 +104,9 @@ def main(options):
         doit = Dataset.create if options.create else Dataset.attach
 
         # Find the specified dataset, and update the state
-        doit(**args)
+        attached = doit(**args)
+        if not options.create and not attached:
+            print(f"{_NAME_}: dataset")
     except Exception as e:
         # Stringify any exception and report it; then fail
         logger.exception("Failed")
@@ -103,19 +129,14 @@ if __name__ == "__main__":
         "-c",
         "--create",
         dest="create",
-        action="store_true",
-        help="Create dataset instead of attaching to an existing dataset.",
+        action="store",
+        type=str,
+        help="Specify owning user to create a new Dataset",
     )
     parser.add_argument(
         "--path",
         dest="path",
         help="Specify a tarball filename (from which controller and name will be derived)",
-    )
-    parser.add_argument(
-        "--user",
-        dest="user",
-        required=True,
-        help="Specify the owning username for the dataset",
     )
     parser.add_argument(
         "--controller",
@@ -128,6 +149,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--state", dest="state", help="Specify desired dataset state",
     )
+    parser.add_argument("--md5", dest="md5", help="Specify dataset MD5 hash")
     parsed = parser.parse_args()
     status = main(parsed)
     sys.exit(status)

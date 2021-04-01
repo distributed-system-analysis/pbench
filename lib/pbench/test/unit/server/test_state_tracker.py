@@ -43,7 +43,7 @@ class TestStateTracker:
         """Test with a non-States state value
         """
         with pytest.raises(DatasetBadParameterType):
-            Dataset(controller="potter", name="harry", state="notStates")
+            Dataset(owner="me", controller="potter", name="harry", state="notStates")
 
     def test_attach_exists(self):
         """ Test that we can attach to a dataset
@@ -114,7 +114,7 @@ class TestStateTracker:
     def test_advanced_bad_state(self):
         """Test with a non-States state value
         """
-        ds = Dataset(controller="me", name="too")
+        ds = Dataset(owner="test", controller="me", name="too")
         ds.add()
         with pytest.raises(DatasetBadParameterType):
             ds.advance("notStates")
@@ -165,7 +165,7 @@ class TestStateTracker:
         """ Various tests on Metadata keys
         """
         # See if we can create a metadata row
-        ds = Dataset.create(controller="controller", name="name")
+        ds = Dataset.create(owner="redhat", controller="controller", name="name")
         assert ds.metadatas == []
         m = Metadata.create(key=Metadata.REINDEX, value="TRUE", dataset=ds)
         assert m is not None
@@ -179,7 +179,7 @@ class TestStateTracker:
         assert m.dataset_ref == m1.dataset_ref
 
         # Check the str()
-        assert "None|controller|name>>REINDEX" == str(m)
+        assert "redhat|controller|name>>REINDEX" == str(m)
 
         # Try to get a metadata key that doesn't exist
         with pytest.raises(MetadataNotFound) as exc:

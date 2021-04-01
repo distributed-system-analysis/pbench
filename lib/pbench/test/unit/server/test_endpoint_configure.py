@@ -55,6 +55,8 @@ class TestEnpointConfig:
                 "graphql": f"{uri}/graphql",
                 "controllers_list": f"{uri}/controllers/list",
                 "controllers_months": f"{uri}/controllers/months",
+                "datasets_list": f"{uri}/datasets/list",
+                "datasets_detail": f"{uri}/datasets/detail",
                 "register": f"{uri}/register",
                 "login": f"{uri}/login",
                 "logout": f"{uri}/logout",

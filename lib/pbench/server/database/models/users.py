@@ -6,18 +6,6 @@ from pbench.server.database.database import Database
 from sqlalchemy.orm import relationship, validates
 
 
-class UnknownUser(Exception):
-    """
-    UnknownUser Attempt to validate a user that doesn't exist.
-    """
-
-    def __init__(self, username: str):
-        self.username = username
-
-    def __str__(self):
-        return f"No such user {self.username}"
-
-
 class User(Database.Base):
     """ User Model for storing user related details """
 
@@ -66,45 +54,6 @@ class User(Database.Base):
             user = None
 
         return user
-
-    @staticmethod
-    def validate_user(name: str) -> str:
-        """
-        Encapsulate a query to reject "username" values that don't correspond to
-        a registered user.
-
-        TODO: We need to decide exactly how we're representing our users, and
-        what's mutable. For example, if we allow changing "username" we need to
-        have a stable "userid" field that we use for indexing... in which case
-        this should translate "username" into "userid" for internal use. For
-        now, just return the original username if it was found.
-
-        FIXME: I thought this would be an ArgumentParser "type" so we could
-        do validation during parsing. That's awkward because we need to finish
-        parsing the --config parameter in order to access the config and logger
-        objects required to initialize database access, which needs to be done
-        before we can make a query. Can we work around this without too much
-        mess?
-
-        Args:
-            :name: The username field of a registered user
-
-        Raises:
-            ValueError: The username doesn't correspond to a registered user
-            TypeError: Some other error occurred looking for the user
-
-        Returns:
-            The specified username if it's valid; does not return on failure
-        """
-        try:
-            user = User.query(username=name)
-            if not user:
-                User.logger.info("User {} not found", name)
-                raise UnknownUser(user)
-        except Exception:
-            User.logger.exception("Unexpected exception from query for user {}", name)
-            raise
-        return name
 
     def add(self):
         """

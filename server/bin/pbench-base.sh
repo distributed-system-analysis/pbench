@@ -137,7 +137,9 @@ function quarantine () {
         fi
         # Create/update state record if we're not moving a .md5 file
         if [ ${afile} != ${afile%.tar.xz} ] ;then
-            pbench-state-manager.py -c --path="${afile}" --state=quarantined
+            # TODO: When we drop ssh intake, we'll always have a user
+            # by now.
+            pbench-state-manager --create=quarantine --path="${afile}" --state=quarantined
             sts=${?}
             if [[ ${sts} -ne 0 ]]; then
                 log_error "$TS: quarantine $afile: \"set state\" failed with status $sts"

@@ -117,7 +117,9 @@ class Upload(Resource):
 
         # Create a tracking dataset object; it'll begin in UPLOADING state
         try:
-            dataset = Dataset(controller=controller, path=tar_full_path, md5=md5sum)
+            dataset = Dataset(
+                owner="pbench", controller=controller, path=tar_full_path, md5=md5sum
+            )
             dataset.add()
         except Exception:
             self.logger.exception("unable to create dataset for {}", filename)

@@ -95,8 +95,8 @@ len(actions) = 5
             },
             "@timestamp": "2015-09-21T19:31:12.673292",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "host_tools_info": [
                 {
@@ -140,8 +140,8 @@ len(actions) = 5
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/",
             "files": [
@@ -166,8 +166,8 @@ len(actions) = 5
         "_source": {
             "@timestamp": "2015-09-21T19:31:12.673292",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/sysinfo",
             "mode": "0o775",
@@ -187,8 +187,8 @@ len(actions) = 5
                 "sysinfo"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/sysinfo/foo",
             "mode": "0o775",
@@ -209,8 +209,8 @@ len(actions) = 5
                 "foo"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/sysinfo/foo/end",
             "files": [
@@ -624,5 +624,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-|alphaville|test_7.4_2015.09.21T15.31.08|INDEXED|
+fake|alphaville|test_7.4_2015.09.21T15.31.08|INDEXED|
 --- SqliteDB Datasets

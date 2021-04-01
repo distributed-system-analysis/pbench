@@ -100,8 +100,8 @@ len(actions) = 46
             },
             "@timestamp": "2020-01-19T00:19:37.656511",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "host_tools_info": [
                 {
@@ -133,8 +133,8 @@ len(actions) = 46
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/",
             "files": [
@@ -215,8 +215,8 @@ len(actions) = 46
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB",
             "files": [
@@ -259,8 +259,8 @@ len(actions) = 46
                 "1-read-4KiB"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB/sample1",
             "files": [
@@ -332,8 +332,8 @@ len(actions) = 46
                 "sample1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB/sample1/clients",
             "mode": "0o755",
@@ -355,8 +355,8 @@ len(actions) = 46
                 "clients"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB/sample1/clients/ctlrA",
             "files": [
@@ -423,8 +423,8 @@ len(actions) = 46
                 "ctlrA"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB/sample1/clients/ctlrA/hist",
             "files": [
@@ -510,8 +510,8 @@ len(actions) = 46
                 "sample1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB/sample1/csv",
             "files": [
@@ -562,8 +562,8 @@ len(actions) = 46
                 "sample1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB/sample1/hist",
             "files": [
@@ -649,8 +649,8 @@ len(actions) = 46
                 "sample1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB/sample1/tools-default",
             "mode": "0o755",
@@ -672,8 +672,8 @@ len(actions) = 46
                 "tools-default"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB/sample1/tools-default/ctlrA",
             "mode": "0o755",
@@ -696,8 +696,8 @@ len(actions) = 46
                 "ctlrA"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/1-read-4KiB/sample1/tools-default/ctlrA/turbostat",
             "files": [
@@ -737,8 +737,8 @@ len(actions) = 46
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/2-read-64KiB",
             "files": [
@@ -781,8 +781,8 @@ len(actions) = 46
                 "2-read-64KiB"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/2-read-64KiB/sample1",
             "files": [
@@ -854,8 +854,8 @@ len(actions) = 46
                 "sample1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/2-read-64KiB/sample1/clients",
             "mode": "0o755",
@@ -877,8 +877,8 @@ len(actions) = 46
                 "clients"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "test"
             },
             "directory": "/2-read-64KiB/sample1/clients/ctlrA",
             "files": [
@@ -3213,5 +3213,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-|ctlrA|fio_mock_2020.01.19T00.18.06|INDEXED|
+test|ctlrA|fio_mock_2020.01.19T00.18.06|INDEXED|
 --- SqliteDB Datasets

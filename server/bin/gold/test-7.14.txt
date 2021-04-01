@@ -95,8 +95,8 @@ len(actions) = 16
             },
             "@timestamp": "2018-04-10T19:01:19.927438",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "host_tools_info": [
                 {
@@ -275,8 +275,8 @@ len(actions) = 16
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/",
             "files": [
@@ -322,8 +322,8 @@ len(actions) = 16
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1",
             "mode": "0o755",
@@ -343,8 +343,8 @@ len(actions) = 16
                 "1"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result",
             "files": [
@@ -374,8 +374,8 @@ len(actions) = 16
                 "reference-result"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
@@ -397,8 +397,8 @@ len(actions) = 16
                 "tools-default"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p",
             "mode": "0o755",
@@ -421,8 +421,8 @@ len(actions) = 16
                 "b03-h01-1029p"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/mpstat",
             "files": [
@@ -1379,8 +1379,8 @@ len(actions) = 16
                 "mpstat"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/mpstat/csv",
             "files": [
@@ -1860,8 +1860,8 @@ len(actions) = 16
                 "b03-h01-1029p"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf",
             "files": [
@@ -1929,8 +1929,8 @@ len(actions) = 16
                 "perf"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/perf/perf-percpu",
             "files": [
@@ -2403,8 +2403,8 @@ len(actions) = 16
                 "b03-h01-1029p"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts",
             "files": [
@@ -2493,8 +2493,8 @@ len(actions) = 16
                 "proc-interrupts"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/proc-interrupts/csv",
             "files": [
@@ -5655,8 +5655,8 @@ len(actions) = 16
                 "b03-h01-1029p"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar",
             "files": [
@@ -5794,8 +5794,8 @@ len(actions) = 16
                 "sar"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/sar/csv",
             "files": [
@@ -6408,8 +6408,8 @@ len(actions) = 16
                 "b03-h01-1029p"
             ],
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/1/reference-result/tools-default/b03-h01-1029p/turbostat",
             "files": [
@@ -6449,8 +6449,8 @@ len(actions) = 16
         "_source": {
             "@timestamp": "2018-04-10T19:01:19.927438",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "directory": "/sysinfo",
             "mode": "0o755",
@@ -6560,8 +6560,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:24.000000",
             "@timestamp_original": "1523386884000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -6608,8 +6608,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:27.000000",
             "@timestamp_original": "1523386887000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -6656,8 +6656,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:30.000000",
             "@timestamp_original": "1523386890000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -6704,8 +6704,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:33.000000",
             "@timestamp_original": "1523386893000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -6752,8 +6752,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:36.000000",
             "@timestamp_original": "1523386896000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -6800,8 +6800,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:39.000000",
             "@timestamp_original": "1523386899000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -6848,8 +6848,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:42.000000",
             "@timestamp_original": "1523386902000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -6896,8 +6896,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:45.000000",
             "@timestamp_original": "1523386905000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -6944,8 +6944,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:48.000000",
             "@timestamp_original": "1523386908000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -6992,8 +6992,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:51.000000",
             "@timestamp_original": "1523386911000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7040,8 +7040,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:54.000000",
             "@timestamp_original": "1523386914000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7088,8 +7088,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:57.000000",
             "@timestamp_original": "1523386917000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7136,8 +7136,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:02:00.000000",
             "@timestamp_original": "1523386920000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7184,8 +7184,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:02:03.000000",
             "@timestamp_original": "1523386923000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7232,8 +7232,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:02:06.000000",
             "@timestamp_original": "1523386926000",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7280,8 +7280,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7320,8 +7320,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7360,8 +7360,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7400,8 +7400,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7440,8 +7440,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7480,8 +7480,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7520,8 +7520,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7560,8 +7560,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7600,8 +7600,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7640,8 +7640,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7680,8 +7680,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7720,8 +7720,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7760,8 +7760,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7800,8 +7800,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -7840,8 +7840,8 @@ len(actions) = 30
             "@timestamp": "2018-04-10T19:01:21.036391",
             "@timestamp_original": "1523386881.0363908",
             "authorization": {
-                "access": "public",
-                "owner": null
+                "access": "private",
+                "owner": "fake"
             },
             "iteration": {
                 "name": "1",
@@ -9167,5 +9167,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-|b03-h01-1029p|pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19|INDEXED|
+fake|b03-h01-1029p|pbench-user-benchmark_mbruzek-test-2_2018.04.10T19.01.19|INDEXED|
 --- SqliteDB Datasets
