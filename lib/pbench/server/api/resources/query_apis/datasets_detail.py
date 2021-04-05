@@ -19,9 +19,9 @@ class DatasetsDetail(Resource):
     Abstracted Pbench API to get detailed data for a particular
     dataset by name.
 
-    This API a follow-on to datasets_list, which returns the names of datasets
-    for a given controller. The datasets_detail API returns details from
-    the dataset's run document.
+    Note that datasets_list returns the names of datasets for a controller
+    and then datasets_detail returns details from a specific dataset's run
+    document.
 
     TODO: This implementation closely follows the Javascript effect. The date
     range given isn't used for the search directly, but rather defines the set
@@ -100,7 +100,7 @@ class DatasetsDetail(Resource):
         [
             {
                 "runMetadata": {
-                    "file-name": "/pbench/archive/fs-version-001/dhcp31-187.perf.lab.eng.bos.redhat.com/fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13.tar.xz",
+                    "file-name": "/pbench/archive/fs-version-001/dhcp31-187.example.com/fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13.tar.xz",
                     "file-size": 216319392,
                     "md5": "12fb1e952fd826727810868c9327254f",
                     [...]

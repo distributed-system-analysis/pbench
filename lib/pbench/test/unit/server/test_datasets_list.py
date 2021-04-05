@@ -138,11 +138,9 @@ class TestDatasetsList:
                         "_score": None,
                         "_source": {
                             "authorization": {"access": "private", "user": "unknown"},
-                            "@metadata": {
-                                "controller_dir": "dhcp31-187.perf.lab.eng.bos.redhat.com"
-                            },
+                            "@metadata": {"controller_dir": "dhcp31-187.example.com"},
                             "run": {
-                                "controller": "dhcp31-187.perf.lab.eng.bos.redhat.com",
+                                "controller": "dhcp31-187.example.com",
                                 "name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
                                 "start": "2020-04-29T12:49:13.560620",
                                 "end": "2020-04-29T13:30:04.918704",
@@ -165,15 +163,12 @@ class TestDatasetsList:
             res_json[0]["key"]
             == "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"
         )
-        assert (
-            res_json[0]["@metadata.controller_dir"]
-            == "dhcp31-187.perf.lab.eng.bos.redhat.com"
-        )
+        assert res_json[0]["@metadata.controller_dir"] == "dhcp31-187.example.com"
         assert (
             res_json[0]["run.config"]
             == "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus"
         )
-        assert res_json[0]["run.controller"] == "dhcp31-187.perf.lab.eng.bos.redhat.com"
+        assert res_json[0]["run.controller"] == "dhcp31-187.example.com"
         assert (
             res_json[0]["run.name"]
             == "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"

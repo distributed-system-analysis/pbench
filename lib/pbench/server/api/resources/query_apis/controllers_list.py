@@ -83,8 +83,8 @@ class ControllersList(Resource):
 
         [
             {
-                "key": "alphaville.usersys.redhat.com",
-                "controller": "alphaville.usersys.redhat.com",
+                "key": "alphaville.example.com",
+                "controller": "alphaville.example.com",
                 "results": 2,
                 "last_modified_value": 1598473155810.0,
                 "last_modified_string": "2020-08-26T20:19:15.810Z"

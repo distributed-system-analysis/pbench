@@ -109,7 +109,7 @@ class DatasetsList(Resource):
                 "key": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
                 "startUnixTimestamp": 1588178953561,
                 "run.name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
-                "run.controller": "dhcp31-187.perf.lab.eng.bos.redhat.com",
+                "run.controller": "dhcp31-187.example.com,
                 "run.start": "2020-04-29T12:49:13.560620",
                 "run.end": "2020-04-29T13:30:04.918704"
             }
