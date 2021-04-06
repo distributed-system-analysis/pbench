@@ -16,16 +16,7 @@ from pbench.server.api.resources.query_apis import (
 
 class DatasetsDetail(Resource):
     """
-    Abstracted Pbench API to get detailed data for a particular
-    dataset by name.
-
-    Note that datasets_list returns the names of datasets for a controller
-    and then datasets_detail returns details from a specific dataset's run
-    document.
-
-    TODO: This implementation closely follows the Javascript effect. The date
-    range given isn't used for the search directly, but rather defines the set
-    of Elasticsearch index names to search. This could be improved.
+    Get detailed data from the run document for a dataset by name.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
@@ -42,8 +33,8 @@ class DatasetsDetail(Resource):
 
     def post(self):
         """
-        Get details for a specific Pbench dataset if it is owned by the
-        specified user:
+        Get details for a specific Pbench dataset which is either owned
+        by a specified username, or has been made publicly accessible.
 
         {
             "user": "username",
@@ -52,50 +43,20 @@ class DatasetsDetail(Resource):
             "end": "end-time"
         }
 
-        "user" specifies the owner of the data to be searched; it need not
-        necessarily be the user represented by the authorization header,
-        assuming the session user is authorized to view "user"s data. This
-        will be used to constrain the Elasticsearch query.
+        JSON parameters:
+            user: specifies the owner of the data to be searched; it need not
+                necessarily be the user represented by the session token
+                header, assuming the session user is authorized to view "user"s
+                data. If "user": None is specified, then only public datasets
+                will be returned.
 
-        TODO: When we have authorization infrastructure, we'll need to
-        check that "session user" has rights to view "user" data. We might
-        also default a missing "user" JSON field with the authorization
-        token's user. (Or with the default user "public" if there's no
-        token, indicating there's no logged-in user.)
+            "name" is the name of a Pbench agent dataset (tarball).
 
-        "name" is the name of a Pbench agent dataset (tarball).
+            "start" and "end" are time strings representing a set of Elasticsearch
+                run document indices in which the dataset will be found.
 
-        "start" and "end" are time strings representing a set of Elasticsearch
-        run document indices in which the dataset will be found.
-
-        The Elasticsearch URL string is also dependent upon the configured
-        "prefix". This is a Pbench artifact that allows multiple Pbench
-        instances to share a single Elasticsearch server, by segregating
-        their data into unique namespaces. Each Pbench index name is
-        qualified by the index_prefix of the Pbench server that originally
-        indexed the data. The prefix comes from the pbench-server.cfg
-        file for the server instance. For example, production, "staging",
-        and development server instances might all share one Elasticsearch
-        cluster by choosing unique prefixes to generate unique index
-        names.
-
-        Required headers include
-
-        Authorization:  Pbench authorization token authorized to access
-                        "user"'s data. E.g., "user", "admin" or a user with
-                        whom the dataset has been shared.
-        Content-Type:   application/json
-        Accept:         application/json
-
-        NOTE: This is the format currently constructed by the Pbench
-        dashboard `src/model/dashboard.js` fetchResults effect. The
-        "runMetadata" property is a union of the run document's "@metadata
-        and "run" sub-documents, while "hostTools" is the run document's
-        "host_tools_info" nested array.
-
-        TODO: We probably need to return all *unowned* runs when called
-        without a session token or user parameter. We need to define precisely
-        how this should work.
+        Returns details from the run, @metadata, and host_tools_info subdocuments
+        of the Elasticsearch run document:
 
         [
             {
@@ -132,26 +93,6 @@ class DatasetsDetail(Resource):
             self.logger.info("Missing required JSON keys {}", ",".join(keys))
             abort(400, message=f"Missing request data: {','.join(keys)}")
 
-        # We need to support a query for public data without requiring
-        # authorization; however if an Authorization header is given,
-        # it must be of recommended JWT "Bearer" schema, and have a
-        # non-empty token.
-        #
-        # TODO: validate the token with the user management object.
-        authorization = request.headers.get("Authorization")
-        session_token = None
-        if authorization:
-            type, token = authorization.split()
-            if type.lower() == "bearer":
-                session_token = token
-
-            if not session_token:
-                self.logger.warn(
-                    '"Authorization" header specifies unsupported or missing '
-                    ' schema; use "Authorization: Bearer <JWT-token>"'
-                )
-                abort(401, message="invalid user authorization")
-
         try:
             start = parser.parse(start_arg).replace(day=1)
             end = parser.parse(end_arg).replace(day=1)
@@ -161,14 +102,11 @@ class DatasetsDetail(Resource):
             )
             abort(400, message="Invalid start or end time string")
 
-        # We have nothing to authorize against yet, but print the specified
-        # user and authorization token to prove we got them.
         self.logger.info(
-            "Return dataset {} for user {}, prefix {}, authorization {}: ({} - {})",
+            "Return dataset {} for user {}, prefix {}: ({} - {})",
             name,
             user,
             self.prefix,
-            session_token,
             start,
             end,
         )
@@ -185,18 +123,11 @@ class DatasetsDetail(Resource):
             "sort": "_index",
         }
 
-        # TODO: the big assumption here involves the index version we're
-        # referencing. While it's possible the root index name could change
-        # at some point, advancing the version is going to happen more
-        # often.
-        #
-        # So ... do we need to change the code here each time? The old
-        # dashboard config is hardcoded for each version, so one option is
-        # to add a version for each index to the pbench-server.cfg file.
-        #
-        # When we have a full live Python server, persisting the template
-        # information in Redis or postgreSQL probably makes sense; maybe
-        # we just hardcode until then?
+        # TODO: Need to refactor the template processing code from indexer.py
+        # to maintain the essential indexing information in a persistent DB
+        # (probably a Postgresql table) so that it can be shared here and by
+        # the indexer without re-loading on each access. For now, the index
+        # version is hardcoded.
         uri_fragment = gen_month_range(self.prefix, ".v6.run-data.", start, end)
 
         uri = f"{self.es_url}/{uri_fragment}/_search"

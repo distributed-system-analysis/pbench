@@ -10,7 +10,7 @@ from pbench.server.api.resources.query_apis import get_es_url, get_index_prefix
 
 class MonthIndices(Resource):
     """
-    Abstracted Pbench API to get date-bounded controller data.
+    Get the range of dates in which datasets exist.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
@@ -27,23 +27,13 @@ class MonthIndices(Resource):
 
     def get(self):
         """
-        Report the month suffixes existing for run data indices.
+        Report the month suffixes for run data indices.
 
-        Required headers include
+        NOTE: No authorization or input parameters are required for this API.
 
-        Content-Type:   application/json
-        Accept:         application/json
-
-        The return payload is a list of "YYYY-mm" date strings corresponding
-        to the months in which tarballs were indexed into the appropriate
-        `run-data` index. (E.g., `drb.v6.run-data.2020-11`). Note that this
-        list is in DESCENDING order, so the earliest date is last.
-
-        NOTE: No authorization or input payload is required for this API.
-
-        NOTE: This is the format currently constructed by the Pbench
-        dashboard `src/model/datastore.js` fetchMonthIndices method, which
-        becomes part of the Redux state.
+        Returns a list of "YYYY-mm" date strings corresponding to the months in
+        which tarballs were indexed into the appropriate run-data index. (E.g.,
+        drb.v6.run-data.2020-11). This list is in DESCENDING order:
 
         [
             "2020-12",
@@ -92,9 +82,6 @@ class MonthIndices(Resource):
                 for index in es_json.keys():
                     if target in index:
                         months.append(index.split(".")[-1])
-                # The dashboard converts the strings to int (removing the '-')
-                # and does a numeric sort; however since we always have a full
-                # "YYYY-mm" date, this isn't necessary.
                 months.sort(reverse=True)
                 self.logger.info("found months {!r}", months)
             except KeyError:

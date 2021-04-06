@@ -103,10 +103,8 @@ def main(options):
         # Either create a new dataset or attach to an existing dataset
         doit = Dataset.create if options.create else Dataset.attach
 
-        # Find the specified dataset, and update the state
-        attached = doit(**args)
-        if not options.create and not attached:
-            print(f"{_NAME_}: dataset")
+        # Find or create the specified dataset.
+        doit(**args)
     except Exception as e:
         # Stringify any exception and report it; then fail
         logger.exception("Failed")

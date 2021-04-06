@@ -1116,9 +1116,9 @@ pbench|controller-d-duplicate|tarball-duplicate_1970.01.01T00.42.00|QUARANTINED|
 pbench|controller-e-bad-md5|tarball-bad-md5_1970.01.01T00.42.00|QUARANTINED|
 pbench|controller-f-bad-md5|tarball-bad-md5-1_1970.01.01T00.42.00|QUARANTINED|
 pbench|controller-g-normal|tarball-normal_1970.01.01T00.42.00|QUARANTINED| ARCHIVED = True
-quarantine|controller-d-duplicate|DUPLICATE__NAME.tarball-duplicate_1970.01.01T00.42.00|QUARANTINED|
-quarantine|controller-d-duplicate|tarball-that-does-not-exist_1970.01.01T00.42.00|QUARANTINED|
-quarantine|controller-h-bad-md5|tarball-bad-md5_1970.01.01T00.42.00|QUARANTINED|
+quarantiner|controller-d-duplicate|DUPLICATE__NAME.tarball-duplicate_1970.01.01T00.42.00|QUARANTINED|
+quarantiner|controller-d-duplicate|tarball-that-does-not-exist_1970.01.01T00.42.00|QUARANTINED|
+quarantiner|controller-h-bad-md5|tarball-bad-md5_1970.01.01T00.42.00|QUARANTINED|
 satellite|ONE::controllerA|tarball-simple1_1970-01-01T00:42:00|QUARANTINED| ARCHIVED = True
 satellite|ONE::controllerB|tarball-simple2_1970-01-01T00:41:00|QUARANTINED| ARCHIVED = True
 satellite|ONE::controllerC|tarball-simple0-prefix_1970-01-01T00:42:00|QUARANTINED| ARCHIVED = True

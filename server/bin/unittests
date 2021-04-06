@@ -283,8 +283,6 @@ function _setup_state {
     let res=res+$?
     cp -a $_tdir/{unittests,pbench*} $_testopt/bin
     let res=res+$?
-    cp -a ${_tdir}/../../lib ${_testopt}/common/
-    let res=res+${?}
     mkdir -p $_testopt/html/static/{js,css}/v0.{2,3}
     let res=res+$?
     cp -a $_tdir/../../web-server/v0.2/js/ $_testopt/html/static/js/v0.2
