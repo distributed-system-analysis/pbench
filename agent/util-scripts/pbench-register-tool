@@ -278,6 +278,19 @@ else
 	fi
 fi
 
+invalids=0
+for (( i=0; ${i} < ${#remotes_A[@]}; i++ )); do
+	remote="${remotes_A[${i}]}"
+	validate-hostname "${remote}"
+	if [[ ${?} -ne 0 ]]; then
+		error_log "Invalid remote specified: '${remote}'"
+		(( invalids++ ))
+	fi
+done
+if [[ ${invalids} -gt 0 ]]; then
+	exit 1
+fi
+
 if [[ ${_do_test_labels} -ne 0 ]]; then
 	# Used by pbench-register-tool-set to avoid duplicating logic, we
 	# have been asked to exit early successfully if all argument
