@@ -156,9 +156,9 @@ drwxrwxr-x          - public_html/users/userA/controller-prefixes/path0/path1
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--       1510 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--       1512 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
--rw-rw-r--       3465 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
+-rw-rw-r--       3467 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -238,7 +238,7 @@ Results issues for controller: userA/controller-prefixes
 		path0/path1
 
 end-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-27/pbench/public_html/users
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
@@ -253,7 +253,7 @@ end-1970-01-01T00:00:42-UTC: users hierarchy: /var/tmp/pbench-test-server/test-2
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs remove_symlinks -- Removed symlink '/var/tmp/pbench-test-server/test-27/pbench/public_html/results/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00'
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs remove_symlinks -- Removed symlink '/var/tmp/pbench-test-server/test-27/pbench/public_html/users/userA/controller-prefixes/path0/path1/tarball_culled-w-userA_1970.01.01T00.00.00'
 1970-01-01T00:00:42.000000 INFO pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs remove_unpacked -- After 0.00 seconds, finished removal of unpacked tar ball directory, '/var/tmp/pbench-test-server/test-27/pbench/public_html/incoming/controller-prefixes/tarball_culled-w-userA_1970.01.01T00.00.00'
-1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 ---- pbench-local/logs
