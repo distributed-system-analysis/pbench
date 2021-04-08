@@ -54,11 +54,11 @@ register mpstat
 register dcgm
 
 if [[ "${2}" == "with-remotes" ]]; then
-    register mpstat remote_a.example.com
-    register mpstat remote_b.example.com blue
-    register node-exporter remote_b.example.com blue
-    register dcgm remote_c.example.com red
-    register pcp remote_c.example.com red
+    register mpstat "remote-a.example.com"
+    register mpstat "remote-b.example.com" blue
+    register node-exporter "remote-b.example.com" blue
+    register dcgm "remote-c.example.com" red
+    register pcp "remote-c.example.com" red
 fi
 
 # We created the benchmark_run_dir directory as the tool meister expects it to

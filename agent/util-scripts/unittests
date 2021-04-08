@@ -31,7 +31,7 @@ mv ${_testopt}/config/pbench-agent.cfg ${_testopt}/config/pbench-agent.cfg.orig
 let res=res+${?}
 cp -a ${_tdir}/../templates/* ${_testopt}/templates/
 let res=res+${?}
-cp -a ${_tdir}/{require-rpm,pbench-*} ${_testopt}/util-scripts/
+cp -a ${_tdir}/{require-rpm,validate-*,pbench-*} ${_testopt}/util-scripts/
 let res=res+${?}
 cp -a ${_tdir}/tool-meister/pbench-* ${_testopt}/util-scripts/tool-meister/
 let res=res+${?}
@@ -345,6 +345,7 @@ let errs=0
 
 declare -A tools=(
     [test-00]="pbench-register-tool"
+    [test-01]="pbench-register-tool"
     [test-05]="pbench-start-tools"
     [test-06]="pbench-stop-tools"
     [test-07]="pbench-postprocess-tools"
@@ -371,6 +372,7 @@ declare -A tools=(
     [test-19]="test-tool-trigger"
     [test-20]="pbench-move-results"
     [test-21]="pbench-move-results"
+    [test-22]="pbench-move-results"
     [test-25]="pbench-verify-sysinfo-options"
     [test-26]="pbench-verify-sysinfo-options"
     [test-27]="pbench-verify-sysinfo-options"
@@ -413,6 +415,7 @@ declare -A sortem=(
 
 declare -A options=(
     [test-00]="--name=mpstat --group=default -- --interval=10"
+    [test-01]="--name=mpstat --group=default --remote=invalid_remote.example.com,good.example.com,bad_remote.example.com"
     [test-05]="--group=default --dir=42-iter/sample42"
     [test-06]="--group=default --dir=42-iter/sample42"
     [test-07]="--group=foobar --dir=${_testdir}/42-iter/sample42"
@@ -445,6 +448,7 @@ declare -A options=(
     [test-20]="--help"
     # pbench-move-results - no args, nothing to do
     #[test-21]=""
+    [test-22]="--controller=bad_host_name.example.com"
     [test-25]="all"
     [test-26]="none"
     [test-27]="default"
@@ -488,6 +492,7 @@ declare -A options=(
 )
 
 declare -A expected_status=(
+    [test-01]=1
     [test-09]=1
     [test-10]=1
     [test-11.07]=1
@@ -495,6 +500,7 @@ declare -A expected_status=(
     [test-11.11]=1
     [test-17]=1
     [test-18]=1
+    [test-22]=1
     [test-29]=1
     [test-44]=1
     [test-46]=1
