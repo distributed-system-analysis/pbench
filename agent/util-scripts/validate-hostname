@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+"""validate-hostname - validate the given hostname uses the proper syntax.
+
+Exits with 0 on success, with 1 on failure, only emitting a message on stderr
+if the argument is missing.
+"""
+
+import sys
+
+from pbench.agent.utils import validate_hostname
+
+
+try:
+    host_name = sys.argv[1]
+except IndexError:
+    print("Missing host name argument", file=sys.stderr)
+    exit_val = 1
+else:
+    exit_val = validate_hostname(host_name)
+sys.exit(exit_val)

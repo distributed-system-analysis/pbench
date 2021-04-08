@@ -1,0 +1,13 @@
++++ Running test-01 pbench-register-tool --name=mpstat --group=default --remote=invalid_remote.example.com,good.example.com,bad_remote.example.com
+[error][1900-01-01T00:00:00.000000] Invalid remote specified: 'invalid_remote.example.com'
+[error][1900-01-01T00:00:00.000000] Invalid remote specified: 'bad_remote.example.com'
+--- Finished test-01 pbench-register-tool (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state
++++ pbench.log file contents
+[error][1900-01-01T00:00:00.000000] Invalid remote specified: 'invalid_remote.example.com'
+[error][1900-01-01T00:00:00.000000] Invalid remote specified: 'bad_remote.example.com'
+--- pbench.log file contents
