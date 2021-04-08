@@ -49,6 +49,10 @@ class Upload(Resource):
         )
 
     def put(self, controller):
+
+        # FIXME: This should be assigned from the decoded authorization token
+        username = "pbench"
+
         if not request.headers.get("filename"):
             self.logger.debug(
                 "Tarfile upload: Post operation failed due to missing filename header"
@@ -117,7 +121,9 @@ class Upload(Resource):
 
         # Create a tracking dataset object; it'll begin in UPLOADING state
         try:
-            dataset = Dataset(controller=controller, path=tar_full_path, md5=md5sum)
+            dataset = Dataset(
+                owner=username, controller=controller, path=tar_full_path, md5=md5sum
+            )
             dataset.add()
         except Exception:
             self.logger.exception("unable to create dataset for {}", filename)

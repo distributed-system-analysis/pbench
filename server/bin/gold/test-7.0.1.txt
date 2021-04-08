@@ -102,6 +102,16 @@ Template: pbench-unittests.v4.tool-data-iostat
             "@timestamp_original": {
                 "type": "text"
             },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
+            },
             "iostat": {
                 "properties": {
                     "@idx": {
@@ -263,6 +273,16 @@ Template: pbench-unittests.v4.tool-data-mpstat
             "@timestamp_original": {
                 "type": "text"
             },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
+            },
             "iteration": {
                 "properties": {
                     "name": {
@@ -405,6 +425,16 @@ Template: pbench-unittests.v4.tool-data-pidstat
             },
             "@timestamp_original": {
                 "type": "text"
+            },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
             },
             "iteration": {
                 "properties": {
@@ -567,6 +597,16 @@ Template: pbench-unittests.v4.tool-data-proc-interrupts
             "@timestamp_original": {
                 "type": "text"
             },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
+            },
             "iteration": {
                 "properties": {
                     "name": {
@@ -690,6 +730,16 @@ Template: pbench-unittests.v4.tool-data-proc-vmstat
             },
             "@timestamp_original": {
                 "type": "text"
+            },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
             },
             "iteration": {
                 "properties": {
@@ -1918,6 +1968,16 @@ Template: pbench-unittests.v4.tool-data-prometheus-metrics
             "@timestamp_original": {
                 "type": "text"
             },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
+            },
             "iteration": {
                 "properties": {
                     "name": {
@@ -2158,6 +2218,16 @@ Template: pbench-unittests.v4.tool-data-vmstat
             "@timestamp_original": {
                 "type": "text"
             },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
+            },
             "iteration": {
                 "properties": {
                     "name": {
@@ -2338,6 +2408,16 @@ Template: pbench-unittests.v5.result-data
                 "index": false,
                 "type": "keyword"
             },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
+            },
             "iteration": {
                 "properties": {
                     "name": {
@@ -2448,6 +2528,16 @@ Template: pbench-unittests.v5.result-data-sample
             "@timestamp_original": {
                 "index": false,
                 "type": "keyword"
+            },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
             },
             "benchmark": {
                 "properties": {
@@ -3213,6 +3303,16 @@ Template: pbench-unittests.v6.run-data
             "@timestamp": {
                 "type": "date"
             },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
+            },
             "host_tools_info": {
                 "properties": {
                     "hostname": {
@@ -3402,6 +3502,16 @@ Template: pbench-unittests.v6.run-toc
             },
             "ancestor_path_elements": {
                 "type": "keyword"
+            },
+            "authorization": {
+                "properties": {
+                    "access": {
+                        "type": "keyword"
+                    },
+                    "owner": {
+                        "type": "keyword"
+                    }
+                }
             },
             "directory": {
                 "analyzer": "path_analyzer",

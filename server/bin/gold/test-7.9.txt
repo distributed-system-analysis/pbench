@@ -94,6 +94,10 @@ len(actions) = 16
                 "toc-prefix": "pbench-user-benchmark__2017-04-21_20:38:16"
             },
             "@timestamp": "2017-04-21T20:38:16.618515",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "host_tools_info": [
                 {
                     "hostname": "dhcp31-144",
@@ -157,6 +161,10 @@ len(actions) = 16
         "_op_type": "create",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/",
             "files": [
                 {
@@ -186,6 +194,10 @@ len(actions) = 16
         "_op_type": "create",
         "_source": {
             "@timestamp": "2017-04-21T20:38:16.618515",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1",
             "mode": "0o755",
             "mtime": "2017-04-21T20:38:16",
@@ -203,6 +215,10 @@ len(actions) = 16
             "ancestor_path_elements": [
                 "1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result",
             "files": [
                 {
@@ -230,6 +246,10 @@ len(actions) = 16
                 "1",
                 "reference-result"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:22",
@@ -249,6 +269,10 @@ len(actions) = 16
                 "reference-result",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144",
             "mode": "0o755",
             "mtime": "2017-04-21T20:39:22",
@@ -269,6 +293,10 @@ len(actions) = 16
                 "tools-default",
                 "dhcp31-144"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/iostat",
             "files": [
                 {
@@ -327,6 +355,10 @@ len(actions) = 16
                 "dhcp31-144",
                 "iostat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/iostat/csv",
             "files": [
                 {
@@ -398,6 +430,10 @@ len(actions) = 16
                 "tools-default",
                 "dhcp31-144"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat",
             "files": [
                 {
@@ -470,6 +506,10 @@ len(actions) = 16
                 "dhcp31-144",
                 "mpstat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat/csv",
             "files": [
                 {
@@ -506,6 +546,10 @@ len(actions) = 16
                 "tools-default",
                 "dhcp31-144"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/perf",
             "files": [
                 {
@@ -571,6 +615,10 @@ len(actions) = 16
                 "dhcp31-144",
                 "perf"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/perf/perf-percpu",
             "files": [
                 {
@@ -600,6 +648,10 @@ len(actions) = 16
                 "tools-default",
                 "dhcp31-144"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat",
             "files": [
                 {
@@ -714,6 +766,10 @@ len(actions) = 16
                 "dhcp31-144",
                 "pidstat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat/csv",
             "files": [
                 {
@@ -799,6 +855,10 @@ len(actions) = 16
                 "tools-default",
                 "dhcp31-144"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/proc-interrupts",
             "files": [
                 {
@@ -871,6 +931,10 @@ len(actions) = 16
                 "dhcp31-144",
                 "proc-interrupts"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "directory": "/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv",
             "files": [
                 {
@@ -1200,6 +1264,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "fedora-root",
@@ -1251,6 +1319,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "fedora-swap",
@@ -1302,6 +1374,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "vda",
@@ -1353,6 +1429,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:24.000000",
             "@timestamp_original": "1492807104000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "fedora-root",
@@ -1404,6 +1484,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:24.000000",
             "@timestamp_original": "1492807104000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "fedora-swap",
@@ -1455,6 +1539,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:24.000000",
             "@timestamp_original": "1492807104000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "vda",
@@ -1506,6 +1594,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:27.000000",
             "@timestamp_original": "1492807107000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "fedora-root",
@@ -1557,6 +1649,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:27.000000",
             "@timestamp_original": "1492807107000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "fedora-swap",
@@ -1608,6 +1704,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:27.000000",
             "@timestamp_original": "1492807107000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "vda",
@@ -1659,6 +1759,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:30.000000",
             "@timestamp_original": "1492807110000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 3,
                 "id": "fedora-root",
@@ -1710,6 +1814,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:30.000000",
             "@timestamp_original": "1492807110000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 3,
                 "id": "fedora-swap",
@@ -1761,6 +1869,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:30.000000",
             "@timestamp_original": "1492807110000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 3,
                 "id": "vda",
@@ -1812,6 +1924,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:33.000000",
             "@timestamp_original": "1492807113000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 4,
                 "id": "fedora-root",
@@ -1863,6 +1979,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:33.000000",
             "@timestamp_original": "1492807113000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 4,
                 "id": "fedora-swap",
@@ -1914,6 +2034,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:33.000000",
             "@timestamp_original": "1492807113000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iostat": {
                 "@idx": 4,
                 "id": "vda",
@@ -1965,6 +2089,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2008,6 +2136,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:24.000000",
             "@timestamp_original": "1492807104000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2051,6 +2183,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:27.000000",
             "@timestamp_original": "1492807107000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2094,6 +2230,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:30.000000",
             "@timestamp_original": "1492807110000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2137,6 +2277,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:33.000000",
             "@timestamp_original": "1492807113000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2180,6 +2324,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:36.000000",
             "@timestamp_original": "1492807116000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2223,6 +2371,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:39.000000",
             "@timestamp_original": "1492807119000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2266,6 +2418,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:42.000000",
             "@timestamp_original": "1492807122000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2309,6 +2465,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:45.000000",
             "@timestamp_original": "1492807125000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2352,6 +2512,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:48.000000",
             "@timestamp_original": "1492807128000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2395,6 +2559,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:51.000000",
             "@timestamp_original": "1492807131000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2438,6 +2606,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:54.000000",
             "@timestamp_original": "1492807134000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2481,6 +2653,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:57.000000",
             "@timestamp_original": "1492807137000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2524,6 +2700,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:39:00.000000",
             "@timestamp_original": "1492807140000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2567,6 +2747,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:39:03.000000",
             "@timestamp_original": "1492807143000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2610,6 +2794,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2661,6 +2849,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2712,6 +2904,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2763,6 +2959,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2814,6 +3014,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2865,6 +3069,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2916,6 +3124,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2967,6 +3179,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3018,6 +3234,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3069,6 +3289,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3120,6 +3344,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3171,6 +3399,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3222,6 +3454,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3273,6 +3509,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3324,6 +3564,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.000000",
             "@timestamp_original": "1492807101000",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3375,6 +3619,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3410,6 +3658,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3445,6 +3697,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3480,6 +3736,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3515,6 +3775,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3550,6 +3814,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3585,6 +3853,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3620,6 +3892,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3655,6 +3931,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3690,6 +3970,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3725,6 +4009,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3760,6 +4048,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3795,6 +4087,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3830,6 +4126,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3865,6 +4165,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.712981",
             "@timestamp_original": "1492807098.7129807",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3900,6 +4204,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:18.750093",
             "@timestamp_original": "1492807098.7500932",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -4094,6 +4402,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:21.764053",
             "@timestamp_original": "1492807101.7640526",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -4451,6 +4763,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:24.766978",
             "@timestamp_original": "1492807104.7669783",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -4808,6 +5124,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:27.769841",
             "@timestamp_original": "1492807107.7698412",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5165,6 +5485,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:30.772685",
             "@timestamp_original": "1492807110.7726846",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5522,6 +5846,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:33.775501",
             "@timestamp_original": "1492807113.7755005",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -5879,6 +6207,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:36.778382",
             "@timestamp_original": "1492807116.7783818",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -6236,6 +6568,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:39.781260",
             "@timestamp_original": "1492807119.7812595",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -6593,6 +6929,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:42.784167",
             "@timestamp_original": "1492807122.7841673",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -6950,6 +7290,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:45.787123",
             "@timestamp_original": "1492807125.787123",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -7307,6 +7651,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:48.790011",
             "@timestamp_original": "1492807128.790011",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -7664,6 +8012,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:51.792787",
             "@timestamp_original": "1492807131.7927866",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -8021,6 +8373,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:54.795752",
             "@timestamp_original": "1492807134.7957523",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -8378,6 +8734,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:38:57.805671",
             "@timestamp_original": "1492807137.8056715",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -8735,6 +9095,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2017-04-21T20:39:00.808738",
             "@timestamp_original": "1492807140.808738",
+            "authorization": {
+                "access": "private",
+                "owner": "freddie"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -9572,5 +9936,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|dhcp31-144|pbench-user-benchmark__2017-04-21_20:38:16|INDEXED|
+freddie|dhcp31-144|pbench-user-benchmark__2017-04-21_20:38:16|INDEXED|
 --- SqliteDB Datasets

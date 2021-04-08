@@ -109,7 +109,7 @@ function _run_allscripts {
     _run pbench-verify-backup-tarballs
     # Invoke pbench-satellite-cleanup in the context of the satellite
     PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} \
-        PYTHONPATH=${_testopt_sat}/unittest-lib:${_orig_PYTHONPATH} \
+        PYTHONPATH=${_testopt_sat}/unittest-lib:${_testopt_sat}/common/lib:${_orig_PYTHONPATH} \
         _PBENCH_SERVER_CONFIG=${SATCONFIG} \
         _run pbench-satellite-cleanup
 }
@@ -224,7 +224,7 @@ function _dump_logs {
     # Be quiet if there's no database, or if the `dataset` table hasn't been
     # created.
     db=${_testroot}/test_db
-    select='select user,controller,name,state,(select " " || key || " = " || value from metadata where dataset_ref = dataset.id) from dataset order by user,controller,name asc'
+    select='select owner,controller,name,state,(select " " || key || " = " || value from dataset_metadata where dataset_ref = datasets.id) from datasets order by owner,controller,name asc'
     sqlite3 ${db} "${select}" > ${_testdir_local}/db 2>/dev/null
     if [ -s ${_testdir_local}/db ] ;then
         echo "+++ SqliteDB Datasets" >> $_testout
@@ -279,7 +279,7 @@ function _setup_state {
     let res=res+$?
     mkdir -p $_testopt_sat/bin
     let res=res+$?
-    mkdir -p $_testopt/common/lib
+    mkdir -p $_testopt/common/
     let res=res+$?
     cp -a $_tdir/{unittests,pbench*} $_testopt/bin
     let res=res+$?
@@ -337,15 +337,16 @@ function _setup_state {
     fi
 
     # All the "real" scripts are found at $_testopt/bin, the mock scripts
-    # are found in $_testopt/unittest-scripts.
+    # are found in ${_testopt}/unittest-scripts. The pbench Python library
+    # tree starts at ${_testopt}/common/lib.
     _orig_PATH=$PATH
     _orig_PYTHONPATH=$PYTHONPATH
-    export PATH=$_testopt/unittest-scripts:$_testopt/bin:$PATH
-    export PYTHONPATH=$_testopt/unittest-lib:$PYTHONPATH
+    export PATH=${_testopt}/unittest-scripts:${_testopt}/bin:$PATH
+    export PYTHONPATH=${_testopt}/unittest-lib:${_testopt}/common/lib:$PYTHONPATH
 
     # Expected location of the final configuration files
-    export _PBENCH_SERVER_CONFIG=$_testopt/lib/config/pbench-server.cfg
-    export SATCONFIG=$_testopt_sat/lib/config/pbench-server.cfg
+    export _PBENCH_SERVER_CONFIG=${_testopt}/lib/config/pbench-server.cfg
+    export SATCONFIG=${_testopt_sat}/lib/config/pbench-server.cfg
 
     # The activate invocations are supposed to work without _PBENCH_SERVER_CONFIG being set,
     # so they do *not* use the global _PBENCH_SERVER_CONFIG file that the rest of the tests
@@ -456,8 +457,8 @@ function _setup_state {
     # Setup per-test Dataset DB
     _state_db=${_tdir}/state/${1}.db
     if [ -f ${_state_db} ]; then
-        while read -r controller name state; do
-            pbench-state-manager --create --controller=${controller} --name=${name} --state=${state}
+        while read -r controller name state user; do
+            pbench-state-manager --create=${user} --controller=${controller} --name=${name} --state=${state}
         done < ${_state_db}
     fi
 }

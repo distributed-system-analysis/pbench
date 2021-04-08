@@ -221,5 +221,5 @@ end-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|ctlr-in-range|tarball_re-index_1970.02.14T12.42.42|INDEXED| REINDEX = True
+fake|ctlr-in-range|tarball_re-index_1970.02.14T12.42.42|INDEXED| REINDEX = True
 --- SqliteDB Datasets
