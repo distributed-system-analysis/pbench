@@ -1109,17 +1109,17 @@ ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench
 ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-satellite-state-change /var/tmp/pbench-test-server/test-5.2/pbench-satellite/archive/fs-version-001
 --- test-execution.log file contents
 +++ SqliteDB Datasets
-public|ONE::controllerA|tarball-simple1_1970-01-01T00:42:00|UNPACKED| ARCHIVED = True
-public|ONE::controllerB|tarball-simple2_1970-01-01T00:41:00|UNPACKED| ARCHIVED = True
-public|ONE::controllerC|tarball-simple0-prefix_1970-01-01T00:42:00|UNPACKED| ARCHIVED = True
-public|controller-b-with-prefixes|tarball-0_1970.01.01T00.42.00|UNPACKED| ARCHIVED = True
-public|controller-b-with-prefixes|tarball-w-dot-prefix_1970.01.01T00.42.00|UNPACKED| ARCHIVED = True
-public|controller-b-with-prefixes|tarball-w-prefix-dot_1970.01.01T00.42.00|UNPACKED| ARCHIVED = True
-public|controller-d-duplicate|DUPLICATE__NAME.tarball-duplicate_1970.01.01T00.42.00|QUARANTINED|
-public|controller-d-duplicate|tarball-duplicate_1970.01.01T00.42.00|QUARANTINED| ARCHIVED = True
-public|controller-d-duplicate|tarball-that-does-not-exist_1970.01.01T00.42.00|QUARANTINED|
-public|controller-e-bad-md5|tarball-bad-md5_1970.01.01T00.42.00|QUARANTINED|
-public|controller-f-bad-md5|tarball-bad-md5-1_1970.01.01T00.42.00|QUARANTINED|
-public|controller-g-normal|tarball-normal_1970.01.01T00.42.00|UNPACKED| ARCHIVED = True
-public|controller-h-bad-md5|tarball-bad-md5_1970.01.01T00.42.00|QUARANTINED|
+pbench|controller-b-with-prefixes|tarball-0_1970.01.01T00.42.00|QUARANTINED| ARCHIVED = True
+pbench|controller-b-with-prefixes|tarball-w-dot-prefix_1970.01.01T00.42.00|QUARANTINED| ARCHIVED = True
+pbench|controller-b-with-prefixes|tarball-w-prefix-dot_1970.01.01T00.42.00|QUARANTINED| ARCHIVED = True
+pbench|controller-d-duplicate|tarball-duplicate_1970.01.01T00.42.00|QUARANTINED| ARCHIVED = True
+pbench|controller-e-bad-md5|tarball-bad-md5_1970.01.01T00.42.00|QUARANTINED|
+pbench|controller-f-bad-md5|tarball-bad-md5-1_1970.01.01T00.42.00|QUARANTINED|
+pbench|controller-g-normal|tarball-normal_1970.01.01T00.42.00|QUARANTINED| ARCHIVED = True
+quarantiner|controller-d-duplicate|DUPLICATE__NAME.tarball-duplicate_1970.01.01T00.42.00|QUARANTINED|
+quarantiner|controller-d-duplicate|tarball-that-does-not-exist_1970.01.01T00.42.00|QUARANTINED|
+quarantiner|controller-h-bad-md5|tarball-bad-md5_1970.01.01T00.42.00|QUARANTINED|
+satellite|ONE::controllerA|tarball-simple1_1970-01-01T00:42:00|QUARANTINED| ARCHIVED = True
+satellite|ONE::controllerB|tarball-simple2_1970-01-01T00:41:00|QUARANTINED| ARCHIVED = True
+satellite|ONE::controllerC|tarball-simple0-prefix_1970-01-01T00:42:00|QUARANTINED| ARCHIVED = True
 --- SqliteDB Datasets

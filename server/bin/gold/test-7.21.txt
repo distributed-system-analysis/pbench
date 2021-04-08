@@ -98,6 +98,10 @@ len(actions) = 23
                 "toc-prefix": "trafficgen_mock_2020.02.28T19.49.39"
             },
             "@timestamp": "2020-02-28T19:49:39.887048",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "host_tools_info": [],
             "run": {
                 "config": "mock",
@@ -119,6 +123,10 @@ len(actions) = 23
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T19:49:39.887048",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/",
             "files": [
                 {
@@ -183,6 +191,10 @@ len(actions) = 23
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T19:49:39.887048",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1",
             "files": [
                 {
@@ -209,6 +221,10 @@ len(actions) = 23
             "ancestor_path_elements": [
                 "0__device-pairs=0000:01:00.0,0000:01:00.1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0",
             "files": [
                 {
@@ -278,6 +294,10 @@ len(actions) = 23
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients",
             "mode": "0o755",
             "mtime": "2020-02-28T20:00:10",
@@ -297,6 +317,10 @@ len(actions) = 23
                 "sample0",
                 "clients"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116",
             "files": [
                 {
@@ -674,6 +698,10 @@ len(actions) = 23
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv",
             "mode": "0o755",
             "mtime": "2020-02-28T20:00:16",
@@ -692,6 +720,10 @@ len(actions) = 23
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-02-28T19:50:20",
@@ -2978,6 +3010,10 @@ len(actions) = 38
                 "toc-prefix": "trafficgen_mock_2020.02.28T20.04.29"
             },
             "@timestamp": "2020-02-28T20:04:29.505587",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "host_tools_info": [],
             "run": {
                 "config": "mock",
@@ -2999,6 +3035,10 @@ len(actions) = 38
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T20:04:29.505587",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/",
             "files": [
                 {
@@ -3070,6 +3110,10 @@ len(actions) = 38
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T20:04:29.505587",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1",
             "files": [
                 {
@@ -3096,6 +3140,10 @@ len(actions) = 38
             "ancestor_path_elements": [
                 "0__device-pairs=0000:01:00.0,0000:01:00.1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0",
             "files": [
                 {
@@ -3165,6 +3213,10 @@ len(actions) = 38
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients",
             "mode": "0o755",
             "mtime": "2020-02-28T20:15:12",
@@ -3184,6 +3236,10 @@ len(actions) = 38
                 "sample0",
                 "clients"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116",
             "files": [
                 {
@@ -3673,6 +3729,10 @@ len(actions) = 38
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv",
             "files": [
                 {
@@ -4176,6 +4236,10 @@ len(actions) = 38
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-02-28T20:04:59",
@@ -9975,6 +10039,6 @@ run-1970-01-01T00:00:42-UTC: Processed 2 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|ctlrA|trafficgen_mock_2020.02.28T19.49.39|INDEXED|
-public|ctlrA|trafficgen_mock_2020.02.28T20.04.29|INDEXED|
+fake|ctlrA|trafficgen_mock_2020.02.28T20.04.29|INDEXED|
+test|ctlrA|trafficgen_mock_2020.02.28T19.49.39|INDEXED|
 --- SqliteDB Datasets

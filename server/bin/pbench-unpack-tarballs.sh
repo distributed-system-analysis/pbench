@@ -208,10 +208,10 @@ function do_work() {
         fi
 
         # Record that we're currently unpacking this dataset
-        pbench-state-manager.py --controller="${hostname}" --name="${resultname}" --state=unpacking
+        pbench-state-manager --controller="${hostname}" --name="${resultname}" --state=unpacking
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: code ${status}: pbench-state-manager.py ${hostname} ${resultname} unpacking" "${mail_content}"
+            log_error "${TS}: code ${status}: pbench-state-manager ${hostname} ${resultname} unpacking" "${mail_content}"
             nerrs=${nerrs}+1
             move_symlink ${hostname} ${resultname} ${linksrc} ${linkerr} || doexit "Error handling failed for state update"
             if [[ ${SECONDS} -ge ${max_seconds} ]]; then break; fi
@@ -346,10 +346,10 @@ function do_work() {
         fi
 
         # Finalize the state transition to UNPACKED
-        pbench-state-manager.py --controller="${hostname}" --name="${resultname}" --state=unpacked
+        pbench-state-manager --controller="${hostname}" --name="${resultname}" --state=unpacked
         status=${?}
         if [[ ${status} -ne 0 ]]; then
-            log_error "${TS}: code ${status}: pbench-state-manager.py ${hostname} ${resultname} unpacked" "${mail_content}"
+            log_error "${TS}: code ${status}: pbench-state-manager ${hostname} ${resultname} unpacked" "${mail_content}"
             nerrs=${nerrs}+1
             rm -rf ${incoming}
             rm -f ${RESULTS}/${hostname}/${prefix}${resultname}

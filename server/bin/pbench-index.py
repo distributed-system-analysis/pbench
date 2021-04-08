@@ -2,7 +2,7 @@
 # -*- mode: python -*-
 
 """Pbench indexing driver, responsible for indexing a single pbench tar ball
-into the configured Elasticsearch V1 instance.
+into the configured Elasticsearch instance.
 
 """
 
