@@ -197,8 +197,8 @@ function mpt_install() {
   # TODO: since msg-perf-tool is installed via COPR, check what is the
   # recommended approach
 
-  check_enable_copr orpiske litestomp
-  check_enable_copr orpiske msg-perf-tool
+  #check_enable_copr orpiske litestomp
+  #check_enable_copr orpiske msg-perf-tool
 
 	if check_install_rpm $benchmark_rpm $ver; then
 		debug_log "[$script_name]$benchmark_rpm $ver is installed"
