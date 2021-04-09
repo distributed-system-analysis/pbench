@@ -44,6 +44,6 @@
 		"node-exporter": {"collector": "prometheus", "port": "9100"},
 		"dcgm": {"collector": "prometheus", "port": "8000"},
 		"pcp": {"collector": "pcp", "port": "44321"}
-		"jaeger": {"collector": null, "prot": null}
+		"jaeger": {"collector": null, "port": null}
 	}
 }
