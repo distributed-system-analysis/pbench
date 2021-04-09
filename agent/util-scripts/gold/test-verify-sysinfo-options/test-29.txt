@@ -1,0 +1,11 @@
++++ Running test-29 test-verify-sysinfo-options block,sos,bad,topology,bad2
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad,bad2"
+--- Finished test-29 test-verify-sysinfo-options (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/pbench.log
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state
++++ pbench.log file contents
+[error][1900-01-01T00:00:00.000000] invalid sysinfo option, "bad,bad2"
+--- pbench.log file contents

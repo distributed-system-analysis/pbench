@@ -4,6 +4,7 @@ import pytest
 
 from pathlib import Path
 from werkzeug.utils import secure_filename
+from pbench.server.database.models.tracker import Dataset, States
 
 
 class TestHostInfo:
@@ -139,13 +140,13 @@ class TestUpload:
     def test_upload(client, pytestconfig, caplog, server_config):
         filename = "log.tar.xz"
         datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
-
+        controller = socket.gethostname()
         with open(f"{datafile}.md5") as md5sum_check:
             md5sum = md5sum_check.read()
 
         with open(datafile, "rb") as data_fp:
             response = client.put(
-                f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}",
+                f"{server_config.rest_uri}/upload/ctrl/{controller}",
                 data=data_fp,
                 headers={"filename": filename, "Content-MD5": md5sum},
             )
@@ -160,5 +161,13 @@ class TestUpload:
             f"receive_dir = '{receive_dir}', filename = '{filename}',"
             f" sfilename = '{sfilename}'"
         )
+
+        dataset = Dataset.attach(controller=controller, path=filename)
+        assert dataset is not None
+        assert dataset.md5 == md5sum
+        assert dataset.controller == controller
+        assert dataset.name == "log"
+        assert dataset.state == States.UPLOADED
+
         for record in caplog.records:
             assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")

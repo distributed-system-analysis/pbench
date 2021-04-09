@@ -116,7 +116,7 @@ if metric_type == "live" or metric_type == "pcp":
     payload = {
         "name": "PCP Redis",
         "type": "pcp-redis-datasource",
-        "url": "http://localhost:44322",
+        "url": "http://localhost:44566",
         "access": "proxy",
         "basicAuth": False,
     }
@@ -126,7 +126,7 @@ if metric_type == "live" or metric_type == "pcp":
     payload = {
         "name": "PCP Vector",
         "type": "pcp-vector-datasource",
-        "url": "http://localhost:44322",
+        "url": "http://localhost:44566",
         "access": "proxy",
         "basicAuth": False,
     }

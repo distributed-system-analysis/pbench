@@ -1,0 +1,225 @@
+#!/bin/bash
+# -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 8; sh-indentation: 8; tab-width: 8 -*-
+
+dir="$(realpath -e ${1} 2> /dev/null)"
+if [[ ${?} -ne 0 ]]; then
+	printf -- "You must provide a directory that exists, \"%s\" is not a real path\n" "${1}" >&2
+	exit 1
+fi
+if [[ ! -d "${dir}" ]]; then
+	printf -- "You must provide a directory that exists, \"%s\" does not\n" "${dir}" >&2
+	exit 1
+fi
+
+sysinfo="${2}"
+
+if [[ -z "${_PBENCH_UNIT_TESTS}" ]]; then
+	mode="${3}"
+else
+	# Force sequential mode for unit tests.
+	mode=""
+fi
+
+function collect_kernel_config {
+	if [[ -e /boot/config-$(uname -r) ]]; then
+		cp /boot/config-$(uname -r) ${dir}/
+	fi
+	printf -- "done collecting kernel configuration\n"
+}
+
+function collect_security_mitigations {
+	# spectre and meltdown
+
+	> ${dir}/security-mitigation-data.txt
+	# check the generic vulnerabilities files first
+	if [[ -d /sys/devices/system/cpu/vulnerabilities ]]; then
+		grep -Hs . /sys/devices/system/cpu/vulnerabilities/* >> ${dir}/security-mitigation-data.txt
+	fi
+	# then check the RHEL-specific flag settings files - only
+	# applicable on x86_64
+	if [[ -d /sys/kernel/debug/x86 ]]; then
+		echo >> ${dir}/security-mitigation-data.txt
+		grep -Hs . /sys/kernel/debug/x86/*enabled >> ${dir}/security-mitigation-data.txt
+	fi
+	printf -- "done collecting mitigation data\n"
+}
+
+function collect_libvirt {
+	if [[ -e /var/log/libvirt && -e /etc/libvirt ]]; then
+		mkdir -p ${dir}/libvirt/log
+		pushd /var/log/libvirt >/dev/null && find . -name "*.log" | cpio -pdum ${dir}/libvirt/log/ 2>/dev/null
+		mkdir -p ${dir}/libvirt/etc
+		pushd /etc/libvirt >/dev/null && find | cpio -pdum ${dir}/libvirt/etc/ 2>/dev/null
+	fi
+	printf -- "done collecting libvirt data\n"
+}
+
+function collect_topology {
+	if [[ -f /usr/bin/lstopo ]]; then
+		lstopo --of txt > ${dir}/lstopo.txt
+	fi
+	printf -- "done collecting system topology\n"
+}
+
+function collect_block {
+	for n in /sys/block/[s,h,v]d\*[a-z]/; do
+		find ${n} -type f -printf "%p " -exec cat '{}' \; 2> /dev/null
+	done > ${dir}/block-params.log
+	printf -- "done collecting block data\n"
+}
+
+function collect_sos {
+	read sos_ver sos_ver_minor sos_ver_subminor <<< `rpm -q sos | awk -F- '{print $2}' | awk -F. '{print $1" "$2" "$3}'`
+	if [[ "${sos_ver}" -lt 3 ]]; then
+		_quiet=""
+	else
+		_quiet=" --quiet"
+	fi
+	if [[ "${sos_ver}" -lt 3 || ( "${sos_ver}" -eq 3 && ( "${sos_ver_minor}" -lt 5 || ( "${sos_ver_minor}" -eq 5 && -z "${sos_ver_subminor}" ) ) ) ]]; then
+		# Pre-v3.5.1+
+		_modules="general lsbrelease"
+	else
+		# date host release plugins in sosreport v3.5.1+
+		# ref for plugin refactoring: https://github.com/sosreport/sos/commit/971b9581779da20384f0a4d8de5177c0b87d6892
+		_modules="date host release"
+	fi
+	_modules="${_modules} kernel filesys devicemapper system memory hardware networking"
+	if [[ "${sos_ver}" -ge 3 ]]; then
+		# block processor plugins in sosreport v3.0+
+		# ref for plugin block: https://github.com/sosreport/sos/commit/ae0ed73bc855171b353fd0cf42a6dd75755b8c80
+		# ref for plugin processor: https://github.com/sosreport/sos/commit/af5e6f75f8ca7794e34f6b57ced9d2ec683564af
+		_modules="${_modules} block processor"
+	fi
+	if [[ "${sos_ver}" -gt 3 || ( "${sos_ver}" -eq 3 && "${sos_ver_minor}" -ge 4 ) ]]; then
+		# collectd plugin in sosreport v3.4+
+		# ref for plugin collectd: https://github.com/sosreport/sos/commit/8e63b8e5b1bb907685e2debd169e3e87c360f76b
+		_modules="${_modules} collectd"
+	fi
+	if [[ "${sos_ver}" -gt 3 || ( "${sos_ver}" -eq 3 && "${sos_ver_minor}" -ge 2 ) ]]; then
+		# tuned plugin in sosreport v3.2+
+		# ref for plugin tuned: https://github.com/sosreport/sos/commit/c55c58cf2dabf93c924c839c8ed045c18e31ba1c
+		_modules="${_modules} tuned"
+	fi
+
+	_name="pbench-${_pbench_full_hostname}"
+	_cmd="${dir}/sosreport-${_name}.cmd"
+	printf -- "sosreport" > ${_cmd}
+	for mod in ${_modules}; do
+		printf -- " -o %s" "${mod}" >> ${_cmd}
+	done
+	printf -- " --batch%s --tmp-dir=\"%s\" --name \"%s\"\n" "${_quiet}" "${dir}" "${_name}" >> ${_cmd}
+	chmod +x ${_cmd}
+
+	printf -- "collecting sosreport\n"
+	${_cmd} > ${dir}/sosreport-${_name}.log 2>&1
+
+	# The latest version of sosreport (3.6 right now) generates different names
+	# for the sosreport tar balls, inserting a short hostname before the label.
+	# Since older versions of sosreport did not do that, we use a wildcard
+	# pattern to capture both names when checking for success.
+	_sosreport_tb="${dir}/sosreport-*${_name}-*.tar.xz"
+	_sosreport_md5="${_sosreport_tb}.md5"
+	ls -1 ${_sosreport_tb} ${_sosreport_md5} > ${dir}/sosreport-names.lis 2> /dev/null
+	if [[ $? -ne 0 ]]; then
+		printf -- "ERROR: sosreport collection failed!\n" >&2
+	else
+		rm -f ${dir}/sosreport-names.lis
+		printf -- "done collecting sosreport\n"
+	fi
+}
+
+function collect_ara {
+	# collect data only when ara is installed
+	if python -c "import ara" &> /dev/null; then
+		ara_pb="${pbench_install_dir}/ansible/ara/ara.yml"
+		if [[ ! -d "${pbench_install_dir}" || ! -f ${ara_pb} ]]; then
+			printf -- "ERROR: ara playbook not found, '%s'\n" "${ara_pb}" >&2
+			return 1
+		fi
+
+		mkdir ${dir}/ara
+
+		# generate inventory file with controller and remotes
+		INVENTORY=${dir}/ara/inventory
+		generate_inventory > ${INVENTORY}
+
+		ansible-playbook -i ${INVENTORY} --extra-vars '{"SYSINFO_DIR":"'${dir}'"}' "${ara_pb}"
+		printf -- "done collection ara data\n"
+	else
+		printf -- "skipping, ara python module not installed\n"
+	fi
+}
+
+function collect_stockpile {
+	stockpile_playbook="${pbench_install_dir}/stockpile/stockpile.yml"
+	if [[ ! -d "${pbench_install_dir}" || ! -f ${stockpile_playbook} ]]; then
+		printf -- "ERROR: stockpile playbook not found, '%s'\n" "${stockpile_playbook}" >&2
+		return 1
+	fi
+
+	mkdir ${dir}/stockpile
+
+	stockpile_log=${dir}/stockpile/output.log
+	stockpile_output_path=${dir}/stockpile/output.json
+
+	# generate inventory and run stockpile
+	INVENTORY=${dir}/stockpile/inventory
+	generate_inventory stockpile > ${INVENTORY}
+
+	stockpile_opts="stockpile_user=${USER} local_remote_user=${USER} host_remote_user=${USER} stockpile_output_path=${stockpile_output_path}"
+	stockpile_playbook="${pbench_install_dir}/stockpile/stockpile.yml"
+	echo "ansible-playbook -vv --extra-vars '"${stockpile_opts}"' -i ${INVENTORY} ${stockpile_playbook}" > ${dir}/stockpile/command
+	chmod +x ${dir}/stockpile/command
+
+	${dir}/stockpile/command &> ${stockpile_log}
+	if [[ ${?} != 0 ]]; then
+		printf -- "ERROR: stockpile run failed\n" >&2
+	else
+		printf -- "done collecting stockpile data\n"
+	fi
+}
+
+function collect_insights {
+	mkdir ${dir}/insights-client
+	script -c 'insights-client --offline --logging-file ${dir}/insights-client/output.log' /dev/null | sed -n 's/.*\sat\s//p' | tr -d "$'\r" | xargs -I '{}' mv {} ${dir}/insights-client
+	if [[ ${?} != 0 ]]; then
+		printf -- "ERROR: insights-client run failed\n" >&2
+	else
+		printf -- "done collecting insights data\n"
+	fi
+}
+
+for item in ${sysinfo//,/ }; do
+	if [[ "${item}" == "kernel_config" ]]; then
+		:
+	elif [[ "${item}" == "security_mitigations" ]]; then
+		:
+	elif [[ "${item}" == "libvirt" ]]; then
+		:
+	elif [[ "${item}" == "topology" ]]; then
+		:
+	elif [[ "${item}" == "sos" ]]; then
+		:
+	elif [[ "${item}" == "block" ]]; then
+		:
+	elif [[ "${item}" == "ara" ]]; then
+		:
+	elif [[ "${item}" == "stockpile" ]]; then
+		:
+	elif [[ "${item}" == "insights" ]]; then
+                :
+	else
+		printf -- "bad sysinfo value, \"%s\"\n" "${item}" >&2
+		continue
+	fi
+	printf -- "collecting %s\n" "${item}"
+	if [[ "${mode}" == "parallel" ]]; then
+		collect_${item} &
+	else
+		collect_${item}
+	fi
+done
+wait
+
+# FIXME - what?
+chmod -R 775 ${dir}

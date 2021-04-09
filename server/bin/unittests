@@ -88,7 +88,7 @@ function _run_activate {
 }
 
 function _run_allscripts {
-    # These three pull in new tar balls from move-results and remote
+    # The first two pull in new tar balls from move-results and remote
     # satellite pbench servers feeding them into the dispatch loop.
     _run pbench-server-prep-shim-002
     # NOTE WELL: the "satellite-one" argument refers a configuration
@@ -184,6 +184,9 @@ function _audit_server {
 }
 
 function _dump_logs {
+    local count
+    local db
+    local select
     # Dump the state of any generated script logs
     echo "+++ pbench log file contents" >> $_testout
     for dir in ${_testdir} ${_testdir_local} ${_testdir_sat} ${_testdir_sat_local} ;do
@@ -216,6 +219,17 @@ function _dump_logs {
         echo "+++ $(basename $_testloggerpayload) file contents" >> $_testout
         _normalize_output $_testloggerpayload >> $_testout 2>&1
         echo "--- $(basename $_testloggerpayload) file contents" >> $_testout
+    fi
+
+    # Be quiet if there's no database, or if the `dataset` table hasn't been
+    # created.
+    db=${_testroot}/test_db
+    select='select user,controller,name,state,(select " " || key || " = " || value from metadata where dataset_ref = dataset.id) from dataset order by user,controller,name asc'
+    sqlite3 ${db} "${select}" > ${_testdir_local}/db 2>/dev/null
+    if [ -s ${_testdir_local}/db ] ;then
+        echo "+++ SqliteDB Datasets" >> $_testout
+        _normalize_output ${_testdir_local}/db >> ${_testout}
+        echo "--- SqliteDB Datasets" >> $_testout
     fi
 }
 
@@ -354,6 +368,8 @@ function _setup_state {
     printf "[DEFAULT]\n"                   >> ${_testtmp}/pbench-server.cfg
     printf "unittest-dir = ${_testroot}\n" >> ${_testtmp}/pbench-server.cfg
     cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
+    printf "[Postgres]\n"                  >> ${_testtmp}/pbench-server.cfg
+    printf "db_uri = sqlite:///${_testroot}/test_db\n" >> ${_testtmp}/pbench-server.cfg
 
     # First we activate the main pbench server (not a satellite).
     echo "$_testopt/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout
@@ -435,6 +451,14 @@ function _setup_state {
             echo "ERROR: unable to run per-test state setup for $1" >&2
             exit 1
         fi
+    fi
+
+    # Setup per-test Dataset DB
+    _state_db=${_tdir}/state/${1}.db
+    if [ -f ${_state_db} ]; then
+        while read -r controller name state; do
+            pbench-state-manager --create --controller=${controller} --name=${name} --state=${state}
+        done < ${_state_db}
     fi
 }
 
@@ -841,6 +865,7 @@ function report_test_result {
         echo "${pass_or_fail} - ${testname} ($(cat ${_testbase}/${testname}/result.duration))"
         rm ${_testbase}/${testname}/result.txt
         rm -f ${_testbase}/${testname}/result.duration
+        rm -f ${_testbase}/${testname}/test_db
         rmdir ${_testbase}/${testname}
         res=0
     else

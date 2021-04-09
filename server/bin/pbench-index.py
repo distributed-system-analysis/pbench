@@ -12,6 +12,7 @@ import signal
 from pathlib import Path
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
+from pbench.server.database.database import Database
 
 from pbench.common.exceptions import (
     BadConfig,
@@ -43,39 +44,6 @@ def main(options, name):
            re_index              - Consider tar balls marked for re-indexing
        All exceptions are caught and logged to syslog with the stacktrace of
        the exception in a sub-object of the logged JSON document.
-
-       Status codes used by es_index and the error below are defined from the
-       list below to maintain compatibility with the previous code base when
-       pbench-index was a bash script and invoked index-pbench (yes, a bit
-       confusing), the predecessor to this program.  The codes were used to
-       sort the errors we encountered processing tar balls in to categories
-       of retry or not:
-
-            0 - normal, successful exit, no errors
-            1 - Operational error while indexing
-            2 - Configuration file not specified
-            3 - Bad configuration file
-            4 - Tar ball does not contain a metadata.log file
-            5 - Bad start run date value encountered
-            6 - File Not Found error
-            7 - Bad metadata.log file encountered
-            8 - Error reading a mapping file for Elasticsearch templates
-            9 - Error creating one of the Elasticsearch templates
-           10 - Bad hostname in a sosreport
-           11 - Failure unpacking the tar ball
-           12 - generic error, needs to be investigated and can be retried
-                after any indexing bugs are fixed.
-
-       Return Values (now a sub-set of the original status codes above):
-         0 - Successfully processed all tar balls (errors processing tar
-             balls are reported in the logs and in index status reports)
-         1 - Failed to process one or more tar balls for unknown reasons
-             (see logs)
-         2 - Missing configuration file
-         3 - Invalid configuration file
-         8 - Unable to load and process expected mapping files
-         9 - Unable to update index templates in configured Elasticsearch
-             instance
 
         Signal Handlers used to establish different patterns for the three
         behaviors:
@@ -121,6 +89,7 @@ def main(options, name):
     _name_suf = "-tool-data" if options.index_tool_data else ""
     _name_re = "-re" if options.re_index else ""
     name = f"{name}{_name_re}{_name_suf}"
+    error_code = Index.error_code
 
     if not options.cfg_name:
         print(
@@ -129,20 +98,20 @@ def main(options, name):
             " use --config <file> on the command line",
             file=sys.stderr,
         )
-        return 2
+        return error_code["CFG_ERROR"].value
 
     idxctx = None
     try:
         idxctx = IdxContext(options, name, _dbg=_DEBUG)
     except (ConfigFileError, ConfigParserError) as e:
         print(f"{name}: {e}", file=sys.stderr)
-        return 2
+        return error_code["CFG_ERROR"].value
     except BadConfig as e:
         print(f"{name}: {e}", file=sys.stderr)
-        return 3
+        return error_code["BAD_CFG"].value
     except JsonFileError as e:
         print(f"{name}: {e}", file=sys.stderr)
-        return 8
+        return error_code["MAPPING_ERROR"].value
 
     if options.dump_index_patterns:
         idxctx.templates.dump_idx_patterns()
@@ -152,7 +121,7 @@ def main(options, name):
         idxctx.templates.dump_templates()
         return 0
 
-    res = 0
+    res = error_code["OK"]
 
     ARCHIVE_rp = idxctx.config.ARCHIVE
 
@@ -161,24 +130,27 @@ def main(options, name):
         "INCOMING", INCOMING_rp, idxctx.logger
     )
     if not INCOMING_path:
-        res = 3
+        res = error_code["BAD_CFG"]
 
     qdir = idxctx.config.get_conf(
         "QUARANTINE", "pbench-server", "pbench-quarantine-dir", idxctx.logger
     )
     if not qdir:
-        res = 3
+        res = error_code["BAD_CFG"]
     else:
         qdir_path = idxctx.config.get_valid_dir_option(
             "QDIR", Path(qdir), idxctx.logger
         )
         if not qdir_path:
-            res = 3
+            res = error_code["BAD_CFG"]
 
-    if res != 0:
+    if not res.success:
         # Exit early if we encounter any errors.
-        return res
+        return res.value
 
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    Database.init_db(idxctx.config, idxctx.logger)
     idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
 
     index_obj = Index(name, options, idxctx, INCOMING_rp, ARCHIVE_rp, qdir)
@@ -190,6 +162,8 @@ def main(options, name):
     return status
 
 
+###########################################################################
+# Options handling
 if __name__ == "__main__":
     run_name = Path(sys.argv[0]).name
     run_name = run_name if run_name[-3:] != ".py" else run_name[:-3]

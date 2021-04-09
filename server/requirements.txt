@@ -17,3 +17,4 @@ PyJwt
 psycopg2-binary
 requests
 sqlalchemy
+sqlalchemy_utils

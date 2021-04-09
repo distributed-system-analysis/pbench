@@ -23,6 +23,8 @@ from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
 from pbench.server.report import Report
 from pbench.server.utils import quarantine
+from pbench.server.database.models.tracker import Dataset, States, DatasetError
+from pbench.server.database.database import Database
 
 
 _NAME_ = "pbench-server-prep-shim-002"
@@ -131,6 +133,27 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors):
         controller = tbdir.name
         dest = archive / controller
 
+        # Create a new dataset tracker in UPLOADING state, and add it to the
+        # database.
+        #
+        # NOTE: Technically, this particular workflow has no "UPLOADING" as
+        # the `pbench-server-prep-shim-002` command isn't invoked until the
+        # tarball and MD5 has been entirely uploaded by the agent via `ssh`;
+        # this method however can't be supported once we have authorized user
+        # ownership, and the model fits the server `PUT` method where an
+        # unexpected termination could leave a tarball in "Uploading" state.
+        try:
+            dataset = Dataset.create(controller=controller, path=resultname)
+        except DatasetError as e:
+            logger.error(
+                "Unable to create dataset {}>{}: {}", controller, resultname, str(e)
+            )
+            # TODO: Should we quarantine over this? Note it's not quite
+            # straightforward, as quarantine() expects that the Dataset has
+            # been created, so we'll get a cascade failure. Since prep-shim's
+            # days are numbered, I'm inclined not to worry about it here.
+            dataset = None
+
         if all([(dest / resultname).is_file(), (dest / tbmd5.name).is_file()]):
             logger.error("{}: Duplicate: {} duplicate name", config.TS, tb)
             quarantine((duplicates / controller), logger, tb, tbmd5)
@@ -151,6 +174,15 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors):
             quarantine((qdir_md5 / controller), logger, tb, tbmd5)
             nquarantined += 1
             continue
+
+        if dataset:
+            try:
+                dataset.md5 = archive_md5_hex_value
+                dataset.update()
+            except DatasetError as e:
+                logger.warn(
+                    "Unable to update dataset {} with md5: {}", str(dataset), str(e)
+                )
 
         # make the destination directory and its TODO subdir if necessary.
         try:
@@ -236,6 +268,12 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors):
 
         ntbs += 1
 
+        try:
+            if dataset:
+                dataset.advance(States.UPLOADED)
+        except Exception:
+            logger.exception("Unable to finalize {}", dataset)
+
         nstatus = f"{nstatus}{config.TS}: processed {tb}\n"
         logger.info(f"{tb.name}: OK")
 
@@ -266,6 +304,10 @@ def main(cfg_name):
         return 1
 
     logger = get_pbench_logger(_NAME_, config)
+
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    Database.init_db(config, logger)
 
     qdir, receive_dir = fetch_config_val(config, logger)
 

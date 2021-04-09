@@ -34,6 +34,11 @@ class User(Database.Base):
 
     @staticmethod
     def get_protected():
+        """
+        Return protected column names that are not allowed for external updates.
+        auth_tokens is already protected from external updates via PUT api since
+        it is of type sqlalchemy relationship ORM package and not a sqlalchemy column.
+        """
         return ["registered_on", "id"]
 
     @staticmethod

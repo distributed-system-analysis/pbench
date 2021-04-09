@@ -1,115 +1,110 @@
-from pathlib import Path
+"""Tool Metadata module
+
+Classes for working with and manipulating the tool-scripts/meta.json file.
+"""
 import json
-import os
 
 
-class ToolMetadataExc(Exception):
+class ToolMetadataError(Exception):
+    """ToolMetadataError - simple exception class for all exceptions raised by the
+    ToolMetadata class.
+    """
+
     pass
 
 
 class ToolMetadata:
-    def __init__(self, mode, context, logger):
-        self.logger = logger
-        assert mode in (
-            "redis",
-            "json",
-        ), f"Logic bomb! Unexpected mode, {mode}, encountered constructing tool meta data"
-        assert (
-            context
-        ), "Logic bomb! No context given on ToolMetadata object construction"
-        self.mode = mode
-        if mode == "redis":
-            self.redis_server = context
-            self.json_file = None
-        else:
-            self.redis_server = None
-            json_path = Path(context, "tool-scripts", "meta.json")
-            try:
-                self.json = json_path.resolve(strict=True)
-            except FileNotFoundError:
-                raise ToolMetadataExc(f"missing {json_path}")
-            except Exception:
-                raise
-        self.data = self.__getInitialData()
+    """ToolMetadata - an in-memory representation of the on-disk meta.json file
+    for tool metadata.
+    """
 
-    def __getInitialData(self):
-        if self.mode == "json":
-            if not os.path.isfile(self.json):
-                self.logger.error(
-                    "There is no tool-scripts/meta.json in given install dir"
-                )
-                return None
-            with self.json.open("r") as json_file:
+    def __init__(self, inst_dir=None):
+        """Constructor for a ToolMetadata object.
+
+        Accepts an optional installation directory.  If one is not provided,
+        then the two attributes of _json_path and _data are set to None.  When
+        an installation directory is provided, the constructor loads the JSON
+        data from {inst_dir}/tool-scripts/meta.json and validates it before
+        finishing the object construction.
+        """
+        if inst_dir is None:
+            self._json_path = None
+            self._data = None
+            return
+
+        json_path = inst_dir / "tool-scripts" / "meta.json"
+        try:
+            self._json_path = json_path.resolve(strict=True)
+        except FileNotFoundError:
+            raise ToolMetadataError(f"missing {json_path}")
+        except Exception:
+            raise
+        try:
+            with self._json_path.open("r") as json_file:
                 metadata = json.load(json_file)
-        elif self.mode == "redis":
-            try:
-                meta_raw = self.redis_server.get("tool-metadata")
-            except Exception:
-                self.logger.exception(
-                    "Failure to fetch tool metadata from the Redis server"
-                )
-                raise
-            else:
-                if meta_raw is None:
-                    self.logger.error("Metadata has not been loaded into redis yet")
-                    return None
-            try:
-                metadata = json.loads(meta_raw.decode("utf-8"))
-            except Exception as exc:
-                self.logger.error(
-                    "Bad metadata loaded into Redis server, '%s', json=%r",
-                    exc,
-                    meta_raw,
-                )
-                return None
-        return metadata
+        except FileNotFoundError:
+            self._data = None
+        except Exception:
+            raise
+        else:
+            ToolMetadata._validate_metadata(metadata)
+            self._data = metadata
 
-    def __dataCheck(self):
-        """Check for existing/loadable data, return True if retreival possible, False otherwise"""
-        if not self.data:
-            self.data == self.__getInitialData()
-            if not self.data:
-                self.logger.error("Unable to access data through %s", self.mode)
-                return False
-        return True
+    @staticmethod
+    def _validate_metadata(metadata):
+        """_validate_metadata - state method for validating the metadata dictionary
+        object has the appropriate structure.
+        """
+        if "persistent" not in metadata:
+            raise ToolMetadataError("Missing persistent tools")
+        if "transient" not in metadata:
+            raise ToolMetadataError("Missing transient tools")
+        for tool in metadata["persistent"].keys():
+            if tool in metadata["transient"].keys():
+                raise ToolMetadataError(
+                    f"Tool {tool} found in both transient and persistent tool lists"
+                )
+        for tool in metadata["transient"].keys():
+            if tool in metadata["persistent"].keys():
+                raise ToolMetadataError(
+                    f"Tool {tool} found in both persistent and transient tool lists"
+                )
+
+    @classmethod
+    def tool_md_from_dict(cls, metadata):
+        """tool_md_from_dict - returns a ToolMetadata object given a raw dictionary.
+        """
+        ToolMetadata._validate_metadata(metadata)
+        tmd = cls()
+        tmd._data = metadata
+        return tmd
 
     def getFullData(self):
-        if self.__dataCheck():
-            return self.data
-        return None
+        """getFullData - return the entire dictionary of metadata for both persistent
+        and transient tools.
+        """
+        return self._data
 
     def getPersistentTools(self):
-        if self.__dataCheck():
-            return list(self.data["persistent"].keys())
-        return None
+        """getPersistentTools - return a list of all the persistent tools
+        supported.
+        """
+        return list(self._data["persistent"].keys())
 
     def getTransientTools(self):
-        if self.__dataCheck():
-            return list(self.data["transient"].keys())
-        return None
+        """getTransientTools - return a list of all the transient tools
+        supported.
+        """
+        return list(self._data["transient"].keys())
 
     def getProperties(self, tool):
-        if tool in self.data["persistent"].keys():
-            return self.data["persistent"][tool]
-        elif tool in self.data["transient"].keys():
-            return self.data["transient"][tool]
-
-    def loadIntoRedis(self, info):
-        if self.mode == "redis":
-            try:
-                self.json = Path(info).resolve(strict=True)
-            except FileNotFoundError:
-                raise ToolMetadataExc(f"missing {info}")
-            except Exception:
-                raise
-        elif self.mode == "json":
-            self.redis_server = info
-
+        """getProperties - return the recorded properties for the given tool.
+        """
         try:
-            with self.json.open("r") as json_file:
-                metadata = json.load(json_file)
-                self.redis_server.set("tool-metadata", json.dumps(metadata))
-        except Exception:
-            self.logger.error("Failed to load the data into redis")
-            raise
-        return None
+            tool_prop = self._data["transient"][tool]
+        except KeyError:
+            try:
+                tool_prop = self._data["persistent"][tool]
+            except KeyError:
+                tool_prop = None
+        return tool_prop

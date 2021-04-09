@@ -7,6 +7,7 @@ build
 dist
 *~
 ????-*.patch
+.env
 .npmrc
 .yarnrc
 *.egg-info
@@ -19,3 +20,4 @@ pip-wheel-metadata
 .vscode
 Pipfile
 Pipfile.lock
+*,cover

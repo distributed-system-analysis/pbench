@@ -15,8 +15,8 @@ use JSON;
 our @EXPORT_OK = qw(get_json_file put_json_file get_benchmark_names get_clients get_pbench_run_dir
                     get_pbench_install_dir get_pbench_config_dir get_pbench_bench_config_dir
                     get_benchmark_results_dir get_params remove_params remove_element get_hostname
-                    get_pbench_datetime load_benchmark_config metadata_log_begin_run
-                    metadata_log_end_run metadata_log_record_iteration);
+                    get_pbench_datetime load_benchmark_config begin_run end_run interrupt_run
+                    metadata_log_record_iteration);
 
 my $script = "PbenchBase.pm";
 
@@ -159,8 +159,8 @@ sub get_pbench_datetime { #our common date & time format
 sub get_benchmark_results_dir {
     my $benchmark = shift;
     my $config = shift;
+    my $datetime = shift;
     my $basedir = get_pbench_run_dir();
-    my $datetime = get_pbench_datetime();
     my $benchdir = $basedir . "/" . $benchmark . "_" . $config . "_" . $datetime;
 }
 
@@ -173,36 +173,30 @@ sub load_benchmark_config {
     return %$json_ref
 }
 
-sub metadata_log_begin_run {
+sub begin_run {
     my $benchmark_run_dir = shift;
-    my $benchmark_name = shift;
-    my $group = shift;
-    system("benchmark=" . $benchmark_name . " pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " beg");
+    my $benchmark = shift;
+    my $config = shift;
+    my $date = shift;
+    my $sysinfo = shift;
+    my $tool_group = shift;
+
+    system("benchmark_run_dir='" . $benchmark_run_dir . "' benchmark='" . $benchmark . "' config='" . $config . "' date='" . $date . "' pbench-tool-meister-start --sysinfo='" . $sysinfo . "' " . $tool_group);
 }
 
-sub metadata_log_end_run {
-    my $benchmark_run_dir = shift;
-    my $benchmark_name = shift;
-    my $config = shift;
-    my $group = shift;
-    my @iteration_names = @_;
+sub end_run {
+    my $tool_group = shift;
+    my $sysinfo = shift;
 
-    my $iteration_names = "";
-    my $mdlog = $benchmark_run_dir . "/metadata.log";
+    # Stop tool meister normally.
+    system("pbench-tool-meister-stop --sysinfo='" . $sysinfo . "' " . $tool_group);
+}
 
-    for (my $i=0; $i<@iteration_names; $i++) {
-        $iteration_names = $iteration_names . " " . $iteration_names[$i];
-    }
+sub interrupt_run {
+    my $tool_group = shift;
 
-    my $benchmark_run_name = $benchmark_run_dir;
-    $benchmark_run_name =~ s/.*\///g;
-
-    system("echo " . $benchmark_run_name . " | pbench-add-metalog-option " . $mdlog . " pbench name");
-    system("echo " . $iteration_names . " | pbench-add-metalog-option " . $mdlog . " pbench iterations");
-    system("echo " . $config . " | pbench-add-metalog-option " . $mdlog . " pbench config");
-    system("echo " . $benchmark_name . " | pbench-add-metalog-option " . $mdlog . " pbench script");
-    system("echo pbench-run-benchmark | pbench-add-metalog-option " . $mdlog . " pbench bench_script");
-    system("benchmark=" . $benchmark_name . " pbench-metadata-log --group=" . $group . " --dir=" . $benchmark_run_dir . " end");
+    # Stop tool meister indicating it is being interrupted.
+    system("pbench-tool-meister-stop --sysinfo=none --interrupt " . $tool_group);
 }
 
 sub metadata_log_record_iteration {

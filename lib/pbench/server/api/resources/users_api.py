@@ -35,11 +35,12 @@ class RegisterUser(Resource):
             Content-Type:   application/json
             Accept:         application/json
 
-        :return: JSON Payload
-        if we succeed to add a user entry in the database, the returned response_object will look like the following:
-            response_object = {
-                    "message": "Successfully registered."/"failure message",
-                }
+        :return:
+            Success: 201 with empty payload
+            Failure: <status_Code>,
+                    response_object = {
+                        "message": "failure message"
+                    }
         To get the auth token user has to perform the login action
         """
         # get the post data
@@ -92,13 +93,13 @@ class RegisterUser(Resource):
 
         first_name = user_data.get("first_name")
         if not first_name:
-            self.logger.warning("Missing firstName field")
-            abort(400, message="Missing firstName field")
+            self.logger.warning("Missing first_name field")
+            abort(400, message="Missing first_name field")
 
         last_name = user_data.get("last_name")
         if not last_name:
-            self.logger.warning("Missing lastName field")
-            abort(400, message="Missing lastName field")
+            self.logger.warning("Missing last_name field")
+            abort(400, message="Missing last_name field")
 
         try:
             user = User(
@@ -114,13 +115,7 @@ class RegisterUser(Resource):
             self.logger.info(
                 "New user registered, username: {}, email: {}", username, email_id
             )
-
-            response_object = {
-                "message": "Successfully registered.",
-            }
-            response = jsonify(response_object)
-            response.status_code = 201
-            return make_response(response, 201)
+            return "", 201
         except EmailNotValidError:
             self.logger.warning("Invalid email {}", email_id)
             abort(400, message=f"Invalid email: {email_id}")
@@ -142,7 +137,6 @@ class Login(Resource):
             "pbench-server", "token_expiration_duration"
         )
 
-    @Auth.token_auth.login_required(optional=True)
     def post(self):
         """
         Post request for logging in user.
@@ -160,11 +154,15 @@ class Login(Resource):
             Accept:         application/json
 
         :return: JSON Payload
-        if we succeed to decrypt the password hash, the returned response_object will include the auth_token
-            response_object = {
-                    "message": "Successfully logged in."/"failure message",
-                    "auth_token": "<authorization_token>", # Will not present if failed
-                }
+            Success: 200,
+                    response_object = {
+                        "auth_token": "<authorization_token>"
+                        "username": <username>
+                    }
+            Failure: <status_Code>,
+                    response_object = {
+                        "message": "failure message"
+                    }
         """
         # get the post data
         post_data = request.get_json()
@@ -217,17 +215,6 @@ class Login(Resource):
                 500, message="INTERNAL ERROR",
             )
 
-        # check if the user is already logged in, in case the request has a an authorization header included
-        # We would still proceed to login and return a new auth token to the user
-        if user == self.auth.token_auth.current_user():
-            self.logger.warning("User already logged in and trying to re-login")
-            if self.auth.token_auth.get_auth()["token"] == auth_token:
-                # If a user attempts to re-login immediately within a millisecond,
-                # the new auth token will be same as the one present in the header
-                # Therefore we will not fulfill the re-login request
-                self.logger.info("Attempted immediate re-login")
-                abort(403, message="Retry login after some time")
-
         # Add the new auth token to the database for later access
         try:
             token = ActiveTokens(token=auth_token)
@@ -250,7 +237,6 @@ class Login(Resource):
             abort(500, message="INTERNAL ERROR")
 
         response_object = {
-            "message": "Successfully logged in.",
             "auth_token": auth_token,
             "username": username,
         }
@@ -276,10 +262,12 @@ class Logout(Resource):
         Required headers include
             Authorization:   Bearer <Pbench authentication token (user received upon login)>
 
-        :return: JSON Payload
-            response_object = {
-                    "message": "Successfully logged out."/"failure message",
-                }
+        :return:
+            Success: 200 with empty payload
+            Failure: <status_Code>,
+                    response_object = {
+                        "message": "failure message"
+                    }
         """
         auth_token = self.auth.token_auth.get_auth()["token"]
         user = self.auth.token_auth.current_user()
@@ -293,10 +281,7 @@ class Logout(Resource):
             self.logger.exception("Exception occurred during deleting the user entry")
             abort(500, message="INTERNAL ERROR")
 
-        response_object = {
-            "message": "Successfully logged out.",
-        }
-        return make_response(jsonify(response_object), 200)
+        return "", 200
 
 
 class UserAPI(Resource):
@@ -321,15 +306,17 @@ class UserAPI(Resource):
             Authorization:  Bearer Pbench_auth_token (user received upon login)
 
         :return: JSON Payload
-            response_object = {
-                    "message": "Success"/"failure message",
-                    "data": {
+            Success: 200,
+                    response_object = {
                         "username": <username>,
-                        "firstName": <firstName>,
-                        "lastName": <lastName>,
-                        "registered_on": registered_on,
+                        "first_name": <firstName>,
+                        "last_name": <lastName>,
+                        "registered_on": <registered_on>,
                     }
-                }
+            Failure: <status_Code>,
+                    response_object = {
+                        "message": "failure message"
+                    }
         """
         try:
             user, verified = self.auth.verify_user(username)
@@ -339,18 +326,12 @@ class UserAPI(Resource):
 
         # TODO: Check if the user has the right privileges
         if verified:
-            response_object = {
-                "status": "success",
-                "data": user.get_json(),
-            }
+            response_object = user.get_json()
             return make_response(jsonify(response_object), 200)
         elif user.is_admin():
             try:
                 target_user = User.query(username=username)
-                response_object = {
-                    "message": "success",
-                    "data": target_user.get_json(),
-                }
+                response_object = target_user.get_json()
                 return make_response(jsonify(response_object), 200)
             except Exception:
                 self.logger.exception(
@@ -359,7 +340,7 @@ class UserAPI(Resource):
                 abort(500, message="INTERNAL ERROR")
         else:
             self.logger.warning(
-                "User {} is not authorized to delete user {}.", user.username, username,
+                "User {} is not authorized to get user {}.", user.username, username,
             )
             abort(
                 403,
@@ -387,15 +368,17 @@ class UserAPI(Resource):
             Authorization:  Bearer Pbench_auth_token (user received upon login)
 
         :return: JSON Payload
-            response_object = {
-                    "message": "Success"/"failure message",
-                    "data": {
+            Success: 200,
+                    response_object = {
                         "username": <username>,
                         "first_name": <firstName>,
                         "last_name": <lastName>,
-                        "registered_on": registered_on,
+                        "registered_on": <registered_on>,
                     }
-                }
+            Failure: <status_Code>,
+                    response_object = {
+                        "message": "failure message"
+                    }
         """
         post_data = request.get_json()
         if not post_data:
@@ -445,10 +428,7 @@ class UserAPI(Resource):
             self.logger.exception("Exception occurred during updating user object")
             abort(500, message="INTERNAL ERROR")
 
-        response_object = {
-            "message": "success",
-            "data": user.get_json(),
-        }
+        response_object = user.get_json()
         return make_response(jsonify(response_object), 200)
 
     @Auth.token_auth.login_required()
@@ -463,10 +443,12 @@ class UserAPI(Resource):
             Accept:         application/json
             Authorization:   Bearer Pbench_auth_token (user received upon login)
 
-        :return: JSON Payload
-            response_object = {
-                    "message": "Successfully deleted."/"failure message",
-                }
+        :return:
+            Success: 200 with empty payload
+            Failure: <status_Code>,
+                    response_object = {
+                        "message": "failure message"
+                    }
         """
         try:
             user, verified = self.auth.verify_user(username)
@@ -498,7 +480,4 @@ class UserAPI(Resource):
                 abort(403, message="Admin user can not be deleted")
             self.logger.info("User entry deleted for user with username {}", username)
 
-        response_object = {
-            "message": "Successfully deleted.",
-        }
-        return make_response(jsonify(response_object), 200)
+        return "", 200

@@ -1,36 +1,31 @@
 #!/usr/bin/python3
 # -*- mode: python -*-
 
-"""Place-holder "node-exporter" persistent tool, providing a help message like the
-other existing transient tools, and issuing a warning indicating this script
-is not actually executed directly.
+"""Place-holder "node-exporter" persistent tool, providing a help message
+like the other existing transient tools, and issuing a warning indicating
+this script is not actually executed directly.
+
+The actual tool invocation is handled directly by the Tool Meister code.
+This is associated with the Prometheus collector run by the Tool Data Sink.
 """
 
-import os
 import sys
-import logging
 
-PROG = os.path.basename(sys.argv[0])
-logger = logging.getLogger(PROG)
-logger.setLevel(logging.DEBUG)
-sh = logging.StreamHandler()
-sh.setLevel(logging.DEBUG)
-shf = logging.Formatter("%(message)s")
-sh.setFormatter(shf)
-logger.addHandler(sh)
 
-if len(sys.argv) != 2 or sys.argv[1] != "--help":
-    logger.info(
-        "This script is deprecated, please run it with --help for info on registering the tool."
-    )
-    logger.info(
-        "Run /opt/pbench-agent/tool-scripts/node-exporter --help for more info."
-    )
-    exit(0)
+if len(sys.argv) == 2 and sys.argv[1] == "--help":
+    help = """Options:
 
-if sys.argv[1] == "--help":
-    logger.info("Options:")
-    logger.info(
-        "--inst=</path/to/node_exporter/dir> (required; to create the path of the executable, '/node-exporter' will be appended)"
-    )
-    logger.info("GitHub Project: https://github.com/prometheus/node_exporter")
+--interval=# (number of seconds between collections)
+
+For more information on the 'node_exporter' tool, please visit the GitHub Project:
+\thttps://github.com/prometheus/node_exporter
+"""
+    print(help)
+    sys.exit(0)
+
+print(
+    "This script is a place-holder only; please run it with '--help' for"
+    " info on registering the tool.",
+    file=sys.stderr,
+)
+sys.exit(1)

@@ -1,0 +1,5 @@
++++ Running test-25 pbench-verify-sysinfo-options all
+--- Finished test-25 pbench-verify-sysinfo-options (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+--- pbench tree state

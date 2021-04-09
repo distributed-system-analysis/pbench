@@ -42,8 +42,6 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            data = response.json
-            assert data["message"] == "Successfully registered."
             assert response.content_type == "application/json"
             assert response.status_code, 201
 
@@ -60,7 +58,7 @@ class TestUserAuthentication:
                 },
             )
             data = response.json
-            assert data["message"] == "Missing firstName field"
+            assert data["message"] == "Missing first_name field"
             assert response.content_type == "application/json"
             assert response.status_code == 400
 
@@ -123,12 +121,10 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            data_register = resp_register.json
-            assert data_register["message"] == "Successfully registered."
+            assert resp_register.status_code == 201
             # registered user login
             response = login_user(client, server_config, "user", "12345")
             data = response.json
-            assert data["message"] == "Successfully logged in."
             assert data["auth_token"]
             assert data["username"] == "user"
             assert response.content_type == "application/json"
@@ -148,12 +144,11 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            data_register = resp_register.json
-            assert data_register["message"] == "Successfully registered."
+            assert resp_register.status_code == 201
+
             # registered user login
             response = login_user(client, server_config, "user", "12345")
             data = response.json
-            assert data["message"] == "Successfully logged in."
             assert data["auth_token"]
             assert response.content_type == "application/json"
             assert response.status_code == 200
@@ -165,8 +160,6 @@ class TestUserAuthentication:
                 headers=dict(Authorization="Bearer " + data["auth_token"]),
                 json={"username": "user", "password": "12345"},
             )
-            data = response.json
-            assert data["message"] == "Successfully logged in."
             assert response.status_code == 200
 
             # Re-login without auth header
@@ -175,8 +168,6 @@ class TestUserAuthentication:
                 f"{server_config.rest_uri}/login",
                 json={"username": "user", "password": "12345"},
             )
-            data = response.json
-            assert data["message"] == "Successfully logged in."
             assert response.status_code == 200
 
     @staticmethod
@@ -193,8 +184,8 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            data_register = resp_register.json
-            assert data_register["message"] == "Successfully registered."
+            assert resp_register.status_code == 201
+
             # registered user login
             response = login_user(client, server_config, "user", "123456")
             data = response.json
@@ -235,22 +226,21 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            data_register = resp_register.json
-            assert data_register["message"] == "Successfully registered."
+            assert resp_register.status_code == 201
 
             response = login_user(client, server_config, "username", "12345")
+            assert response.status_code == 200
             data_login = response.json
-            assert data_login["message"] == "Successfully logged in."
             response = client.get(
                 f"{server_config.rest_uri}/user/username",
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             data = response.json
-            assert data["data"] is not None
-            assert data["data"]["email"] == "user@domain.com"
-            assert data["data"]["username"] == "username"
-            assert data["data"]["first_name"] == "firstname"
             assert response.status_code == 200
+            assert data is not None
+            assert data["email"] == "user@domain.com"
+            assert data["username"] == "username"
+            assert data["first_name"] == "firstname"
 
     @staticmethod
     def test_update_user(client, server_config):
@@ -265,12 +255,11 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            data_register = resp_register.json
-            assert data_register["message"] == "Successfully registered."
+            assert resp_register.status_code == 201
 
             response = login_user(client, server_config, "username", "12345")
+            assert response.status_code == 200
             data_login = response.json
-            assert data_login["message"] == "Successfully logged in."
 
             new_registration_time = datetime.datetime.now()
             response = client.put(
@@ -278,8 +267,8 @@ class TestUserAuthentication:
                 json={"registered_on": new_registration_time, "first_name": "newname"},
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
-            data = response.json
             assert response.status_code == 403
+            data = response.json
             assert data["message"] == "Invalid update request payload"
 
             # Test password update
@@ -290,13 +279,39 @@ class TestUserAuthentication:
             )
             data = response.json
             assert response.status_code == 200
-            assert data["data"]["first_name"] == "firstname"
-            assert data["data"]["email"] == "user@domain.com"
+            assert data["first_name"] == "firstname"
+            assert data["email"] == "user@domain.com"
             time.sleep(1)
             response = login_user(client, server_config, "username", "newpass")
-            data_login = response.json
             assert response.status_code == 200
-            assert data_login["message"] == "Successfully logged in."
+
+    @staticmethod
+    def test_external_token_update(client, server_config):
+        """ Test for external attempt at updating auth token"""
+        with client:
+            resp_register = register_user(
+                client,
+                server_config,
+                username="username",
+                firstname="firstname",
+                lastname="lastName",
+                email="user@domain.com",
+                password="12345",
+            )
+            assert resp_register.status_code == 201
+
+            response = login_user(client, server_config, "username", "12345")
+            assert response.status_code == 200
+            data_login = response.json
+
+            response = client.put(
+                f"{server_config.rest_uri}/user/username",
+                json={"auth_tokens": "external_auth_token"},
+                headers=dict(Authorization="Bearer " + data_login["auth_token"]),
+            )
+            assert response.status_code == 400
+            data = response.json
+            assert data["message"] == "Invalid fields in update request payload"
 
     @staticmethod
     def test_malformed_auth_token(client, server_config):
@@ -311,7 +326,8 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            assert resp_register.json["message"] == "Successfully registered."
+            assert resp_register.status_code == 201
+
             response = client.get(
                 f"{server_config.rest_uri}/user/username",
                 headers=dict(Authorization="Bearer" + "malformed"),
@@ -333,20 +349,18 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            data_register = resp_register.json
-            assert data_register["message"] == "Successfully registered."
+            assert resp_register.status_code == 201
+
             # user login
             resp_login = login_user(client, server_config, "user", "12345")
             data_login = resp_login.json
-            assert data_login["message"] == "Successfully logged in."
             assert data_login["auth_token"]
             # valid token logout
             response = client.post(
                 f"{server_config.rest_uri}/logout",
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
-            data = response.json
-            assert data["message"] == "Successfully logged out."
+            assert response.status_code == 200
             # Check if the token has been successfully removed from the database
             assert (
                 not Database.db_session.query(ActiveTokens)
@@ -369,22 +383,20 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            data_register = resp_register.json
-            assert data_register["message"] == "Successfully registered."
             assert resp_register.status_code == 201
+
             # user login
             resp_login = login_user(client, server_config, "username", "12345")
             data_login = resp_login.json
-            assert data_login["message"] == "Successfully logged in."
-            assert data_login["auth_token"]
             assert resp_login.status_code == 200
+            assert data_login["auth_token"]
 
             # log out with the current token
             logout_response = client.post(
                 f"{server_config.rest_uri}/logout",
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
-            assert logout_response.json["message"] == "Successfully logged out."
+            assert logout_response.status_code == 200
 
             # invalid token logout
             response = client.post(
@@ -407,19 +419,15 @@ class TestUserAuthentication:
                 email="user@domain.com",
                 password="12345",
             )
-            data_register = resp_register.json
-            assert data_register["message"] == "Successfully registered."
+            assert resp_register.status_code == 201
 
             # user login
             resp_login = login_user(client, server_config, "username", "12345")
             data_login = resp_login.json
-            assert data_login["message"] == "Successfully logged in."
             assert data_login["auth_token"]
 
             response = client.delete(
                 f"{server_config.rest_uri}/user/username",
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
-            data = response.json
-            assert data["message"] == "Successfully deleted."
             assert response.status_code == 200

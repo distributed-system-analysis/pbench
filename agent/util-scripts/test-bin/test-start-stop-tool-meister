@@ -19,15 +19,22 @@ fi
 export _pbench_hostname
 
 if [[ -z "${1}" ]]; then
-     group="default"
+    group="default"
 else
-     group="${1}"
+    group="${1}"
 fi
 
 pbench-register-tool --group "${group}" --name mpstat
 status=${?}
 if [[ ${status} -ne 0 ]]; then
     printf -- "\"pbench-register-tool --group ${group} --name mpstat\" failed to execute successfully (exit code: ${status})\n" >&2
+    exit 1
+fi
+
+pbench-register-tool --group "${group}" --name perf -- '--record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions"' '--report-opts="-I -g"'
+status=${?}
+if [[ ${status} -ne 0 ]]; then
+    printf -- "\"pbench-register-tool --group ${group} --name perf -- ...\" failed to execute successfully (exit code: ${status})\n" >&2
     exit 1
 fi
 
@@ -40,14 +47,16 @@ if [[ ${status} -ne 0 ]]; then
     exit 1
 fi
 
-_PBENCH_TOOL_DATA_SINK_LOG_LEVEL="info" _PBENCH_TOOL_MEISTER_START_LOG_LEVEL="debug" PBENCH_TM_BIND_HOSTNAME="localhost" pbench-tool-meister-start ${group}
+source ${_script_path}/common-tm-cleanup
+
+_PBENCH_TOOL_MEISTER_LOG_LEVEL="debug" _PBENCH_TOOL_DATA_SINK_LOG_LEVEL="debug" _PBENCH_TOOL_MEISTER_START_LOG_LEVEL="debug" PBENCH_TM_BIND_HOSTNAME="localhost" pbench-tool-meister-start --sysinfo="none" ${group}
 status=${?}
 if [[ ${status} -ne 0 ]]; then
     printf -- "\"pbench-tool-meister-start ${group}\" failed to execute successfully (exit code: ${status})\n" >&2
     exit 1
 fi
 
-pbench-tool-meister-stop
+_PBENCH_TOOL_MEISTER_STOP_LOG_LEVEL="debug" pbench-tool-meister-stop --sysinfo="none" ${group}
 status=${?}
 if [[ ${status} -ne 0 ]]; then
     printf -- "\"pbench-tool-meister-stop\" failed to execute successfully (exit code: ${status})\n" >&2

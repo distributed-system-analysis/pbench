@@ -52,7 +52,7 @@ function usage {
 	printf -- "\t\t                      provided as arguments to the script;\n"
 	printf -- "\t\t                        NOTE: --iteration-list is not compatible with --use-tool-triggers\n"
 	printf -- "\t\t--sysinfo=str,[str]   comma separated values of system information to be collected;\n"
-	printf -- "\t\t                        available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t                        available: $(pbench-display-sysinfo-options)\n"
 	printf -- "\t\t--pbench-pre=str      path to the script which will be executed before tools are started\n"
 	printf -- "\t\t                        NOTE: --pbench-pre is not compatible with --use-tool-triggers\n"
 	printf -- "\t\t--pbench-post=str     path to the script which will be executed after tools are stopped and postprocessing is complete\n"
@@ -280,10 +280,9 @@ function run_benchmark {
 # Place marker indicating at this point we are now running.
 mkdir ${benchmark_run_dir}/.running
 
-# Gather up metadata for the run.
-pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} beg
-
-# Start the tool meisters on each registered local/remote host
+# Start the tool meisters on each registered local/remote host; note that for
+# pbench-user-benchmark we do not direct the Tool Meisters to collect system
+# information at the beginning.
 pbench-tool-meister-start "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to start the tool meisters."
@@ -300,8 +299,6 @@ declare -a parts
 # the while loop sub-shell does not share FD 0 (stdin) with the executed
 # benchmark script. Otherwise, benchmarks messing around with FD 0 can lead to
 # problems.
-
-pbench-init-tools --group=${tool_group} --dir=${benchmark_run_dir}
 
 while read -u 3 line; do
 	# Current line number, starting from 1 (not zero)
@@ -337,8 +334,6 @@ if [[ ${iter_num} -eq 1 ]]; then
 	warn_log "[${script_name}]: iteration file did not contain any iterations!"
 fi
 
-pbench-end-tools --group=${tool_group} --dir=${benchmark_run_dir}
-
 # Now that we have finished running all the iterations, create the
 # reference-result symlinks.
 while read -r rdir; do
@@ -359,12 +354,8 @@ done <<< "$(ls -1d ${benchmark_run_dir}/*/${sample_name} 2> /dev/null)"
 
 ${script_path}/postprocess/user-benchmark-wrapper "${benchmark_run_dir}" "${total_duration}"
 
-pbench-metadata-log --group="${tool_group}" --dir="${benchmark_run_dir}" end
-
-pbench-collect-sysinfo --group="${tool_group}" --dir="${benchmark_run_dir}" --sysinfo="${sysinfo}" end
-
 # Stop the tool meisters on each registered local/remote host
-pbench-tool-meister-stop
+pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to stop the tool meisters."
 fi

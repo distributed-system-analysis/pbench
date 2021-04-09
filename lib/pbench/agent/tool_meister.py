@@ -43,12 +43,12 @@ import os
 import requests
 import requests.exceptions
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
 import time
 
-from datetime import datetime
 from distutils.spawn import find_executable
 from pathlib import Path
 
@@ -56,196 +56,35 @@ import pidfile
 import redis
 
 from daemon import DaemonContext
-from redis.connection import SERVER_CLOSED_CONNECTION_ERROR
-
-import pbench.agent.toolmetadata as toolmetadata
-from pbench.agent import PbenchAgentConfig
 
 from pbench.common.utils import md5sum
+from pbench.agent.constants import (
+    tm_allowed_actions,
+    tm_channel_suffix_to_tms,
+    tm_channel_suffix_from_tms,
+    tm_channel_suffix_to_logging,
+    TDS_RETRY_PERIOD_SECS,
+)
+from pbench.agent.redis import (
+    RedisHandler,
+    RedisChannelSubscriber,
+    wait_for_conn_and_key,
+)
+from pbench.agent.toolmetadata import ToolMetadata
+from pbench.agent.utils import collect_local_info
 
-
-# FIXME: The client response channel should be in a shared constants module.
-client_channel = "tool-meister-client"
 
 # Logging format string for unit tests
 fmtstr_ut = "%(levelname)s %(name)s %(funcName)s -- %(message)s"
 fmtstr = "%(asctime)s %(levelname)s %(process)s %(thread)s %(name)s %(funcName)s %(lineno)d -- %(message)s"
 
 
-class RedisHandler(logging.Handler):
-    """Publish messages to a given channel on a Redis server.
-    """
-
-    def __init__(
-        self,
-        channel,
-        hostname=None,
-        redis_client=None,
-        level=logging.NOTSET,
-        **redis_kwargs,
-    ):
-        """Create a new logger for the given channel and redis_client.
-        """
-        super().__init__(level)
-        self.channel = channel
-        self.hostname = hostname
-        self.redis_client = redis_client or redis.Redis(**redis_kwargs)
-        self.counter = 0
-        self.errors = 0
-        self.redis_errors = 0
-
-    def emit(self, record):
-        """Publish record to redis logging channel
-        """
-        try:
-            formatted_record = self.format(record)
-            self.redis_client.publish(
-                self.channel, f"{self.hostname} {self.counter:04d} {formatted_record}"
-            )
-        except redis.RedisError:
-            self.redis_errors += 1
-        except Exception:
-            self.errors += 1
-        finally:
-            self.counter += 1
-
-
 class ToolException(Exception):
+    """ToolException - Exception class for all exceptions raised by the Tool
+    class object methods.
+    """
+
     pass
-
-
-class PersistentTool:
-    """
-    Encapsulates all the states needed to run persistent tooling in the background.
-    The ToolMeister class uses one PersistentTool object per persistent tool.
-    """
-
-    def __init__(self, name, tool_opts, logger):
-        self.name = name
-        self.tool_opts = tool_opts.split(" ")
-        self.logger = logger
-        self.install_path = None
-
-        # Looking for required --inst option
-        # Reformatting appropriately if found
-        for opt in self.tool_opts:
-            if opt.startswith("--inst="):
-                if opt[len(opt) - 1] == "\n":
-                    self.install_path = opt[7 : len(opt) - 1]
-                else:
-                    self.install_path = opt[7:]
-                self.logger.debug("FOUND")
-            else:
-                self.logger.debug("NOT FOUND SOMEHOW")
-
-        self.process = None
-        self.podname = None
-        self.failure = False
-
-    def start(self):
-        if self.install_path is None and not self.name == "pcp":
-            self.failure = True
-            self.logger.error(
-                "No install path properly given as persistent tool option, see /opt/pbench-agent/nodexporter --help"
-            )
-            return
-
-        if self.name == "node-exporter":
-            self.logger.debug(self.install_path)
-
-            if not os.path.isfile(self.install_path + "/node_exporter"):
-                self.logger.info(
-                    self.install_path + "/node_exporter" + " does not exist"
-                )
-                self.failure = True
-                return 0
-
-            args = [self.install_path + "/node_exporter"]
-            self.process = subprocess.Popen(
-                args, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
-            )
-        elif self.name == "dcgm":
-            os.environ["PYTHONPATH"] = (
-                self.install_path
-                + "/bindings:"
-                + self.install_path
-                + "/bindings/common"
-            )
-
-            script_path = self.install_path + "/samples/scripts/dcgm_prometheus.py"
-            if not os.path.isfile(script_path):
-                self.logger.info(script_path + " does not exist")
-                self.failure = True
-                return 0
-
-            args = [f"python2 {script_path}"]
-            self.process = subprocess.Popen(args, shell=True)
-        elif self.name == "pcp":
-            self.logger.debug("PMCD STARTUP")
-            try:
-                pcp_reg = PbenchAgentConfig(os.environ["_PBENCH_AGENT_CONFIG"]).pmcd_reg
-            except Exception as exc:
-                self.logger.error(
-                    "Unexpected error encountered logging pbench agent configuration: '%s'",
-                    exc,
-                )
-                self.failure = True
-                return 0
-
-            with open("pcp-meister.log", "w") as pcp_logs:
-                args = ["podman", "pull", pcp_reg]
-                try:
-                    pcp_pull = subprocess.Popen(args, stdout=pcp_logs, stderr=pcp_logs)
-                    pcp_pull.wait()
-                except Exception as exc:
-                    self.logger.error("Podman pull process failed: '%s'", exc)
-                    self.failure = True
-                    return 0
-                self.podname = "exposer" + datetime.now().strftime("%m-%d-%y-%H-%M-%S")
-                args = [
-                    "podman",
-                    "run",
-                    "--network",
-                    "host",
-                    "--name",
-                    self.podname,
-                    pcp_reg,
-                ]
-                try:
-                    self.process = subprocess.Popen(
-                        args, stdout=pcp_logs, stderr=pcp_logs
-                    )
-                except Exception as exc:
-                    self.logger.error("Podman run process failed: '%s'", exc)
-                    self.failure = True
-                    return 0
-        else:
-            self.logger.error("Invalid persistent tool name")
-            self.failure = True
-            return 0
-
-        return 1
-
-    def stop(self):
-        if not self.failure:
-            if self.name == "pcp":
-                args = [
-                    "podman",
-                    "kill",
-                    self.podname,
-                ]
-                try:
-                    pcp_kill = subprocess.Popen(args)
-                    pcp_kill.wait()
-                except Exception as exc:
-                    self.logger.error("Podman kill process failed: '%s'", exc)
-                    return 0
-            self.process.terminate()
-            self.process.wait()
-            return 1
-
-        self.logger.error("Nothing to terminate")
-        return 0
 
 
 class Tool:
@@ -258,12 +97,19 @@ class Tool:
     "tool-scripts/base-tool" bash script.
     """
 
-    def __init__(self, name, group, tool_opts, pbench_bin, tool_dir, logger):
+    _tool_type = "Transient"
+
+    def __init__(
+        self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None,
+    ):
+        assert logger is not None, "Logic bomb!  no logger provided!"
         self.logger = logger
         self.name = name
-        self.group = group
         self.tool_opts = tool_opts
-        self.pbench_bin = pbench_bin
+        assert (
+            pbench_install_dir is not None
+        ), "Logic bomb!  no installation directory provided!"
+        self.pbench_install_dir = pbench_install_dir
         self.tool_dir = tool_dir
         self.start_process = None
         self.stop_process = None
@@ -278,12 +124,31 @@ class Tool:
                 f"Tool({self.name}) has an unexpected stop process running"
             )
 
+    def install(self):
+        """Synchronously runs the tool --install mode capturing the return code and
+        output, returning them as a tuple to the caller.
+        """
+        args = [
+            f"{self.pbench_install_dir}/tool-scripts/{self.name}",
+            "--install",
+            self.tool_opts,
+        ]
+        cp = subprocess.run(
+            args,
+            stdin=None,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
+        return (cp.returncode, cp.stdout.strip())
+
     def start(self):
         """Creates the background process running the tool's "start" operation.
         """
+        assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
         self._check_no_processes()
         args = [
-            f"{self.pbench_bin}/tool-scripts/{self.name}",
+            f"{self.pbench_install_dir}/tool-scripts/{self.name}",
             "--start",
             f"--dir={self.tool_dir}",
             self.tool_opts,
@@ -293,12 +158,17 @@ class Tool:
         e_file = self.tool_dir / f"tm-{self.name}-start.err"
         with o_file.open("w") as ofp, e_file.open("w") as efp:
             self.start_process = subprocess.Popen(
-                args, stdin=subprocess.DEVNULL, stdout=ofp, stderr=efp
+                args,
+                cwd=self.tool_dir,
+                stdin=subprocess.DEVNULL,
+                stdout=ofp,
+                stderr=efp,
             )
 
     def stop(self):
         """Stops the background process by running the tool's "stop" operation.
         """
+        assert self.tool_dir is not None, "Logic bomb!  no tool directory provided!"
         if self.start_process is None:
             raise ToolException(f"Tool({self.name})'s start process not running")
         if self.stop_process is not None:
@@ -306,10 +176,10 @@ class Tool:
                 f"Tool({self.name}) has an unexpected stop process running"
             )
 
-        # FIXME - before we "stop" a tool, check to see if a
-        # "{tool}/{tool}.pid" file exists.  If it doesn't wait for a second to
-        # show up, if after a second it does not show up, then give up waiting
-        # and just call the stop method.
+        # Before we "stop" a tool, check to see if a "{tool}/{tool}.pid" file
+        # exists.  If it doesn't, wait for a second for it to show up.  If
+        # after a second it does not show up, then give up waiting and just call
+        # the stop method.
         tool_pid_file = self.tool_dir / self.name / f"{self.name}.pid"
         cnt = 0
         while not tool_pid_file.exists() and cnt < 100:
@@ -323,7 +193,7 @@ class Tool:
             )
 
         args = [
-            f"{self.pbench_bin}/tool-scripts/{self.name}",
+            f"{self.pbench_install_dir}/tool-scripts/{self.name}",
             "--stop",
             f"--dir={self.tool_dir}",
             self.tool_opts,
@@ -333,8 +203,35 @@ class Tool:
         e_file = self.tool_dir / f"tm-{self.name}-stop.err"
         with o_file.open("w") as ofp, e_file.open("w") as efp:
             self.stop_process = subprocess.Popen(
-                args, stdin=subprocess.DEVNULL, stdout=ofp, stderr=efp
+                args,
+                cwd=self.tool_dir,
+                stdin=subprocess.DEVNULL,
+                stdout=ofp,
+                stderr=efp,
             )
+
+    def _wait_for_process(self, process):
+        """_wait_for_process - generic method to wait for a given process to
+        stop after 30 seconds, emitting a message every 5 seconds in between.
+
+        Returns the process return code on success, or None if the process
+        failed to exit.
+        """
+        count = 6
+        sts = None
+        while count > 0 and sts is None:
+            try:
+                sts = process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                count -= 1
+                if count > 0:
+                    self.logger.info(
+                        "%s tool %s has not stopped after %d seconds",
+                        self._tool_type,
+                        self.name,
+                        5 * (6 - count),
+                    )
+        return sts
 
     def wait(self):
         """Wait for any tool processes to terminate after a "stop" process has
@@ -343,28 +240,232 @@ class Tool:
         Waits for the tool's "stop" process to complete, if started, then
         waits for the tool's start process to complete.
         """
-        if self.stop_process is not None:
-            if self.start_process is None:
-                raise ToolException(
-                    f"Tool({self.name}) does not have a start process running"
-                )
-            self.logger.info("waiting for stop %s", self.name)
-            # We wait for the stop process to finish first ...
-            self.stop_process.wait()
-            self.stop_process = None
-            # ... then we wait for the start process to finish
-            self.start_process.wait()
-            self.start_process = None
-        else:
+        if self.stop_process is None:
             raise ToolException(f"Tool({self.name}) wait not called after 'stop'")
+        if self.start_process is None:
+            raise ToolException(
+                f"Tool({self.name}) does not have a start process running"
+            )
+
+        self.logger.info("Waiting for transient tool %s stop process", self.name)
+        # We wait for the stop process to finish first ...
+        sts = self._wait_for_process(self.stop_process)
+        if sts is None:
+            # The stop process did not terminate gracefully after 30 seconds,
+            # so we bring out the big guns ...
+            self.stop_process.kill()
+            self.logger.error(
+                "Killed un-responsive transient tool %s stop process after"
+                " 30 seconds",
+                self.name,
+            )
+        elif sts != 0 and sts != -(signal.SIGTERM):
+            self.logger.warning(
+                "Transient tool %s stop process failed with %d", self.name, sts
+            )
+        self.stop_process = None
+
+        # ... then we wait for the start process to finish, but we only wait
+        # for 30 seconds before we kill it.
+        self.logger.info("Waiting for transient tool %s start process", self.name)
+        try:
+            sts = self.start_process.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            self.start_process.kill()
+            self.logger.warning(
+                "Killed un-responsive transient tool %s start process after"
+                " 30 seconds",
+                self.name,
+            )
+        else:
+            if sts != 0 and sts != -(signal.SIGTERM):
+                self.logger.warning(
+                    "Transient tool %s start process failed with %d", self.name, sts
+                )
+        self.start_process = None
 
 
-class RedisDisconnected(Exception):
-    """Simple exception to be raised when we lose the connection to the Redis
-    server.
+class PersistentTool(Tool):
+    """PersistentTool - Encapsulates all the states needed to run persistent
+    tooling in the background.  A PersistentTool extends the base Tool class
+    with some simple modifications for stopping the tool without the need for
+    an external stop script.
+
+    Each persistent tool extends this intermediate "base" class with its
+    own particular behaviors.
     """
 
-    pass
+    _tool_type = "Persistent"
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        self.args = None
+        self.process = None
+
+    def start(self, env=None):
+        assert self.args is not None, "Logic bomb!  {self.name} install had failed!"
+        assert (
+            self.tool_dir is not None
+        ), "Logic bomb!  No persistent tool directory provided!"
+        self.tool_dir = self.tool_dir / self.name
+        self.tool_dir.mkdir()
+        o_file = self.tool_dir / f"tm-{self.name}-start.out"
+        e_file = self.tool_dir / f"tm-{self.name}-start.err"
+        with o_file.open("w") as ofp, e_file.open("w") as efp:
+            if env:
+                pp = env["PYTHONPATH"]
+                self.logger.debug(
+                    "Starting persistent tool %s, env PYTHONPATH=%s, args %r",
+                    self.name,
+                    pp,
+                    self.args,
+                )
+                self.process = subprocess.Popen(
+                    " ".join(self.args),
+                    cwd=self.tool_dir,
+                    stdout=ofp,
+                    stderr=efp,
+                    env=self.env,
+                    shell=True,
+                )
+            else:
+                self.logger.debug(
+                    "Starting persistent tool %s, args %r", self.name, self.args
+                )
+                self.process = subprocess.Popen(
+                    self.args, cwd=self.tool_dir, stdout=ofp, stderr=efp,
+                )
+        if env:
+            pp = env["PYTHONPATH"]
+            self.logger.info(
+                "Started persistent tool %s, env PYTHONPATH=%s, args %r",
+                self.name,
+                pp,
+                self.args,
+            )
+        else:
+            self.logger.info("Started persistent tool %s, %r", self.name, self.args)
+
+    def stop(self):
+        """stop - terminate the persistent tool sub-process.
+
+        This method does not wait for the process to actually exit. The caller
+        should issue a wait() for that.
+        """
+        if self.process is None:
+            self.logger.error("Nothing to terminate")
+            return
+
+        # First try to gracefully terminate.
+        self.process.terminate()
+        self.logger.info("Terminate issued for persistent tool %s", self.name)
+
+    def wait(self):
+        """wait - Wait for the persistent tool to exit.
+
+        Requires the caller to issue a stop() first.
+
+        The wait() method will wait for 30 seconds before forcibly killing
+        the persistent tool sub-process.  It will emit an informational log
+        message every 5 seconds in between.
+        """
+        if self.process is None:
+            self.logger.error("Nothing to terminate")
+            return
+
+        sts = self._wait_for_process(self.process)
+        if sts is None:
+            self.process.kill()
+            self.logger.error(
+                "Killed un-responsive persistent tool %s after 30 seconds", self.name
+            )
+        elif sts != 0 and sts != -(signal.SIGTERM):
+            o_file = self.tool_dir / f"tm-{self.name}-start.out"
+            e_file = self.tool_dir / f"tm-{self.name}-start.err"
+            stdout = o_file.read_text()
+            stderr = e_file.read_text()
+            self.logger.warning(
+                "Persistent tool %s failed to return success, %d, stdout %r, stderr %r",
+                self.name,
+                self.process.returncode,
+                stdout,
+                stderr,
+            )
+        else:
+            self.logger.info("Stopped persistent tool %s", self.name)
+        self.process = None
+
+
+class DcgmTool(PersistentTool):
+    """DcgmTool - provide specific persistent tool behaviors for the "dcgm"
+    tool.
+
+    The only particular behavior is that we find the proper "dcgm-exporter"
+    executable in our PATH.
+    """
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        executable = find_executable("dcgm-exporter")
+        self.args = None if executable is None else [executable]
+
+    def install(self):
+        if self.args is None:
+            return (1, "dcgm-exporter tool not found")
+        return (0, "dcgm tool properly installed")
+
+
+class NodeExporterTool(PersistentTool):
+    """NodeExporterTool - provide specifics for running the "node-exporter"
+    tool.
+
+    The only particular behavior is that we find the proper "node_exporter"
+    executable in our PATH.
+    """
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        executable = find_executable("node_exporter")
+        self.args = None if executable is None else [executable]
+
+    def install(self):
+        if self.args is None:
+            return (1, "node_exporter tool not found")
+        return (0, "node_exporter tool properly installed")
+
+
+class PcpTool(PersistentTool):
+    """PcpTool - provide specifics for running the "pcp" tool, which is really the "pmcd" process.
+    """
+
+    # Default path to the "pmcd" executable.
+    _pmcd_path_def = "/usr/libexec/pcp/bin/pmcd"
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        pmcd_path = find_executable("pmcd")
+        if pmcd_path is None:
+            pmcd_path = self._pmcd_path_def
+        executable = os.access(pmcd_path, os.X_OK)
+        if executable:
+            # FIXME - The Tool Data Sink and Tool Meister have to agree on the
+            # exact port number to use.  We can't use the default `pmcd` port
+            # number because it might conflict with an existing `pmcd`
+            # deployment out of our control.
+            self.args = [
+                pmcd_path,
+                "--foreground",
+                "--socket=./pmcd.socket",
+                "--port=55677",
+                f"--config={self.pbench_install_dir}/templates/pmcd.conf",
+            ]
+        else:
+            self.args = None
+
+    def install(self):
+        if self.args is None:
+            return (1, "pcp tool (pmcd) not found")
+        return (0, "pcp tool (pmcd) properly installed")
 
 
 class Terminate(Exception):
@@ -398,8 +499,9 @@ class ToolMeister:
         {
             "benchmark_run_dir":  "<Top-level directory of the current"
                           " benchmark run>",
-            "channel":    "<Redis server channel name to subscribe to for"
-                          " start/stop/send messages from controller>",
+            "channel_prefix":  "<Redis server channel prefix used to form"
+                          " the to/from channel names used for receiving"
+                          " actions and sending status>",
             "controller": "<hostname of the controller driving all the tool"
                           " meisters; if this tool meister is running locally"
                           " with the controller, then it does not need to send"
@@ -411,6 +513,7 @@ class ToolMeister:
                           " --group argument to the individual tools>",
             "hostname":   "<hostname of tool meister, should be same as"
                           " 'hostname -f' where tool meister is running>",
+            "tool_metadata":  "<Metadata about the nature of all tools>",
             "tools": {
                 "tool-0": [ "--opt-0", "--opt-1", ..., "--opt-N" ],
                 "tool-1": [ "--opt-0", "--opt-1", ..., "--opt-N" ],
@@ -452,79 +555,104 @@ class ToolMeister:
         """
         try:
             benchmark_run_dir = params["benchmark_run_dir"]
-            channel = params["channel"]
+            channel_prefix = params["channel_prefix"]
             controller = params["controller"]
             group = params["group"]
             hostname = params["hostname"]
+            tool_metadata = ToolMetadata.tool_md_from_dict(params["tool_metadata"])
             tools = params["tools"]
+            label = params["label"]
         except KeyError as exc:
             raise ToolMeisterError(f"Invalid parameter block, missing key {exc}")
         else:
-            return benchmark_run_dir, channel, controller, group, hostname, tools
+            return (
+                benchmark_run_dir,
+                channel_prefix,
+                controller,
+                group,
+                hostname,
+                tool_metadata,
+                tools,
+                label,
+            )
+
+    _valid_states = frozenset(["startup", "idle", "running", "shutdown"])
+    _message_keys = frozenset(["action", "args", "directory", "group"])
+    # Most tools we have today are "transient" tools, and are handled by external
+    # scripts.  Our two persistent tools are handled in the code directly.
+    #
+    # FIXME - we should eventually allow them to be loaded externally.
+    _tool_name_class_mappings = {
+        "dcgm": DcgmTool,
+        "node-exporter": NodeExporterTool,
+        "pcp": PcpTool,
+    }
 
     def __init__(
-        self, pbench_bin, tar_path, sysinfo_dump, params, redis_server, logger
+        self,
+        pbench_install_dir,
+        tmp_dir,
+        tar_path,
+        sysinfo_dump,
+        params,
+        redis_server,
+        logger,
     ):
-        self.pbench_bin = pbench_bin
+        """Constructor for the ToolMeister object - sets up the internal state
+        given the constructor parameters, setting up the state transition
+        table, and forming the various channel names from the channel prefix
+        in the params object.
+        """
+        self.pbench_install_dir = pbench_install_dir
+        self._tmp_dir = tmp_dir
         self.tar_path = tar_path
         self.sysinfo_dump = sysinfo_dump
         ret_val = self.fetch_params(params)
         (
             self._benchmark_run_dir,
-            self._channel,
+            self._channel_prefix,
             self._controller,
             self._group,
             self._hostname,
+            self._tool_metadata,
             self._tools,
+            self._label,
         ) = ret_val
         self._rs = redis_server
         self.logger = logger
-        self.tool_metadata = toolmetadata.ToolMetadata(
-            "redis", redis_server, self.logger
-        )
-        self.persist_tools = self.tool_metadata.getPersistentTools()
+        # No running tools at first
         self._running_tools = dict()
+        # No persistent tools at first
         self._persistent_tools = dict()
-        logger.debug("pubsub")
-        self._pubsub = self._rs.pubsub()
-        logger.debug("subscribe %s", self._channel)
-        self._pubsub.subscribe(self._channel)
-        logger.debug("listen")
-        self._chan = self._pubsub.listen()
-        logger.debug("done listening")
-        # Now that we have subscribed to the channel as specified in the
-        # params object, we need to pull off the first message, which is an
-        # acknowledgement that we have properly subscribed.
-        logger.debug("next")
-        resp = next(self._chan)
-        assert resp["type"] == "subscribe", f"Unexpected 'type': {resp!r}"
-        assert resp["pattern"] is None, f"Unexpected 'pattern': {resp!r}"
-        assert (
-            resp["channel"].decode("utf-8") == self._channel
-        ), f"Unexpected 'channel': {resp!r}"
-        assert resp["data"] == 1, f"Unexpected 'data': {resp!r}"
-        logger.debug("next done")
+        self.persistent_tool_names = self._tool_metadata.getPersistentTools()
+        for name in self.persistent_tool_names:
+            assert (
+                name in self._tool_name_class_mappings
+            ), f"Logic bomb! {name} not in tool name class mappings"
         # We start in the "startup" state, waiting for first "init" action.
         self.state = "startup"
-        self._valid_states = frozenset(["startup", "idle", "running", "shutdown"])
+
+        # A series of operational "constants".
         self._state_trans = {
             "end": {"curr": "idle", "next": "shutdown", "action": self.end_tools},
             "init": {"curr": "startup", "next": "idle", "action": self.init_tools},
             "start": {"curr": "idle", "next": "running", "action": self.start_tools},
             "stop": {"curr": "running", "next": "idle", "action": self.stop_tools},
         }
-        self._valid_actions = frozenset(
-            ["end", "init", "send", "start", "stop", "sysinfo", "terminate"]
-        )
         for key in self._state_trans.keys():
             assert (
-                key in self._valid_actions
+                key in tm_allowed_actions
             ), f"INTERNAL ERROR: invalid state transition entry, '{key}'"
             assert self._state_trans[key]["next"] in self._valid_states, (
                 "INTERNAL ERROR: invalid state transition 'next' entry for"
                 f" '{key}', '{self._state_trans[key]['next']}'"
             )
-        self._message_keys = frozenset(["action", "args", "directory", "group"])
+
+        # Name of the channel on which this Tool Meister instance will listen.
+        self._to_tms_channel = f"{self._channel_prefix}-{tm_channel_suffix_to_tms}"
+        # Name of the channel on which all Tool Meister instances respond.
+        self._from_tms_channel = f"{self._channel_prefix}-{tm_channel_suffix_from_tms}"
+
         # The current 'directory' into which the tools are collected; not set
         # until a 'start tools' is executed, cleared when a 'send tools'
         # completes.
@@ -535,80 +663,117 @@ class ToolMeister:
         # The "tool directory" is the current directory in use by running
         # tools for storing their collected data.
         self._tool_dir = None
-        # The temporary directory to use for capturing all tool data.
-        self._tmp_dir = os.environ["pbench_tmp"]
+        # The operational Redis channel the TDS will use to send actions to
+        # the Tool Meisters, filled in later by the context manager.
+        self._to_tms_chan = None
 
-        # FIXME: run all the "--install" commands for the tools to ensure
-        # they are successful before declaring that we are ready.
+    def __enter__(self):
+        """Enter context manager method - responsible for establishing the
+        Tool Meister channel on which we'll receive operational instructions,
+        collecting the local data and metadata about this Tool Meister
+        instance, and sending our startup message to the Tool Data Sink.
+        """
+        self._to_tms_chan = RedisChannelSubscriber(
+            self._rs, self._to_tms_channel, RedisChannelSubscriber.ONEOFMANY
+        )
+
+        version, seqno, sha1, hostdata = collect_local_info(self.pbench_install_dir)
+
+        tool_installs = {}
+        for name, tool_opts in sorted(self._tools.items()):
+            try:
+                tklass = self._tool_name_class_mappings[name]
+            except KeyError:
+                tklass = Tool
+            try:
+                tool = tklass(
+                    name,
+                    tool_opts,
+                    pbench_install_dir=self.pbench_install_dir,
+                    tool_dir=self._tool_dir,
+                    logger=self.logger,
+                )
+                # FIXME - consider running these in parallel.
+                tool_installs[name] = tool.install()
+            except Exception:
+                self.logger.exception("Failed to run tool %s install check", name)
+                tool_installs[name] = (-42, "internal-error")
+        self._failed_tools = {}
+        for name, res in tool_installs.items():
+            if res[0] != 0:
+                self.logger.debug("Recording failed tool, %s", name)
+                self._failed_tools[name] = self._tools[name]
+                del self._tools[name]
+
+        started_msg = dict(
+            hostname=self._hostname,
+            kind="tm",
+            label=self._label,
+            pid=os.getpid(),
+            version=version,
+            seqno=seqno,
+            sha1=sha1,
+            hostname_f=hostdata["f"],
+            hostname_s=hostdata["s"],
+            hostname_i=hostdata["i"],
+            hostname_I=hostdata["I"],
+            hostname_A=hostdata["A"],
+            installs=tool_installs,
+        )
 
         # Tell the entity that started us who we are, indicating we're ready.
-        started_msg = dict(kind="tm", hostname=self._hostname, pid=os.getpid())
-        logger.debug("publish *-start")
-        self._rs.publish(
-            f"{self._channel}-start", json.dumps(started_msg, sort_keys=True)
-        )
-        logger.debug("published *-start")
+        self.logger.debug("publish %s", self._from_tms_channel)
+        num_present = 0
+        timeout = time.time() + TDS_RETRY_PERIOD_SECS
+        while num_present == 0:
+            try:
+                num_present = self._rs.publish(
+                    self._from_tms_channel, json.dumps(started_msg, sort_keys=True)
+                )
+            except redis.ConnectionError:
+                num_present = 0
+            if num_present == 0 and time.time() >= timeout:
+                raise Exception(
+                    f"Unable to publish startup ack message, {started_msg!r}"
+                )
+        self.logger.debug("published %s", self._from_tms_channel)
+        return self
 
-    def cleanup(self):
-        """cleanup - close down the Redis pubsub object."""
-        self.logger.debug("%s: cleanup", self._hostname)
-        if self._pubsub:
-            self.logger.debug("unsubscribe")
-            self._pubsub.unsubscribe()
-            self.logger.debug("pubsub close")
-            self._pubsub.close()
+    def __exit__(self, *args):
+        """Exit context manager method - close down the "to-tms" Redis channel,
+        and send the final terminated status to the Tool Data Sink.
+        """
+        self.logger.info("%s: terminating", self._hostname)
+        self._to_tms_chan.close()
+        # Send the final "terminated" acknowledgement message.
+        self._send_client_status("terminated")
 
-    def _get_data(self):
-        """_get_data - fetch and decode the JSON object off the "wire".
+    def _gen_data(self):
+        """_gen_data - fetch and decode the JSON object off the "wire".
 
         The keys in the JSON object are validated against the expected keys,
         and the value of the 'action' key is validated against the list of
         actions.
         """
-        data = None
-        while not data:
-            self.logger.debug("next")
-            try:
-                payload = next(self._chan)
-            except redis.ConnectionError as exc:
-                try:
-                    msg = exc.args[0]
-                except Exception:
-                    msg = ""
-                if msg.startswith(SERVER_CLOSED_CONNECTION_ERROR):
-                    # Redis disconnected, shutdown as gracefully as possible.
-                    # FIXME: Consider adding connection drop error handling, retry loop
-                    # re-establishing a connection, etc..
-                    self._pubsub = None
-                    raise RedisDisconnected()
-                else:
-                    raise
-            else:
-                self.logger.debug("next success")
+        for tmp_data in self._to_tms_chan.fetch_json(self.logger):
+            data = None
             msg = None
-            try:
-                json_str = payload["data"].decode("utf-8")
-                tmp_data = json.loads(json_str)
-            except Exception:
-                msg = f"data payload in message not JSON, {json_str!r}"
+            keys = frozenset(tmp_data.keys())
+            if keys != self._message_keys:
+                msg = f"unrecognized keys in data of payload in message, {tmp_data!r}"
+            elif tmp_data["action"] not in tm_allowed_actions:
+                msg = f"unrecognized action in data of payload in message, {tmp_data!r}"
+            elif tmp_data["group"] is not None and tmp_data["group"] != self._group:
+                msg = f"unrecognized group in data of payload in message, {tmp_data!r}"
             else:
-                keys = frozenset(tmp_data.keys())
-                if keys != self._message_keys:
-                    msg = (
-                        f"unrecognized keys in data of payload in message, {json_str!r}"
-                    )
-                elif tmp_data["action"] not in self._valid_actions:
-                    msg = f"unrecognized action in data of payload in message, {json_str!r}"
-                elif tmp_data["group"] is not None and tmp_data["group"] != self._group:
-                    msg = f"unrecognized group in data of payload in message, {json_str!r}"
-                else:
-                    data = tmp_data
-            finally:
-                if msg is not None:
-                    assert data is None
-                    self.logger.warning(msg)
-                    self._send_client_status(msg)
-        return data["action"], data
+                data = tmp_data
+            if msg is not None:
+                assert data is None, f"msg = {msg}, tmp_data = {tmp_data!r}"
+                self.logger.warning(msg)
+                self._send_client_status(msg)
+            else:
+                assert msg is None, f"msg = {msg}, tmp_data = {tmp_data!r}"
+                yield data["action"], data
 
     def wait_for_command(self):
         """wait_for_command - wait for the expected data message for the
@@ -619,29 +784,26 @@ class ToolMeister:
         state transition is encountered, and setting the next state properly.
         """
         self.logger.debug("%s: wait_for_command %s", self._hostname, self.state)
-        action, data = self._get_data()
-        action_method = None
-        while not action_method:
+        for action, data in self._gen_data():
             if action == "terminate":
                 self.logger.debug("%s: msg - %r", self._hostname, data)
-                raise Terminate()
+                break
             if action == "send":
-                action_method = self.send_tools
+                yield self.send_tools, data
                 continue
             if action == "sysinfo":
-                action_method = self.sysinfo
+                yield self.sysinfo, data
                 continue
             state_trans_rec = self._state_trans[action]
             if state_trans_rec["curr"] != self.state:
                 msg = f"ignoring unexpected data, {data!r}, in state '{self.state}'"
-                self.logger.info(msg)
+                self.logger.warning(msg)
                 self._send_client_status(msg)
-                action, data = self._get_data()
                 continue
             action_method = state_trans_rec["action"]
             self.state = state_trans_rec["next"]
-        self.logger.debug("%s: msg - %r", self._hostname, data)
-        return action_method, data
+            self.logger.debug("%s: msg - %r", self._hostname, data)
+            yield action_method, data
 
     def _send_client_status(self, status):
         """_send_client_status - convenience method to properly publish a
@@ -657,24 +819,30 @@ class ToolMeister:
         #     "hostname": "< the host name on which the ds or tm is running >",
         #     "status": "success|< a message to be displayed on error >"
         #   }
-        msg = dict(kind="tm", hostname=self._hostname, status=status)
-        self.logger.debug("publish tmc")
+        msg_d = dict(kind="tm", hostname=self._hostname, status=status)
+        msg = json.dumps(msg_d, sort_keys=True)
+        self.logger.debug("publish %s %s", self._from_tms_channel, msg)
         try:
-            num_present = self._rs.publish(
-                client_channel, json.dumps(msg, sort_keys=True)
+            num_present = self._rs.publish(self._from_tms_channel, msg)
+        except redis.ConnectionError as exc:
+            self.logger.error(
+                "Failed to publish client status message, %r: %s", msg, exc
             )
+            ret_val = 1
         except Exception:
-            self.logger.exception("Failed to publish client status message")
+            self.logger.exception("Failed to publish client status message, %r", msg)
             ret_val = 1
         else:
-            self.logger.debug("published tmc")
             if num_present != 1:
                 self.logger.error(
-                    "client status message received by %d subscribers", num_present
+                    "client status message %r received by %d subscribers",
+                    msg,
+                    num_present,
                 )
                 ret_val = 1
             else:
-                self.logger.debug("posted client status, %r", status)
+                if status != "terminated":
+                    self.logger.debug("posted client status message, %r", msg)
                 ret_val = 0
         return ret_val
 
@@ -684,25 +852,73 @@ class ToolMeister:
         The Tool Data Sink will be setting up the actual processes which
         collect data from these tools.
         """
-        failures = 0
-        tool_cnt = 0
-        for name, tool_opts in self._tools.items():
-            if name not in self.persist_tools:
-                continue
-            tool_cnt += 1
+        # Name of the temporary tool data directory to use when invoking
+        # tools.  This is a local temporary directory when the Tool Meister is
+        # remote from the pbench controller.
+        if self._controller == self._hostname:
+            # This is the case when the Tool Meister instance is running on
+            # the same host as the controller.  We just use the directory
+            # given to us in the `start` message.
             try:
-                persistent_tool = PersistentTool(name, tool_opts, self.logger)
-                persistent_tool.start()
-
-                self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
+                _dir = Path(data["directory"]).resolve(strict=True)
             except Exception:
                 self.logger.exception(
-                    "Failed to init PersistentTool %s running in background", name
+                    "Failed to access provided result directory, %s", data["directory"]
                 )
-                failures += 1
-                continue
+                self._send_client_status("internal-error")
+                return False
+        else:
+            try:
+                _dir = Path(
+                    tempfile.mkdtemp(
+                        dir=self._tmp_dir, prefix=f"tm.{self._group}.{os.getpid()}."
+                    )
+                )
+            except Exception:
+                self.logger.exception(
+                    "Failed to create temporary directory for start operation"
+                )
+                self._send_client_status("internal-error")
+                return False
+        if self._label:
+            sub_dir = f"{self._label}:{self._hostname}"
+        else:
+            sub_dir = self._hostname
+        _tool_dir = _dir / sub_dir
+        try:
+            _tool_dir.mkdir()
+        except Exception:
+            self.logger.exception(
+                "Failed to create local result directory, %s", _tool_dir
+            )
+            self._send_client_status("internal-error")
+            return False
+        failures = 0
+        tool_cnt = 0
+        for name, tool_opts in sorted(self._tools.items()):
+            try:
+                tklass = self._tool_name_class_mappings[name]
+            except KeyError:
+                pass
             else:
-                self._persistent_tools[name] = persistent_tool
+                tool_cnt += 1
+                try:
+                    persistent_tool = tklass(
+                        name,
+                        tool_opts,
+                        pbench_install_dir=self.pbench_install_dir,
+                        tool_dir=_tool_dir,
+                        logger=self.logger,
+                    )
+                    persistent_tool.start()
+                except Exception:
+                    self.logger.exception(
+                        "Failed to init PersistentTool %s running in background", name
+                    )
+                    failures += 1
+                else:
+                    self._persistent_tools[name] = persistent_tool
+                    self.logger.debug("NAME: " + name + "  TOOL OPTS: " + tool_opts)
         if failures > 0:
             msg = f"{failures} of {tool_cnt} persistent tools failed to start"
             self._send_client_status(msg)
@@ -738,13 +954,17 @@ class ToolMeister:
 
         # Name of the temporary tool data directory to use when invoking
         # tools.  This is a local temporary directory when the Tool Meister is
-        # remote from the pbench controller.
-        if self._controller == self._hostname:
+        # remote from the pbench controller.  When the Tool Meister is run in
+        # a container the "directory" parameter will not map into its
+        # namespace, so we always consider containerized Tool Meisters as
+        # remote.
+        _dir = Path(data["directory"])
+        if self._controller == self._hostname and _dir.exists():
             # This is the case when the Tool Meister instance is running on
             # the same host as the controller.  We just use the directory
             # given to us in the `start` message.
             try:
-                _dir = Path(data["directory"]).resolve(strict=True)
+                _dir = _dir.resolve(strict=True)
             except Exception:
                 self.logger.exception(
                     "Failed to access provided result directory, %s", data["directory"]
@@ -764,7 +984,11 @@ class ToolMeister:
                 )
                 self._send_client_status("internal-error")
                 return False
-        self._tool_dir = _dir / self._hostname
+        if self._label:
+            sub_dir = f"{self._label}:{self._hostname}"
+        else:
+            sub_dir = self._hostname
+        self._tool_dir = _dir / sub_dir
         try:
             self._tool_dir.mkdir()
         except Exception:
@@ -786,17 +1010,16 @@ class ToolMeister:
         failures = 0
         tool_cnt = 0
         for name, tool_opts in sorted(self._tools.items()):
-            if name in self.persist_tools:
+            if name in self.persistent_tool_names:
                 continue
             tool_cnt += 1
             try:
                 tool = Tool(
                     name,
-                    self._group,
                     tool_opts,
-                    self.pbench_bin,
-                    self._tool_dir,
-                    self.logger,
+                    pbench_install_dir=self.pbench_install_dir,
+                    tool_dir=self._tool_dir,
+                    logger=self.logger,
                 )
                 tool.start()
             except Exception:
@@ -823,23 +1046,20 @@ class ToolMeister:
         """
         failures = 0
         for name in sorted(self._tools.keys()):
-            if name in self.persist_tools:
-                continue
             try:
                 tool = self._running_tools[name]
             except KeyError:
-                self.logger.error(
-                    "INTERNAL ERROR - tool %s not found in list of running tools", name
-                )
-                failures += 1
-                continue
-            try:
-                tool.wait()
-            except Exception:
-                self.logger.exception(
-                    "Failed to wait for tool %s to stop running in background", name
-                )
-                failures += 1
+                assert (
+                    name in self.persistent_tool_names
+                ), f"tool {name} not found in list of persistent tools"
+            else:
+                try:
+                    tool.wait()
+                except Exception:
+                    self.logger.exception(
+                        "Failed to wait for tool %s to stop running in background", name
+                    )
+                    failures += 1
         return failures
 
     def stop_tools(self, data):
@@ -865,39 +1085,30 @@ class ToolMeister:
         failures = 0
         tool_cnt = 0
         for name in sorted(self._tools.keys()):
-            if name in self.persist_tools:
-                continue
             tool_cnt += 1
             try:
                 tool = self._running_tools[name]
             except KeyError:
-                self.logger.error(
-                    "INTERNAL ERROR - tool %s not found in list of running tools", name
-                )
-                failures += 1
-                continue
-            try:
-                tool.stop()
-            except Exception:
-                self.logger.exception(
-                    "Failed to stop tool %s running in background", name
-                )
-                failures += 1
+                assert (
+                    name in self.persistent_tool_names
+                ), f"tool {name} not found in list of persistent tools"
+            else:
+                try:
+                    tool.stop()
+                except Exception:
+                    self.logger.exception(
+                        "Failed to stop tool %s running in background", name
+                    )
+                    failures += 1
         failures += self._wait_for_tools()
 
         # Clean up the running tools data structure explicitly ahead of
         # potentially receiving another start tools.
         for name in sorted(self._tools.keys()):
-            if name in self.persist_tools:
-                continue
             try:
                 del self._running_tools[name]
             except KeyError:
-                self.logger.error(
-                    "INTERNAL ERROR - tool %s not found in list of running tools", name,
-                )
-                failures += 1
-                continue
+                pass
 
         # Remember this tool directory so that we can send its data when
         # requested.
@@ -917,23 +1128,41 @@ class ToolMeister:
         URL constructed from the "uri" fragment, using the provided context.
 
         The directory argument is a Path object who last element is a
-        directory with a name that is the same as the self.hostname.
+        directory with a name that is the same as the self._hostname or
+        {self._label}:{self._hostname}, referred to as the target_dir.
 
         The uri and ctx arguments are used to form the final URL as defined by:
 
-           f"http://{self._controller}:8080/{uri}/{ctx}/{self._hostname}"
+           f"http://{self._controller}:8080/{uri}/{ctx}/{target_dir}"
 
         """
+        if self._label:
+            assert (
+                directory.name == f"{self._label}:{self._hostname}"
+            ), f"Expected directory target with <label>:<hostname>, '{directory}'"
+        else:
+            assert (
+                directory.name == self._hostname
+            ), f"Expected directory target with <hostname>, '{directory}'"
+
         failures = 0
+        target_dir = directory.name
         parent_dir = directory.parent
-        tar_file = parent_dir / f"{self._hostname}.tar.xz"
-        o_file = parent_dir / f"{self._hostname}.tar.out"
-        e_file = parent_dir / f"{self._hostname}.tar.err"
+        tar_file = parent_dir / f"{target_dir}.tar.xz"
+        o_file = parent_dir / f"{target_dir}.tar.out"
+        e_file = parent_dir / f"{target_dir}.tar.err"
         try:
             # Invoke tar directly for efficiency.
             with o_file.open("w") as ofp, e_file.open("w") as efp:
                 cp = subprocess.run(
-                    [self.tar_path, "-Jcf", tar_file, self._hostname],
+                    [
+                        self.tar_path,
+                        "--create",
+                        "--xz",
+                        "--force-local",
+                        f"--file={tar_file}",
+                        target_dir,
+                    ],
                     cwd=parent_dir,
                     stdin=None,
                     stdout=ofp,
@@ -1078,7 +1307,8 @@ class ToolMeister:
             self._send_client_status(msg)
             return 1
 
-        if len(set(self._tools.keys()) - set(self.persist_tools)) == 0:
+        if len(set(self._tools.keys()) - set(self.persistent_tool_names)) == 0:
+            # We only have persistent tools, nothing to send.
             self._send_client_status("success")
             return 0
 
@@ -1106,10 +1336,17 @@ class ToolMeister:
             self._send_client_status("success")
             return 0
 
-        assert tool_dir.name == self._hostname, (
-            f"Logic Bomb! Final path component of the tool directory is"
-            f" '{tool_dir.name}', not our host name '{self._hostname}'"
-        )
+        if self._label:
+            assert tool_dir.name == f"{self._label}:{self._hostname}", (
+                f"Logic Bomb! Final path component of the tool directory is"
+                f" '{tool_dir.name}', not our label and host name"
+                f" '{self._label}:{self._hostname}'"
+            )
+        else:
+            assert tool_dir.name == self._hostname, (
+                f"Logic Bomb! Final path component of the tool directory is"
+                f" '{tool_dir.name}', not our host name '{self._hostname}'"
+            )
 
         directory_bytes = data["directory"].encode("utf-8")
         tool_data_ctx = hashlib.md5(directory_bytes).hexdigest()
@@ -1127,18 +1364,12 @@ class ToolMeister:
         """end_tools - stop all the persistent data collection tools."""
         failures = 0
         tool_cnt = 0
-        for name in self._tools.keys():
-            if name not in self.persist_tools:
-                continue
+        for name, persistent_tool in self._persistent_tools.items():
+            assert name in self._tools, (
+                f"Logic bomb!  Persistent tool, '{name}' not in registered"
+                f" list of tools, '{self._tools!r}'."
+            )
             tool_cnt += 1
-            try:
-                persistent_tool = self._persistent_tools[name]
-            except KeyError:
-                self.logger.error(
-                    "INTERNAL ERROR - tool %s not in list of persistent tools", name,
-                )
-                failures += 1
-                continue
             try:
                 persistent_tool.stop()
             except Exception:
@@ -1146,7 +1377,17 @@ class ToolMeister:
                     "Failed to stop persistent tool %s running in background", name
                 )
                 failures += 1
-
+        for name, persistent_tool in self._persistent_tools.items():
+            tool_cnt += 1
+            try:
+                persistent_tool.wait()
+            except Exception:
+                self.logger.exception(
+                    "Failed to wait for persistent tool %s to stop running"
+                    " in background",
+                    name,
+                )
+                failures += 1
         if failures > 0:
             msg = f"{failures} of {tool_cnt} failed stopping persistent tools"
             self._send_client_status(msg)
@@ -1164,16 +1405,15 @@ class ToolMeister:
             self._send_client_status(msg)
             return 1
 
-        args = data["args"]
-        if not args:
-            self._send_client_status("No sysinfo arguments given")
-            return 1
+        sysinfo_args = data["args"]
+        self.logger.debug("sysinfo args: %r", sysinfo_args)
+        if not sysinfo_args:
+            sysinfo_args = "none"
 
-        self.logger.debug("sysinfo: %r", args)
-        # FIXME - Should we perform more checking to validate the argument?
-        sysinfo = args[0]
-        # FIXME - We need the label for this registered host
-        label = ""
+        if self._label:
+            sub_dir = f"{self._label}:{self._hostname}"
+        else:
+            sub_dir = self._hostname
 
         if self._hostname == self._controller:
             try:
@@ -1198,54 +1438,66 @@ class ToolMeister:
                 self._send_client_status("internal-error")
                 return 1
 
-        command = [
-            self.sysinfo_dump,
-            str(sysinfo_dir),
-            sysinfo,
-            label,
-        ]
+        instance_dir = sysinfo_dir / sub_dir
+        try:
+            instance_dir.mkdir()
+        except Exception:
+            self.logger.exception(
+                "Failed to create instance directory for sysinfo operation"
+            )
+            self._send_client_status("internal-error")
+            return 1
+
+        command = [self.sysinfo_dump, str(instance_dir), sysinfo_args, "parallel"]
 
         self.logger.info("pbench-sysinfo-dump -- %s", " ".join(command))
 
-        o_file = sysinfo_dir / "tm-sysinfo.out"
-        e_file = sysinfo_dir / "tm-sysinfo.err"
+        failures = 0
+        msg = ""
+        o_file = instance_dir / "tm-sysinfo.out"
+        e_file = instance_dir / "tm-sysinfo.err"
         try:
             with o_file.open("w") as ofp, e_file.open("w") as efp:
+                my_env = os.environ.copy()
+                my_env["pbench_install_dir"] = self.pbench_install_dir
                 cp = subprocess.run(
-                    command, cwd=sysinfo_dir, stdin=None, stdout=ofp, stderr=efp,
+                    command,
+                    cwd=instance_dir,
+                    stdin=None,
+                    stdout=ofp,
+                    stderr=efp,
+                    env=my_env,
                 )
         except Exception as exc:
             msg = f"Failed to collect system information: {exc}"
             self.logger.exception(msg)
-            self._send_client_status(msg)
-            return 1
+            failures += 1
         else:
             if cp.returncode != 0:
                 msg = f"failed to collect system information; return code: {cp.returncode}"
                 self.logger.error(msg)
-                self._send_client_status(msg)
-                return 1
+                failures += 1
 
         if self._hostname == self._controller:
             self.logger.info(
                 "%s: sysinfo send (no-op) %s %s",
                 self._hostname,
                 self._group,
-                sysinfo_dir,
+                instance_dir,
             )
-            # Note that we don't have a directory to send when a Tool
-            # Meister runs on the same host as the controller.
-            self._send_client_status("success")
-            return 0
-
-        directory_bytes = data["directory"].encode("utf-8")
-        sysinfo_data_ctx = hashlib.md5(directory_bytes).hexdigest()
-        failures = self._send_directory(
-            sysinfo_dir / self._hostname, "sysinfo-data", sysinfo_data_ctx
-        )
+        else:
+            directory_bytes = data["directory"].encode("utf-8")
+            sysinfo_data_ctx = hashlib.md5(directory_bytes).hexdigest()
+            failures = self._send_directory(
+                instance_dir, "sysinfo-data", sysinfo_data_ctx
+            )
 
         self._send_client_status(
-            "success" if failures == 0 else f"{failures} failures sending sysinfo data"
+            "success"
+            if failures == 0
+            else f"{failures} failures sending sysinfo data"
+            if not msg
+            else msg
         )
 
         return failures
@@ -1283,7 +1535,8 @@ def driver(
     PROG,
     tar_path,
     sysinfo_dump,
-    pbench_bin,
+    pbench_install_dir,
+    tmp_dir,
     param_key,
     params,
     redis_server,
@@ -1297,8 +1550,11 @@ def driver(
 
     # Add a logging handler to send logs back to the Redis server, with each
     # log entry prepended with the given hostname parameter.
+    channel_prefix = params["channel_prefix"]
     rh = RedisHandler(
-        channel="tm-logging", hostname=params["hostname"], redis_client=redis_server
+        channel=f"{channel_prefix}-{tm_channel_suffix_to_logging}",
+        hostname=params["hostname"],
+        redis_client=redis_server,
     )
     if os.environ.get("_PBENCH_TOOL_MEISTER_LOG_LEVEL") == "debug":
         log_level = logging.DEBUG
@@ -1316,24 +1572,20 @@ def driver(
     #   a. handle graceful termination (TERM, INT, QUIT)
     #   b. log operational state (HUP maybe?)
 
-    try:
-        tm = ToolMeister(
-            pbench_bin, tar_path, sysinfo_dump, params, redis_server, logger
-        )
-    except Exception:
-        logger.exception(
-            "Unable to construct the ToolMeister object with params, %r", params,
-        )
-        return 8
-
     ret_val = 0
-    terminate = False
     try:
-        while not terminate:
-            try:
-                logger.debug("waiting ...")
-                action, data = tm.wait_for_command()
-                logger.debug("acting ... %r, %r", action, data)
+        with ToolMeister(
+            pbench_install_dir,
+            tmp_dir,
+            tar_path,
+            sysinfo_dump,
+            params,
+            redis_server,
+            logger,
+        ) as tm:
+            logger.debug("waiting ...")
+            for action, data in tm.wait_for_command():
+                logger.debug("acting ... %s, %r", action.__name__, data)
                 failures = action(data)
                 if failures > 0:
                     logger.warning(
@@ -1342,21 +1594,17 @@ def driver(
                         action,
                         data,
                     )
-            except Terminate:
-                logger.info("terminating")
-                terminate = True
-            except RedisDisconnected:
-                logger.error("lost connection to redis server")
-                ret_val = 9
-                terminate = True
+                logger.debug("waiting ...")
     except Exception:
         logger.exception("Unexpected error encountered")
         ret_val = 10
     finally:
-        tm.cleanup()
-        if rh.errors > 0 or rh.redis_errors > 0:
+        if rh.errors > 0 or rh.redis_errors > 0 or rh.dropped > 0:
             logger.warning(
-                "RedisHandler redis_errors: %d, errors: %d", rh.errors, rh.redis_errors
+                "RedisHandler redis_errors: %d, errors: %d, dropped: %d",
+                rh.errors,
+                rh.redis_errors,
+                rh.dropped,
             )
     return ret_val
 
@@ -1365,7 +1613,8 @@ def daemon(
     PROG,
     tar_path,
     sysinfo_dump,
-    pbench_bin,
+    pbench_install_dir,
+    tmp_dir,
     param_key,
     params,
     redis_server,
@@ -1384,14 +1633,18 @@ def daemon(
     sys.stderr.flush()
     sys.stdout.flush()
 
-    pidfile_name = f"{param_key}.pid"
+    if params["hostname"] != params["controller"]:
+        working_dir = tmp_dir
+    else:
+        working_dir = Path(".")
+    pidfile_name = working_dir / f"{param_key}.pid"
+    d_out = working_dir / f"{param_key}.out"
+    d_err = working_dir / f"{param_key}.err"
     pfctx = pidfile.PIDFile(pidfile_name)
-    with open(f"{param_key}.out", "w") as sofp, open(
-        f"{param_key}.err", "w"
-    ) as sefp, DaemonContext(
+    with d_out.open("w") as sofp, d_err.open("w") as sefp, DaemonContext(
         stdout=sofp,
         stderr=sefp,
-        working_directory=os.getcwd(),
+        working_directory=working_dir,
         umask=0o022,
         pidfile=pfctx,
     ):
@@ -1403,6 +1656,7 @@ def daemon(
         #
         # We can safely re-create the ToolMeister object now that we are
         # "daemonized".
+        logger.debug("re-constructing Redis server object")
         try:
             # NOTE: we have to recreate the connection to the redis service
             # since all open file descriptors were closed as part of the
@@ -1410,19 +1664,20 @@ def daemon(
             redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
         except Exception as exc:
             logger.error(
-                "Unable to construct to Redis server object, %s:%s: %s",
+                "Unable to construct Redis server object, %s:%s: %s",
                 redis_host,
                 redis_port,
                 exc,
             )
-            return 7
+            return 8
         else:
             logger.debug("re-constructed Redis server object")
         return driver(
             PROG,
             tar_path,
             sysinfo_dump,
-            pbench_bin,
+            pbench_install_dir,
+            tmp_dir,
             param_key,
             params,
             redis_server,
@@ -1451,52 +1706,94 @@ def main(argv):
     """
     _prog = Path(argv[0])
     PROG = _prog.name
-    pbench_bin = _prog.parent.parent.parent
 
     try:
         redis_host = argv[1]
         redis_port = argv[2]
         param_key = argv[3]
     except IndexError as e:
-        print(f"Invalid arguments: {e}", file=sys.stderr)
+        print(f"{PROG}: Invalid arguments: {e}", file=sys.stderr)
         return 1
+    else:
+        if not redis_host or not redis_port or not param_key:
+            print(f"{PROG}: Invalid arguments: {argv!r}", file=sys.stderr)
+            return 1
     try:
         daemonize = argv[4]
     except IndexError:
         daemonize = "no"
+    else:
+        if not daemonize:
+            daemonize = "no"
 
     tar_path = find_executable("tar")
     if tar_path is None:
-        print("External 'tar' executable not found.", file=sys.stderr)
+        print(f"{PROG}: External 'tar' executable not found.", file=sys.stderr)
         return 2
+
+    # The Tool Meister executable is in:
+    #   ${pbench_install_dir}/util-scripts/tool-meister/pbench-tool-meister
+    # So .parent at each level is:
+    #   _prog       ${pbench_install_dir}/util-scripts/tool-meister/pbench-tool-meister
+    #     .parent   ${pbench_install_dir}/util-scripts/tool-meister
+    #     .parent   ${pbench_install_dir}/util-scripts
+    #     .parent   ${pbench_install_dir}
+    pbench_install_dir = _prog.parent.parent.parent
+
+    # The pbench-sysinfo-dump utility is no longer in the path where the CLI
+    # executables are found.  So we have to add to the default PATH to be sure
+    # it can be found, but only if it is not already present.
+    _path = os.environ.get("PATH", "")
+    _path_list = _path.split(":")
+    for _path_el in _path_list:
+        if _path_el.endswith("tool-meister"):
+            break
+    else:
+        _sep = "" if not _path else ":"
+        os.environ["PATH"] = f"{_path}{_sep}{_prog.parent}"
 
     sysinfo_dump = find_executable("pbench-sysinfo-dump")
     if sysinfo_dump is None:
-        print("External 'pbench-sysinfo-dump' executable not found.", file=sys.stderr)
+        print(
+            f"{PROG}: External 'pbench-sysinfo-dump' executable not found.",
+            file=sys.stderr,
+        )
         return 3
 
-    if not os.environ.get("_PBENCH_UNIT_TESTS") and not find_executable("podman"):
+    try:
+        # The temporary directory to use for capturing all tool data.
+        tmp_dir = Path(os.environ["pbench_tmp"]).resolve(strict=True)
+    except KeyError:
+        print(f"{PROG}: Missing pbench_tmp environment variable", file=sys.stderr)
+        return 4
+    except Exception as e:
         print(
-            "Podman is not installed on this system (required by some tools, aborting launch)",
+            f"{PROG}: Error working with pbench_tmp environment variable, '{tmp_dir}': {e}",
             file=sys.stderr,
         )
         return 4
+    else:
+        if not tmp_dir.is_dir():
+            print(
+                f"{PROG}: The pbench_tmp environment variable, '{tmp_dir}', does not resolve to a directory",
+                file=sys.stderr,
+            )
+            return 4
 
     try:
         redis_server = redis.Redis(host=redis_host, port=redis_port, db=0)
     except Exception as exc:
         print(
-            f"Unable to construct Redis client, {redis_host}:{redis_port}: {exc}",
+            f"{PROG}: Unable to construct Redis client, {redis_host}:{redis_port}: {exc}",
             file=sys.stderr,
         )
         return 5
 
     try:
-        params_raw = redis_server.get(param_key)
-        if params_raw is None:
-            print(f'Parameter key, "{param_key}" does not exist.', file=sys.stderr)
-            return 6
-        params_str = params_raw.decode("utf-8")
+        # Wait for the key to show up with a value.
+        params_str = wait_for_conn_and_key(
+            redis_server, param_key, PROG, redis_host, redis_port
+        )
         params = json.loads(params_str)
         # Validate the tool meister parameters without constructing an object
         # just yet, as we want to make sure we can talk to the redis server
@@ -1504,26 +1801,23 @@ def main(argv):
         ToolMeister.fetch_params(params)
     except Exception as exc:
         print(
-            f"Unable to fetch and decode parameter key, '{param_key}': {exc}",
+            f"{PROG}: Unable to fetch and decode parameter key, '{param_key}': {exc}",
             file=sys.stderr,
         )
-        return 7
+        return 6
 
+    func_args = (
+        PROG,
+        tar_path,
+        sysinfo_dump,
+        pbench_install_dir,
+        tmp_dir,
+        param_key,
+        params,
+        redis_server,
+    )
     if daemonize == "yes":
-        ret_val = daemon(
-            PROG,
-            tar_path,
-            sysinfo_dump,
-            pbench_bin,
-            param_key,
-            params,
-            redis_server,
-            redis_host,
-            redis_port,
-        )
+        ret_val = daemon(*func_args, redis_host, redis_port)
     else:
-        ret_val = driver(
-            PROG, tar_path, sysinfo_dump, pbench_bin, param_key, params, redis_server
-        )
-
+        ret_val = driver(*func_args)
     return ret_val

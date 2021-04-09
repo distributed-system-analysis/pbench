@@ -2,6 +2,8 @@ import os
 import sys
 import shutil
 
+from pbench.server.database.models.tracker import Dataset, States, DatasetNotFound
+
 
 def rename_tb_link(tb, dest, logger):
     try:
@@ -73,6 +75,13 @@ def quarantine(dest, logger, *files):
         if not os.path.exists(afile) and not os.path.islink(afile):
             continue
         try:
+            # If the file we're moving is a tarball, update the dataset
+            # state. (If it's the associated MD5 file, skip that.)
+            if str(afile).endswith(".tar.xz"):
+                try:
+                    Dataset.attach(path=afile, state=States.QUARANTINED)
+                except DatasetNotFound:
+                    logger.exception("quarantine dataset {} not found", afile)
             shutil.move(afile, os.path.join(dest, os.path.basename(afile)))
         except Exception:
             logger.exception(

@@ -27,7 +27,7 @@ function pushit {
     buildah push ${1} ${image_repo}/${1}
 }
 
-for image in base tools workloads all; do
+for image in base tools tool-meister tool-data-sink workloads all; do
     pushit pbench-agent-${image}-${distro}:${githash}
     pushit pbench-agent-${image}-${distro}:${ver}
     if [[ ! -z "${other}" ]]; then

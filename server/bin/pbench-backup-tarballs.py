@@ -16,6 +16,12 @@ from pbench.server import PbenchServerConfig
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Status, NoSuchKey
 from pbench.server.utils import rename_tb_link, quarantine
+from pbench.server.database.models.tracker import (
+    Dataset,
+    Metadata,
+    DatasetError,
+)
+from pbench.server.database.database import Database
 
 
 _NAME_ = "pbench-backup-tarballs"
@@ -359,6 +365,14 @@ def backup_data(lb_obj, s3_obj, config, logger):
         resultname = tar.name
         controller_path = tar.parent
         controller = controller_path.name
+        try:
+            # This tool can't see a dataset until it's been prepared either
+            # by server PUT or by pbench-server-prep-shim-002.py; in either
+            # case, the Dataset object must already exist.
+            dataset = Dataset.attach(controller=controller, path=resultname)
+        except DatasetError as e:
+            logger.warning("Trouble tracking {}:{}: {}", controller, resultname, str(e))
+            dataset = None
 
         # This will handle all the local backup related
         # operations and count the number of successes and failures.
@@ -414,6 +428,9 @@ def backup_data(lb_obj, s3_obj, config, logger):
             # Do nothing when the backup fails, allowing us to retry on a
             # future pass.
             pass
+
+        if dataset:
+            Metadata.create(dataset=dataset, key=Metadata.ARCHIVED, value="True")
         logger.debug("End backup of {}.", tar)
 
     return Results(
@@ -443,6 +460,10 @@ def main(cfg_name):
         return 1
 
     logger = get_pbench_logger(_NAME_, config)
+
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    Database.init_db(config, logger)
 
     # Add a BACKUP and QDIR field to the config object
     config.BACKUP = config.conf.get("pbench-server", "pbench-backup-dir")

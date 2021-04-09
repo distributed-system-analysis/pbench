@@ -61,7 +61,7 @@ function usage {
 	printf -- "\t\t-d str --dir=<str>               directory to run the test\n"
 	printf -- "\t\t       --tool-group=<str>        tool group to use during test\n"
 	printf -- "\t\t       --sysinfo=<str,>          comma separated values of sysinfo to be collected\n"
-	printf -- "\t\t                                      available: $(pbench-collect-sysinfo --options)\n"
+	printf -- "\t\t                                      available: $(pbench-display-sysinfo-options)\n"
 	printf -- "\t\t       --specjbb2005-dir=<str>   the location of the install directory for SPECjbb2005\n"
 	printf -- "\t\t                                      (default is $specjbb2005_dir)\n"
 }
@@ -268,19 +268,13 @@ benchmark_iterations="${benchmark_run_dir}/.iterations"
 pbench-register-tool-trigger --group=$tool_group --start-trigger="Timing Measurement began" --stop-trigger="Timing Measurement ended"
 
 # Start the tool meisters on each registered local/remote host
-pbench-tool-meister-start "${tool_group}"
+pbench-tool-meister-start --sysinfo="${sysinfo}" "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to start the tool meisters."
 	exit 1
 fi
 
-# Collect system information before we begin, and record the beginning.
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo beg
-
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir beg
-
 trap "interrupt" INT QUIT TERM
-pbench-init-tools --group=$tool_group --dir=$benchmark_run_dir
 
 # edit the jbb properties file to match user's options
 > ${benchmark_run_dir}/SPECjbb.props.sed
@@ -389,13 +383,9 @@ for i in `seq $start_warehouses $inc_warehouses $stop_warehouses`; do
 done
 
 popd > /dev/null 2>&1
-pbench-end-tools --group=$tool_group --dir=$benchmark_run_dir
-pbench-metadata-log --group=$tool_group --dir=$benchmark_run_dir end
-
-pbench-collect-sysinfo --group=$tool_group --dir=$benchmark_run_dir --sysinfo=$sysinfo end
 
 # Stop the tool meisters on each registered local/remote host
-pbench-tool-meister-stop
+pbench-tool-meister-stop --sysinfo="${sysinfo}" "${tool_group}"
 if [[ ${?} != 0 ]]; then
 	error_log "[${script_name}]: failed to stop the tool meisters."
 fi

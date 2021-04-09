@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>pbench-grafana</short>
+  <description>Pbench Agent Grafana instance</description>
+  <port protocol="tcp" port="3000"/>
+</service>
