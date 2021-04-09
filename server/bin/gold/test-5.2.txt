@@ -666,37 +666,37 @@ drwxrwxr-x          - archive.backup/controller-g-normal
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        762 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        764 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-backup-tarballs
--rw-rw-r--      17681 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
+-rw-rw-r--      17683 logs/pbench-backup-tarballs/pbench-backup-tarballs.log
 drwxrwxr-x          - logs/pbench-clean-up-dangling-results-links
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.error
 -rw-rw-r--          0 logs/pbench-clean-up-dangling-results-links/pbench-clean-up-dangling-results-links.log
 drwxrwxr-x          - logs/pbench-copy-sosreports
 -rw-rw-r--          0 logs/pbench-copy-sosreports/pbench-copy-sosreports.error
--rw-rw-r--       3851 logs/pbench-copy-sosreports/pbench-copy-sosreports.log
+-rw-rw-r--       3853 logs/pbench-copy-sosreports/pbench-copy-sosreports.log
 drwxrwxr-x          - logs/pbench-cull-unpacked-tarballs
--rw-rw-r--        631 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
+-rw-rw-r--        633 logs/pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 drwxrwxr-x          - logs/pbench-dispatch
 -rw-rw-r--        533 logs/pbench-dispatch/pbench-dispatch.error
--rw-rw-r--       1702 logs/pbench-dispatch/pbench-dispatch.log
+-rw-rw-r--       1704 logs/pbench-dispatch/pbench-dispatch.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        265 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       7805 logs/pbench-index/pbench-index.log
+-rw-rw-r--       7807 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
--rw-rw-r--       2988 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+-rw-rw-r--       2990 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 drwxrwxr-x          - logs/pbench-state-manager
 -rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--        219 logs/pbench-sync-satellite/pbench-sync-satellite.error
--rw-rw-r--       1018 logs/pbench-sync-satellite/pbench-sync-satellite.log
+-rw-rw-r--       1020 logs/pbench-sync-satellite/pbench-sync-satellite.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs-small
 -rw-rw-r--          0 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
--rw-rw-r--       3317 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
+-rw-rw-r--       3319 logs/pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 drwxrwxr-x          - logs/pbench-verify-backup-tarballs
--rw-rw-r--       3060 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
+-rw-rw-r--       3062 logs/pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002/controller-b-with-prefixes
@@ -817,7 +817,7 @@ Controller: controller-h-bad-md5
 	* No tar ball files found in this controller directory.
 
 end-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-backup-tarballs/pbench-backup-tarballs.log
@@ -895,7 +895,7 @@ end-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test
 1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_to_s3 -- End S3 backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.
 1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.pbench-backup-tarballs backup_data -- End backup of /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz.
 1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- Total processed: 8, Local backup successes: 8, Local backup failures: 0, S3 upload successes: 8, S3 upload failures: 0, Quarantined: 0
-1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 INFO pbench-backup-tarballs.pbench-backup-tarballs main -- end-run-1970-01-01T00:00:42-UTC
 ----- pbench-backup-tarballs/pbench-backup-tarballs.log
@@ -922,12 +922,12 @@ run-1970-01-01T00:00:42-UTC: controller-b-with-prefixes/tarball-w-prefix-dot_197
 run-1970-01-01T00:00:42-UTC: No sosreports found for /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/TO-COPY-SOS/tarball-normal_1970.01.01T00.42.00.tar.xz
 run-1970-01-01T00:00:42-UTC: controller-g-normal/tarball-normal_1970.01.01T00.42.00: processed 0 sosreports for /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/TO-COPY-SOS/tarball-normal_1970.01.01T00.42.00.tar.xz
 run-1970-01-01T00:00:42-UTC: ending at 1970-01-01T00:00:42-UTC, processed 0 sosreports for 7 results directories with 0 errors
-1970-01-01T00:00:42.000000 DEBUG pbench-copy-sosreports.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-copy-sosreports.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-copy-sosreports.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-copy-sosreports/pbench-copy-sosreports.log
 +++++ pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.pbench-cull-unpacked-tarballs main -- Culling unpacked tar balls 30 days older than 1970-01-02T00:00:00.000000
-1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-cull-unpacked-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-cull-unpacked-tarballs/pbench-cull-unpacked-tarballs.log
 +++++ pbench-dispatch/pbench-dispatch.error
@@ -953,7 +953,7 @@ run-1970-01-01T00:00:42-UTC: controller-g-normal/tarball-normal_1970.01.01T00.42
 tarball-bad-md5_1970.01.01T00.42.00.tar.xz: FAILED
 md5sum: WARNING: 1 computed checksum did NOT match
 run-1970-01-01T00:00:42-UTC: Processed 10 result tar balls, 7 successfully (0 partial), with 2 errors, and 1 duplicates
-1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-dispatch.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-dispatch/pbench-dispatch.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
@@ -964,7 +964,7 @@ run-1970-01-01T00:00:42-UTC: Processed 10 result tar balls, 7 successfully (0 pa
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- Preparing to index 7 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- start processing list of tar balls
@@ -1014,7 +1014,7 @@ run-1970-01-01T00:00:42-UTC: Processed 10 result tar balls, 7 successfully (0 pa
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- md5sum: WARNING: 1 computed checksum did NOT match
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 process_tb -- tarball-normal_1970.01.01T00.42.00.tar.xz: OK
 1970-01-01T00:00:42.000000 INFO pbench-server-prep-shim-002.pbench-server-prep-shim-002 main -- run-1970-01-01T00:00:42-UTC: Processed 7 entries, 4 tarballs successful, 2 quarantined tarballs, 1 duplicately-named tarballs, 0 errors.
-1970-01-01T00:00:42.000000 DEBUG pbench-server-prep-shim-002.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-server-prep-shim-002.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-server-prep-shim-002.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
 +++++ pbench-state-manager/pbench-state-manager.log
@@ -1033,7 +1033,7 @@ tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz.md5
 run-1970-01-01T00:00:42-UTC: end - 1970-01-01T00:00:42-UTC
 run-1970-01-01T00:00:42-UTC: duration (secs): 0
 run-1970-01-01T00:00:42-UTC: Total 3 files processed, with 0 md5 failures and 0 errors
-1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-sync-satellite.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-sync-satellite/pbench-sync-satellite.log
 +++++ pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.error
@@ -1055,7 +1055,7 @@ run-1970-01-01T00:00:42-UTC: ONE::controllerC/tarball-simple0-prefix_1970-01-01T
 ln -s /var/tmp/pbench-test-server/test-5.2/pbench/public_html/incoming/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00 /var/tmp/pbench-test-server/test-5.2/pbench/public_html/results/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00
 run-1970-01-01T00:00:42-UTC: ONE::controllerB/tarball-simple2_1970-01-01T00:41:00: success - elapsed time (secs): 0 - size (bytes): 220
 run-1970-01-01T00:00:42-UTC: Processed 7 tarballs
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs-small.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs-small/pbench-unpack-tarballs-small.log
 +++++ pbench-verify-backup-tarballs/pbench-verify-backup-tarballs.log
@@ -1076,7 +1076,7 @@ run-1970-01-01T00:00:42-UTC: Processed 7 tarballs
 1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with S3: start
 1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Comparing ARCHIVE with S3: end
 1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Sending report: start
-1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- Sending report: end
 1970-01-01T00:00:42.000000 INFO pbench-verify-backup-tarballs.pbench-verify-backup-tarballs main -- end-run-1970-01-01T00:00:42-UTC
