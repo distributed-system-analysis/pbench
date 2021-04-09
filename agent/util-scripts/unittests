@@ -31,7 +31,7 @@ mv ${_testopt}/config/pbench-agent.cfg ${_testopt}/config/pbench-agent.cfg.orig
 let res=res+${?}
 cp -a ${_tdir}/../templates/* ${_testopt}/templates/
 let res=res+${?}
-cp -a ${_tdir}/{require-rpm,validate-*,pbench-*} ${_testopt}/util-scripts/
+cp -a ${_tdir}/{validate-*,pbench-*} ${_testopt}/util-scripts/
 let res=res+${?}
 cp -a ${_tdir}/tool-meister/pbench-* ${_testopt}/util-scripts/tool-meister/
 let res=res+${?}

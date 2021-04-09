@@ -94,4 +94,5 @@ Iteration 1-none-bidirectional-1500B-128flows-0.002pct_drop complete (1 of 1), w
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/1-default/sample3
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=none default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=none default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/require-rpm dpdk-tools  
 --- test-execution.log file contents

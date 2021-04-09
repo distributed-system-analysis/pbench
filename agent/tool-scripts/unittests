@@ -76,9 +76,10 @@ if [[ ${?} -ne 0 ]]; then
     echo "ERROR: failed to create util-scripts directory" >&2
     exit 1
 fi
-cp ${_tdir}/../util-scripts/require-rpm ${_optdir}/util-scripts/ 2> /dev/null
+printf -- "#!/bin/bash\n\n_ver=\"\${2}\"\nif [[ ! -z \"\${_ver}\" ]]; then _ver=\"-\${_ver}\"; fi\necho \"\${1}\${_ver}\"\nexit 0\n" > ${_optdir}/util-scripts/require-rpm
+chmod 775 ${_optdir}/util-scripts/require-rpm
 if [[ ${?} -ne 0 ]]; then
-    echo "ERROR: failed to copy util-scripts/require-rpm" >&2
+    echo "ERROR: failed to create ${_optdir}/util-scripts/require-rpm" >&2
     exit 1
 fi
 

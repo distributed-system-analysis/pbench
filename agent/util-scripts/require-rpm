@@ -1,20 +1,65 @@
 #!/bin/bash
 # -*- mode: shell-script; indent-tabs-mode: t; sh-basic-offset: 4; sh-indentation: 4; tab-width: 8 -*-
 
+# require-rpm - check to see if a RPM with the required version is installed.
+#
+# Returns 0 (success) if it is; 1 if it isn't; 2 if an error occured during
+# operation.
+
 _rpm="${1}"
 if [[ ! -z "${2}" ]]; then
     _version="-${2}"
 else
     _version=""
 fi
-if [[ ! -z "${_PBENCH_UNIT_TESTS}" ]]; then
-    # Package changes are always successful for unit tests.
-    exit 0
+if [[ ! -z "${3}" ]]; then
+    _match="${3}"
+else
+    _match="eq"
 fi
 
-_status=$(rpm --query ${_rpm}${_version})
+_status=$(rpm --query --queryformat="%{EVR}" ${_rpm} 2>/dev/null)
 rc=0
 if echo ${_status} | grep -q "is not installed"; then
     rc=1
+else
+    # Some RPMs might have multiple version installed, iterate through all of
+    # them.
+    for rpm_installed in ${_status}; do
+		# Exit status is 0 if the EVR's are equal, 11 if EVR1 is newer, and 12
+        # if EVR2 is newer.  Other exit statuses indicate problems.
+        rpmdev-vercmp ${rpm_installed} ${_rpm}${_version} > /dev/null 2>&1
+        res=${?}
+        if [[ ${res} != 0 && ${res} != 11 && ${res} != 12 ]]; then
+            exit 2
+        fi
+        if [[ "${_match}" == "eq" ]]; then
+            if [[ ${res} == 0 ]]; then
+                rc=0
+                echo "${rpm_installed}"
+                break
+            else
+                rc=1
+            fi
+        fi
+        if [[ "${_match}" == "ge" ]]; then
+            if [[ ${res} == 0 || ${res} == 11 ]]; then
+                rc=0
+                echo "${rpm_installed}"
+                break
+            else
+                rc=1
+            fi
+        fi
+        if [[ "${_match}" == "gt" ]]; then
+            if [[ ${res} == 11 ]]; then
+                rc=0
+                echo "${rpm_installed}"
+                break
+            else
+                rc=1
+            fi
+        fi
+    done
 fi
 exit ${rc}

@@ -578,15 +578,15 @@ install)
 	function require_rpm {
 		_tpn="${1}"
 		_tpv="${2}"
-		require-rpm ${_tpn} ${_tpv}
+		_installed_rpm="$(require-rpm "${_tpn}" "${_tpv}")"
 		rc=${?}
-		if [[ ! -z "${_tpv}" ]]; then
-			_tpv="-${_tpv}"
-		fi
 		if [[ ${rc} != 0 ]]; then
+			if [[ ! -z "${_tpv}" ]]; then
+				_tpv="-${_tpv}"
+			fi
 			printf -- "%s: %s is not installed\n" "${tool}" "${_tpn}${_tpv}" >&2
 		else
-			printf -- "%s: %s is installed\n" "${tool}" "${_tpn}${_tpv}"
+			printf -- "%s: %s is installed\n" "${tool}" "${_installed_rpm}"
 		fi
 		return ${rc}
 	}

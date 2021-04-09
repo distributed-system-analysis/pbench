@@ -158,13 +158,9 @@ function get_redhat_version() {
 function check_install_rpm {
     _n="${1}"
     _v="${2}"
-    require-rpm "${_n}" "${_v}"
+    _m="${3}"
+    _rpm="$(require-rpm "${_n}" "${_v}" "${_m}")"
     local rc=${?}
-    if [[ ! -z "${_v}" ]]; then
-        _rpm="${_n}-${_v}"
-    else
-        _rpm="${_n}"
-    fi
     if [[ ${rc} -ne 0 ]]; then
         error_log "[check_install_rpm] ${_rpm} is not installed"
     else
