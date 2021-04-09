@@ -1,0 +1,13 @@
+#!/bin/bash
+
+args="${@}"
+echo "${0} ${args}" >> ${_testlog}
+
+# Mimic behavior of require-rpm by exiting with 0 (for unit tests we always
+# find the RPM) and emitting the RPM version that was found (whatever was given
+# as arguments).
+_rpm="${1}"
+_ver="${2:+-${2}}"
+_match="${3}"
+echo "${_rpm}${_ver}"
+exit 0
