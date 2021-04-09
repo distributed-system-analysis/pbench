@@ -588,6 +588,40 @@ class PcpTool(PersistentTool):
         return (0, "pcp tool (pmcd) properly installed")
 
 
+class JaegerTool(PersistentTool):
+    """JaegerTool - provides specifics for running a Jaeger Agent on the host"""
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+
+        # get the collector host_post for tool options
+        self.collector_hosts_ports = None
+        for opt in self.tool_opts:
+            if opt.startswith("--collector="):
+                if opt[len(opt) - 1] == "\n":
+                    self.collector_hosts_ports = opt[12 : len(opt) - 1]
+                else:
+                    self.collector_hosts_ports = opt[12:]
+        if self.collector_hosts_ports is None:
+            self.logger.error("No host:port provided for jaeger collector(s)")
+
+        executable = find_executable("jaeger-agent")
+        if executable:
+            self.args = [
+                executable,
+                ("--reporter.grpc.host-port=%s" % self.collector_hosts_ports),
+            ]
+        else:
+            self.args = None
+
+    def install(self):
+        if self.args is None:
+            return (1, "jaeger tool (jaeger-agent) not found")
+        if self.collector_hosts_ports is None:
+            return (1, "no host:ports provided for the collector")
+        return (0, "jaeger tool (jaeger-agent) properly installed")
+
+
 class Terminate(Exception):
     """Simple exception to be raised when the Tool Meister main loop should exit
     gracefully.
@@ -712,6 +746,7 @@ class ToolMeister:
         "node-exporter": NodeExporterTool,
         "pcp": PcpTool,
         "pcp-transient": PcpTransTool,
+        "jaeger-agent": JaegerTool,
     }
 
     def __init__(
