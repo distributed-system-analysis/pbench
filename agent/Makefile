@@ -51,7 +51,9 @@ util-scripts = \
 	pbench-verify-sysinfo-options \
 	README.md \
 	require-rpm \
-	tool-meister
+	tool-meister \
+	validate-hostname \
+	validate-ipaddress
 
 # Scripts based on the Python Click package, which are generated during
 # installation.
