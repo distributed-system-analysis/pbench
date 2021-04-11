@@ -470,25 +470,18 @@ class PcpTool(PersistentTool):
 class JaegerTool(PersistentTool):
     """JaegerTool - provides specifics for running a Jaeger Agent on the host"""
 
+    # port where the jaeger collector accepts spans
+    DEFAULT_COLLECTOR_PORT = 14250
+
     def __init__(self, name, tool_opts, logger=None, **kwargs):
         super().__init__(name, tool_opts, logger=logger, **kwargs)
 
-        # get the collector host_post for tool options
-        self.collector_hosts_ports = None
-        for opt in self.tool_opts:
-            if opt.startswith("--collector="):
-                if opt[len(opt) - 1] == "\n":
-                    self.collector_hosts_ports = opt[12 : len(opt) - 1]
-                else:
-                    self.collector_hosts_ports = opt[12:]
-        if self.collector_hosts_ports is None:
-            self.logger.error("No host:port provided for jaeger collector(s)")
-
+        # hostname of the collector is the same as the controller
         executable = find_executable("jaeger-agent")
         if executable:
             self.args = [
                 executable,
-                ("--reporter.grpc.host-port=%s" % self.collector_hosts_ports),
+                f"--reporter.grpc.host-port={self.controller}:{DEFAULT_COLLECTOR_PORT}",
             ]
         else:
             self.args = None
@@ -496,8 +489,6 @@ class JaegerTool(PersistentTool):
     def install(self):
         if self.args is None:
             return (1, "jaeger tool (jaeger-agent) not found")
-        if self.collector_hosts_ports is None:
-            return (1, "no host:ports provided for the collector")
         return (0, "jaeger tool (jaeger-agent) properly installed")
 
 
@@ -619,7 +610,7 @@ class ToolMeister:
         "dcgm": DcgmTool,
         "node-exporter": NodeExporterTool,
         "pcp": PcpTool,
-        "jaeger-agent": JaegerTool,
+        "jaeger": JaegerTool,
     }
 
     def __init__(
@@ -942,6 +933,7 @@ class ToolMeister:
                         tool_opts,
                         pbench_install_dir=self.pbench_install_dir,
                         tool_dir=_tool_dir,
+                        controller=self._controller,
                         logger=self.logger,
                     )
                     persistent_tool.start()
