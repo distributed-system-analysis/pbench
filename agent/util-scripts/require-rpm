@@ -4,7 +4,7 @@
 # require-rpm - check to see if a RPM with the required version is installed.
 #
 # Returns 0 (success) if it is; 1 if it isn't; 2 if an error occured during
-# operation.
+# operation; 3 if the 3rd argument, match, is not recognized.
 
 _rpm="${1}"
 if [[ ! -z "${2}" ]]; then
@@ -18,47 +18,49 @@ else
     _match="eq"
 fi
 
-_status=$(rpm --query --queryformat="%{EVR}" ${_rpm} 2>/dev/null)
-rc=0
-if echo ${_status} | grep -q "is not installed"; then
-    rc=1
+# The inputs for the `rpmdev-vercmp` tool to compare are EVR tags.  The first
+# tag is derived from a look up of the RPMs that are installed.  Note well that
+# this can be a list of multiple RPMs in some cases.  An "EVR" stands for
+# "epoch", "version", and "release".
+_evr_list=$(rpm --query --queryformat="%{EVR}" ${_rpm} 2>/dev/null)
+rc=1
+if echo ${evr_list} | grep -q "is not installed"; then
+    echo "${_rpm}${_version}"
 else
-    # Some RPMs might have multiple version installed, iterate through all of
+    # Some RPMs might have multiple versions installed, iterate through all of
     # them.
-    for rpm_installed in ${_status}; do
-		# Exit status is 0 if the EVR's are equal, 11 if EVR1 is newer, and 12
+    for rpm_installed in ${_evr_list}; do
+        # Exit status is 0 if the EVR's are equal, 11 if EVR1 is newer, and 12
         # if EVR2 is newer.  Other exit statuses indicate problems.
-        rpmdev-vercmp ${rpm_installed} ${_rpm}${_version} > /dev/null 2>&1
+        _stderr="$(rpmdev-vercmp ${rpm_installed} ${_rpm}${_version} 2>&1 > /dev/null)"
         res=${?}
         if [[ ${res} != 0 && ${res} != 11 && ${res} != 12 ]]; then
-            exit 2
+            rc=2
+            echo "require-rpm: rpmdev-vercmp - ${_stderr}" >&2
+            break
         fi
         if [[ "${_match}" == "eq" ]]; then
-            if [[ ${res} == 0 ]]; then
+            if [[ ${res} -eq 0 ]]; then
                 rc=0
                 echo "${rpm_installed}"
                 break
-            else
-                rc=1
             fi
-        fi
-        if [[ "${_match}" == "ge" ]]; then
-            if [[ ${res} == 0 || ${res} == 11 ]]; then
+        elif [[ "${_match}" == "ge" ]]; then
+            if [[ ${res} -eq 0 || ${res} -eq 11 ]]; then
                 rc=0
                 echo "${rpm_installed}"
                 break
-            else
-                rc=1
             fi
-        fi
-        if [[ "${_match}" == "gt" ]]; then
-            if [[ ${res} == 11 ]]; then
+        elif [[ "${_match}" == "gt" ]]; then
+            if [[ ${res} -eq 11 ]]; then
                 rc=0
                 echo "${rpm_installed}"
                 break
-            else
-                rc=1
             fi
+        else
+            rc=3
+            echo "require-rpm: unrecognized 'match' argument, '${match}'" >&2
+            break
         fi
     done
 fi

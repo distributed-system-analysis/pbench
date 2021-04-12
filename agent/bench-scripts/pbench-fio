@@ -175,7 +175,7 @@ function usage {
 }
 
 function fio_local_check_install() {
-	if check_install_rpm ${benchmark_rpm} ${ver} ${match}; then
+	if check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"; then
 		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is installed"
 		_rc=0
 	else

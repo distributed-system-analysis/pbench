@@ -66,7 +66,7 @@ client_nodes=""
 sysinfo="default"
 
 function install_dbench {
-	if check_install_rpm ${benchmark_rpm} ${ver} ${match}; then
+	if check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"; then
 		debug_log "[${script_name}]${benchmark_rpm}-${ver} is installed"
 	else
 		error_log "[${script_name}]${benchmark_rpm}-${ver} installation failed, exiting"

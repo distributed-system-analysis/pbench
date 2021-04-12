@@ -192,7 +192,7 @@ function stop_server {
 }
 
 function install_uperf {
-	if check_install_rpm ${benchmark_rpm} ${ver} ${match}; then
+	if check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"; then
 		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is installed"
 	else
 		error_log "[${script_name}] ${benchmark_rpm}-${ver} is not installed, exiting"

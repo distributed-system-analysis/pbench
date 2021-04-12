@@ -177,7 +177,7 @@ verify_common_bench_script_options $tool_group $sysinfo
 
 ## Ensure the right version of the benchmark is installed
 
-if check_install_rpm ${benchmark_rpm} ${ver} ${match}; then
+if check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"; then
 	debug_log "[${script_name}]${benchmark_rpm}-${ver} is installed"
 else
 	debug_log "[${script_name}]${benchmark_rpm}-${ver} installation failed, exiting"
