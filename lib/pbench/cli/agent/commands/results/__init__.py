@@ -1,94 +1,238 @@
 import os
-import requests
 import shutil
 import sys
 import tempfile
 
-from pbench.agent import PbenchAgentConfig
-from pbench.agent.results import MakeResultTb, CopyResultTb
+import click
+
+from pbench.agent.base import BaseCommand
+from pbench.agent.results import (
+    MakeResultTb,
+    CopyResultTb,
+    FileUploadError,
+)
+from pbench.cli.agent import pass_cli_context
+from pbench.cli.agent.options import common_options
+from pbench.common.exceptions import BadMDLogFormat
 from pbench.common.logger import get_pbench_logger
 
 
-def move_results(ctx, _user, _prefix, _show_server):
-    config = PbenchAgentConfig(ctx["args"]["config"])
-    logger = get_pbench_logger("pbench", config)
+class MoveResults(BaseCommand):
+    """
+        TODO:  This is latent code -- it is currently unused and largely
+            untested, intended to implement a future tool to replace
+            pbench-make-result-tb and/or pbench-move-results.
+    """
 
-    controller = os.environ.get("_pbench_full_hostname")
-    if not controller:
-        logger.error("Missing controller name (should be 'hostname -f' value)")
-        sys.exit(1)
+    def __init__(self, context: click.Context):
+        super().__init__(context)
 
-    results_webserver = config.results.get("webserver")
-    if not results_webserver:
-        logger.error(
-            "No web server host configured from which we can fetch the FQDN of the host to which we copy/move results"
-        )
-        logger.debug("'webserver' variable in 'results' section not set")
+    def execute(self) -> int:
+        logger = get_pbench_logger("pbench-agent", self.config)
 
-    server_rest_url = config.results.get("server_rest_url")
-    response = requests.get(f"{server_rest_url}/host_info")
-    if response.status_code not in [200, 201]:
-        logger.error(
-            "Unable to determine results host info from %s/host_info", server_rest_url
+        temp_dir = tempfile.mkdtemp(
+            dir=self.config.pbench_tmp, prefix="pbench-move-results."
         )
-        sys.exit(1)
-    if response.text.startswith("MESSAGE"):
-        message = response.text.split("===")[1]
-        logger.info("*** Message from sysadmins of %s:", results_webserver)
-        logger.info("***\n*** %s", message)
-        logger.info("***\n*** No local actions taken.")
-        sys.exit(1)
-    results_path_prefix = response.text.split(":")[1]
-    if not results_path_prefix:
-        logger.error(
-            "fetch results host info did not contain a path prefix: %s", response.text
+
+        runs_copied = 0
+        failures = 0
+        no_of_tb = 0
+
+        for dirent in self.config.pbench_run.iterdir():
+            if not dirent.is_dir():
+                continue
+            if dirent.name.startswith("tools-") or dirent.name == "tmp":
+                continue
+
+            no_of_tb += 1
+            result_dir = dirent
+
+            try:
+                mrt = MakeResultTb(result_dir, temp_dir, self.config, logger)
+            except FileNotFoundError as e:
+                logger.error("File Not Found Error, {}", e)
+                continue
+            except NotADirectoryError as e:
+                logger.error("Bad Directory, {}", e)
+                continue
+
+            try:
+                result_tb_name = mrt.make_result_tb()
+            except BadMDLogFormat as e:
+                logger.warning("Bad Metadata.log file encountered, {}", e)
+                failures += 1
+                continue
+            except FileNotFoundError as e:
+                logger.debug("File Not Found error, {}", e)
+                failures += 1
+                continue
+            except RuntimeError as e:
+                logger.warning("Unexpected Error encountered, {}", e)
+                failures += 1
+                continue
+            except Exception as e:
+                logger.debug("Unexpected Error occurred, {}", e)
+                failures += 1
+                continue
+
+            try:
+                crt = CopyResultTb(
+                    self.context.controller, result_tb_name, self.config, logger
+                )
+            except FileNotFoundError as e:
+                logger.error("File Not Found error, {}", e)
+                failures += 1
+                continue
+
+            try:
+                crt.copy_result_tb(self.context.token)
+            except (FileUploadError, RuntimeError) as e:
+                logger.error("Error uploading a file, {}", e)
+                failures += 1
+                continue
+
+            try:
+                # We always remove the constructed tar ball, regardless of success
+                # or failure, since we keep the result directory below on failure.
+                os.remove(result_tb_name)
+            except OSError:
+                logger.error("Failed to remove {}", result_tb_name)
+                failures += 1
+                continue
+
+            try:
+                shutil.rmtree(result_dir)
+            except OSError:
+                logger.error("Failed to remove the {} directory hierarchy", result_dir)
+                failures += 1
+                continue
+
+            runs_copied += 1
+
+        logger.info(
+            "Status: Total no. of tarballs {}, Successfully moved {}, Encountered {} failures",
+            no_of_tb,
+            runs_copied,
+            failures,
         )
-        sys.exit(1)
+
+        return 0
+
+
+@click.command()
+@common_options
+@click.option(
+    "--controller",
+    required=True,
+    envvar="_pbench_full_hostname",
+    prompt=False,
+    help="Controller name",
+)
+@click.option(
+    "--user", prompt=False, help="Pbench user (Obsolete)",
+)
+@click.option(
+    "--token",
+    required=True,
+    prompt=True,
+    envvar="PBENCH_ACCESS_TOKEN",
+    help="pbench server authentication token (will prompt if unspecified)",
+)
+@click.option(
+    "--prefix", help="Pbench prefix (Obsolete)",
+)
+@click.option(
+    "--xz-single-threaded", help="Use single threaded compression (Obsolete)",
+)
+@click.option(
+    "--show-server", help="pbench server where tarball will be moved (Not implemented)",
+)
+@pass_cli_context
+def pmr(
+    context: click.Context,
+    controller: str,
+    user: str,
+    token: str,
+    prefix: str,
+    xz_single_threaded: str,
+    show_server: str,
+):
+    """
+        TODO:  This is latent code -- it is currently unused and largely
+            untested, intended to implement a future tool to replace
+            pbench-make-result-tb and/or pbench-move-results.
+    """
+    PROG = "pmr"
+    context.controller = controller
+    context.token = token
+
+    if user:
+        print(f"{PROG}: Option --user is no longer being used", file=sys.stderr)
+    if prefix:
+        print(f"{PROG}: Option --prefix is no longer being used", file=sys.stderr)
+    if xz_single_threaded:
+        print(f"{PROG}: Option --xz-single-threaded is ignored", file=sys.stderr)
+    if show_server:
+        print(f"{PROG}: Option --show-server is ignored", file=sys.stderr)
 
     try:
-        temp_dir = tempfile.mkdtemp(
-            dir=config.pbench_tmp, prefix="pbench-move-results."
+        rv = MoveResults(context).execute()
+    except Exception as exc:
+        click.echo(exc, err=True)
+        rv = 1
+
+    click.get_current_context().exit(rv)
+
+
+class ResultsPush(BaseCommand):
+    def __init__(self, context: click.Context):
+        super().__init__(context)
+
+    def execute(self) -> int:
+        logger = get_pbench_logger("pbench-agent", self.config)
+        crt = CopyResultTb(
+            self.context.controller, self.context.result_tb_name, self.config, logger
         )
-    except Exception:
-        logger.error("Failed to create temporary directory")
-        sys.exit(1)
+        crt.copy_result_tb(self.context.token)
+        return 0
 
-    runs_copied = 0
-    failures = 0
 
-    for dirent in config.pbench_run.iterdir():
-        if not dirent.is_dir():
-            continue
-        if dirent.name.startswith("tools-") or dirent.name == "tmp":
-            continue
-        result_dir = dirent
-        mrt = MakeResultTb(result_dir, temp_dir, _user, _prefix, config, logger)
-        result_tb_name = mrt.make_result_tb()
-        assert (
-            result_tb_name
-        ), "Logic bomb!  make_result_tb() always returns a tar ball name"
-        crt = CopyResultTb(controller, result_tb_name, config, logger)
-        crt.copy_result_tb()
-        try:
-            # We always remove the constructed tar ball, regardless of success
-            # or failure, since we keep the result directory below on failure.
-            os.remove(result_tb_name)
-            os.remove(f"{result_tb_name}.md5")
-        except OSError:
-            logger.error("rm failed to remove %s and its .md5 file", result_tb_name)
-            sys.exit(1)
+@click.command()
+@common_options
+@click.option(
+    "--token",
+    required=True,
+    prompt=True,
+    envvar="PBENCH_ACCESS_TOKEN",
+    help="pbench server authentication token (will prompt if unspecified)",
+)
+@click.argument("controller")
+@click.argument(
+    "result_tb_name",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
+)
+@pass_cli_context
+def results_push(
+    context: click.Context, controller: str, result_tb_name: str, token: str,
+):
+    """Push a results tarball to the Pbench server.
 
-        try:
-            shutil.rmtree(result_dir)
-        except OSError:
-            logger.error("rm failed to remove the %s directory hierarchy", result_dir)
-            sys.exit(1)
+        \b
+        CONTROLLER is the name of the controlling node.
+        RESULT_TB_NAME is the path to the results tarball.
+        \f
+        (This docstring will be printed as the help text for this command;
+        the backslash-escaped letters are formatting directives; this
+        parenthetical text will not appear in the help output.)
+    """
+    context.controller = controller
+    context.result_tb_name = result_tb_name
+    context.token = token
 
-        runs_copied += 1
+    try:
+        rv = ResultsPush(context).execute()
+    except Exception as exc:
+        click.echo(exc, err=True)
+        rv = 1
 
-    if runs_copied + failures > 0:
-        logger.debug(
-            "successfully moved %s runs, encountered %s failures", runs_copied, failures
-        )
-
-    return runs_copied, failures
+    click.get_current_context().exit(rv)

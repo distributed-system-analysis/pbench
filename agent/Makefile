@@ -66,6 +66,7 @@ click-scripts = \
 	pbench-config \
 	pbench-list-tools \
 	pbench-list-triggers \
+	pbench-results-push \
 	pbench-register-tool-trigger
 
 bench-scripts = \
