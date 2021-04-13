@@ -100,7 +100,7 @@ class Tool:
     _tool_type = "Transient"
 
     def __init__(
-        self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None,
+        self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None, controller=None,
     ):
         assert logger is not None, "Logic bomb!  no logger provided!"
         self.logger = logger
@@ -113,6 +113,7 @@ class Tool:
         self.tool_dir = tool_dir
         self.start_process = None
         self.stop_process = None
+        self.controller = controller
 
     def _check_no_processes(self):
         if self.start_process is not None:
@@ -475,6 +476,7 @@ class JaegerTool(PersistentTool):
 
     def __init__(self, name, tool_opts, logger=None, **kwargs):
         super().__init__(name, tool_opts, logger=logger, **kwargs)
+        assert self.controller is not None, "Logic bomb!  no controller provided!"
 
         # hostname of the collector is the same as the controller
         executable = find_executable("jaeger-agent")
