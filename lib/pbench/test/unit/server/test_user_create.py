@@ -11,6 +11,7 @@ class TestCreateUser:
     EMAIL_SWITCH = "--email"
     FIRST_NAME_SWITCH = "--first-name"
     LAST_NAME_SWITCH = "--last-name"
+    ROLE_SWITCH = "--role"
     USER_TEXT = "test_user"
     PSWD_TEXT = "password"
     EMAIL_TEXT = "test@domain.com"
@@ -75,3 +76,52 @@ class TestCreateUser:
             == f"{TestCreateUser.PSWD_PROMPT}\n" + "User test_user registered\n"
         )
         assert not result.stderr_bytes
+
+    @staticmethod
+    @responses.activate
+    def test_admin_user_creation(server_config, pytestconfig):
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            user_create.main,
+            args=[
+                TestCreateUser.USER_SWITCH,
+                TestCreateUser.USER_TEXT,
+                TestCreateUser.EMAIL_SWITCH,
+                TestCreateUser.EMAIL_TEXT,
+                TestCreateUser.FIRST_NAME_SWITCH,
+                TestCreateUser.FIRST_NAME_TEXT,
+                TestCreateUser.LAST_NAME_SWITCH,
+                TestCreateUser.LAST_NAME_TEXT,
+                TestCreateUser.ROLE_SWITCH,
+                "ADMIN",
+            ],
+            input=f"{TestCreateUser.PSWD_TEXT}\n",
+        )
+        assert result.exit_code == 0
+        assert (
+            result.stdout
+            == f"{TestCreateUser.PSWD_PROMPT}\n" + "Admin user test_user registered\n"
+        )
+        assert not result.stderr_bytes
+
+    @staticmethod
+    @responses.activate
+    def test_user_creation_with_invalid_role(server_config, pytestconfig):
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            user_create.main,
+            args=[
+                TestCreateUser.USER_SWITCH,
+                TestCreateUser.USER_TEXT,
+                TestCreateUser.EMAIL_SWITCH,
+                TestCreateUser.EMAIL_TEXT,
+                TestCreateUser.FIRST_NAME_SWITCH,
+                TestCreateUser.FIRST_NAME_TEXT,
+                TestCreateUser.LAST_NAME_SWITCH,
+                TestCreateUser.LAST_NAME_TEXT,
+                TestCreateUser.ROLE_SWITCH,
+                "ADMN",
+            ],
+            input=f"{TestCreateUser.PSWD_TEXT}\n",
+        )
+        assert result.exit_code == 2
