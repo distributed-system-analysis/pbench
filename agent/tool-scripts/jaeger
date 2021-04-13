@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+# -*- mode: python -*-
+
+"""Place-holder "jaeger" persistent tool, providing a help message like the
+other existing transient tools, and issuing a warning indicating this script
+is not actually executed directly.
+The actual tool invocation is handled directly by the Tool Meister code.
+This is associated with the Prometheus collector run by the Tool Data Sink.
+"""
+
+import sys
+
+
+if len(sys.argv) == 2 and sys.argv[1] == "--help":
+    help = """Options:
+--interval=# (number of seconds between collections)
+For more information on this tool, please see jaeger docs at:
+\thttps://www.jaegertracing.io/docs/1.22/
+"""
+    print(help)
+    sys.exit(0)
+
+print(
+    "This script is a place-holder only; please run it with '--help' for"
+    " info on registering the tool.",
+    file=sys.stderr,
+)
+sys.exit(1)
+

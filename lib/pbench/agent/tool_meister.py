@@ -100,7 +100,13 @@ class Tool:
     _tool_type = "Transient"
 
     def __init__(
-        self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None,
+        self,
+        name,
+        tool_opts,
+        pbench_install_dir=None,
+        tool_dir=None,
+        logger=None,
+        controller=None,
     ):
         assert logger is not None, "Logic bomb!  no logger provided!"
         self.logger = logger
@@ -113,6 +119,7 @@ class Tool:
         self.tool_dir = tool_dir
         self.start_process = None
         self.stop_process = None
+        self.controller = controller
 
     def _check_no_processes(self):
         if self.start_process is not None:
@@ -588,6 +595,33 @@ class PcpTool(PersistentTool):
         return (0, "pcp tool (pmcd) properly installed")
 
 
+class JaegerTool(PersistentTool):
+    """JaegerTool - provides specifics for running a Jaeger Agent on the host"""
+
+    # port where the jaeger collector accepts spans
+    DEFAULT_COLLECTOR_PORT = 14250
+
+    def __init__(self, name, tool_opts, logger=None, **kwargs):
+        super().__init__(name, tool_opts, logger=logger, **kwargs)
+        assert self.controller is not None, "Logic bomb!  no controller provided!"
+
+        # hostname of the collector is the same as the controller
+        executable = find_executable("jaeger-agent")
+        if executable:
+            self.args = [
+                executable,
+                "--reporter.grpc.host-port="
+                f"{self.controller}:{self.DEFAULT_COLLECTOR_PORT}",
+            ]
+        else:
+            self.args = None
+
+    def install(self):
+        if self.args is None:
+            return (1, "jaeger tool (jaeger-agent) not found")
+        return (0, "jaeger tool (jaeger-agent) properly installed")
+
+
 class Terminate(Exception):
     """Simple exception to be raised when the Tool Meister main loop should exit
     gracefully.
@@ -709,6 +743,7 @@ class ToolMeister:
     # FIXME - we should eventually allow them to be loaded externally.
     _tool_name_class_mappings = {
         "dcgm": DcgmTool,
+        "jaeger": JaegerTool,
         "node-exporter": NodeExporterTool,
         "pcp": PcpTool,
         "pcp-transient": PcpTransTool,
@@ -820,6 +855,7 @@ class ToolMeister:
                     pbench_install_dir=self.pbench_install_dir,
                     tool_dir=self._tool_dir,
                     logger=self.logger,
+                    controller=self._controller,
                 )
                 # FIXME - consider running these in parallel.
                 tool_installs[name] = tool.install()
@@ -1034,6 +1070,7 @@ class ToolMeister:
                         tool_opts,
                         pbench_install_dir=self.pbench_install_dir,
                         tool_dir=_tool_dir,
+                        controller=self._controller,
                         logger=self.logger,
                     )
                     persistent_tool.start()
