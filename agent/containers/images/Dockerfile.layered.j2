@@ -1,10 +1,14 @@
 # {{ distro }} pbench-agent {{ kind }} image
 FROM pbench-agent-base-{{ distro }}:{{ tag }}
 
+{% if kind in ('tools', 'all') %}
+COPY ./{{ distro }}-pcp.repo /etc/yum.repos.d/pcp.repo
+{% endif %}
+
 # Install all the RPMs required for this image.
 #
 # FIXME: this is not exhaustive, it does not include RPMs to support
 #        Kubernetes or RHV environments.
-RUN {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} install -y {% if distro == 'centos-8' %}--enablerepo powertools {% endif %}{{ rpms }} && \
+RUN {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} install -y --setopt=tsflags=nodocs {% if distro == 'centos-8' %}--enablerepo powertools {% endif %}{% if kind in ('tools', 'all') %}--enablerepo pcp {% endif %}{{ rpms }} && \
     {% if distro == 'centos-7' %}yum{% else %}dnf{% endif %} -y clean all && \
     rm -rf /var/cache/{% if distro == 'centos-7' %}yum{% else %}dnf{% endif %}

@@ -1,0 +1,5 @@
++++ Running test-30 pbench-verify-sysinfo-options libvirt,default,kernel_config,all,topology,none
+--- Finished test-30 pbench-verify-sysinfo-options (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+--- pbench tree state

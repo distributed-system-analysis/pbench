@@ -126,30 +126,6 @@ if [[ -z "$scp_opts" ]]; then
     export scp_opts
 fi
 
-if [[ -z "$prom_reg" ]]; then
-    prom_reg=$(pbench-config prometheus container-registry)
-    if [[ -z "$prom_reg" ]]; then
-        prom_reg='quay.io/prometheus/prometheus'
-    fi
-    export prom_reg
-fi
-
-if [[ -z "$pmlogger_reg" ]]; then
-    pmlogger_reg=$(pbench-config pcp_pmlogger container-registry)
-    if [[ -z "$pmlogger_reg" ]]; then
-        pmlogger_reg='quay.io/pbench/pcp-pmlogger'
-    fi
-    export pmlogger_reg
-fi
-
-if [[ -z "$pmcd_reg" ]]; then
-    pmcd_reg=$(pbench-config pcp_pmcd container-registry)
-    if [[ -z "$pmcd_reg" ]]; then
-        pmcd_reg='quay.io/pbench/pcp-pmcd'
-    fi
-    export pmcd_reg
-fi
-
 function is_redhat() {
     grep -q 'Red Hat' /etc/redhat-release
     return $?
@@ -245,7 +221,7 @@ function verify_tool_group {
 
 function verify_collect_sysinfo {
     local sysinfo="${1}"
-    pbench-collect-sysinfo --sysinfo=${sysinfo} --check
+    pbench-verify-sysinfo-options "${sysinfo}"
     local ret=${?}
     if [[ ${ret} -ne 0 ]]; then
         printf -- "\t${script_name}: invalid --sysinfo option (\"${sysinfo}\")\n" >&2
@@ -294,12 +270,10 @@ function resolve_benchmark_bin {
 }
 
 function interrupt() {
-    # On abnormal exit, stop the tool meister ...
-    pbench-tool-meister-stop
+    # On abnormal exit, stop the tool meister declaring an interrupt occurred.
+    pbench-tool-meister-stop --interrupt "${tool_group}"
     if [[ ${?} != 0 ]]; then
         error_log "[${script_name}]: failed to stop the tool meisters on interrupt."
     fi
-    # ... and make sure that the metadata log exists and is complete.
-    pbench-metadata-log --group=${tool_group} --dir=${benchmark_run_dir} int
     return 0
 }

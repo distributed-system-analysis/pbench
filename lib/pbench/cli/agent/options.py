@@ -19,13 +19,13 @@ def _pbench_agent_config(f):
     return click.option(
         "-C",
         "--config",
+        required=True,
         envvar="_PBENCH_AGENT_CONFIG",
-        type=click.Path(exists=True),
+        type=click.Path(exists=True, readable=True),
         callback=callback,
         expose_value=False,
         help=(
-            "Path to a pbench-agent config. If provided pbench will load "
-            "this config file first. By default is looking for config in "
-            "'_PBENCH_AGENT_CONFIG' envrionment variable."
+            "Path to a pbench-agent configuration file (defaults to the "
+            "'_PBENCH_AGENT_CONFIG' environment variable, if defined)"
         ),
     )(f)

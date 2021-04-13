@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+"""Simple command-line wrapper to keep the tool data sink from being in the
+CLI command set, while still allowing it to be invoked by the container entry
+point.
+"""
+
+import sys
+
+from pbench.agent.tool_data_sink import main
+
+
+status = main(sys.argv)
+sys.exit(status)

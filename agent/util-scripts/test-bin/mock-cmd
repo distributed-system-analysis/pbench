@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import time
+
+from pathlib import Path
+
+
+with open(os.environ["_testlog"], "a") as ofp:
+    args = " ".join(sys.argv)
+    ofp.write(f"{args}\n")
+
+_prog = os.path.basename(sys.argv[0])
+
+# Create a file in the current working directory to mark its use so we can
+# ensure we don't run programs where they were not supposed to run.
+if _prog not in ("pbench-tool-meister-client", "yum", "scp"):
+    with open(f"{_prog}.file", "a+") as ofp:
+        args = " ".join(sys.argv)
+        ofp.write(f"{args}\n")
+
+_sleep = 0
+if _prog == "pbench-sysinfo-dump":
+    tgtdir = Path(sys.argv[1])
+    sysinfo = sys.argv[2]
+    (tgtdir / "contents.lis").write_text(sysinfo)
+elif _prog == "node_exporter" or (_prog == "prometheus" and sys.argv[1] == "run"):
+    _sleep = 9999
+
+if _sleep > 0:
+    time.sleep(_sleep)
+
+sys.exit(0)

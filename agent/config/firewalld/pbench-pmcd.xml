@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>pbench-pmcd</short>
+  <description>Pbench Agent PCP pmcd</description>
+  <port protocol="tcp" port="55677"/>
+</service>

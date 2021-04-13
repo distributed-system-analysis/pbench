@@ -102,6 +102,7 @@ fio job complete
 [debug][1900-01-01T00:00:00.000000] starting new fio process on the clients
 [debug][1900-01-01T00:00:00.000000] waiting for fio process(server) to start on clients
 [debug][1900-01-01T00:00:00.000000] fio: Going to run [/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm --output-format=json /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/fio.job  --client=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/fio-client.file --max-jobs=2]
+[debug][1900-01-01T00:00:00.000000] post-processing tool data
 [debug][1900-01-01T00:00:00.000000] post-processing fio result
 --- pbench.log file contents
 +++ test-execution.log file contents
@@ -112,19 +113,12 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 99.5 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/fio_clat_hist.empty.log
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 99.5 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.bar/fio_clat_hist.empty.log /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/fio_clat_hist.empty.log
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/fio-histo-log-pctiles.py --time-quantum 10 --percentiles 0 50 90 95 99 99.5 100 -- /var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1/clients/hist.foo/fio_clat_hist.empty.log
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00 --sysinfo=default beg
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00 --sysinfo=default end
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-collect-sysinfo --sysinfo=default --check
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-end-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-init-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00 beg
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-metadata-log --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00 end
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-32_1900.01.01T00.00.00/1-rw-42KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start default
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=default default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.bar /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.bar firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no hist.bar killall fio >/dev/null 2>&1

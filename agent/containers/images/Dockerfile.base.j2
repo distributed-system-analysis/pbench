@@ -13,9 +13,9 @@ RUN \
     {{ pkgmgr }} module -y disable python38 && \
 {% endif %}
 {% if distro_image.startswith('centos') %}
-    {{ pkgmgr }} install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ distro_image.split(':', 1)[1] }}.noarch.rpm && \
+    {{ pkgmgr }} install -y --setopt=tsflags=nodocs https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ distro_image.split(':', 1)[1] }}.noarch.rpm && \
 {% endif %}
-    {{ pkgmgr }} install -y {% if distro_image == 'centos:8' %}--enablerepo powertools glibc-locale-source {% endif %} pbench-agent && \
+    {{ pkgmgr }} install -y --setopt=tsflags=nodocs {% if distro_image == 'centos:8' %}--enablerepo powertools glibc-locale-source {% endif %} pbench-agent && \
 {% if distro_image == 'centos:8' %}
     localedef -i en_US -f UTF-8 en_US.UTF-8 && \
 {% endif %}

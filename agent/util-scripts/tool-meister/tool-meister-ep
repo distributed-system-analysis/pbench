@@ -1,0 +1,8 @@
+#!/bin/bash
+
+_dir="$(dirname ${0})"
+
+source /etc/profile.d/pbench-agent.sh
+source /opt/pbench-agent/base
+# Instruct the Tool Meister not to daemonize.
+/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister "${REDIS_HOST}" "${REDIS_PORT}" "${PARAM_KEY}" no

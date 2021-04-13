@@ -16,6 +16,6 @@ function tagit {
     buildah tag ${1}:${githash} ${1}:${tag}
 }
 
-for image in base tools workloads all; do
+for image in base tools tool-meister tool-data-sink workloads all; do
     tagit pbench-agent-${image}-${distro}
 done

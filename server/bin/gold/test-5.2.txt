@@ -683,9 +683,11 @@ drwxrwxr-x          - logs/pbench-dispatch
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        265 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       7679 logs/pbench-index/pbench-index.log
+-rw-rw-r--       7805 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--       2988 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
+drwxrwxr-x          - logs/pbench-state-manager
+-rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
 drwxrwxr-x          - logs/pbench-sync-satellite
 drwxrwxr-x          - logs/pbench-sync-satellite/ONE
 -rw-rw-r--        219 logs/pbench-sync-satellite/pbench-sync-satellite.error
@@ -968,31 +970,31 @@ run-1970-01-01T00:00:42-UTC: Processed 10 result tar balls, 7 successfully (0 pa
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- start processing list of tar balls
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-0_1970.01.01T00.42.00.tar.xz (size 212)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs process_tb -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz - tar ball is missing "tarball-0_1970.01.01T00.42.00/metadata.log".
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs emit_error -- Tar ball does not contain a metadata.log file: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-0_1970.01.01T00.42.00.tar.xz - tar ball is missing "tarball-0_1970.01.01T00.42.00/metadata.log".
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-0_1970.01.01T00.42.00.tar.xz (size 212)
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/TO-INDEX/tarball-normal_1970.01.01T00.42.00.tar.xz (size 216)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs process_tb -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz - tar ball is missing "tarball-normal_1970.01.01T00.42.00/metadata.log".
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs emit_error -- Tar ball does not contain a metadata.log file: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/tarball-normal_1970.01.01T00.42.00.tar.xz - tar ball is missing "tarball-normal_1970.01.01T00.42.00/metadata.log".
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-g-normal/TO-INDEX/tarball-normal_1970.01.01T00.42.00.tar.xz (size 216)
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/TO-INDEX/tarball-simple1_1970-01-01T00:42:00.tar.xz (size 220)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs process_tb -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz - tar ball is missing "tarball-simple1_1970-01-01T00:42:00/metadata.log".
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs emit_error -- Tar ball does not contain a metadata.log file: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/tarball-simple1_1970-01-01T00:42:00.tar.xz - tar ball is missing "tarball-simple1_1970-01-01T00:42:00/metadata.log".
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerA/TO-INDEX/tarball-simple1_1970-01-01T00:42:00.tar.xz (size 220)
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/TO-INDEX/tarball-simple2_1970-01-01T00:41:00.tar.xz (size 220)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs process_tb -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz - tar ball is missing "tarball-simple2_1970-01-01T00:41:00/metadata.log".
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs emit_error -- Tar ball does not contain a metadata.log file: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/tarball-simple2_1970-01-01T00:41:00.tar.xz - tar ball is missing "tarball-simple2_1970-01-01T00:41:00/metadata.log".
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerB/TO-INDEX/tarball-simple2_1970-01-01T00:41:00.tar.xz (size 220)
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz (size 224)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs process_tb -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz - tar ball is missing "tarball-w-dot-prefix_1970.01.01T00.42.00/metadata.log".
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs emit_error -- Tar ball does not contain a metadata.log file: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz - tar ball is missing "tarball-w-dot-prefix_1970.01.01T00.42.00/metadata.log".
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-dot-prefix_1970.01.01T00.42.00.tar.xz (size 224)
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz (size 224)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs process_tb -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz - tar ball is missing "tarball-w-prefix-dot_1970.01.01T00.42.00/metadata.log".
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs emit_error -- Tar ball does not contain a metadata.log file: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz - tar ball is missing "tarball-w-prefix-dot_1970.01.01T00.42.00/metadata.log".
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/controller-b-with-prefixes/TO-INDEX/tarball-w-prefix-dot_1970.01.01T00.42.00.tar.xz (size 224)
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/TO-INDEX/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz (size 228)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs process_tb -- Unsupported tar ball format: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz - tar ball is missing "tarball-simple0-prefix_1970-01-01T00:42:00/metadata.log".
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs emit_error -- Tar ball does not contain a metadata.log file: /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz - tar ball is missing "tarball-simple0-prefix_1970-01-01T00:42:00/metadata.log".
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-version-001/ONE::controllerC/TO-INDEX/tarball-simple0-prefix_1970-01-01T00:42:00.tar.xz (size 228)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- stopped processing list of tar balls
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 0 (skipped 7) results, 0 errors
@@ -1015,6 +1017,8 @@ run-1970-01-01T00:00:42-UTC: Processed 10 result tar balls, 7 successfully (0 pa
 1970-01-01T00:00:42.000000 DEBUG pbench-server-prep-shim-002.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-server-prep-shim-002.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
++++++ pbench-state-manager/pbench-state-manager.log
+----- pbench-state-manager/pbench-state-manager.log
 +++++ pbench-sync-satellite/pbench-sync-satellite.error
 pbench-sync-satellite: completing satellite state changes ... (/var/tmp/pbench-test-server/test-5.2/pbench-local/logs/pbench-sync-satellite/ONE/change_state.log)
 pbench-sync-satellite: completed satellite state changes
@@ -1104,3 +1108,18 @@ selinux.restorecon('/var/tmp/pbench-test-server/test-5.2/pbench/archive/fs-versi
 ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-sync-package-tarballs
 ssh pbench-satellite.example.com /var/tmp/pbench-test-server/test-5.2/opt/pbench-server-satellite/bin/pbench-satellite-state-change /var/tmp/pbench-test-server/test-5.2/pbench-satellite/archive/fs-version-001
 --- test-execution.log file contents
++++ SqliteDB Datasets
+public|ONE::controllerA|tarball-simple1_1970-01-01T00:42:00|UNPACKED| ARCHIVED = True
+public|ONE::controllerB|tarball-simple2_1970-01-01T00:41:00|UNPACKED| ARCHIVED = True
+public|ONE::controllerC|tarball-simple0-prefix_1970-01-01T00:42:00|UNPACKED| ARCHIVED = True
+public|controller-b-with-prefixes|tarball-0_1970.01.01T00.42.00|UNPACKED| ARCHIVED = True
+public|controller-b-with-prefixes|tarball-w-dot-prefix_1970.01.01T00.42.00|UNPACKED| ARCHIVED = True
+public|controller-b-with-prefixes|tarball-w-prefix-dot_1970.01.01T00.42.00|UNPACKED| ARCHIVED = True
+public|controller-d-duplicate|DUPLICATE__NAME.tarball-duplicate_1970.01.01T00.42.00|QUARANTINED|
+public|controller-d-duplicate|tarball-duplicate_1970.01.01T00.42.00|QUARANTINED| ARCHIVED = True
+public|controller-d-duplicate|tarball-that-does-not-exist_1970.01.01T00.42.00|QUARANTINED|
+public|controller-e-bad-md5|tarball-bad-md5_1970.01.01T00.42.00|QUARANTINED|
+public|controller-f-bad-md5|tarball-bad-md5-1_1970.01.01T00.42.00|QUARANTINED|
+public|controller-g-normal|tarball-normal_1970.01.01T00.42.00|UNPACKED| ARCHIVED = True
+public|controller-h-bad-md5|tarball-bad-md5_1970.01.01T00.42.00|QUARANTINED|
+--- SqliteDB Datasets

@@ -26,10 +26,6 @@ class UnsupportedTarballFormat(Exception):
     pass
 
 
-class SosreportHostname(Exception):
-    pass
-
-
 class JsonFileError(Exception):
     pass
 

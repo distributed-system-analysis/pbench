@@ -1,0 +1,19 @@
++++ Running test-54 pbench-tool-meister-start --help
+usage: Usage: pbench-tool-meister-start [--sysinfo <list of system information items>]
+       [-h] [--sysinfo SYSINFO] [--redis-server REDIS_SERVER] tool_group
+
+positional arguments:
+  tool_group            The tool group name of tools to be run by the Tool
+                        Meisters.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --sysinfo SYSINFO     The list of system information items to be collected.
+  --redis-server REDIS_SERVER
+                        Use an existing Redis server specified by
+                        <hostname>:<port>; implies an existing Tool Data Sink
+                        and Tool Meisters as well.
+--- Finished test-54 pbench-tool-meister-start (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+--- pbench tree state

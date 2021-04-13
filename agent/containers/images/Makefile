@@ -27,9 +27,43 @@ IMAGE_REPO = docker://quay.io/pbench
 # Not intended to be overridden with an environment variable.
 _REPO_TEMPLATE = ../../ansible/pbench/agent/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
 
+# NOTE: Currently we require 5.2.2 of the PCP RPMs because using the 5.2.3
+# version prevents us from integrating with Grafana, see PCP Issue #1183,
+# https://github.com/performancecopilot/pcp/issues/1183.
+# NOTE: We also have to enumerate so many RPMs because for CentOS 7 the RPM
+# dependency resolver does not properly resolve to the same version RPMs. Once
+# we no longer have to use v5.2.2, we can just list 3 RPMs: pcp-zeroconf,
+# pcp-system-tools, and pcp-gui.
+_PCP_RPMS = \
+	pcp-doc-5.2.2 \
+	pcp-gui-5.2.2 \
+	pcp-pmda-dm-5.2.2 \
+	pcp-pmda-nfsclient-5.2.2 \
+	pcp-pmda-openmetrics-5.2.2 \
+	pcp-system-tools-5.2.2 \
+	pcp-zeroconf-5.2.2 \
+	python3-pcp-5.2.2
 # The list of RPMs which provide the various tools we offer.
 # Not intended to be overridden with an environment variable.
-_TOOL_RPMS = blktrace bpftrace cpupowerutils golang kernel-tools libvirt-client nmap-ncat numactl pbench-sysstat pcp-system-tools perf procps-ng strace tcpdump trace-cmd
+# Please keep the lists sorted.
+_TOOL_RPMS = \
+	blktrace \
+	bpftrace \
+	cpupowerutils \
+	golang \
+	kernel-tools \
+	libvirt-client \
+	nmap-ncat \
+	node_exporter \
+	numactl \
+	pbench-sysstat \
+	${_PCP_RPMS} \
+	perf \
+	procps-ng \
+	prometheus2 \
+	strace \
+	tcpdump \
+	trace-cmd
 
 # The list of RPMs for the default workloads we offer.
 # Not intended to be overridden with an environment variable.
@@ -41,7 +75,37 @@ _ALL_RPMS = ${_TOOL_RPMS} ${_WORKLOAD_RPMS}
 # By default we only build images for the following distributions:
 _DISTROS = centos-8 centos-7 fedora-33 fedora-32
 
+# By default we won't build the Tool Data Sink and Tool Meister images
 all: all-tags $(foreach distro, ${_DISTROS}, ${distro}-all-tagged)
+
+tds: all-tags $(foreach distro, ${_DISTROS}, ${distro}-tool-data-sink-tagged)
+
+tm: all-tags $(foreach distro, ${_DISTROS}, ${distro}-tool-meister-tagged)
+
+# We also offer targets per distribution target
+centos-8: all-tags centos-8-all-tagged
+
+centos-7: all-tags centos-7-all-tagged
+
+fedora-33: all-tags fedora-33-all-tagged
+
+fedora-32: all-tags fedora-32-all-tagged
+
+centos-8-tds: all-tags centos-8-tool-data-sink-tagged
+
+centos-7-tds: all-tags centos-7-tool-data-sink-tagged
+
+fedora-33-tds: all-tags fedora-33-tool-data-sink-tagged
+
+fedora-32-tds: all-tags fedora-32-tool-data-sink-tagged
+
+centos-8-tm: all-tags centos-8-tool-meister-tagged
+
+centos-7-tm: all-tags centos-7-tool-meister-tagged
+
+fedora-33-tm: all-tags fedora-33-tool-meister-tagged
+
+fedora-32-tm: all-tags fedora-32-tool-meister-tagged
 
 #+
 # Tagging targets
@@ -97,16 +161,34 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-all-tagged: %-all %-tags.lis
 	./apply-tags pbench-agent-all-$* $*-tags.lis
 
-%-all: %-tools-tagged %-workloads-tagged %-all.Dockerfile
+%-all: %-workloads-tagged %-tool-data-sink-tagged %-tool-meister-tagged %-all.Dockerfile
 	./build-image all $* $*-tags.lis
 
 %-all.Dockerfile: Dockerfile.layered.j2 %-tags.lis
 	jinja2 Dockerfile.layered.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" -D kind="all" -D rpms="${_ALL_RPMS}" > ./$@
 
+%-tool-data-sink-tagged: %-tool-data-sink %-tags.lis
+	./apply-tags pbench-agent-tool-data-sink-$* $*-tags.lis
+
+%-tool-data-sink: %-tools-tagged %-tool-data-sink.Dockerfile
+	./build-image tool-data-sink $* $*-tags.lis
+
+%-tool-data-sink.Dockerfile: Dockerfile.tds.j2 %-tags.lis
+	jinja2 Dockerfile.tds.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" > ./$@
+
+%-tool-meister-tagged: %-tool-meister %-tags.lis
+	./apply-tags pbench-agent-tool-meister-$* $*-tags.lis
+
+%-tool-meister: %-tools-tagged %-tool-meister.Dockerfile
+	./build-image tool-meister $* $*-tags.lis
+
+%-tool-meister.Dockerfile: Dockerfile.tm.j2 %-tags.lis
+	jinja2 Dockerfile.tm.j2 -D distro=$* -D tag="$$(grep -v -E '^v' $*-tags.lis)" > ./$@
+
 %-tools-tagged: %-tools %-tags.lis
 	./apply-tags pbench-agent-tools-$* $*-tags.lis
 
-%-tools: %-base-tagged %-tools.Dockerfile
+%-tools: %-base-tagged %-tools.Dockerfile %-pcp.repo
 	./build-image tools $* $*-tags.lis
 
 %-tools.Dockerfile: Dockerfile.layered.j2 %-tags.lis
@@ -204,15 +286,23 @@ fedora-32-base.Dockerfile: Dockerfile.base.j2 fedora-32-pbench.repo
 # Helper target to build each distro's ".repo" and ".Dockerfile"
 all-dockerfiles: $(foreach distro, ${_DISTROS}, ${distro}-base.Dockerfile ${distro}-tools.Dockerfile ${distro}-workloads.Dockerfile ${distro}-all.Dockerfile)
 
-# Rule pattern dependencies on non-patterned targets have to be set up
-# separately for some reason.
-%.repo: ${_REPO_TEMPLATE}
+%-pbench.repo: %-pbench.yml ${_REPO_TEMPLATE}
+	jinja2 ${_REPO_TEMPLATE} $*-pbench.yml -o $@
 
-%.repo: %.yml
-	jinja2 ${_REPO_TEMPLATE} $*.yml -o $@
+%-pbench.yml: repo.yml.j2
+	jinja2 repo.yml.j2 -D distro=$* -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -D user=${USER} -o $@
 
-%.yml: repo.yml.j2
-	jinja2 repo.yml.j2 -D distro=${@:-pbench.yml=} -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -D user=${USER} -o $@
+fedora-33-pcp.repo: pcp.repo.j2
+	jinja2 pcp.repo.j2 -D target=f33 -o $@
+
+fedora-32-pcp.repo: pcp.repo.j2
+	jinja2 pcp.repo.j2 -D target=f32 -o $@
+
+centos-8-pcp.repo: pcp.repo.j2
+	jinja2 pcp.repo.j2 -D target=el8 -o $@
+
+centos-7-pcp.repo: pcp.repo.j2
+	jinja2 pcp.repo.j2 -D target=el7 -o $@
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis

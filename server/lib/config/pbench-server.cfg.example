@@ -1,6 +1,7 @@
 [DEFAULT]
 # The values here override those in pbench-server-default.cfg.
-# An installation will want to override at least the following:
+# An installation must override at least the "example.com"
+# host names.
 default-host = pbench.example.com
 install-dir = /opt/pbench-server
 
@@ -26,9 +27,6 @@ secret_access_key = <the S3 object store secret access key provided by an admini
 bucket_name = <the name of an S3 bucket which will contain all of the tar ball objects after they are backed up>
 
 [Indexing]
-# CHANGE ME!
-# host:port - both must be specified.
-server = elasticsearch.example.com:9280
 index_prefix = pbench
 bulk_action_count = 2000
 
@@ -36,7 +34,6 @@ bulk_action_count = 2000
 host = elasticsearch.example.com
 port = 0000
 
-# These should be overridden in the env-specific config file.
 [graphql]
 host = graphql.example.com
 port = 0000

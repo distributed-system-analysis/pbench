@@ -211,6 +211,13 @@ for host in $hosts ;do
                 log_error "Failed to create the symlink for md5 check passed tarballs: ln -sf $PWD/$x SATELLITE-MD5-PASSED/$x" "${mail_content}"
                 continue
             fi
+            pbench-state-manager.py --create --controller="${remote_prefix}::${host}" --path="${x}" --state=uploaded
+            status=$?
+            if [[ $status != 0 ]] ;then
+                nerrs=$nerrs+1
+                log_error "Failed to create dataset for $x" "${mail_content}"
+                continue
+            fi
         done
     fi
     grep 'FAILED' $logdir/$host/md5-checks.log > $logdir/$host/fail-checks.log

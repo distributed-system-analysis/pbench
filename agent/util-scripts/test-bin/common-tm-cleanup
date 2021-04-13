@@ -1,0 +1,21 @@
+redis_pid_file="${benchmark_run_dir}/tm/redis_17001.pid"
+tds_pid_file="${benchmark_run_dir}/tm/pbench-tool-data-sink.pid"
+
+function _kill_pid {
+    local _pid="$(cat ${1} 2> /dev/null)"
+    if [[ ! -z "${_pid}" ]]; then
+        printf -- "killing %s (%s)\n" "${1}" "${_pid}" >&2
+        kill -TERM ${_pid}
+        tail --pid=${_pid} -f /dev/null &> /dev/null
+    fi
+}
+
+function _cleanup {
+    _kill_pid "${redis_pid_file}"
+    _kill_pid "${tds_pid_file}"
+    for tm_pid_file in ${benchmark_run_dir}/tm/tm-*.pid; do
+        _kill_pid "${tm_pid_file}"
+    done
+}
+
+trap _cleanup INT QUIT TERM EXIT

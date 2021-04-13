@@ -233,7 +233,9 @@ drwxrwxr-x          - logs/pbench-audit-server
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        265 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       2305 logs/pbench-index/pbench-index.log
+-rw-rw-r--       2294 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-state-manager
+-rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
 -rw-rw-r--        860 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -303,12 +305,14 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- start processing list of tar balls
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Starting /var/tmp/pbench-test-server/test-7.1/pbench/archive/fs-version-001/controller/TO-INDEX/test_7.1_1970.01.01T00.00.00.tar.xz (size 1256)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- open tar ball
-1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs process_tb -- The metadata.log file is curdled in tar ball: /var/tmp/pbench-test-server/test-7.1/pbench/archive/fs-version-001/controller/test_7.1_1970.01.01T00.00.00.tar.xz - error fetching required metadata.log fields, "No section: 'run'"
+1970-01-01T00:00:42.000000 WARNING pbench-index.indexing_tarballs emit_error -- Bad metadata.log file encountered: /var/tmp/pbench-test-server/test-7.1/pbench/archive/fs-version-001/controller/test_7.1_1970.01.01T00.00.00.tar.xz - error fetching required metadata.log fields, "No section: 'run'"
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- Finished /var/tmp/pbench-test-server/test-7.1/pbench/archive/fs-version-001/controller/TO-INDEX/test_7.1_1970.01.01T00.00.00.tar.xz (size 1256)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- stopped processing list of tar balls
 1970-01-01T00:00:42.000000 INFO pbench-index.indexing_tarballs process_tb -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 0 (skipped 1) results, 0 errors
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
++++++ pbench-state-manager/pbench-state-manager.log
+----- pbench-state-manager/pbench-state-manager.log
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.error
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.error
 +++++ pbench-unpack-tarballs/pbench-unpack-tarballs.log
@@ -323,3 +327,6 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ++++ pbench-satellite-local/logs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
++++ SqliteDB Datasets
+public|controller|test_7.1_1970.01.01T00.00.00|UNPACKED|
+--- SqliteDB Datasets

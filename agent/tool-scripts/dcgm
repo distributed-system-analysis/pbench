@@ -4,28 +4,28 @@
 """Place-holder "dcgm" persistent tool, providing a help message like the
 other existing transient tools, and issuing a warning indicating this script
 is not actually executed directly.
+
+The actual tool invocation is handled directly by the Tool Meister code.
+This is associated with the Prometheus collector run by the Tool Data Sink.
 """
 
 import sys
-import os
-import logging
 
-PROG = os.path.basename(sys.argv[0])
-logger = logging.getLogger(PROG)
-logger.setLevel(logging.DEBUG)
-sh = logging.StreamHandler()
-sh.setLevel(logging.DEBUG)
-shf = logging.Formatter("%(message)s")
-sh.setFormatter(shf)
-logger.addHandler(sh)
 
-if len(sys.argv) != 2 or sys.argv[1] != "--help":
-    logger.info(
-        "This script is deprecated, please run it with --help for info on registering the tool."
-    )
-    logger.info("Run /opt/pbench-agent/tool-scripts/dcgm --help for more info.")
-    exit(0)
+if len(sys.argv) == 2 and sys.argv[1] == "--help":
+    help = """Options:
 
-if sys.argv[1] == "--help":
-    logger.info("Options:")
-    logger.info("--inst=<LOCATION OF dcgm INSTALL> (required)")
+--interval=# (number of seconds between collections)
+
+For more information on this tool, please see Nvidia's "dcgm-exporter" at:
+\thttps://ngc.nvidia.com/catalog/containers/nvidia:k8s:dcgm-exporter
+"""
+    print(help)
+    sys.exit(0)
+
+print(
+    "This script is a place-holder only; please run it with '--help' for"
+    " info on registering the tool.",
+    file=sys.stderr,
+)
+sys.exit(1)
