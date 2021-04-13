@@ -29,7 +29,7 @@ class TestElasticsearch:
     def test_json_object(client, caplog, server_config):
         response = client.post(f"{server_config.rest_uri}/elasticsearch")
         assert response.status_code == 400
-        assert response.json.get("message") == "Invalid json object in the query"
+        assert response.json.get("message") == "Invalid request payload"
         assert len(caplog.records) == 1
         assert caplog.records[0].levelname == "WARNING"
 
@@ -39,9 +39,7 @@ class TestElasticsearch:
             f"{server_config.rest_uri}/elasticsearch", json={"indices": ""}
         )
         assert response.status_code == 400
-        assert (
-            response.json.get("message") == "Missing indices path in the post request"
-        )
+        assert response.json.get("message") == "Missing required parameters: indices"
         assert len(caplog.records) == 1
         assert caplog.records[0].levelname == "WARNING"
 
@@ -55,14 +53,6 @@ class TestElasticsearch:
             json={"indices": "some_invalid_url", "payload": '{ "babble": "42" }'},
         )
         assert response.status_code == 400
-
-        # This is a bit awkward, but the requests_mock throws in its own
-        # DEBUG log record to announce the POST; so allow it. (But don't
-        # fail if it's missing.)
-        if len(caplog.records) > 0:
-            assert len(caplog.records) == 2
-            assert caplog.records[0].levelname == "DEBUG"
-            assert caplog.records[0].name == "requests_mock.adapter"
 
 
 class TestGraphQL:

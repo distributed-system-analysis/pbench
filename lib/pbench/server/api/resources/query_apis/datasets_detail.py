@@ -1,37 +1,34 @@
+from flask import jsonify
 from logging import Logger
+from typing import Any, AnyStr, Dict
 
-from flask import request, jsonify
-from flask_restful import Resource, abort
-import requests
-
-from dateutil import parser
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.query_apis import (
-    get_es_url,
-    get_index_prefix,
-    gen_month_range,
-    get_user_term,
+    ElasticBase,
+    Schema,
+    Parameter,
+    ParamType,
 )
 
 
-class DatasetsDetail(Resource):
+class DatasetsDetail(ElasticBase):
     """
     Get detailed data from the run document for a dataset by name.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
-        """
-        __init__ Initialize the resource with info each call will need.
+        super().__init__(
+            config,
+            logger,
+            Schema(
+                Parameter("user", ParamType.USER, required=True),
+                Parameter("name", ParamType.STRING, required=True),
+                Parameter("start", ParamType.DATE, required=True),
+                Parameter("end", ParamType.DATE, required=True),
+            ),
+        )
 
-        Args:
-            :config: The Pbench server config object
-            :logger: a logger
-        """
-        self.logger = logger
-        self.es_url = get_es_url(config)
-        self.prefix = get_index_prefix(config)
-
-    def post(self):
+    def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
         """
         Get details for a specific Pbench dataset which is either owned
         by a specified username, or has been made publicly accessible.
@@ -54,7 +51,46 @@ class DatasetsDetail(Resource):
 
             "start" and "end" are time strings representing a set of Elasticsearch
                 run document indices in which the dataset will be found.
+        """
+        user = json_data["user"]
+        name = json_data["name"]
+        start = json_data["start"]
+        end = json_data["end"]
+        self.logger.info(
+            "Return dataset {} for user {}, prefix {}: ({} - {})",
+            name,
+            user,
+            self.prefix,
+            start,
+            end,
+        )
 
+        # TODO: Need to refactor the template processing code from indexer.py
+        # to maintain the essential indexing information in a persistent DB
+        # (probably a Postgresql table) so that it can be shared here and by
+        # the indexer without re-loading on each access. For now, the index
+        # version is hardcoded.
+        uri_fragment = self._gen_month_range(".v6.run-data.", start, end)
+        return {
+            "path": f"/{uri_fragment}/_search",
+            "kwargs": {
+                "params": {"ignore_unavailable": "true"},
+                "json": {
+                    "query": {
+                        "bool": {
+                            "filter": [
+                                {"match": {"run.name": name}},
+                                {"match": self._get_user_term(user)},
+                            ]
+                        }
+                    },
+                    "sort": "_index",
+                },
+            },
+        }
+
+    def postprocess(self, es_json: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+        """
         Returns details from the run, @metadata, and host_tools_info subdocuments
         of the Elasticsearch run document:
 
@@ -78,120 +114,22 @@ class DatasetsDetail(Resource):
             }
         ]
         """
-        json_data = request.get_json(silent=True)
-        if not json_data:
-            self.logger.info("Invalid JSON object. Query: {}", request.url)
-            abort(400, message="Invalid request payload")
+        hits = es_json["hits"]["hits"]
 
-        try:
-            user = json_data["user"]
-            name = json_data["name"]
-            start_arg = json_data["start"]
-            end_arg = json_data["end"]
-        except KeyError:
-            keys = [k for k in ("user", "name", "start", "end") if k not in json_data]
-            self.logger.info("Missing required JSON keys {}", ",".join(keys))
-            abort(400, message=f"Missing request data: {','.join(keys)}")
+        # NOTE: we're expecting just one. We're matching by just the
+        # dataset name, which ought to be unique.
+        if len(hits) != 1:
+            self.logger.warn("{} datasets found: expected exactly 1!", len(hits))
+        src = hits[0]["_source"]
 
-        try:
-            start = parser.parse(start_arg).replace(day=1)
-            end = parser.parse(end_arg).replace(day=1)
-        except Exception as e:
-            self.logger.info(
-                "Invalid start or end time string: {}, {}: {}", start_arg, end_arg, e
-            )
-            abort(400, message="Invalid start or end time string")
-
-        self.logger.info(
-            "Return dataset {} for user {}, prefix {}: ({} - {})",
-            name,
-            user,
-            self.prefix,
-            start,
-            end,
-        )
-
-        payload = {
-            "query": {
-                "bool": {
-                    "filter": [
-                        {"match": {"run.name": name}},
-                        {"match": get_user_term(user)},
-                    ]
-                }
-            },
-            "sort": "_index",
+        # We're merging the "run" and "@metadata" sub-documents into
+        # one dictionary, and then tacking on the host tools info in
+        # its original form.
+        run_metadata = src["run"]
+        run_metadata.update(src["@metadata"])
+        result = {
+            "runMetadata": run_metadata,
+            "hostTools": src["host_tools_info"],
         }
-
-        # TODO: Need to refactor the template processing code from indexer.py
-        # to maintain the essential indexing information in a persistent DB
-        # (probably a Postgresql table) so that it can be shared here and by
-        # the indexer without re-loading on each access. For now, the index
-        # version is hardcoded.
-        uri_fragment = gen_month_range(self.prefix, ".v6.run-data.", start, end)
-
-        uri = f"{self.es_url}/{uri_fragment}/_search"
-        try:
-            # query Elasticsearch
-            es_response = requests.post(
-                uri,
-                params={"ignore_unavailable": "true"},
-                headers={
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-                json=payload,
-            )
-            es_response.raise_for_status()
-        except requests.exceptions.HTTPError as e:
-            self.logger.exception("HTTP error {} from Elasticsearch post request", e)
-            abort(502, message="INTERNAL ERROR")
-        except requests.exceptions.ConnectionError:
-            self.logger.exception(
-                "Connection refused during the Elasticsearch post request"
-            )
-            abort(502, message="Network problem, could not post to Elasticsearch")
-        except requests.exceptions.Timeout:
-            self.logger.exception(
-                "Connection timed out during the Elasticsearch post request"
-            )
-            abort(504, message="Connection timed out, could not post to Elasticsearch")
-        except requests.exceptions.InvalidURL:
-            self.logger.exception(
-                "Invalid url {} during the Elasticsearch post request", uri
-            )
-            abort(500, message="INTERNAL ERROR")
-        except Exception:
-            self.logger.exception(
-                "Exception occurred during the Elasticsearch post request"
-            )
-            abort(500, message="INTERNAL ERROR")
-        else:
-            run_metadata = {}
-            try:
-                es_json = es_response.json()
-                hits = es_json["hits"]["hits"]
-
-                # NOTE: we're expecting just one. We're matching by just the
-                # dataset name, which ought to be unique.
-                if len(hits) != 1:
-                    self.logger.warn(
-                        "{} datasets found: expected exactly 1!", len(hits)
-                    )
-                src = hits[0]["_source"]
-
-                # We're merging the "run" and "@metadata" sub-documents into
-                # one dictionary, and then tacking on the host tools info in
-                # its original form.
-                run_metadata.update(src["run"])
-                run_metadata.update(src["@metadata"])
-                result = {
-                    "runMetadata": run_metadata,
-                    "hostTools": src["host_tools_info"],
-                }
-            except KeyError:
-                self.logger.exception("ES response not formatted as expected")
-                abort(500, message="INTERNAL ERROR")
-            else:
-                # construct response object
-                return jsonify(result)
+        # construct response object
+        return jsonify(result)

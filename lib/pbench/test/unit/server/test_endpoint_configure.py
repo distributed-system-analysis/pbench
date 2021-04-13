@@ -1,7 +1,5 @@
 from urllib.parse import urljoin
 
-from pbench.server.api.resources.query_apis import get_index_prefix
-
 
 class TestEnpointConfig:
     """
@@ -39,7 +37,7 @@ class TestEnpointConfig:
         uri_prefix = server_config.rest_uri
         host = "http://" + host
         uri = urljoin(host, uri_prefix)
-        prefix = get_index_prefix(server_config)
+        prefix = server_config.get("Indexing", "index_prefix")
         expected_results = {
             "identification": f"Pbench server {server_config.COMMIT_ID}",
             "indices": {

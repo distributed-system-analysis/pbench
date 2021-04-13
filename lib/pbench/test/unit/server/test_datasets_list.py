@@ -2,8 +2,6 @@ import pytest
 import re
 import requests
 
-from pbench.server.api.resources.query_apis import get_es_url, get_index_prefix
-
 
 @pytest.fixture
 def query_helper(client, server_config, requests_mock):
@@ -24,12 +22,12 @@ def query_helper(client, server_config, requests_mock):
     """
 
     def query_helper(payload, expected_index, expected_status, server_config, **kwargs):
-        es_url = get_es_url(server_config)
+        host = server_config.get("elasticsearch", "host")
+        port = server_config.get("elasticsearch", "port")
+        es_url = f"http://{host}:{port}"
         requests_mock.post(re.compile(f"{es_url}"), **kwargs)
         response = client.post(f"{server_config.rest_uri}/datasets/list", json=payload)
-        assert requests_mock.last_request.url == (
-            es_url + expected_index + "/_search?ignore_unavailable=true"
-        )
+        assert requests_mock.last_request.url == (es_url + expected_index + "/_search")
         assert response.status_code == expected_status
         return response
 
@@ -52,8 +50,7 @@ class TestDatasetsList:
         Args:
             dates (iterable): list of date strings
         """
-        prefix = get_index_prefix(server_config)
-        idx = prefix + ".v6.run-data."
+        idx = server_config.get("Indexing", "index_prefix") + ".v6.run-data."
         index = "/"
         for d in dates:
             index += f"{idx}{d},"
@@ -93,7 +90,8 @@ class TestDatasetsList:
         assert response.status_code == 400
         missing = [k for k in ("user", "controller", "start", "end") if k not in keys]
         assert (
-            response.json.get("message") == f"Missing request data: {','.join(missing)}"
+            response.json.get("message")
+            == f"Missing required parameters: {','.join(missing)}"
         )
 
     def test_bad_dates(self, client, server_config):
@@ -105,14 +103,17 @@ class TestDatasetsList:
             json={
                 "user": "drb",
                 "controller": "dbutenho.csb",
-                "start": "2020-15",
+                "start": "2020-12",
                 "end": "2020-19",
             },
         )
         assert response.status_code == 400
-        assert response.json.get("message") == "Invalid start or end time string"
+        assert (
+            response.json.get("message")
+            == "Value '2020-19' (str) cannot be parsed as a date/time string"
+        )
 
-    def test_query(self, client, server_config, query_helper):
+    def test_query(self, client, server_config, query_helper, user_ok):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.
@@ -188,7 +189,7 @@ class TestDatasetsList:
             {"exception": Exception, "status": 500},
         ),
     )
-    def test_http_error(self, client, server_config, query_helper, exceptions):
+    def test_http_error(self, client, server_config, query_helper, exceptions, user_ok):
         """
         test_http_error Check that an Elasticsearch error is reported
         correctly.
