@@ -608,6 +608,7 @@ class PcpCollector(BaseCollector):
         if cp.returncode != 0:
             self.logger.warning("Failed to tar up pmlogger data: %r", args)
 
+
 class JaegerCollector(BaseCollector):
     """Persistent tool data collector for Jaeger tracing"""
 
@@ -630,9 +631,7 @@ class JaegerCollector(BaseCollector):
                     dict(hostname=f"{host}_{tool}", hostport=f"{host}:{port}")
                 )
         if not self.tool_context:
-            raise ToolDataSinkError(
-                "Expected Jaeger persistent tool context not found"
-            )
+            raise ToolDataSinkError("Expected Jaeger persistent tool context not found")
 
     def launch(self):
         """launch - creates the YAML file that directs Jaeger's behavior,
@@ -663,9 +662,7 @@ class JaegerCollector(BaseCollector):
                     args, cwd=self.tool_dir, stdout=jaeger_logs, stderr=jaeger_logs
                 )
             except Exception as exc:
-                self.logger.error(
-                    "Jaeger process creation failed: '%s', %r", exc, args
-                )
+                self.logger.error("Jaeger process creation failed: '%s', %r", exc, args)
                 return
             else:
                 self.run.append(run)
