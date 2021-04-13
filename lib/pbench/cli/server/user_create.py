@@ -1,11 +1,12 @@
 import click
+
 from pbench import BadConfig
-from pbench.server import PbenchServerConfig
 from pbench.cli.server import pass_cli_context
 from pbench.cli.server.options import common_options
 from pbench.common.logger import get_pbench_logger
-from pbench.server.database.models.users import User
+from pbench.server import PbenchServerConfig
 from pbench.server.database.database import Database
+from pbench.server.database.models.users import Roles, User
 
 _NAME_ = "pbench-user-create"
 
@@ -29,9 +30,14 @@ class UserCreate:
             first_name=self.context.first_name,
             last_name=self.context.last_name,
             email=self.context.email,
+            role=self.context.role if self.context.role else "",
         )
+
         user.add()
-        click.echo(f"User {self.context.username} registered")
+        if user.is_admin():
+            click.echo(f"Admin user {self.context.username} registered")
+        else:
+            click.echo(f"User {self.context.username} registered")
 
 
 @click.command()
@@ -67,13 +73,28 @@ class UserCreate:
     required=True,
     help="pbench server account last name (will prompt if unspecified)",
 )
+@click.option(
+    "--role",
+    type=click.Choice([role.name for role in Roles], case_sensitive=False),
+    required=False,
+    help="Optional role of the user such as Admin",
+)
 @pass_cli_context
-def main(context, username, password, email, first_name, last_name):
+def main(
+    context: object,
+    username: str,
+    password: str,
+    email: str,
+    first_name: str,
+    last_name: str,
+    role: str,
+) -> None:
     context.username = username
     context.password = password
     context.email = email
     context.first_name = first_name
     context.last_name = last_name
+    context.role = role
 
     try:
         rv = UserCreate(context).execute()

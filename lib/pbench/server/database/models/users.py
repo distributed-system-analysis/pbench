@@ -1,9 +1,16 @@
 import datetime
-from flask_bcrypt import generate_password_hash
+import enum
+
 from email_validator import validate_email
-from sqlalchemy import Column, Integer, String, DateTime, LargeBinary
-from pbench.server.database.database import Database
+from flask_bcrypt import generate_password_hash
+from sqlalchemy import Column, DateTime, Enum, Integer, LargeBinary, String
 from sqlalchemy.orm import relationship, validates
+
+from pbench.server.database.database import Database
+
+
+class Roles(enum.Enum):
+    ADMIN = 1
 
 
 class User(Database.Base):
@@ -18,6 +25,7 @@ class User(Database.Base):
     password = Column(LargeBinary(128), nullable=False)
     registered_on = Column(DateTime, nullable=False, default=datetime.datetime.now())
     email = Column(String(255), unique=True, nullable=False)
+    role = Column(Enum(Roles), unique=False, nullable=True)
     auth_tokens = relationship("ActiveTokens", backref="users")
 
     def __str__(self):
@@ -66,6 +74,13 @@ class User(Database.Base):
             Database.db_session.rollback()
             raise
 
+    @validates("role")
+    def evaluate_role(self, key, value):
+        try:
+            return Roles[value.upper()]
+        except KeyError:
+            return None
+
     @validates("password")
     def evaluate_password(self, key, value):
         return generate_password_hash(value)
@@ -112,15 +127,11 @@ class User(Database.Base):
             raise
 
     def is_admin(self):
-        # TODO: Add notion of Admin user
-        """this method would always return false for now until we add a notion of Admin user/group.
-        Once we know the admin credentials this method can check against those credentials to determine
-        whether the user is privileged to do more.
-
+        """This method checks whether the given user has an admin role.
         This can be extended to groups as well for example a user belonging to certain group has only those
         privileges that are assigned to the group.
         """
-        return False
+        return self.role is Roles.ADMIN
 
     @staticmethod
     def is_admin_username(username):
