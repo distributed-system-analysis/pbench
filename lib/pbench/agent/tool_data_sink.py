@@ -609,6 +609,93 @@ class PcpCollector(BaseCollector):
         if cp.returncode != 0:
             self.logger.warning("Failed to tar up pmlogger data: %r", args)
 
+class JaegerCollector(BaseCollector):
+    """Persistent tool data collector for Jaeger tracing"""
+
+    name = "jaeger"
+
+    def __init__(self, *args, **kwargs):
+        """Constructor - responsible for setting up the particulars for the
+        Jaeger collector.
+        """
+        self.jaeger_path = find_executable("jaeger-collector")
+        if self.jaeger_path is None:
+            raise ToolDataSinkError("External 'jaeger' executable not found")
+
+        super().__init__(*args, **kwargs)
+        self.tool_context = []
+        for host, tools in sorted(self.host_tools_dict.items()):
+            for tool in sorted(tools["names"]):
+                port = self.tool_metadata.getProperties(tool)["port"]
+                self.tool_context.append(
+                    dict(hostname=f"{host}_{tool}", hostport=f"{host}:{port}")
+                )
+        if not self.tool_context:
+            raise ToolDataSinkError(
+                "Expected Jaeger persistent tool context not found"
+            )
+
+    def launch(self):
+        """launch - creates the YAML file that directs Jaeger's behavior,
+        the directory Jaeger will write its data, and creates the sub-
+        process that runs Jaeger.
+        """
+        try:
+            self._mk_tool_dir()
+        except Exception:
+            return
+
+        yml = self.render_from_template("jaeger.yml", dict(tools=self.tool_context))
+        assert yml is not None, f"Logic bomb!  {self.tool_context!r}"
+        with (self.tool_dir / "jaeger.yml").open("w") as config:
+            config.write(yml)
+
+        # TODO: Setup correct Jaeger args.
+        args = [
+            self.jaeger_path,
+            f"--config.file={self.tool_dir}/jaeger.yml",
+            f"--storage.tsdb.path={self.tool_dir}",
+            "--web.console.libraries=/usr/share/prometheus/console_libraries",
+            "--web.console.templates=/usr/share/prometheus/consoles",
+        ]
+        with (self.tool_dir / "jaeger.log").open("w") as jaeger_logs:
+            try:
+                run = subprocess.Popen(
+                    args, cwd=self.tool_dir, stdout=jaeger_logs, stderr=jaeger_logs
+                )
+            except Exception as exc:
+                self.logger.error(
+                    "Jaeger process creation failed: '%s', %r", exc, args
+                )
+                return
+            else:
+                self.run.append(run)
+
+    def terminate(self):
+        """terminate - shuts down the jaeger sub-process, and creates a
+        tar ball of the data collected.
+        """
+        try:
+            super().terminate()
+        except Exception:
+            self.logger.error("Jaeger failed to terminate")
+            return
+
+        self.logger.debug("Jaeger terminated")
+
+        args = [
+            self.tar_path,
+            "--remove-files",
+            "-Jcf",
+            f"{self.tool_group_dir}/jaeger_data.tar.xz",
+            "-C",
+            f"{self.tool_group_dir}/",
+            "jaeger",
+        ]
+        cp = subprocess.run(args)
+        if cp.returncode != 0:
+            self.logger.warning("Failed to tar up Jaeger data: %r", args)
+
 
 class BenchmarkRunDir:
     """BenchmarkRunDir - helper class for handling the benchmark_run_dir
@@ -1517,9 +1604,11 @@ class ToolDataSink(Bottle):
                 # Start all the persistent tool collectors locally.
                 prom_tool_dict = {}
                 pcp_tool_dict = {}
+                jaeger_tool_dict = {}
                 for tm in self._tm_tracking:
                     prom_tools = []
                     pcp_tools = []
+                    jaeger_tools = []
                     persist_tools = self._tm_tracking[tm]["persistent_tools"]
                     for tool in persist_tools:
                         tool_data = self.tool_metadata.getProperties(tool)
@@ -1527,6 +1616,8 @@ class ToolDataSink(Bottle):
                             prom_tools.append(tool)
                         elif tool_data["collector"] == "pcp":
                             pcp_tools.append(tool)
+                        elif tool_data["collector"] == "jaeger":
+                            jaeger_tools.append(tool)
                     if len(prom_tools) > 0:
                         prom_tool_dict[self._tm_tracking[tm]["hostname"]] = {
                             "label": self._tm_tracking[tm]["label"],
@@ -1537,9 +1628,15 @@ class ToolDataSink(Bottle):
                             "label": self._tm_tracking[tm]["label"],
                             "names": pcp_tools,
                         }
-                if prom_tool_dict or pcp_tool_dict:
+                    if len(jaeger_tools) > 0:
+                        jaeger_tool_dict[self._tm_tracking[tm]["hostname"]] = {
+                            "label": self._tm_tracking[tm]["label"],
+                            "names": jaeger_tools,
+                        }
+                if prom_tool_dict or pcp_tool_dict or jaeger_tool_dict:
                     tool_names = list(prom_tool_dict.keys())
                     tool_names.extend(list(pcp_tool_dict.keys()))
+                    tool_names.extend(list(jaeger_tool_dict.keys()))
                     self.logger.debug(
                         "init persistent tools on tool meisters: %s",
                         ", ".join(tool_names),
@@ -1574,6 +1671,16 @@ class ToolDataSink(Bottle):
                         logger=self.logger,
                     )
                     self._pcp_server.launch()
+                if jaeger_tool_dict:
+                    self._jaeger_server = JaegerCollector(
+                        self.pbench_bin,
+                        self.benchmark_run_dir,
+                        self.tool_group,
+                        jaeger_tool_dict,
+                        self.tool_metadata,
+                        self.tar_path,
+                        logger=self.logger,
+                    )
             elif action == "end":
                 # To be safe, clear the data context to catch bad PUTs
                 self.data_ctx = None
@@ -1584,6 +1691,8 @@ class ToolDataSink(Bottle):
                     self._prom_server.terminate()
                 if self._pcp_server:
                     self._pcp_server.terminate()
+                if self._jaeger_server:
+                    self._jaeger_server.terminate()
             elif action in self._data_actions:
                 # The remote Tool Meisters will be hashing the directory
                 # argument this way when invoking the PUT method.  They just
