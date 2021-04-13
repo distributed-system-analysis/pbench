@@ -1,12 +1,13 @@
 import datetime
 import logging
 import os
-import responses
-
 from pathlib import Path
-from pbench.cli.agent.commands.results import move_results
-from pbench.test.unit.agent.task.common import MockDatetime
 
+import responses
+from click.testing import CliRunner
+
+from pbench.cli.agent.commands import results
+from pbench.test.unit.agent.task.common import MockDatetime
 
 # Template for a mocked "metadata.log" file; the caller needs to
 # provide variables for the name, script, config, and date values.
@@ -37,6 +38,56 @@ user_script = sleep
 
 
 class TestMoveResults:
+
+    CTRL_SWITCH = "--controller"
+    USER_SWITCH = "--user"
+    TOKN_SWITCH = "--token"
+    PRFX_SWITCH = "--prefix"
+    XZST_SWITCH = "--xz-single-threaded"
+    SWSR_SWITCH = "--show-server"
+    TOKN_PROMPT = "Token: "
+    CTRL_TEXT = "ctrl"
+    USER_TEXT = None
+    TOKN_TEXT = "what is a token but 139 characters of gibberish"
+    PRFX_TEXT = None
+    XZST_TEXT = None
+    SWSR_TEXT = None
+    URL = "http://pbench.example.com/api/v1"
+    ENDPOINT = "/login"
+
+    @staticmethod
+    @responses.activate
+    def test_help(pytestconfig):
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(results.pmr, ["--help"])
+        assert result.exit_code == 0
+        assert str(result.stdout).startswith("Usage:")
+        assert not result.stderr_bytes
+
+    @staticmethod
+    @responses.activate
+    def test_args(valid_config, pytestconfig):
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            results.pmr,
+            args=[
+                TestMoveResults.CTRL_SWITCH,
+                TestMoveResults.CTRL_TEXT,
+                TestMoveResults.USER_SWITCH,
+                TestMoveResults.USER_TEXT,
+                TestMoveResults.TOKN_SWITCH,
+                TestMoveResults.TOKN_TEXT,
+                TestMoveResults.PRFX_SWITCH,
+                TestMoveResults.PRFX_TEXT,
+                TestMoveResults.XZST_SWITCH,
+                TestMoveResults.XZST_TEXT,
+                TestMoveResults.SWSR_SWITCH,
+                TestMoveResults.SWSR_TEXT,
+            ],
+        )
+        assert result.exit_code == 0, f"{result.stderr_bytes}"
+        assert result.stderr_bytes
+
     @staticmethod
     @responses.activate
     def test_move_results(monkeypatch, caplog, pytestconfig):
@@ -51,7 +102,7 @@ class TestMoveResults:
         )
         responses.add(
             responses.PUT,
-            "http://pbench.example.com/api/v1/upload/ctrl/localhost",
+            "http://pbench.example.com/api/v1/upload/ctrl/controller",
             status=200,
         )
 
@@ -66,17 +117,26 @@ class TestMoveResults:
         script = "pbench-user-benchmark"
         config = "test-move-results"
         date = "YYYY.MM.DDTHH.MM.SS"
-        name = "{script}_{config}_{date}"
+        name = f"{script}_{config}_{date}"
         run_dir = pbrun / name
-        run_dir.mkdir()
+        run_dir.mkdir(parents=True, exist_ok=True)
         mlog = run_dir / "metadata.log"
         mlog.write_text(mdlog_tmpl.format(**locals()))
 
         caplog.set_level(logging.DEBUG)
 
-        try:
-            runs_copied, failures = move_results(ctx, "pbench", "", True)
-        except SystemExit:
-            assert False
-        assert failures == 0, f"Unexpected failures, {failures}"
-        assert runs_copied == 1, f"Unexpected runs_copied, {runs_copied}"
+        runner = CliRunner(mix_stderr=False)
+        result = runner.invoke(
+            results.pmr,
+            args=[
+                TestMoveResults.CTRL_SWITCH,
+                TestMoveResults.CTRL_TEXT,
+                TestMoveResults.USER_SWITCH,
+                TestMoveResults.USER_TEXT,
+                TestMoveResults.PRFX_SWITCH,
+                TestMoveResults.PRFX_TEXT,
+            ],
+            input=f"{TestMoveResults.TOKN_TEXT}\n",
+        )
+        assert result.exit_code == 0
+        assert result.stdout_bytes
