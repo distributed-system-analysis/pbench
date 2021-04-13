@@ -1,13 +1,11 @@
 import re
-from logging import Logger
-
+from flask import request, jsonify
 from flask.globals import current_app
 from flask_restful import Resource, abort
-from flask import request, jsonify
+from logging import Logger
 from urllib.parse import urljoin
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources.query_apis import get_index_prefix
 
 
 class EndpointConfig(Resource):
@@ -40,7 +38,7 @@ class EndpointConfig(Resource):
         self.logger = logger
         self.host = config.get("pbench-server", "host")
         self.uri_prefix = config.rest_uri
-        self.prefix = get_index_prefix(config)
+        self.prefix = config.get("Indexing", "index_prefix")
         self.commit_id = config.COMMIT_ID
 
     def get(self):

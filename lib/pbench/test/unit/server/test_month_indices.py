@@ -2,8 +2,6 @@ import pytest
 import re
 import requests
 
-from pbench.server.api.resources.query_apis import get_es_url
-
 
 @pytest.fixture
 def get_helper(client, server_config, requests_mock):
@@ -24,7 +22,9 @@ def get_helper(client, server_config, requests_mock):
     """
 
     def get_helper(expected_status, server_config, **kwargs):
-        es_url = get_es_url(server_config)
+        host = server_config.get("elasticsearch", "host")
+        port = server_config.get("elasticsearch", "port")
+        es_url = f"http://{host}:{port}"
         requests_mock.get(re.compile(f"{es_url}"), **kwargs)
         response = client.get(f"{server_config.rest_uri}/controllers/months")
         assert requests_mock.last_request.url == (es_url + "/_aliases")

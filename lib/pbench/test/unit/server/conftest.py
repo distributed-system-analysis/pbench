@@ -3,6 +3,7 @@ import tempfile
 import pytest
 from pathlib import Path
 from pbench.server.api import create_app, get_server_config
+from pbench.server.api.auth import Auth
 
 
 server_cfg_tmpl = """[DEFAULT]
@@ -103,3 +104,16 @@ def client(server_config):
     app_client.debug = True
     app_client.testing = True
     return app_client
+
+
+@pytest.fixture
+def user_ok(monkeypatch):
+    """
+    Override the Auth.validate_user method to pass without checking the
+    database.
+    """
+
+    def ok(user: str) -> str:
+        return user
+
+    monkeypatch.setattr(Auth, "validate_user", ok)
