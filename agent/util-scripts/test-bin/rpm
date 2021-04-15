@@ -23,7 +23,7 @@ elif [[ "${_rpm}" == "found" || "${_rpm}" == "equal" || "${_rpm}" == "not-greate
 elif [[ "${_rpm}" == "not-equal" || "${_rpm}" == "greater" || "${_rpm}" == "greater-equal" ]]; then
     # The version that will be used to test require-rpm is 1.0.0, so we find
     # a version that is greater than the 1.0.0, satisfying the not-equal,
-    # greater than, and greater then or equal cases.
+    # greater than, and greater than or equal cases.
     echo "${_rpm}-1.0.42"
     _rc=0
 elif [[ "${_rpm}" == "not-greater-equal" ]]; then
