@@ -1,7 +1,7 @@
 from click.testing import CliRunner
 import responses
 
-from pbench.cli.server import user_create
+from pbench.cli.server.user_management import user_create
 
 
 class TestCreateUser:
@@ -24,7 +24,7 @@ class TestCreateUser:
     @responses.activate
     def test_help(pytestconfig):
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(user_create.main, ["--help"])
+        result = runner.invoke(user_create, ["--help"])
         assert result.exit_code == 0
         assert str(result.stdout).startswith("Usage:")
         assert not result.stderr_bytes
@@ -34,7 +34,7 @@ class TestCreateUser:
     def test_args(server_config, pytestconfig):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            user_create.main,
+            user_create,
             args=[
                 TestCreateUser.USER_SWITCH,
                 TestCreateUser.USER_TEXT,
@@ -57,7 +57,7 @@ class TestCreateUser:
     def test_valid_user_registration(server_config, pytestconfig):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            user_create.main,
+            user_create,
             args=[
                 TestCreateUser.USER_SWITCH,
                 TestCreateUser.USER_TEXT,

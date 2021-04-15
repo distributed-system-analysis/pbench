@@ -10,6 +10,9 @@ execution.
 """
 
 import click
+from pbench.common.logger import get_pbench_logger
+from pbench.server import PbenchServerConfig
+from pbench.server.database.database import Database
 
 
 class CliContext:
@@ -19,3 +22,12 @@ class CliContext:
 
 
 pass_cli_context = click.make_pass_decorator(CliContext, ensure=True)
+
+
+def config_setup(context: object, name: str) -> None:
+    config = PbenchServerConfig(context.config)
+    logger = get_pbench_logger(name, config)
+
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    Database.init_db(config, logger)
