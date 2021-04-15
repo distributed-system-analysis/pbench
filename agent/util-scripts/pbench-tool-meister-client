@@ -10,15 +10,12 @@ import logging
 import os
 import sys
 
-from pbench.agent.constants import (
-    cli_tm_allowed_actions,
-    cli_tm_channel_prefix,
-    def_redis_port,
-)
+from pbench.agent.constants import cli_tm_allowed_actions, cli_tm_channel_prefix
 from pbench.agent.tool_meister_client import Client
+from pbench.agent.utils import RedisServerCommon
 
 
-def main(argv):
+def main(argv: list) -> int:
     """Main program for the Tool Meister client CLI.  The command line
     arguments are:
 
@@ -73,23 +70,16 @@ def main(argv):
             # properly shut down.
             return 0
 
-    redis_server = os.environ.get("PBENCH_REDIS_SERVER", f"localhost:{def_redis_port}")
-    parts = redis_server.split(":", 1)
-    if len(parts) != 2:
-        logger.error("Bad Redis server specified, {!r}", redis_server)
-        return 1
+    redis_server_env = os.environ.get("PBENCH_REDIS_SERVER", "")
     try:
-        redis_port = int(parts[1])
-    except Exception:
-        logger.error("Bad port for Redis server specified in {!r}", redis_server)
-        return 1
-    else:
-        redis_host = parts[0]
+        redis_server = RedisServerCommon(redis_server_env, "localhost")
+    except RedisServerCommon.Err as exc:
+        logger.error(str(exc))
+        return exc.return_code
 
-    # The Redis server is always running on the local host with the CLI.
     with Client(
-        redis_host=redis_host,
-        redis_port=redis_port,
+        redis_host=redis_server.host,
+        redis_port=redis_server.port,
         channel_prefix=cli_tm_channel_prefix,
         logger=logger,
     ) as client:
