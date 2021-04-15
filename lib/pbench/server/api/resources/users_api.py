@@ -1,10 +1,12 @@
 import jwt
+from http import HTTPStatus
 from flask import request, jsonify, make_response
 from flask_restful import Resource, abort
 from flask_bcrypt import check_password_hash
 from email_validator import EmailNotValidError
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from pbench.server.database.models.users import User
+from sqlalchemy.orm.exc import NoResultFound
+from pbench.server.database.models.users import User, AdminUserDeletion
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.api.auth import Auth
 
@@ -456,33 +458,44 @@ class UserAPI(Resource):
                     }
         """
         try:
-            user, verified = self.auth.verify_user(username)
+            current_auth_user, verified = self.auth.verify_user(username)
         except Exception:
             self.logger.exception("Exception occurred during the getUser {}", username)
             abort(500, message="INTERNAL ERROR")
 
         # TODO: Check if the user has the right privileges
-        if not verified and not user.is_admin():
+        if not verified and not current_auth_user.is_admin():
             self.logger.warning(
-                "User {} is not authorized to delete user {}.", user.username, username,
+                "User {} is not authorized to delete user {}.",
+                current_auth_user.username,
+                username,
             )
             abort(403, message="Not authorized to delete user")
 
         try:
-            user = User.query(username=username)
-            # Do not delete if the user is admin
-            if not user.is_admin():
-                User.delete(username)
+            target_user = User.query(username=username)
+            # Do not delete if the user is an admin
+            if target_user.is_admin():
+                raise AdminUserDeletion(username)
+            User.delete(username)
+            self.logger.info(
+                "User entry deleted for user with username: {}, by user: {}",
+                username,
+                current_auth_user.username,
+            )
+        except NoResultFound:
+            self.logger.info(
+                "Delete operation on non-existent user '{}'", username,
+            )
+            abort(HTTPStatus.NOT_FOUND, message="User not found")
+        except AdminUserDeletion as exc:
+            self.logger.info(str(exc))
+            abort(HTTPStatus.FORBIDDEN, message=f"User {username} can not be deleted")
         except Exception:
             self.logger.exception(
                 "Exception occurred during deleting the user entry for user '{}'",
                 username,
             )
             abort(500, message="INTERNAL ERROR")
-        else:
-            if user.is_admin():
-                self.logger.warning("Admin attempted to delete admin user")
-                abort(403, message="Admin user can not be deleted")
-            self.logger.info("User entry deleted for user with username {}", username)
 
         return "", 200

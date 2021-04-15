@@ -5,9 +5,21 @@ from email_validator import validate_email
 from flask_bcrypt import generate_password_hash
 from sqlalchemy import Column, DateTime, Enum, Integer, LargeBinary, String
 from sqlalchemy.orm import relationship, validates
+from sqlalchemy.orm.exc import NoResultFound
 
 from pbench.server.database.database import Database
-from pbench.server.database.models.active_tokens import ActiveTokens  # noqa[F401]
+
+
+class AdminUserDeletion(Exception):
+    """
+    Attempt to delete an admin user.
+    """
+
+    def __init__(self, username: str):
+        self.username = username
+
+    def __str__(self):
+        return f"Admin User {self.username} can not be deleted"
 
 
 class Roles(enum.Enum):
@@ -51,7 +63,7 @@ class User(Database.Base):
         return ["registered_on", "id"]
 
     @staticmethod
-    def query(id=None, username=None, email=None):
+    def query(id=None, username=None, email=None) -> "User":
         # Currently we would only query with single argument. Argument need to be either username/id/email
         if username:
             user = Database.db_session.query(User).filter_by(username=username).first()
@@ -63,6 +75,10 @@ class User(Database.Base):
             user = None
 
         return user
+
+    @staticmethod
+    def query_all() -> "list[User]":
+        return Database.db_session.query(User).all()
 
     def add(self):
         """
@@ -116,13 +132,13 @@ class User(Database.Base):
         """
         Delete the user with a given username except admin
         :param username:
-        :return:
         """
+        user_query = Database.db_session.query(User).filter_by(username=username)
+        if user_query.count() == 0:
+            raise NoResultFound(f"User {username} does not exist")
         try:
-            user_query = Database.db_session.query(User).filter_by(username=username)
             user_query.delete()
             Database.db_session.commit()
-            return True
         except Exception:
             Database.db_session.rollback()
             raise
