@@ -2,16 +2,208 @@ import ipaddress
 import logging
 import os
 import re
+import signal
 import subprocess
 import sys
+import time
 
 from datetime import datetime
 
 from pbench.agent.constants import (
+    def_redis_port,
     sysinfo_opts_available,
     sysinfo_opts_convenience,
     sysinfo_opts_default,
 )
+
+
+class BaseReturnCode:
+    """BaseReturnCode - base class of common methods for symbolic return codes
+    for main programs.
+    """
+
+    # Common success code is zero.
+    SUCCESS = 0
+
+    # Common kill sub-codes
+    KILL_SUCCESS = 0
+    KILL_READEXC = 1
+    KILL_BADPID = 2
+    KILL_READERR = 3
+    KILL_TERMEXC = 4
+    KILL_KILLEXC = 5
+
+    class Err(RuntimeError):
+        """Err - exception definition to capture return code as an attribute.
+        """
+
+        def __init__(self, message: str, return_code: int):
+            """Adds a return_code attribute to capture an integer representing
+            the return code a caller can pass along.
+            """
+            super().__init__(message)
+            self.return_code = return_code
+
+    @staticmethod
+    def kill_ret_code(kill_code: int, ret_val: int):
+        """kill_ret_code - return an integer return code made up of the given
+        kill code and a return value.
+
+        A kill code of 0 and return value of 42 is returned as 42.
+        A kill code of 5 and return value of 52 is returned as 542.
+        """
+        return (kill_code * 100) + ret_val
+
+
+class BaseServer:
+    """BaseServer - abstract base class for common code shared between the
+    ToolDataSink and RedisServer classes.
+    """
+
+    def_port = None
+    bad_port_code = None
+    bad_host_code = None
+    name = None
+
+    class Err(BaseReturnCode.Err):
+        """BaseServer.Err - derived from BaseReturnCode.Err, specifically
+        raised by BaseServer and its derived classes.
+        """
+
+        pass
+
+    def __init__(self, spec: str, def_host_name: str):
+        """__init__ - from the given IP/port specification, determine the
+        IP:port for binding (listening) and the IP:port for connecting.
+
+        The IP/port specification can be given in one of two forms:
+
+          - `<ip>:<port>'
+            * where the same ip address and port are used for binding and
+              connecting
+          - `<bind ip>:<port>;<connect ip>:<port>`
+            * where a semi-colon separates the bind ip/port from the connecting
+              ip/port
+
+        In either case, a missing port (bare colon, optional) indicates the
+        default port should be used. If no IP address is given, the default
+        host name is used.
+
+        No attempt is made to verify that the IP address resolves, or that it
+        is reachable, though we do check they are syntactically valid.
+        """
+        assert (
+            def_host_name
+        ), f"Logic bomb!  Default host name required: {spec!r}, {def_host_name!r}"
+        _spec = spec if spec else def_host_name
+        parts = _spec.split(";", 1)
+        pairs = []
+        for part in parts:
+            host_port_parts = part.rsplit(":", 1)
+            if len(host_port_parts) == 1:
+                port = self.def_port
+            else:
+                try:
+                    port = int(host_port_parts[1])
+                except ValueError as exc:
+                    if host_port_parts[1] == "":
+                        port = self.def_port
+                    else:
+                        raise self.Err(
+                            f"Bad port specified for {self.name} in '{spec}'",
+                            self.bad_port_ret_code,
+                        ) from exc
+            host = host_port_parts[0] if host_port_parts[0] else def_host_name
+            if host[0] == "[" and host[-1] == "]":
+                # Brackets are invalid for a host name, but might be used when
+                # specifying a port with an IPv6 address, strip them before we
+                # validate the host name.
+                host = host[1:-1]
+            if validate_hostname(host) != 0:
+                raise self.Err(
+                    f"Bad host specified for {self.name} in '{spec}'",
+                    self.bad_host_ret_code,
+                )
+            pairs.append((host, port))
+
+        self.bind_host, self.bind_port = pairs[0]
+        if len(pairs) == 2:
+            # Separate bind/connecting ip:port
+            self.host, self.port = pairs[1]
+            self._repr = f"{self.name} - {self.bind_host}:{self.bind_port} / {self.host}:{self.port}"
+        else:
+            assert len(pairs) == 1, "Logic bomb!  unexpected pairs, {pairs!r}"
+            self.host, self.port = pairs[0]
+            self._repr = f"{self.name} - {self.host}:{self.port}"
+
+        self.pid_file = None
+
+    def __repr__(self):
+        return self._repr
+
+    def kill(self, ret_val: int):
+        """kill - attempt to KILL the running Redis server.
+
+        This method is a no-op if the server instance isn't managed by us.
+
+        Returns BaseReturnCode "enum" via the "kill" return code method.
+        """
+        assert self.pid_file is not None, f"Logic bomb!  Unexpected state: {self!r}"
+
+        try:
+            raw_pid = self.pid_file.read_text()
+        except FileNotFoundError:
+            return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_SUCCESS, ret_val)
+        except OSError:
+            return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_READERR, ret_val)
+        except Exception:
+            # No "pid" to kill
+            return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_READEXC, ret_val)
+
+        try:
+            pid = int(raw_pid)
+        except ValueError:
+            # Bad pid value
+            return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_BADPID, ret_val)
+
+        pid_exists = True
+        timeout = time.time() + 60
+        while pid_exists:
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pid_exists = False
+            except Exception:
+                # Some other error encountered trying to KILL the process.
+                return BaseReturnCode.kill_ret_code(
+                    BaseReturnCode.KILL_TERMEXC, ret_val
+                )
+            else:
+                if time.time() > timeout:
+                    try:
+                        os.kill(pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    except Exception:
+                        return BaseReturnCode.kill_ret_code(
+                            BaseReturnCode.KILL_KILLEXC, ret_val
+                        )
+                    break
+                time.sleep(0.1)
+
+        # "successfully" KILL'd the give process.
+        return BaseReturnCode.kill_ret_code(BaseReturnCode.KILL_SUCCESS, ret_val)
+
+
+class RedisServerCommon(BaseServer):
+    """RedisServerCommon - an encapsulation of the common handling of the Redis
+    server specification.
+    """
+
+    def_port = def_redis_port
+    bad_port_ret_code = 1
+    bad_host_ret_code = 1
+    name = "Redis server"
 
 
 def setup_logging(debug, logfile):
