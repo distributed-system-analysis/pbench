@@ -15,7 +15,7 @@ benchmark_rpm=${benchmark}
 export benchmark_run_dir=""
 # allow unit tests to override
 if [[ -z "${benchmark_bin}" ]]; then
-        benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
+	benchmark_bin="$(resolve_benchmark_bin "${benchmark}")"
 	if [[ -z "${benchmark_bin}" ]]; then
 		error_log "[${script_name}] ${benchmark} executable not found on PATH=${PATH}"
 		exit 1
@@ -164,9 +164,6 @@ function usage {
 	printf -- "\t--max-failures=<int>\n"
 	printf "\t\tthe maximum number of failures to get below stddev\n"
 	printf "\n"
-	printf -- "\t--install\n"
-	printf "\t\tinstall only (default is False)\n"
-	printf "\n"
 	printf -- "\t--histogram-interval-sec=<int>\n"
 	printf "\t\tset the histogram logging interval in seconds (default $histogram_interval_sec)\n"
 	printf "\n"
@@ -174,6 +171,17 @@ function usage {
 	printf "\t\tavailable: $(pbench-display-sysinfo-options)\n"
 	printf "\n"
 	printf -- "\t--unique-ports           Use unique ports for each server\n"
+}
+
+function fio_local_check_install() {
+	if check_install_rpm ${benchmark_rpm} ${ver}; then
+		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is installed"
+		_rc=0
+	else
+		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is not installed, exiting"
+		_rc=1
+	fi
+	return ${_rc}
 }
 
 function fio_process_options() {
@@ -449,6 +457,12 @@ function fio_process_options() {
 			;;
 		esac
 	done
+
+	if [[ "${install_only}" == "y" ]]; then
+		fio_local_check_install
+		exit ${?}
+	fi
+
 	verify_common_bench_script_options $tool_group $sysinfo
 
 	if [[ ${job_mode} != "serial" && ${job_mode} != "concurrent" ]]; then
@@ -523,10 +537,8 @@ function record_iteration {
 
 # Ensure the right version of the benchmark is installed
 function fio_install() {
-	if check_install_rpm ${benchmark_rpm} ${ver}; then
-		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is installed"
-	else
-		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is not installed, exiting"
+	fio_local_check_install
+	if [[ ${?} -ne 0 ]]; then
 		exit 1
 	fi
 	if [ ! -z "$clients" ] ; then
