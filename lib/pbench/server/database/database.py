@@ -9,6 +9,7 @@ from pbench.server import NoOptionError, NoSectionError
 class Database:
     # Create declarative base model that our model can inherit from
     Base = declarative_base()
+    db_session = None
 
     @staticmethod
     def get_engine_uri(config, logger):
