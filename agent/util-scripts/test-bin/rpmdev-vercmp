@@ -1,0 +1,22 @@
+#!/bin/bash
+
+args="${@}"
+echo "${0} ${args}" >> ${_testlog}
+
+if [[ "${2}" == "not-greater-equal-1.0.0" ]]; then
+    _rc=12
+elif [[ "${2}" == "greater-equal-1.0.0" || "${2}" == "greater-1.0.0" ]]; then
+    _rc=11
+elif [[ "${2}" == "not-greater-1.0.0" ]]; then
+    _rc=0
+elif [[ "${1}" == "${2}" ]]; then
+    # Mimic behavior of rpmdev-vercmp by exiting with 0 (for unit tests we always
+    # determine the RPM arguments are an exact match).
+    echo "${1} == ${2}"
+    _rc=0
+else
+    echo "${1} >= ${2}"
+    _rc=12
+fi
+
+exit ${_rc}

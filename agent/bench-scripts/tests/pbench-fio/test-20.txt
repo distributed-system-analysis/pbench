@@ -233,7 +233,7 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-20_1900.01.01T00.00.00/3-read-1024KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/require-rpm fio 3.21 ge
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/require-rpm fio 3.21 gte
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no abc /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no abc firewall-cmd --add-port=8765/tcp >/dev/null
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no abc firewall-cmd --add-port=8765/tcp >/dev/null

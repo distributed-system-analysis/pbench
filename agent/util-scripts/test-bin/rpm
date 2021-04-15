@@ -1,0 +1,51 @@
+#!/bin/bash
+
+args="${@}"
+echo "${0} ${args}" >> ${_testlog}
+
+# We are mocking out how the "rpm" command works by using certain names to
+# drive behaviors.  When not testing require-rpm itself, the special package
+# names are not used, and we assume success and exit with 0.  When the special
+# package names are used, we behave as described for each.
+
+_rpm="${3}"
+if [[ "${_rpm}" == "pbench-sysstat" ]]; then
+    echo "${_rpm}-12.0.3"
+    _rc=0
+elif [[ "${_rpm}" == "not-found" ]]; then
+    echo "package ${_rpm} is not installed"
+    _rc=1
+elif [[ "${_rpm}" == "found" || "${_rpm}" == "equal" || "${_rpm}" == "not-greater" ]]; then
+    # The version that will be used to test require-rpm is 1.0.0, so we "found"
+    # that version; same behavior for the "equal" and "not-greater" cases.
+    echo "${_rpm}-1.0.0"
+    _rc=0
+elif [[ "${_rpm}" == "not-equal" || "${_rpm}" == "greater" || "${_rpm}" == "greater-equal" ]]; then
+    # The version that will be used to test require-rpm is 1.0.0, so we find
+    # a version that is greater than the 1.0.0, satisfying the not-equal,
+    # greater than, and greater then or equal cases.
+    echo "${_rpm}-1.0.42"
+    _rc=0
+elif [[ "${_rpm}" == "not-greater-equal" ]]; then
+    # The version that will be used to test require-rpm is 1.0.0, so we find
+    # a version that is less than that.
+    echo "${_rpm}-0.0.42"
+    _rc=0
+elif [[ "${_rpm}" == "equal-mult" ]]; then
+    echo "${_rpm}-0.0.42"
+    echo "${_rpm}-1.0.0"
+    echo "${_rpm}-1.0.42"
+    _rc=0
+elif [[ "${_rpm}" == "not-equal-mult" ]]; then
+    echo "${_rpm}-0.0.42"
+    echo "${_rpm}-1.0.1"
+    echo "${_rpm}-1.0.42"
+    _rc=0
+else
+    # Mimic behavior of rpm by exiting with 0 (for unit tests we always find
+    # the RPM) and emitting the RPM version that was found (whatever was given
+    # as arguments).
+    echo "${_rpm}"
+    _rc=0
+fi
+exit ${_rc}

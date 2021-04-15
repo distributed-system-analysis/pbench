@@ -159,7 +159,7 @@ function check_install_rpm {
     _n="${1}"
     _v="${2}"
     _m="${3}"
-    _rpm="$(require-rpm "${_n}" "${_v}" "${_m}")"
+    _rpm=$(require-rpm "${_n}" "${_v}" "${_m}")
     local rc=${?}
     if [[ ${rc} -ne 0 ]]; then
         error_log "[check_install_rpm] ${_rpm} is not installed"

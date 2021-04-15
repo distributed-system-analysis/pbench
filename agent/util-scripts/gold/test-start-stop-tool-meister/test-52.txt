@@ -255,7 +255,8 @@ testhost.example.com 0025 INFO pbench-tool-meister __exit__ -- testhost.example.
 testhost.example.com 0026 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}
 --- mock-run/tm/tm.logs file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/require-rpm pbench-sysstat 12.0.3
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/require-rpm perf 
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} pbench-sysstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpmdev-vercmp pbench-sysstat-12.0.3 pbench-sysstat-12.0.3
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} perf
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 --- test-execution.log file contents
