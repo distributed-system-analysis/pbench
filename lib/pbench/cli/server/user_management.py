@@ -4,18 +4,18 @@ from pbench import BadConfig
 from pbench.cli.server import config_setup, pass_cli_context
 from pbench.cli.server.options import common_options
 from pbench.server.database.database import Database
-from pbench.server.database.models.users import User
+from pbench.server.database.models.users import Roles, User
 
 
 # User create CLI
 @click.group("user_group")
 @click.version_option()
 @pass_cli_context
-def cli(ctx):
+def user_command_cli(ctx):
     pass  # Entry Point
 
 
-@cli.command()
+@user_command_cli.command()
 @common_options
 @click.option(
     "--username",
@@ -48,6 +48,12 @@ def cli(ctx):
     required=True,
     help="pbench server account last name (will prompt if unspecified)",
 )
+@click.option(
+    "--role",
+    type=click.Choice([role.name for role in Roles], case_sensitive=False),
+    required=False,
+    help="Optional role of the user such as Admin",
+)
 @pass_cli_context
 def user_create(
     context: object,
@@ -56,7 +62,8 @@ def user_create(
     email: str,
     first_name: str,
     last_name: str,
-):
+    role: str,
+) -> None:
     try:
         # Setup the pbench server config and db access
         config_setup(context, "pbench-user-create")
@@ -67,9 +74,13 @@ def user_create(
             first_name=first_name,
             last_name=last_name,
             email=email,
+            role=role if role else "",
         )
         user.add()
-        click.echo(f"User {username} registered")
+        if user.is_admin():
+            click.echo(f"Admin user {username} registered")
+        else:
+            click.echo(f"User {username} registered")
         rv = 0
     except Exception as exc:
         click.echo(exc, err=True)
@@ -79,21 +90,19 @@ def user_create(
 
 
 # User delete CLI
-@cli.command()
+@user_command_cli.command()
 @common_options
 @click.argument("username")
 @pass_cli_context
 def user_delete(context: object, username: str) -> None:
-    context.username = username
-
     try:
         # Setup the pbench server config and db access
         config_setup(context, "pbench-user-delete")
 
         # Delete the the user with specified username
-        User.delete(username=context.username)
+        User.delete(username=username)
 
-        click.echo(f"User {context.username} deleted")
+        click.echo(f"User {username} deleted")
         rv = 0
     except Exception as exc:
         click.echo(exc, err=True)
@@ -103,7 +112,7 @@ def user_delete(context: object, username: str) -> None:
 
 
 # Users list CLI
-@cli.command()
+@user_command_cli.command()
 @common_options
 @pass_cli_context
 def user_list(context: object) -> None:
@@ -111,9 +120,11 @@ def user_list(context: object) -> None:
         # Setup the pbench server config and db access
         config_setup(context, "pbench-users-list")
 
-        ROW_FORMAT = "{10} {10} {%Y-%m-%d} {}"
+        ROW_FORMAT = "{0:15}\t{1:15}\t{2:15}\t{3:15}\t{4:20}"
         click.echo(
-            ROW_FORMAT.format("First Name", "Last Name", "Registered On", "Email")
+            ROW_FORMAT.format(
+                "Username", "First Name", "Last Name", "Registered On", "Email"
+            )
         )
 
         # Query all the users
@@ -121,7 +132,11 @@ def user_list(context: object) -> None:
         for user in users:
             click.echo(
                 ROW_FORMAT.format(
-                    user.first_name, user.last_name, user.registered_on, user.email
+                    user.username,
+                    user.first_name,
+                    user.last_name,
+                    user.registered_on.strftime("%Y-%m-%d"),
+                    user.email,
                 )
             )
 
@@ -134,9 +149,9 @@ def user_list(context: object) -> None:
 
 
 # User update CLI
-@cli.command()
+@user_command_cli.command()
 @common_options
-@click.argument("user-to-update")
+@click.argument("updateuser")
 @click.option(
     "--username", required=False, help="Specify the new username",
 )
@@ -155,7 +170,7 @@ def user_list(context: object) -> None:
 @pass_cli_context
 def user_update(
     context: object,
-    user_to_update: str,
+    updateuser: str,
     username: str,
     first_name: str,
     last_name: str,
@@ -167,10 +182,10 @@ def user_update(
         config_setup(context, "pbench-user-update")
 
         # Query the user
-        user = User.query(username=user_to_update)
+        user = User.query(username=updateuser)
 
         if user is None:
-            click.echo(f"No such a user {user_to_update} to update")
+            click.echo(f"No such a user {updateuser} to update")
             rv = 1
         else:
             dict_to_update = {}
@@ -190,9 +205,9 @@ def user_update(
                 dict_to_update["role"] = role
 
             # Update the user
-            user.update(dict_to_update)
+            user.update(**dict_to_update)
 
-            click.echo(f"User {user_to_update} updated")
+            click.echo(f"User {updateuser} updated")
             rv = 0
     except Exception as exc:
         click.echo(exc, err=True)

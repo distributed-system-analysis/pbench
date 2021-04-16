@@ -30,4 +30,8 @@ def config_setup(context: object, name: str) -> None:
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
-    Database.init_db(config, logger)
+    try:
+        if not Database.db_session:
+            Database.init_db(config, logger)
+    except Exception:
+        Database.init_db(config, logger)
