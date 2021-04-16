@@ -16,7 +16,11 @@ if [[ ${?} -ne 0 ]]; then
     exit 1
 fi
 
+_prefix="Verify require-rpm with"
 function run_req_rpm {
+    _desc="${1}"
+    shift
+    printf -- "\n%s %s\n" "${_prefix}" "${_desc}"
     require-rpm ${*} > ${_tmp}/std.out 2> ${_tmp}/std.err
     echo "require-rpm ${*} --> ${?}"
     echo "+++ stdout"
@@ -28,47 +32,31 @@ function run_req_rpm {
     rm -f ${_tmp}/std.{out,err}
 }
 
-# Verify no-arguments
-run_req_rpm
+run_req_rpm "no arguments"
 
-# Verify one argument, RPM not found
-run_req_rpm not-found
+run_req_rpm "1 argument, RPM not found" not-found
 
-# Verify one argument, RPM found
-run_req_rpm found
+run_req_rpm "1 argument, RPM found" found
 
-# Verify two arguments, RPM not found with that version
-run_req_rpm not-found 1.0.0
+run_req_rpm "2 arguments, RPM not found with that version" not-found 1.0.0
 
-# Verify two arguments, RPM found with that version
-run_req_rpm found 1.0.0
+run_req_rpm "2 arguments, RPM found with that version" found 1.0.0
 
-# Verify three arguments, 3rd argument not recognized
-run_req_rpm found 1.0.0 foo
+run_req_rpm "3 arguments, 3rd argument not recognized" found 1.0.0 foo
 
-# Verify three arguments, 3rd argument is "any", not found
-run_req_rpm not-found 1.0.0 any
-# Verify three arguments, 3rd argument is "any", found
-run_req_rpm found 1.0.0 any
+run_req_rpm "3 arguments, 3rd argument is 'any', not found" not-found 1.0.0 any
+run_req_rpm "3 arguments, 3rd argument is 'any', found" found 1.0.0 any
 
-# Verify three arguments, 3rd argument is "equ", not equal
-run_req_rpm not-equal 1.0.0 equ
-# Verify three arguments, 3rd argument is "equ", equal
-run_req_rpm equal 1.0.0 equ
+run_req_rpm "3 arguments, 3rd argument is 'equ', not equal" not-equal 1.0.0 equ
+run_req_rpm "3 arguments, 3rd argument is 'equ', equal" equal 1.0.0 equ
 
-# Verify three arguments, 3rd argument is "gte", not greater or equal
-run_req_rpm not-greater-equal 1.0.0 gte
-# Verify three arguments, 3rd argument is "gte", greater or equal
-run_req_rpm greater-equal 1.0.0 gte
+run_req_rpm "3 arguments, 3rd argument is 'gte', not greater or equal" not-greater-equal 1.0.0 gte
+run_req_rpm "3 arguments, 3rd argument is 'gte', greater or equal" greater-equal 1.0.0 gte
 
-# Verify three arguments, 3rd argument is "gtr", not greater
-run_req_rpm not-greater 1.0.0 gtr
-# Verify three arguments, 3rd argument is "gtr", greater
-run_req_rpm greater 1.0.0 gtr
+run_req_rpm "3 arguments, 3rd argument is 'gtr', not greater" not-greater 1.0.0 gtr
+run_req_rpm "3 arguments, 3rd argument is 'gtr', greater" greater 1.0.0 gtr
 
-# Verify 3 arguments, multiple RPM version, "equ", not equal
-run_req_rpm not-equal-mult 1.0.0 equ
-# Verify 3 arguments, multiple RPM version, "equ", equal
-run_req_rpm equal-mult 1.0.0 equ
+run_req_rpm "3 arguments, multiple RPM version, 'equ', not equal" not-equal-mult 1.0.0 equ
+run_req_rpm "3 arguments, multiple RPM version, 'equ', equal" equal-mult 1.0.0 equ
 
 exit 0

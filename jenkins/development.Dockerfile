@@ -95,6 +95,7 @@ RUN \
         python3-tox-current-env \
         python3-werkzeug \
         redis \
+        rpmdevtools \
         rpmlint \
         rpm-build \
         rsync \

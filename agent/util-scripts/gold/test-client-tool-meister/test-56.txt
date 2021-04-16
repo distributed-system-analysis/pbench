@@ -622,9 +622,6 @@ scrape_configs:
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} pbench-sysstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} pbench-sysstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} pbench-sysstat
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpmdev-vercmp pbench-sysstat-12.0.3 pbench-sysstat-12.0.3
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpmdev-vercmp pbench-sysstat-12.0.3 pbench-sysstat-12.0.3
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpmdev-vercmp pbench-sysstat-12.0.3 pbench-sysstat-12.0.3
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no remote-a.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-a.example.com yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no remote-b.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-b.example.com yes
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no remote-c.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-c.example.com yes
