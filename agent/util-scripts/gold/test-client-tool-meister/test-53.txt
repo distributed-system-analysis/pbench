@@ -67,7 +67,7 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/prometheus_data.tar.xz
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/dcgm.file
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/dcgm-exporter.file
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/tm-dcgm-start.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-default/testhost.example.com/dcgm/tm-dcgm-start.out
 /var/tmp/pbench-test-utils/pbench/pbench.log
@@ -232,9 +232,9 @@ scrape_configs:
     static_configs:
     - targets: ['testhost.example.com:9400']
 --- tools-default/prometheus/prometheus.yml file contents
-+++ tools-default/testhost.example.com/dcgm/dcgm.file file contents
++++ tools-default/testhost.example.com/dcgm/dcgm-exporter.file file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
---- tools-default/testhost.example.com/dcgm/dcgm.file file contents
+--- tools-default/testhost.example.com/dcgm/dcgm-exporter.file file contents
 +++ tools-default/testhost.example.com/dcgm/tm-dcgm-start.err file contents
 --- tools-default/testhost.example.com/dcgm/tm-dcgm-start.err file contents
 +++ tools-default/testhost.example.com/dcgm/tm-dcgm-start.out file contents
