@@ -55,6 +55,7 @@ register dcgm
 
 if [[ "${2}" == "with-remotes" ]]; then
     register mpstat "remote-a.example.com"
+    register jaeger "remote-a.example.com"
     register mpstat "remote-b.example.com" blue
     register node-exporter "remote-b.example.com" blue
     register dcgm "remote-c.example.com" red
