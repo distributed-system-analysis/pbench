@@ -891,6 +891,7 @@ class ToolDataSink(Bottle):
         self.data_ctx = None
         self.directory = None
         self._server = None
+        self._jaeger_server = None
         self._prom_server = None
         self._pcp_server = None
         self._tm_tracking = None
