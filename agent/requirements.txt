@@ -3,6 +3,7 @@ bottle
 cffi
 click
 jinja2
+pbr
 python-daemon
 python-pidfile
 redis
