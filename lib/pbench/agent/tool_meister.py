@@ -100,7 +100,13 @@ class Tool:
     _tool_type = "Transient"
 
     def __init__(
-        self, name, tool_opts, pbench_install_dir=None, tool_dir=None, logger=None, controller=None,
+        self,
+        name,
+        tool_opts,
+        pbench_install_dir=None,
+        tool_dir=None,
+        logger=None,
+        controller=None,
     ):
         assert logger is not None, "Logic bomb!  no logger provided!"
         self.logger = logger
