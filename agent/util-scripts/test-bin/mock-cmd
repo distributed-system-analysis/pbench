@@ -18,16 +18,15 @@ if _prog not in ("pbench-tool-meister-client", "yum", "scp"):
     with open(f"{_prog}.file", "a+") as ofp:
         ofp.write(f"{args}\n")
 
-_sleepers = ["dcgm-exporter", "node_exporter", "pmcd"]
-_sleep = 0
+_sleepers = ["dcgm-exporter", "jaeger-agent", "jaeger-all-in-one", "node_exporter", "pmcd", "prometheus"]
+
 if _prog == "pbench-sysinfo-dump":
     tgtdir = Path(sys.argv[1])
     sysinfo = sys.argv[2]
     (tgtdir / "contents.lis").write_text(sysinfo)
-elif _prog in _sleepers or (_prog == "prometheus" and sys.argv[1] == "run"):
-    _sleep = 9999
-
-if _sleep > 0:
-    time.sleep(_sleep)
+elif _prog == "prometheus" and sys.argv[1] != "run":
+    pass
+elif _prog in _sleepers:
+    time.sleep(9999)
 
 sys.exit(0)
