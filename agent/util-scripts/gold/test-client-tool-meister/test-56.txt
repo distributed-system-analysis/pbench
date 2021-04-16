@@ -158,7 +158,7 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/prometheus_data.tar.xz
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm
-/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm/dcgm.file
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm/dcgm-exporter.file
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm/tm-dcgm-start.err
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com/dcgm/tm-dcgm-start.out
 /var/tmp/pbench-test-utils/pbench/pbench.log
@@ -183,7 +183,7 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm
-/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/dcgm.file
+/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/dcgm-exporter.file
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/tm-dcgm-start.err
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/tm-dcgm-start.out
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp
@@ -259,7 +259,7 @@ INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/node_exporter
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter/tm-node-exporter-start.err:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com/node-exporter/tm-node-exporter-start.out:
-=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/dcgm.file:
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/dcgm-exporter.file:
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/tm-dcgm-start.err:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/dcgm/tm-dcgm-start.out:
@@ -584,9 +584,9 @@ scrape_configs:
     static_configs:
     - targets: ['testhost.example.com:9400']
 --- tools-lite/prometheus/prometheus.yml file contents
-+++ tools-lite/testhost.example.com/dcgm/dcgm.file file contents
++++ tools-lite/testhost.example.com/dcgm/dcgm-exporter.file file contents
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
---- tools-lite/testhost.example.com/dcgm/dcgm.file file contents
+--- tools-lite/testhost.example.com/dcgm/dcgm-exporter.file file contents
 +++ tools-lite/testhost.example.com/dcgm/tm-dcgm-start.err file contents
 --- tools-lite/testhost.example.com/dcgm/tm-dcgm-start.err file contents
 +++ tools-lite/testhost.example.com/dcgm/tm-dcgm-start.out file contents
