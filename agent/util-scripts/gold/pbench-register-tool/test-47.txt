@@ -59,8 +59,9 @@ Available tools:
 	virsh-migrate
 	vmstat
   Persistent:
-	node-exporter
 	dcgm
+	jaeger
+	node-exporter
 	pcp
 
 For a list of tool specific options, run:
