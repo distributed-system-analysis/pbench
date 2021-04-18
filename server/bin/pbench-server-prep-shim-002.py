@@ -142,8 +142,14 @@ def process_tb(config, logger, receive_dir, qdir_md5, duplicates, errors):
         # this method however can't be supported once we have authorized user
         # ownership, and the model fits the server `PUT` method where an
         # unexpected termination could leave a tarball in "Uploading" state.
+        #
+        # TODO: We have no way to identify an owner here, so assign it to
+        # the arbitrary "pbench" user. This will go away when we drop this
+        # component entirely in favor of PUT.
         try:
-            dataset = Dataset.create(controller=controller, path=resultname)
+            dataset = Dataset.create(
+                controller=controller, path=resultname, owner="pbench"
+            )
         except DatasetError as e:
             logger.error(
                 "Unable to create dataset {}>{}: {}", controller, resultname, str(e)

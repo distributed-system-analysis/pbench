@@ -95,6 +95,10 @@ len(actions) = 16
                 "toc-prefix": "pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18"
             },
             "@timestamp": "2018-10-24T14:38:18.299722",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "host_tools_info": [
                 {
                     "hostname": "ansible-host",
@@ -159,6 +163,10 @@ len(actions) = 16
         "_op_type": "create",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/",
             "files": [
                 {
@@ -202,6 +210,10 @@ len(actions) = 16
         "_op_type": "create",
         "_source": {
             "@timestamp": "2018-10-24T14:38:18.299722",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1",
             "mode": "0o755",
             "mtime": "2018-10-24T14:38:18",
@@ -219,6 +231,10 @@ len(actions) = 16
             "ancestor_path_elements": [
                 "1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result",
             "files": [
                 {
@@ -246,6 +262,10 @@ len(actions) = 16
                 "1",
                 "reference-result"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
             "mtime": "2018-10-24T14:58:51",
@@ -265,6 +285,10 @@ len(actions) = 16
                 "reference-result",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/ansible-host",
             "mode": "0o755",
             "mtime": "2019-02-12T21:12:50",
@@ -285,6 +309,10 @@ len(actions) = 16
                 "tools-default",
                 "ansible-host"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/ansible-host/iostat",
             "files": [
                 {
@@ -343,6 +371,10 @@ len(actions) = 16
                 "ansible-host",
                 "iostat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/ansible-host/iostat/csv",
             "files": [
                 {
@@ -414,6 +446,10 @@ len(actions) = 16
                 "tools-default",
                 "ansible-host"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/ansible-host/pidstat",
             "files": [
                 {
@@ -528,6 +564,10 @@ len(actions) = 16
                 "ansible-host",
                 "pidstat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/ansible-host/pidstat/csv",
             "files": [
                 {
@@ -612,6 +652,10 @@ len(actions) = 16
                 "reference-result",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com",
             "mode": "0o755",
             "mtime": "2019-02-12T21:13:46",
@@ -632,6 +676,10 @@ len(actions) = 16
                 "tools-default",
                 "app-node-0.scale-ci.example.com"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat",
             "files": [
                 {
@@ -690,6 +738,10 @@ len(actions) = 16
                 "app-node-0.scale-ci.example.com",
                 "vmstat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/app-node-0.scale-ci.example.com/vmstat/csv",
             "files": [
                 {
@@ -753,6 +805,10 @@ len(actions) = 16
                 "reference-result",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com",
             "mode": "0o755",
             "mtime": "2019-02-12T21:13:46",
@@ -773,6 +829,10 @@ len(actions) = 16
                 "tools-default",
                 "app-node-1.scale-ci.example.com"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat",
             "files": [
                 {
@@ -831,6 +891,10 @@ len(actions) = 16
                 "app-node-1.scale-ci.example.com",
                 "vmstat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1/reference-result/tools-default/app-node-1.scale-ci.example.com/vmstat/csv",
             "files": [
                 {
@@ -983,6 +1047,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "vda",
@@ -1035,6 +1103,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:40:21.000000",
             "@timestamp_original": "1540392021000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "vda",
@@ -1087,6 +1159,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:41:21.000000",
             "@timestamp_original": "1540392081000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "vda",
@@ -1139,6 +1215,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:42:21.000000",
             "@timestamp_original": "1540392141000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 3,
                 "id": "vda",
@@ -1191,6 +1271,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:43:21.000000",
             "@timestamp_original": "1540392201000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 4,
                 "id": "vda",
@@ -1243,6 +1327,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:44:21.000000",
             "@timestamp_original": "1540392261000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 5,
                 "id": "vda",
@@ -1295,6 +1383,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:45:21.000000",
             "@timestamp_original": "1540392321000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 6,
                 "id": "vda",
@@ -1347,6 +1439,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:46:21.000000",
             "@timestamp_original": "1540392381000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 7,
                 "id": "vda",
@@ -1399,6 +1495,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:47:21.000000",
             "@timestamp_original": "1540392441000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 8,
                 "id": "vda",
@@ -1451,6 +1551,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:48:21.000000",
             "@timestamp_original": "1540392501000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 9,
                 "id": "vda",
@@ -1503,6 +1607,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:49:21.000000",
             "@timestamp_original": "1540392561000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 10,
                 "id": "vda",
@@ -1555,6 +1663,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:50:21.000000",
             "@timestamp_original": "1540392621000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 11,
                 "id": "vda",
@@ -1607,6 +1719,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:51:21.000000",
             "@timestamp_original": "1540392681000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 12,
                 "id": "vda",
@@ -1659,6 +1775,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:52:21.000000",
             "@timestamp_original": "1540392741000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 13,
                 "id": "vda",
@@ -1711,6 +1831,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:53:21.000000",
             "@timestamp_original": "1540392801000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 14,
                 "id": "vda",
@@ -1763,6 +1887,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -1815,6 +1943,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -1867,6 +1999,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -1919,6 +2055,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -1971,6 +2111,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2023,6 +2167,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2075,6 +2223,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2127,6 +2279,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2179,6 +2335,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2231,6 +2391,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2283,6 +2447,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2335,6 +2503,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2387,6 +2559,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2439,6 +2615,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2491,6 +2671,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:21.000000",
             "@timestamp_original": "1540391961000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2543,6 +2727,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:39:22.000000",
             "@timestamp_original": "1540391962000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2604,6 +2792,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:40:22.000000",
             "@timestamp_original": "1540392022000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2665,6 +2857,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:41:22.000000",
             "@timestamp_original": "1540392082000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2726,6 +2922,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:42:22.000000",
             "@timestamp_original": "1540392142000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2787,6 +2987,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:43:22.000000",
             "@timestamp_original": "1540392202000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2848,6 +3052,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:44:22.000000",
             "@timestamp_original": "1540392262000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2909,6 +3117,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:45:22.000000",
             "@timestamp_original": "1540392322000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -2970,6 +3182,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:46:22.000000",
             "@timestamp_original": "1540392382000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3031,6 +3247,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:47:22.000000",
             "@timestamp_original": "1540392442000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3092,6 +3312,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:48:22.000000",
             "@timestamp_original": "1540392502000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3153,6 +3377,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:49:22.000000",
             "@timestamp_original": "1540392562000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3214,6 +3442,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:50:22.000000",
             "@timestamp_original": "1540392622000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3275,6 +3507,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:51:22.000000",
             "@timestamp_original": "1540392682000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3336,6 +3572,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:52:22.000000",
             "@timestamp_original": "1540392742000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3397,6 +3637,10 @@ len(actions) = 45
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-10-24T14:53:22.000000",
             "@timestamp_original": "1540392802000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1",
                 "number": 1
@@ -3728,16 +3972,16 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        439 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--       9006 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       3712 logs/pbench-index/pbench-index.log
+-rw-rw-r--       9008 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       3714 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-state-manager
 -rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--        982 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--        984 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -3787,14 +4031,14 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- start processing list of tar balls
@@ -3840,7 +4084,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- start processing list of tar balls
@@ -3876,7 +4120,7 @@ run-1970-01-01T00:00:42-UTC
 ln -s /var/tmp/pbench-test-server/test-7.17/pbench/public_html/incoming/ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18 /var/tmp/pbench-test-server/test-7.17/pbench/public_html/results/ansible-host/test_glusterfs-storage-block/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18
 run-1970-01-01T00:00:42-UTC: ansible-host/pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18: success - elapsed time (secs): 0 - size (bytes): 31384
 run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
@@ -3884,5 +4128,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|ansible-host|pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18|INDEXED|
+test|ansible-host|pbench-user-benchmark_example-vmstat_2018.10.24T14.38.18|INDEXED|
 --- SqliteDB Datasets

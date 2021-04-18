@@ -80,6 +80,15 @@ while true; do
     esac
 done
 
+if [[ -z "${controller}" ]]; then
+    controller=${_pbench_full_hostname}
+    if [[ -z "${controller}" ]]; then
+	error_log "Missing controller name (should be \"hostname -f\" value)"
+	exit 1
+    fi
+fi
+validate_hostname "${controller}" "controller"
+
 # Move into pbench run collection directory
 cd ${pbench_run} >/dev/null
 if [[ ${?} -ne 0 ]]; then
@@ -101,14 +110,6 @@ fi
 if [[ ! -s ${tmp}/results.lis ]]; then
     # Nothing to do
     exit 0
-fi
-
-if [[ -z "${controller}" ]]; then
-    controller=${_pbench_full_hostname}
-    if [[ -z "${controller}" ]]; then
-	error_log "Missing controller name (should be \"hostname -f\" value)"
-	exit 1
-    fi
 fi
 
 if [[ ! -f "${pbench_bin}/id_rsa" ]]; then

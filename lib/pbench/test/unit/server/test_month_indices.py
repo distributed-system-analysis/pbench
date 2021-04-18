@@ -34,9 +34,9 @@ def get_helper(client, server_config, requests_mock):
     return get_helper
 
 
-class TestQueryMonthIndices:
+class TestMonthIndices:
     """
-    Unit testing for resources/QueryMonthIndices class.
+    Unit testing for resources/MonthIndices class.
 
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class

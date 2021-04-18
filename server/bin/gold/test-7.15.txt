@@ -96,6 +96,10 @@ len(actions) = 33
                 "toc-prefix": "uperf__2016-10-06_16:34:03"
             },
             "@timestamp": "2016-10-06T16:34:08.098427",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "host_tools_info": [
                 {
                     "hostname": "flat7_40gb",
@@ -364,6 +368,10 @@ len(actions) = 33
         "_op_type": "create",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/",
             "files": [
                 {
@@ -435,6 +443,10 @@ len(actions) = 33
         "_op_type": "create",
         "_source": {
             "@timestamp": "2016-10-06T16:34:08.098427",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i",
             "files": [
                 {
@@ -489,6 +501,10 @@ len(actions) = 33
             "ancestor_path_elements": [
                 "1-tcp_stream-16384B-32i"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1",
             "files": [
                 {
@@ -544,6 +560,10 @@ len(actions) = 33
                 "1-tcp_stream-16384B-32i",
                 "sample1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/csv",
             "files": [
                 {
@@ -571,6 +591,10 @@ len(actions) = 33
                 "1-tcp_stream-16384B-32i",
                 "sample1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2016-10-06T17:05:21",
@@ -590,6 +614,10 @@ len(actions) = 33
                 "sample1",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb",
             "mode": "0o755",
             "mtime": "2016-10-06T17:05:21",
@@ -610,6 +638,10 @@ len(actions) = 33
                 "tools-default",
                 "flat7_40gb"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat",
             "files": [
                 {
@@ -668,6 +700,10 @@ len(actions) = 33
                 "flat7_40gb",
                 "iostat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/iostat/csv",
             "files": [
                 {
@@ -739,6 +775,10 @@ len(actions) = 33
                 "tools-default",
                 "flat7_40gb"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/mpstat",
             "files": [
                 {
@@ -1021,6 +1061,10 @@ len(actions) = 33
                 "flat7_40gb",
                 "mpstat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/mpstat/csv",
             "files": [
                 {
@@ -1162,6 +1206,10 @@ len(actions) = 33
                 "tools-default",
                 "flat7_40gb"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/perf",
             "files": [
                 {
@@ -1227,6 +1275,10 @@ len(actions) = 33
                 "flat7_40gb",
                 "perf"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/perf/perf-percpu",
             "files": [
                 {
@@ -1361,6 +1413,10 @@ len(actions) = 33
                 "tools-default",
                 "flat7_40gb"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/pidstat",
             "files": [
                 {
@@ -1475,6 +1531,10 @@ len(actions) = 33
                 "flat7_40gb",
                 "pidstat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/pidstat/csv",
             "files": [
                 {
@@ -1560,6 +1620,10 @@ len(actions) = 33
                 "tools-default",
                 "flat7_40gb"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-tcp_stream-16384B-32i/sample1/tools-default/flat7_40gb/proc-interrupts",
             "files": [
                 {
@@ -2285,6 +2349,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "rhel72_java-root",
@@ -2336,6 +2404,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "rhel72_java-swap",
@@ -2387,6 +2459,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "vda",
@@ -2438,6 +2514,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "rhel72_java-root",
@@ -2489,6 +2569,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "rhel72_java-swap",
@@ -2540,6 +2624,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "vda",
@@ -2591,6 +2679,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.000000",
             "@timestamp_original": "1475771660000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "rhel72_java-root",
@@ -2642,6 +2734,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.000000",
             "@timestamp_original": "1475771660000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "rhel72_java-swap",
@@ -2693,6 +2789,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.000000",
             "@timestamp_original": "1475771660000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "vda",
@@ -2744,6 +2844,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -2787,6 +2891,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -2830,6 +2938,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.000000",
             "@timestamp_original": "1475771660000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -2873,6 +2985,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -2916,6 +3032,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -2959,6 +3079,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.000000",
             "@timestamp_original": "1475771660000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3002,6 +3126,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3045,6 +3173,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3088,6 +3220,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.000000",
             "@timestamp_original": "1475771660000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3131,6 +3267,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3174,6 +3314,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3217,6 +3361,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.000000",
             "@timestamp_original": "1475771660000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3260,6 +3408,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3303,6 +3455,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3346,6 +3502,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.000000",
             "@timestamp_original": "1475771660000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3389,6 +3549,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3440,6 +3604,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3491,6 +3659,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3542,6 +3714,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3593,6 +3769,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3644,6 +3824,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3695,6 +3879,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3746,6 +3934,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3797,6 +3989,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3848,6 +4044,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3899,6 +4099,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -3950,6 +4154,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4001,6 +4209,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4052,6 +4264,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4103,6 +4319,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4154,6 +4374,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4189,6 +4413,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4224,6 +4452,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4259,6 +4491,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4294,6 +4530,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4329,6 +4569,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4364,6 +4608,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4399,6 +4647,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4434,6 +4686,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4469,6 +4725,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4504,6 +4764,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4539,6 +4803,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4574,6 +4842,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4609,6 +4881,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4644,6 +4920,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.357526",
             "@timestamp_original": "1475771651.357526",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4679,6 +4959,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.362084",
             "@timestamp_original": "1475771651.3620842",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -4858,6 +5142,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.364391",
             "@timestamp_original": "1475771654.364391",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -5185,6 +5473,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.366625",
             "@timestamp_original": "1475771657.3666246",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -5512,6 +5804,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.368945",
             "@timestamp_original": "1475771660.3689446",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -5839,6 +6135,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "rhel72_java-root",
@@ -5890,6 +6190,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "rhel72_java-swap",
@@ -5941,6 +6245,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.000000",
             "@timestamp_original": "1475771654000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "vda",
@@ -5992,6 +6300,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "rhel72_java-root",
@@ -6043,6 +6355,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "rhel72_java-swap",
@@ -6094,6 +6410,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.000000",
             "@timestamp_original": "1475771657000",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "vda",
@@ -6145,6 +6465,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.404408",
             "@timestamp_original": "1475771651.4044082",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -6324,6 +6648,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.406617",
             "@timestamp_original": "1475771654.406617",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -6651,6 +6979,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.409022",
             "@timestamp_original": "1475771657.4090216",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -6978,6 +7310,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.411393",
             "@timestamp_original": "1475771660.4113934",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -7305,6 +7641,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:11.066326",
             "@timestamp_original": "1475771651.0663261",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -7484,6 +7824,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:14.068630",
             "@timestamp_original": "1475771654.0686305",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -7811,6 +8155,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:17.071078",
             "@timestamp_original": "1475771657.0710783",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -8138,6 +8486,10 @@ len(actions) = 72
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2016-10-06T16:34:20.073414",
             "@timestamp_original": "1475771660.0734138",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "iteration": {
                 "name": "1-tcp_stream-16384B-32i",
                 "number": 1
@@ -9365,16 +9717,16 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        439 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--      30144 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       3624 logs/pbench-index/pbench-index.log
+-rw-rw-r--      30146 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       3626 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-state-manager
 -rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--        862 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--        864 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -9424,14 +9776,14 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- start processing list of tar balls
@@ -9564,7 +9916,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- start processing list of tar balls
@@ -9600,7 +9952,7 @@ run-1970-01-01T00:00:42-UTC
 ln -s /var/tmp/pbench-test-server/test-7.15/pbench/public_html/incoming/master_40gb/uperf__2016-10-06_16:34:03 /var/tmp/pbench-test-server/test-7.15/pbench/public_html/results/master_40gb/uperf__2016-10-06_16:34:03
 run-1970-01-01T00:00:42-UTC: master_40gb/uperf__2016-10-06_16:34:03: success - elapsed time (secs): 0 - size (bytes): 5807176
 run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
@@ -9608,5 +9960,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|master_40gb|uperf__2016-10-06_16:34:03|INDEXED|
+test|master_40gb|uperf__2016-10-06_16:34:03|INDEXED|
 --- SqliteDB Datasets

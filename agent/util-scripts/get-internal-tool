@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+# -*- mode: python -*-
+
+import sys
+import json
+import argparse
+from pathlib import Path
+
+
+def exit_script(message):
+    print(message, file=sys.stderr)
+    sys.exit(1)
+
+
+# Establishing script positional arguments
+parser = argparse.ArgumentParser(
+    description="Get the internal name of an existing tool given its type."
+)
+parser.add_argument("metadata_location")
+parser.add_argument("tool_name")
+parser.add_argument("tool_type", choices=["persistent", "transient"])
+args = parser.parse_args()
+
+# Assigning received arguments for check/use
+meta_loc = Path(args.metadata_location)
+name = args.tool_name
+tool_type = args.tool_type
+
+# Check for valid metadata location
+try:
+    meta = json.load(open(meta_loc / "meta.json"))
+except Exception as exc:
+    exit_script(f"Failed to load tool metadata: {exc}")
+
+# Find potential name, then check if valid
+if name not in meta[tool_type].keys():
+    name = name + "-" + tool_type
+    if name not in meta[tool_type].keys():
+        exit_script(f"{name} is not an existing tool option")
+
+print(name)

@@ -319,14 +319,9 @@ class Index:
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
                         dataset = None
                         ptb = None
+                        username = None
                         try:
                             path = os.path.realpath(tb)
-
-                            # "Open" the tar ball represented by the tar ball object
-                            idxctx.logger.debug("open tar ball")
-                            ptb = PbenchTarBall(
-                                idxctx, path, tmpdir, Path(self.incoming, controller),
-                            )
 
                             try:
                                 dataset = Dataset.attach(
@@ -345,6 +340,18 @@ class Index:
                                 idxctx.logger.warn(
                                     "Unable to advance dataset state: {}", str(e)
                                 )
+                            else:
+                                username = dataset.owner
+
+                            # "Open" the tar ball represented by the tar ball object
+                            idxctx.logger.debug("open tar ball")
+                            ptb = PbenchTarBall(
+                                idxctx,
+                                username,
+                                path,
+                                tmpdir,
+                                Path(self.incoming, controller),
+                            )
 
                             # Construct the generator for emitting all actions.  The
                             # `idxctx` dictionary is passed along to each generator so

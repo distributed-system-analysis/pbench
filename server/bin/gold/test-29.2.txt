@@ -141,7 +141,7 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        943 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        945 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-reindex
 -rw-rw-r--          0 logs/pbench-reindex/pbench-reindex.log
 drwxrwxr-x          - logs/pbench-state-manager
@@ -209,7 +209,7 @@ Controller: ctlr-out-of-range
 	  ----------
 
 end-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test-29.2/pbench/archive/fs-version-001
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-reindex/pbench-reindex.log
@@ -221,5 +221,5 @@ end-1970-01-01T00:00:42-UTC: archive hierarchy: /var/tmp/pbench-test-server/test
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|ctlr-in-range|tarball_re-index_1970.02.14T12.42.42|INDEXED| REINDEX = True
+fake|ctlr-in-range|tarball_re-index_1970.02.14T12.42.42|INDEXED| REINDEX = True
 --- SqliteDB Datasets

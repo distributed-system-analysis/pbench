@@ -99,6 +99,10 @@ len(actions) = 46
                 "toc-prefix": "fio_mock_2020.01.19T00.18.06"
             },
             "@timestamp": "2020-01-19T00:19:37.656511",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "host_tools_info": [
                 {
                     "hostname": "ctlrA",
@@ -128,6 +132,10 @@ len(actions) = 46
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/",
             "files": [
                 {
@@ -206,6 +214,10 @@ len(actions) = 46
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB",
             "files": [
                 {
@@ -246,6 +258,10 @@ len(actions) = 46
             "ancestor_path_elements": [
                 "1-read-4KiB"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB/sample1",
             "files": [
                 {
@@ -315,6 +331,10 @@ len(actions) = 46
                 "1-read-4KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB/sample1/clients",
             "mode": "0o755",
             "mtime": "2020-03-03T12:56:25",
@@ -334,6 +354,10 @@ len(actions) = 46
                 "sample1",
                 "clients"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB/sample1/clients/ctlrA",
             "files": [
                 {
@@ -398,6 +422,10 @@ len(actions) = 46
                 "clients",
                 "ctlrA"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB/sample1/clients/ctlrA/hist",
             "files": [
                 {
@@ -481,6 +509,10 @@ len(actions) = 46
                 "1-read-4KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB/sample1/csv",
             "files": [
                 {
@@ -529,6 +561,10 @@ len(actions) = 46
                 "1-read-4KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB/sample1/hist",
             "files": [
                 {
@@ -612,6 +648,10 @@ len(actions) = 46
                 "1-read-4KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2020-03-03T12:20:36",
@@ -631,6 +671,10 @@ len(actions) = 46
                 "sample1",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB/sample1/tools-default/ctlrA",
             "mode": "0o755",
             "mtime": "2020-03-03T12:19:48",
@@ -651,6 +695,10 @@ len(actions) = 46
                 "tools-default",
                 "ctlrA"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/1-read-4KiB/sample1/tools-default/ctlrA/turbostat",
             "files": [
                 {
@@ -688,6 +736,10 @@ len(actions) = 46
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-01-19T00:19:37.656511",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/2-read-64KiB",
             "files": [
                 {
@@ -728,6 +780,10 @@ len(actions) = 46
             "ancestor_path_elements": [
                 "2-read-64KiB"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/2-read-64KiB/sample1",
             "files": [
                 {
@@ -797,6 +853,10 @@ len(actions) = 46
                 "2-read-64KiB",
                 "sample1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/2-read-64KiB/sample1/clients",
             "mode": "0o755",
             "mtime": "2020-03-03T12:56:25",
@@ -816,6 +876,10 @@ len(actions) = 46
                 "sample1",
                 "clients"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/2-read-64KiB/sample1/clients/ctlrA",
             "files": [
                 {
@@ -3013,16 +3077,16 @@ lrwxrwxrwx        100 public_html/users/virt-perf-ci/ctlrA/378/fio_mock_2020.01.
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        439 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--       3366 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       3612 logs/pbench-index/pbench-index.log
+-rw-rw-r--       3368 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       3614 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-state-manager
 -rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--       1075 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--       1077 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -3072,14 +3136,14 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- start processing list of tar balls
@@ -3104,7 +3168,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- start processing list of tar balls
@@ -3141,7 +3205,7 @@ ln -s /var/tmp/pbench-test-server/test-7.23/pbench/public_html/incoming/ctlrA/fi
 ln -s /var/tmp/pbench-test-server/test-7.23/pbench/public_html/incoming/ctlrA/fio_mock_2020.01.19T00.18.06 /var/tmp/pbench-test-server/test-7.23/pbench/public_html/users/virt-perf-ci/ctlrA/378/fio_mock_2020.01.19T00.18.06
 run-1970-01-01T00:00:42-UTC: ctlrA/fio_mock_2020.01.19T00.18.06: success - elapsed time (secs): 0 - size (bytes): 492296
 run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
@@ -3149,5 +3213,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|ctlrA|fio_mock_2020.01.19T00.18.06|INDEXED|
+test|ctlrA|fio_mock_2020.01.19T00.18.06|INDEXED|
 --- SqliteDB Datasets

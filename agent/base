@@ -100,14 +100,29 @@ fi
 # don't use colons and dashes in the date suffix
 export date_suffix=$(date --date ${date} --utc +"%Y.%m.%dT%H.%M.%S")
 
+function validate_hostname {
+    validate-hostname "${1}"
+    if [[ ${?} -ne 0 ]]; then
+        error_log "Invalid ${2}: '${1}'"
+        exit 1
+    fi
+}
+
 if [[ -z "${_pbench_hostname}" ]]; then
     export _pbench_hostname=$(hostname -s)
 fi
+validate_hostname "${_pbench_hostname}" "_pbench_hostname"
 if [[ -z "${_pbench_full_hostname}" ]]; then
     export _pbench_full_hostname=$(hostname -f)
 fi
+validate_hostname "${_pbench_full_hostname}" "_pbench_full_hostname"
 if [[ -z "${_pbench_hostname_ip}" ]]; then
     export _pbench_hostname_ip=$(hostname -i)
+fi
+validate-ipaddress "${_pbench_hostname_ip}"
+if [[ ${?} -ne 0 ]]; then
+    error_log "Invalid IP address: '${_pbench_hostname_ip}'"
+    exit 1
 fi
 
 if [[ -z "$ssh_opts" ]]; then

@@ -35,7 +35,6 @@ from bottle import Bottle, ServerAdapter, request, abort
 from daemon import DaemonContext
 
 from pbench.agent.constants import (
-    def_tds_port,
     tm_allowed_actions,
     tm_channel_suffix_from_client,
     tm_channel_suffix_from_tms,
@@ -618,7 +617,7 @@ class JaegerCollector(BaseCollector):
         """Constructor - responsible for setting up the particulars for the
         Jaeger collector.
         """
-        self.jaeger_path = find_executable("jaeger-collector")
+        self.jaeger_path = find_executable("jaeger-all-in-one")
         if self.jaeger_path is None:
             raise ToolDataSinkError("External 'jaeger' executable not found")
 
@@ -631,9 +630,7 @@ class JaegerCollector(BaseCollector):
                     dict(hostname=f"{host}_{tool}", hostport=f"{host}:{port}")
                 )
         if not self.tool_context:
-            raise ToolDataSinkError(
-                "Expected Jaeger persistent tool context not found"
-            )
+            raise ToolDataSinkError("Expected Jaeger persistent tool context not found")
 
     def launch(self):
         """launch - creates the YAML file that directs Jaeger's behavior,
@@ -650,13 +647,12 @@ class JaegerCollector(BaseCollector):
         with (self.tool_dir / "jaeger.yml").open("w") as config:
             config.write(yml)
 
-        # TODO: Setup correct Jaeger args.
         args = [
             self.jaeger_path,
-            f"--config.file={self.tool_dir}/jaeger.yml",
-            f"--storage.tsdb.path={self.tool_dir}",
-            "--web.console.libraries=/usr/share/prometheus/console_libraries",
-            "--web.console.templates=/usr/share/prometheus/consoles",
+            # f"--config.file={self.tool_dir}/jaeger.yml",
+            # f"--storage.tsdb.path={self.tool_dir}",
+            # "--web.console.libraries=/usr/share/prometheus/console_libraries",
+            # "--web.console.templates=/usr/share/prometheus/consoles",
         ]
         with (self.tool_dir / "jaeger.log").open("w") as jaeger_logs:
             try:
@@ -664,9 +660,7 @@ class JaegerCollector(BaseCollector):
                     args, cwd=self.tool_dir, stdout=jaeger_logs, stderr=jaeger_logs
                 )
             except Exception as exc:
-                self.logger.error(
-                    "Jaeger process creation failed: '%s', %r", exc, args
-                )
+                self.logger.error("Jaeger process creation failed: '%s', %r", exc, args)
                 return
             else:
                 self.run.append(run)
@@ -829,6 +823,7 @@ class ToolDataSink(Bottle):
         try:
             _benchmark_run_dir = params["benchmark_run_dir"]
             bind_hostname = params["bind_hostname"]
+            port = params["port"]
             channel_prefix = params["channel_prefix"]
             tool_group = params["group"]
             tool_metadata = ToolMetadata.tool_md_from_dict(params["tool_metadata"])
@@ -841,6 +836,7 @@ class ToolDataSink(Bottle):
             return (
                 benchmark_run_dir,
                 bind_hostname,
+                port,
                 channel_prefix,
                 tool_group,
                 tool_metadata,
@@ -879,6 +875,7 @@ class ToolDataSink(Bottle):
         (
             self.benchmark_run_dir,
             self.bind_hostname,
+            self.port,
             self.channel_prefix,
             self.tool_group,
             self.tool_metadata,
@@ -892,6 +889,7 @@ class ToolDataSink(Bottle):
         self.data_ctx = None
         self.directory = None
         self._server = None
+        self._jaeger_server = None
         self._prom_server = None
         self._pcp_server = None
         self._tm_tracking = None
@@ -924,7 +922,7 @@ class ToolDataSink(Bottle):
             callback=self.put_document,
         )
         self._server = DataSinkWsgiServer(
-            host=self.bind_hostname, port=def_tds_port, logger=self.logger
+            host=self.bind_hostname, port=self.port, logger=self.logger
         )
         self.web_server_thread = Thread(target=self.web_server_run)
         self.web_server_thread.start()
@@ -2015,7 +2013,7 @@ def driver(
             logger.error(
                 "ERROR - tool data sink failed to start, %s:%s already in use",
                 params["bind_hostname"],
-                def_tds_port,
+                params["port"],
             )
             ret_val = 8
         else:
@@ -2182,7 +2180,7 @@ def main(argv):
         )
         return 6
 
-    optional_md = params["optional_md"]
+    optional_md = params.get("optional_md", dict())
 
     func = daemon if daemonize == "yes" else driver
     ret_val = func(

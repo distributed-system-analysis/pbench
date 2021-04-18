@@ -20,6 +20,7 @@
 		"numastat": null,
 		"oc": null,
 		"openvswitch": null,
+		"pcp-transient": null,
 		"perf": null,
 		"pidstat": null,
 		"pprof": null,
@@ -39,11 +40,10 @@
 		"virsh-migrate": null,
 		"vmstat": null
 	},
-
 	"persistent":{
-		"node-exporter": {"collector": "prometheus", "port": "9100"},
 		"dcgm": {"collector": "prometheus", "port": "9400"},
-		"pcp": {"collector": "pcp", "port": "44321"},
 		"jaeger": {"collector": "jaeger", "port": ""},
+		"node-exporter": {"collector": "prometheus", "port": "9100"},
+		"pcp": {"collector": "pcp", "port": "44321"}
 	}
 }

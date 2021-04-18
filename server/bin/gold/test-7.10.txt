@@ -96,6 +96,10 @@ len(actions) = 39
                 "toc-prefix": "uperf_uperftest_2018.02.02T20.58.00"
             },
             "@timestamp": "2018-02-02T20:58:04.723258",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "host_tools_info": [
                 {
                     "hostname": "dhcp31-44",
@@ -186,6 +190,10 @@ len(actions) = 39
         "_op_type": "create",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/",
             "files": [
                 {
@@ -257,6 +265,10 @@ len(actions) = 39
         "_op_type": "create",
         "_source": {
             "@timestamp": "2018-02-02T20:58:04.723258",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i",
             "files": [
                 {
@@ -311,6 +323,10 @@ len(actions) = 39
             "ancestor_path_elements": [
                 "1-tcp_rr-64B-8i"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1",
             "files": [
                 {
@@ -366,6 +382,10 @@ len(actions) = 39
                 "1-tcp_rr-64B-8i",
                 "sample1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/csv",
             "files": [
                 {
@@ -400,6 +420,10 @@ len(actions) = 39
                 "1-tcp_rr-64B-8i",
                 "sample1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default",
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:11",
@@ -419,6 +443,10 @@ len(actions) = 39
                 "sample1",
                 "tools-default"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44",
             "mode": "0o755",
             "mtime": "2018-02-02T20:59:11",
@@ -439,6 +467,10 @@ len(actions) = 39
                 "tools-default",
                 "dhcp31-44"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/iostat",
             "files": [
                 {
@@ -497,6 +529,10 @@ len(actions) = 39
                 "dhcp31-44",
                 "iostat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/iostat/csv",
             "files": [
                 {
@@ -568,6 +604,10 @@ len(actions) = 39
                 "tools-default",
                 "dhcp31-44"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/mpstat",
             "files": [
                 {
@@ -640,6 +680,10 @@ len(actions) = 39
                 "dhcp31-44",
                 "mpstat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/mpstat/csv",
             "files": [
                 {
@@ -676,6 +720,10 @@ len(actions) = 39
                 "tools-default",
                 "dhcp31-44"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/perf",
             "files": [
                 {
@@ -741,6 +789,10 @@ len(actions) = 39
                 "dhcp31-44",
                 "perf"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/perf/perf-percpu",
             "files": [
                 {
@@ -770,6 +822,10 @@ len(actions) = 39
                 "tools-default",
                 "dhcp31-44"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/pidstat",
             "files": [
                 {
@@ -884,6 +940,10 @@ len(actions) = 39
                 "dhcp31-44",
                 "pidstat"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/pidstat/csv",
             "files": [
                 {
@@ -969,6 +1029,10 @@ len(actions) = 39
                 "tools-default",
                 "dhcp31-44"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/1-tcp_rr-64B-8i/sample1/tools-default/dhcp31-44/proc-interrupts",
             "files": [
                 {
@@ -2044,6 +2108,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:10.000000",
             "@timestamp_original": "1517605090000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "fedora-root",
@@ -2096,6 +2164,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:10.000000",
             "@timestamp_original": "1517605090000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "fedora-swap",
@@ -2148,6 +2220,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:10.000000",
             "@timestamp_original": "1517605090000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 0,
                 "id": "vda",
@@ -2200,6 +2276,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:13.000000",
             "@timestamp_original": "1517605093000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "fedora-root",
@@ -2252,6 +2332,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:13.000000",
             "@timestamp_original": "1517605093000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "fedora-swap",
@@ -2304,6 +2388,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:13.000000",
             "@timestamp_original": "1517605093000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 1,
                 "id": "vda",
@@ -2356,6 +2444,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:16.000000",
             "@timestamp_original": "1517605096000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "fedora-root",
@@ -2408,6 +2500,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:16.000000",
             "@timestamp_original": "1517605096000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "fedora-swap",
@@ -2460,6 +2556,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:16.000000",
             "@timestamp_original": "1517605096000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 2,
                 "id": "vda",
@@ -2512,6 +2612,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:19.000000",
             "@timestamp_original": "1517605099000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 3,
                 "id": "fedora-root",
@@ -2564,6 +2668,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:19.000000",
             "@timestamp_original": "1517605099000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 3,
                 "id": "fedora-swap",
@@ -2616,6 +2724,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:19.000000",
             "@timestamp_original": "1517605099000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 3,
                 "id": "vda",
@@ -2668,6 +2780,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:22.000000",
             "@timestamp_original": "1517605102000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 4,
                 "id": "fedora-root",
@@ -2720,6 +2836,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:22.000000",
             "@timestamp_original": "1517605102000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 4,
                 "id": "fedora-swap",
@@ -2772,6 +2892,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:22.000000",
             "@timestamp_original": "1517605102000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iostat": {
                 "@idx": 4,
                 "id": "vda",
@@ -2824,6 +2948,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:10.000000",
             "@timestamp_original": "1517605090000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -2868,6 +2996,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:13.000000",
             "@timestamp_original": "1517605093000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -2912,6 +3044,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:16.000000",
             "@timestamp_original": "1517605096000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -2956,6 +3092,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:19.000000",
             "@timestamp_original": "1517605099000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3000,6 +3140,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:22.000000",
             "@timestamp_original": "1517605102000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3044,6 +3188,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:25.000000",
             "@timestamp_original": "1517605105000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3088,6 +3236,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:28.000000",
             "@timestamp_original": "1517605108000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3132,6 +3284,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:31.000000",
             "@timestamp_original": "1517605111000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3176,6 +3332,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:34.000000",
             "@timestamp_original": "1517605114000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3220,6 +3380,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3264,6 +3428,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:40.000000",
             "@timestamp_original": "1517605120000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3308,6 +3476,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:43.000000",
             "@timestamp_original": "1517605123000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3352,6 +3524,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:46.000000",
             "@timestamp_original": "1517605126000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3396,6 +3572,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:49.000000",
             "@timestamp_original": "1517605129000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3440,6 +3620,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:52.000000",
             "@timestamp_original": "1517605132000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3484,6 +3668,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3536,6 +3724,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3588,6 +3780,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3640,6 +3836,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3692,6 +3892,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3744,6 +3948,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3796,6 +4004,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3848,6 +4060,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3900,6 +4116,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -3952,6 +4172,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4004,6 +4228,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4056,6 +4284,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4108,6 +4340,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4160,6 +4396,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4212,6 +4452,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.000000",
             "@timestamp_original": "1517605117000",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4264,6 +4508,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4300,6 +4548,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4336,6 +4588,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4372,6 +4628,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4408,6 +4668,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4444,6 +4708,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4480,6 +4748,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4516,6 +4788,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4552,6 +4828,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4588,6 +4868,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4624,6 +4908,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4660,6 +4948,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4696,6 +4988,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4732,6 +5028,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4768,6 +5068,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.434270",
             "@timestamp_original": "1517605087.4342701",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -4804,6 +5108,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:07.467263",
             "@timestamp_original": "1517605087.4672635",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -5005,6 +5313,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:10.474774",
             "@timestamp_original": "1517605090.474774",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -5375,6 +5687,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:13.476189",
             "@timestamp_original": "1517605093.4761894",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -5745,6 +6061,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:16.477567",
             "@timestamp_original": "1517605096.4775674",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -6115,6 +6435,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:19.479063",
             "@timestamp_original": "1517605099.4790628",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -6485,6 +6809,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:22.480448",
             "@timestamp_original": "1517605102.4804482",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -6855,6 +7183,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:25.482045",
             "@timestamp_original": "1517605105.4820454",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -7225,6 +7557,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:28.483519",
             "@timestamp_original": "1517605108.4835188",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -7595,6 +7931,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:31.485079",
             "@timestamp_original": "1517605111.4850786",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -7965,6 +8305,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:34.486434",
             "@timestamp_original": "1517605114.4864337",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -8335,6 +8679,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:37.489497",
             "@timestamp_original": "1517605117.4894974",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -8705,6 +9053,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:40.490952",
             "@timestamp_original": "1517605120.4909515",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -9075,6 +9427,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:43.492414",
             "@timestamp_original": "1517605123.4924142",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -9445,6 +9801,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:46.493826",
             "@timestamp_original": "1517605126.4938262",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -9815,6 +10175,10 @@ len(actions) = 75
             "@generated-by": "70015f01dedbadbeefc105edcafedead",
             "@timestamp": "2018-02-02T20:58:49.495322",
             "@timestamp_original": "1517605129.4953215",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "iteration": {
                 "name": "1-tcp_rr-64B-8i",
                 "number": 1
@@ -10730,16 +11094,16 @@ drwxrwxr-x          - public_html/users
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        439 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--      10315 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       3643 logs/pbench-index/pbench-index.log
+-rw-rw-r--      10317 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       3645 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-state-manager
 -rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--        883 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--        885 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -10789,14 +11153,14 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- start processing list of tar balls
@@ -10849,7 +11213,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- Preparing to index 1 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- start processing list of tar balls
@@ -10885,7 +11249,7 @@ run-1970-01-01T00:00:42-UTC
 ln -s /var/tmp/pbench-test-server/test-7.10/pbench/public_html/incoming/dhcp31-44/uperf_uperftest_2018.02.02T20.58.00 /var/tmp/pbench-test-server/test-7.10/pbench/public_html/results/dhcp31-44/uperf_uperftest_2018.02.02T20.58.00
 run-1970-01-01T00:00:42-UTC: dhcp31-44/uperf_uperftest_2018.02.02T20.58.00: success - elapsed time (secs): 0 - size (bytes): 2360408
 run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
@@ -10893,5 +11257,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|dhcp31-44|uperf_uperftest_2018.02.02T20.58.00|INDEXED|
+fake|dhcp31-44|uperf_uperftest_2018.02.02T20.58.00|INDEXED|
 --- SqliteDB Datasets

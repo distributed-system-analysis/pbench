@@ -1,16 +1,16 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import os
 import sys
 import time
 
-with open(os.environ["_testlog"], "a") as ofp:
-    args = " ".join(sys.argv)
-    ofp.write("%s\n" % (args,))
+_prog = os.path.basename(sys.argv[0])
 
-with open("dcgm.file", "a+") as ofp:
+with open(os.environ["_testlog"], "a") as tfp, open(f"{_prog}.file", "a+") as ofp:
     args = " ".join(sys.argv)
-    ofp.write("%s\n" % (args,))
+    line = f"{args}\n"
+    tfp.write(line)
+    ofp.write(line)
 
 time.sleep(9999)
 

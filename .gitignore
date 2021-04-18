@@ -7,10 +7,10 @@ build
 dist
 *~
 ????-*.patch
-.env
+/.env
 .npmrc
 .yarnrc
-*.egg-info
+*.egg-info/
 .tox
 .eggs
 pip-wheel-metadata

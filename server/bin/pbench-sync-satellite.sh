@@ -211,7 +211,9 @@ for host in $hosts ;do
                 log_error "Failed to create the symlink for md5 check passed tarballs: ln -sf $PWD/$x SATELLITE-MD5-PASSED/$x" "${mail_content}"
                 continue
             fi
-            pbench-state-manager.py --create --controller="${remote_prefix}::${host}" --path="${x}" --state=uploaded
+            # TODO: we need a way to synchronize user DB with the
+            # satellite, and authenticate. LDAP? SSO? TBD.
+            pbench-state-manager --create=satellite --md5=${md5sum} --controller="${remote_prefix}::${host}" --path="${x}" --state=uploaded
             status=$?
             if [[ $status != 0 ]] ;then
                 nerrs=$nerrs+1

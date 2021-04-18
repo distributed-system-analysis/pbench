@@ -98,6 +98,10 @@ len(actions) = 23
                 "toc-prefix": "trafficgen_mock_2020.02.28T19.49.39"
             },
             "@timestamp": "2020-02-28T19:49:39.887048",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "host_tools_info": [],
             "run": {
                 "config": "mock",
@@ -119,6 +123,10 @@ len(actions) = 23
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T19:49:39.887048",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/",
             "files": [
                 {
@@ -183,6 +191,10 @@ len(actions) = 23
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T19:49:39.887048",
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1",
             "files": [
                 {
@@ -209,6 +221,10 @@ len(actions) = 23
             "ancestor_path_elements": [
                 "0__device-pairs=0000:01:00.0,0000:01:00.1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0",
             "files": [
                 {
@@ -278,6 +294,10 @@ len(actions) = 23
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients",
             "mode": "0o755",
             "mtime": "2020-02-28T20:00:10",
@@ -297,6 +317,10 @@ len(actions) = 23
                 "sample0",
                 "clients"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116",
             "files": [
                 {
@@ -674,6 +698,10 @@ len(actions) = 23
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv",
             "mode": "0o755",
             "mtime": "2020-02-28T20:00:16",
@@ -692,6 +720,10 @@ len(actions) = 23
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "test"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-02-28T19:50:20",
@@ -2978,6 +3010,10 @@ len(actions) = 38
                 "toc-prefix": "trafficgen_mock_2020.02.28T20.04.29"
             },
             "@timestamp": "2020-02-28T20:04:29.505587",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "host_tools_info": [],
             "run": {
                 "config": "mock",
@@ -2999,6 +3035,10 @@ len(actions) = 38
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T20:04:29.505587",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/",
             "files": [
                 {
@@ -3070,6 +3110,10 @@ len(actions) = 38
         "_op_type": "create",
         "_source": {
             "@timestamp": "2020-02-28T20:04:29.505587",
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1",
             "files": [
                 {
@@ -3096,6 +3140,10 @@ len(actions) = 38
             "ancestor_path_elements": [
                 "0__device-pairs=0000:01:00.0,0000:01:00.1"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0",
             "files": [
                 {
@@ -3165,6 +3213,10 @@ len(actions) = 38
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients",
             "mode": "0o755",
             "mtime": "2020-02-28T20:15:12",
@@ -3184,6 +3236,10 @@ len(actions) = 38
                 "sample0",
                 "clients"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/clients/perf116",
             "files": [
                 {
@@ -3673,6 +3729,10 @@ len(actions) = 38
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/csv",
             "files": [
                 {
@@ -4176,6 +4236,10 @@ len(actions) = 38
                 "0__device-pairs=0000:01:00.0,0000:01:00.1",
                 "sample0"
             ],
+            "authorization": {
+                "access": "private",
+                "owner": "fake"
+            },
             "directory": "/0__device-pairs=0000:01:00.0,0000:01:00.1/sample0/tools-default",
             "mode": "0o755",
             "mtime": "2020-02-28T20:04:59",
@@ -9799,16 +9863,16 @@ lrwxrwxrwx        107 public_html/users/janedoe@example.com/ctlrA/prb-trafficgen
 drwxrwxr-x          - logs
 drwxrwxr-x          - logs/pbench-audit-server
 -rw-rw-r--          0 logs/pbench-audit-server/pbench-audit-server.error
--rw-rw-r--        437 logs/pbench-audit-server/pbench-audit-server.log
+-rw-rw-r--        439 logs/pbench-audit-server/pbench-audit-server.log
 drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
--rw-rw-r--       5652 logs/pbench-index-tool-data/pbench-index-tool-data.log
--rw-rw-r--       6749 logs/pbench-index/pbench-index.log
+-rw-rw-r--       5654 logs/pbench-index-tool-data/pbench-index-tool-data.log
+-rw-rw-r--       6751 logs/pbench-index/pbench-index.log
 drwxrwxr-x          - logs/pbench-state-manager
 -rw-rw-r--          0 logs/pbench-state-manager/pbench-state-manager.log
 drwxrwxr-x          - logs/pbench-unpack-tarballs
 -rw-rw-r--          0 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.error
--rw-rw-r--       1788 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
+-rw-rw-r--       1790 logs/pbench-unpack-tarballs/pbench-unpack-tarballs.log
 drwxrwxr-x          - pbench-move-results-receive
 drwxrwxr-x          - pbench-move-results-receive/fs-version-002
 drwxrwxr-x          - quarantine
@@ -9858,14 +9922,14 @@ drwxrwxr-x          - tmp
 +++++ pbench-audit-server/pbench-audit-server.error
 ----- pbench-audit-server/pbench-audit-server.error
 +++++ pbench-audit-server/pbench-audit-server.log
-1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-audit-server.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-audit-server/pbench-audit-server.log
 +++++ pbench-index-tool-data/pbench-index-tool-data.log
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.pbench-index main -- pbench-index-tool-data.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- Preparing to index 2 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index-tool-data.indexing_tarballs process_tb -- start processing list of tar balls
@@ -9905,7 +9969,7 @@ drwxrwxr-x          - tmp
 1970-01-01T00:00:42.000000 DEBUG pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: starting
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- Preparing to index 2 tar balls
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [start]
-1970-01-01T00:00:42.000000 DEBUG pbench-index.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-index.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 12, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- update_templates [end]
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-index.indexing_tarballs process_tb -- start processing list of tar balls
@@ -9967,7 +10031,7 @@ ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/tr
 ln -s /var/tmp/pbench-test-server/test-7.21/pbench/public_html/incoming/ctlrA/trafficgen_mock_2020.02.28T19.49.39 /var/tmp/pbench-test-server/test-7.21/pbench/public_html/users/janedoe@example.com/ctlrA/prb-trafficgen-testing/trafficgen_mock_2020.02.28T19.49.39
 run-1970-01-01T00:00:42-UTC: ctlrA/trafficgen_mock_2020.02.28T19.49.39: success - elapsed time (secs): 0 - size (bytes): 53736
 run-1970-01-01T00:00:42-UTC: Processed 2 tarballs
-1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.templates update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
 1970-01-01T00:00:42.000000 DEBUG pbench-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-unpack-tarballs/pbench-unpack-tarballs.log
 ---- pbench-local/logs
@@ -9975,6 +10039,6 @@ run-1970-01-01T00:00:42-UTC: Processed 2 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-public|ctlrA|trafficgen_mock_2020.02.28T19.49.39|INDEXED|
-public|ctlrA|trafficgen_mock_2020.02.28T20.04.29|INDEXED|
+fake|ctlrA|trafficgen_mock_2020.02.28T20.04.29|INDEXED|
+test|ctlrA|trafficgen_mock_2020.02.28T19.49.39|INDEXED|
 --- SqliteDB Datasets

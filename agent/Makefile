@@ -23,6 +23,7 @@ INSTALLOPTS = --directory
 # all the scripts that's fit to install
 util-scripts = \
 	cdm-get-iterations \
+	get-internal-tool \
 	pbench-add-metalog-option \
 	pbench-avg-stddev \
 	pbench-copy-results \
@@ -51,7 +52,9 @@ util-scripts = \
 	pbench-verify-sysinfo-options \
 	README.md \
 	require-rpm \
-	tool-meister
+	tool-meister \
+	validate-hostname \
+	validate-ipaddress
 
 # Scripts based on the Python Click package, which are generated during
 # installation.
