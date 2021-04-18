@@ -855,6 +855,7 @@ class ToolMeister:
                     pbench_install_dir=self.pbench_install_dir,
                     tool_dir=self._tool_dir,
                     logger=self.logger,
+                    controller=self._controller,
                 )
                 # FIXME - consider running these in parallel.
                 tool_installs[name] = tool.install()
