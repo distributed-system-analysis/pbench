@@ -618,7 +618,7 @@ class JaegerCollector(BaseCollector):
         """Constructor - responsible for setting up the particulars for the
         Jaeger collector.
         """
-        self.jaeger_path = find_executable("jaeger-collector")
+        self.jaeger_path = find_executable("jaeger-all-in-one")
         if self.jaeger_path is None:
             raise ToolDataSinkError("External 'jaeger' executable not found")
 
@@ -651,10 +651,10 @@ class JaegerCollector(BaseCollector):
         # TODO: Setup correct Jaeger args.
         args = [
             self.jaeger_path,
-            f"--config.file={self.tool_dir}/jaeger.yml",
-            f"--storage.tsdb.path={self.tool_dir}",
-            "--web.console.libraries=/usr/share/prometheus/console_libraries",
-            "--web.console.templates=/usr/share/prometheus/consoles",
+            # f"--config.file={self.tool_dir}/jaeger.yml",
+            # f"--storage.tsdb.path={self.tool_dir}",
+            # "--web.console.libraries=/usr/share/prometheus/console_libraries",
+            # "--web.console.templates=/usr/share/prometheus/consoles",
         ]
         with (self.tool_dir / "jaeger.log").open("w") as jaeger_logs:
             try:
