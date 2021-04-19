@@ -2,6 +2,7 @@
 "mpstat" tool is now registered for host "testhost.example.com" in group "lite"
 "dcgm" tool is now registered for host "testhost.example.com" in group "lite"
 "mpstat" tool is now registered for host "remote-a.example.com" in group "lite"
+"jaeger" tool is now registered for host "remote-a.example.com" in group "lite"
 "mpstat" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
 "node-exporter" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
 "dcgm" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
@@ -154,6 +155,7 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm-lite-testhost.example.com.out
 /var/tmp/pbench-test-utils/pbench/mock-run/tm/tm.logs
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite
+/var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/jaeger_data.tar.xz
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/pcp_data.tar.xz
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/prometheus_data.tar.xz
 /var/tmp/pbench-test-utils/pbench/mock-run/tools-lite/testhost.example.com
@@ -191,8 +193,13 @@ Collecting system information
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/tm-pcp-start.err
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/tm-pcp-start.out
 /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
+/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com/jaeger
+/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com/jaeger/jaeger-agent.file
+/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com/jaeger/tm-jaeger-start.err
+/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com/jaeger/tm-jaeger-start.out
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com
+/var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/jaeger
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-b.example.com
 /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-b.example.com/__label__
@@ -208,6 +215,7 @@ Collecting system information
 === /var/tmp/pbench-test-utils/pbench/tmp/tm-lite-remote-a.example.com.err:
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
+INFO pbench-tool-meister start -- Started persistent tool jaeger, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/jaeger-agent', '--reporter.grpc.host-port=testhost.example.com:14250']
 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
@@ -218,6 +226,8 @@ INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils
 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
+INFO pbench-tool-meister stop -- Terminate issued for persistent tool jaeger
+INFO pbench-tool-meister wait -- Stopped persistent tool jaeger
 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com block,security_mitigations,sos parallel
 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
@@ -267,6 +277,13 @@ INFO pbench-tool-meister __exit__ -- remote-c.example.com: terminating
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pmcd --foreground --socket=./pmcd.socket --port=55677 --config=/var/tmp/pbench-test-utils/opt/pbench-agent/templates/pmcd.conf
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/tm-pcp-start.err:
 === /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/red:remote-c.example.com/pcp/tm-pcp-start.out:
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com/jaeger/jaeger-agent.file:
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/jaeger-agent --reporter.grpc.host-port=testhost.example.com:14250
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com/jaeger/tm-jaeger-start.err:
+=== /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com/jaeger/tm-jaeger-start.out:
+=== /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/jaeger:
+--interval=42
+--options=forty-two
 === /var/tmp/pbench-test-utils/pbench/tools-v1-lite/remote-a.example.com/mpstat:
 --interval=42
 --options=forty-two
@@ -297,6 +314,8 @@ red
 [info][1900-01-01T00:00:00.000000] "dcgm" tool is now registered for host "testhost.example.com" in group "lite"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42 --options=forty-two"
 [info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "remote-a.example.com" in group "lite"
+[debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42 --options=forty-two"
+[info][1900-01-01T00:00:00.000000] "jaeger" tool is now registered for host "remote-a.example.com" in group "lite"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--interval=42 --options=forty-two"
 [info][1900-01-01T00:00:00.000000] "mpstat" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
 [debug][1900-01-01T00:00:00.000000] tool_opts: "--inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts"
@@ -337,13 +356,19 @@ trigger = None
 
 [tools/remote-a.example.com]
 label = 
-tools = mpstat
+tools = jaeger,mpstat
 hostname-s = agent.example.com
 hostname-f = agent.example.com
 hostname-i = agent.example.com
 hostname-a = agent.example.com
 rpm-version = v(unknown)-g(unknown)
+jaeger = --interval=42 --options=forty-two
 mpstat = --interval=42 --options=forty-two
+
+[tools/remote-a.example.com/jaeger]
+options = --interval=42 --options=forty-two
+install_check_status_code = 0
+install_check_output = jaeger tool (jaeger-agent) properly installed
 
 [tools/remote-a.example.com/mpstat]
 options = --interval=42 --options=forty-two
@@ -433,6 +458,7 @@ INFO pbench-tool-data-sink tm_log_capture -- Running Tool Meister log capture ..
 INFO pbench-tool-data-sink web_server_run -- Bottle web server exited
 INFO pbench-tool-data-sink web_server_run -- Running Bottle web server ...
 Listening on http://localhost:8080/
+WARNING pbench-tool-data-sink terminate -- Collector process terminated with -15
 --- mock-run/tm/pbench-tool-data-sink.err file contents
 +++ mock-run/tm/pbench-tool-data-sink.out file contents
 --- mock-run/tm/pbench-tool-data-sink.out file contents
@@ -480,19 +506,22 @@ INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
 pbench-tool-meister-start - verify logging channel up
 remote-a.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com block,security_mitigations,sos parallel
 remote-a.example.com 0001 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
-remote-a.example.com 0002 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
-remote-a.example.com 0003 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
-remote-a.example.com 0004 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-remote-a.example.com 0005 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
-remote-a.example.com 0006 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
-remote-a.example.com 0007 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
-remote-a.example.com 0008 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
-remote-a.example.com 0009 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
-remote-a.example.com 0010 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
-remote-a.example.com 0011 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
-remote-a.example.com 0012 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com block,security_mitigations,sos parallel
-remote-a.example.com 0013 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
-remote-a.example.com 0014 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
+remote-a.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool jaeger, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/jaeger-agent', '--reporter.grpc.host-port=testhost.example.com:14250']
+remote-a.example.com 0003 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
+remote-a.example.com 0004 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
+remote-a.example.com 0005 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
+remote-a.example.com 0006 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
+remote-a.example.com 0007 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
+remote-a.example.com 0008 INFO pbench-tool-meister start -- mpstat: start_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --start --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
+remote-a.example.com 0009 INFO pbench-tool-meister stop -- mpstat: stop_tool -- /var/tmp/pbench-test-utils/opt/pbench-agent/tool-scripts/mpstat --stop --dir=/var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com --interval=42 --options=forty-two
+remote-a.example.com 0010 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat stop process
+remote-a.example.com 0011 INFO pbench-tool-meister wait -- Waiting for transient tool mpstat start process
+remote-a.example.com 0012 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT tool-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
+remote-a.example.com 0013 INFO pbench-tool-meister stop -- Terminate issued for persistent tool jaeger
+remote-a.example.com 0014 INFO pbench-tool-meister wait -- Stopped persistent tool jaeger
+remote-a.example.com 0015 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com block,security_mitigations,sos parallel
+remote-a.example.com 0016 INFO pbench-tool-meister _send_directory -- remote-a.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/remote-a.example.com
+remote-a.example.com 0017 INFO pbench-tool-meister __exit__ -- remote-a.example.com: terminating
 remote-b.example.com 0000 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dump -- /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/pbench-sysinfo-dump /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com block,security_mitigations,sos parallel
 remote-b.example.com 0001 INFO pbench-tool-meister _send_directory -- remote-b.example.com: PUT sysinfo-data completed lite /var/tmp/pbench-test-utils/pbench/tmp/tm.lite.NNNNN.nnnnnnnn/blue:remote-b.example.com
 remote-b.example.com 0002 INFO pbench-tool-meister start -- Started persistent tool node-exporter, ['/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/node_exporter']
@@ -541,6 +570,11 @@ testhost.example.com 0015 INFO pbench-tool-meister sysinfo -- pbench-sysinfo-dum
 testhost.example.com 0016 INFO pbench-tool-meister sysinfo -- testhost.example.com: sysinfo send (no-op) lite /var/tmp/pbench-test-utils/pbench/mock-run/sysinfo/end/testhost.example.com
 testhost.example.com 0017 INFO pbench-tool-meister __exit__ -- testhost.example.com: terminating
 --- mock-run/tm/tm.logs file contents
++++ tools-lite/jaeger/jaeger-all-in-one.file file contents
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/jaeger-all-in-one
+--- tools-lite/jaeger/jaeger-all-in-one.file file contents
++++ tools-lite/jaeger/jaeger.log file contents
+--- tools-lite/jaeger/jaeger.log file contents
 +++ tools-lite/pcp/pmproxy-proc.log file contents
 --- tools-lite/pcp/pmproxy-proc.log file contents
 +++ tools-lite/pcp/pmproxy.file file contents
@@ -595,6 +629,8 @@ scrape_configs:
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/dcgm-exporter
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/jaeger-agent --reporter.grpc.host-port=testhost.example.com:14250
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/jaeger-all-in-one
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL --options=forty-two 42
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL --options=forty-two 42
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/mpstat -P ALL --options=forty-two 42

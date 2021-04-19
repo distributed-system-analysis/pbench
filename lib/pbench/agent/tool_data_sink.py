@@ -643,19 +643,7 @@ class JaegerCollector(BaseCollector):
         except Exception:
             return
 
-        yml = self.render_from_template("jaeger.yml", dict(tools=self.tool_context))
-        assert yml is not None, f"Logic bomb!  {self.tool_context!r}"
-        with (self.tool_dir / "jaeger.yml").open("w") as config:
-            config.write(yml)
-
-        # TODO: Setup correct Jaeger args.
-        args = [
-            self.jaeger_path,
-            # f"--config.file={self.tool_dir}/jaeger.yml",
-            # f"--storage.tsdb.path={self.tool_dir}",
-            # "--web.console.libraries=/usr/share/prometheus/console_libraries",
-            # "--web.console.templates=/usr/share/prometheus/consoles",
-        ]
+        args = [self.jaeger_path]
         with (self.tool_dir / "jaeger.log").open("w") as jaeger_logs:
             try:
                 run = subprocess.Popen(
@@ -1681,6 +1669,7 @@ class ToolDataSink(Bottle):
                         self.tar_path,
                         logger=self.logger,
                     )
+                    self._jaeger_server.launch()
             elif action == "end":
                 # To be safe, clear the data context to catch bad PUTs
                 self.data_ctx = None
