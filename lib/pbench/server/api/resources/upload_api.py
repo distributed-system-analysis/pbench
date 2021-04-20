@@ -1,16 +1,17 @@
-import os
-import humanize
-import tempfile
 import hashlib
-from pathlib import Path
+import os
+import tempfile
 from http import HTTPStatus
+from pathlib import Path
 
+import humanize
+from flask import jsonify, request
 from flask_restful import Resource, abort
-from flask import request, jsonify
 from werkzeug.utils import secure_filename
-from pbench.server.utils import filesize_bytes
-from pbench.server.database.models.tracker import Dataset, States
 
+from pbench.server.api.auth import Auth
+from pbench.server.database.models.tracker import Dataset, DatasetDuplicate, States
+from pbench.server.utils import filesize_bytes
 
 ALLOWED_EXTENSIONS = {"xz"}
 
@@ -48,10 +49,14 @@ class Upload(Resource):
             )
         )
 
+    @Auth.token_auth.login_required()
     def put(self, controller):
 
-        # FIXME: This should be assigned from the decoded authorization token
-        username = "pbench"
+        try:
+            username = Auth.token_auth.current_user().username
+        except Exception:
+            self.logger.exception("Tarfile upload: Exception verifying the username")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         if not request.headers.get("filename"):
             self.logger.debug(
@@ -73,7 +78,6 @@ class Upload(Resource):
             )
         md5sum = request.headers.get("Content-MD5")
 
-        self.logger.debug("Receiving file: {}", filename)
         if not self.allowed_file(filename):
             self.logger.debug(
                 f"Tarfile upload: Bad file extension received for file {filename}"
@@ -117,16 +121,28 @@ class Upload(Resource):
         md5_full_path = Path(path, f"{filename}.md5")
         bytes_received = 0
 
-        # TODO: Need real user from PUT!
-
         # Create a tracking dataset object; it'll begin in UPLOADING state
         try:
             dataset = Dataset(
                 owner=username, controller=controller, path=tar_full_path, md5=md5sum
             )
             dataset.add()
+        except DatasetDuplicate:
+            self.logger.info("Dataset already exists {}", filename)
+            response = jsonify(dict(message="Dataset already exists"))
+            response.status_code = 200
+            return response
         except Exception:
             self.logger.exception("unable to create dataset for {}", filename)
+            abort(
+                HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
+            )
+
+        if tar_full_path.is_file() or md5_full_path.is_file():
+            self.logger.error(
+                "Dataset or corresponding md5 file already present on the disc, {}",
+                filename,
+            )
             abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
             )
