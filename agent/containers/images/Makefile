@@ -170,7 +170,7 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-tool-data-sink-tagged: %-tool-data-sink %-tags.lis
 	./apply-tags pbench-agent-tool-data-sink-$* $*-tags.lis
 
-%-tool-data-sink: %-tools-tagged %-tool-data-sink.Dockerfile
+%-tool-data-sink: jaeger %-tools-tagged %-tool-data-sink.Dockerfile
 	./build-image tool-data-sink $* $*-tags.lis
 
 %-tool-data-sink.Dockerfile: Dockerfile.tds.j2 %-tags.lis
@@ -179,7 +179,7 @@ push-major-minor: $(foreach distro, ${_DISTROS}, ${distro}-push-major-minor)
 %-tool-meister-tagged: %-tool-meister %-tags.lis
 	./apply-tags pbench-agent-tool-meister-$* $*-tags.lis
 
-%-tool-meister: %-tools-tagged %-tool-meister.Dockerfile
+%-tool-meister: jaeger %-tools-tagged %-tool-meister.Dockerfile
 	./build-image tool-meister $* $*-tags.lis
 
 %-tool-meister.Dockerfile: Dockerfile.tm.j2 %-tags.lis
@@ -304,5 +304,11 @@ centos-8-pcp.repo: pcp.repo.j2
 centos-7-pcp.repo: pcp.repo.j2
 	jinja2 pcp.repo.j2 -D target=el7 -o $@
 
+jaeger:
+	mkdir jaeger
+	curl -X GET -L https://github.com/jaegertracing/jaeger/releases/download/v1.22.0/jaeger-1.22.0-linux-amd64.tar.gz -o jaeger/jaeger.tar.gz
+	(cd jaeger; ls -ld ./jaeger.tar.gz)
+
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis
+	rm -rf jaeger
