@@ -20,7 +20,10 @@ INSTALL = install
 INSTALLOPTS = --directory
 
 click-scripts = \
-	pbench-user-create
+	pbench-user-create \
+	pbench-user-update \
+	pbench-user-list \
+	pbench-user-delete \
 
 # targets
 .PHONY: install \
