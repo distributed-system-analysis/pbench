@@ -119,7 +119,10 @@ class User(Database.Base):
         """
         try:
             user_query = Database.db_session.query(User).filter_by(username=username)
-            user_query.delete()
+            rows_deleted = user_query.delete()
+            if rows_deleted == 0:
+                return False
+
             Database.db_session.commit()
             return True
         except Exception:

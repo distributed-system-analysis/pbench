@@ -100,10 +100,12 @@ def user_delete(context: object, username: str) -> None:
         config_setup(context, "pbench-user-delete")
 
         # Delete the the user with specified username
-        User.delete(username=username)
-
-        click.echo(f"User {username} deleted")
-        rv = 0
+        if User.delete(username=username):
+            click.echo(f"User {username} deleted")
+            rv = 0
+        else:
+            click.echo(f"User {username} does not exists")
+            rv = 1
     except Exception as exc:
         click.echo(exc, err=True)
         rv = 2 if isinstance(exc, BadConfig) else 1
@@ -118,7 +120,7 @@ def user_delete(context: object, username: str) -> None:
 def user_list(context: object) -> None:
     try:
         # Setup the pbench server config and db access
-        config_setup(context, "pbench-users-list")
+        config_setup(context, "pbench-user-list")
 
         ROW_FORMAT = "{0:15}\t{1:15}\t{2:15}\t{3:15}\t{4:20}"
         click.echo(
@@ -165,7 +167,10 @@ def user_list(context: object) -> None:
     "--last-name", required=False, help="Specify the new last name",
 )
 @click.option(
-    "--role", required=False, help="Specify the new role",
+    "--role",
+    required=False,
+    type=click.Choice([role.name for role in Roles], case_sensitive=False),
+    help="Specify the new role",
 )
 @pass_cli_context
 def user_update(
@@ -217,4 +222,4 @@ def user_update(
 
 
 if __name__ == "__main__":
-    cli(obj={})
+    user_command_cli(obj={})

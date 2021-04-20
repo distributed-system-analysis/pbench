@@ -10,6 +10,7 @@ execution.
 """
 
 import click
+
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.database.database import Database
@@ -30,8 +31,8 @@ def config_setup(context: object, name: str) -> None:
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
-    try:
-        if not Database.db_session:
+    if Database.db_session is None:
+        try:
             Database.init_db(config, logger)
-    except Exception:
-        Database.init_db(config, logger)
+        except Exception:
+            logger.exception("Exception while initializing sqlalchemy database")
