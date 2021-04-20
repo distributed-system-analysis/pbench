@@ -1,6 +1,8 @@
 # {{ distro }} pbench-agent-tool-meister image
 FROM pbench-agent-tools-{{ distro }}:{{ tag }}
 
+COPY jaeger/jaeger-agent /usr/bin
+
 # Port 9400 should be the optional dcgm tool, 9100 the optional node_exporter
 # tool, and 55677 the pcp (pmcd) tool.
 EXPOSE 9100 9400 55677
