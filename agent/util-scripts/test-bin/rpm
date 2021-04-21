@@ -8,6 +8,15 @@ echo "${0} ${args}" >> ${_testlog}
 # names are not used, and we assume success and exit with 0.  When the special
 # package names are used, we behave as described for each.
 
+if [[ "${1}" != "--query" ]]; then
+    printf -- "rpm: unexpected 1st argument, '%s'\n" "${1}" >&2
+    exit 101
+fi
+if [[ "${2}" != "--queryformat=%" ]]; then
+    printf -- "rpm: unexpected 2nd argument, '%s'\n" "${2}" >&2
+    exit 101
+fi
+
 _rpm="${3}"
 if [[ "${_rpm}" == "pbench-sysstat" ]]; then
     echo "${_rpm}-12.0.3"

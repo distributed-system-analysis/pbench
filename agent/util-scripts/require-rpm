@@ -52,7 +52,7 @@ else
 		# 12 if EVR2 is newer.  Other exit statuses indicate problems.
 		_stderr=$(rpmdev-vercmp ${rpm_installed} ${_rpm}${_version} 2>&1 > /dev/null)
 		res=${?}
-		if [[ ${res} != 0 && ${res} != 11 && ${res} != 12 ]]; then
+		if [[ ${res} -ne 0 && ${res} -ne 11 && ${res} -ne 12 ]]; then
 			rc=2
 			echo "require-rpm: rpmdev-vercmp - ${_stderr}" >&2
 			break

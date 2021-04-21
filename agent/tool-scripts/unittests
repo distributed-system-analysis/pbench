@@ -76,26 +76,21 @@ if [[ ${?} -ne 0 ]]; then
     echo "ERROR: failed to create util-scripts directory" >&2
     exit 1
 fi
-printf -- "#!/bin/bash\n\n_ver=\"\${2}\"\nif [[ ! -z \"\${_ver}\" ]]; then _ver=\"-\${_ver}\"; fi\necho \"\${1}\${_ver}\"\nexit 0\n" > ${_optdir}/util-scripts/require-rpm
-chmod 775 ${_optdir}/util-scripts/require-rpm
-if [[ ${?} -ne 0 ]]; then
-    echo "ERROR: failed to create ${_optdir}/util-scripts/require-rpm" >&2
-    exit 1
-fi
 
+function create_single_mock {
+    contents=${1}
+    target=${2}
+    printf -- "#!/bin/bash\n\n%s\nexit 0\n" "${contents}" > ${target} && chmod 775 ${target}
+    if [[ ${?} -ne 0 ]]; then
+        printf -- "ERROR: failed to create %s\n" "${target}" >&2
+        exit 1
+    fi
+}
+
+create_single_mock "echo \"\${1}\${2:+-\${2}}\"" ${_optdir}/util-scripts/require-rpm
 _ts=${_optdir}/tool-scripts
-printf -- "#!/bin/bash\n\necho \"\$(basename \${0}) \${@}\" >> \${_testlog}\nsleep 0.1\nexit 0\n" > ${_ts}/datalog/mock-cmd
-chmod 775 ${_ts}/datalog/mock-cmd
-if [[ ${?} -ne 0 ]]; then
-    echo "ERROR: failed to create ${_ts}/datalog/mock-cmd" >&2
-    exit 1
-fi
-printf -- "#!/bin/bash\n\necho \"\$(basename \${0}) \${@}\" >> \${_testlog}\nexit 0\n" > ${_ts}/postprocess/mock-cmd
-chmod 775 ${_ts}/postprocess/mock-cmd
-if [[ ${?} -ne 0 ]]; then
-    echo "ERROR: failed to create ${_ts}/postprocess/mock-cmd" >&2
-    exit 1
-fi
+create_single_mock "echo \"\$(basename \${0}) \${@}\" >> \${_testlog}; sleep 0.1" ${_ts}/datalog/mock-cmd
+create_single_mock "echo \"\$(basename \${0}) \${@}\" >> \${_testlog}" ${_ts}/postprocess/mock-cmd
 
 function create_mock {
     local _ts=${_optdir}/tool-scripts
