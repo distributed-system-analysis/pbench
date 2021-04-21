@@ -1,0 +1,3 @@
+---
+pbench_server_install_dir: /opt/pbench-server
+pbench_server_service_file:  "{{ pbench_server_install_dir }}/lib/systemd/pbench-server.service"
