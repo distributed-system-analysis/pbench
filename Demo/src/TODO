@@ -1,0 +1,28 @@
+Demo Script:
+
+   1. The script accepts 2 arguments, the 2 hosts to run test_client.py
+   2. The script runs node1_server.py locally, and ssh remotely to the 2
+      hosts, and runs test_client.py (assume you already pre-installed it
+      there)
+
+So with one command, and to arguments to that command, we can start the
+demo application.
+
+Also, modify test_client.py so that it takes an interval and a duration, and
+and issues trace points on that interval for that duration.
+
+E.g.: it might look light:
+
+  $ ./demo-script host1.example.com host2.example.com
+
+We should see the output from node1_server.py.
+
+Then with pbench:
+
+  $ pbench-register-tool --name=jaeger --remote=host1.example.com
+  $ pbench-register-tool --name=jaeger --remote=host2.example.com
+  $ pbench-user-benchmark --config demo-01 -- ./demo-script host1.example.com host2.example.com
+
+We should see the same output as above, but then in /var/lib/pbench-agent
+we have a "pbench-user-benchmark_demo-01_<date>/" with a "tools-default"
+directory containig a "jaeger.tar.xz" file.
