@@ -6,6 +6,7 @@
 '''
 
 from __future__ import print_function
+import sys
 import logging
 
 import grpc
@@ -46,32 +47,41 @@ def run():
     # used in circumstances in which the with statement does not fit the needs
     # of the code.
 
-	tracer = init_tracer('distributed-test')
+    tracer = init_tracer('distributed-test')
 
-	# start a span for the request
-	span = tracer.start_span('greet-request')
+    # start a span for the request
+    span = tracer.start_span('greet-request')
 
-	# inject this span's context into a dict, then convert to JSON
-	carrier = {}
-	tracer.inject(span_context=span.context, format=Format.TEXT_MAP, carrier=carrier)
-	context_json = json.dumps(carrier)
+    # inject this span's context into a dict, then convert to JSON
+    carrier = {}
+    tracer.inject(span_context=span.context, format=Format.TEXT_MAP, carrier=carrier)
+    context_json = json.dumps(carrier)
 
-	span.log_event("Injected span context into carrier")
+    span.log_event("Injected span context into carrier")
 
-	# call the SayHello remote procedure with the context in the request
-	with grpc.insecure_channel('localhost:50051') as channel:
-		stub = node1_pb2_grpc.GreeterStub(channel)
-		response = stub.SayHello(node1_pb2.HelloRequest(spanContext=context_json, name='client'))
-	print("Greeter client received: " + response.message)
+    try:
+        host = sys.argv[1]
+    except IndexError:
+        host = "localhost"
+    try:
+        port = sys.argv[2]
+    except IndexError:
+        port = "50051"
 
-	span.log_event("Completed request to gRPC server")
+    # call the SayHello remote procedure with the context in the request
+    with grpc.insecure_channel(f"{host}:{port}") as channel:
+        stub = node1_pb2_grpc.GreeterStub(channel)
+        response = stub.SayHello(node1_pb2.HelloRequest(spanContext=context_json, name='client'))
+    print("Greeter client received: " + response.message)
 
-	# finish the span
-	span.finish()
+    span.log_event("Completed request to gRPC server")
 
-	# note: does not send if we don't sleep first
-	time.sleep(2)   # yield to IOLoop to flush the spans - https://github.com/jaegertracing/jaeger-client-python/issues/50
-	tracer.close()  # flush any buffered spans
+    # finish the span
+    span.finish()
+
+    # note: does not send if we don't sleep first
+    time.sleep(2)   # yield to IOLoop to flush the spans - https://github.com/jaegertracing/jaeger-client-python/issues/50
+    tracer.close()  # flush any buffered spans
 
 
 if __name__ == '__main__':
