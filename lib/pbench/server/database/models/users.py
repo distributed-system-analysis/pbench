@@ -5,6 +5,7 @@ from email_validator import validate_email
 from flask_bcrypt import generate_password_hash
 from sqlalchemy import Column, DateTime, Enum, Integer, LargeBinary, String
 from sqlalchemy.orm import relationship, validates
+from sqlalchemy.orm.exc import NoResultFound
 
 from pbench.server.database.database import Database
 
@@ -121,7 +122,7 @@ class User(Database.Base):
             user_query = Database.db_session.query(User).filter_by(username=username)
             rows_deleted = user_query.delete()
             if rows_deleted == 0:
-                return False
+                raise NoResultFound(f"User {username} does not exist")
 
             Database.db_session.commit()
             return True

@@ -104,11 +104,9 @@ def user_delete(context: object, username: str) -> None:
         config_setup(context, "pbench-user-delete")
 
         # Delete the the user with specified username
-        if User.delete(username=username):
-            click.echo(f"User {username} deleted")
-            rv = 0
-        else:
-            raise RuntimeError(f"User {username} does not exist")
+        User.delete(username=username)
+        click.echo(f"User {username} deleted")
+        rv = 0
     except Exception as exc:
         click.echo(exc, err=True)
         rv = 2 if isinstance(exc, BadConfig) else 1

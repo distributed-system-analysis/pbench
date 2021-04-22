@@ -4,6 +4,7 @@ from flask_restful import Resource, abort
 from flask_bcrypt import check_password_hash
 from email_validator import EmailNotValidError
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.orm.exc import NoResultFound
 from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.api.auth import Auth
@@ -473,6 +474,10 @@ class UserAPI(Resource):
             # Do not delete if the user is admin
             if not user.is_admin():
                 User.delete(username)
+        except NoResultFound:
+            self.logger.exception(
+                "Delete operation on non-existent user '{}'", username,
+            )
         except Exception:
             self.logger.exception(
                 "Exception occurred during deleting the user entry for user '{}'",
