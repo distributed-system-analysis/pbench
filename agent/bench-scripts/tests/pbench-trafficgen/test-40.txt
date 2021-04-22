@@ -103,5 +103,5 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=none default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=none default
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/require-rpm dpdk-tools  
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} dpdk-tools
 --- test-execution.log file contents

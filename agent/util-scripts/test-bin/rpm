@@ -12,7 +12,7 @@ if [[ "${1}" != "--query" ]]; then
     printf -- "rpm: unexpected 1st argument, '%s'\n" "${1}" >&2
     exit 101
 fi
-if [[ "${2}" != "--queryformat=%" ]]; then
+if [[ "${2}" != "--queryformat=%{EVR}" ]]; then
     printf -- "rpm: unexpected 2nd argument, '%s'\n" "${2}" >&2
     exit 101
 fi

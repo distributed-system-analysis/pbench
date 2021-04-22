@@ -15,5 +15,5 @@
 [debug][1900-01-01T00:00:00.000000] [pbench-fio] fio-3.21 is installed
 --- pbench.log file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/require-rpm fio 3.21 gte
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} fio
 --- test-execution.log file contents

@@ -1,1 +1,25 @@
-mock-cmd
+#!/bin/bash
+
+args="${@}"
+echo "${0} ${args}" >> ${_testlog}
+
+if [[ "${1}" != "--query" ]]; then
+    printf -- "rpm: unexpected 1st argument, '%s'\n" "${1}" >&2
+    exit 101
+fi
+if [[ "${2}" != "--queryformat=%{EVR}" ]]; then
+    printf -- "rpm: unexpected 2nd argument, '%s'\n" "${2}" >&2
+    exit 101
+fi
+
+# Mimic behavior of rpm by exiting with 0 (for unit tests we always find
+# the RPM) and emitting the RPM version that was found (whatever was given
+# as arguments, if not one of the specific RPMs to mimic).
+if [[ "${3}" == "fio" ]]; then
+    echo "fio-3.21"
+elif [[ "${3}" == "uperf" ]]; then
+    echo "uperf-1.0.7"
+else
+    echo "${3}"
+fi
+exit 0
