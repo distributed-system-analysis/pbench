@@ -323,6 +323,7 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-15_1900.01.01T00.00.00/6-randread-42KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} fio
 --- test-execution.log file contents
 +++ fio_test-15_1900.01.01T00.00.00/metadata.log file contents
 [pbench]

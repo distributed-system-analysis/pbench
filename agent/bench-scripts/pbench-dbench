@@ -33,6 +33,7 @@ if [[ -z "${ver}" ]]; then
 	error_log "${script_name}: package version is missing in config file"
 	exit 1
 fi
+match="$(pbench-config match ${benchmark})"
 
 # Every bench-script follows a similar sequence:
 # 1) process bench script arguments
@@ -65,10 +66,10 @@ client_nodes=""
 sysinfo="default"
 
 function install_dbench {
-	if check_install_rpm $benchmark_rpm $ver; then
-		debug_log "[$script_name]$benchmark_rpm is installed"
+	if check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"; then
+		debug_log "[${script_name}]${benchmark_rpm}-${ver} is installed"
 	else
-		error_log "[$script_name]$benchmark_rpm installation failed, exiting"
+		error_log "[${script_name}]${benchmark_rpm}-${ver} is not installed, exiting"
 		exit 1
 	fi
 }

@@ -26,6 +26,7 @@ if [[ -z "${ver}" ]]; then
 	error_log "${script_name}: package version is missing in config file"
 	exit 1
 fi
+match="$(pbench-config match ${benchmark})"
 fio_server_port="$(pbench-config server_port ${benchmark})"
 if [[ -z "${fio_server_port}" ]]; then
 	error_log "${script_name}: server_port is missing in config file"
@@ -174,11 +175,11 @@ function usage {
 }
 
 function fio_local_check_install() {
-	if check_install_rpm ${benchmark_rpm} ${ver}; then
+	if check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"; then
 		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is installed"
 		_rc=0
 	else
-		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is not installed, exiting"
+		error_log "[${script_name}] ${benchmark_rpm}-${ver} is not installed, exiting"
 		_rc=1
 	fi
 	return ${_rc}

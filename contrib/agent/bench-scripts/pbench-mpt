@@ -194,20 +194,20 @@ function mpt_run_test() {
 
 # Ensure the right version of the benchmark is installed
 function mpt_install() {
-  # TODO: since msg-perf-tool is installed via COPR, check what is the
-  # recommended approach
+	# TODO: since msg-perf-tool is installed via COPR, check what is the
+	# recommended approach
 
-  check_enable_copr orpiske litestomp
-  check_enable_copr orpiske msg-perf-tool
+	#check_enable_copr orpiske litestomp
+	#check_enable_copr orpiske msg-perf-tool
 
-	if check_install_rpm $benchmark_rpm $ver; then
-		debug_log "[$script_name]$benchmark_rpm $ver is installed"
+	if check_install_rpm "${benchmark_rpm}" "${ver}"; then
+		debug_log "[${script_name}]${benchmark_rpm}-${ver} is installed"
 	else
-		debug_log "[$script_name]$benchmark_rpm $ver installation failed, exiting"
+		error_log "[${script_name}]${benchmark_rpm}-${ver} is not installed, exiting"
 		exit 1
 	fi
 
-  # TODO:support clients? remote testing?
+	# TODO:support clients? remote testing?
 }
 
 mpt_process_options "$@"
