@@ -7,6 +7,8 @@
 	OR
 
 	docker start jaeger (if you already have the image)
+
+1a. pip3 install gprfcio google protobuf jaeger_client
 	
 
 2. Run node1_server.py in python3 on a second terminal to start the gRPC server
