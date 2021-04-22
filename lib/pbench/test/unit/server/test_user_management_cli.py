@@ -1,9 +1,12 @@
 import datetime
 
+import pytest
 import responses
 from click.testing import CliRunner
 
 from pbench.cli.server.user_management import (
+    USER_LIST_HEADER_ROW,
+    USER_LIST_ROW_FORMAT,
     user_create,
     user_delete,
     user_list,
@@ -37,8 +40,7 @@ class TestUserManagement:
         assert not result.stderr_bytes
 
     @staticmethod
-    @responses.activate
-    def test_args(server_config, pytestconfig):
+    def register_user(server_config, pytestconfig):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             user_create,
@@ -55,13 +57,11 @@ class TestUserManagement:
                 TestUserManagement.LAST_NAME_TEXT,
             ],
         )
-        assert result.stdout_bytes == b"User test_user registered\n"
-        assert result.exit_code == 0
-        assert not result.stderr_bytes
+        return result
 
     @staticmethod
     @responses.activate
-    def test_valid_user_registration(client, server_config, pytestconfig):
+    def test_valid_user_registration_with_password_input(client, server_config, pytestconfig):
         with client:
             runner = CliRunner(mix_stderr=False)
             result = runner.invoke(
@@ -78,12 +78,11 @@ class TestUserManagement:
                 ],
                 input=f"{TestUserManagement.PSWD_TEXT}\n",
             )
-            assert result.exit_code == 0
+            assert result.exit_code == 0, result.stderr
             assert (
                 result.stdout
                 == f"{TestUserManagement.PSWD_PROMPT}\n" + "User test_user registered\n"
             )
-            assert not result.stderr_bytes
 
     @staticmethod
     @responses.activate
@@ -107,9 +106,8 @@ class TestUserManagement:
                     "ADMIN",
                 ],
             )
-            assert result.exit_code == 0
+            assert result.exit_code == 0, result.stderr
             assert result.stdout == "Admin user test_user registered\n"
-            assert not result.stderr_bytes
 
     @staticmethod
     @responses.activate
@@ -134,18 +132,23 @@ class TestUserManagement:
                 ],
             )
             assert result.exit_code == 2
+            assert (
+                result.stderr_bytes
+                == b"Usage: user-create [OPTIONS]\nTry 'user-create --help' for help.\n"
+                + b"\nError: Invalid value for '--role': invalid choice: ADMN. (choose from ADMIN)\n"
+            )
 
     @staticmethod
     @responses.activate
     def test_valid_user_delete(client, server_config, pytestconfig):
         with client:
             runner = CliRunner(mix_stderr=False)
-            TestUserManagement.test_args(server_config, pytestconfig)
+            result = TestUserManagement.register_user(server_config, pytestconfig)
+            assert result.exit_code == 0, result.stderr
 
             result = runner.invoke(user_delete, args=[TestUserManagement.USER_TEXT])
-            assert result.exit_code == 0
+            assert result.exit_code == 0, result.stderr
             assert result.stdout == "User test_user deleted\n"
-            assert not result.stderr_bytes
 
     @staticmethod
     @responses.activate
@@ -155,26 +158,23 @@ class TestUserManagement:
             # Give username that doesn't exists to delete
             result = runner.invoke(user_delete, args=["wrong_username"])
             assert result.exit_code == 1
-            assert result.stdout == "User wrong_username does not exists\n"
-            assert not result.stderr_bytes
+            assert result.stderr == "User wrong_username does not exist\n"
 
     @staticmethod
     @responses.activate
     def test_valid_user_list(client, server_config, pytestconfig):
         with client:
             runner = CliRunner(mix_stderr=False)
-            TestUserManagement.test_args(server_config, pytestconfig)
+            result = TestUserManagement.register_user(server_config, pytestconfig)
+            assert result.exit_code == 0, result.stderr
 
             result = runner.invoke(user_list,)
-            row_format = "{0:15}\t{1:15}\t{2:15}\t{3:15}\t{4:20}"
-            assert result.exit_code == 0
+            assert result.exit_code == 0, result.stderr
             assert (
                 result.stdout
-                == row_format.format(
-                    "Username", "First Name", "Last Name", "Registered On", "Email"
-                )
+                == USER_LIST_HEADER_ROW
                 + "\n"
-                + row_format.format(
+                + USER_LIST_ROW_FORMAT.format(
                     TestUserManagement.USER_TEXT,
                     TestUserManagement.FIRST_NAME_TEXT,
                     TestUserManagement.LAST_NAME_TEXT,
@@ -183,49 +183,44 @@ class TestUserManagement:
                 )
                 + "\n"
             )
-            assert not result.stderr_bytes
 
     @staticmethod
     @responses.activate
-    def test_valid_user_update(client, server_config, pytestconfig):
+    @pytest.mark.parametrize(
+        "email, role, firstname, lastname, username",
+        [("new_test@domain.com", "ADMIN", "newfirst", "newlast", "newuser")],
+    )
+    def test_valid_user_update(
+        client, server_config, pytestconfig, email, role, firstname, lastname, username
+    ):
         with client:
             runner = CliRunner(mix_stderr=False)
-            TestUserManagement.test_args(server_config, pytestconfig)
+            result = TestUserManagement.register_user(server_config, pytestconfig)
+            assert result.exit_code == 0, result.stderr
 
-            # Update email field
             result = runner.invoke(
                 user_update,
                 args=[
                     TestUserManagement.USER_TEXT,
+                    TestUserManagement.USER_SWITCH,
+                    username,
                     TestUserManagement.EMAIL_SWITCH,
-                    "new_test@domain.com",
+                    email,
+                    TestUserManagement.FIRST_NAME_SWITCH,
+                    firstname,
+                    TestUserManagement.LAST_NAME_SWITCH,
+                    lastname,
+                    TestUserManagement.ROLE_SWITCH,
+                    role,
                 ],
             )
             assert result.exit_code == 0
             assert result.stdout == "User test_user updated\n"
             assert not result.stderr_bytes
 
-            # Update valid role of the user
+            # Update with invalid role for the user
             result = runner.invoke(
-                user_update,
-                args=[
-                    TestUserManagement.USER_TEXT,
-                    TestUserManagement.ROLE_SWITCH,
-                    "ADMIN",
-                ],
-            )
-            assert result.exit_code == 0
-            assert result.stdout == "User test_user updated\n"
-            assert not result.stderr_bytes
-
-            # Update invalid role of the user
-            result = runner.invoke(
-                user_update,
-                args=[
-                    TestUserManagement.USER_TEXT,
-                    TestUserManagement.ROLE_SWITCH,
-                    "ADMN",
-                ],
+                user_update, args=[username, TestUserManagement.ROLE_SWITCH, "ADMN",],
             )
             assert result.exit_code == 2
             assert (
@@ -251,7 +246,6 @@ class TestUserManagement:
             )
             assert result.exit_code == 1
             assert (
-                result.stdout
-                == f"No such a user {TestUserManagement.USER_TEXT} to update\n"
+                result.stdout == f"User {TestUserManagement.USER_TEXT} doesn't exist\n"
             )
             assert not result.stderr_bytes

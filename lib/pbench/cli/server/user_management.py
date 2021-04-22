@@ -6,6 +6,10 @@ from pbench.cli.server.options import common_options
 from pbench.server.database.database import Database
 from pbench.server.database.models.users import Roles, User
 
+USER_LIST_ROW_FORMAT = "{0:15}\t{1:15}\t{2:15}\t{3:15}\t{4:20}"
+USER_LIST_HEADER_ROW = USER_LIST_ROW_FORMAT.format(
+    "Username", "First Name", "Last Name", "Registered On", "Email"
+)
 
 # User create CLI
 @click.group("user_group")
@@ -104,8 +108,7 @@ def user_delete(context: object, username: str) -> None:
             click.echo(f"User {username} deleted")
             rv = 0
         else:
-            click.echo(f"User {username} does not exists")
-            rv = 1
+            raise RuntimeError(f"User {username} does not exist")
     except Exception as exc:
         click.echo(exc, err=True)
         rv = 2 if isinstance(exc, BadConfig) else 1
@@ -122,18 +125,13 @@ def user_list(context: object) -> None:
         # Setup the pbench server config and db access
         config_setup(context, "pbench-user-list")
 
-        ROW_FORMAT = "{0:15}\t{1:15}\t{2:15}\t{3:15}\t{4:20}"
-        click.echo(
-            ROW_FORMAT.format(
-                "Username", "First Name", "Last Name", "Registered On", "Email"
-            )
-        )
+        click.echo(USER_LIST_HEADER_ROW)
 
         # Query all the users
         users = Database.db_session.query(User).all()
         for user in users:
             click.echo(
-                ROW_FORMAT.format(
+                USER_LIST_ROW_FORMAT.format(
                     user.username,
                     user.first_name,
                     user.last_name,
@@ -190,7 +188,7 @@ def user_update(
         user = User.query(username=updateuser)
 
         if user is None:
-            click.echo(f"No such a user {updateuser} to update")
+            click.echo(f"User {updateuser} doesn't exist")
             rv = 1
         else:
             dict_to_update = {}
@@ -219,7 +217,3 @@ def user_update(
         rv = 2 if isinstance(exc, BadConfig) else 1
 
     click.get_current_context().exit(rv)
-
-
-if __name__ == "__main__":
-    user_command_cli(obj={})

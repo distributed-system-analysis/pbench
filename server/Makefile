@@ -23,14 +23,14 @@ click-scripts = \
 	pbench-user-create \
 	pbench-user-update \
 	pbench-user-list \
-	pbench-user-delete \
+	pbench-user-delete
 
 # targets
 .PHONY: install \
 	install-dirs \
 	install-bin \
 	install-lib \
-	install-server-lib \
+	install-server-lib
 
 install: install-dirs install-python3-setup
 	${COPY} VERSION ${DESTDIR}
