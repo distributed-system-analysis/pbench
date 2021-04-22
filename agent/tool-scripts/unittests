@@ -87,10 +87,10 @@ function create_single_mock {
     fi
 }
 
-create_single_mock "echo \"\${1}\${2:+-\${2}}\"" ${_optdir}/util-scripts/require-rpm
+create_single_mock 'echo "${1}${2:+-${2}}"' ${_optdir}/util-scripts/require-rpm
 _ts=${_optdir}/tool-scripts
-create_single_mock "echo \"\$(basename \${0}) \${@}\" >> \${_testlog}; sleep 0.1" ${_ts}/datalog/mock-cmd
-create_single_mock "echo \"\$(basename \${0}) \${@}\" >> \${_testlog}" ${_ts}/postprocess/mock-cmd
+create_single_mock 'echo "$(basename ${0}) ${@}" >> ${_testlog}; sleep 0.1' ${_ts}/datalog/mock-cmd
+create_single_mock 'echo "$(basename ${0}) ${@}" >> ${_testlog}' ${_ts}/postprocess/mock-cmd
 
 function create_mock {
     local _ts=${_optdir}/tool-scripts
