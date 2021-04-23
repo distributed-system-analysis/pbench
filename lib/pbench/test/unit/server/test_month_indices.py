@@ -43,7 +43,7 @@ class TestMonthIndices:
     constructor and `post` service.
     """
 
-    def test_query(self, client, server_config, get_helper):
+    def test_query(self, client, server_config, get_helper, find_template):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.
@@ -113,7 +113,9 @@ class TestMonthIndices:
             {"exception": Exception, "status": 500},
         ),
     )
-    def test_http_error(self, client, server_config, get_helper, exceptions):
+    def test_http_error(
+        self, client, server_config, get_helper, exceptions, find_template
+    ):
         """
         test_http_error Check that an Elasticsearch error is reported
         correctly.

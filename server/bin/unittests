@@ -403,6 +403,8 @@ function _setup_state {
     printf "[DEFAULT]\n"                   >> ${_testtmp}/pbench-server.cfg
     printf "unittest-dir = ${_testroot}\n" >> ${_testtmp}/pbench-server.cfg
     cat ${_state_config}                   >> ${_testtmp}/pbench-server.cfg
+    printf "[Postgres]\n"                  >> ${_testtmp}/pbench-server.cfg
+    printf "db_uri = sqlite:///${_testroot}/test_db\n" >> ${_testtmp}/pbench-server.cfg
 
     # Next we activate the satellite pbench server.
     echo "$_testopt_sat/bin/pbench-server-config-activate ${_testtmp}/pbench-server.cfg" >> $_testactout

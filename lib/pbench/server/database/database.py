@@ -14,15 +14,16 @@ class Database:
             psql = config.get("Postgres", "db_uri")
             return psql
         except (NoSectionError, NoOptionError):
-            logger.error(
-                "Failed to find an [Postgres] section" " in configuration file."
-            )
+            if logger:
+                logger.error(
+                    "Failed to find a [Postgres] section in configuration file."
+                )
             return None
 
     @staticmethod
     def init_db(server_config, logger):
         # Attach the logger to the base class for models to find
-        if not hasattr(Database.Base, "logger"):
+        if logger and not hasattr(Database.Base, "logger"):
             Database.Base.logger = logger
 
         # WARNING:

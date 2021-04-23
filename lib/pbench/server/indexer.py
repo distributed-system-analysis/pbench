@@ -34,7 +34,6 @@ from pbench.common.exceptions import (
     BadIterationName,
     BadSampleName,
 )
-from pbench.common.logger import get_pbench_logger
 from pbench.server.templates import PbenchTemplates
 import pbench.server
 
@@ -3995,12 +3994,13 @@ class IdxContext:
     state, provided as an object.
     """
 
-    def __init__(self, options, name, _dbg=0):
+    def __init__(self, options, name, config, logger, _dbg=0):
         self.options = options
         self.name = name
+        self.config = config
+        self.logger = logger
         self._dbg = _dbg
         self.opctx = []
-        self.config = pbench.server.PbenchServerConfig(options.cfg_name)
         try:
             self.idx_prefix = self.config.get("Indexing", "index_prefix")
         except Exception as e:
@@ -4048,7 +4048,6 @@ class IdxContext:
             self.getuid = os.getuid
         self.TS = self.config.TS
 
-        self.logger = get_pbench_logger(self.name, self.config)
         self.es = get_es(self.config, self.logger)
         self.templates = PbenchTemplates(
             self.config.BINDIR,
