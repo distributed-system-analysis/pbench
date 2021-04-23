@@ -1,10 +1,16 @@
+import datetime
+import os
+import pytest
 import shutil
 import tempfile
-import pytest
 from pathlib import Path
+from posix import stat_result
+from stat import ST_MTIME
+
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
-
+from pbench.server.database.database import Database
+from pbench.server.database.models.template import Template
 
 server_cfg_tmpl = """[DEFAULT]
 install-dir = {TMP}/opt/pbench-server
@@ -86,6 +92,16 @@ def setup(request, pytestconfig):
 
 @pytest.fixture
 def server_config(pytestconfig, monkeypatch):
+    """
+    Mock a pbench-server.cfg configuration as defined above.
+
+    Args:
+        pytestconfig: pytest environmental configuration fixture
+        monkeypatch: testing environment patch fixture
+
+    Returns:
+        a PbenchServerConfig object the test case can use
+    """
     cfg_file = pytestconfig.cache.get("_PBENCH_SERVER_CONFIG", None)
     monkeypatch.setenv("_PBENCH_SERVER_CONFIG", cfg_file)
 
@@ -107,6 +123,24 @@ def client(server_config):
 
 
 @pytest.fixture
+def db_session(server_config):
+    """
+    Construct a temporary DB session for the test case that will reset on
+    completion.
+
+    NOTE: the client fixture does something similar, but without the implicit
+    cleanup, and with the addition of a Flask context that non-API tests don't
+    require.
+
+    Args:
+        server_config: pbench-server.cfg fixture
+    """
+    Database.init_db(server_config, None)
+    yield
+    Database.db_session.remove()
+
+
+@pytest.fixture
 def user_ok(monkeypatch):
     """
     Override the Auth.validate_user method to pass without checking the
@@ -117,3 +151,65 @@ def user_ok(monkeypatch):
         return user
 
     monkeypatch.setattr(Auth, "validate_user", ok)
+
+
+@pytest.fixture()
+def fake_mtime(monkeypatch):
+    """
+    Template's init event listener provides the file's modification date to
+    support template version control. For unit testing, mock the stat results
+    to appear at a fixed time.
+
+    Args:
+        monkeypatch: patch fixture
+    """
+
+    def fake_stat(file: str):
+        """
+        Create a real stat_result using an actual file, but change the st_mtime
+        to a known value before returning it.
+
+        Args:
+            file: filename (not used)
+
+        Returns:
+            mocked stat_results
+        """
+        s = os.stat(".")
+        t = int(datetime.datetime(2021, 1, 29, 0, 0, 0).timestamp())
+        f = list(s)
+        f[ST_MTIME] = t
+        return stat_result(f)
+
+    with monkeypatch.context() as m:
+        m.setattr(Path, "stat", fake_stat)
+        yield
+
+
+@pytest.fixture()
+def find_template(monkeypatch, fake_mtime):
+    """
+    Mock a Template class find call to return an object without requiring a DB
+    query.
+
+    Args:
+        monkeypatch: patching fixture
+        fake_mtime: fake file modification time on init
+    """
+
+    def fake_find(name: str) -> Template:
+        return Template(
+            name="run",
+            idxname="run-data",
+            template_name="unit-test.v6.run-data",
+            file="run.json",
+            template_pattern="unit-test.v6.run-data.*",
+            index_template="unit-test.v6.run-data.{year}-{month}",
+            settings={"none": False},
+            mappings={"properties": None},
+            version=5,
+        )
+
+    with monkeypatch.context() as m:
+        m.setattr(Template, "find", fake_find)
+        yield

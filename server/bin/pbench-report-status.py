@@ -7,6 +7,7 @@ from argparse import ArgumentParser
 from socket import gethostname
 
 from pbench.server import PbenchServerConfig
+from pbench.server.database.database import Database
 from pbench.common.exceptions import BadConfig
 from pbench.server.report import Report
 
@@ -64,13 +65,16 @@ parser.add_argument(
 )
 parsed = parser.parse_args()
 
-
 try:
     config = PbenchServerConfig(parsed.cfg_name)
 except BadConfig as e:
     print(f"{_prog}: {e}", file=sys.stderr)
     sys.exit(1)
 
+# We're going to need the Postgres DB to track dataset state, so setup
+# DB access. We don't pass a Logger here, because that introduces lots
+# of spurious changes in the gold CLI test output.
+Database.init_db(config, None)
 
 hostname = gethostname()
 pid = parsed.pid

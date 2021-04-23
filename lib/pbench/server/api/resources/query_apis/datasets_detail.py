@@ -66,12 +66,7 @@ class DatasetsDetail(ElasticBase):
             end,
         )
 
-        # TODO: Need to refactor the template processing code from indexer.py
-        # to maintain the essential indexing information in a persistent DB
-        # (probably a Postgresql table) so that it can be shared here and by
-        # the indexer without re-loading on each access. For now, the index
-        # version is hardcoded.
-        uri_fragment = self._gen_month_range(".v6.run-data.", start, end)
+        uri_fragment = self._gen_month_range("run", start, end)
         return {
             "path": f"/{uri_fragment}/_search",
             "kwargs": {

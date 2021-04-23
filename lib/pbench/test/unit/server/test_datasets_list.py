@@ -113,7 +113,7 @@ class TestDatasetsList:
             == "Value '2020-19' (str) cannot be parsed as a date/time string"
         )
 
-    def test_query(self, client, server_config, query_helper, user_ok):
+    def test_query(self, client, server_config, query_helper, user_ok, find_template):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.
@@ -189,7 +189,9 @@ class TestDatasetsList:
             {"exception": Exception, "status": 500},
         ),
     )
-    def test_http_error(self, client, server_config, query_helper, exceptions, user_ok):
+    def test_http_error(
+        self, client, server_config, query_helper, exceptions, user_ok, find_template
+    ):
         """
         test_http_error Check that an Elasticsearch error is reported
         correctly.
