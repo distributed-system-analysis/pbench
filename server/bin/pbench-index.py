@@ -12,8 +12,10 @@ import signal
 from pathlib import Path
 from argparse import ArgumentParser
 from configparser import Error as ConfigParserError
-from pbench.server.database.database import Database
 
+from pbench.common.logger import get_pbench_logger
+from pbench.server import PbenchServerConfig
+from pbench.server.database.database import Database
 from pbench.common.exceptions import (
     BadConfig,
     ConfigFileError,
@@ -102,7 +104,16 @@ def main(options, name):
 
     idxctx = None
     try:
-        idxctx = IdxContext(options, name, _dbg=_DEBUG)
+        # We're going to need the Postgres DB to track dataset state, so setup
+        # DB access. We need to do this before we create the IdxContext, since
+        # that will need the template DB; so we create a PbenchServerConfig and
+        # Logger independently.
+        config = PbenchServerConfig(options.cfg_name)
+        logger = get_pbench_logger(name, config)
+        Database.init_db(config, logger)
+
+        # Now we can initialize the index context
+        idxctx = IdxContext(options, name, config, logger, _dbg=_DEBUG)
     except (ConfigFileError, ConfigParserError) as e:
         print(f"{name}: {e}", file=sys.stderr)
         return error_code["CFG_ERROR"].value
@@ -148,9 +159,6 @@ def main(options, name):
         # Exit early if we encounter any errors.
         return res.value
 
-    # We're going to need the Postgres DB to track dataset state, so setup
-    # DB access.
-    Database.init_db(idxctx.config, idxctx.logger)
     idxctx.logger.debug("{}.{}: starting", name, idxctx.TS)
 
     index_obj = Index(name, options, idxctx, INCOMING_rp, ARCHIVE_rp, qdir)
