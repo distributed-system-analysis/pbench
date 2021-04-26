@@ -27,22 +27,16 @@ IMAGE_REPO = docker://quay.io/pbench
 # Not intended to be overridden with an environment variable.
 _REPO_TEMPLATE = ../../ansible/pbench/agent/roles/pbench_repo_install/templates/etc/yum.repos.d/pbench.repo.j2
 
-# NOTE: Currently we require 5.2.2 of the PCP RPMs because using the 5.2.3
-# version prevents us from integrating with Grafana, see PCP Issue #1183,
-# https://github.com/performancecopilot/pcp/issues/1183.
-# NOTE: We also have to enumerate so many RPMs because for CentOS 7 the RPM
-# dependency resolver does not properly resolve to the same version RPMs. Once
-# we no longer have to use v5.2.2, we can just list 3 RPMs: pcp-zeroconf,
-# pcp-system-tools, and pcp-gui.
+# This list of PCP RPMs we need to provide all the required features.  We use
+# pcp-gui to ensure pmchart is installed in the tools container so that users
+# have a native way to review PCP data.  The pcp-zeroconf RPM provides a
+# comprehensive set of pre-configurations for various PMDAs.  Finally, the
+# pcp-system-tools various "sysstat" replacement tools (along with others),
+# and the dependency on the base `pcp` package.
 _PCP_RPMS = \
-	pcp-doc-5.2.2 \
-	pcp-gui-5.2.2 \
-	pcp-pmda-dm-5.2.2 \
-	pcp-pmda-nfsclient-5.2.2 \
-	pcp-pmda-openmetrics-5.2.2 \
-	pcp-system-tools-5.2.2 \
-	pcp-zeroconf-5.2.2 \
-	python3-pcp-5.2.2
+	pcp-gui \
+	pcp-system-tools \
+	pcp-zeroconf
 # The list of RPMs which provide the various tools we offer.
 # Not intended to be overridden with an environment variable.
 # Please keep the lists sorted.
@@ -293,16 +287,16 @@ all-dockerfiles: $(foreach distro, ${_DISTROS}, ${distro}-base.Dockerfile ${dist
 	jinja2 repo.yml.j2 -D distro=$* -D url_prefix=${URL_PREFIX} -D test_suffix=${_TEST_SUFFIX} -D user=${USER} -o $@
 
 fedora-33-pcp.repo: pcp.repo.j2
-	jinja2 pcp.repo.j2 -D target=f33 -o $@
+	jinja2 pcp.repo.j2 -D distro=fedora -D version=33 -o $@
 
 fedora-32-pcp.repo: pcp.repo.j2
-	jinja2 pcp.repo.j2 -D target=f32 -o $@
+	jinja2 pcp.repo.j2 -D distro=fedora -D version=32 -o $@
 
 centos-8-pcp.repo: pcp.repo.j2
-	jinja2 pcp.repo.j2 -D target=el8 -o $@
+	jinja2 pcp.repo.j2 -D distro=centos -D version=8 -o $@
 
 centos-7-pcp.repo: pcp.repo.j2
-	jinja2 pcp.repo.j2 -D target=el7 -o $@
+	jinja2 pcp.repo.j2 -D distro=centos -D version=7 -o $@
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis
