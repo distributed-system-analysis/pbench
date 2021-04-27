@@ -3,6 +3,7 @@ import pytest
 from typing import Callable
 
 from pbench.server.api.auth import Auth, UnknownUser
+from pbench.server.database.models.users import User
 from pbench.server.api.resources.query_apis import (
     ParamType,
     ConversionError,
@@ -35,11 +36,11 @@ class TestParamType:
             (ParamType.USER, "drb", "drb"),
         ),
     )
-    def test_successful_conversions(self, test, monkeypatch):
-        def ok(user: str) -> str:
-            return user
+    def test_successful_conversions(self, client, test, monkeypatch, pbench_token):
+        def ok(user: User, verified: bool) -> str:
+            return user, verified
 
-        monkeypatch.setattr(Auth, "validate_user", ok)
+        monkeypatch.setattr(Auth, "verify_user", ok)
 
         ptype, value, expected = test
         result = ptype.convert(value)

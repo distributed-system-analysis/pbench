@@ -12,7 +12,7 @@ from flask import request
 from flask_restful import Resource, abort
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.auth import Auth
+from pbench.server.api.auth import Auth, UnVerifiedUser
 
 
 class SchemaError(TypeError):
@@ -104,12 +104,20 @@ def convert_username(value: str) -> str:
 
     Raises:
         ConversionError: input can't be converted
+        or
+        UnVerifiedUser: If the username provided does not match with the username encoded the authorization header
 
     Returns:
         internal username representation
     """
     try:
-        return Auth.validate_user(value)
+        user, verified = Auth().verify_user(value)
+        if verified or user.is_admin():
+            return value
+        else:
+            raise UnVerifiedUser(value)
+    except UnVerifiedUser:
+        raise
     except Exception:
         raise ConversionError(value, "username", type(value).__name__)
 
@@ -470,6 +478,7 @@ class ElasticBase(Resource):
             )
             abort(500, message="INTERNAL ERROR")
 
+    @Auth.token_auth.login_required()
     def post(self):
         """
         Handle a Pbench server POST operation that will involve a call to the
@@ -493,8 +502,12 @@ class ElasticBase(Resource):
             # be interpreted as formatting commands.
             self.logger.warning("{}", str(e))
             abort(400, message=str(e))
+        except UnVerifiedUser as e:
+            self.logger.warning("{}", str(e))
+            abort(401, message=str(e))
         return self._call(requests.post, new_data)
 
+    @Auth.token_auth.login_required()
     def get(self):
         """
         Handle a GET operation involving a call to the server's Elasticsearch

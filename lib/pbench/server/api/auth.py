@@ -7,6 +7,18 @@ from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 
 
+class UnVerifiedUser(Exception):
+    """
+    Unverified Attempt to access other user data.
+    """
+
+    def __init__(self, username: str):
+        self.username = username
+
+    def __str__(self):
+        return f"{self.username} not verified for accessing {Auth.token_auth.current_user().username} data"
+
+
 class UnknownUser(Exception):
     """
     UnknownUser Attempt to validate a user that doesn't exist.
@@ -92,10 +104,9 @@ class Auth:
         Check if the provided username belongs to the current user by
         querying the Usermodel with the current user
         :param username:
-        :param logger
         :return: User (UserModel instance), verified status (boolean)
         """
-        user = User.query(id=self.token_auth.current_user().id)
+        user = self.token_auth.current_user()
         # check if the current username matches with the one provided
         verified = user is not None and user.username == username
         Auth.logger.warning("verified status of user '{}' is '{}'", username, verified)
