@@ -301,7 +301,7 @@ centos-7-pcp.repo: pcp.repo.j2
 jaeger:
 	mkdir jaeger
 	curl -X GET -L https://github.com/jaegertracing/jaeger/releases/download/v1.22.0/jaeger-1.22.0-linux-amd64.tar.gz -o jaeger/jaeger.tar.gz
-	(cd jaeger; ls -ld ./jaeger.tar.gz)
+	(cd jaeger; tar xf ./jaeger.tar.gz && mv jaeger-* bin)
 
 clean:
 	rm -f *.Dockerfile *.repo *.yml *-tags.lis
