@@ -19,8 +19,6 @@ next pbench-agent-cli-to-client
 payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "end", "kind": "ds", "status": "success"}'}
 payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "init", "kind": "ds", "status": "success"}'}
 payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "startup", "kind": "ds", "status": "success"}'}
-pbench-tool-data-sink: connected to redis server localhost:17001
-pbench-tool-meister: connected to redis server localhost:17001
 publish end on chan pbench-agent-cli-from-client
 publish init on chan pbench-agent-cli-from-client
 publish terminate on chan pbench-agent-cli-from-client

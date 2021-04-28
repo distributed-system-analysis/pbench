@@ -2055,9 +2055,7 @@ def main(argv):
 
     try:
         # Wait for the parameter key value to show up.
-        params_str = wait_for_conn_and_key(
-            redis_server, param_key, PROG, redis_host, redis_port
-        )
+        params_str = wait_for_conn_and_key(redis_server, param_key, PROG)
         # The expected parameters for this "data-sink" is what "channel" to
         # subscribe to for the tool meister operational life-cycle.  The
         # data-sink listens for the actions, sysinfo | init | start | stop |
