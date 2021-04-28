@@ -222,39 +222,77 @@ class RedisHandler(logging.Handler):
             self.counter += 1
 
 
-def wait_for_conn_and_key(redis_server, key, prog, redis_host, redis_port):
+def wait_for_conn_and_key(redis_server: redis.Redis, key: str, prog: str) -> str:
     """wait_for_conn_and_key - convenience method of both the Tool Meister and
     the Tool Data Sink to startup and wait for an initial connection to the
     Redis server, and for the expected key to show up.
+
+    Arguments:
+
+        redis_server: a Redis client object
+        key: the key name as a string
+        prog: the program name of our caller
+
+    Returns the payload value of the key as a string.
+
+    If successful on the first connection attempt, and the value of the key is
+    retrieved, no messages are issued on stdout.  If the key does not exist yet,
+    we'll report the missing key every 10 seconds from the last successful
+    connection.
+
+    If on the first connection attempt the connection to the Redis server fails,
+    we emit a message to that effect, once.  After that, we'll report each time
+    we are disconnected or re-connected to the Redis server.
     """
     # Loop waiting for the key to show up.
     connected = None
     payload = None
+    attempts = 0
+    errors = 0
+    missing = 0
     while payload is None:
+        attempts += 1
         try:
             payload = redis_server.get(key)
         except redis.ConnectionError:
+            errors += 1
+            # Reset the missing count if we get disconnected
+            missing = 0
             if connected is None:
+                # Only emit this message once for the initial attempt.
                 print(
-                    f"{prog}: waiting to connect to redis server {redis_host}:{redis_port}",
+                    f"{prog}: waiting to connect to Redis server {redis_server}",
                     flush=True,
                 )
                 connected = False
             elif connected:
+                # We always report disconnections.
                 print(
-                    f"{prog}: disconnected from redis server {redis_host}:{redis_port}",
+                    f"{prog}: disconnected from Redis server {redis_server}",
                     flush=True,
                 )
                 connected = False
             time.sleep(1)
         else:
-            if not connected:
+            if connected is False:
+                # We always report re-connections (connections was not None).
                 print(
-                    f"{prog}: connected to redis server {redis_host}:{redis_port}",
-                    flush=True,
+                    f"{prog}: connected to Redis server {redis_server}", flush=True,
                 )
-                connected = True
+            connected = True
             if payload is None:
-                print(f'{prog}: key, "{key}" does not exist yet', flush=True)
+                missing += 1
+                if (missing % 10) == 0:
+                    # Only emit missing key notice every 10 seconds
+                    print(f"{prog}: key '{key}' does not exist yet", flush=True)
                 time.sleep(1)
+
+    if attempts > 1:
+        # Always report stats if it took multiple attempts.
+        print(
+            f"{prog}: connected to Redis server after {attempts:d}"
+            f" attempts (with {errors:d} error(s))",
+            flush=True,
+        )
+
     return payload.decode("utf-8")

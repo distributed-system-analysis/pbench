@@ -1925,9 +1925,7 @@ def main(argv):
 
     try:
         # Wait for the key to show up with a value.
-        params_str = wait_for_conn_and_key(
-            redis_server, param_key, PROG, redis_host, redis_port
-        )
+        params_str = wait_for_conn_and_key(redis_server, param_key, PROG)
         params = json.loads(params_str)
         # Validate the tool meister parameters without constructing an object
         # just yet, as we want to make sure we can talk to the redis server

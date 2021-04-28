@@ -1,8 +1,6 @@
 +++ Running test-53 test-client-tool-meister 
 "mpstat" tool is now registered for host "testhost.example.com" in group "default"
 "dcgm" tool is now registered for host "testhost.example.com" in group "default"
-pbench-tool-data-sink: connected to redis server localhost:17001
-pbench-tool-meister: connected to redis server localhost:17001
 Collecting system information
 --- Finished test-53 test-client-tool-meister (status=0)
 +++ pbench tree state

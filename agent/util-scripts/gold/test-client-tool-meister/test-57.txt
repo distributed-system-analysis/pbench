@@ -6,11 +6,6 @@
 "node-exporter" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
 "dcgm" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
 "pcp" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
-pbench-tool-data-sink: connected to redis server localhost:17001
-pbench-tool-meister: connected to redis server localhost:17001
-pbench-tool-meister: connected to redis server localhost:17001
-pbench-tool-meister: connected to redis server localhost:17001
-pbench-tool-meister: connected to redis server localhost:17001
 system information not collected when --interrupt specified
 --- Finished test-57 test-client-tool-meister (status=0)
 +++ pbench tree state
