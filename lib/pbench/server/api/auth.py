@@ -7,18 +7,6 @@ from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 
 
-class UnVerifiedUser(Exception):
-    """
-    Unverified Attempt to access other user data.
-    """
-
-    def __init__(self, username: str):
-        self.username = username
-
-    def __str__(self):
-        return f"{self.username} not verified for accessing {Auth.token_auth.current_user().username} data"
-
-
 class UnknownUser(Exception):
     """
     UnknownUser Attempt to validate a user that doesn't exist.

@@ -12,7 +12,7 @@ from flask import request
 from flask_restful import Resource, abort
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.auth import Auth, UnVerifiedUser
+from pbench.server.api.auth import Auth
 
 
 class SchemaError(TypeError):
@@ -20,7 +20,21 @@ class SchemaError(TypeError):
     Generic base class for errors in processing a JSON schema.
     """
 
-    pass
+    def __init__(self, status: int = 400):
+        self.http_status = status
+
+
+class UnVerifiedUser(SchemaError):
+    """
+    Unverified Attempt to access other user data.
+    """
+
+    def __init__(self, username: str):
+        self.username = username
+        super().__init__(status=401)
+
+    def __str__(self):
+        return f"{self.username} not verified for accessing {Auth.token_auth.current_user().username} data"
 
 
 class InvalidRequestPayload(SchemaError):
@@ -29,6 +43,7 @@ class InvalidRequestPayload(SchemaError):
     """
 
     def __str__(self):
+        super().__init__()
         return "Invalid request payload"
 
 
@@ -39,6 +54,7 @@ class MissingParameters(SchemaError):
     """
 
     def __init__(self, keys: List[AnyStr]):
+        super().__init__()
         self.keys = keys
 
     def __str__(self):
@@ -59,6 +75,7 @@ class ConversionError(SchemaError):
             expected_type: The expected type
             actual_type: The actual type
         """
+        super().__init__()
         self.value = value
         self.expected_type = expected_type
         self.actual_type = actual_type
@@ -104,7 +121,6 @@ def convert_username(value: str) -> str:
 
     Raises:
         ConversionError: input can't be converted
-        or
         UnVerifiedUser: If the username provided does not match with the username encoded the authorization header
 
     Returns:
@@ -116,10 +132,10 @@ def convert_username(value: str) -> str:
             return value
         else:
             raise UnVerifiedUser(value)
-    except UnVerifiedUser:
-        raise
-    except Exception:
-        raise ConversionError(value, "username", type(value).__name__)
+    except Exception as exc:
+        raise ConversionError(
+            value, "username", type(value).__name__
+        ) if not isinstance(exc, UnVerifiedUser) else UnVerifiedUser(value)
 
 
 def convert_json(value: dict) -> dict:
@@ -478,7 +494,6 @@ class ElasticBase(Resource):
             )
             abort(500, message="INTERNAL ERROR")
 
-    @Auth.token_auth.login_required()
     def post(self):
         """
         Handle a Pbench server POST operation that will involve a call to the
@@ -501,13 +516,9 @@ class ElasticBase(Resource):
             # trying to convert might contain "{}" brackets that would
             # be interpreted as formatting commands.
             self.logger.warning("{}", str(e))
-            abort(400, message=str(e))
-        except UnVerifiedUser as e:
-            self.logger.warning("{}", str(e))
-            abort(401, message=str(e))
+            abort(e.http_status, message=str(e))
         return self._call(requests.post, new_data)
 
-    @Auth.token_auth.login_required()
     def get(self):
         """
         Handle a GET operation involving a call to the server's Elasticsearch

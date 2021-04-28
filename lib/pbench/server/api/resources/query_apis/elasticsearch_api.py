@@ -8,6 +8,7 @@ from pbench.server.api.resources.query_apis import (
     Parameter,
     ParamType,
 )
+from pbench.server.api.auth import Auth
 
 
 class Elasticsearch(ElasticBase):
@@ -37,6 +38,14 @@ class Elasticsearch(ElasticBase):
                 Parameter("params", ParamType.JSON),
             ),
         )
+
+    @Auth.token_auth.login_required()
+    def post(self):
+        return super().post()
+
+    @Auth.token_auth.login_required()
+    def get(self):
+        return super().get()
 
     def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
         return {

@@ -4,7 +4,7 @@ import requests
 
 
 @pytest.fixture
-def get_helper(client, server_config, requests_mock, pbench_token):
+def get_helper(client, server_config, requests_mock):
     """
     query_helper Help controller queries that want to interact with a mocked
     Elasticsearch service.
@@ -26,10 +26,7 @@ def get_helper(client, server_config, requests_mock, pbench_token):
         port = server_config.get("elasticsearch", "port")
         es_url = f"http://{host}:{port}"
         requests_mock.get(re.compile(f"{es_url}"), **kwargs)
-        response = client.get(
-            f"{server_config.rest_uri}/controllers/months",
-            headers={"Authorization": "Bearer " + pbench_token},
-        )
+        response = client.get(f"{server_config.rest_uri}/controllers/months")
         assert requests_mock.last_request.url == (es_url + "/_aliases")
         assert response.status_code == expected_status
         return response
@@ -46,7 +43,7 @@ class TestMonthIndices:
     constructor and `post` service.
     """
 
-    def test_query(self, client, server_config, get_helper, pbench_token):
+    def test_query(self, client, server_config, get_helper):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.

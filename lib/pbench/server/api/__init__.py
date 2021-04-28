@@ -19,9 +19,18 @@ from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.database.database import Database
-from pbench.server.api.resources.query_apis.controllers_list import ControllersList
-from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
-from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
+from pbench.server.api.resources.query_apis.controllers_list import (
+    ControllersList,
+    PublicControllersList,
+)
+from pbench.server.api.resources.query_apis.datasets_list import (
+    DatasetsList,
+    PublicDatasetsList,
+)
+from pbench.server.api.resources.query_apis.datasets_detail import (
+    DatasetsDetail,
+    PublicDatasetsDetail,
+)
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources.users_api import (
@@ -72,6 +81,11 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
+        PublicControllersList,
+        f"{base_uri}/controllers/list/public",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
         MonthIndices,
         f"{base_uri}/controllers/months",
         resource_class_args=(config, logger),
@@ -82,8 +96,18 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, app.logger),
     )
     api.add_resource(
+        PublicDatasetsList,
+        f"{base_uri}/datasets/list/public",
+        resource_class_args=(config, app.logger),
+    )
+    api.add_resource(
         DatasetsDetail,
         f"{base_uri}/datasets/detail",
+        resource_class_args=(config, app.logger),
+    )
+    api.add_resource(
+        PublicDatasetsDetail,
+        f"{base_uri}/datasets/detail/public",
         resource_class_args=(config, app.logger),
     )
 
