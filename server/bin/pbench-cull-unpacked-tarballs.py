@@ -32,7 +32,7 @@ import pbench.server
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
-from pbench.server.database.database import Database
+from pbench.server.database import init_db
 from pbench.server.indexer import _STD_DATETIME_FMT
 from pbench.server.report import Report
 
@@ -330,7 +330,7 @@ def main(options):
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
-    Database.init_db(config, logger)
+    init_db(config, logger)
 
     archivepath = config.ARCHIVE
 

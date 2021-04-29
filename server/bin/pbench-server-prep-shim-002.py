@@ -24,7 +24,7 @@ from pbench.server import PbenchServerConfig
 from pbench.server.report import Report
 from pbench.server.utils import quarantine
 from pbench.server.database.models.tracker import Dataset, States, DatasetError
-from pbench.server.database.database import Database
+from pbench.server.database import init_db
 
 
 _NAME_ = "pbench-server-prep-shim-002"
@@ -313,7 +313,7 @@ def main(cfg_name):
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
-    Database.init_db(config, logger)
+    init_db(config, logger)
 
     qdir, receive_dir = fetch_config_val(config, logger)
 

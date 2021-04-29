@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 from socket import gethostname
 
 from pbench.server import PbenchServerConfig
-from pbench.server.database.database import Database
+from pbench.server.database import init_db
 from pbench.common.exceptions import BadConfig
 from pbench.server.report import Report
 
@@ -74,7 +74,7 @@ except BadConfig as e:
 # We're going to need the Postgres DB to track dataset state, so setup
 # DB access. We don't pass a Logger here, because that introduces lots
 # of spurious changes in the gold CLI test output.
-Database.init_db(config, None)
+init_db(config, None)
 
 hostname = gethostname()
 pid = parsed.pid

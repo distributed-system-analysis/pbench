@@ -4,7 +4,7 @@ from pbench import BadConfig
 from pbench.cli.server import pass_cli_context
 from pbench.cli.server.options import common_options
 from pbench.server import PbenchServerConfig
-from pbench.server.database.database import Database
+from pbench.server.database import init_db
 from pbench.server.database.models.users import Roles, User
 
 _NAME_ = "pbench-user-create"
@@ -20,7 +20,7 @@ class UserCreate:
         # We're going to need the Postgres DB to track dataset state, so setup
         # DB access. We execute without a logger to avoid unnecessary noise in
         # CLI gold test output from an incidental tool.
-        Database.init_db(config, None)
+        init_db(config, None)
 
         user = User(
             username=self.context.username,

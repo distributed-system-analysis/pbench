@@ -15,7 +15,7 @@ from configparser import Error as ConfigParserError
 
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
-from pbench.server.database.database import Database
+from pbench.server.database import init_db
 from pbench.common.exceptions import (
     BadConfig,
     ConfigFileError,
@@ -110,7 +110,7 @@ def main(options, name):
         # Logger independently.
         config = PbenchServerConfig(options.cfg_name)
         logger = get_pbench_logger(name, config)
-        Database.init_db(config, logger)
+        init_db(config, logger)
 
         # Now we can initialize the index context
         idxctx = IdxContext(options, name, config, logger, _dbg=_DEBUG)
