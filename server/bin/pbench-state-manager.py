@@ -19,8 +19,8 @@ from argparse import ArgumentParser
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
+from pbench.server.api import init_db
 from pbench.server.api.auth import Auth, UnknownUser
-from pbench.server.database.database import Database
 from pbench.server.database.models.tracker import Dataset, States
 from pbench.server.database.models.users import User
 
@@ -48,7 +48,7 @@ def main(options):
 
         # We're going to need the Postgres DB to track dataset state, so setup
         # DB access.
-        Database.init_db(config, logger)
+        init_db(config, logger)
 
         args = {}
         if options.create:

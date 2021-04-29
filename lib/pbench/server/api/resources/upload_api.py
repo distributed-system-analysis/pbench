@@ -59,7 +59,7 @@ class Upload(Resource):
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         if not request.headers.get("filename"):
-            self.logger.debug(
+            self.logger.warning(
                 "Tarfile upload: Post operation failed due to missing filename header"
             )
             abort(
@@ -69,7 +69,7 @@ class Upload(Resource):
         filename = secure_filename(request.headers.get("filename"))
 
         if not request.headers.get("Content-MD5"):
-            self.logger.debug(
+            self.logger.warning(
                 f"Tarfile upload: Post operation failed due to missing md5sum header for file {filename}"
             )
             abort(
@@ -79,7 +79,7 @@ class Upload(Resource):
         md5sum = request.headers.get("Content-MD5")
 
         if not self.allowed_file(filename):
-            self.logger.debug(
+            self.logger.warning(
                 f"Tarfile upload: Bad file extension received for file {filename}"
             )
             abort(400, message="File extension not supported. Only .xz")
@@ -87,18 +87,18 @@ class Upload(Resource):
         try:
             content_length = int(request.headers.get("Content-Length"))
         except ValueError:
-            self.logger.debug(
+            self.logger.warning(
                 f"Tarfile upload: Invalid content-length header, not an integer for file {filename}"
             )
             abort(400, message="Invalid content-length header, not an integer")
         except Exception:
-            self.logger.debug(
+            self.logger.exception(
                 f"Tarfile upload: No Content-Length header value found for file {filename}"
             )
             abort(400, message="Missing required content-length header")
         else:
             if content_length > self.max_content_length:
-                self.logger.debug(
+                self.logger.warning(
                     f"Tarfile upload: Content-Length exceeded maximum upload size allowed. File: {filename}"
                 )
                 abort(
@@ -107,7 +107,7 @@ class Upload(Resource):
                     f"or equal to {humanize.naturalsize(self.max_content_length)}",
                 )
             elif content_length == 0:
-                self.logger.debug(
+                self.logger.warning(
                     f"Tarfile upload: Content-Length header value is 0 for file {filename}"
                 )
                 abort(
@@ -170,7 +170,7 @@ class Upload(Resource):
                 abort(500, message=f"There was something wrong uploading {filename}")
 
             if bytes_received != content_length:
-                self.logger.debug(
+                self.logger.warning(
                     f"Tarfile upload: Bytes received does not match with content length header value for file {filename}"
                 )
                 message = (
@@ -180,7 +180,7 @@ class Upload(Resource):
                 abort(400, message=message)
 
             elif hash_md5.hexdigest() != md5sum:
-                self.logger.debug(
+                self.logger.warning(
                     f"Tarfile upload: md5sum check failed for file {filename}"
                 )
                 message = f"md5sum check failed for {filename}, upload failed"
