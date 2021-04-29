@@ -23,10 +23,10 @@
 
 - Directions:
   -   `podman pull pbench/prom-graf-visualizer`
-  -   `podman run -p 3000:3000 -p 9090:9090 -v absolute/path/to/prometheus_data:/data:Z -v absolute/path/to/prometheus.yml:/prometheus.yml:Z pbench/prom-graf-visualizer`
+  -   `podman run -p 3000:3000 -p 9090:9090 -v absolute/path/to/prometheus_data:/data:Z  pbench/prom-graf-visualizer`
 
 - NOTES: 
-  - Both prometheus data (from tarball in tools-default/prometheus) and prometheus.yml (in tm dir) are available within pbench results.
+  - Prometheus data (from prometheus tarball in tools-default) is available within pbench results.
   - Default Grafana credentials are: admin/admin
 
 # PCPGrafVisualizer
