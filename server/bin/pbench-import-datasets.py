@@ -33,9 +33,9 @@ from typing import Generator
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
+from pbench.server.database import init_db
 from pbench.server.database.models.tracker import Dataset, States, DatasetNotFound
 from pbench.server.database.models.users import User
-from pbench.server.database.database import Database
 
 
 _NAME_ = "pbench-import-datasets"
@@ -166,7 +166,7 @@ def main(options):
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
-    Database.init_db(config, logger)
+    init_db(config, logger)
 
     # NOTE: the importer will ignore datasets that already exist in the DB;
     # we do the ACTION links first to get set up, and then sweep other links

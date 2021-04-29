@@ -21,7 +21,7 @@ from pbench.server.database.models.tracker import (
     Metadata,
     DatasetError,
 )
-from pbench.server.database.database import Database
+from pbench.server.database import init_db
 
 
 _NAME_ = "pbench-backup-tarballs"
@@ -463,7 +463,7 @@ def main(cfg_name):
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
-    Database.init_db(config, logger)
+    init_db(config, logger)
 
     # Add a BACKUP and QDIR field to the config object
     config.BACKUP = config.conf.get("pbench-server", "pbench-backup-dir")

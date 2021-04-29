@@ -30,7 +30,7 @@ from pbench.server.database.models.tracker import (
     Metadata,
     DatasetError,
 )
-from pbench.server.database.database import Database
+from pbench.server.database import init_db
 from pbench.common.logger import get_pbench_logger
 
 
@@ -184,7 +184,7 @@ def main(options):
 
     # We're going to need the Postgres DB to track dataset state, so setup
     # DB access.
-    Database.init_db(config, logger)
+    init_db(config, logger)
 
     archive_p = config.ARCHIVE
 

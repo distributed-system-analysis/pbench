@@ -284,7 +284,7 @@ class Logout(Resource):
             else:
                 self.logger.debug("User {} logged out", user.username)
         else:
-            self.logger.debug("User logout with invalid or expired token")
+            self.logger.info("User logout with invalid or expired token")
 
         return "", 200
 
