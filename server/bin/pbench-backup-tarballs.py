@@ -343,7 +343,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
 
         # match md5sum of the tarball to its md5 file
         try:
-            archive_tar_hex_value = md5sum(tar)
+            (_, archive_tar_hex_value) = md5sum(tar)
         except Exception:
             # Could not read file.
             quarantine(qdir, logger, tb)
