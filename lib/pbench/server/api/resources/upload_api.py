@@ -13,8 +13,6 @@ from pbench.server.api.auth import Auth
 from pbench.server.database.models.tracker import Dataset, DatasetDuplicate, States
 from pbench.server.utils import filesize_bytes
 
-ALLOWED_EXTENSIONS = {"xz"}
-
 
 class HostInfo(Resource):
     def __init__(self, config, logger):
@@ -40,6 +38,9 @@ class HostInfo(Resource):
 
 
 class Upload(Resource):
+    ALLOWED_EXTENSION = ".tar.xz"
+    CHUNK_SIZE = 65536
+
     def __init__(self, config, logger):
         self.config = config
         self.logger = logger
@@ -50,70 +51,100 @@ class Upload(Resource):
         )
 
     @Auth.token_auth.login_required()
-    def put(self, controller):
-
+    def put(self, filename_arg):
         try:
             username = Auth.token_auth.current_user().username
         except Exception:
-            self.logger.exception("Tarfile upload: Exception verifying the username")
+            self.logger.exception("Error verifying the username")
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
-        if not request.headers.get("filename"):
-            self.logger.debug(
-                "Tarfile upload: Post operation failed due to missing filename header"
-            )
-            abort(
-                400,
-                message="Missing filename header, POST operation requires a filename header to name the uploaded file",
-            )
-        filename = secure_filename(request.headers.get("filename"))
-
-        if not request.headers.get("Content-MD5"):
-            self.logger.debug(
-                f"Tarfile upload: Post operation failed due to missing md5sum header for file {filename}"
-            )
-            abort(
-                400,
-                message="Missing md5sum header, POST operation requires md5sum of an uploaded file in header",
-            )
-        md5sum = request.headers.get("Content-MD5")
-
+        filename = secure_filename(filename_arg)
         if not self.allowed_file(filename):
-            self.logger.debug(
-                f"Tarfile upload: Bad file extension received for file {filename}"
+            self.logger.warning(
+                "Unsupported file extension for {}, user = {}", filename_arg, username
             )
-            abort(400, message="File extension not supported. Only .xz")
+            abort(
+                HTTPStatus.BAD_REQUEST,
+                message="File extension not supported, must be"
+                f" {self.ALLOWED_EXTENSION}",
+            )
 
+        controller_arg = request.headers.get("controller")
+        if not controller_arg:
+            msg = "Missing required controller header"
+            self.logger.warning(
+                "{} for user = {}, file = {}", msg, username, filename_arg
+            )
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
+        controller = secure_filename(controller_arg)
+
+        md5sum = request.headers.get("Content-MD5")
+        if not md5sum:
+            msg = "Missing required Content-MD5 header"
+            self.logger.warning(
+                "{} for user = {}, ctrl = {}, file = {}",
+                msg,
+                username,
+                controller_arg,
+                filename_arg,
+            )
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
+
+        content_length_hdr = request.headers.get("Content-Length")
+        if not content_length_hdr:
+            msg = "Missing required Content-Length header"
+            self.logger.warning(
+                "{} for user = {}, ctrl = {}, file = {}",
+                msg,
+                username,
+                controller_arg,
+                filename_arg,
+            )
+            abort(HTTPStatus.LENGTH_REQUIRED, message=msg)
         try:
-            content_length = int(request.headers.get("Content-Length"))
+            content_length = int(content_length_hdr)
         except ValueError:
-            self.logger.debug(
-                f"Tarfile upload: Invalid content-length header, not an integer for file {filename}"
+            msg = "Invalid Content-Length header, not an integer"
+            self.logger.warning(
+                "{} for user = {}, ctrl = {}, file = {}",
+                msg,
+                username,
+                controller_arg,
+                filename_arg,
             )
-            abort(400, message="Invalid content-length header, not an integer")
-        except Exception:
-            self.logger.debug(
-                f"Tarfile upload: No Content-Length header value found for file {filename}"
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
+        if content_length > self.max_content_length:
+            cl = humanize.naturalsize(content_length)
+            mcl = humanize.naturalsize(self.max_content_length)
+            msg = f"Content-Length greater than maximum allowed size ({cl} > {mcl})"
+            self.logger.warning(
+                "{} for user = {}, ctrl = {}, file = {}",
+                msg,
+                username,
+                controller_arg,
+                filename_arg,
             )
-            abort(400, message="Missing required content-length header")
-        else:
-            if content_length > self.max_content_length:
-                self.logger.debug(
-                    f"Tarfile upload: Content-Length exceeded maximum upload size allowed. File: {filename}"
-                )
-                abort(
-                    400,
-                    message=f"Payload body too large, {content_length:d} bytes, maximum size should be less than "
-                    f"or equal to {humanize.naturalsize(self.max_content_length)}",
-                )
-            elif content_length == 0:
-                self.logger.debug(
-                    f"Tarfile upload: Content-Length header value is 0 for file {filename}"
-                )
-                abort(
-                    400,
-                    message="Upload failed, Content-Length received in header is 0",
-                )
+            abort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, message=msg)
+        elif content_length == 0:
+            msg = "Invalid Content-Length header, zero (0)"
+            self.logger.warning(
+                "{} for user = {}, ctrl = {}, file = {}",
+                msg,
+                username,
+                controller_arg,
+                filename_arg,
+            )
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
+        elif content_length < 0:
+            msg = f"Invalid Content-Length header, negative ({content_length})"
+            self.logger.warning(
+                "{} for user = {}, ctrl = {}, file = {}",
+                msg,
+                username,
+                controller_arg,
+                filename_arg,
+            )
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
 
         path = self.upload_directory / controller
         path.mkdir(exist_ok=True)
@@ -128,35 +159,51 @@ class Upload(Resource):
             )
             dataset.add()
         except DatasetDuplicate:
-            self.logger.info("Dataset already exists {}", filename)
+            self.logger.info(
+                "Dataset already exists, user = {}, ctrl = {}, file = {}",
+                username,
+                controller,
+                filename,
+            )
             response = jsonify(dict(message="Dataset already exists"))
             response.status_code = 200
             return response
         except Exception:
-            self.logger.exception("unable to create dataset for {}", filename)
-            abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
-            )
-
-        if tar_full_path.is_file() or md5_full_path.is_file():
-            self.logger.error(
-                "Dataset or corresponding md5 file already present on the disc, {}",
+            self.logger.exception(
+                "unable to create dataset for user = {}, ctrl = {}, file = {}",
+                username,
+                controller,
                 filename,
             )
             abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
             )
 
-        self.logger.info("Uploading file {} to {}", filename, dataset)
+        if tar_full_path.is_file() or md5_full_path.is_file():
+            self.logger.error(
+                "Dataset or corresponding md5 file already present on the disc, {}, {}",
+                tar_full_path,
+                md5_full_path,
+            )
+            abort(
+                HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
+            )
+
+        self.logger.info(
+            "Uploading file {} (user = {}, ctrl = {}) to {}",
+            username,
+            controller,
+            filename,
+            dataset,
+        )
 
         with tempfile.NamedTemporaryFile(mode="wb", dir=path) as ofp:
-            chunk_size = 4096
             self.logger.debug("Writing chunks")
             hash_md5 = hashlib.md5()
 
             try:
                 while True:
-                    chunk = request.stream.read(chunk_size)
+                    chunk = request.stream.read(self.CHUNK_SIZE)
                     bytes_received += len(chunk)
                     if len(chunk) == 0 or bytes_received > content_length:
                         break
@@ -165,26 +212,39 @@ class Upload(Resource):
                     hash_md5.update(chunk)
             except Exception:
                 self.logger.exception(
-                    "Tarfile upload: There was something wrong uploading {}", filename
+                    "Unexpected error uploading {}, user = {}, ctrl = {}",
+                    username,
+                    controller_arg,
+                    filename_arg,
                 )
-                abort(500, message=f"There was something wrong uploading {filename}")
+                abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
             if bytes_received != content_length:
-                self.logger.debug(
-                    f"Tarfile upload: Bytes received does not match with content length header value for file {filename}"
+                msg = (
+                    "Bytes received do not match Content-Length header"
+                    f" (expected {content_length}; received {bytes_received})"
                 )
-                message = (
-                    f"Bytes received ({bytes_received}) does not match with content length header"
-                    f" ({content_length}), upload failed"
+                self.logger.warning(
+                    "{} for user = {}, ctrl = {}, file = {}",
+                    msg,
+                    username,
+                    controller_arg,
+                    filename_arg,
                 )
-                abort(400, message=message)
-
+                abort(HTTPStatus.BAD_REQUEST, message=msg)
             elif hash_md5.hexdigest() != md5sum:
-                self.logger.debug(
-                    f"Tarfile upload: md5sum check failed for file {filename}"
+                msg = (
+                    "MD5 checksum does not match Content-MD5 header"
+                    f" ({hash_md5.hexdigest()} != {md5sum})"
                 )
-                message = f"md5sum check failed for {filename}, upload failed"
-                abort(400, message=message)
+                self.logger.warning(
+                    "{} for user = {}, ctrl = {}, file = {}",
+                    msg,
+                    username,
+                    controller_arg,
+                    filename_arg,
+                )
+                abort(HTTPStatus.BAD_REQUEST, message=msg)
 
             # First write the .md5
             try:
@@ -233,12 +293,7 @@ class Upload(Resource):
     @staticmethod
     def allowed_file(filename):
         """Check if the file has the correct extension."""
-        try:
-            fn = filename.rsplit(".", 1)[1].lower()
-        except IndexError:
-            return False
-        allowed = "." in filename and fn in ALLOWED_EXTENSIONS
-        return allowed
+        return filename.endswith(Upload.ALLOWED_EXTENSION)
 
     @property
     def upload_directory(self):

@@ -1,4 +1,5 @@
 import logging
+import os
 
 import requests
 import responses
@@ -17,18 +18,10 @@ class TestResultsPush:
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
-    def add_success_mock_response():
+    def add_http_mock_response(code: int = 200):
         responses.add(
             responses.PUT,
-            f"{TestResultsPush.URL}/upload/ctrl/{TestResultsPush.CTRL_TEXT}",
-            status=200,
-        )
-
-    @staticmethod
-    def add_http_error_mock_response(code: int):
-        responses.add(
-            responses.PUT,
-            f"{TestResultsPush.URL}/upload/ctrl/{TestResultsPush.CTRL_TEXT}",
+            f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
             status=code,
         )
 
@@ -36,7 +29,7 @@ class TestResultsPush:
     def add_connectionerr_mock_response():
         responses.add(
             responses.PUT,
-            f"{TestResultsPush.URL}/upload/ctrl/{TestResultsPush.CTRL_TEXT}",
+            f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
             body=requests.exceptions.ConnectionError(
                 "<urllib3.connection.HTTPConnection object at 0x1080854c0>: "
                 "Failed to establish a new connection: [Errno 8] "
@@ -112,7 +105,7 @@ class TestResultsPush:
     def test_args(valid_config, pytestconfig):
         """Test normal operation when all arguments and options are specified"""
 
-        TestResultsPush.add_success_mock_response()
+        TestResultsPush.add_http_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             results.results_push,
@@ -131,7 +124,7 @@ class TestResultsPush:
     def test_token_prompt(valid_config, pytestconfig):
         """Test normal operation when the token option is omitted"""
 
-        TestResultsPush.add_success_mock_response()
+        TestResultsPush.add_http_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
             results.results_push,
@@ -147,7 +140,7 @@ class TestResultsPush:
         """Test normal operation with the token in an environment variable"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_success_mock_response()
+        TestResultsPush.add_http_mock_response()
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
@@ -177,7 +170,7 @@ class TestResultsPush:
         """Test normal operation with the token in an environment variable"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_http_error_mock_response(404)
+        TestResultsPush.add_http_mock_response(404)
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(

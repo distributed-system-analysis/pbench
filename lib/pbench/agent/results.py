@@ -149,23 +149,25 @@ class CopyResultTb:
     """CopyResultTb - Use the server's HTTP PUT method to upload a tarball
     """
 
-    chunk_size = 4096
+    CHUNK_SIZE = 65536
 
     def __init__(
         self, controller: str, tarball: str, config: PbenchAgentConfig, logger: Logger
     ):
+        self.controller = secure_filename(controller)
         self.tarball = Path(tarball)
         if not self.tarball.exists():
             raise FileNotFoundError(f"Tarball '{self.tarball}' does not exist")
-        self.logger = logger
         server_rest_url = config.get("results", "server_rest_url")
-        self.upload_url = f"{server_rest_url}/upload/ctrl/{controller}"
+        tbname = secure_filename(self.tarball.name)
+        self.upload_url = f"{server_rest_url}/upload/{tbname}"
+        self.logger = logger
 
     def read_in_chunks(self, file_object: IO) -> Iterator[bytes]:
-        data = file_object.read(self.chunk_size)
+        data = file_object.read(self.CHUNK_SIZE)
         while data:
             yield data
-            data = file_object.read(self.chunk_size)
+            data = file_object.read(self.CHUNK_SIZE)
 
     def copy_result_tb(self, token: str) -> None:
         """copy_result_tb - copies tb from agent to configured server upload URL
@@ -177,10 +179,10 @@ class CopyResultTb:
         """
         content_length, content_md5 = md5sum(self.tarball)
         headers = {
-            "filename": secure_filename(str(self.tarball)),
             "Content-MD5": content_md5,
             "Content-Length": str(content_length),
             "Authorization": f"Bearer {token}",
+            "controller": self.controller,
         }
         with self.tarball.open("rb") as f:
             try:
