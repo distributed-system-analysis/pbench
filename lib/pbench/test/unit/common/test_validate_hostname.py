@@ -1,7 +1,7 @@
 """Tests for validate_hostname
 """
 
-from pbench.agent.utils import validate_hostname
+from pbench.common.utils import validate_hostname
 
 
 def test_validate_hostname():

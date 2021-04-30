@@ -32,6 +32,9 @@ port = 7081
 
 [logging]
 logger_type = file
+# We run with DEBUG level logging during the server unit tests to help
+# verify we are not emitting too many logs.
+logging_level = DEBUG
 
 [Indexing]
 index_prefix = unit-test

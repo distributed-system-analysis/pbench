@@ -22,9 +22,10 @@ class TestCopyResults:
 
     @responses.activate
     def test_copy_tar(self, valid_config):
+        tbname = os.path.basename(tarball)
         responses.add(
             responses.PUT,
-            "http://pbench.example.com/api/v1/upload/ctrl/controller",
+            f"http://pbench.example.com/api/v1/upload/{tbname}",
             status=200,
         )
         crt = CopyResultTb("controller", tarball, self.config, self.logger)
@@ -34,7 +35,7 @@ class TestCopyResults:
     def test_bad_tar(self, caplog, valid_config):
         responses.add(
             responses.PUT,
-            "http://pbench.example.com/api/v1/upload/ctrl/controller",
+            f"http://pbench.example.com/api/v1/upload/{bad_tarball}",
             status=200,
         )
         expected_error_message = (
