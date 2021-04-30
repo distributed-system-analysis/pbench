@@ -92,10 +92,9 @@ class Auth:
         Check if the provided username belongs to the current user by
         querying the Usermodel with the current user
         :param username:
-        :param logger
         :return: User (UserModel instance), verified status (boolean)
         """
-        user = User.query(id=self.token_auth.current_user().id)
+        user = self.token_auth.current_user()
         # check if the current username matches with the one provided
         verified = user is not None and user.username == username
         Auth.logger.warning("verified status of user '{}' is '{}'", username, verified)

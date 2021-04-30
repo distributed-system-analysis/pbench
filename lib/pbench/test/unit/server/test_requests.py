@@ -48,17 +48,22 @@ class TestHostInfo:
 
 class TestElasticsearch:
     @staticmethod
-    def test_json_object(client, caplog, server_config):
-        response = client.post(f"{server_config.rest_uri}/elasticsearch")
+    def test_json_object(client, caplog, server_config, pbench_token):
+        response = client.post(
+            f"{server_config.rest_uri}/elasticsearch",
+            headers={"Authorization": "Bearer " + pbench_token},
+        )
         assert response.status_code == 400
         assert response.json.get("message") == "Invalid request payload"
         assert len(caplog.records) == 1
         assert caplog.records[0].levelname == "WARNING"
 
     @staticmethod
-    def test_empty_url_path(client, caplog, server_config):
+    def test_empty_url_path(client, caplog, server_config, pbench_token):
         response = client.post(
-            f"{server_config.rest_uri}/elasticsearch", json={"indices": ""}
+            f"{server_config.rest_uri}/elasticsearch",
+            json={"indices": ""},
+            headers={"Authorization": "Bearer " + pbench_token},
         )
         assert response.status_code == 400
         assert response.json.get("message") == "Missing required parameters: indices"
@@ -66,12 +71,13 @@ class TestElasticsearch:
         assert caplog.records[0].levelname == "WARNING"
 
     @staticmethod
-    def test_bad_request(client, caplog, server_config, requests_mock):
+    def test_bad_request(client, caplog, server_config, requests_mock, pbench_token):
         requests_mock.post(
             "http://elasticsearch.example.com:7080/some_invalid_url", status_code=400
         )
         response = client.post(
             f"{server_config.rest_uri}/elasticsearch",
+            headers={"Authorization": "Bearer " + pbench_token},
             json={"indices": "some_invalid_url", "payload": '{ "babble": "42" }'},
         )
         assert response.status_code == 400
@@ -109,17 +115,17 @@ class TestUpload:
             assert record.levelname not in ("ERROR", "CRITICAL")
 
     @staticmethod
-    def test_missing_filename_header_upload(client, caplog, server_config):
+    def test_missing_filename_header_upload(
+        client, caplog, server_config, pbench_token
+    ):
         with client:
-            auth_token = get_pbench_token(client, server_config)
-
             expected_message = (
                 "Missing filename header, "
                 "POST operation requires a filename header to name the uploaded file"
             )
             response = client.put(
                 f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}",
-                headers={"Authorization": "Bearer " + auth_token},
+                headers={"Authorization": "Bearer " + pbench_token},
             )
             assert response.status_code == 400
             assert response.json.get("message") == expected_message
@@ -127,15 +133,13 @@ class TestUpload:
                 assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
 
     @staticmethod
-    def test_missing_md5sum_header_upload(client, caplog, server_config):
+    def test_missing_md5sum_header_upload(client, caplog, server_config, pbench_token):
         with client:
-            auth_token = get_pbench_token(client, server_config)
-
             expected_message = "Missing md5sum header, POST operation requires md5sum of an uploaded file in header"
             response = client.put(
                 f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}",
                 headers={
-                    "Authorization": "Bearer " + auth_token,
+                    "Authorization": "Bearer " + pbench_token,
                     "filename": "f.tar.xz",
                 },
             )
@@ -145,10 +149,8 @@ class TestUpload:
                 assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
 
     @staticmethod
-    def test_mismatched_md5sum_header(client, caplog, server_config):
+    def test_mismatched_md5sum_header(client, caplog, server_config, pbench_token):
         with client:
-            auth_token = get_pbench_token(client, server_config)
-
             filename = "log.tar.xz"
             datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
             controller = socket.gethostname()
@@ -158,7 +160,7 @@ class TestUpload:
                     f"{server_config.rest_uri}/upload/ctrl/{controller}",
                     data=data_fp,
                     headers={
-                        "Authorization": "Bearer " + auth_token,
+                        "Authorization": "Bearer " + pbench_token,
                         "filename": filename,
                         "Content-MD5": "md5sum",  # Wrong md5 hash
                     },
@@ -171,15 +173,15 @@ class TestUpload:
 
     @staticmethod
     @pytest.mark.parametrize("bad_extension", ("test.tar.bad", "test.tar", "test.tar."))
-    def test_bad_extension_upload(client, bad_extension, caplog, server_config):
+    def test_bad_extension_upload(
+        client, bad_extension, caplog, server_config, pbench_token
+    ):
         with client:
-            auth_token = get_pbench_token(client, server_config)
-
             expected_message = "File extension not supported. Only .xz"
             response = client.put(
                 f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}",
                 headers={
-                    "Authorization": "Bearer " + auth_token,
+                    "Authorization": "Bearer " + pbench_token,
                     "filename": bad_extension,
                     "Content-MD5": "md5sum",
                 },
@@ -190,30 +192,27 @@ class TestUpload:
                 assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
 
     @staticmethod
-    def test_invalid_authorization_upload(client, caplog, server_config):
+    def test_invalid_authorization_upload(client, caplog, server_config, pbench_token):
         with client:
-            auth_token = get_pbench_token(client, server_config)
             # Log the token out
             response = client.post(
                 f"{server_config.rest_uri}/logout",
-                headers={"Authorization": "Bearer " + auth_token},
+                headers={"Authorization": "Bearer " + pbench_token},
             )
 
             # Upload with invalid token
             response = client.put(
                 f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}",
                 headers={
-                    "Authorization": "Bearer " + auth_token,
+                    "Authorization": "Bearer " + pbench_token,
                     "Content-MD5": "md5sum",
                 },
             )
             assert response.status_code == 401
 
     @staticmethod
-    def test_empty_upload(client, pytestconfig, caplog, server_config):
+    def test_empty_upload(client, pytestconfig, caplog, server_config, pbench_token):
         with client:
-            auth_token = get_pbench_token(client, server_config)
-
             expected_message = "Upload failed, Content-Length received in header is 0"
             filename = "tmp.tar.xz"
             tmp_d = pytestconfig.cache.get("TMP", None)
@@ -224,7 +223,7 @@ class TestUpload:
                     f"{server_config.rest_uri}/upload/ctrl/{socket.gethostname()}",
                     data=data_fp,
                     headers={
-                        "Authorization": "Bearer " + auth_token,
+                        "Authorization": "Bearer " + pbench_token,
                         "filename": filename,
                         "Content-MD5": "d41d8cd98f00b204e9800998ecf8427e",  # MD5 hash of an empty file
                     },
@@ -235,10 +234,8 @@ class TestUpload:
                 assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
 
     @staticmethod
-    def test_upload(client, pytestconfig, caplog, server_config):
+    def test_upload(client, pytestconfig, caplog, server_config, pbench_token):
         with client:
-            auth_token = get_pbench_token(client, server_config)
-
             filename = "log.tar.xz"
             datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
             controller = socket.gethostname()
@@ -250,7 +247,7 @@ class TestUpload:
                     f"{server_config.rest_uri}/upload/ctrl/{controller}",
                     data=data_fp,
                     headers={
-                        "Authorization": "Bearer " + auth_token,
+                        "Authorization": "Bearer " + pbench_token,
                         "filename": filename,
                         "Content-MD5": md5sum,
                     },

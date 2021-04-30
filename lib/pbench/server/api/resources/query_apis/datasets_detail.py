@@ -9,6 +9,7 @@ from pbench.server.api.resources.query_apis import (
     Parameter,
     ParamType,
 )
+from pbench.server.api.auth import Auth
 
 
 class DatasetsDetail(ElasticBase):
@@ -27,6 +28,14 @@ class DatasetsDetail(ElasticBase):
                 Parameter("end", ParamType.DATE, required=True),
             ),
         )
+
+    @Auth.token_auth.login_required()
+    def post(self):
+        return super().post()
+
+    @Auth.token_auth.login_required()
+    def get(self):
+        return super().get()
 
     def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
         """
@@ -133,3 +142,20 @@ class DatasetsDetail(ElasticBase):
         }
         # construct response object
         return jsonify(result)
+
+
+class PublicDatasetsDetail(DatasetsDetail):
+    def __init__(self, config: PbenchServerConfig, logger: Logger):
+        ElasticBase.__init__(
+            config,
+            logger,
+            Schema(
+                Parameter("name", ParamType.STRING, required=True),
+                Parameter("start", ParamType.DATE, required=True),
+                Parameter("end", ParamType.DATE, required=True),
+            ),
+        )
+
+    def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+        json_data["user"] = None
+        return super().assemble(json_data)

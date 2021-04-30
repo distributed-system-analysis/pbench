@@ -10,6 +10,7 @@ from pbench.server.api.resources.query_apis import (
     Parameter,
     ParamType,
 )
+from pbench.server.api.auth import Auth
 
 
 class DatasetsList(ElasticBase):
@@ -28,6 +29,14 @@ class DatasetsList(ElasticBase):
                 Parameter("end", ParamType.DATE, required=True),
             ),
         )
+
+    @Auth.token_auth.login_required()
+    def post(self):
+        return super().post()
+
+    @Auth.token_auth.login_required()
+    def get(self):
+        return super().get()
 
     def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
         """
@@ -160,3 +169,24 @@ class DatasetsList(ElasticBase):
             datasets.append(d)
         # construct response object
         return jsonify(datasets)
+
+
+class PublicDatasetsList(DatasetsList):
+    """
+        Get a list of public dataset run documents for a controller.
+    """
+
+    def __init__(self, config: PbenchServerConfig, logger: Logger):
+        ElasticBase.__init__(
+            config,
+            logger,
+            Schema(
+                Parameter("controller", ParamType.STRING, required=True),
+                Parameter("start", ParamType.DATE, required=True),
+                Parameter("end", ParamType.DATE, required=True),
+            ),
+        )
+
+    def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+        json_data["user"] = None
+        super().assemble(json_data)

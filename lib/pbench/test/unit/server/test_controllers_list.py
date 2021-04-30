@@ -4,7 +4,7 @@ import requests
 
 
 @pytest.fixture
-def query_helper(client, server_config, requests_mock):
+def query_helper(client, server_config, requests_mock, pbench_token):
     """
     query_helper Help controller queries that want to interact with a mocked
     Elasticsearch service.
@@ -27,7 +27,9 @@ def query_helper(client, server_config, requests_mock):
         es_url = f"http://{host}:{port}"
         requests_mock.post(re.compile(f"{es_url}"), **kwargs)
         response = client.post(
-            f"{server_config.rest_uri}/controllers/list", json=payload
+            f"{server_config.rest_uri}/controllers/list",
+            headers={"Authorization": "Bearer " + pbench_token},
+            json=payload,
         )
         assert requests_mock.last_request.url == (
             es_url + expected_index + "/_search?ignore_unavailable=true"
@@ -60,11 +62,44 @@ class TestControllersList:
             index += f"{idx}{d},"
         return index
 
-    def test_missing_json_object(self, client, server_config):
+    def test_missing_auth_header(self, client, server_config):
+        """
+        test_missing_json_object Test behavior when no Authorization header is given
+        """
+        response = client.post(f"{server_config.rest_uri}/controllers/list")
+        assert response.status_code == 401
+
+    def test_malformed_auth_header(self, client, server_config, pbench_token):
+        """
+        test_missing_json_object Test behavior when Authorization header is malformed
+        """
+        response = client.post(
+            f"{server_config.rest_uri}/controllers/list",
+            headers={"Authorization": pbench_token},
+        )
+        assert response.status_code == 401
+
+    def test_non_accessible_user_data(self, client, server_config, pbench_token):
+        """
+        test_missing_json_object Test behavior when Authorization header does not have access to other user's data
+        """
+        # Auth token belongs to the user "drb"
+        # Trying to access the data belong to the user "pp"
+        response = client.post(
+            f"{server_config.rest_uri}/controllers/list",
+            headers={"Authorization": "Bearer " + pbench_token},
+            json={"user": "pp", "start": "2020-08", "end": "2020-10"},
+        )
+        assert response.status_code == 401
+
+    def test_missing_json_object(self, client, server_config, pbench_token):
         """
         test_missing_json_object Test behavior when no JSON payload is given
         """
-        response = client.post(f"{server_config.rest_uri}/controllers/list")
+        response = client.post(
+            f"{server_config.rest_uri}/controllers/list",
+            headers={"Authorization": "Bearer " + pbench_token},
+        )
         assert response.status_code == 400
         assert response.json.get("message") == "Invalid request payload"
 
@@ -79,7 +114,7 @@ class TestControllersList:
             {"start": "2020", "end": "2020"},
         ),
     )
-    def test_missing_keys(self, client, server_config, keys, user_ok):
+    def test_missing_keys(self, client, server_config, keys, user_ok, pbench_token):
         """
         test_missing_keys Test behavior when JSON payload does not contain
         all required keys.
@@ -88,7 +123,11 @@ class TestControllersList:
         however, Pbench will silently ignore any additional keys that are
         specified.
        """
-        response = client.post(f"{server_config.rest_uri}/controllers/list", json=keys)
+        response = client.post(
+            f"{server_config.rest_uri}/controllers/list",
+            headers={"Authorization": "Bearer " + pbench_token},
+            json=keys,
+        )
         assert response.status_code == 400
         missing = [k for k in ("user", "start", "end") if k not in keys]
         assert (
@@ -96,12 +135,13 @@ class TestControllersList:
             == f"Missing required parameters: {','.join(missing)}"
         )
 
-    def test_bad_dates(self, client, server_config, user_ok):
+    def test_bad_dates(self, client, server_config, user_ok, pbench_token):
         """
         test_bad_dates Test behavior when a bad date string is given
         """
         response = client.post(
             f"{server_config.rest_uri}/controllers/list",
+            headers={"Authorization": "Bearer " + pbench_token},
             json={"user": "drb", "start": "2020-12", "end": "2020-19"},
         )
         assert response.status_code == 400
@@ -110,7 +150,7 @@ class TestControllersList:
             == "Value '2020-19' (str) cannot be parsed as a date/time string"
         )
 
-    def test_query(self, client, server_config, query_helper, user_ok):
+    def test_query(self, client, server_config, query_helper, user_ok, pbench_token):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.
@@ -181,7 +221,9 @@ class TestControllersList:
             {"exception": Exception, "status": 500},
         ),
     )
-    def test_http_error(self, client, server_config, query_helper, exceptions, user_ok):
+    def test_http_error(
+        self, client, server_config, query_helper, exceptions, user_ok, pbench_token
+    ):
         """
         test_http_error Check that an Elasticsearch error is reported
         correctly.

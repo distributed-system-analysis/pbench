@@ -3,6 +3,7 @@ import tempfile
 import pytest
 from pathlib import Path
 from pbench.server.api import create_app, get_server_config
+from pbench.test.unit.server.test_user_auth import login_user, register_user
 from pbench.server.api.auth import Auth
 
 
@@ -117,3 +118,25 @@ def user_ok(monkeypatch):
         return user
 
     monkeypatch.setattr(Auth, "validate_user", ok)
+
+
+@pytest.fixture
+def pbench_token(client, server_config):
+    # First create a user
+    response = register_user(
+        client,
+        server_config,
+        username="drb",
+        firstname="firstname",
+        lastname="lastName",
+        email="user@domain.com",
+        password="12345",
+    )
+    assert response.status_code, 201
+
+    # Login user to get valid pbench token
+    response = login_user(client, server_config, "drb", "12345")
+    assert response.status_code == 200
+    data = response.json
+    assert data["auth_token"]
+    return data["auth_token"]
