@@ -16,7 +16,8 @@ USER_LIST_HEADER_ROW = USER_LIST_ROW_FORMAT.format(
 @click.version_option()
 @pass_cli_context
 def user_command_cli(ctx):
-    pass  # Entry Point
+    # Entry point, Setup the pbench server config and db access
+    config_setup(ctx, "user-management-cli")
 
 
 @user_command_cli.command()
@@ -69,9 +70,6 @@ def user_create(
     role: str,
 ) -> None:
     try:
-        # Setup the pbench server config and db access
-        config_setup(context, "pbench-user-create")
-
         user = User(
             username=username,
             password=password,
@@ -100,9 +98,6 @@ def user_create(
 @pass_cli_context
 def user_delete(context: object, username: str) -> None:
     try:
-        # Setup the pbench server config and db access
-        config_setup(context, "pbench-user-delete")
-
         # Delete the the user with specified username
         User.delete(username=username)
         click.echo(f"User {username} deleted")
@@ -120,9 +115,6 @@ def user_delete(context: object, username: str) -> None:
 @pass_cli_context
 def user_list(context: object) -> None:
     try:
-        # Setup the pbench server config and db access
-        config_setup(context, "pbench-user-list")
-
         click.echo(USER_LIST_HEADER_ROW)
 
         # Query all the users
@@ -179,9 +171,6 @@ def user_update(
     role: str,
 ) -> None:
     try:
-        # Setup the pbench server config and db access
-        config_setup(context, "pbench-user-update")
-
         # Query the user
         user = User.query(username=updateuser)
 

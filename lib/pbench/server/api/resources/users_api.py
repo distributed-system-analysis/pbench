@@ -475,7 +475,7 @@ class UserAPI(Resource):
             if not user.is_admin():
                 User.delete(username)
         except NoResultFound:
-            self.logger.exception(
+            self.logger.info(
                 "Delete operation on non-existent user '{}'", username,
             )
         except Exception:

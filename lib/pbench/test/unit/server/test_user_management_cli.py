@@ -148,7 +148,6 @@ class TestUserManagement:
             result = TestUserManagement.register_user()
 
             result = runner.invoke(user_delete, args=[TestUserManagement.USER_TEXT])
-            assert result.stdout == "User test_user deleted\n"
             assert result.exit_code == 0, result.stderr
             assert result.stdout == "User test_user deleted\n"
 
@@ -209,17 +208,6 @@ class TestUserManagement:
             assert result.exit_code == 0
             assert result.stdout == "User test_user updated\n"
             assert not result.stderr_bytes
-
-            # Update with invalid role for the user
-            result = runner.invoke(
-                user_update, args=["newuser", TestUserManagement.ROLE_SWITCH, "ADMN"],
-            )
-            assert result.exit_code == 2
-            assert (
-                result.stderr_bytes
-                == b"Usage: user-update [OPTIONS] UPDATEUSER\nTry 'user-update --help' for help.\n"
-                + b"\nError: Invalid value for '--role': invalid choice: ADMN. (choose from ADMIN)\n"
-            )
 
     @staticmethod
     @responses.activate

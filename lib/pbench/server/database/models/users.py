@@ -120,10 +120,10 @@ class User(Database.Base):
         """
         try:
             user_query = Database.db_session.query(User).filter_by(username=username)
-            rows_deleted = user_query.delete()
-            if rows_deleted == 0:
+            if user_query.count() == 0:
                 raise NoResultFound(f"User {username} does not exist")
 
+            user_query.delete()
             Database.db_session.commit()
             return True
         except Exception:
