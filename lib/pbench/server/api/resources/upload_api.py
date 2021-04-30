@@ -91,11 +91,16 @@ class Upload(Resource):
                 f"Tarfile upload: Invalid content-length header, not an integer for file {filename}"
             )
             abort(400, message="Invalid content-length header, not an integer")
-        except Exception:
-            self.logger.exception(
+        except KeyError:
+            self.logger.warning(
                 f"Tarfile upload: No Content-Length header value found for file {filename}"
             )
             abort(400, message="Missing required content-length header")
+        except Exception:
+            self.logger.exception(
+                f"Tarfile upload: Exception on interpreting Content-Length header value"
+            )
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         else:
             if content_length > self.max_content_length:
                 self.logger.warning(

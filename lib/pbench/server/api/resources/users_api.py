@@ -282,9 +282,9 @@ class Logout(Resource):
                 self.logger.exception("Exception occurred deleting an auth token")
                 abort(500, message="INTERNAL ERROR")
             else:
-                self.logger.warning("User {} logged out", user.username)
+                self.logger.debug("User {} logged out", user.username)
         else:
-            self.logger.warning("User logout with invalid or expired token")
+            self.logger.info("User logout with invalid or expired token")
 
         return "", 200
 

@@ -33,7 +33,7 @@ from typing import Generator
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
-from pbench.server.api import init_db
+from pbench.server.database import init_db
 from pbench.server.database.models.tracker import Dataset, States, DatasetNotFound
 from pbench.server.database.models.users import User
 

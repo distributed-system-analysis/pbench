@@ -18,6 +18,7 @@ from pbench.server.api.resources.graphql_api import GraphQL
 from pbench.server.api.resources.endpoint_configure import EndpointConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
+from pbench.server.database import init_db
 from pbench.server.database.database import Database
 from pbench.server.api.resources.query_apis.controllers_list import ControllersList
 from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
@@ -144,17 +145,3 @@ def create_app(server_config):
         Database.db_session.remove()
 
     return app
-
-
-def init_db(server_config, logger):
-    """
-    Utility method for initializing the database.
-
-    In order to register all the tables properly in our database, db models need to be imported before the
-    call to Database.init function.
-
-    Lot of independant functionality in our code depends on database access without creating the flask app.
-    Invoking init_db from here make sure all models are imported properly, all the functionalities where we
-    need a standalone db access should invoke this function instead of directly invoking Database.init_db
-    """
-    Database.init_db(server_config=server_config, logger=logger)

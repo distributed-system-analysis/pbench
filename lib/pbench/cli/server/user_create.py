@@ -5,7 +5,7 @@ from pbench.cli.server import pass_cli_context
 from pbench.cli.server.options import common_options
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
-from pbench.server.api import init_db
+from pbench.server.database import init_db
 from pbench.server.database.models.users import Roles, User
 
 _NAME_ = "pbench-user-create"
