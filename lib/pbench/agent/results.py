@@ -175,9 +175,11 @@ class CopyResultTb:
                     authorized to make the PUT request on behalf of a
                     specific user.
         """
+        content_length, content_md5 = md5sum(self.tarball)
         headers = {
             "filename": secure_filename(str(self.tarball)),
-            "Content-MD5": md5sum(self.tarball),
+            "Content-MD5": content_md5,
+            "Content-Length": str(content_length),
             "Authorization": f"Bearer {token}",
         }
         with self.tarball.open("rb") as f:

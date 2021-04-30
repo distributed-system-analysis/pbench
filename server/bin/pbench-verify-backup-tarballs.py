@@ -170,7 +170,7 @@ class BackupObject:
             self.indicator_file_fail, "w"
         ) as f_fail:
             for tar in self.content_list:
-                md5_returned = md5sum(Path(self.dirname, tar.name))
+                (_, md5_returned) = md5sum(Path(self.dirname, tar.name))
                 if tar.md5 == md5_returned:
                     f_ok.write(f"{tar.name}: {'OK'}\n")
                 else:

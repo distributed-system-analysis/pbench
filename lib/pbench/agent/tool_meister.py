@@ -1314,7 +1314,7 @@ class ToolMeister:
                     failures += 1
                 else:
                     try:
-                        tar_md5 = md5sum(tar_file)
+                        (_, tar_md5) = md5sum(tar_file)
                     except Exception:
                         self.logger.exception("Failed to read tar ball, '%s'", tar_file)
                         failures += 1

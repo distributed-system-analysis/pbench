@@ -93,7 +93,7 @@ def md5_check(tb, tbmd5, logger):
 
     # get hex value of the tarball's md5sum
     try:
-        archive_tar_hex_value = md5sum(tb)
+        (_, archive_tar_hex_value) = md5sum(tb)
     except Exception:
         archive_tar_hex_value = None
         logger.exception("Quarantine: Could not read {}", tb)
