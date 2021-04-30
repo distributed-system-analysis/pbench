@@ -93,7 +93,6 @@ RUN \
         python3-sphinx \
         python3-tox \
         python3-tox-current-env \
-        python3-werkzeug \
         redis \
         rpmdevtools \
         rpmlint \
