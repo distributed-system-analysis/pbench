@@ -8,6 +8,7 @@ from pbench.server.api.resources.query_apis import (
     Schema,
     Parameter,
     ParamType,
+    PostprocessError,
 )
 
 
@@ -130,6 +131,22 @@ class ControllersList(ElasticBase):
         ]
         """
         controllers = []
+        # If there are no matches for the user, controller name,
+        # and time range, return the empty list rather than failing.
+        # Note that we can't check the length of ["hits"]["hits"]
+        # because we've told Elasticsearch to return only aggregations,
+        # not source documents.
+        try:
+            count = es_json["hits"]["total"]["value"]
+            if int(count) == 0:
+                self.logger.warning("No data returned by Elasticsearch")
+                return jsonify(controllers)
+        except KeyError as e:
+            raise PostprocessError(
+                f"Can't find Elasticsearch match data {e} in {es_json!r}"
+            )
+        except ValueError as e:
+            raise PostprocessError(f"Elasticsearch hit count {count!r} value: {e}")
         buckets = es_json["aggregations"]["controllers"]["buckets"]
         self.logger.info("{} controllers found", len(buckets))
         for controller in buckets:

@@ -8,6 +8,7 @@ from pbench.server.api.resources.query_apis import (
     Schema,
     Parameter,
     ParamType,
+    PostprocessError,
 )
 
 
@@ -118,8 +119,10 @@ class DatasetsDetail(ElasticBase):
 
         # NOTE: we're expecting just one. We're matching by just the
         # dataset name, which ought to be unique.
-        if len(hits) != 1:
-            self.logger.warn("{} datasets found: expected exactly 1!", len(hits))
+        if len(hits) == 0:
+            raise PostprocessError("The specified dataset has gone missing")
+        elif len(hits) > 1:
+            raise PostprocessError("Too many hits for a unique query")
         src = hits[0]["_source"]
 
         # We're merging the "run" and "@metadata" sub-documents into

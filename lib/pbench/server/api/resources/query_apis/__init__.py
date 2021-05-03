@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from http import HTTPStatus
 from logging import Logger
 from typing import Any, AnyStr, Callable, Dict, List
 from urllib.parse import urljoin
@@ -65,6 +66,15 @@ class ConversionError(SchemaError):
 
     def __str__(self):
         return f"Value {self.value!r} ({self.actual_type}) cannot be parsed as a {self.expected_type}"
+
+
+class PostprocessError(Exception):
+    """
+    Used by subclasses to report an error during postprocessing of the
+    Elasticsearch response document.
+    """
+
+    pass
 
 
 def convert_date(value: str) -> datetime:
@@ -428,7 +438,7 @@ class ElasticBase(Resource):
             url = urljoin(self.es_url, path)
         except Exception as e:
             self.logger.exception("Blew it in setup: {}", type(e).__name__)
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
             # query Elasticsearch
@@ -437,38 +447,54 @@ class ElasticBase(Resource):
         except requests.exceptions.HTTPError as e:
             self.logger.exception("HTTP error {} from Elasticsearch request", e)
             abort(
-                502,
+                HTTPStatus.BAD_GATEWAY,
                 message="Elasticsearch query failure {e.response.reason} ({e.response.status_code})",
             )
         except requests.exceptions.ConnectionError:
             self.logger.exception("Connection refused during the Elasticsearch request")
-            abort(502, message="Network problem, could not reach Elasticsearch")
+            abort(
+                HTTPStatus.BAD_GATEWAY,
+                message="Network problem, could not reach Elasticsearch",
+            )
         except requests.exceptions.Timeout:
             self.logger.exception(
                 "Connection timed out during the Elasticsearch request"
             )
-            abort(504, message="Connection timed out, could reach Elasticsearch")
+            abort(
+                HTTPStatus.GATEWAY_TIMEOUT,
+                message="Connection timed out, could reach Elasticsearch",
+            )
         except requests.exceptions.InvalidURL:
             self.logger.exception(
                 "Invalid url {} during the Elasticsearch request", url
             )
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         except Exception as e:
             self.logger.exception(
                 "Exception {} occurred during the Elasticsearch request",
                 type(e).__name__,
             )
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
             return self.postprocess(es_response.json())
+        except PostprocessError as e:
+            msg = f"The query postprocessor was unable to complete: {e}"
+            self.logger.warning(msg)
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
+        except KeyError as e:
+            self.logger.error("Missing Elasticsearch key {}", e)
+            abort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                message="Missing Elasticsearch key {e}",
+            )
         except Exception as e:
             self.logger.exception(
                 "Unexpected problem postprocessing Elasticsearch response {}: {}",
                 es_response.json(),
                 e,
             )
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
     def post(self):
         """
@@ -492,7 +518,7 @@ class ElasticBase(Resource):
             # trying to convert might contain "{}" brackets that would
             # be interpreted as formatting commands.
             self.logger.warning("{}", str(e))
-            abort(400, message=str(e))
+            abort(HTTPStatus.BAD_REQUEST, message=str(e))
         return self._call(requests.post, new_data)
 
     def get(self):

@@ -1,6 +1,7 @@
 import pytest
 import re
 import requests
+from http import HTTPStatus
 
 
 @pytest.fixture
@@ -65,7 +66,7 @@ class TestDatasetsDetail:
         test_missing_json_object Test behavior when no JSON payload is given
         """
         response = client.post(f"{server_config.rest_uri}/datasets/detail")
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid request payload"
 
     @pytest.mark.parametrize(
@@ -91,7 +92,7 @@ class TestDatasetsDetail:
         specified.
        """
         response = client.post(f"{server_config.rest_uri}/datasets/detail", json=keys)
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         missing = [k for k in ("user", "name", "start", "end") if k not in keys]
         assert (
             response.json.get("message")
@@ -111,7 +112,7 @@ class TestDatasetsDetail:
                 "end": "2020-19",
             },
         )
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert (
             response.json.get("message")
             == "Value '2020-19' (str) cannot be parsed as a date/time string"
@@ -191,7 +192,9 @@ class TestDatasetsDetail:
         }
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
-        response = query_helper(json, index, 200, server_config, json=response_payload)
+        response = query_helper(
+            json, index, HTTPStatus.OK, server_config, json=response_payload
+        )
         res_json = response.json
 
         expected = {
@@ -234,14 +237,74 @@ class TestDatasetsDetail:
         }
         assert expected == res_json
 
+    def test_empty_query(self, client, server_config, query_helper, user_ok):
+        """
+        Check the handling of a query that doesn't return any data.
+        """
+        json = {
+            "user": "drb",
+            "name": "fio",
+            "start": "2020-08",
+            "end": "2020-10",
+        }
+        response_payload = {
+            "hits": {
+                "total": {"value": 0, "relation": "eq"},
+                "max_score": None,
+                "hits": [],
+            },
+        }
+
+        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        response = query_helper(
+            json, index, HTTPStatus.BAD_REQUEST, server_config, json=response_payload
+        )
+        assert response.json["message"].find("dataset has gone missing") != -1
+
+    def test_nonunique_query(self, client, server_config, query_helper, user_ok):
+        """
+        Check the handling of a query that returns too much data.
+        """
+        json = {
+            "user": "drb",
+            "name": "fio",
+            "start": "2020-08",
+            "end": "2020-10",
+        }
+        response_payload = {
+            "hits": {
+                "total": {"value": 0, "relation": "eq"},
+                "max_score": None,
+                "hits": [{"a": True}, {"b": False}],
+            },
+        }
+
+        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        response = query_helper(
+            json, index, HTTPStatus.BAD_REQUEST, server_config, json=response_payload
+        )
+        assert response.json["message"].find("Too many hits for a unique query") != -1
+
     @pytest.mark.parametrize(
         "exceptions",
         (
-            {"exception": requests.exceptions.HTTPError, "status": 502},
-            {"exception": requests.exceptions.ConnectionError, "status": 502},
-            {"exception": requests.exceptions.Timeout, "status": 504},
-            {"exception": requests.exceptions.InvalidURL, "status": 500},
-            {"exception": Exception, "status": 500},
+            {
+                "exception": requests.exceptions.HTTPError,
+                "status": HTTPStatus.BAD_GATEWAY,
+            },
+            {
+                "exception": requests.exceptions.ConnectionError,
+                "status": HTTPStatus.BAD_GATEWAY,
+            },
+            {
+                "exception": requests.exceptions.Timeout,
+                "status": HTTPStatus.GATEWAY_TIMEOUT,
+            },
+            {
+                "exception": requests.exceptions.InvalidURL,
+                "status": HTTPStatus.INTERNAL_SERVER_ERROR,
+            },
+            {"exception": Exception, "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
     def test_http_error(self, client, server_config, query_helper, exceptions, user_ok):
