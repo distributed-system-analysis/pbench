@@ -1,6 +1,7 @@
 import pytest
 import re
 import requests
+from http import HTTPStatus
 
 
 @pytest.fixture
@@ -65,7 +66,7 @@ class TestControllersList:
         test_missing_json_object Test behavior when no JSON payload is given
         """
         response = client.post(f"{server_config.rest_uri}/controllers/list")
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid request payload"
 
     @pytest.mark.parametrize(
@@ -89,7 +90,7 @@ class TestControllersList:
         specified.
        """
         response = client.post(f"{server_config.rest_uri}/controllers/list", json=keys)
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         missing = [k for k in ("user", "start", "end") if k not in keys]
         assert (
             response.json.get("message")
@@ -104,7 +105,7 @@ class TestControllersList:
             f"{server_config.rest_uri}/controllers/list",
             json={"user": "drb", "start": "2020-12", "end": "2020-19"},
         )
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert (
             response.json.get("message")
             == "Value '2020-19' (str) cannot be parsed as a date/time string"
@@ -156,7 +157,9 @@ class TestControllersList:
         }
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
-        response = query_helper(json, index, 200, server_config, json=response_payload)
+        response = query_helper(
+            json, index, HTTPStatus.OK, server_config, json=response_payload
+        )
         res_json = response.json
         assert isinstance(res_json, list)
         assert len(res_json) == 2
@@ -171,14 +174,54 @@ class TestControllersList:
         assert res_json[1]["last_modified_value"] == 1.6
         assert res_json[1]["last_modified_string"] == "2020-09-26T20:19:15.810Z"
 
+    def test_empty_query(self, client, server_config, query_helper, user_ok):
+        """
+        Check proper handling of a query resulting in no Elasticsearch matches.
+        """
+        json = {
+            "user": "drb",
+            "start": "2020-08",
+            "end": "2020-10",
+        }
+        response_payload = {
+            "took": 1,
+            "timed_out": False,
+            "_shards": {"total": 1, "successful": 1, "skipped": 0, "failed": 0},
+            "hits": {
+                "total": {"value": 0, "relation": "eq"},
+                "max_score": None,
+                "hits": [],
+            },
+        }
+
+        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        response = query_helper(
+            json, index, HTTPStatus.OK, server_config, json=response_payload
+        )
+        res_json = response.json
+        assert isinstance(res_json, list)
+        assert len(res_json) == 0
+
     @pytest.mark.parametrize(
         "exceptions",
         (
-            {"exception": requests.exceptions.HTTPError, "status": 502},
-            {"exception": requests.exceptions.ConnectionError, "status": 502},
-            {"exception": requests.exceptions.Timeout, "status": 504},
-            {"exception": requests.exceptions.InvalidURL, "status": 500},
-            {"exception": Exception, "status": 500},
+            {
+                "exception": requests.exceptions.HTTPError,
+                "status": HTTPStatus.BAD_GATEWAY,
+            },
+            {
+                "exception": requests.exceptions.ConnectionError,
+                "status": HTTPStatus.BAD_GATEWAY,
+            },
+            {
+                "exception": requests.exceptions.Timeout,
+                "status": HTTPStatus.GATEWAY_TIMEOUT,
+            },
+            {
+                "exception": requests.exceptions.InvalidURL,
+                "status": HTTPStatus.INTERNAL_SERVER_ERROR,
+            },
+            {"exception": Exception, "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
     def test_http_error(self, client, server_config, query_helper, exceptions, user_ok):
