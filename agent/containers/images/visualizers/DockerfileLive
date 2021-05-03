@@ -3,7 +3,7 @@ FROM fedora:33
 
 WORKDIR /
 
-ENV GRAFANA_VERSION=7.3.6-1
+ARG GRAFANA_VERSION=7.3.6-1
 
 RUN dnf install -y wget python3-pip && \
     pip3 install requests && \
@@ -16,19 +16,10 @@ ADD nodefull.json .
 ADD dcgm.json .
 ADD combo.json .
 
-## THE FOLLOWING LINE WAS PARTIALLY TAKEN FROM https://github.com/grafana/grafana-docker/blob/master/Dockerfile#L7#L13
-ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-    GF_DEFAULT_APP_MODE="development" \
-    GF_PATHS_CONFIG="/etc/grafana/grafana.ini" \
-    GF_PATHS_DATA="/var/lib/grafana" \
-    GF_PATHS_HOME="/usr/share/grafana" \
-    GF_PATHS_LOGS="/var/log/grafana" \
-    GF_PATHS_PLUGINS="/var/lib/grafana/plugins" \
-    GF_PATHS_PROVISIONING="/etc/grafana/provisioning"
+ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 EXPOSE 3000
 
-ENV VIS_TYPE="live" \
-    COLLECTOR=""
+# ENV VARS THAT CAN BE CHANGED: HOST, PROM_HOST, PM_HOST, PROM_PORT, PM_PORT
 
-CMD ["python3", "run.py"]
+CMD ["python3", "run.py", "live"]
