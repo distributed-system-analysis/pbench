@@ -7,6 +7,9 @@
 - Directions:
   -   `podman pull pbench/live-metric-visualizer`
   -   `podman run --network host pbench/live-metric-visualizer`
+  -   To visualize a run on a remote host, add `-e HOST=<host>`
+  -   To change to a custom prometheus port, add `-e PROM_PORT=<port>`
+  -   To change to a custom pmproxy port, add `-e PM_PORT=<port>`
 
 - NOTES:
   - Container includes grafana server with preconfigured data sources and dashboards for both prometheus and PCP
@@ -38,7 +41,7 @@
 
 - Directions:
   -   `podman pull pbench/pcp-graf-visualizer`
-  -   `podman run -p 3000:3000 -p 44322:44322 -v /<path>/<to>/<pcp_log_folder>/data:/var/log/pcp/pmlogger:Z  pbench/pcp-graf-visualizer`
+  -   `podman run --network host -v /<path>/<to>/<pcp_log_folder>/data:/var/log/pcp/pmlogger:Z  pbench/pcp-graf-visualizer`
 
 - NOTES:
   - PCP data (from pcp data tarball in tools-default) is available within pbench results.

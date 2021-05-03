@@ -76,12 +76,22 @@ token = json.loads(response.content.decode("utf-8"))["key"]
 headers["Authorization"] = f"Bearer {token}"
 
 metric_type = os.environ["VIS_TYPE"]
+
+if metric_type == "live":
+    url = f"http://{os.environ['HOST']}:"
+    prom_port = os.environ["PROM_PORT"]
+    pm_port = os.environ["PM_PORT"]
+else:
+    url = "http://localhost:"
+    prom_port = "9090"
+    pm_port = "44566"
+
 if metric_type == "live" or metric_type == "prom":
     prom_source_url = f"{graf_base}api/datasources"
     payload = {
         "name": "prometheus",
         "type": "prometheus",
-        "url": "http://localhost:9090",
+        "url": url + prom_port,
         "access": "proxy",
         "basicAuth": False,
     }
@@ -116,7 +126,7 @@ if metric_type == "live" or metric_type == "pcp":
     payload = {
         "name": "PCP Redis",
         "type": "pcp-redis-datasource",
-        "url": "http://localhost:44566",
+        "url": url + pm_port,
         "access": "proxy",
         "basicAuth": False,
     }
@@ -126,7 +136,7 @@ if metric_type == "live" or metric_type == "pcp":
     payload = {
         "name": "PCP Vector",
         "type": "pcp-vector-datasource",
-        "url": "http://localhost:44566",
+        "url": url + pm_port,
         "access": "proxy",
         "basicAuth": False,
     }

@@ -2,8 +2,8 @@
 FROM quay.io/pbench/live-metric-visualizer:latest
 
 ENV VIS_TYPE="pcp" \
-    COLLECTOR="/usr/libexec/pcp/bin/pmproxy --foreground --timeseries --port=44322 --redishost=localhost --redisport=6379 --config=/etc/pcp/pmproxy/pmproxy.conf" \
-    PCP_VERSION="5.2.1-1.fc33" \
+    COLLECTOR="/usr/libexec/pcp/bin/pmproxy --foreground --timeseries --port=44566 --redishost=localhost --redisport=6379 --config=/etc/pcp/pmproxy/pmproxy.conf" \
+    PCP_VERSION="5.2.5-2.fc33" \
     PCP_ARCHIVE_DIR="/var/log/pcp/pmlogger"
 
 RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext pcp-${PCP_VERSION} pcp-zeroconf-${PCP_VERSION} && \
@@ -12,5 +12,5 @@ RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext pcp-${PCP_VERSION} 
     dnf clean all && \
     rm -rf /etc/pcp/pmlogger/control.d/local
 
-EXPOSE 44322
+EXPOSE 44566
 EXPOSE 3000
