@@ -1,10 +1,9 @@
 # Use with the following command from the 'visualizers' directory: podman build -t <name> -f DockerfilePostPCP .
 FROM quay.io/pbench/live-metric-visualizer:latest
 
-ENV VIS_TYPE="pcp" \
-    COLLECTOR="/usr/libexec/pcp/bin/pmproxy --foreground --timeseries --port=44322 --redishost=localhost --redisport=6379 --config=/etc/pcp/pmproxy/pmproxy.conf" \
-    PCP_VERSION="5.2.1-1.fc33" \
-    PCP_ARCHIVE_DIR="/var/log/pcp/pmlogger"
+ARG PCP_VERSION="5.2.5-2.fc33"
+    
+# ENV VARS THAT CAN BE CHANGED: REDIS_HOST, REDIS_PORT
 
 RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext pcp-${PCP_VERSION} pcp-zeroconf-${PCP_VERSION} && \
     dnf install -y pcp-doc-${PCP_VERSION} pcp-gui-${PCP_VERSION} pcp-system-tools-${PCP_VERSION} && \
@@ -12,5 +11,7 @@ RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext pcp-${PCP_VERSION} 
     dnf clean all && \
     rm -rf /etc/pcp/pmlogger/control.d/local
 
-EXPOSE 44322
+EXPOSE 44566
 EXPOSE 3000
+
+CMD ["python3", "run.py", "pcp"]

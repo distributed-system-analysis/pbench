@@ -7,6 +7,11 @@
 - Directions:
   -   `podman pull pbench/live-metric-visualizer`
   -   `podman run --network host pbench/live-metric-visualizer`
+  -   To visualize a run on a remote host, add `-e HOST=<host>`
+    - If prometheus is on a different host, it can be individually set with `-e PROM_HOST=<host>`
+    - If pmproxy is on a different host, it can be individually set with `-e PM_HOST=<host>`
+  -   To change to a custom prometheus port, add `-e PROM_PORT=<port>`
+  -   To change to a custom pmproxy port, add `-e PM_PORT=<port>`
 
 - NOTES:
   - Container includes grafana server with preconfigured data sources and dashboards for both prometheus and PCP
@@ -38,7 +43,10 @@
 
 - Directions:
   -   `podman pull pbench/pcp-graf-visualizer`
-  -   `podman run -p 3000:3000 -p 44322:44322 -v /<path>/<to>/<pcp_log_folder>/data:/var/log/pcp/pmlogger:Z  pbench/pcp-graf-visualizer`
+  -   `podman run --network host -v /<path>/<to>/<pcp_log_folder>/data:/var/log/pcp/pmlogger:Z  pbench/pcp-graf-visualizer`
+  - If you would rather use your own existing redis instance rather than have one launch internally:
+    - You must specify redis host with `-e REDIS_HOST=<port>`
+    - If not on the default port (6379), you can also add `-e REDIS_PORT=<port>`
 
 - NOTES:
   - PCP data (from pcp data tarball in tools-default) is available within pbench results.
