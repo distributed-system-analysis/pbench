@@ -100,7 +100,7 @@ def user_delete(context: object, username: str) -> None:
     try:
         # Delete the the user with specified username
         User.delete(username=username)
-        click.echo(f"User {username} deleted")
+        click.echo(f"User {username} deleted", err=True)
         rv = 0
     except Exception as exc:
         click.echo(exc, err=True)

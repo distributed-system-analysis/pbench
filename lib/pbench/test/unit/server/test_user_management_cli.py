@@ -148,8 +148,8 @@ class TestUserManagement:
             result = TestUserManagement.register_user()
 
             result = runner.invoke(user_delete, args=[TestUserManagement.USER_TEXT])
-            assert result.exit_code == 0, result.stderr
-            assert result.stdout == "User test_user deleted\n"
+            assert result.exit_code == 0
+            assert result.stderr == "User test_user deleted\n"
 
     @staticmethod
     @responses.activate
@@ -160,6 +160,39 @@ class TestUserManagement:
             result = runner.invoke(user_delete, args=["wrong_username"])
             assert result.exit_code == 1
             assert result.stderr == "User wrong_username does not exist\n"
+
+    @staticmethod
+    @responses.activate
+    def test_admin_user_delete(client, server_config, pytestconfig):
+        with client:
+            runner = CliRunner(mix_stderr=False)
+            # Create an admin user
+            result = runner.invoke(
+                user_create,
+                args=[
+                    TestUserManagement.USER_SWITCH,
+                    TestUserManagement.USER_TEXT,
+                    TestUserManagement.PSWD_SWITCH,
+                    TestUserManagement.PSWD_TEXT,
+                    TestUserManagement.EMAIL_SWITCH,
+                    TestUserManagement.EMAIL_TEXT,
+                    TestUserManagement.FIRST_NAME_SWITCH,
+                    TestUserManagement.FIRST_NAME_TEXT,
+                    TestUserManagement.LAST_NAME_SWITCH,
+                    TestUserManagement.LAST_NAME_TEXT,
+                    TestUserManagement.ROLE_SWITCH,
+                    "ADMIN",
+                ],
+            )
+            assert result.exit_code == 0, result.stderr
+
+            # Try deleting an admin user
+            result = runner.invoke(user_delete, args=["test_user"])
+            assert result.exit_code == 1
+            assert (
+                result.stderr
+                == f"User {TestUserManagement.USER_TEXT} can not be deleted\n"
+            )
 
     @staticmethod
     @responses.activate
@@ -208,6 +241,24 @@ class TestUserManagement:
             assert result.exit_code == 0
             assert result.stdout == "User test_user updated\n"
             assert not result.stderr_bytes
+
+    @staticmethod
+    @responses.activate
+    def test_invalid_role_update(client, server_config, pytestconfig):
+        with client:
+            runner = CliRunner(mix_stderr=False)
+            result = TestUserManagement.register_user()
+
+            # Update with invalid role for the user
+            result = runner.invoke(
+                user_update, args=["test_user", TestUserManagement.ROLE_SWITCH, "ADMN"],
+            )
+            assert result.exit_code == 2
+            assert (
+                result.stderr_bytes
+                == b"Usage: user-update [OPTIONS] UPDATEUSER\nTry 'user-update --help' for help.\n"
+                + b"\nError: Invalid value for '--role': invalid choice: ADMN. (choose from ADMIN)\n"
+            )
 
     @staticmethod
     @responses.activate

@@ -10,6 +10,18 @@ from sqlalchemy.orm.exc import NoResultFound
 from pbench.server.database.database import Database
 
 
+class AdminUserDeletion(Exception):
+    """
+    Attempt to delete an admin user.
+    """
+
+    def __init__(self, username: str):
+        self.username = username
+
+    def __str__(self):
+        return f"User {self.username} can not be deleted"
+
+
 class Roles(enum.Enum):
     ADMIN = 1
 
@@ -116,16 +128,15 @@ class User(Database.Base):
         """
         Delete the user with a given username except admin
         :param username:
-        :return:
         """
+        user_query = Database.db_session.query(User).filter_by(username=username)
+        if user_query.count() == 0:
+            raise NoResultFound(f"User {username} does not exist")
+        if user_query.first().is_admin():
+            raise AdminUserDeletion(username)
         try:
-            user_query = Database.db_session.query(User).filter_by(username=username)
-            if user_query.count() == 0:
-                raise NoResultFound(f"User {username} does not exist")
-
             user_query.delete()
             Database.db_session.commit()
-            return True
         except Exception:
             Database.db_session.rollback()
             raise
