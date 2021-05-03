@@ -119,6 +119,7 @@ tool-scripts = \
 	external-data-source \
 	haproxy-ocp \
 	iostat \
+    jaeger \
 	jmap \
 	jstack \
 	kvm-spinlock \
