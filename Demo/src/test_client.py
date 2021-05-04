@@ -85,7 +85,7 @@ def run():
 
     for i in range(loop_n_times):
         # start a span for the request
-        span = tracer.start_span(f'greet-request-{i}')
+        span = tracer.start_span(operation_name=f'greet-request-{i}', child_of=main_span)
 
         # inject this span's context into a dict, then convert to JSON
         carrier = {}
