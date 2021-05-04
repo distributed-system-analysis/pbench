@@ -646,8 +646,15 @@ class JaegerCollector(BaseCollector):
         args = [self.jaeger_path]
         with (self.tool_dir / "jaeger.log").open("w") as jaeger_logs:
             try:
+                # modify subprocess's environment to include variables for Badger storage
+                my_env = os.environ.copy()
+                my_env['SPAN_STORAGE_TYPE'] = 'badger'
+                my_env['BADGER_EPHEMERAL'] = 'false'
+                my_env['BADGER_DIRECTORY_VALUE'] = '/badger/data'
+                my_env['BADGER_DIRECTORY_KEY'] = '/badger/key'
+
                 run = subprocess.Popen(
-                    args, cwd=self.tool_dir, stdout=jaeger_logs, stderr=jaeger_logs
+                    args, cwd=self.tool_dir, stdout=jaeger_logs, stderr=jaeger_logs, env=my_env,
                 )
             except Exception as exc:
                 self.logger.error("Jaeger process creation failed: '%s', %r", exc, args)
