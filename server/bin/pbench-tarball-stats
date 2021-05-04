@@ -120,6 +120,9 @@ def main(options):
     good_size = 0
     good = collections.defaultdict(list)
 
+    ec2_cnt = 0
+    rh_cnt = 0
+
     by_year = collections.defaultdict(list)
     by_month = collections.defaultdict(list)
 
@@ -136,6 +139,10 @@ def main(options):
             good[tb_rec[0]].append(tb_rec)
             good_cnt += 1
             good_size += tb_rec[3].st_size
+            if tb_rec[0].startswith("EC2::"):
+                ec2_cnt += 1
+            else:
+                rh_cnt += 1
             year = tb_rec[2].year
             by_year[year].append(tb_rec)
             month = tb_rec[2].month
@@ -150,17 +157,29 @@ def main(options):
     print(f"{invalid_cnt:18n} bad tar balls, total count")
     print(f"{invalid_size:18n} bad tar balls, total size")
 
-    print(f"{len(good.keys()):18n} controllers with good tar balls")
+    print(
+        f"{len(good.keys()):18n} controllers with good tar balls (EC2 {ec2_cnt:n}, RH {rh_cnt:n})"
+    )
     print(f"{good_cnt:18n} good tar balls, total count")
     print(f"{good_size:18n} good tar balls, total size")
 
     for year, y_list in sorted(by_year.items()):
         count = len(y_list)
-        print(f"{year}: {count:7n}")
+        ec2_cnt = 0
+        for y in y_list:
+            if y[0].startswith("EC2::"):
+                ec2_cnt += 1
+        pct_ec2 = (ec2_cnt / count) * 100.0
+        print(f"{year}: {count:7n} (%EC2 {pct_ec2:0.02f})")
 
     for month, m_list in sorted(by_month.items()):
         count = len(m_list)
-        print(f"{month}: {count:7n}")
+        ec2_cnt = 0
+        for m in m_list:
+            if m[0].startswith("EC2::"):
+                ec2_cnt += 1
+        pct_ec2 = (ec2_cnt / count) * 100.0
+        print(f"{month}: {count:7n} (%EC2 {pct_ec2:0.02f})")
 
     return 0
 
