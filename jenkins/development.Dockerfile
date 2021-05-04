@@ -46,6 +46,8 @@ RUN \
         bzip2 \
         diffutils \
         git \
+        glibc-locale-source \
+        glibc-langpack-en \
         hostname \
         iproute \
         iputils \

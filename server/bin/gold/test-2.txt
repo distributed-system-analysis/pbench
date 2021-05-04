@@ -168,6 +168,15 @@ len(actions) = 1
 +++ Running pbench-satellite-cleanup
 pbench-satellite-cleanup: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench-satellite/public_html/incoming
 --- Finished pbench-satellite-cleanup (status=1)
++++ Running pbench-tarball-stats
+Took 0.00 seconds
+                 0 controllers with bad tar balls
+                 0 bad tar balls, total count
+                 0 bad tar balls, total size
+                 0 controllers with good tar balls
+                 0 good tar balls, total count
+                 0 good tar balls, total size
+--- Finished pbench-tarball-stats (status=0)
 +++ Running unit test audit
 pbench-audit-server: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 --- Finished unit test audit (status=1)

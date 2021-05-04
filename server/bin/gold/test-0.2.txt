@@ -37,6 +37,9 @@ pbench-verify-backup-tarballs: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pben
 +++ Running pbench-satellite-cleanup
 pbench-satellite-cleanup: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-satellite-local/tmp (config file /var/tmp/pbench-test-server/test-0.2/opt/pbench-server-satellite/lib/config/pbench-server.cfg)
 --- Finished pbench-satellite-cleanup (status=1)
++++ Running pbench-tarball-stats
+pbench-tarball-stats: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp
+--- Finished pbench-tarball-stats (status=2)
 +++ Running unit test audit
 pbench-audit-server: Bad TMP=/var/tmp/pbench-test-server/test-0.2/pbench-local/tmp (config file /var/tmp/pbench-test-server/test-0.2/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished unit test audit (status=1)

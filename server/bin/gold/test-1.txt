@@ -32,6 +32,9 @@ pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/
 +++ Running pbench-satellite-cleanup
 pbench-satellite-cleanup: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench-satellite/archive/fs-version-001
 --- Finished pbench-satellite-cleanup (status=1)
++++ Running pbench-tarball-stats
+The configured ARCHIVE directory, /var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001, is not a valid directory
+--- Finished pbench-tarball-stats (status=2)
 +++ Running unit test audit
 pbench-audit-server: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished unit test audit (status=1)

@@ -346,6 +346,17 @@ len(actions) = 1
 --- Finished pbench-verify-backup-tarballs (status=0)
 +++ Running pbench-satellite-cleanup
 --- Finished pbench-satellite-cleanup (status=0)
++++ Running pbench-tarball-stats
+Took 0.00 seconds
+                 0 controllers with bad tar balls
+                 0 bad tar balls, total count
+                 0 bad tar balls, total size
+                 6 controllers with good tar balls (-INT- 3, ONE 3)
+                 8 good tar balls, total count (-INT- 5, ONE 3)
+             1,764 good tar balls, total size
+1970:       8 (-INT- 62.50%) (ONE 37.50%)
+1970-01:       8 (-INT- 62.50%) (ONE 37.50%)
+--- Finished pbench-tarball-stats (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1

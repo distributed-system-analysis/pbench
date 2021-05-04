@@ -194,6 +194,15 @@ len(actions) = 1
 --- Finished pbench-verify-backup-tarballs (status=0)
 +++ Running pbench-satellite-cleanup
 --- Finished pbench-satellite-cleanup (status=0)
++++ Running pbench-tarball-stats
+Took 0.00 seconds
+                 0 controllers with bad tar balls
+                 0 bad tar balls, total count
+                 0 bad tar balls, total size
+                 0 controllers with good tar balls
+                 0 good tar balls, total count
+                 0 good tar balls, total size
+--- Finished pbench-tarball-stats (status=0)
 +++ Running unit test audit
 pbench-audit-server: Bad USERS=/var/tmp/pbench-test-server/test-4/pbench/public_html/users
 --- Finished unit test audit (status=1)

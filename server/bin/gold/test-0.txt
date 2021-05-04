@@ -37,6 +37,9 @@ pbench-verify-backup-tarballs: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
 +++ Running pbench-satellite-cleanup
 pbench-satellite-cleanup: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench-satellite (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server-satellite/lib/config/pbench-server.cfg)
 --- Finished pbench-satellite-cleanup (status=1)
++++ Running pbench-tarball-stats
+pbench-tarball-stats: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench
+--- Finished pbench-tarball-stats (status=2)
 +++ Running unit test audit
 pbench-audit-server: Bad TOP=/var/tmp/pbench-test-server/test-0/pbench (config file /var/tmp/pbench-test-server/test-0/opt/pbench-server/lib/config/pbench-server.cfg)
 --- Finished unit test audit (status=1)
