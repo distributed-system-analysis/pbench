@@ -199,8 +199,7 @@ class TestControllersList:
             json, index, HTTPStatus.OK, server_config, json=response_payload
         )
         res_json = response.json
-        assert isinstance(res_json, list)
-        assert len(res_json) == 0
+        assert res_json == []
 
     @pytest.mark.parametrize(
         "exceptions",

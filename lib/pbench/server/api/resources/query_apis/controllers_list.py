@@ -143,10 +143,10 @@ class ControllersList(ElasticBase):
                 return jsonify(controllers)
         except KeyError as e:
             raise PostprocessError(
-                f"Can't find Elasticsearch match data {e} in {es_json}"
+                f"Can't find Elasticsearch match data {e} in {es_json!r}"
             )
         except ValueError as e:
-            raise PostprocessError(f"Elasticsearch hit count {count} value: {e}")
+            raise PostprocessError(f"Elasticsearch hit count {count!r} value: {e}")
         buckets = es_json["aggregations"]["controllers"]["buckets"]
         self.logger.info("{} controllers found", len(buckets))
         for controller in buckets:
