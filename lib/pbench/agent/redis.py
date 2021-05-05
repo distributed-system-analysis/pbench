@@ -222,6 +222,13 @@ class RedisHandler(logging.Handler):
             self.counter += 1
 
 
+# The connection retry interval to use in seconds.
+_CONNECTION_RETRY_INTERVAL = 1
+# The missing key report interval is in multiples of the
+# _CONNECTION_RETRY_INTERVAL.
+_MISSING_KEY_REPORT_INTERVAL = 10
+
+
 def wait_for_conn_and_key(redis_server: redis.Redis, key: str, prog: str) -> str:
     """wait_for_conn_and_key - convenience method of both the Tool Meister and
     the Tool Data Sink to startup and wait for an initial connection to the
@@ -237,7 +244,7 @@ def wait_for_conn_and_key(redis_server: redis.Redis, key: str, prog: str) -> str
 
     If successful on the first connection attempt, and the value of the key is
     retrieved, no messages are issued on stdout.  If the key does not exist yet,
-    we'll report the missing key every 10 seconds from the last successful
+    we'll periodically report the missing key from the last successful
     connection.
 
     If on the first connection attempt the connection to the Redis server fails,
@@ -280,11 +287,11 @@ def wait_for_conn_and_key(redis_server: redis.Redis, key: str, prog: str) -> str
             if payload is not None:
                 break
             connected = True
-            if (missing % 10) == 0:
-                # Only emit missing key notice every 10 seconds
+            if (missing % _MISSING_KEY_REPORT_INTERVAL) == 0:
+                # Only emit missing key notice periodically
                 print(f"{prog}: no payload for key '{key}', yet", flush=True)
             missing += 1
-        time.sleep(1)
+        time.sleep(_CONNECTION_RETRY_INTERVAL)
 
     if attempts > 1:
         # Always report stats if it took multiple attempts.
