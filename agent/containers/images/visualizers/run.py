@@ -79,10 +79,19 @@ metric_type = os.environ["VIS_TYPE"]
 
 if metric_type == "live":
     url = f"http://{os.environ['HOST']}:"
+    prom_url = (
+        f"http://{os.environ['PROM_HOST']}:"
+        if not os.environ["PROM_HOST"] == ""
+        else url
+    )
+    pm_url = (
+        f"http://{os.environ['PM_HOST']}:" if not os.environ["PM_HOST"] == "" else url
+    )
     prom_port = os.environ["PROM_PORT"]
     pm_port = os.environ["PM_PORT"]
 else:
-    url = "http://localhost:"
+    prom_url = "http://localhost:"
+    pm_url = prom_url
     prom_port = "9090"
     pm_port = "44566"
 
@@ -91,7 +100,7 @@ if metric_type == "live" or metric_type == "prom":
     payload = {
         "name": "prometheus",
         "type": "prometheus",
-        "url": url + prom_port,
+        "url": prom_url + prom_port,
         "access": "proxy",
         "basicAuth": False,
     }
@@ -126,7 +135,7 @@ if metric_type == "live" or metric_type == "pcp":
     payload = {
         "name": "PCP Redis",
         "type": "pcp-redis-datasource",
-        "url": url + pm_port,
+        "url": pm_url + pm_port,
         "access": "proxy",
         "basicAuth": False,
     }
@@ -136,7 +145,7 @@ if metric_type == "live" or metric_type == "pcp":
     payload = {
         "name": "PCP Vector",
         "type": "pcp-vector-datasource",
-        "url": url + pm_port,
+        "url": pm_url + pm_port,
         "access": "proxy",
         "basicAuth": False,
     }

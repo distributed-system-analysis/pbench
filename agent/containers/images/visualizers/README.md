@@ -8,6 +8,8 @@
   -   `podman pull pbench/live-metric-visualizer`
   -   `podman run --network host pbench/live-metric-visualizer`
   -   To visualize a run on a remote host, add `-e HOST=<host>`
+    - If prometheus is on a different host, it can be individually set with `-e PROM_HOST=<host>`
+    - If pmproxy is on a different host, it can be individually set with `-e PM_HOST=<host>`
   -   To change to a custom prometheus port, add `-e PROM_PORT=<port>`
   -   To change to a custom pmproxy port, add `-e PM_PORT=<port>`
 

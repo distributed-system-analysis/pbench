@@ -32,6 +32,8 @@ ENV VIS_TYPE="live" \
     COLLECTOR="" \
     HOST="localhost" \
     PROM_PORT="9090" \
-    PM_PORT="44566"
+    PM_PORT="44566" \
+    PROM_HOST="" \
+    PM_HOST=""
 
 CMD ["python3", "run.py"]
