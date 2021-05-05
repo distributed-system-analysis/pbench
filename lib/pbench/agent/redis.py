@@ -250,13 +250,13 @@ def wait_for_conn_and_key(redis_server: redis.Redis, key: str, prog: str) -> str
     attempts = 0
     errors = 0
     missing = 0
-    while payload is None:
+    while True:
         attempts += 1
         try:
             payload = redis_server.get(key)
         except redis.ConnectionError:
             errors += 1
-            # Reset the missing count if we get disconnected
+            # Reset the missing count since we got disconnected
             missing = 0
             if connected is None:
                 # Only emit this message once for the initial attempt.
@@ -264,28 +264,27 @@ def wait_for_conn_and_key(redis_server: redis.Redis, key: str, prog: str) -> str
                     f"{prog}: waiting to connect to Redis server {redis_server}",
                     flush=True,
                 )
-                connected = False
             elif connected:
                 # We always report disconnections.
                 print(
                     f"{prog}: disconnected from Redis server {redis_server}",
                     flush=True,
                 )
-                connected = False
-            time.sleep(1)
+            connected = False
         else:
             if connected is False:
                 # We always report re-connections (connections was not None).
                 print(
                     f"{prog}: connected to Redis server {redis_server}", flush=True,
                 )
+            if payload is not None:
+                break
             connected = True
-            if payload is None:
-                missing += 1
-                if (missing % 10) == 0:
-                    # Only emit missing key notice every 10 seconds
-                    print(f"{prog}: key '{key}' does not exist yet", flush=True)
-                time.sleep(1)
+            if (missing % 10) == 0:
+                # Only emit missing key notice every 10 seconds
+                print(f"{prog}: no payload for key '{key}', yet", flush=True)
+            missing += 1
+        time.sleep(1)
 
     if attempts > 1:
         # Always report stats if it took multiple attempts.
