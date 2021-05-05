@@ -270,7 +270,8 @@ function _verify_output {
                 echo "PASS - ${tname}"
             fi
         else
-            echo "FAIL - ${tname}: PASS output but execution returned unexpected exit status: ${sts}"
+            echo "FAIL - ${tname}: exited with unexpected status: ${sts}" \
+                    " (expected ${expected_status})"
             sts=1
         fi
         rm ${_testout}
