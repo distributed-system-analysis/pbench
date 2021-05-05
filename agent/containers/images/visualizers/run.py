@@ -28,9 +28,15 @@ import subprocess
 # Start the collector (if needed)
 collector_cmd = os.environ["COLLECTOR"]
 if not collector_cmd == "":
-    collector = subprocess.Popen(collector_cmd.split(" "))
+    cmd = collector_cmd.split(" ")
     if os.environ["VIS_TYPE"] == "pcp":
-        subprocess.Popen("redis-server")
+        if not os.environ["REDIS_HOST"] == "":
+            cmd[4] = f"--redishost={os.environ['REDIS_HOST']}"
+            if not os.environ["REDIS_PORT"] == "":
+                cmd[5] = f"--redisport={os.environ['REDIS_PORT']}"
+        else:
+            subprocess.Popen("redis-server")
+        collector = subprocess.Popen(cmd)
         log_path = os.environ["PCP_ARCHIVE_DIR"]
         for item in os.scandir(log_path):
             if os.path.isdir(item):
@@ -42,6 +48,8 @@ if not collector_cmd == "":
                 ]
                 print(args)
                 subprocess.Popen(args)
+    elif os.environ["VIS_TYPE"] == "prom":
+        collector = subprocess.Popen(cmd)
 else:
     collector = None
 

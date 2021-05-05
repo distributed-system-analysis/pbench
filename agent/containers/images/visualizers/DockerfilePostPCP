@@ -4,7 +4,9 @@ FROM quay.io/pbench/live-metric-visualizer:latest
 ENV VIS_TYPE="pcp" \
     COLLECTOR="/usr/libexec/pcp/bin/pmproxy --foreground --timeseries --port=44566 --redishost=localhost --redisport=6379 --config=/etc/pcp/pmproxy/pmproxy.conf" \
     PCP_VERSION="5.2.5-2.fc33" \
-    PCP_ARCHIVE_DIR="/var/log/pcp/pmlogger"
+    PCP_ARCHIVE_DIR="/var/log/pcp/pmlogger" \
+    REDIS_HOST="" \
+    REDIS_PORT=""
 
 RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext pcp-${PCP_VERSION} pcp-zeroconf-${PCP_VERSION} && \
     dnf install -y pcp-doc-${PCP_VERSION} pcp-gui-${PCP_VERSION} pcp-system-tools-${PCP_VERSION} && \

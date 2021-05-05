@@ -44,6 +44,9 @@
 - Directions:
   -   `podman pull pbench/pcp-graf-visualizer`
   -   `podman run --network host -v /<path>/<to>/<pcp_log_folder>/data:/var/log/pcp/pmlogger:Z  pbench/pcp-graf-visualizer`
+  - If you would rather use your own existing redis instance rather than have one launch internally:
+    - You must specify redis host with `-e REDIS_HOST=<port>`
+    - If not on the default port (6379), you can also add `-e REDIS_PORT=<port>`
 
 - NOTES:
   - PCP data (from pcp data tarball in tools-default) is available within pbench results.
