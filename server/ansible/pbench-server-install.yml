@@ -9,6 +9,7 @@
     apache_options: "+Indexes +FollowSymLinks"
 
   roles:
+    - epel_repo_install
     - pbench-repo-install
     - pbench-server-install
     - pbench-server-config
