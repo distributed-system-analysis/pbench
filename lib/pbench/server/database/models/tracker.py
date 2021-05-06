@@ -17,6 +17,7 @@ from sqlalchemy.orm import relationship, validates
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from pbench.server.database.database import Database
+from pbench.server.database.models.users import User
 
 
 class DatasetError(Exception):
@@ -84,10 +85,12 @@ class DatasetBadParameterType(DatasetError):
 
     def __init__(self, bad_value, expected_type):
         self.bad_value = bad_value
-        self.expected_type = expected_type
+        self.expected_type = (
+            expected_type.__name__ if isinstance(expected_type, type) else expected_type
+        )
 
     def __str__(self):
-        return f'Value "{self.bad_value}" ({type(self.bad_value)}) is not a {type(self.expected_type)}'
+        return f'Value "{self.bad_value}" ({type(self.bad_value).__name__}) is not a {self.expected_type}'
 
 
 class DatasetTransitionError(DatasetError):
@@ -314,7 +317,8 @@ class Dataset(Database.Base):
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    owner = Column(String(255), unique=False, nullable=False, default=None)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner = relationship("User")
     controller = Column(String(255), unique=False, nullable=False)
     name = Column(String(255), unique=False, nullable=False)
 
@@ -354,6 +358,33 @@ class Dataset(Database.Base):
         if type(value) is not States:
             raise DatasetBadParameterType(value, States)
         return value
+
+    @validates("owner")
+    def validate_owner(self, key, value):
+        """
+        Validate and translate owner name to User object
+
+        Args:
+            key: owner
+            value: username
+
+        Raises:
+            DatasetBadParameter: the owner value given doesn't resolve to a
+                Pbench username.
+
+        Returns:
+            User object ID
+        """
+        if type(value) is User:
+            return value
+        elif type(value) is str:
+            user = User.query(username=value)
+            if user:
+                return user
+            else:
+                raise DatasetBadParameterType(value, "username")
+        else:
+            raise DatasetBadParameterType(value, "username")
 
     @staticmethod
     def _render_path(patharg=None, controllerarg=None, namearg=None):
@@ -500,7 +531,7 @@ class Dataset(Database.Base):
         Returns:
             string: Representation of the dataset
         """
-        return f"{self.owner}|{self.controller}|{self.name}"
+        return f"{self.owner.username}|{self.controller}|{self.name}"
 
     def advance(self, new_state: States):
         """

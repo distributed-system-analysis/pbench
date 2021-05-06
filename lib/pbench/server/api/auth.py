@@ -31,30 +31,19 @@ class Auth:
     def validate_user(name: str) -> str:
         """
         Encapsulate a query to reject "username" values that don't correspond to
-        a registered user.
-
-        TODO: We need to decide exactly how we're representing our users, and
-        what's mutable. For example, if we allow changing "username" we need to
-        have a stable "userid" field that we use for indexing... in which case
-        this should translate "username" into "userid" for internal use. For
-        now, just return the original username if it was found.
-
-        FIXME: I thought this would be an ArgumentParser "type" so we could
-        do validation during parsing. That's awkward because we need to finish
-        parsing the --config parameter in order to access the config and logger
-        objects required to initialize database access, which needs to be done
-        before we can make a query. Can we work around this without too much
-        mess?
+        a registered user. A valid username is translated to the internal
+        representation for Elasticsearch indexing, which is the stringified
+        user ID number.
 
         Args:
-            :name: The username field of a registered user
+            name: The username field of a registered user
 
         Raises:
             ValueError: The username doesn't correspond to a registered user
             TypeError: Some other error occurred looking for the user
 
         Returns:
-            The specified username if it's valid; does not return on failure
+            The user's ID value (as a string)
         """
         try:
             user = User.query(username=name)
@@ -63,7 +52,7 @@ class Auth:
             raise
         if not user:
             raise UnknownUser(name)
-        return name
+        return str(user.id)
 
     def encode_auth_token(self, token_expire_duration, user_id):
         """

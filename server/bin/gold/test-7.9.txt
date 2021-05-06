@@ -96,7 +96,7 @@ len(actions) = 16
             "@timestamp": "2017-04-21T20:38:16.618515",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "host_tools_info": [
                 {
@@ -163,7 +163,7 @@ len(actions) = 16
             "@timestamp": "2017-04-21T20:38:16.618515",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/",
             "files": [
@@ -196,7 +196,7 @@ len(actions) = 16
             "@timestamp": "2017-04-21T20:38:16.618515",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1",
             "mode": "0o755",
@@ -217,7 +217,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result",
             "files": [
@@ -248,7 +248,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default",
             "mode": "0o755",
@@ -271,7 +271,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144",
             "mode": "0o755",
@@ -295,7 +295,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/iostat",
             "files": [
@@ -357,7 +357,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/iostat/csv",
             "files": [
@@ -432,7 +432,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat",
             "files": [
@@ -508,7 +508,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/mpstat/csv",
             "files": [
@@ -548,7 +548,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/perf",
             "files": [
@@ -617,7 +617,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/perf/perf-percpu",
             "files": [
@@ -650,7 +650,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat",
             "files": [
@@ -768,7 +768,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/pidstat/csv",
             "files": [
@@ -857,7 +857,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/proc-interrupts",
             "files": [
@@ -933,7 +933,7 @@ len(actions) = 16
             ],
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "directory": "/1/reference-result/tools-default/dhcp31-144/proc-interrupts/csv",
             "files": [
@@ -1266,7 +1266,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 0,
@@ -1321,7 +1321,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 0,
@@ -1376,7 +1376,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 0,
@@ -1431,7 +1431,7 @@ len(actions) = 75
             "@timestamp_original": "1492807104000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 1,
@@ -1486,7 +1486,7 @@ len(actions) = 75
             "@timestamp_original": "1492807104000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 1,
@@ -1541,7 +1541,7 @@ len(actions) = 75
             "@timestamp_original": "1492807104000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 1,
@@ -1596,7 +1596,7 @@ len(actions) = 75
             "@timestamp_original": "1492807107000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 2,
@@ -1651,7 +1651,7 @@ len(actions) = 75
             "@timestamp_original": "1492807107000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 2,
@@ -1706,7 +1706,7 @@ len(actions) = 75
             "@timestamp_original": "1492807107000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 2,
@@ -1761,7 +1761,7 @@ len(actions) = 75
             "@timestamp_original": "1492807110000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 3,
@@ -1816,7 +1816,7 @@ len(actions) = 75
             "@timestamp_original": "1492807110000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 3,
@@ -1871,7 +1871,7 @@ len(actions) = 75
             "@timestamp_original": "1492807110000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 3,
@@ -1926,7 +1926,7 @@ len(actions) = 75
             "@timestamp_original": "1492807113000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 4,
@@ -1981,7 +1981,7 @@ len(actions) = 75
             "@timestamp_original": "1492807113000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 4,
@@ -2036,7 +2036,7 @@ len(actions) = 75
             "@timestamp_original": "1492807113000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iostat": {
                 "@idx": 4,
@@ -2091,7 +2091,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2138,7 +2138,7 @@ len(actions) = 75
             "@timestamp_original": "1492807104000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2185,7 +2185,7 @@ len(actions) = 75
             "@timestamp_original": "1492807107000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2232,7 +2232,7 @@ len(actions) = 75
             "@timestamp_original": "1492807110000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2279,7 +2279,7 @@ len(actions) = 75
             "@timestamp_original": "1492807113000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2326,7 +2326,7 @@ len(actions) = 75
             "@timestamp_original": "1492807116000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2373,7 +2373,7 @@ len(actions) = 75
             "@timestamp_original": "1492807119000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2420,7 +2420,7 @@ len(actions) = 75
             "@timestamp_original": "1492807122000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2467,7 +2467,7 @@ len(actions) = 75
             "@timestamp_original": "1492807125000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2514,7 +2514,7 @@ len(actions) = 75
             "@timestamp_original": "1492807128000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2561,7 +2561,7 @@ len(actions) = 75
             "@timestamp_original": "1492807131000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2608,7 +2608,7 @@ len(actions) = 75
             "@timestamp_original": "1492807134000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2655,7 +2655,7 @@ len(actions) = 75
             "@timestamp_original": "1492807137000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2702,7 +2702,7 @@ len(actions) = 75
             "@timestamp_original": "1492807140000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2749,7 +2749,7 @@ len(actions) = 75
             "@timestamp_original": "1492807143000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2796,7 +2796,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2851,7 +2851,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2906,7 +2906,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -2961,7 +2961,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3016,7 +3016,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3071,7 +3071,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3126,7 +3126,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3181,7 +3181,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3236,7 +3236,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3291,7 +3291,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3346,7 +3346,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3401,7 +3401,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3456,7 +3456,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3511,7 +3511,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3566,7 +3566,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101000",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3621,7 +3621,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3660,7 +3660,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3699,7 +3699,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3738,7 +3738,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3777,7 +3777,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3816,7 +3816,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3855,7 +3855,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3894,7 +3894,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3933,7 +3933,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -3972,7 +3972,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -4011,7 +4011,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -4050,7 +4050,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -4089,7 +4089,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -4128,7 +4128,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -4167,7 +4167,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7129807",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -4206,7 +4206,7 @@ len(actions) = 75
             "@timestamp_original": "1492807098.7500932",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -4404,7 +4404,7 @@ len(actions) = 75
             "@timestamp_original": "1492807101.7640526",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -4765,7 +4765,7 @@ len(actions) = 75
             "@timestamp_original": "1492807104.7669783",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -5126,7 +5126,7 @@ len(actions) = 75
             "@timestamp_original": "1492807107.7698412",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -5487,7 +5487,7 @@ len(actions) = 75
             "@timestamp_original": "1492807110.7726846",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -5848,7 +5848,7 @@ len(actions) = 75
             "@timestamp_original": "1492807113.7755005",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -6209,7 +6209,7 @@ len(actions) = 75
             "@timestamp_original": "1492807116.7783818",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -6570,7 +6570,7 @@ len(actions) = 75
             "@timestamp_original": "1492807119.7812595",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -6931,7 +6931,7 @@ len(actions) = 75
             "@timestamp_original": "1492807122.7841673",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -7292,7 +7292,7 @@ len(actions) = 75
             "@timestamp_original": "1492807125.787123",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -7653,7 +7653,7 @@ len(actions) = 75
             "@timestamp_original": "1492807128.790011",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -8014,7 +8014,7 @@ len(actions) = 75
             "@timestamp_original": "1492807131.7927866",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -8375,7 +8375,7 @@ len(actions) = 75
             "@timestamp_original": "1492807134.7957523",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -8736,7 +8736,7 @@ len(actions) = 75
             "@timestamp_original": "1492807137.8056715",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
@@ -9097,7 +9097,7 @@ len(actions) = 75
             "@timestamp_original": "1492807140.808738",
             "authorization": {
                 "access": "private",
-                "owner": "freddie"
+                "owner": "1"
             },
             "iteration": {
                 "name": "1",
