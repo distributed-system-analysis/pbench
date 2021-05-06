@@ -7,6 +7,7 @@ from sqlalchemy import Column, DateTime, Enum, Integer, LargeBinary, String
 from sqlalchemy.orm import relationship, validates
 
 from pbench.server.database.database import Database
+from pbench.server.database.models.active_tokens import ActiveTokens  # noqa[F401]
 
 
 class Roles(enum.Enum):

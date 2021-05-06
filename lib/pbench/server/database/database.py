@@ -1,3 +1,5 @@
+import sys
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,10 +16,11 @@ class Database:
             psql = config.get("Postgres", "db_uri")
             return psql
         except (NoSectionError, NoOptionError):
+            msg = "Failed to find a [Postgres] section in configuration file."
             if logger:
-                logger.error(
-                    "Failed to find a [Postgres] section in configuration file."
-                )
+                logger.error(msg)
+            else:
+                print(msg, file=sys.stderr)
             return None
 
     @staticmethod

@@ -103,12 +103,7 @@ def convert_username(value: str) -> str:
     by validating that the specified username exists, and returns the
     desired internal representation of that user.
 
-    TODO: when we get our user model straightened out, this will
-    convert the external user representation (either username or email
-    address) to whatever internal representation we want to store in
-    the Elasticsearch database, whether that's a SQL row ID or something
-    else. For now, it just validates that the username string is a real
-    user.
+    The internal representation is the user row ID as a string.
 
     Args:
         value: external user representation
