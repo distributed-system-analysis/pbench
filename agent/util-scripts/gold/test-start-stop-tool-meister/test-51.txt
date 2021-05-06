@@ -99,7 +99,7 @@ perf = --record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses
 [tools/testhost.example.com/mpstat]
 options = 
 install_check_status_code = 0
-install_check_output = mpstat: pbench-sysstat-12.0.3 is installed
+install_check_output = mpstat: pbench-sysstat-12.0.3-1 is installed
 
 [tools/testhost.example.com/perf]
 options = --record-opts="-a -freq=100 -g --event=branch-misses --event=cache-misses --event=instructions" --report-opts="-I -g"
@@ -123,8 +123,8 @@ DEBUG pbench-tool-data-sink __enter__ -- web server 'run' thread started, proces
 INFO pbench-tool-data-sink tm_log_capture -- Running Tool Meister log capture ...
 DEBUG pbench-tool-data-sink __enter__ -- 'tm_log_capture' thread started, processing Tool Meister logs ...
 DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-tms
-DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-tms', 'data': b'{"hostname": "testhost.example.com", "hostname_A": "agent.example.com", "hostname_I": "agent.example.com", "hostname_f": "agent.example.com", "hostname_i": "agent.example.com", "hostname_s": "agent.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'}
-DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-tms payload, '{"hostname": "testhost.example.com", "hostname_A": "agent.example.com", "hostname_I": "agent.example.com", "hostname_f": "agent.example.com", "hostname_i": "agent.example.com", "hostname_s": "agent.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'
+DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-tms', 'data': b'{"hostname": "testhost.example.com", "hostname_A": "agent.example.com", "hostname_I": "agent.example.com", "hostname_f": "agent.example.com", "hostname_i": "agent.example.com", "hostname_s": "agent.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3-1 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'}
+DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-tms payload, '{"hostname": "testhost.example.com", "hostname_A": "agent.example.com", "hostname_I": "agent.example.com", "hostname_f": "agent.example.com", "hostname_i": "agent.example.com", "hostname_s": "agent.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3-1 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'
 DEBUG pbench-tool-data-sink execute -- publish pbench-agent-cli-to-client
 DEBUG pbench-tool-data-sink execute -- published pbench-agent-cli-to-client
 DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-client
@@ -253,7 +253,7 @@ testhost.example.com 0025 INFO pbench-tool-meister __exit__ -- testhost.example.
 testhost.example.com 0026 DEBUG pbench-tool-meister _send_client_status -- publish pbench-agent-cli-from-tms {"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}
 --- mock-run/tm/tm.logs file contents
 +++ test-execution.log file contents
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} pbench-sysstat
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR} perf
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n perf
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/cp -rL /etc/ssh/ssh_config.d /var/tmp/pbench-test-utils/pbench/mock-run/
 --- test-execution.log file contents
