@@ -4,6 +4,7 @@ import pytest
 from pathlib import Path
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
+from pbench.server.database.database import Database
 
 
 server_cfg_tmpl = """[DEFAULT]
@@ -95,7 +96,12 @@ def server_config(pytestconfig, monkeypatch):
 
 @pytest.fixture
 def client(server_config):
-    """A test client for the app."""
+    """A test client for the app.
+
+    NOTE: the db_session fixture does something similar, but with implicit
+    cleanup after the test, and without the Flask app setup DB tests don't
+    require.
+    """
     app = create_app(server_config)
 
     app_client = app.test_client()
@@ -117,3 +123,21 @@ def user_ok(monkeypatch):
         return user
 
     monkeypatch.setattr(Auth, "validate_user", ok)
+
+
+@pytest.fixture
+def db_session(server_config):
+    """
+    Construct a temporary DB session for the test case that will reset on
+    completion.
+
+    NOTE: the client fixture does something similar, but without the implicit
+    cleanup, and with the addition of a Flask context that non-API tests don't
+    require.
+
+    Args:
+        server_config: pbench-server.cfg fixture
+    """
+    Database.init_db(server_config, None)
+    yield
+    Database.db_session.remove()

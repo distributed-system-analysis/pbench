@@ -224,7 +224,7 @@ function _dump_logs {
     # Be quiet if there's no database, or if the `dataset` table hasn't been
     # created.
     db=${_testroot}/test_db
-    select='select owner,controller,name,state,(select " " || key || " = " || value from dataset_metadata where dataset_ref = datasets.id) from datasets order by owner,controller,name asc'
+    select='select (select users.username from users where users.id = datasets.owner_id),controller,name,state,(select " " || key || " = " || value from dataset_metadata where dataset_ref = datasets.id) from datasets order by (select users.username from users where users.id = datasets.owner_id),controller,name asc'
     sqlite3 ${db} "${select}" > ${_testdir_local}/db 2>/dev/null
     if [ -s ${_testdir_local}/db ] ;then
         echo "+++ SqliteDB Datasets" >> $_testout
@@ -255,6 +255,16 @@ function _verify_output {
         rm ${_testout} ${_testdiff}
     fi
     return ${res}
+}
+
+function _create_user {
+    name=${1}
+    # NOTE: we ignore failures here deliberately; it'll always fail in
+    # the 0[.x] tests because of intentionally corrupted configuration,
+    # and unintentional failure in other tests will result in visible
+    # symptoms later.
+    python3 ./lib/pbench/cli/server/user_create.py --username=${name} --email=${name}@example.com \
+        --first-name=${name^} --last-name=User --password=password >/dev/null 2>&1
 }
 
 function _setup_state {
@@ -455,7 +465,20 @@ function _setup_state {
     fi
 
     # Setup per-test Dataset DB
+    local _state_db
     _state_db=${_tdir}/state/${1}.db
+
+    local users
+    if [ -f ${_state_db} ]; then
+        users=$(cat ${_state_db} | cut --d ' ' -f 4 | sort -u)
+    else
+        users=
+    fi
+    users="${users} pbench quarantiner satellite"
+    for u in ${users}; do
+        _create_user ${u}
+    done
+
     if [ -f ${_state_db} ]; then
         while read -r controller name state user; do
             pbench-state-manager --create=${user} --controller=${controller} --name=${name} --state=${state}

@@ -96,7 +96,7 @@ len(actions) = 5
             "@timestamp": "2015-09-21T19:31:12.673292",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "host_tools_info": [
                 {
@@ -141,7 +141,7 @@ len(actions) = 5
             "@timestamp": "2015-09-21T19:31:12.673292",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/",
             "files": [
@@ -167,7 +167,7 @@ len(actions) = 5
             "@timestamp": "2015-09-21T19:31:12.673292",
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/sysinfo",
             "mode": "0o775",
@@ -188,7 +188,7 @@ len(actions) = 5
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/sysinfo/foo",
             "mode": "0o775",
@@ -210,7 +210,7 @@ len(actions) = 5
             ],
             "authorization": {
                 "access": "private",
-                "owner": "test"
+                "owner": "1"
             },
             "directory": "/sysinfo/foo/end",
             "files": [

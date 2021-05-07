@@ -19,10 +19,8 @@ from argparse import ArgumentParser
 from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
-from pbench.server.api.auth import Auth, UnknownUser
 from pbench.server.database.database import Database
 from pbench.server.database.models.tracker import Dataset, States
-from pbench.server.database.models.users import User
 
 
 _NAME_ = "pbench-state-manager"
@@ -52,28 +50,7 @@ def main(options):
 
         args = {}
         if options.create:
-            user = options.create
-            try:
-                user = Auth.validate_user(user)
-            except UnknownUser:
-                # FIXME: I don't want to be creating the user here or
-                # dealing with a non-existing user. The unittest setup
-                # should create the test users we want ahead of time
-                # using a pbench-user-manager command and we should
-                # depend on having them here! The following is a hack
-                # until that command exists.
-                #
-                # The desired behavior would be to remove this try and
-                # except and allow UnknownUser to be handled below with
-                # an error message and termination.
-                User(
-                    username=user,
-                    first_name=user.capitalize(),
-                    last_name="Account",
-                    password=f"{user}_password",
-                    email=f"{user}@example.com",
-                ).add()
-            args["owner"] = user
+            args["owner"] = options.create
         if options.controller:
             args["controller"] = options.controller
         if options.path:
