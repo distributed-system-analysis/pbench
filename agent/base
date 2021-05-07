@@ -117,7 +117,7 @@ if [[ -z "${_pbench_full_hostname}" ]]; then
 fi
 validate_hostname "${_pbench_full_hostname}" "_pbench_full_hostname"
 if [[ -z "${_pbench_hostname_ip}" ]]; then
-    export _pbench_hostname_ip=$(hostname -i)
+    export _pbench_hostname_ip=$(hostname -i | awk '{print $1}')
 fi
 validate-ipaddress "${_pbench_hostname_ip}"
 if [[ ${?} -ne 0 ]]; then
