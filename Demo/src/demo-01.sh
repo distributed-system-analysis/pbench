@@ -26,7 +26,7 @@ clear
 printf -- "++++\n\nDemonstration of the Tool Meister sub-system as non-root, containerized.\n\n----\n\n\n"
 
 printf -- "We are using 5 different hosts for this demonstration\n\n"
-printf -- "\t1. 192.168.182.128 - Debian, running the Redis server in a podman container,\n\t\tas my login user, pportant\n\t\tNOTE: the pbench-agent RPM is not installed.\n"
+printf -- "\t1. 192.168.182.128 - Debian, running the Redis server in a podman container,\n\t\tas my login user, kali\n\t\tNOTE: the pbench-agent RPM is not installed.\n"
 printf -- "\t2. 192.168.182.128 - Debian host where I'm running this demonstration\n\t\tscript that will\n\t\t * register tools\n\t\t * collect tool data\n\t\t * performing the above all as **NON-root** user\n\t\tNOTE: the pbench-agent RPM also not installed here, but we'll run from a pbench-agent container.\n"
 printf -- "\t3. 192.168.182.1[29:30] - 2 Debian hosts where I'll run three non-root\n\t\tTool Meister containers\n\t\tNOTE: the pbench-agent RPM is not installed.\n\n\n"
 
@@ -47,7 +47,7 @@ printf -- "\n\nI've created my non-root pbench run directory:\n\n"
 
 find ${pbench_run} -ls
 
-printf -- "\n\nNotice that it is owned by pportant (and I've set the 'pbench_run' ENV to that directory).\n\n"
+printf -- "\n\nNotice that it is owned by kali (and I've set the 'pbench_run' ENV to that directory).\n\n"
 
 wait_keypress 120
 
@@ -80,7 +80,7 @@ wait_keypress 120
 
 # Start Tool Meister containers on remote hosts
 
-printf -- "\n\nNow let's start the three Tool Meister pods running on the gprfc hosts...\n\n\t$ podman run --name pbench-agent-tool-meister \\ \n\t\t--network host --ulimit nofile=65536:65536 --rm -d \\ \n\t\t-e REDIS_HOST=${REDIS_HOST} \\ \n\t\t-e REDIS_PORT=${REDIS_PORT} \\ \n\t\t-e PARAM_KEY=tm-default-\$(hostname -f) \\ \n\t\t-e _PBENCH_TOOL_MEISTER_LOG_LEVEL=debug \\ \n\t\tquay.io/pbench/pbench-agent-tool-meister-${DISTRO}:${TAG}\n\n"
+printf -- "\n\nNow let's start the three Tool Meister pods running on the gprfc hosts...\n\n\t$ podman run --name pbench-agent-tool-meister --network host --ulimit nofile=65536:65536 --rm -d -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e PARAM_KEY=tm-default-\$(hostname -f) -e _PBENCH_TOOL_MEISTER_LOG_LEVEL=debug quay.io/pbench/pbench-agent-tool-meister-${DISTRO}:${TAG}\n\n"
 
 wait_keypress 120
 
