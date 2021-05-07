@@ -1,0 +1,11 @@
+# First run the `demo-01.sh` script giving it the container distro,
+# "fedora-33", and the exact image tag to use (SHA1 git hash).  Then
+# you give the Redis server hostname, the Tool Data Sink hostname, and
+# one more hosts where the Tool Meisters will run.
+./demo-01.sh fedora-33 <SHA-1 git hash> <Redis server> <Tool Data Sink server> <Tool Meister host(s)>, ...
+
+# The script will drop you into a container where the `demo-01-run-pbench.sh`
+# script has been copied to the /var/lib/pbench-agent directory. That script
+# accepts two parameters, the Redis server host name, and an optional Tool Data
+# Sink host name (we is only required if it is different from the Redis server).
+/var/lib/pbench-agent/demo-01-run-pbench.sh <Redis server>:6379 [<Tool Data Sink server>]
