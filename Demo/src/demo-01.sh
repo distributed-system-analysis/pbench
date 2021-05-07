@@ -3,7 +3,7 @@
 # A demonstration of how to use pbench-tool-meister-start with an existing
 # Redis server, and one or more remote
 
-DISTRO="centos-8"
+DISTRO="fedora-33"
 TAG="a933ae45e"
 export REDIS_HOST=192.168.182.128
 export REDIS_PORT=6379
@@ -37,7 +37,7 @@ wait_keypress 120
 # the Tool Data Sink, and how the "sysinfo", "init", and "end" commands
 # operate with respect to data storage.
 
-export pbench_run=${HOME}/demo-tm/run-dir
+export pbench_run=$(pwd)/run-dir
 rm -rf ${pbench_run}
 mkdir ${pbench_run}
 printf -- "${pbench_run}\n" > ${pbench_run}/.path
@@ -101,9 +101,16 @@ wait_keypress 120
 
 printf -- "\n\nStart the Redis server on ${REDIS_HOST}:${REDIS_PORT}\n\t$ podman run --name demo-tm-redis --network host --rm -d redis\n\n\tNote TDS and TMs notice Redis server,\n\tbut now wait for their 'PARAM_KEY' to show up.\n\n"
 
+set -x
+podman run --name redis-server --network host --rm -d redis
+set +x
+
 wait_keypress 120
 
-source /etc/profile.d/pbench-agent.sh
+
+podman run -it --rm --network host --volume ${pbench_run}:/var/lib/pbench-agent:Z quay.io/pbench/pbench-agent-base-fedora-33:a933ae45e /bin/bash
+
+exit 0
 
 echo "sleep-iter-0 10" > ./my-iterations.lis
 echo "sleep-iter-11 11" >> ./my-iterations.lis
@@ -111,6 +118,3 @@ echo "sleep-iter-42 12" >> ./my-iterations.lis
 echo "sleep-iter-42 120" >> ./my-iterations.lis
 
 pbench-user-benchmark --config="my-config-001" --iteration-list=./my-iterations.lis --sysinfo=none -- sleep 10
-
-# Dump our local environment, note we are not running as root.
-find ${pbench_run} -ls | less -S
