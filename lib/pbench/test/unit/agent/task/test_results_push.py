@@ -1,5 +1,6 @@
 import logging
 import os
+from http import HTTPStatus
 
 import requests
 import responses
@@ -18,7 +19,7 @@ class TestResultsPush:
     URL = "http://pbench.example.com/api/v1"
 
     @staticmethod
-    def add_http_mock_response(code: int = 200):
+    def add_http_mock_response(code: HTTPStatus = HTTPStatus.OK):
         responses.add(
             responses.PUT,
             f"{TestResultsPush.URL}/upload/{os.path.basename(tarball)}",
@@ -170,7 +171,7 @@ class TestResultsPush:
         """Test normal operation with the token in an environment variable"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
-        TestResultsPush.add_http_mock_response(404)
+        TestResultsPush.add_http_mock_response(HTTPStatus.NOT_FOUND)
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(

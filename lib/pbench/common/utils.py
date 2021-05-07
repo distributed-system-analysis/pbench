@@ -6,7 +6,7 @@ import hashlib
 from functools import partial
 
 
-def md5sum(filename):
+def md5sum(filename: str) -> (int, str):
     """
     md5sum - return the MD5 check-sum of a given file without reading the
              entire file into memory.

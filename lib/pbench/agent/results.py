@@ -2,13 +2,13 @@ import datetime
 import errno
 import os
 import tarfile
+import urllib.parse
 from configparser import ConfigParser
 from logging import Logger
 from pathlib import Path
 from typing import IO, Iterator
 
 import requests
-from werkzeug.utils import secure_filename
 
 from pbench.agent import PbenchAgentConfig
 from pbench.common.exceptions import BadMDLogFormat
@@ -154,20 +154,21 @@ class CopyResultTb:
     def __init__(
         self, controller: str, tarball: str, config: PbenchAgentConfig, logger: Logger
     ):
-        self.controller = secure_filename(controller)
+        self.controller = controller
         self.tarball = Path(tarball)
         if not self.tarball.exists():
             raise FileNotFoundError(f"Tarball '{self.tarball}' does not exist")
         server_rest_url = config.get("results", "server_rest_url")
-        tbname = secure_filename(self.tarball.name)
-        self.upload_url = f"{server_rest_url}/upload/{tbname}"
+        tbname = self.tarball.name
+        self.upload_url = f"{server_rest_url}/upload/{urllib.parse.quote(tbname)}"
         self.logger = logger
 
     def read_in_chunks(self, file_object: IO) -> Iterator[bytes]:
-        data = file_object.read(self.CHUNK_SIZE)
-        while data:
-            yield data
+        while True:
             data = file_object.read(self.CHUNK_SIZE)
+            if not data:
+                break
+            yield data
 
     def copy_result_tb(self, token: str) -> None:
         """copy_result_tb - copies tb from agent to configured server upload URL

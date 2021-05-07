@@ -1,6 +1,7 @@
 import hashlib
 import os
 import tempfile
+import urllib.parse
 from http import HTTPStatus
 from pathlib import Path
 
@@ -32,8 +33,8 @@ class HostInfo(Resource):
             self.logger.exception(
                 "There was something wrong constructing the host info"
             )
-            abort(500, message="INTERNAL ERROR")
-        response.status_code = 200
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+        response.status_code = HTTPStatus.OK
         return response
 
 
@@ -51,17 +52,20 @@ class Upload(Resource):
         )
 
     @Auth.token_auth.login_required()
-    def put(self, filename_arg):
+    def put(self, filename_arg: str):
         try:
             username = Auth.token_auth.current_user().username
         except Exception:
             self.logger.exception("Error verifying the username")
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
-        filename = secure_filename(filename_arg)
-        if not self.allowed_file(filename):
+        filename = secure_filename(urllib.parse.unquote(filename_arg))
+        if not filename or not self.allowed_file(filename):
             self.logger.warning(
-                "Unsupported file extension for {}, user = {}", filename_arg, username
+                "Unsupported file extension for {} ({}), user = {}",
+                filename_arg,
+                filename,
+                username,
             )
             abort(
                 HTTPStatus.BAD_REQUEST,
@@ -77,6 +81,16 @@ class Upload(Resource):
             )
             abort(HTTPStatus.BAD_REQUEST, message=msg)
         controller = secure_filename(controller_arg)
+        if not controller:
+            msg = "Invalid controller header"
+            self.logger.warning(
+                "{} for user = {}, ctrl = {}, file = {}",
+                msg,
+                username,
+                controller_arg,
+                filename_arg,
+            )
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
 
         md5sum = request.headers.get("Content-MD5")
         if not md5sum:
@@ -166,7 +180,7 @@ class Upload(Resource):
                 filename,
             )
             response = jsonify(dict(message="Dataset already exists"))
-            response.status_code = 200
+            response.status_code = HTTPStatus.OK
             return response
         except Exception:
             self.logger.exception(
@@ -181,9 +195,11 @@ class Upload(Resource):
 
         if tar_full_path.is_file() or md5_full_path.is_file():
             self.logger.error(
-                "Dataset or corresponding md5 file already present on the disc, {}, {}",
+                "Dataset, or corresponding md5 file, already present; tar {} ({}), md5 {} ({})",
                 tar_full_path,
+                "present" if tar_full_path.is_file() else "missing",
                 md5_full_path,
+                "present" if md5_full_path.is_file() else "missing",
             )
             abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
@@ -191,9 +207,9 @@ class Upload(Resource):
 
         self.logger.info(
             "Uploading file {} (user = {}, ctrl = {}) to {}",
+            filename,
             username,
             controller,
-            filename,
             dataset,
         )
 
@@ -213,9 +229,9 @@ class Upload(Resource):
             except Exception:
                 self.logger.exception(
                     "Unexpected error uploading {}, user = {}, ctrl = {}",
+                    filename_arg,
                     username,
                     controller_arg,
-                    filename_arg,
                 )
                 abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
@@ -256,12 +272,12 @@ class Upload(Resource):
                 except FileNotFoundError:
                     pass
                 except Exception as exc:
-                    self.logger.warning(
-                        "Failed to remove .md5 %s when trying to clean up: %s",
+                    self.logger.error(
+                        "Failed to remove .md5 {} when trying to clean up: {}",
                         md5_full_path,
                         exc,
                     )
-                self.logger.exception("Failed to write .md5 file, '%s'", md5_full_path)
+                self.logger.exception("Failed to write .md5 file, '{}'", md5_full_path)
                 raise
 
             # Then create the final filename link to the temporary file.
@@ -271,13 +287,13 @@ class Upload(Resource):
                 try:
                     os.remove(md5_full_path)
                 except Exception as exc:
-                    self.logger.warning(
-                        "Failed to remove .md5 %s when trying to clean up: %s",
+                    self.logger.error(
+                        "Failed to remove .md5 {} when trying to clean up: {}",
                         md5_full_path,
                         exc,
                     )
                 self.logger.exception(
-                    "Failed to rename tar ball '%s' to '%s'", ofp.name, md5_full_path,
+                    "Failed to rename tar ball '{}' to '{}'", ofp.name, md5_full_path,
                 )
                 raise
 
@@ -287,11 +303,11 @@ class Upload(Resource):
             self.logger.exception("Unable to finalize {}", dataset)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         response = jsonify(dict(message="File successfully uploaded"))
-        response.status_code = 201
+        response.status_code = HTTPStatus.CREATED
         return response
 
     @staticmethod
-    def allowed_file(filename):
+    def allowed_file(filename: str) -> str:
         """Check if the file has the correct extension."""
         return filename.endswith(Upload.ALLOWED_EXTENSION)
 
