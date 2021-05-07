@@ -1,0 +1,193 @@
+#!/usr/bin/env python3
+# -*- mode: python -*-
+
+"""Pbench Tar Ball Stats
+
+Scan through the ARCHIVE hierarchy for tar balls and report some
+statistics on them:
+
+  * Total number of controllers
+  * Tar balls per controller (most to least)
+  * Tar balls by month for all years, count
+  * Tar balls by month for all years, total size
+  * Top 10 most recent controllers
+  * Top 10 largest tar balls
+"""
+
+import collections
+import locale
+import os
+import re
+import sys
+
+from datetime import datetime
+from argparse import ArgumentParser
+
+import pbench
+from pbench import (
+    PbenchConfig,
+    BadConfig,
+    get_pbench_logger,
+)
+
+
+_NAME_ = "pbench-tarball-stats"
+
+tb_pat_r = (
+    r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)\.tar\.xz"
+)
+tb_pat = re.compile(tb_pat_r)
+
+
+def gen_tar_balls(archive):
+    """gen_tar_balls - traverse the given ARCHIVE hierarchy looking tar balls,
+    returning information about the tar so that statistics can be generated.
+    """
+    with os.scandir(archive) as archive_scan:
+        for c_entry in archive_scan:
+            if c_entry.name.startswith(".") and c_entry.is_dir(follow_symlinks=False):
+                continue
+            if not c_entry.is_dir(follow_symlinks=False):
+                # NOTE: the pbench-audit-server should pick up and flag this
+                # unwanted condition.
+                continue
+            # We have a controller directory.
+            with os.scandir(c_entry.path) as controller_scan:
+                for entry in controller_scan:
+                    if entry.name.startswith(".") and entry.is_dir(
+                        follow_symlinks=False
+                    ):
+                        continue
+                    if not entry.is_file():
+                        # NOTE: the pbench-audit-server should pick up and
+                        # flag this unwanted condition.
+                        continue
+                    match = tb_pat.fullmatch(entry.name)
+                    if match:
+                        # Turn the pattern components of the match into a datetime
+                        # object.
+                        tb_dt = datetime(
+                            int(match.group(1)),
+                            int(match.group(2)),
+                            int(match.group(3)),
+                            int(match.group(4)),
+                            int(match.group(5)),
+                            int(match.group(6)),
+                        )
+                    else:
+                        if entry.name.endswith(".md5"):
+                            continue
+                        tb_dt = None
+                    yield c_entry.name, entry.name, tb_dt, entry.stat()
+
+
+def main(options):
+    locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
+    if not options.cfg_name:
+        print(
+            f"{_NAME_}: ERROR: No config file specified; set"
+            " _PBENCH_SERVER_CONFIG env variable",
+            file=sys.stderr,
+        )
+        return 1
+
+    try:
+        config = PbenchConfig(options.cfg_name)
+    except BadConfig as e:
+        print(f"{_NAME_}: {e}", file=sys.stderr)
+        return 2
+
+    logger = get_pbench_logger(_NAME_, config)
+
+    archive = config.ARCHIVE
+    archive_p = os.path.realpath(archive)
+
+    if not archive_p:
+        logger.error("The configured ARCHIVE directory, {}, does not exist", archive)
+        return 3
+
+    if not os.path.isdir(archive_p):
+        logger.error(
+            "The configured ARCHIVE directory, {}, is not a valid directory", archive
+        )
+        return 4
+
+    invalid_cnt = 0
+    invalid_size = 0
+    invalid = collections.defaultdict(list)
+
+    good_cnt = 0
+    good_size = 0
+    good = collections.defaultdict(list)
+
+    ec2_cnt = 0
+    rh_cnt = 0
+
+    by_year = collections.defaultdict(list)
+    by_month = collections.defaultdict(list)
+
+    start = pbench._time()
+
+    gen = gen_tar_balls(archive_p)
+
+    for tb_rec in gen:
+        if tb_rec[2] is None:
+            invalid[tb_rec[0]].append(tb_rec)
+            invalid_cnt += 1
+            invalid_size += tb_rec[3].st_size
+        else:
+            good[tb_rec[0]].append(tb_rec)
+            good_cnt += 1
+            good_size += tb_rec[3].st_size
+            if tb_rec[0].startswith("EC2::"):
+                ec2_cnt += 1
+            else:
+                rh_cnt += 1
+            year = tb_rec[2].year
+            by_year[year].append(tb_rec)
+            month = tb_rec[2].month
+            ym = f"{year:4d}-{month:02d}"
+            by_month[ym].append(tb_rec)
+
+    time_sec = pbench._time() - start
+
+    print(f"Took {time_sec:0.2f} seconds")
+
+    print(f"{len(invalid.keys()):18n} controllers with bad tar balls")
+    print(f"{invalid_cnt:18n} bad tar balls, total count")
+    print(f"{invalid_size:18n} bad tar balls, total size")
+
+    print(
+        f"{len(good.keys()):18n} controllers with good tar balls (EC2 {ec2_cnt:n}, RH {rh_cnt:n})"
+    )
+    print(f"{good_cnt:18n} good tar balls, total count")
+    print(f"{good_size:18n} good tar balls, total size")
+
+    for year, y_list in sorted(by_year.items()):
+        count = len(y_list)
+        ec2_cnt = 0
+        for y in y_list:
+            if y[0].startswith("EC2::"):
+                ec2_cnt += 1
+        pct_ec2 = (ec2_cnt / count) * 100.0
+        print(f"{year}: {count:7n} (%EC2 {pct_ec2:0.02f})")
+
+    for month, m_list in sorted(by_month.items()):
+        count = len(m_list)
+        ec2_cnt = 0
+        for m in m_list:
+            if m[0].startswith("EC2::"):
+                ec2_cnt += 1
+        pct_ec2 = (ec2_cnt / count) * 100.0
+        print(f"{month}: {count:7n} (%EC2 {pct_ec2:0.02f})")
+
+    return 0
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser(f"Usage: {_NAME_} [--config <path-to-config-file>]")
+    parser.add_argument("-C", "--config", dest="cfg_name", help="Specify config file")
+    parser.set_defaults(cfg_name=os.environ.get("_PBENCH_SERVER_CONFIG"))
+    parsed = parser.parse_args()
+    status = main(parsed)
+    sys.exit(status)
