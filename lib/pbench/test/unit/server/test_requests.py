@@ -124,7 +124,7 @@ class TestUpload:
             assert response.status_code == 400
             assert response.json.get("message") == expected_message
             for record in caplog.records:
-                assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+                assert record.levelname not in ("ERROR", "CRITICAL")
 
     @staticmethod
     def test_missing_md5sum_header_upload(client, caplog, server_config):
@@ -142,7 +142,7 @@ class TestUpload:
             assert response.status_code == 400
             assert response.json.get("message") == expected_message
             for record in caplog.records:
-                assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+                assert record.levelname not in ("ERROR", "CRITICAL")
 
     @staticmethod
     def test_mismatched_md5sum_header(client, caplog, server_config):
@@ -187,7 +187,7 @@ class TestUpload:
             assert response.status_code == 400
             assert response.json.get("message") == expected_message
             for record in caplog.records:
-                assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+                assert record.levelname not in ("ERROR", "CRITICAL")
 
     @staticmethod
     def test_invalid_authorization_upload(client, caplog, server_config):
@@ -232,7 +232,7 @@ class TestUpload:
             assert response.status_code == 400
             assert response.json.get("message") == expected_message
             for record in caplog.records:
-                assert record.levelname not in ("WARNING", "ERROR", "CRITICAL")
+                assert record.levelname not in ("ERROR", "CRITICAL")
 
     @staticmethod
     def test_upload(client, pytestconfig, caplog, server_config):
