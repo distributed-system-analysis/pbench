@@ -112,9 +112,9 @@ podman run -it --rm --network host --volume ${pbench_run}:/var/lib/pbench-agent:
 
 exit 0
 
-echo "sleep-iter-0 10" > ./my-iterations.lis
-echo "sleep-iter-11 11" >> ./my-iterations.lis
-echo "sleep-iter-42 12" >> ./my-iterations.lis
-echo "sleep-iter-42 120" >> ./my-iterations.lis
+echo "sleep-iter-0 10" > ${pbench_run}/my-iterations.lis
+echo "sleep-iter-11 11" >> ${pbench_run}/my-iterations.lis
+echo "sleep-iter-42 12" >> ${pbench_run}/my-iterations.lis
+echo "sleep-iter-42 120" >> ${pbench_run}/my-iterations.lis
 
-pbench-user-benchmark --config="my-config-001" --iteration-list=./my-iterations.lis --sysinfo=none -- sleep 10
+pbench-user-benchmark --config="my-config-001" --iteration-list=${pbench_run}/my-iterations.lis --sysinfo=none -- sleep 10
