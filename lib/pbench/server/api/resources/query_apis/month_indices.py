@@ -4,6 +4,7 @@ from typing import Any, AnyStr, Dict
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.query_apis import ElasticBase, Schema
+from pbench.server.database.models.template import Template
 
 
 class MonthIndices(ElasticBase):
@@ -13,6 +14,9 @@ class MonthIndices(ElasticBase):
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(config, logger, Schema())
+        template = Template.find("run")
+        self.template_name = template.template_name + "."
+        self.logger.info("month index key is {}", self.template_name)
 
     def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
         """
@@ -25,10 +29,9 @@ class MonthIndices(ElasticBase):
 
     def postprocess(self, es_json: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
         months = []
-        target = f"{self.prefix}.v6.run-data."
-        self.logger.info("looking for {} in {}", target, es_json)
+        self.logger.debug("looking for {} in {}", self.template_name, es_json)
         for index in es_json.keys():
-            if target in index:
+            if self.template_name in index:
                 months.append(index.split(".")[-1])
         months.sort(reverse=True)
         self.logger.info("found months {!r}", months)

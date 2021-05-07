@@ -118,7 +118,7 @@ class TestDatasetsDetail:
             == "Value '2020-19' (str) cannot be parsed as a date/time string"
         )
 
-    def test_query(self, client, server_config, query_helper, user_ok):
+    def test_query(self, client, server_config, query_helper, user_ok, find_template):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.
@@ -237,7 +237,9 @@ class TestDatasetsDetail:
         }
         assert expected == res_json
 
-    def test_empty_query(self, client, server_config, query_helper, user_ok):
+    def test_empty_query(
+        self, client, server_config, query_helper, user_ok, find_template
+    ):
         """
         Check the handling of a query that doesn't return any data.
         """
@@ -261,7 +263,9 @@ class TestDatasetsDetail:
         )
         assert response.json["message"].find("dataset has gone missing") != -1
 
-    def test_nonunique_query(self, client, server_config, query_helper, user_ok):
+    def test_nonunique_query(
+        self, client, server_config, query_helper, user_ok, find_template
+    ):
         """
         Check the handling of a query that returns too much data.
         """
@@ -307,7 +311,9 @@ class TestDatasetsDetail:
             {"exception": Exception, "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
-    def test_http_error(self, client, server_config, query_helper, exceptions, user_ok):
+    def test_http_error(
+        self, client, server_config, query_helper, exceptions, user_ok, find_template
+    ):
         """
         test_http_error Check that an Elasticsearch error is reported
         correctly.

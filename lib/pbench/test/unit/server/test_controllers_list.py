@@ -111,7 +111,7 @@ class TestControllersList:
             == "Value '2020-19' (str) cannot be parsed as a date/time string"
         )
 
-    def test_query(self, client, server_config, query_helper, user_ok):
+    def test_query(self, client, server_config, query_helper, user_ok, find_template):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.
@@ -174,7 +174,9 @@ class TestControllersList:
         assert res_json[1]["last_modified_value"] == 1.6
         assert res_json[1]["last_modified_string"] == "2020-09-26T20:19:15.810Z"
 
-    def test_empty_query(self, client, server_config, query_helper, user_ok):
+    def test_empty_query(
+        self, client, server_config, query_helper, user_ok, find_template
+    ):
         """
         Check proper handling of a query resulting in no Elasticsearch matches.
         """
@@ -223,7 +225,9 @@ class TestControllersList:
             {"exception": Exception, "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
-    def test_http_error(self, client, server_config, query_helper, exceptions, user_ok):
+    def test_http_error(
+        self, client, server_config, query_helper, exceptions, user_ok, find_template
+    ):
         """
         test_http_error Check that an Elasticsearch error is reported
         correctly.

@@ -14,6 +14,7 @@ from flask_restful import Resource, abort
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
+from pbench.server.database.models.template import Template
 
 
 class SchemaError(TypeError):
@@ -346,36 +347,36 @@ class ElasticBase(Resource):
         /_search query URI.
 
         The month is incremented by 1 from "start" to "end"; for example,
-        _gen_month_range('v4.run.', '2020-08', '2020-10') will result
+        _gen_month_range('run', '2020-08', '2020-10') might result
         in
 
             'drb.v4.run.2020-08,drb.v4.run.2020-09,drb.v4.run.2020-10,'
 
         Args:
-            index: The desired monthly index root
+            index: The desired monthly index root (e.g., 'run')
             start: The start time
             end: The end time
 
         Returns:
             A comma-separated list of month-qualified index names
         """
-        monthResults = list()
-        queryString = ""
+        template = Template.find(index)
+        indices = ""
         first_month = start.replace(day=1)
         last_month = end + relativedelta(day=31)
         for m in rrule.rrule(rrule.MONTHLY, dtstart=first_month, until=last_month):
-            monthResults.append(m.strftime("%Y-%m"))
-
-        # TODO: hardcoding the index here is risky. We need a framework to
-        # help the web services understand index versions and template
-        # formats, probably by building a persistent database from the
-        # index template documents at startup. This is TBD.
-        for monthValue in monthResults:
-            if index == "v4.result-data.":
-                queryString += f"{self.prefix + index + monthValue}-*,"
-            else:
-                queryString += f"{self.prefix + index + monthValue},"
-        return queryString
+            indices += (
+                template.index_template.format(
+                    prefix=self.prefix,
+                    version=template.version,
+                    idxname=template.idxname,
+                    year=f"{m.year:04}",
+                    month=f"{m.month:02}",
+                    day="*",
+                )
+                + ","
+            )
+        return indices
 
     def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
         """

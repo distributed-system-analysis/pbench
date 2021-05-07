@@ -52,6 +52,7 @@ from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
+from pbench.server.database.database import Database
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Entry
 
@@ -290,6 +291,10 @@ def main():
         return 1
 
     logger = get_pbench_logger(_NAME_, config)
+
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    Database.init_db(config, logger)
 
     # add a BACKUP field to the config object
     config.BACKUP = backup = config.conf.get("pbench-server", "pbench-backup-dir")

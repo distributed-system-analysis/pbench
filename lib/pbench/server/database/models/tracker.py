@@ -1,7 +1,8 @@
 import datetime
 import enum
-from pathlib import Path
 import os
+from pathlib import Path
+from typing import Any, Tuple
 
 from sqlalchemy import (
     Column,
@@ -38,12 +39,12 @@ class DatasetSqlError(DatasetError):
     original SQLAlchemy exception.
     """
 
-    def __init__(self, operation, controller, name):
+    def __init__(self, operation: str, controller: str, name: str):
         self.operation = operation
         self.controller = controller
         self.name = name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Error {self.operation} dataset {self.controller}|{self.name}"
 
 
@@ -52,7 +53,7 @@ class DatasetDuplicate(DatasetError):
     DatasetDuplicate Attempt to create a Dataset that already exists.
     """
 
-    def __init__(self, controller, name):
+    def __init__(self, controller: str, name: str):
         self.controller = controller
         self.name = name
 
@@ -65,11 +66,11 @@ class DatasetNotFound(DatasetError):
     DatasetNotFound Attempt to attach to a Dataset that doesn't exist.
     """
 
-    def __init__(self, controller, name):
+    def __init__(self, controller: str, name: str):
         self.controller = controller
         self.name = name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"No dataset {self.controller}|{self.name}"
 
 
@@ -82,11 +83,11 @@ class DatasetBadParameterType(DatasetError):
     type.
     """
 
-    def __init__(self, bad_value, expected_type):
+    def __init__(self, bad_value: Any, expected_type: Any):
         self.bad_value = bad_value
         self.expected_type = expected_type
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'Value "{self.bad_value}" ({type(self.bad_value)}) is not a {type(self.expected_type)}'
 
 
@@ -109,11 +110,11 @@ class DatasetTerminalStateViolation(DatasetTransitionError):
     the current and requested new states.
     """
 
-    def __init__(self, dataset, requested_state):
+    def __init__(self, dataset: "Dataset", requested_state: "States"):
         self.dataset = dataset
         self.requested_state = requested_state
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Dataset {self.dataset} state {self.dataset.state} is terminal and cannot be advanced to {self.requested_state}"
 
 
@@ -126,11 +127,11 @@ class DatasetBadStateTransition(DatasetTransitionError):
     the current and requested new states.
     """
 
-    def __init__(self, dataset, requested_state):
+    def __init__(self, dataset: "Dataset", requested_state: "States"):
         self.dataset = dataset
         self.requested_state = requested_state
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Dataset {self.dataset} desired state {self.requested_state} is not allowed from current state {self.dataset.state}"
 
 
@@ -140,11 +141,11 @@ class MetadataError(DatasetError):
                 is never raised directly, but may be used in "except" clauses.
     """
 
-    def __init__(self, dataset, key):
+    def __init__(self, dataset: "Dataset", key: str):
         self.dataset = dataset
         self.key = key
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Generic error on {self.dataset} key {self.key}"
 
 
@@ -157,11 +158,11 @@ class MetadataSqlError(MetadataError):
     SQLAlchemy exception.
     """
 
-    def __init__(self, operation, dataset, key):
+    def __init__(self, operation: str, dataset: "Dataset", key: str):
         self.operation = operation
         super().__init__(dataset, key)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Error {self.operation} {self.dataset} key {self.key}"
 
 
@@ -174,10 +175,10 @@ class MetadataNotFound(MetadataError):
     specified.
     """
 
-    def __init__(self, dataset, key):
+    def __init__(self, dataset: "Dataset", key: str):
         super().__init__(dataset, key)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"No metadata {self.key} for {self.dataset}"
 
 
@@ -194,10 +195,10 @@ class MetadataMissingParameter(MetadataKeyError):
     MetadataMissingParameter A Metadata required parameter was not specified.
     """
 
-    def __init__(self, what):
+    def __init__(self, what: str):
         self.what = what
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Metadata must specify a {self.what}"
 
 
@@ -208,10 +209,10 @@ class MetadataBadKey(MetadataKeyError):
     The error text will identify the metadata key that was specified.
     """
 
-    def __init__(self, key):
+    def __init__(self, key: str):
         self.key = key
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Metadata key {self.key} is not supported"
 
 
@@ -222,10 +223,10 @@ class MetadataMissingKeyValue(MetadataKeyError):
     The error text will identify the metadata key that was specified.
     """
 
-    def __init__(self, key):
+    def __init__(self, key: str):
         self.key = key
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Metadata key {self.key} value is required"
 
 
@@ -238,10 +239,10 @@ class MetadataDuplicateKey(MetadataError):
     specified.
     """
 
-    def __init__(self, dataset, key):
+    def __init__(self, dataset: "Dataset", key: str):
         super().__init__(dataset, key)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.dataset} already has metadata key {self.key}"
 
 
@@ -277,7 +278,7 @@ class States(enum.Enum):
         self.friendly = friendly
         self.mutating = mutating
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Return the state's friendly name
         """
@@ -347,7 +348,7 @@ class Dataset(Database.Base):
     __table_args__ = (UniqueConstraint("controller", "name"), {})
 
     @validates("state")
-    def validate_state(self, key, value):
+    def validate_state(self, key: str, value: Any) -> Any:
         """Validate that the value provided for the Dataset state is a member
         of the States ENUM before it's applied by the SQLAlchemy constructor.
         """
@@ -356,7 +357,7 @@ class Dataset(Database.Base):
         return value
 
     @staticmethod
-    def _render_path(patharg=None, controllerarg=None, namearg=None):
+    def _render_path(patharg=None, controllerarg=None, namearg=None) -> Tuple[str, str]:
         """
         _render_path Process a `path` string and convert it into `controller`
         and/or `name` strings.
@@ -405,10 +406,10 @@ class Dataset(Database.Base):
         return controller_result, name_result
 
     @staticmethod
-    def create(**kwargs):
+    def create(**kwargs) -> "Dataset":
         """
         create A simple factory method to construct a new Dataset object and
-        add it to the database. Errors are hidden here, and we return None.
+        add it to the database.
 
         Args:
             kwargs (dict):
@@ -425,8 +426,7 @@ class Dataset(Database.Base):
                 "state": The initial state of the new dataset.
 
         Returns:
-            Dataset: A new Dataset object initialized with the keyword
-            parameters. (See `__init__` for details.)
+            A new Dataset object initialized with the keyword parameters.
         """
         try:
             dataset = Dataset(**kwargs)
@@ -439,7 +439,7 @@ class Dataset(Database.Base):
         return dataset
 
     @staticmethod
-    def attach(path=None, controller=None, name=None, state=None):
+    def attach(path=None, controller=None, name=None, state=None) -> "Dataset":
         """
         attach Attempt to fetch dataset for the controller and dataset name,
         or using a specified file path (see _render_path and the path_init
@@ -493,7 +493,7 @@ class Dataset(Database.Base):
             dataset.advance(state)
         return dataset
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         __str__ Return a string representation of the dataset
 
@@ -619,7 +619,7 @@ class Metadata(Database.Base):
     )
 
     @validates("key")
-    def validate_key(self, key, value):
+    def validate_key(self, key: str, value: Any) -> Any:
         """Validate that the value provided for the Metadata key argument is an
         allowed name.
         """
@@ -628,7 +628,7 @@ class Metadata(Database.Base):
         return value
 
     @staticmethod
-    def create(**kwargs):
+    def create(**kwargs) -> "Metadata":
         if "dataset" not in kwargs:
             raise MetadataMissingParameter("dataset")
         dataset = kwargs.get("dataset")
@@ -647,7 +647,7 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
-    def get(dataset: Dataset, key: str):
+    def get(dataset: Dataset, key: str) -> "Metadata":
         try:
             meta = (
                 Database.db_session.query(Metadata)
@@ -683,7 +683,7 @@ class Metadata(Database.Base):
             Metadata.logger.exception("Can't remove {}>>{} from DB", dataset, key)
             raise MetadataSqlError("deleting", dataset, key) from e
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.dataset}>>{self.key}"
 
     def add(self, dataset: Dataset):

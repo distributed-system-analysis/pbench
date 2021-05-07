@@ -29,9 +29,10 @@ from argparse import ArgumentParser
 from configparser import ConfigParser, NoOptionError
 
 import pbench.server
-from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
+from pbench.server import PbenchServerConfig
+from pbench.server.database.database import Database
 from pbench.server.indexer import _STD_DATETIME_FMT
 from pbench.server.report import Report
 
@@ -326,6 +327,10 @@ def main(options):
         return 2
 
     logger = get_pbench_logger(_NAME_, config)
+
+    # We're going to need the Postgres DB to track dataset state, so setup
+    # DB access.
+    Database.init_db(config, logger)
 
     archivepath = config.ARCHIVE
 
