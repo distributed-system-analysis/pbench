@@ -2,56 +2,68 @@
 Starts by starting up grafana server, as well as any collectors (prometheus, pmproxy) if needed.
 
 Then sets up all grafana plugins, data sources, and dashboards through grafana API.
-Chooses what to upload/enable based off VIS_TYPE environment variable.
+Chooses what to upload/enable based off the visualizer type argument.
 
-If VIS_TYPE is 'live' (default for live-metric-visualizer):
+If the type is 'live' (default for live-metric-visualizer):
     - Node exporter/DCGM dashboards will be uploaded and enabled
     - Prometheus data source will be configured
     - Grafana-pcp plugin will be enabled
     - PCP redis and vector datasources will be configured
     - PCP default dashboards will be enabled
-If VIS_TYPE is 'prom' (default for prom-graf-visualizer):
+If the type is 'prom' (default for prom-graf-visualizer):
     - Node exporter/DCGM dashboards will be uploaded and enabled
     - Prometheus data source will be configured
-If VIS_TYPE is 'pcp' (default for soon-to-come pcp-graf-visualizer):
+If the type is 'pcp' (default for soon-to-come pcp-graf-visualizer):
     - Grafana-pcp plugin will be enabled
     - PCP redis and vector datasources will be configured
     - PCP default dashboards will be enabled
 """
 
 import os
+import sys
 import json
 import requests
 import time
 import subprocess
 
 # Start the collector (if needed)
-collector_cmd = os.environ["COLLECTOR"]
-if not collector_cmd == "":
-    cmd = collector_cmd.split(" ")
-    if os.environ["VIS_TYPE"] == "pcp":
-        if not os.environ["REDIS_HOST"] == "":
-            cmd[4] = f"--redishost={os.environ['REDIS_HOST']}"
-            if not os.environ["REDIS_PORT"] == "":
-                cmd[5] = f"--redisport={os.environ['REDIS_PORT']}"
-        else:
-            subprocess.Popen("redis-server")
-        collector = subprocess.Popen(cmd)
-        log_path = os.environ["PCP_ARCHIVE_DIR"]
-        for item in os.scandir(log_path):
-            if os.path.isdir(item):
-                rec_path = os.path.join(log_path, item.name)
-                args = [
-                    "pmseries",
-                    "--load",
-                    rec_path,
-                ]
-                print(args)
-                subprocess.Popen(args)
-    elif os.environ["VIS_TYPE"] == "prom":
-        collector = subprocess.Popen(cmd)
-else:
-    collector = None
+collector = None
+metric_type = sys.argv[1]
+if metric_type == "pcp":
+    cmd = [
+        "/usr/libexec/pcp/bin/pmproxy",
+        "--foreground",
+        "--timeseries",
+        "--port=44566",
+        "--redishost=localhost",
+        "--redisport=6379",
+        "--config=/etc/pcp/pmproxy/pmproxy.conf",
+    ]
+    if not os.environ["REDIS_HOST"] == "":
+        cmd[4] = f"--redishost={os.environ['REDIS_HOST']}"
+        if not os.environ["REDIS_PORT"] == "":
+            cmd[5] = f"--redisport={os.environ['REDIS_PORT']}"
+    else:
+        subprocess.Popen("redis-server")
+    collector = subprocess.Popen(cmd)
+    log_path = "/var/log/pcp/pmlogger"
+    for item in os.scandir(log_path):
+        if os.path.isdir(item):
+            rec_path = os.path.join(log_path, item.name)
+            args = [
+                "pmseries",
+                "--load",
+                rec_path,
+            ]
+            print(args)
+            subprocess.Popen(args)
+elif metric_type == "prom":
+    cmd = [
+        f"./prometheus",
+        "--config.file=/data/prometheus.yml",
+        "--storage.tsdb.path=/data",
+    ]
+    collector = subprocess.Popen(cmd)
 
 # Start the grafana server
 args = [
@@ -83,10 +95,12 @@ response = requests.post(
 token = json.loads(response.content.decode("utf-8"))["key"]
 headers["Authorization"] = f"Bearer {token}"
 
-metric_type = os.environ["VIS_TYPE"]
-
 if metric_type == "live":
-    url = f"http://{os.environ['HOST']}:"
+    url = (
+        f"http://{os.environ['HOST']}:"
+        if not os.environ["HOST"] == ""
+        else "http://localhost:"
+    )
     prom_url = (
         f"http://{os.environ['PROM_HOST']}:"
         if not os.environ["PROM_HOST"] == ""
@@ -95,8 +109,8 @@ if metric_type == "live":
     pm_url = (
         f"http://{os.environ['PM_HOST']}:" if not os.environ["PM_HOST"] == "" else url
     )
-    prom_port = os.environ["PROM_PORT"]
-    pm_port = os.environ["PM_PORT"]
+    prom_port = os.environ["PROM_PORT"] if not os.environ["PROM_PORT"] == "" else "9090"
+    pm_port = os.environ["PM_PORT"] if not os.environ["PM_PORT"] == "" else "44566"
 else:
     prom_url = "http://localhost:"
     pm_url = prom_url

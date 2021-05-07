@@ -3,7 +3,7 @@ FROM fedora:33
 
 WORKDIR /
 
-ENV GRAFANA_VERSION=7.3.6-1
+ARG GRAFANA_VERSION=7.3.6-1
 
 RUN dnf install -y wget python3-pip && \
     pip3 install requests && \
@@ -28,12 +28,10 @@ ENV PATH=/usr/share/grafana/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 
 EXPOSE 3000
 
-ENV VIS_TYPE="live" \
-    COLLECTOR="" \
-    HOST="localhost" \
-    PROM_PORT="9090" \
-    PM_PORT="44566" \
+ENV HOST="" \
+    PROM_PORT="" \
+    PM_PORT="" \
     PROM_HOST="" \
     PM_HOST=""
 
-CMD ["python3", "run.py"]
+CMD ["python3", "run.py", "live"]
