@@ -4,7 +4,8 @@ from flask_restful import Resource, abort
 from flask_bcrypt import check_password_hash
 from email_validator import EmailNotValidError
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from pbench.server.database.models.users import User
+from sqlalchemy.orm.exc import NoResultFound
+from pbench.server.database.models.users import User, AdminUserDeletion
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.api.auth import Auth
 
@@ -469,20 +470,23 @@ class UserAPI(Resource):
             abort(403, message="Not authorized to delete user")
 
         try:
-            user = User.query(username=username)
-            # Do not delete if the user is admin
-            if not user.is_admin():
-                User.delete(username)
+            User.delete(username)
+            self.logger.info("User entry deleted for user with username {}", username)
+        except NoResultFound:
+            self.logger.info(
+                "Delete operation on non-existent user '{}'", username,
+            )
+            abort(404, message="User not found")
+        except AdminUserDeletion:
+            self.logger.info(
+                "Delete operation on an admin user '{}'", username,
+            )
+            abort(403, message=f"User {username} can not be deletd")
         except Exception:
             self.logger.exception(
                 "Exception occurred during deleting the user entry for user '{}'",
                 username,
             )
             abort(500, message="INTERNAL ERROR")
-        else:
-            if user.is_admin():
-                self.logger.warning("Admin attempted to delete admin user")
-                abort(403, message="Admin user can not be deleted")
-            self.logger.info("User entry deleted for user with username {}", username)
 
         return "", 200
