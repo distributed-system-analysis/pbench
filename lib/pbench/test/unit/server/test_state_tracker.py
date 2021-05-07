@@ -43,7 +43,7 @@ class TestStateTracker:
         """ Test dataset contructor
         """
         user = create_user
-        ds = Dataset(owner="test", controller="frodo", name="fio")
+        ds = Dataset(owner=user.username, controller="frodo", name="fio")
         ds.add()
         assert ds.owner == user
         assert ds.controller == "frodo"
@@ -52,34 +52,48 @@ class TestStateTracker:
         assert ds.md5 is None
         assert ds.created <= ds.transition
         assert ds.id is not None
-        assert "test|frodo|fio" == str(ds)
+        assert "test(1)|frodo|fio" == str(ds)
+
+    def test_dataset_survives_user(self, db_session, create_user):
+        """The Dataset isn't automatically removed when the referenced
+        user is removed.
+        """
+        user = create_user
+        ds = Dataset(owner=user.username, controller="frodo", name="fio")
+        ds.add()
+        User.delete(username=user.username)
+        ds1 = Dataset.attach(controller="frodo", name="fio")
+        assert ds1 == ds
 
     def test_construct_bad_owner(self):
         """Test with a non-existent username
         """
         with pytest.raises(DatasetBadParameterType):
-            Dataset(
-                owner="notme",
-                controller="harry",
-                name="henderson",
-                state=States.UPLOADED,
-            )
+            Dataset(owner="notme", controller="frodo", name="fio")
 
     def test_construct_bad_state(self, db_session, create_user):
         """Test with a non-States state value
         """
         with pytest.raises(DatasetBadParameterType):
-            Dataset(owner="test", controller="potter", name="harry", state="notStates")
+            Dataset(
+                owner=create_user.username,
+                controller="frodo",
+                name="fio",
+                state="notStates",
+            )
 
     def test_attach_exists(self, db_session, create_user):
         """ Test that we can attach to a dataset
         """
         ds1 = Dataset(
-            owner="test", controller="frodo", name="fido", state=States.INDEXING
+            owner=create_user.username,
+            controller="frodo",
+            name="fio",
+            state=States.INDEXING,
         )
         ds1.add()
 
-        ds2 = Dataset.attach(controller="frodo", name="fido", state=States.INDEXED)
+        ds2 = Dataset.attach(controller="frodo", name="fio", state=States.INDEXED)
         assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name
@@ -99,11 +113,13 @@ class TestStateTracker:
         dataset created by file path.
         """
         ds1 = Dataset(
-            owner="test", path="/foo/frodo/rover.tar.xz", state=States.INDEXING,
+            owner=create_user.username,
+            path="/foo/frodo/fio.tar.xz",
+            state=States.INDEXING,
         )
         ds1.add()
 
-        ds2 = Dataset.attach(controller="frodo", name="rover")
+        ds2 = Dataset.attach(controller="frodo", name="fio")
         assert ds2.owner == ds1.owner
         assert ds2.controller == ds1.controller
         assert ds2.name == ds1.name
@@ -131,7 +147,7 @@ class TestStateTracker:
     def test_advanced_good(self, db_session, create_user):
         """ Test advancing the state of a dataset
         """
-        ds = Dataset(owner="test", controller="frodo", name="precious")
+        ds = Dataset(owner=create_user.username, controller="frodo", name="fio")
         ds.add()
         ds.advance(States.UPLOADED)
         assert ds.state == States.UPLOADED
@@ -140,7 +156,7 @@ class TestStateTracker:
     def test_advanced_bad_state(self, db_session, create_user):
         """Test with a non-States state value
         """
-        ds = Dataset(owner="test", controller="me", name="too")
+        ds = Dataset(owner=create_user.username, controller="frodo", name="fio")
         ds.add()
         with pytest.raises(DatasetBadParameterType):
             ds.advance("notStates")
@@ -149,7 +165,7 @@ class TestStateTracker:
         """ Test that we can't advance to a state that's not a
         successor to the initial state.
         """
-        ds = Dataset(owner="test", controller="sam", name="fio")
+        ds = Dataset(owner=create_user.username, controller="frodo", name="fio")
         ds.add()
         with pytest.raises(DatasetBadStateTransition):
             ds.advance(States.EXPIRED)
@@ -157,7 +173,12 @@ class TestStateTracker:
     def test_advanced_terminal(self, db_session, create_user):
         """ Test that we can't advance from a terminal state
         """
-        ds = Dataset(owner="test", controller="gimli", name="fio", state=States.EXPIRED)
+        ds = Dataset(
+            owner=create_user.username,
+            controller="frodo",
+            name="fio",
+            state=States.EXPIRED,
+        )
         ds.add()
         with pytest.raises(DatasetTerminalStateViolation):
             ds.advance(States.UPLOADING)
@@ -166,7 +187,7 @@ class TestStateTracker:
         """ Advance a dataset through the entire lifecycle using the state
         transition dict.
         """
-        ds = Dataset(owner="test", controller="bilbo", name="Fred")
+        ds = Dataset(owner=create_user.username, controller="frodo", name="fio")
         ds.add()
         assert ds.state == States.UPLOADING
         beenthere = [ds.state]
@@ -191,7 +212,7 @@ class TestStateTracker:
         """ Various tests on Metadata keys
         """
         # See if we can create a metadata row
-        ds = Dataset.create(owner="test", controller="controller", name="name")
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
         assert ds.metadatas == []
         m = Metadata.create(key=Metadata.REINDEX, value="TRUE", dataset=ds)
         assert m is not None
@@ -205,7 +226,7 @@ class TestStateTracker:
         assert m.dataset_ref == m1.dataset_ref
 
         # Check the str()
-        assert "test|controller|name>>REINDEX" == str(m)
+        assert "test(1)|frodo|fio>>REINDEX" == str(m)
 
         # Try to get a metadata key that doesn't exist
         with pytest.raises(MetadataNotFound) as exc:
@@ -267,7 +288,7 @@ class TestStateTracker:
     def test_metadata_remove(self, db_session, create_user):
         """ Test that we can remove a Metadata key
         """
-        ds = Dataset.create(owner="test", controller="controller", name="other")
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
         assert ds.metadatas == []
         m = Metadata(key=Metadata.ARCHIVED, value="TRUE")
         m.add(ds)

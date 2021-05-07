@@ -319,7 +319,7 @@ class Index:
                         idxctx.logger.info("Starting {} (size {:d})", tb, size)
                         dataset = None
                         ptb = None
-                        username = None
+                        userid = None
                         try:
                             path = os.path.realpath(tb)
 
@@ -345,13 +345,13 @@ class Index:
                                 # Although this is technically an integer, I'm clinging to
                                 # the notion that we want to keep this as a "keyword" (string)
                                 # field.
-                                username = str(dataset.owner_id)
+                                userid = str(dataset.owner_id)
 
                             # "Open" the tar ball represented by the tar ball object
                             idxctx.logger.debug("open tar ball")
                             ptb = PbenchTarBall(
                                 idxctx,
-                                username,
+                                userid,
                                 path,
                                 tmpdir,
                                 Path(self.incoming, controller),

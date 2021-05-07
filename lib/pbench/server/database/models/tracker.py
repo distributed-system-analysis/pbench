@@ -1,7 +1,8 @@
 import datetime
 import enum
-from pathlib import Path
 import os
+from pathlib import Path
+from typing import Any
 
 from sqlalchemy import (
     Column,
@@ -351,16 +352,28 @@ class Dataset(Database.Base):
     __table_args__ = (UniqueConstraint("controller", "name"), {})
 
     @validates("state")
-    def validate_state(self, key, value):
-        """Validate that the value provided for the Dataset state is a member
+    def validate_state(self, key: str, value: Any) -> States:
+        """
+        Validate that the value provided for the Dataset state is a member
         of the States ENUM before it's applied by the SQLAlchemy constructor.
+
+        Args:
+            key: state
+            value: state ENUM member
+
+        Raises:
+            DatasetBadParameter: the value given doesn't resolve to a
+                States ENUM.
+
+        Returns:
+            state
         """
         if type(value) is not States:
             raise DatasetBadParameterType(value, States)
         return value
 
     @validates("owner")
-    def validate_owner(self, key, value):
+    def validate_owner(self, key: str, value: Any) -> User:
         """
         Validate and translate owner name to User object
 
@@ -373,7 +386,7 @@ class Dataset(Database.Base):
                 Pbench username.
 
         Returns:
-            User object ID
+            User object
         """
         if type(value) is User:
             return value
@@ -381,10 +394,7 @@ class Dataset(Database.Base):
             user = User.query(username=value)
             if user:
                 return user
-            else:
-                raise DatasetBadParameterType(value, "username")
-        else:
-            raise DatasetBadParameterType(value, "username")
+        raise DatasetBadParameterType(value, "username")
 
     @staticmethod
     def _render_path(patharg=None, controllerarg=None, namearg=None):
@@ -531,7 +541,7 @@ class Dataset(Database.Base):
         Returns:
             string: Representation of the dataset
         """
-        return f"{self.owner.username}|{self.controller}|{self.name}"
+        return f"{self.owner.username}({self.owner_id})|{self.controller}|{self.name}"
 
     def advance(self, new_state: States):
         """
