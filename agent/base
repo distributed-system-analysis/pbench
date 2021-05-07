@@ -119,11 +119,13 @@ validate_hostname "${_pbench_full_hostname}" "_pbench_full_hostname"
 if [[ -z "${_pbench_hostname_ip}" ]]; then
     export _pbench_hostname_ip=$(hostname -i)
 fi
-validate-ipaddress "${_pbench_hostname_ip}"
-if [[ ${?} -ne 0 ]]; then
-    error_log "[${script_name}] Invalid IP address: '${_pbench_hostname_ip}'"
-    exit 1
-fi
+for _ip in ${_pbench_hostname_ip}; do
+    validate-ipaddress "${_ip}"
+    if [[ ${?} -ne 0 ]]; then
+        error_log "[${script_name}] Invalid IP address: '${_ip}'"
+        exit 1
+    fi
+done
 
 if [[ -z "$ssh_opts" ]]; then
     ssh_opts=$(pbench-config ssh_opts results)
