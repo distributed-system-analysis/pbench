@@ -1,5 +1,5 @@
 +++ Running test-54 pbench-tool-meister-start --help
-usage: Usage: pbench-tool-meister-start [--sysinfo <list of system information items>]
+usage: pbench-tool-meister-start [--sysinfo <list of system information items>]
        [-h] [--sysinfo SYSINFO] [--orchestrate {create,existing}]
        [--redis-server REDIS_SERVER] [--tool-data-sink TOOL_DATA_SINK]
        tool_group

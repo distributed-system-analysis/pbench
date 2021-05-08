@@ -1,5 +1,5 @@
 +++ Running test-17 test-tm-start-bad-group 
-Bad tool group, 'bad': directory /var/tmp/pbench-test-utils/pbench/tools-v1-bad does not exist
+pbench-tool-meister-start: Bad tool group, 'bad': directory /var/tmp/pbench-test-utils/pbench/tools-v1-bad does not exist
 --- Finished test-17 test-tm-start-bad-group (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

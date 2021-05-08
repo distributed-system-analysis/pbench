@@ -6,7 +6,7 @@
 "node-exporter" tool is now registered for host "remote-b.example.com", with label "blue", in group "lite"
 "dcgm" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
 "pcp" tool is now registered for host "remote-c.example.com", with label "red", in group "lite"
-system information not collected when --interrupt specified
+pbench-tool-meister-stop: system information not collected when --interrupt specified
 --- Finished test-57 test-client-tool-meister (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

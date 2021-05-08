@@ -47,6 +47,16 @@ if [[ ${status} -ne 0 ]]; then
     exit 1
 fi
 
+# Verify that bad --orchestrate parameters are caught properly.
+_ptms_output=${pbench_tmp}/_ptms_output
+pbench-tool-meister-start --sysinfo="none" --orchestrate="bad" ${group} > ${_ptms_output} 2>&1
+printf -- "Exit code: %d\n" ${?} >> ${_ptms_output}
+PBENCH_ORCHESTRATE=bad pbench-tool-meister-start --sysinfo="none" ${group} >> ${_ptms_output} 2>&1
+printf -- "Exit code: %d\n" ${?} >> ${_ptms_output}
+cat -n ${_ptms_output}
+rm ${_ptms_output}
+
+# Now execute the success case.
 source ${_script_path}/common-tm-cleanup
 
 _PBENCH_TOOL_MEISTER_LOG_LEVEL="debug" _PBENCH_TOOL_DATA_SINK_LOG_LEVEL="debug" _PBENCH_TOOL_MEISTER_START_LOG_LEVEL="debug" PBENCH_REDIS_SERVER="localhost" PBENCH_TOOL_DATA_SINK="localhost:8080;localhost:8080" pbench-tool-meister-start --sysinfo="none" ${group}

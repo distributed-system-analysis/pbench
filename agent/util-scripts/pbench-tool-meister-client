@@ -37,7 +37,7 @@ def main(argv: list) -> int:
     logger.setLevel(log_level)
     sh = logging.StreamHandler()
     sh.setLevel(log_level)
-    shf = logging.Formatter("%(message)s")
+    shf = logging.Formatter(f"{PROG}: %(message)s")
     sh.setFormatter(shf)
     logger.addHandler(sh)
 
