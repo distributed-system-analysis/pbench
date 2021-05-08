@@ -211,7 +211,6 @@ class Upload(Resource):
         )
 
         with tempfile.NamedTemporaryFile(mode="wb", dir=path) as ofp:
-            self.logger.debug("Writing chunks")
             hash_md5 = hashlib.md5()
 
             try:

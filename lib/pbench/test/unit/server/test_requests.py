@@ -236,7 +236,7 @@ class TestUpload:
             )
             assert response.status_code == 401
             for record in caplog.records:
-                assert record.levelname == "INFO"
+                assert record.levelname in ["DEBUG", "INFO"]
 
     def test_empty_upload(
         self, client, pytestconfig, caplog, server_config, setup_ctrl
