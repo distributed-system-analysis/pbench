@@ -26,6 +26,7 @@ port = 7081
 
 [logging]
 logger_type = file
+logging_level = DEBUG
 
 [Indexing]
 index_prefix = unit-test

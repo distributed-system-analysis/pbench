@@ -60,7 +60,7 @@ class TestEnpointConfig:
                 "logout": f"{uri}/logout",
                 "user": f"{uri}/user/",
                 "host_info": f"{uri}/host_info",
-                "upload_ctrl": f"{uri}/upload/ctrl/",
+                "upload": f"{uri}/upload/",
             },
         }
 

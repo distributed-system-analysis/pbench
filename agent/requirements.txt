@@ -8,4 +8,3 @@ python-pidfile
 redis
 requests
 sh
-werkzeug
