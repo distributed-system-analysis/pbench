@@ -995,7 +995,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--orchestrate",
         dest="orchestrate",
-        default="create",
+        default=os.environ.get("PBENCH_ORCHESTRATE", "create"),
         choices=("create", "existing"),
         help=(
             "The `create` keyword directs the command to create the various"
