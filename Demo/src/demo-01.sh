@@ -99,10 +99,10 @@ printf -- "\n\nNow let's look at the 'podman logs' output from these containers;
 wait_keypress 120
 
 
-printf -- "\n\nStart the Redis server on ${REDIS_HOST}:${REDIS_PORT}\n\t$ podman run --name demo-tm-redis --network host --rm -d redis\n\n\tNote TDS and TMs notice Redis server,\n\tbut now wait for their 'PARAM_KEY' to show up.\n\n"
+printf -- "\n\nStart the Redis server on ${REDIS_HOST}:${REDIS_PORT}\n\t$ podman run --name demo-tm-redis --network host --rm -d docker.io/library/redis:latest\n\n\tNote TDS and TMs notice Redis server,\n\tbut now wait for their 'PARAM_KEY' to show up.\n\n"
 
 set -x
-podman run --name redis-server --network host --rm -d redis
+podman run --name redis-server --network host --rm -d docker.io/library/redis:latest
 set +x
 
 wait_keypress 120
