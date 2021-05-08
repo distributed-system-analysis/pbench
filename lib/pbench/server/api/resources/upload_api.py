@@ -60,12 +60,12 @@ class Upload(Resource):
 
         if os.path.basename(filename) != filename:
             msg = "File must not contain a path"
-            self.logger.warning("{} for {}, user = {}", msg, filename, username)
+            self.logger.warning("{} for {!a}, user = {}", msg, filename, username)
             abort(HTTPStatus.BAD_REQUEST, message=msg)
 
         if not self.allowed_file(filename):
             self.logger.warning(
-                "Unsupported file extension for {}, user = {}", filename, username,
+                "Unsupported file extension for {!a}, user = {}", filename, username,
             )
             abort(
                 HTTPStatus.BAD_REQUEST,
@@ -76,7 +76,9 @@ class Upload(Resource):
         controller = request.headers.get("controller")
         if not controller:
             msg = "Missing required controller header"
-            self.logger.warning("{} for user = {}, file = {}", msg, username, filename)
+            self.logger.warning(
+                "{} for user = {}, file = {!a}", msg, username, filename
+            )
             abort(HTTPStatus.BAD_REQUEST, message=msg)
         if validate_hostname(controller) != 0:
             msg = "Invalid controller header"
@@ -93,7 +95,7 @@ class Upload(Resource):
         if not md5sum:
             msg = "Missing required Content-MD5 header"
             self.logger.warning(
-                "{} for user = {}, ctrl = {}, file = {}",
+                "{} for user = {}, ctrl = {!a}, file = {!a}",
                 msg,
                 username,
                 controller,
@@ -105,7 +107,7 @@ class Upload(Resource):
         if not content_length_hdr:
             msg = "Missing required Content-Length header"
             self.logger.warning(
-                "{} for user = {}, ctrl = {}, file = {}",
+                "{} for user = {}, ctrl = {!a}, file = {!a}",
                 msg,
                 username,
                 controller,
@@ -117,7 +119,7 @@ class Upload(Resource):
         except ValueError:
             msg = "Invalid Content-Length header, not an integer"
             self.logger.warning(
-                "{} for user = {}, ctrl = {}, file = {}",
+                "{} for user = {}, ctrl = {!a}, file = {!a}",
                 msg,
                 username,
                 controller,
@@ -129,7 +131,7 @@ class Upload(Resource):
             mcl = humanize.naturalsize(self.max_content_length)
             msg = f"Content-Length greater than maximum allowed size ({cl} > {mcl})"
             self.logger.warning(
-                "{} for user = {}, ctrl = {}, file = {}",
+                "{} for user = {}, ctrl = {!a}, file = {!a}",
                 msg,
                 username,
                 controller,
@@ -139,7 +141,7 @@ class Upload(Resource):
         elif content_length == 0:
             msg = "Invalid Content-Length header, zero (0)"
             self.logger.warning(
-                "{} for user = {}, ctrl = {}, file = {}",
+                "{} for user = {}, ctrl = {!a}, file = {!a}",
                 msg,
                 username,
                 controller,
@@ -149,7 +151,7 @@ class Upload(Resource):
         elif content_length < 0:
             msg = f"Invalid Content-Length header, negative ({content_length})"
             self.logger.warning(
-                "{} for user = {}, ctrl = {}, file = {}",
+                "{} for user = {}, ctrl = {!a}, file = {!a}",
                 msg,
                 username,
                 controller,
@@ -171,7 +173,7 @@ class Upload(Resource):
             dataset.add()
         except DatasetDuplicate:
             self.logger.info(
-                "Dataset already exists, user = {}, ctrl = {}, file = {}",
+                "Dataset already exists, user = {}, ctrl = {!a}, file = {!a}",
                 username,
                 controller,
                 filename,
@@ -181,7 +183,7 @@ class Upload(Resource):
             return response
         except Exception:
             self.logger.exception(
-                "unable to create dataset for user = {}, ctrl = {}, file = {}",
+                "unable to create dataset for user = {}, ctrl = {!a}, file = {!a}",
                 username,
                 controller,
                 filename,
@@ -203,7 +205,7 @@ class Upload(Resource):
             )
 
         self.logger.info(
-            "Uploading file {} (user = {}, ctrl = {}) to {}",
+            "Uploading file {!a} (user = {}, ctrl = {!a}) to {}",
             filename,
             username,
             controller,
@@ -224,7 +226,7 @@ class Upload(Resource):
                     hash_md5.update(chunk)
             except Exception:
                 self.logger.exception(
-                    "Unexpected error uploading {}, user = {}, ctrl = {}",
+                    "Unexpected error uploading {!a}, user = {}, ctrl = {!a}",
                     filename,
                     username,
                     controller,
@@ -237,7 +239,7 @@ class Upload(Resource):
                     f" (expected {content_length}; received {bytes_received})"
                 )
                 self.logger.warning(
-                    "{} for user = {}, ctrl = {}, file = {}",
+                    "{} for user = {}, ctrl = {!a}, file = {!a}",
                     msg,
                     username,
                     controller,
@@ -250,7 +252,7 @@ class Upload(Resource):
                     f" ({hash_md5.hexdigest()} != {md5sum})"
                 )
                 self.logger.warning(
-                    "{} for user = {}, ctrl = {}, file = {}",
+                    "{} for user = {}, ctrl = {!a}, file = {!a}",
                     msg,
                     username,
                     controller,
