@@ -67,12 +67,12 @@ done > ${pbench_run}/remotes.lis
 # ${pbench_run}/tools-v1-default
 for tool in vmstat mpstat jaeger; do
     printf -- "\npbench-register-tool --name=${tool} --remotes=@${pbench_run}/remotes.lis\n"
-    pbench-register-tool --name=${tool} --remotes=@${pbench_run}/remotes.lis
-    sleep 1
+    #pbench-register-tool --name=${tool} --remotes=@${pbench_run}/remotes.lis
+    #sleep 1
 done
 
-printf -- "\n\n"
-ls -lR ${pbench_run}/tools-v1-default
+#printf -- "\n\n"
+#ls -lR ${pbench_run}/tools-v1-default
 
 printf -- "\n\n"
 wait_keypress 120
@@ -115,5 +115,3 @@ echo "sleep-iter-42 120" >> ${pbench_run}/my-iterations.lis
 podman run -it --rm --network host --volume ${pbench_run}:/var/lib/pbench-agent:Z quay.io/pbench/pbench-agent-base-fedora-33:a933ae45e /bin/bash
 
 exit 0
-
-pbench-user-benchmark --config="my-config-001" --iteration-list=${pbench_run}/my-iterations.lis --sysinfo=none -- sleep 10
