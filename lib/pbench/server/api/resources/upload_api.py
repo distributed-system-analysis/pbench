@@ -1,15 +1,14 @@
 import hashlib
 import os
 import tempfile
-import urllib.parse
 from http import HTTPStatus
 from pathlib import Path
 
 import humanize
 from flask import jsonify, request
 from flask_restful import Resource, abort
-from werkzeug.utils import secure_filename
 
+from pbench.common.utils import validate_hostname
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.tracker import Dataset, DatasetDuplicate, States
 from pbench.server.utils import filesize_bytes
@@ -52,20 +51,21 @@ class Upload(Resource):
         )
 
     @Auth.token_auth.login_required()
-    def put(self, filename_arg: str):
+    def put(self, filename: str):
         try:
             username = Auth.token_auth.current_user().username
         except Exception:
             self.logger.exception("Error verifying the username")
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
-        filename = secure_filename(urllib.parse.unquote(filename_arg))
-        if not filename or not self.allowed_file(filename):
+        if os.path.basename(filename) != filename:
+            msg = "File must not contain a path"
+            self.logger.warning("{} for {}, user = {}", msg, filename, username)
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
+
+        if not self.allowed_file(filename):
             self.logger.warning(
-                "Unsupported file extension for {} ({}), user = {}",
-                filename_arg,
-                filename,
-                username,
+                "Unsupported file extension for {}, user = {}", filename, username,
             )
             abort(
                 HTTPStatus.BAD_REQUEST,
@@ -73,22 +73,19 @@ class Upload(Resource):
                 f" {self.ALLOWED_EXTENSION}",
             )
 
-        controller_arg = request.headers.get("controller")
-        if not controller_arg:
-            msg = "Missing required controller header"
-            self.logger.warning(
-                "{} for user = {}, file = {}", msg, username, filename_arg
-            )
-            abort(HTTPStatus.BAD_REQUEST, message=msg)
-        controller = secure_filename(controller_arg)
+        controller = request.headers.get("controller")
         if not controller:
+            msg = "Missing required controller header"
+            self.logger.warning("{} for user = {}, file = {}", msg, username, filename)
+            abort(HTTPStatus.BAD_REQUEST, message=msg)
+        if validate_hostname(controller) != 0:
             msg = "Invalid controller header"
             self.logger.warning(
                 "{} for user = {}, ctrl = {}, file = {}",
                 msg,
                 username,
-                controller_arg,
-                filename_arg,
+                controller,
+                filename,
             )
             abort(HTTPStatus.BAD_REQUEST, message=msg)
 
@@ -99,8 +96,8 @@ class Upload(Resource):
                 "{} for user = {}, ctrl = {}, file = {}",
                 msg,
                 username,
-                controller_arg,
-                filename_arg,
+                controller,
+                filename,
             )
             abort(HTTPStatus.BAD_REQUEST, message=msg)
 
@@ -111,8 +108,8 @@ class Upload(Resource):
                 "{} for user = {}, ctrl = {}, file = {}",
                 msg,
                 username,
-                controller_arg,
-                filename_arg,
+                controller,
+                filename,
             )
             abort(HTTPStatus.LENGTH_REQUIRED, message=msg)
         try:
@@ -123,8 +120,8 @@ class Upload(Resource):
                 "{} for user = {}, ctrl = {}, file = {}",
                 msg,
                 username,
-                controller_arg,
-                filename_arg,
+                controller,
+                filename,
             )
             abort(HTTPStatus.BAD_REQUEST, message=msg)
         if content_length > self.max_content_length:
@@ -135,8 +132,8 @@ class Upload(Resource):
                 "{} for user = {}, ctrl = {}, file = {}",
                 msg,
                 username,
-                controller_arg,
-                filename_arg,
+                controller,
+                filename,
             )
             abort(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, message=msg)
         elif content_length == 0:
@@ -145,8 +142,8 @@ class Upload(Resource):
                 "{} for user = {}, ctrl = {}, file = {}",
                 msg,
                 username,
-                controller_arg,
-                filename_arg,
+                controller,
+                filename,
             )
             abort(HTTPStatus.BAD_REQUEST, message=msg)
         elif content_length < 0:
@@ -155,8 +152,8 @@ class Upload(Resource):
                 "{} for user = {}, ctrl = {}, file = {}",
                 msg,
                 username,
-                controller_arg,
-                filename_arg,
+                controller,
+                filename,
             )
             abort(HTTPStatus.BAD_REQUEST, message=msg)
 
@@ -229,9 +226,9 @@ class Upload(Resource):
             except Exception:
                 self.logger.exception(
                     "Unexpected error uploading {}, user = {}, ctrl = {}",
-                    filename_arg,
+                    filename,
                     username,
-                    controller_arg,
+                    controller,
                 )
                 abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
@@ -244,8 +241,8 @@ class Upload(Resource):
                     "{} for user = {}, ctrl = {}, file = {}",
                     msg,
                     username,
-                    controller_arg,
-                    filename_arg,
+                    controller,
+                    filename,
                 )
                 abort(HTTPStatus.BAD_REQUEST, message=msg)
             elif hash_md5.hexdigest() != md5sum:
@@ -257,8 +254,8 @@ class Upload(Resource):
                     "{} for user = {}, ctrl = {}, file = {}",
                     msg,
                     username,
-                    controller_arg,
-                    filename_arg,
+                    controller,
+                    filename,
                 )
                 abort(HTTPStatus.BAD_REQUEST, message=msg)
 
@@ -307,7 +304,7 @@ class Upload(Resource):
         return response
 
     @staticmethod
-    def allowed_file(filename: str) -> str:
+    def allowed_file(filename: str) -> bool:
         """Check if the file has the correct extension."""
         return filename.endswith(Upload.ALLOWED_EXTENSION)
 

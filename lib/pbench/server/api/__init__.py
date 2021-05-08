@@ -47,7 +47,7 @@ def register_endpoints(api, app, config):
 
     api.add_resource(
         Upload,
-        f"{base_uri}/upload/<string:filename_arg>",
+        f"{base_uri}/upload/<string:filename>",
         resource_class_args=(config, logger),
     )
     api.add_resource(

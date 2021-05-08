@@ -1,8 +1,8 @@
+import hashlib
 import socket
 from pathlib import Path
 
 import pytest
-from werkzeug.utils import secure_filename
 
 from pbench.server.database.models.tracker import Dataset, States
 from pbench.test.unit.server.test_user_auth import login_user, register_user
@@ -269,35 +269,35 @@ class TestUpload:
         with client:
             auth_token = get_pbench_token(client, server_config)
 
-            filename = "log.tar.xz"
-            datafile = Path("./lib/pbench/test/unit/server/fixtures/upload/", filename)
-            controller = socket.gethostname()
-            with open(f"{datafile}.md5") as md5sum_check:
-                md5sum = md5sum_check.read()
+            filename = "pbench-user-benchmark_some + config_2021.05.01T12.42.42.tar.xz"
+            tmp_d = pytestconfig.cache.get("TMP", None)
+            datafile = Path(tmp_d, filename)
+            file_contents = b"something\n"
+            md5 = hashlib.md5()
+            md5.update(file_contents)
+            datafile.write_bytes(file_contents)
 
             with datafile.open("rb") as data_fp:
                 response = client.put(
                     f"{server_config.rest_uri}/upload/{filename}",
                     data=data_fp,
-                    headers=self.gen_headers(auth_token, md5sum),
+                    headers=self.gen_headers(auth_token, md5.hexdigest()),
                 )
 
             assert response.status_code == 201, repr(response)
-            sfilename = secure_filename(filename)
             tmp_d = pytestconfig.cache.get("TMP", None)
             receive_dir = Path(
                 tmp_d, "srv", "pbench", "pbench-move-results-receive", "fs-version-002"
             )
-            assert receive_dir.exists(), (
-                f"receive_dir = '{receive_dir}', filename = '{filename}',"
-                f" sfilename = '{sfilename}'"
-            )
+            assert (
+                receive_dir.exists()
+            ), f"receive_dir = '{receive_dir}', filename = '{filename}'"
 
-            dataset = Dataset.attach(controller=controller, path=filename)
+            dataset = Dataset.attach(controller=self.controller, path=filename)
             assert dataset is not None
-            assert dataset.md5 == md5sum
-            assert dataset.controller == controller
-            assert dataset.name == "log"
+            assert dataset.md5 == md5.hexdigest()
+            assert dataset.controller == self.controller
+            assert dataset.name == filename[:-7]
             assert dataset.state == States.UPLOADED
 
             for record in caplog.records:

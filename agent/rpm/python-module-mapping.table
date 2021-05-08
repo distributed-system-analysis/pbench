@@ -9,4 +9,3 @@ python-pidfile   -                  -         -                  Neither Fedora 
 redis            python3-redis      -         -
 requests         python3-requests   -         python3-requests
 sh               python3-sh         -         -
-werkzeug         python3-werkzeug   -         python3-werkzeug

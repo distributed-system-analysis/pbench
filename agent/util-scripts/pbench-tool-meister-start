@@ -132,8 +132,8 @@ from pbench.agent.utils import (
     error_log,
     info_log,
     RedisServerCommon,
-    validate_hostname,
 )
+from pbench.common.utils import validate_hostname
 
 
 # Wait at most 60 seconds for the Tool Data Sink to start listening on its

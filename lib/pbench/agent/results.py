@@ -12,7 +12,7 @@ import requests
 
 from pbench.agent import PbenchAgentConfig
 from pbench.common.exceptions import BadMDLogFormat
-from pbench.common.utils import md5sum
+from pbench.common.utils import md5sum, validate_hostname
 
 
 class FileUploadError(Exception):
@@ -154,13 +154,19 @@ class CopyResultTb:
     def __init__(
         self, controller: str, tarball: str, config: PbenchAgentConfig, logger: Logger
     ):
+        """CopyResultTb contructor - raises FileNotFoundError if the given
+        tar ball does not exist, and a ValueError if the given controller is
+        not a valid hostname.
+        """
+        if validate_hostname(controller) != 0:
+            raise ValueError(f"Controller {controller!r} is not a valid host name")
         self.controller = controller
         self.tarball = Path(tarball)
         if not self.tarball.exists():
             raise FileNotFoundError(f"Tarball '{self.tarball}' does not exist")
         server_rest_url = config.get("results", "server_rest_url")
-        tbname = self.tarball.name
-        self.upload_url = f"{server_rest_url}/upload/{urllib.parse.quote(tbname)}"
+        tbname = urllib.parse.quote(self.tarball.name)
+        self.upload_url = f"{server_rest_url}/upload/{tbname}"
         self.logger = logger
 
     def read_in_chunks(self, file_object: IO) -> Iterator[bytes]:
