@@ -4,7 +4,7 @@
 # Redis server, and one or more remote
 
 DISTRO="fedora-33"
-TAG="a933ae45e"
+TAG="87b72256e"
 export REDIS_HOST=192.168.182.128
 export REDIS_PORT=6379
 export PBENCH_REDIS_SERVER="${REDIS_HOST}:${REDIS_PORT}"
