@@ -1,4 +1,5 @@
 #!/bin/bash
+export pbench_run=/var/lib/pbench-agent
 set -x
 # Register the default tool set, will be recorded in
 # ${pbench_run}/tools-v1-default
