@@ -3,8 +3,18 @@
 # A demonstration of how to use pbench-tool-meister-start with an existing
 # Redis server, and one or more remote
 
-DISTRO="fedora-33"
-TAG="87b72256e"
+DISTRO="${1}"
+TAG="${2}"
+
+if [[ -z "${DISTRO}" ]]; then
+    echo "Missing 1st argument, the distro target." >&2
+    exit 1
+fi
+if [[ -z "${TAG}" ]]; then
+    echo "Missing 2nd argument, the image tag." >&2
+    exit 1
+fi
+
 export REDIS_HOST=192.168.182.128
 export REDIS_PORT=6379
 export PBENCH_REDIS_SERVER="${REDIS_HOST}:${REDIS_PORT}"
@@ -54,28 +64,13 @@ wait_keypress 120
 
 # Register tools
 
-printf -- "\nNow we'll register five tools that can be run in the Tool Meister containers,\n\n\t'vmstat', 'turbostat', 'sar', 'pcp', and 'node-exporter',\n\n... using a file containing all three remote hosts running the Tool Meister\n(note that 'pcp' and 'node-exporter' are two of the new _persistent_ tools that run\nindependent of the traditional start/stop tools).\n\n"
+printf -- "\nNow we'll register three tools that can be run in the Tool Meister containers,\n\n\t'vmstat', 'mpstat', and 'jaeger',\n\n... using a file containing all three remote hosts running the Tool Meister.\n\n"
 
 wait_keypress 120
-
 
 for i in {28..30}; do
     echo 192.168.182.1${i}
 done > ${pbench_run}/remotes.lis
-
-# Register the default tool set, will be recorded in
-# ${pbench_run}/tools-v1-default
-for tool in vmstat mpstat jaeger; do
-    printf -- "\npbench-register-tool --name=${tool} --remotes=@${pbench_run}/remotes.lis\n"
-    #pbench-register-tool --name=${tool} --remotes=@${pbench_run}/remotes.lis
-    #sleep 1
-done
-
-#printf -- "\n\n"
-#ls -lR ${pbench_run}/tools-v1-default
-
-printf -- "\n\n"
-wait_keypress 120
 
 
 # Start Tool Meister containers on remote hosts
