@@ -112,6 +112,8 @@ echo "sleep-iter-11 11" >> ${pbench_run}/my-iterations.lis
 echo "sleep-iter-42 12" >> ${pbench_run}/my-iterations.lis
 echo "sleep-iter-42 120" >> ${pbench_run}/my-iterations.lis
 
+cp -a ./demo-01-run-pbench.sh ${pbench_run}/
+
 podman run -it --rm --network host --volume ${pbench_run}:/var/lib/pbench-agent:Z quay.io/pbench/pbench-agent-base-fedora-33:a933ae45e /bin/bash
 
 exit 0
