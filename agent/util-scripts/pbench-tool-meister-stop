@@ -166,7 +166,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
     logger.setLevel(log_level)
     sh = logging.StreamHandler()
     sh.setLevel(log_level)
-    shf = logging.Formatter("%(message)s")
+    shf = logging.Formatter(f"{PROG.name}: %(message)s")
     sh.setFormatter(shf)
     logger.addHandler(sh)
 
@@ -231,8 +231,9 @@ def main(_prog: str, cli_params: Namespace) -> int:
                     f"Unable to create sysinfo-dump directory base path: {sysinfo_path}",
                 )
             else:
-                logger.info("Collecting system information")
-                info_log("Collecting system information")
+                msg = "Collecting system information"
+                print(msg)
+                info_log(msg)
                 # We don't check the return status for the sysinfo operation
                 # since the publish() method will log errors for us, and its
                 # success or failure does not affect the return status of
@@ -269,9 +270,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
 _NAME_ = "pbench-tool-meister-stop"
 
 if __name__ == "__main__":
-    parser = ArgumentParser(
-        f"Usage: {_NAME_} [--sysinfo <list of system information items>]"
-    )
+    parser = ArgumentParser(f"{_NAME_} [--sysinfo <list of system information items>]")
     parser.add_argument(
         "--sysinfo",
         default=None,

@@ -1,5 +1,5 @@
 +++ Running test-55 pbench-tool-meister-stop --help
-usage: Usage: pbench-tool-meister-stop [--sysinfo <list of system information items>]
+usage: pbench-tool-meister-stop [--sysinfo <list of system information items>]
        [-h] [--sysinfo SYSINFO] [--interrupt] [--redis-server REDIS_SERVER]
        tool_group
 

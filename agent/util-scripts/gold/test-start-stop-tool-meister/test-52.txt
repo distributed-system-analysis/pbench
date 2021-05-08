@@ -1,30 +1,38 @@
 +++ Running test-52 test-start-stop-tool-meister mygroup
+     1	usage: pbench-tool-meister-start [--sysinfo <list of system information items>]
+     2	       [-h] [--sysinfo SYSINFO] [--orchestrate {create,existing}]
+     3	       [--redis-server REDIS_SERVER] [--tool-data-sink TOOL_DATA_SINK]
+     4	       tool_group
+     5	pbench-tool-meister-start [--sysinfo <list of system information items>]: error: argument --orchestrate: invalid choice: 'bad' (choose from 'create', 'existing')
+     6	Exit code: 2
+     7	pbench-tool-meister-start: invalid --orchestrate directive, 'bad', expected one of create, existing
+     8	Exit code: 39
 "mpstat" tool is now registered for host "testhost.example.com" in group "mygroup"
 "perf" tool is now registered for host "testhost.example.com" in group "mygroup"
-2. starting redis server
-3. connecting to the redis server
-4. push tool group data and metadata
-5. starting tool data sink
-6a. starting localhost tool meister
-7. waiting for all successfully created Tool Meister processes to show up as subscribers
-8. Initialize persistent tools
-channel pbench-agent-cli-to-client payload, '{"action": "end", "kind": "ds", "status": "success"}'
-channel pbench-agent-cli-to-client payload, '{"action": "init", "kind": "ds", "status": "success"}'
-channel pbench-agent-cli-to-client payload, '{"action": "startup", "kind": "ds", "status": "success"}'
-constructed Redis() object
-constructing Redis() object
-next pbench-agent-cli-to-client
-next pbench-agent-cli-to-client
-next pbench-agent-cli-to-client
-payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "end", "kind": "ds", "status": "success"}'}
-payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "init", "kind": "ds", "status": "success"}'}
-payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "startup", "kind": "ds", "status": "success"}'}
-publish end on chan pbench-agent-cli-from-client
-publish init on chan pbench-agent-cli-from-client
-publish terminate on chan pbench-agent-cli-from-client
-published pbench-agent-cli-from-client
-published pbench-agent-cli-from-client
-waiting for tool-data-sink (#####) to exit
+pbench-tool-meister-start: 2. starting redis server
+pbench-tool-meister-start: 3. connecting to the redis server
+pbench-tool-meister-start: 4. push tool group data and metadata
+pbench-tool-meister-start: 5. starting tool data sink
+pbench-tool-meister-start: 6a. starting localhost tool meister
+pbench-tool-meister-start: 7. waiting for all successfully created Tool Meister processes to show up as subscribers
+pbench-tool-meister-start: 8. Initialize persistent tools
+pbench-tool-meister-start: channel pbench-agent-cli-to-client payload, '{"action": "init", "kind": "ds", "status": "success"}'
+pbench-tool-meister-start: channel pbench-agent-cli-to-client payload, '{"action": "startup", "kind": "ds", "status": "success"}'
+pbench-tool-meister-start: next pbench-agent-cli-to-client
+pbench-tool-meister-start: next pbench-agent-cli-to-client
+pbench-tool-meister-start: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "init", "kind": "ds", "status": "success"}'}
+pbench-tool-meister-start: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "startup", "kind": "ds", "status": "success"}'}
+pbench-tool-meister-start: publish init on chan pbench-agent-cli-from-client
+pbench-tool-meister-start: published pbench-agent-cli-from-client
+pbench-tool-meister-stop: channel pbench-agent-cli-to-client payload, '{"action": "end", "kind": "ds", "status": "success"}'
+pbench-tool-meister-stop: constructed Redis() object
+pbench-tool-meister-stop: constructing Redis() object
+pbench-tool-meister-stop: next pbench-agent-cli-to-client
+pbench-tool-meister-stop: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "end", "kind": "ds", "status": "success"}'}
+pbench-tool-meister-stop: publish end on chan pbench-agent-cli-from-client
+pbench-tool-meister-stop: publish terminate on chan pbench-agent-cli-from-client
+pbench-tool-meister-stop: published pbench-agent-cli-from-client
+pbench-tool-meister-stop: waiting for tool-data-sink (#####) to exit
 --- Finished test-52 test-start-stop-tool-meister (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench

@@ -136,6 +136,14 @@ from pbench.agent.utils import (
 from pbench.common.utils import validate_hostname
 
 
+# The --orchestrate parameter default choice, and the full list of choices.
+_orchestrate_choices = ["create", "existing"]
+_def_orchestrate_choice = "create"
+assert _def_orchestrate_choice in _orchestrate_choices, (
+    f"Logic Bomb!  The default orchestrate choice, {_def_orchestrate_choice!r},"
+    f" is not one of the available choices, {_orchestrate_choices!r}"
+)
+
 # Wait at most 60 seconds for the Tool Data Sink to start listening on its
 # logging sink channel.
 _TDS_STARTUP_TIMEOUT = 60
@@ -175,12 +183,13 @@ class ReturnCode(BaseReturnCode):
     BADREDISPORT = 29
     BADWSGIPORT = 31
     BADSYSINFO = 32
-    MISSINGPARAMAS = 33
+    MISSINGPARAMS = 33
     MISSINGSSHCMD = 34
     BADWSGIHOST = 35
     BADREDISHOST = 36
     BADFULLHOSTNAME = 37
     BADHOSTNAME = 38
+    INVALIDORCHESTRATE = 39
 
 
 def _waitpid(pid: int) -> int:
@@ -616,7 +625,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
     logger.setLevel(log_level)
     sh = logging.StreamHandler()
     sh.setLevel(log_level)
-    shf = logging.Formatter("%(message)s")
+    shf = logging.Formatter(f"{PROG.name}: %(message)s")
     sh.setFormatter(shf)
     logger.addHandler(sh)
 
@@ -645,6 +654,14 @@ def main(_prog: str, cli_params: Namespace) -> int:
     if bad_l:
         logger.error("invalid sysinfo option(s), '{}'", ",".join(bad_l))
         return ReturnCode.BADSYSINFO
+
+    if cli_params.orchestrate not in _orchestrate_choices:
+        logger.error(
+            "invalid --orchestrate directive, '%s', expected one of %s",
+            cli_params.orchestrate,
+            ", ".join(_orchestrate_choices),
+        )
+        return ReturnCode.INVALIDORCHESTRATE
 
     # Load and verify required and optional environment variables.
     try:
@@ -716,6 +733,9 @@ def main(_prog: str, cli_params: Namespace) -> int:
             logger.error("required ssh command not in our PATH")
             return ReturnCode.MISSINGSSHCMD
     else:
+        assert (
+            cli_params.orchestrate == "existing"
+        ), f"Unexpected --orchestrate parameter, {cli_params.orchestrate!r}"
         if cli_params.redis_server is None or cli_params.tool_data_sink is None:
             logger.error(
                 "both --redis-server and --tool-data-sink must be specified"
@@ -983,9 +1003,7 @@ def main(_prog: str, cli_params: Namespace) -> int:
 _NAME_ = "pbench-tool-meister-start"
 
 if __name__ == "__main__":
-    parser = ArgumentParser(
-        f"Usage: {_NAME_} [--sysinfo <list of system information items>]"
-    )
+    parser = ArgumentParser(f"{_NAME_} [--sysinfo <list of system information items>]")
     parser.add_argument(
         "--sysinfo",
         dest="sysinfo",
@@ -995,8 +1013,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--orchestrate",
         dest="orchestrate",
-        default="create",
-        choices=("create", "existing"),
+        default=os.environ.get("PBENCH_ORCHESTRATE", _def_orchestrate_choice),
+        choices=_orchestrate_choices,
         help=(
             "The `create` keyword directs the command to create the various"
             " instances of the Redis server, Tool Data Sink, and Tool"
