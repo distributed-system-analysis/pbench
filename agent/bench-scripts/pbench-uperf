@@ -191,15 +191,6 @@ function stop_server {
 	fi
 }
 
-function install_uperf {
-	if check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"; then
-		debug_log "[${script_name}] ${benchmark_rpm}-${ver} is installed"
-	else
-		error_log "[${script_name}] ${benchmark_rpm}-${ver} is not installed, exiting"
-		exit 1
-	fi
-}
-
 # Process options and arguments
 opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
@@ -214,8 +205,8 @@ while true; do
 	case "$1" in
 		--install)
 		shift
-		install_uperf
-		exit
+		check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
+		exit 0
 		;;
 		-h|--help)
 		usage
@@ -410,7 +401,7 @@ fi
 if [ "$postprocess_only" != "y" ]; then
 	# Always install locally
 	# FIXME: why is this necessary?
-	install_uperf
+	check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
 	let err_cnt=0
 	err_clients=""
 	for client in `echo $clients | sed -e s/,/" "/g`; do

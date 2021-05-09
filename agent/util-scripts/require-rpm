@@ -22,10 +22,10 @@ if [[ -z "${1}" ]]; then
     echo "require-rpm: missing RPM name" >&2
     exit 1
 fi
-_rpm="${1}"
-_version=${2:+-${2}}
+_rpm=${1}
+_version=${2}
 if [[ ! -z "${3}" ]]; then
-    _match="${3}"
+    _match=${3}
 else
     if [[ ! -z "${_version}" ]]; then
         _match="equ"
@@ -37,20 +37,20 @@ fi
 # The inputs for the `rpmdev-vercmp` tool to compare are EVR tags.  The first
 # EVR is derived from a look up of the RPMs that are installed.  Note well that
 # this can be a list of multiple RPMs in some cases.
-_evr_list=$(rpm --query --queryformat="%{EVR}" ${_rpm} 2>/dev/null)
+_evr_list=$(rpm --query --queryformat="%{EVR}\n" ${_rpm} 2>/dev/null)
 rc=1
 if echo ${_evr_list} | grep -q "is not installed"; then
-    echo "${_rpm}${_version}"
+    echo "${_rpm}${_version:+-${_version}}"
 elif [[ "${_match}" == "any" ]]; then
-    echo "${_rpm}${_version}"
+    echo "${_rpm}${_version:+-${_version}}"
     rc=0
 else
     # Some RPMs might have multiple versions installed, iterate through all
     # of them.
-    for rpm_installed in ${_evr_list}; do
+    for ver_installed in ${_evr_list}; do
         # Exit status is 0 if the EVR's are equal, 11 if EVR1 is newer, and
         # 12 if EVR2 is newer.  Other exit statuses indicate problems.
-        _stderr=$(rpmdev-vercmp ${rpm_installed} ${_rpm}${_version} 2>&1 > /dev/null)
+        _stderr=$(rpmdev-vercmp ${ver_installed} ${_version} 2>&1 > /dev/null)
         res=${?}
         if [[ ${res} -ne 0 && ${res} -ne 11 && ${res} -ne 12 ]]; then
             rc=2
@@ -60,19 +60,19 @@ else
         if [[ "${_match}" == "equ" ]]; then
             if [[ ${res} -eq 0 ]]; then
                 rc=0
-                echo "${rpm_installed}"
+                echo "${_rpm}-${ver_installed}"
                 break
             fi
         elif [[ "${_match}" == "gte" ]]; then
             if [[ ${res} -eq 0 || ${res} -eq 11 ]]; then
                 rc=0
-                echo "${rpm_installed}"
+                echo "${_rpm}-${ver_installed}"
                 break
             fi
         elif [[ "${_match}" == "gtr" ]]; then
             if [[ ${res} -eq 11 ]]; then
                 rc=0
-                echo "${rpm_installed}"
+                echo "${_rpm}-${ver_installed}"
                 break
             fi
         else
@@ -82,7 +82,7 @@ else
         fi
     done
     if [[ ${rc} -eq 1 ]]; then
-        echo "${_rpm}${_version}"
+        echo "${_rpm}${_version:+-${_version}}"
     fi
 fi
 exit ${rc}

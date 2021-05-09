@@ -1,5 +1,5 @@
 +++ Running test-22 pbench-move-results --controller=bad_host_name.example.com
-[error][1900-01-01T00:00:00.000000] Invalid controller: 'bad_host_name.example.com'
+[error][1900-01-01T00:00:00.000000] [pbench-move-results] Invalid controller: 'bad_host_name.example.com'
 --- Finished test-22 pbench-move-results (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
@@ -7,5 +7,5 @@
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
-[error][1900-01-01T00:00:00.000000] Invalid controller: 'bad_host_name.example.com'
+[error][1900-01-01T00:00:00.000000] [pbench-move-results] Invalid controller: 'bad_host_name.example.com'
 --- pbench.log file contents

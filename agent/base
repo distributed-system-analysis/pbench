@@ -103,7 +103,7 @@ export date_suffix=$(date --date ${date} --utc +"%Y.%m.%dT%H.%M.%S")
 function validate_hostname {
     validate-hostname "${1}"
     if [[ ${?} -ne 0 ]]; then
-        error_log "Invalid ${2}: '${1}'"
+        error_log "[${script_name}] Invalid ${2}: '${1}'"
         exit 1
     fi
 }
@@ -121,7 +121,7 @@ if [[ -z "${_pbench_hostname_ip}" ]]; then
 fi
 validate-ipaddress "${_pbench_hostname_ip}"
 if [[ ${?} -ne 0 ]]; then
-    error_log "Invalid IP address: '${_pbench_hostname_ip}'"
+    error_log "[${script_name}] Invalid IP address: '${_pbench_hostname_ip}'"
     exit 1
 fi
 
@@ -162,11 +162,10 @@ function check_install_rpm {
     _rpm=$(require-rpm "${_n}" "${_v}" "${_m}")
     local rc=${?}
     if [[ ${rc} -ne 0 ]]; then
-        error_log "[check_install_rpm] ${_rpm} is not installed"
-    else
-        debug_log "[check_install_rpm] ${_rpm} is installed"
+        error_log "[${script_name}] required ${_rpm} is not installed"
+        exit ${rc}
     fi
-    return ${rc}
+    debug_log "[${script_name}] required ${_rpm} is installed"
 }
 
 # Constants
@@ -199,7 +198,7 @@ function verify_tool_group {
     local param_name=${2:-"--group"}
     local tools_group_dir="$(gen_tools_group_dir ${group})"
     if [[ -z "${tools_group_dir}" ]]; then
-        error_log "Empty argument passed to verify_tool_group()"
+        error_log "[base] Empty argument passed to verify_tool_group()"
         exit 1
     fi
     if [[ ! -d "${tools_group_dir}" ]]; then

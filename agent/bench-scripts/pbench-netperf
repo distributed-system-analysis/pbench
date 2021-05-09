@@ -129,15 +129,6 @@ function start_server {
 	$benchmark_bin -s & echo $! >$benchmark_run_dir/netperf-server.pid
 }
 
-function install_netperf {
-	if check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"; then
-		debug_log "[${script_name}]${benchmark_rpm}-${ver} is installed"
-	else
-		error_log "[${script_name}]${benchmark_rpm}-${ver} is not installed, exiting"
-		exit 1
-	fi
-}
-
 function print_header {
 	if [ "$1" == "rr" ]; then
 		printf "%28s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s%${spacing}s\n" "iteration" "trans/sec" "latency_usec" "trans/sec/serverCPU" "trans/sec/clientCPU" "serverCPU" "clientCPU" >>$benchmark_summary_txt_file
@@ -202,8 +193,8 @@ while true; do
 	case "$1" in
 		--install)
 		shift;
-		install_netperf
-		exit
+		check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
+		exit 0
 		;;
 		--server-label)
 		shift;
@@ -391,7 +382,7 @@ fi
 if [ "$postprocess_only" != "y" ]; then
 	# Always install locally
 	# FIXME: why is this necessary?
-	install_netperf
+	check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
 	let err_cnt=0
 	err_clients=""
 	for client in `echo $clients | sed -e s/,/" "/g`; do
