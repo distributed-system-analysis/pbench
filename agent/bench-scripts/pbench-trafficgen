@@ -775,12 +775,8 @@ if [ "${postprocess_only}" == "n" ]; then
 		exit 1
 	fi
 	# - dpdk-tools package must be installed
-	if check_install_rpm dpdk-tools; then
-		echo "found dpdk-tools, continuing"
-	else
-		error_log "could not find dpdk-tools, exiting"
-		exit 1
-	fi
+	check_install_rpm dpdk-tools
+	echo "found dpdk-tools, continuing"
 	# - PCI devices bound to vfio-pci
 	if [ -z "$devices" ]; then
 		error_log "no devices were provided (--devices), exiting"

@@ -62,7 +62,7 @@ Iteration 1-none-bidirectional-1500B-128flows-0.002pct_drop complete (1 of 1), w
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900-01-01T00:00:00/pbench-trafficgen.cmd
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] dpdk-tools is installed
+[debug][1900-01-01T00:00:00.000000] [pbench-trafficgen] required dpdk-tools is installed
 [info][1900-01-01T00:00:00.000000] Starting iteration[1-none-bidirectional-1500B-128flows-0.002pct_drop] (1 of 1)
 [info][1900-01-01T00:00:00.000000] test sample 1 of 3
 [info][1900-01-01T00:00:00.000000] test sample 2 of 3
