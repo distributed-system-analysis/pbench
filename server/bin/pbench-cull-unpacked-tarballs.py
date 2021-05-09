@@ -18,17 +18,18 @@ links).
 
 """
 
-import sys
+import configparser
 import os
 import re
 import shutil
+import sys
 import tempfile
-from pathlib import Path
-from datetime import datetime
 from argparse import ArgumentParser
-from configparser import ConfigParser, NoOptionError
+from datetime import datetime
+from pathlib import Path
 
 import pbench.server
+from pbench.common import MetadataLog
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
@@ -87,7 +88,7 @@ def fetch_username(tb_incoming_dir):
     """fetch_username - Return the pbench "run"'s "user" value from the
     `metadata.log` file, if it exists.
     """
-    config = ConfigParser()
+    config = MetadataLog()
     try:
         config.read(Path(tb_incoming_dir, "metadata.log"))
     except Exception:
@@ -353,7 +354,7 @@ def main(options):
     # in the INCOMING tree.
     try:
         max_unpacked_age = config.conf.get("pbench-server", "max-unpacked-age")
-    except NoOptionError as e:
+    except configparser.NoOptionError as e:
         logger.error(f"{e}")
         return 5
     try:

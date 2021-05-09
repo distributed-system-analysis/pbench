@@ -1,20 +1,22 @@
 import errno
-from configparser import ConfigParser, NoSectionError
+from configparser import NoSectionError
+
+from pbench.common import MetadataLog
 
 
 def add_metalog_option(log_file, section, option, value):
-    config = ConfigParser()
+    mdlog = MetadataLog()
 
     try:
-        config.read(log_file)
+        mdlog.read(log_file)
     except OSError as ex:
         if ex.errno == errno.ENOENT:
             raise Exception(f"Log file does not exist: {log_file}")
         raise
 
     try:
-        config.set(section, option, value)
+        mdlog.set(section, option, value)
     except NoSectionError:
-        config.add_section(section)
-        config.set(section, option, value)
-    config.write(open(log_file, "w"))
+        mdlog.add_section(section)
+        mdlog.set(section, option, value)
+    mdlog.write(open(log_file, "w"))

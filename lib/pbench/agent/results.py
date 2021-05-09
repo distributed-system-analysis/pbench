@@ -3,13 +3,13 @@ import errno
 import os
 import tarfile
 import urllib.parse
-from configparser import ConfigParser
 from logging import Logger
 from pathlib import Path
 
 import requests
 
 from pbench.agent import PbenchAgentConfig
+from pbench.common import MetadataLog
 from pbench.common.exceptions import BadMDLogFormat
 from pbench.common.utils import md5sum, validate_hostname
 
@@ -90,7 +90,7 @@ class MakeResultTb:
             )
 
         mdlog_name = self.result_dir / "metadata.log"
-        mdlog = ConfigParser()
+        mdlog = MetadataLog()
         try:
             with mdlog_name.open("r") as fp:
                 mdlog.read_file(fp)

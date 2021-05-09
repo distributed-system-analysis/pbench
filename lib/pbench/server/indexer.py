@@ -2,6 +2,7 @@
 result tar balls.
 """
 
+import configparser
 import csv
 import hashlib
 import json
@@ -13,9 +14,6 @@ import socket
 import tarfile
 import errno
 from collections import Counter
-from configparser import ConfigParser
-from configparser import Error as ConfigParserError
-from configparser import NoOptionError, NoSectionError
 from datetime import datetime, timedelta
 from operator import itemgetter
 from random import SystemRandom
@@ -26,6 +24,8 @@ from urllib3 import Timeout
 # We import the entire pbench module so that mocking time works by changing
 # the _time binding in the pbench module for unit tests via the
 # PbenchServerConfig constructor's execution.
+
+from pbench.common import MetadataLog
 from pbench.common.exceptions import (
     BadDate,
     ConfigFileError,
@@ -106,7 +106,7 @@ def _get_es_hosts(config, logger):
     try:
         host = config.get("elasticsearch", "host")
         port = config.get("elasticsearch", "port")
-    except (NoSectionError, NoOptionError):
+    except (configparser.NoSectionError, configparser.NoOptionError):
         logger.warning(
             "Failed to find an [elasticsearch] section with host and port defined"
             " in {} configuration file.",
@@ -3095,7 +3095,7 @@ class Iteration:
         iter_dict = dict()
         try:
             items = ptb.mdconf.items(f"iterations/{name}")
-        except NoSectionError:
+        except configparser.NoSectionError:
             if name == "1":
                 # Old pbench-user-benchmark implementations used an iteration
                 # name of "1" for the on-disk directory, since they only ever
@@ -3222,7 +3222,7 @@ class PbenchTarBall:
         md5sum = open("%s.md5" % (self.tbname)).read().split()[0]
         # Construct the @metadata and run metadata dictionaries from the
         # metadata.log file.
-        self.mdconf = ConfigParser()
+        self.mdconf = MetadataLog()
         mdf = os.path.join(self.extracted_root, metadata_log_path)
         try:
             # Read and parse the metadata.log file.
@@ -3289,13 +3289,13 @@ class PbenchTarBall:
         )
         try:
             rpm_version = self.mdconf.get("pbench", "rpm-version")
-        except NoOptionError:
+        except configparser.NoOptionError:
             pass
         else:
             self.at_metadata["pbench-agent-version"] = rpm_version
         try:
             result_prefix = self.mdconf.get("run", "prefix")
-        except NoOptionError:
+        except configparser.NoOptionError:
             pass
         else:
             self.at_metadata["result-prefix"] = result_prefix
@@ -3304,7 +3304,7 @@ class PbenchTarBall:
         self.at_metadata["controller_dir"] = self.controller_dir
         try:
             tb_ts_str = self.mdconf.get("pbench", "tar-ball-creation-timestamp")
-        except NoOptionError:
+        except configparser.NoOptionError:
             pass
         else:
             self.at_metadata[
@@ -3312,7 +3312,7 @@ class PbenchTarBall:
             ] = PbenchTarBall.convert_to_dt(tb_ts_str)[1]
         try:
             raw_size = self.mdconf.get("run", "raw_size")
-        except NoOptionError:
+        except configparser.NoOptionError:
             pass
         else:
             try:
@@ -3330,7 +3330,7 @@ class PbenchTarBall:
         try:
             self.run_metadata.update(self.mdconf.items("run"))
             self.run_metadata.update(self.mdconf.items("pbench"))
-        except NoSectionError as e:
+        except configparser.NoSectionError as e:
             raise BadMDLogFormat(
                 '{} - missing section in metadata.log, "{}"'.format(self.dirname, e)
             )
@@ -3358,7 +3358,7 @@ class PbenchTarBall:
             if toolsgroup:
                 # Add the tools group used as run metadata for indexing purposes.
                 self.run_metadata["toolsgroup"] = toolsgroup
-        except NoSectionError:
+        except configparser.NoSectionError:
             # No tool data collected for this result.
             pass
         # Update the start and end run times using the already updated values
@@ -3472,7 +3472,7 @@ class PbenchTarBall:
     def get_section_items(self, section):
         try:
             section_items = self.mdconf.items(section)
-        except NoSectionError:
+        except configparser.NoSectionError:
             self.idxctx.logger.warning(
                 "No [{}] section in metadata.log: tool data will"
                 " *not* be indexed ({})",
@@ -3480,7 +3480,7 @@ class PbenchTarBall:
                 self._tbctx,
             )
             return []
-        except ConfigParserError:
+        except configparser.Error:
             self.idxctx.logger.exception(
                 "ConfigParser error in get_section_items: tool data"
                 " will *not* be indexed -- this is most probably a bug:"
@@ -3495,21 +3495,21 @@ class PbenchTarBall:
         try:
             # N.B. Space-separated list
             hosts = self.mdconf.get("tools", "hosts")
-        except NoSectionError:
+        except configparser.NoSectionError:
             self.idxctx.logger.warning(
                 "No [tools] section in metadata.log: tool data will"
                 " *not* be indexed ({})",
                 self._tbctx,
             )
             return []
-        except NoOptionError:
+        except configparser.NoOptionError:
             self.idxctx.logger.warning(
                 'No "hosts" option in [tools] section in metadata'
                 " log: tool data will *NOT* be indexed ({})",
                 self._tbctx,
             )
             return []
-        except ConfigParserError:
+        except configparser.Error:
             self.idxctx.logger.exception(
                 "ConfigParser error in get_hosts: tool data will"
                 " *not* be indexed -- this is most probably a bug: please"

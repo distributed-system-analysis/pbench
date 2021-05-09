@@ -45,8 +45,8 @@ turbostat = --interval=3
 controller = testhost.example.com
 start_run = 2018-05-23T03:21:32.387628370
 end_run = 2018-05-23T03:22:39.538437410
-user = ndk20%%
-prefix = foo/bar3%%
+user = ndk20%
+prefix = foo/bar3%
 raw_size = #####
 
 [iterations/1]
