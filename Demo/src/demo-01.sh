@@ -3,21 +3,48 @@
 # A demonstration of how to use pbench-tool-meister-start with an existing
 # Redis server, and one or more remote
 
-DISTRO="${1}"
-TAG="${2}"
+DISTRO="${1}"; shift
+TAG="${1}"; shift
 
 if [[ -z "${DISTRO}" ]]; then
-    echo "Missing 1st argument, the distro target." >&2
+    echo "ERROR - Missing 1st argument, the distro target." >&2
     exit 1
 fi
 if [[ -z "${TAG}" ]]; then
-    echo "Missing 2nd argument, the image tag." >&2
+    echo "ERROR - Missing 2nd argument, the image tag." >&2
     exit 1
 fi
 
-export REDIS_HOST=192.168.182.128
+export REDIS_HOST=${1}; shift
+if [[ -z "${REDIS_HOST}" ]]; then
+    echo "ERROR - Missing 3rd argument, the Redis server host." >&2
+    exit 1
+fi
 export REDIS_PORT=6379
 export PBENCH_REDIS_SERVER="${REDIS_HOST}:${REDIS_PORT}"
+
+export TDS=${1}; shift
+if [[ -z "${TDS}" ]]; then
+    echo "ERROR - Missing 4th argument, the Tool Data Sink host." >&2
+    exit 1
+fi
+
+# The remaining arguments will be the Tool Meister hosts.
+
+export pbench_run=$(pwd)/run-dir
+rm -rf ${pbench_run}
+mkdir ${pbench_run}
+printf -- "${pbench_run}\n" > ${pbench_run}/.path
+export pbench_log=${pbench_run}/pbench.log
+
+for i in ${*}; do
+    echo ${i}
+done > ${pbench_run}/remotes.lis
+
+if [[ ! -s ${pbench_run}/remotes.lis ]]; then
+    echo "ERROR - We need at least one host to register tools." >&2
+    exit 1
+fi
 
 function wait_keypress {
     echo "Press any key to continue"
@@ -47,35 +74,17 @@ wait_keypress 120
 # the Tool Data Sink, and how the "sysinfo", "init", and "end" commands
 # operate with respect to data storage.
 
-export pbench_run=$(pwd)/run-dir
-rm -rf ${pbench_run}
-mkdir ${pbench_run}
-printf -- "${pbench_run}\n" > ${pbench_run}/.path
-export pbench_log=${pbench_run}/pbench.log
-
-printf -- "\n\nI've created my non-root pbench run directory:\n\n"
+printf -- "\n\nWe've created a non-root owned pbench run directory:\n\n"
 
 find ${pbench_run} -ls
 
-printf -- "\n\nNotice that it is owned by kali (and I've set the 'pbench_run' ENV to that directory).\n\n"
+printf -- "\n\nNotice that it is owned by ${USER} (and we've set the 'pbench_run' ENV to that directory).\n\n"
 
 wait_keypress 120
-
-
-# Register tools
-
-printf -- "\nNow we'll register three tools that can be run in the Tool Meister containers,\n\n\t'vmstat', 'mpstat', and 'jaeger',\n\n... using a file containing all three remote hosts running the Tool Meister.\n\n"
-
-wait_keypress 120
-
-for i in {28..30}; do
-    echo 192.168.182.1${i}
-done > ${pbench_run}/remotes.lis
-
 
 # Start Tool Meister containers on remote hosts
 
-printf -- "\n\nNow let's start the three Tool Meister pods running on the gprfc hosts...\n\n\t$ podman run --name pbench-agent-tool-meister --network host --ulimit nofile=65536:65536 --rm -d -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e PARAM_KEY=tm-default-\$(hostname -I | awk '{print \$1}') -e _PBENCH_TOOL_MEISTER_LOG_LEVEL=debug quay.io/pbench/pbench-agent-tool-meister-${DISTRO}:${TAG}\n\n"
+printf -- "\n\nNow let's start the three Tool Meister pods running on the given hosts...\n\n\t$ podman run --name pbench-agent-tool-meister --network host --ulimit nofile=65536:65536 --rm -d -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e PARAM_KEY=tm-default-\$(hostname -f') -e _PBENCH_TOOL_MEISTER_LOG_LEVEL=debug quay.io/pbench/pbench-agent-tool-meister-${DISTRO}:${TAG}\n\n"
 
 wait_keypress 120
 
@@ -102,10 +111,6 @@ set +x
 
 wait_keypress 120
 
-echo "sleep-iter-0 10" > ${pbench_run}/my-iterations.lis
-echo "sleep-iter-11 11" >> ${pbench_run}/my-iterations.lis
-echo "sleep-iter-42 12" >> ${pbench_run}/my-iterations.lis
-echo "sleep-iter-42 120" >> ${pbench_run}/my-iterations.lis
 
 cp -a ./demo-01-run-pbench.sh ${pbench_run}/
 
