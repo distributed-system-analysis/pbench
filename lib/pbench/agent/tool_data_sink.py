@@ -1248,9 +1248,9 @@ class ToolDataSink(Bottle):
         mdlog.set(section, "hostname", self.hostname)
         mdlog.set(section, "hostname-s", hostdata["s"])
         mdlog.set(section, "hostname-f", hostdata["f"])
-        mdlog.set(section, "hostname-i", hostdata["i"])
+        mdlog.set(section, "hostname-i", hostdata["i"].replace("%", "%%"))
         mdlog.set(section, "hostname-A", hostdata["A"])
-        mdlog.set(section, "hostname-I", hostdata["I"])
+        mdlog.set(section, "hostname-I", hostdata["I"].replace("%", "%%"))
         mdlog.set(section, "ssh_opts", self.optional_md["ssh_opts"])
 
         section = "run"
@@ -1262,7 +1262,7 @@ class ToolDataSink(Bottle):
         mdlog.add_section(section)
         mdlog.set(section, "hosts", " ".join(sorted(list(self.tools.keys()))))
         mdlog.set(section, "group", self.tool_group)
-        mdlog.set(section, "trigger", str(self.tool_trigger))
+        mdlog.set(section, "trigger", str(self.tool_trigger).replace("%", "%%"))
 
         for host, tm in sorted(tms.items()):
             section = f"tools/{host}"
@@ -1274,9 +1274,9 @@ class ToolDataSink(Bottle):
             # add host data
             mdlog.set(section, "hostname-s", tm["hostname_s"])
             mdlog.set(section, "hostname-f", tm["hostname_f"])
-            mdlog.set(section, "hostname-i", tm["hostname_i"])
+            mdlog.set(section, "hostname-i", tm["hostname_i"].replace("%", "%%"))
             mdlog.set(section, "hostname-A", tm["hostname_A"])
-            mdlog.set(section, "hostname-I", tm["hostname_I"])
+            mdlog.set(section, "hostname-I", tm["hostname_I"].replace("%", "%%"))
             ver, seq, sha = tm["version"], tm["seqno"], tm["sha1"]
             rpm_version = f"v{ver}-{seq}g{sha}"
             try:
@@ -1287,20 +1287,22 @@ class ToolDataSink(Bottle):
 
             for tool, opts in tm["tools"].items():
                 # Compatibility - keep each tool with options listed
-                mdlog.set(section, tool, opts)
+                mdlog.set(section, tool, opts.replace("%", "%%"))
 
                 # New way is to give each tool a separate section storing the
                 # options and install results individually.
                 new_section = f"tools/{host}/{tool}"
                 mdlog.add_section(new_section)
-                mdlog.set(new_section, "options", opts)
+                mdlog.set(new_section, "options", opts.replace("%", "%%"))
                 try:
                     code, msg = tm["installs"][tool]
                 except KeyError:
                     pass
                 else:
                     mdlog.set(new_section, "install_check_status_code", str(code))
-                    mdlog.set(new_section, "install_check_output", msg)
+                    mdlog.set(
+                        new_section, "install_check_output", msg.replace("%", "%%")
+                    )
 
         # Review how many different RPM versions we have accumulated.
         rpm_versions_cnt = len(rpm_versions.keys())
