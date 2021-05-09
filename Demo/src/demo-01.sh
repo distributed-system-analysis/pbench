@@ -85,7 +85,7 @@ wait_keypress 120
 
 # Start Tool Meister containers on remote hosts
 
-printf -- "\n\nNow let's start the three Tool Meister pods running on the given hosts...\n\n\t$ podman run --name pbench-agent-tool-meister --network host --ulimit nofile=65536:65536 --rm -it -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e PARAM_KEY=tm-default-\$(hostname -f) -e _PBENCH_TOOL_MEISTER_LOG_LEVEL=debug quay.io/pbench/pbench-agent-tool-meister-${DISTRO}:${TAG}\n\n"
+printf -- "\n\nNow let's start the three Tool Meister pods running on the given hosts...\n\n\t$ podman run --name pbench-agent-tool-meister --network host --ulimit nofile=65536:65536 --rm -d -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e PARAM_KEY=tm-default-\$(hostname -f) -e _PBENCH_TOOL_MEISTER_LOG_LEVEL=debug quay.io/pbench/pbench-agent-tool-meister-${DISTRO}:${TAG}\n\n"
 
 wait_keypress 120
 
@@ -95,14 +95,14 @@ wait_keypress 120
 
 printf -- "\n\nNow let's start the local Tool Data Sink to pull tool data into our local volume.\n\n"
 
-printf -- "podman run --name pbench-agent-tool-data-sink --network host --volume ${pbench_run}:/var/lib/pbench-agent:z --ulimit nofile=65536:65536 --rm -it -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e PARAM_KEY=tds-default -e _PBENCH_TOOL_DATA_SINK_LOG_LEVEL=debug quay.io/pbench/pbench-agent-tool-data-sink-${DISTRO}:${TAG}\n\n"
+printf -- "podman run --name pbench-agent-tool-data-sink --network host --volume ${pbench_run}:/var/lib/pbench-agent:z --ulimit nofile=65536:65536 --rm -d -e REDIS_HOST=${REDIS_HOST} -e REDIS_PORT=${REDIS_PORT} -e PARAM_KEY=tds-default -e _PBENCH_TOOL_DATA_SINK_LOG_LEVEL=debug quay.io/pbench/pbench-agent-tool-data-sink-${DISTRO}:${TAG}\n\n"
 
 printf -- "\n\nNow let's look at the 'podman logs' output from these containers;\n\tnotice we did not start a Redis server yet,\n\tthey'll just be waiting for it to show up.\n\n"
 
 wait_keypress 120
 
 
-printf -- "\n\nStart the Redis server on ${REDIS_HOST}:${REDIS_PORT}\n\t$ podman run --name demo-tm-redis --network host --rm -it docker.io/library/redis:latest\n\n\tNote TDS and TMs notice Redis server,\n\tbut now wait for their 'PARAM_KEY' to show up.\n\n"
+printf -- "\n\nStart the Redis server on ${REDIS_HOST}:${REDIS_PORT}\n\t$ podman run --name demo-tm-redis --network host --rm -d docker.io/library/redis:latest\n\n\tNote TDS and TMs notice Redis server,\n\tbut now wait for their 'PARAM_KEY' to show up.\n\n"
 
 wait_keypress 120
 
