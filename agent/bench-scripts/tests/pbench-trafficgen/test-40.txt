@@ -68,7 +68,7 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
 /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
 --- pbench tree state
 +++ pbench.log file contents
-[debug][1900-01-01T00:00:00.000000] [check_install_rpm] dpdk-tools is installed
+[debug][1900-01-01T00:00:00.000000] [pbench-trafficgen] required dpdk-tools is installed
 [warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-40_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent"
 [info][1900-01-01T00:00:00.000000] Starting iteration[1-5000000-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
 [info][1900-01-01T00:00:00.000000] test sample 1 of 1
