@@ -19,7 +19,7 @@ import subprocess
 import sys
 import tempfile
 
-from configparser import ConfigParser, DuplicateSectionError
+from configparser import DuplicateSectionError
 from datetime import datetime
 from distutils.spawn import find_executable
 from http import HTTPStatus
@@ -45,6 +45,7 @@ from pbench.agent.constants import (
 from pbench.agent.redis import RedisChannelSubscriber, wait_for_conn_and_key
 from pbench.agent.toolmetadata import ToolMetadata
 from pbench.agent.utils import collect_local_info
+from pbench.common import MetadataLog
 
 
 # Logging format string for unit tests
@@ -1131,7 +1132,7 @@ class ToolDataSink(Bottle):
         )
 
         mdlog_name = self.benchmark_run_dir.local / "metadata.log"
-        mdlog = ConfigParser()
+        mdlog = MetadataLog()
         try:
             with mdlog_name.open("r") as fp:
                 mdlog.read_file(fp)
@@ -1141,15 +1142,9 @@ class ToolDataSink(Bottle):
 
         section = "pbench"
         mdlog.add_section(section)
-        # Users have a funny way of adding '%' characters to the config
-        # variable, so we have to be sure we handle "%" characters in the
-        # config metadata properly.
-        mdlog.set(section, "config", self.optional_md["config"].replace("%", "%%"))
+        mdlog.set(section, "config", self.optional_md["config"])
         mdlog.set(section, "date", self.optional_md["date"])
-        # Users have a funny way of adding '%' characters to the run
-        # directory, so we have to be sure we handle "%" characters in the
-        # directory name metadata properly.
-        mdlog.set(section, "name", self.benchmark_run_dir.local.name.replace("%", "%%"))
+        mdlog.set(section, "name", self.benchmark_run_dir.local.name)
         version, seqno, sha1, hostdata = collect_local_info(self.pbench_bin)
         rpm_version = f"v{version}-{seqno}g{sha1}"
         mdlog.set(section, "rpm-version", rpm_version)
@@ -1443,7 +1438,7 @@ class ToolDataSink(Bottle):
             # Meisters due to an interruption (SIGINT or otherwise).
             #
             mdlog_name = self.benchmark_run_dir.local / "metadata.log"
-            mdlog = ConfigParser()
+            mdlog = MetadataLog()
             try:
                 with (mdlog_name).open("r") as fp:
                     mdlog.read_file(fp)

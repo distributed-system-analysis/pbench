@@ -10,21 +10,21 @@
 # where the iterations are in the <iterations.file>, one iteration per line.
 
 import sys
-from configparser import ConfigParser, NoSectionError
+from configparser import NoSectionError
+
+from pbench.common import MetadataLog
 
 
 def main(lfile, section, option):
-    config = ConfigParser()
-    config.read(lfile)
-    # python3
-    # config[section][option] = ', '.join(sys.stdin.read().split())
-    sin = sys.stdin.read().replace("%", "%%")
+    mdlog = MetadataLog()
+    mdlog.read(lfile)
+    sin = sys.stdin.read()
     try:
-        config.set(section, option, ", ".join(sin.split()))
+        mdlog.set(section, option, ", ".join(sin.split()))
     except NoSectionError:
-        config.add_section(section)
-        config.set(section, option, ", ".join(sin.split()))
-    config.write(open(lfile, "w"))
+        mdlog.add_section(section)
+        mdlog.set(section, option, ", ".join(sin.split()))
+    mdlog.write(open(lfile, "w"))
 
 
 if __name__ == "__main__":

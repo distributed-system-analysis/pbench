@@ -11,6 +11,6 @@
 --- pbench tree state
 +++ mock-run/metadata.log file contents
 [run]
-percent = 30%%
+percent = 30%
 
 --- mock-run/metadata.log file contents
