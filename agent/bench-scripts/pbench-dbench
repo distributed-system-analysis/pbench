@@ -65,15 +65,6 @@ thread_counts=`cat /proc/cpuinfo | grep processor | wc -l`
 client_nodes=""
 sysinfo="default"
 
-function install_dbench {
-	if check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"; then
-		debug_log "[${script_name}]${benchmark_rpm}-${ver} is installed"
-	else
-		error_log "[${script_name}]${benchmark_rpm}-${ver} is not installed, exiting"
-		exit 1
-	fi
-}
-
 function print_iteration {
 	# printing a iteration assumes this must be a new row, so include \n first
 	printf "\n%28s" "$1" >>$benchmark_summary_txt_file
@@ -148,8 +139,8 @@ while true; do
 	case "$1" in
 		--install)
 		shift;
-		install_dbench
-		exit
+		check_install_rpm "${benchmark_rpm}" "${ver}" "${match}"
+		exit 0
 		;;
 		--tool-label-pattern)
 		shift;
