@@ -61,6 +61,10 @@ mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 # Install python dependencies
 pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log
 
+# Create /var/log/pbench directory for gunicorn
+mkdir -p /var/log/pbench
+chown -R pbench:pbench /var/log/pbench
+
 # install node.js modules under /%{installdir}
 cd /%{installdir}
 rm -rf node_modules
