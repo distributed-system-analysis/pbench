@@ -1,8 +1,8 @@
-+++ Running test-12 pbench-clear-tools 
++++ Running test-21.00 pbench-clear-tools 
 removing tools-default/mpstat
 running . /var/tmp/pbench-test-utils/opt/pbench-agent/profile; pbench-clear-tools --group default  on fubar
 Removing the remote remote@fubar
---- Finished test-12 pbench-clear-tools (status=1)
+--- Finished test-21.00 pbench-clear-tools (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/tmp

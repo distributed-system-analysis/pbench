@@ -1,0 +1,7 @@
++++ Running test-12.05 pbench-list-tools --group default --name iostat
+You cannot specify both group and a name
+--- Finished test-12.05 pbench-list-tools (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state

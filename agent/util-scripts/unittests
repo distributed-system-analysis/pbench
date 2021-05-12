@@ -316,7 +316,12 @@ declare -A tools=(
     [test-11.12]="pbench-register-tool-set"
     [test-11.13]="pbench-register-tool-set"
     [test-11.14]="pbench-register-tool-set"
-    [test-12]="pbench-clear-tools"
+    [test-12.00]="pbench-list-tools"
+    [test-12.01]="pbench-list-tools"
+    [test-12.02]="pbench-list-tools"
+    [test-12.03]="pbench-list-tools"
+    [test-12.04]="pbench-list-tools"
+    [test-12.05]="pbench-list-tools"
     [test-13]="pbench-postprocess-tools"
     [test-14]="pbench-agent-config-activate"
     [test-15]="pbench-register-tool-trigger"
@@ -325,7 +330,8 @@ declare -A tools=(
     [test-18]="pbench-list-triggers"
     [test-19]="test-tool-trigger"
     [test-20]="pbench-postprocess-tools"
-    [test-21]="pbench-clear-tools"
+    [test-21.00]="pbench-clear-tools"
+    [test-21.01]="pbench-clear-tools"
     [test-22]="pbench-metadata-log"
     [test-23]="pbench-collect-sysinfo"
     [test-24]="pbench-collect-sysinfo"
@@ -395,13 +401,18 @@ declare -A options=(
     # verify --group option works along side --no-install
     [test-11.12]="--group=other --no-install"
     [test-11.13]="--help"
+    [test-12.00]="--help"
+    [test-12.02]="--group default"
+    [test-12.03]="--name iostat"
+    [test-12.04]="--name doesnotexist"
+    [test-12.05]="--group default --name iostat"
     [test-13]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample --group=default"
     [test-14]="${_testdir}/tmp/pbench-agent.cfg"
     [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     [test-17]="--group=default"
     [test-18]="--group=foo"
     [test-20]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample --group=default"
-    [test-21]="--remote=fubar2"
+    [test-21.01]="--remote=fubar2"
     [test-22]="--dir=${_testdir}/mock-run end"
     [test-23]="--help"
     [test-24]="--options"
@@ -453,8 +464,9 @@ declare -A expected_status=(
     [test-11.7]=1
     [test-11.8]=1
     [test-11.11]=1
-    [test-12]=1
+    [test-12.05]=1
     [test-13]=2
+    [test-21.00]=1
     [test-29]=1
     [test-35]=1
     [test-36]=1
