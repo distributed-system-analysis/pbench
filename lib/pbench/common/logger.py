@@ -168,7 +168,7 @@ def get_pbench_logger(caller, config):
 
         handler.setLevel(logging.DEBUG)
         if config.log_fmt is None:
-            logfmt = "{asctime} {levelname} {process} {thread} {name}.{module} {funcName} {lineno} -- {message}"
+            logfmt = "{asctime} {levelname} {process} {thread} {name} {module} {funcName} {lineno} -- {message}"
         else:
             logfmt = config.log_fmt
         formatter = _PbenchLogFormatter(fmt=logfmt)
