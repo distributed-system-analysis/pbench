@@ -18,6 +18,7 @@ from sqlalchemy.orm import relationship, validates
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 from pbench.server.database.database import Database
+from pbench.server.database.models.users import User
 
 
 class DatasetError(Exception):
@@ -85,7 +86,9 @@ class DatasetBadParameterType(DatasetError):
 
     def __init__(self, bad_value: Any, expected_type: Any):
         self.bad_value = bad_value
-        self.expected_type = expected_type
+        self.expected_type = (
+            expected_type.__name__ if isinstance(expected_type, type) else expected_type
+        )
 
     def __str__(self) -> str:
         return f'Value "{self.bad_value}" ({type(self.bad_value)}) is not a {type(self.expected_type)}'
@@ -315,7 +318,8 @@ class Dataset(Database.Base):
     }
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    owner = Column(String(255), unique=False, nullable=False, default=None)
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    owner = relationship("User")
     controller = Column(String(255), unique=False, nullable=False)
     name = Column(String(255), unique=False, nullable=False)
 
@@ -348,13 +352,49 @@ class Dataset(Database.Base):
     __table_args__ = (UniqueConstraint("controller", "name"), {})
 
     @validates("state")
-    def validate_state(self, key: str, value: Any) -> Any:
-        """Validate that the value provided for the Dataset state is a member
+    def validate_state(self, key: str, value: Any) -> States:
+        """
+        Validate that the value provided for the Dataset state is a member
         of the States ENUM before it's applied by the SQLAlchemy constructor.
+
+        Args:
+            key: state
+            value: state ENUM member
+
+        Raises:
+            DatasetBadParameter: the value given doesn't resolve to a
+                States ENUM.
+
+        Returns:
+            state
         """
         if type(value) is not States:
             raise DatasetBadParameterType(value, States)
         return value
+
+    @validates("owner")
+    def validate_owner(self, key: str, value: Any) -> User:
+        """
+        Validate and translate owner name to User object
+
+        Args:
+            key: owner
+            value: username
+
+        Raises:
+            DatasetBadParameter: the owner value given doesn't resolve to a
+                Pbench username.
+
+        Returns:
+            User object
+        """
+        if type(value) is User:
+            return value
+        elif type(value) is str:
+            user = User.query(username=value)
+            if user:
+                return user
+        raise DatasetBadParameterType(value, "username")
 
     @staticmethod
     def _render_path(patharg=None, controllerarg=None, namearg=None) -> Tuple[str, str]:
@@ -500,7 +540,7 @@ class Dataset(Database.Base):
         Returns:
             string: Representation of the dataset
         """
-        return f"{self.owner}|{self.controller}|{self.name}"
+        return f"{self.owner.username}({self.owner_id})|{self.controller}|{self.name}"
 
     def advance(self, new_state: States):
         """

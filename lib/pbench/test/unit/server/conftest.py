@@ -111,7 +111,12 @@ def server_config(pytestconfig, monkeypatch):
 
 @pytest.fixture
 def client(server_config):
-    """A test client for the app."""
+    """A test client for the app.
+
+    NOTE: the db_session fixture does something similar, but with implicit
+    cleanup after the test, and without the Flask app setup DB tests don't
+    require.
+    """
     app = create_app(server_config)
 
     app_client = app.test_client()
