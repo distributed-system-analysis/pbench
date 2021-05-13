@@ -169,13 +169,6 @@ class CopyResultTb:
         self.upload_url = f"{server_rest_url}/upload/{tbname}"
         self.logger = logger
 
-    def read_in_chunks(self, file_object: IO) -> Iterator[bytes]:
-        while True:
-            data = file_object.read(self.CHUNK_SIZE)
-            if not data:
-                break
-            yield data
-
     def copy_result_tb(self, token: str) -> None:
         """copy_result_tb - copies tb from agent to configured server upload URL
 
@@ -184,18 +177,31 @@ class CopyResultTb:
                     authorized to make the PUT request on behalf of a
                     specific user.
         """
-        content_length, content_md5 = md5sum(self.tarball)
+        content_length, content_md5 = md5sum(str(self.tarball))
         headers = {
             "Content-MD5": content_md5,
-            "Content-Length": str(content_length),
             "Authorization": f"Bearer {token}",
             "controller": self.controller,
         }
         with self.tarball.open("rb") as f:
             try:
-                response = requests.put(
-                    self.upload_url, data=self.read_in_chunks(f), headers=headers
-                )
+                request = requests.Request(
+                    "PUT", self.upload_url, data=f, headers=headers
+                ).prepare()
+
+                # Per RFC 2616, a request must not contain both
+                # Content-Length and Transfer-Encoding headers; however,
+                # the server would like to receive the Content-Length
+                # header, but the requests package may opt to generate
+                # the Transfer-Encoding header instead...so, check that
+                # we got what we want before we send the request.  Also,
+                # confirm that the contents of the Content-Length header
+                # is what we expect.
+                assert "Transfer-Encoding" not in request.headers
+                assert "Content-Length" in request.headers
+                assert request.headers["Content-Length"] == str(content_length)
+
+                response = requests.Session().send(request)
                 response.raise_for_status()
                 self.logger.info("File uploaded successfully")
             except requests.exceptions.ConnectionError:
