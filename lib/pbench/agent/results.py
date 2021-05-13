@@ -6,7 +6,6 @@ import urllib.parse
 from configparser import ConfigParser
 from logging import Logger
 from pathlib import Path
-from typing import IO, Iterator
 
 import requests
 
@@ -148,8 +147,6 @@ class MakeResultTb:
 class CopyResultTb:
     """CopyResultTb - Use the server's HTTP PUT method to upload a tarball
     """
-
-    CHUNK_SIZE = 65536
 
     def __init__(
         self, controller: str, tarball: str, config: PbenchAgentConfig, logger: Logger
