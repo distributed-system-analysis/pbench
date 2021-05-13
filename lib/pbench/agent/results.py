@@ -194,9 +194,18 @@ class CopyResultTb:
                 # we got what we want before we send the request.  Also,
                 # confirm that the contents of the Content-Length header
                 # is what we expect.
-                assert "Transfer-Encoding" not in request.headers
-                assert "Content-Length" in request.headers
-                assert request.headers["Content-Length"] == str(content_length)
+                assert (
+                    "Transfer-Encoding" not in request.headers
+                ), "Upload request unexpectedly contains a `Transfer-Encoding` header"
+                assert (
+                    "Content-Length" in request.headers
+                ), "Upload request unexpectedly missing a `Content-Length` header"
+                assert request.headers["Content-Length"] == str(content_length), (
+                    "Upload request `Content-Length` header contains {} -- "
+                    "expected {}".format(
+                        request.headers["Content-Length"], content_length
+                    )
+                )
 
                 response = requests.Session().send(request)
                 response.raise_for_status()
