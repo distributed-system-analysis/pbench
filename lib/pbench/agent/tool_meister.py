@@ -841,11 +841,7 @@ class ToolMeister:
             version=version,
             seqno=seqno,
             sha1=sha1,
-            hostname_f=hostdata["f"],
-            hostname_s=hostdata["s"],
-            hostname_i=hostdata["i"],
-            hostname_I=hostdata["I"],
-            hostname_A=hostdata["A"],
+            hostdata=hostdata,
             installs=tool_installs,
         )
 
