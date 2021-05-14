@@ -1155,11 +1155,8 @@ class ToolDataSink(Bottle):
         section = "controller"
         mdlog.add_section(section)
         mdlog.set(section, "hostname", self.hostname)
-        mdlog.set(section, "hostname-s", hostdata["s"])
-        mdlog.set(section, "hostname-f", hostdata["f"])
-        mdlog.set(section, "hostname-i", hostdata["i"])
-        mdlog.set(section, "hostname-A", hostdata["A"])
-        mdlog.set(section, "hostname-I", hostdata["I"])
+        for hd_key, hd_val in sorted(hostdata.items()):
+            mdlog.set(section, f"hostname-{hd_key}", hd_val)
         mdlog.set(section, "ssh_opts", self.optional_md["ssh_opts"])
 
         section = "run"
@@ -1181,11 +1178,8 @@ class ToolDataSink(Bottle):
             mdlog.set(section, "tools", tools_string)
 
             # add host data
-            mdlog.set(section, "hostname-s", tm["hostname_s"])
-            mdlog.set(section, "hostname-f", tm["hostname_f"])
-            mdlog.set(section, "hostname-i", tm["hostname_i"])
-            mdlog.set(section, "hostname-A", tm["hostname_A"])
-            mdlog.set(section, "hostname-I", tm["hostname_I"])
+            for hd_key, hd_val in sorted(tm["hostdata"].items()):
+                mdlog.set(section, f"hostname-{hd_key}", hd_val)
             ver, seq, sha = tm["version"], tm["seqno"], tm["sha1"]
             rpm_version = f"v{ver}-{seq}g{sha}"
             try:

@@ -370,9 +370,18 @@ def collect_local_info(pbench_bin):
         sha1 = "(unknown)"
 
     hostdata = {}
-    for arg in ["f", "s", "i", "I", "A"]:
+    for arg in [
+        "fqdn",
+        "all-fqdns",
+        "short",
+        "alias",
+        "ip-address",
+        "all-ip-addresses",
+        "domain",
+        "nis",
+    ]:
         cp = subprocess.run(
-            ["hostname", f"-{arg}"],
+            ["hostname", f"--{arg}"],
             stdin=None,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,

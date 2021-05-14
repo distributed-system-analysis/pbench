@@ -286,10 +286,14 @@ iterations = 0-iter-zero, 1-iter-one
 
 [controller]
 hostname = testhost.example.com
-hostname-s = agent.example.com
-hostname-f = agent.example.com
-hostname-i = agent.example.com
-hostname-a = agent.example.com
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
 ssh_opts = -o StrictHostKeyChecking=no
 
 [run]
@@ -306,10 +310,14 @@ trigger = None
 [tools/remote-a.example.com]
 label = 
 tools = mpstat
-hostname-s = agent.example.com
-hostname-f = agent.example.com
-hostname-i = agent.example.com
-hostname-a = agent.example.com
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
 rpm-version = v(unknown)-g(unknown)
 mpstat = --interval=42 --options=forty-two
 
@@ -321,10 +329,14 @@ install_check_output = mpstat: pbench-sysstat-12.0.3-1 is installed
 [tools/remote-b.example.com]
 label = blue
 tools = mpstat,node-exporter
-hostname-s = agent.example.com
-hostname-f = agent.example.com
-hostname-i = agent.example.com
-hostname-a = agent.example.com
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
 rpm-version = v(unknown)-g(unknown)
 mpstat = --interval=42 --options=forty-two
 node-exporter = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
@@ -342,10 +354,14 @@ install_check_output = node_exporter tool properly installed
 [tools/remote-c.example.com]
 label = red
 tools = dcgm,pcp
-hostname-s = agent.example.com
-hostname-f = agent.example.com
-hostname-i = agent.example.com
-hostname-a = agent.example.com
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
 rpm-version = v(unknown)-g(unknown)
 dcgm = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
 pcp = --interval=42 --options=forty-two
@@ -363,10 +379,14 @@ install_check_output = pcp tool (pmcd) properly installed
 [tools/testhost.example.com]
 label = 
 tools = dcgm,mpstat
-hostname-s = agent.example.com
-hostname-f = agent.example.com
-hostname-i = agent.example.com
-hostname-a = agent.example.com
+hostname-alias = bond
+hostname-all-fqdns = agent.example.com bond.example.com
+hostname-all-ip-addresses = 192.168.0.1 172.0.0.1 127.0.0.1
+hostname-domain = example.com
+hostname-fqdn = agent.example.com
+hostname-ip-address = 172.0.0.1 127.0.0.1
+hostname-nis = hostname[mock]: Local domain name not set
+hostname-short = agent
 rpm-version = v(unknown)-g(unknown)
 dcgm = --inst=/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts
 mpstat = --interval=42 --options=forty-two
