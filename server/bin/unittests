@@ -24,11 +24,6 @@ if [[ ! -d $_testbase ]]; then
     exit 1
 fi
 
-# Install the PBENCH code under test, mostly to build CLICK commands for use
-# during setup. This will install (and run) on top of whatever Python
-# environment is in effect; e.g., the tox virtual environment.
-pipenv install ${_gitdir}
-
 function remove_path {
     # PATH ($2) => /bin:/opt/a dir/bin:/sbin
     WORK=:$2:
