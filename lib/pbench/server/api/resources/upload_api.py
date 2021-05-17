@@ -1,3 +1,4 @@
+import errno
 import hashlib
 import os
 import tempfile
@@ -28,9 +29,9 @@ class HostInfo(Resource):
             response = jsonify(
                 dict(message=f"{self.user}@{self.host}" f":{self.prdp}-002")
             )
-        except Exception:
-            self.logger.exception(
-                "There was something wrong constructing the host info"
+        except Exception as exc:
+            self.logger.error(
+                "There was something wrong constructing the host info: '{}'", exc
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         response.status_code = HTTPStatus.OK
@@ -54,8 +55,8 @@ class Upload(Resource):
     def put(self, filename: str):
         try:
             username = Auth.token_auth.current_user().username
-        except Exception:
-            self.logger.exception("Error verifying the username")
+        except Exception as exc:
+            self.logger.error("Error verifying the username: '{}'", exc)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         if os.path.basename(filename) != filename:
@@ -153,9 +154,10 @@ class Upload(Resource):
             response = jsonify(dict(message="Dataset already exists"))
             response.status_code = HTTPStatus.OK
             return response
-        except Exception:
-            self.logger.exception(
-                "unable to create dataset for user = {}, ctrl = {!a}, file = {!a}",
+        except Exception as exc:
+            self.logger.error(
+                "unable to create dataset, '{}', for user = {}, ctrl = {!a}, file = {!a}",
+                exc,
                 username,
                 controller,
                 filename,
@@ -196,11 +198,34 @@ class Upload(Resource):
 
                     ofp.write(chunk)
                     hash_md5.update(chunk)
-            except Exception:
+            except OSError as exc:
+                if exc.errno == errno.ENOSPC:
+                    self.logger.error(
+                        "Not enough space on volume, {}, for upload:"
+                        " user = {}, ctrl = {!a}, file = {!a}",
+                        path,
+                        username,
+                        controller,
+                        filename,
+                    )
+                    abort(HTTPStatus.INSUFFICIENT_STORAGE)
+                else:
+                    msg = "Unexpected error encountered during file upload"
+                    self.logger.error(
+                        "{}, {}, for user = {}, ctrl = {!a}, file = {!a}",
+                        msg,
+                        exc,
+                        username,
+                        controller,
+                        filename,
+                    )
+                    abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+            except Exception as exc:
                 msg = "Unexpected error encountered during file upload"
-                self.logger.exception(
-                    "{} for user = {}, ctrl = {!a}, file = {!a}",
+                self.logger.error(
+                    "{}, {}, for user = {}, ctrl = {!a}, file = {!a}",
                     msg,
+                    exc,
                     username,
                     controller,
                     filename,
@@ -237,39 +262,44 @@ class Upload(Resource):
             # First write the .md5
             try:
                 md5_full_path.write_text(f"{md5sum} {filename}\n")
-            except Exception:
+            except Exception as exc:
                 try:
                     md5_full_path.unlink(missing_ok=True)
-                except Exception as exc:
+                except Exception as md5_exc:
                     self.logger.error(
-                        "Failed to remove .md5 {} when trying to clean up: {}",
+                        "Failed to remove .md5 {} when trying to clean up: '{}'",
                         md5_full_path,
-                        exc,
+                        md5_exc,
                     )
-                self.logger.exception("Failed to write .md5 file, '{}'", md5_full_path)
-                raise
+                self.logger.error(
+                    "Failed to write .md5 file, '{}': '{}'", md5_full_path, exc
+                )
+                abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
             # Then create the final filename link to the temporary file.
             try:
                 os.link(ofp.name, tar_full_path)
-            except Exception:
+            except Exception as exc:
                 try:
                     md5_full_path.unlink()
-                except Exception as exc:
+                except Exception as md5_exc:
                     self.logger.error(
                         "Failed to remove .md5 {} when trying to clean up: {}",
                         md5_full_path,
-                        exc,
+                        md5_exc,
                     )
-                self.logger.exception(
-                    "Failed to rename tar ball '{}' to '{}'", ofp.name, md5_full_path,
+                self.logger.error(
+                    "Failed to rename tar ball '{}' to '{}': '{}'",
+                    ofp.name,
+                    md5_full_path,
+                    exc,
                 )
-                raise
+                abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
             dataset.advance(States.UPLOADED)
-        except Exception:
-            self.logger.exception("Unable to finalize {}", dataset)
+        except Exception as exc:
+            self.logger.error("Unable to finalize {}, '{}'", dataset, exc)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         response = jsonify(dict(message="File successfully uploaded"))
         response.status_code = HTTPStatus.CREATED
