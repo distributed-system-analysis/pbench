@@ -32,7 +32,6 @@ import pbench.server
 from pbench.common import MetadataLog
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
-from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
 from pbench.server.indexer import _STD_DATETIME_FMT
 from pbench.server.report import Report
@@ -322,7 +321,7 @@ def main(options):
         return 1
 
     try:
-        config = PbenchServerConfig(options.cfg_name)
+        config = pbench.server.PbenchServerConfig(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2

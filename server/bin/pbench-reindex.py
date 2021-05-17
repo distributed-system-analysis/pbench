@@ -22,9 +22,8 @@ import re
 from datetime import datetime
 from argparse import ArgumentParser
 
-from pbench import BadConfig
 import pbench.server
-from pbench.server import PbenchServerConfig
+from pbench import BadConfig
 from pbench.server.database.models.tracker import (
     Dataset,
     Metadata,
@@ -175,7 +174,7 @@ def main(options):
         return 1
 
     try:
-        config = PbenchServerConfig(options.cfg_name)
+        config = pbench.server.PbenchServerConfig(options.cfg_name)
     except BadConfig as e:
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2

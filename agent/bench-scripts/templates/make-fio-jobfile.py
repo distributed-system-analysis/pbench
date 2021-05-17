@@ -36,7 +36,7 @@ def replace_all(dct, old, new):
     keys = list(dct.keys())
     for k in keys:
         if isinstance(dct[k], dict):
-            dct[k] = replace_all(dct[k], old, new)
+            replace_all(dct[k], old, new)
         elif dct[k] is not None:
             assert isinstance(dct[k], str)
             old_val = dct[k]
@@ -52,7 +52,7 @@ def replace_val(dct, magic, delta):
     keys = list(dct.keys())
     for k in keys:
         if isinstance(dct[k], dict):
-            dct[k] = replace_val(dct[k], magic, delta)
+            replace_val(dct[k], magic, delta)
         elif dct[k] is not None:
             assert isinstance(dct[k], str)
             if magic in dct[k]:

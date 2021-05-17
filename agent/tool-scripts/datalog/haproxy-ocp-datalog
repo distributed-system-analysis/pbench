@@ -267,8 +267,6 @@ def operation(routers, ts_str):
     new_routers = curr_routers - prev_routers
     # These are all the routers that have died since the last time.
     dead_routers = prev_routers - curr_routers
-    # Remember for the next iteration of the loop.
-    prev_routers = curr_routers
 
     for pod_name in dead_routers:
         # Clear out any dead routers
@@ -399,7 +397,7 @@ while not terminate:
     next_start = time_stamp + interval
 
 # First wait on any existing sub-processes to complete.
-for router in _routers.values():
+for router in _routers.values():  # lgtm [py/unreachable-statement]
     router.wait(all=True)
 
 ts_str = datetime.utcfromtimestamp(time()).strftime("%s.%f")

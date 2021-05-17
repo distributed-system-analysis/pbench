@@ -13,7 +13,7 @@ import re
 import socket
 import tarfile
 import errno
-from collections import Counter
+from collections import Counter, OrderedDict
 from datetime import datetime, timedelta
 from operator import itemgetter
 from random import SystemRandom
@@ -644,6 +644,13 @@ class ResultData(PbenchData):
                                 self.ptb._tbctx,
                             )
                             continue
+                except StopIteration:
+                    # The csv_reader encountered the end-of-file on the first
+                    # iteration (i.e., the file was empty), so skip it.
+                    self.ptb.idxctx.logger.warning(
+                        "CSV file {csv_name!r} is empty ({self.ptb._tbctx})"
+                    )
+                    continue
                 except OSError as exc:
                     if exc.errno == errno.ENOENT:
                         continue
@@ -1193,7 +1200,7 @@ class ResultData(PbenchData):
                         pass
                     else:
                         s = re.sub(m, val, s)
-                if run is not None and key == "controller_host":
+                elif key == "controller_host" and run is not None:
                     # Fix "controller_host" to try to find "controller" in the
                     # run metadata if available.
                     try:
@@ -1203,7 +1210,6 @@ class ResultData(PbenchData):
                     else:
                         s = re.sub(m, val, s)
                 # Keyword not found, ignore
-                pass
             else:
                 s = re.sub(m, val, s)
         return s
@@ -2172,12 +2178,12 @@ class ToolData(PbenchData):
             # taken from all .csv files (assumes timestamps are the same).
             for fname, row in rows.items():
                 klass, metric, converter = metric_mapping[fname]
-                for idx, val in enumerate(row):
-                    if idx == 0:
+                for i, val in enumerate(row):
+                    if i == 0:
                         continue
                     # Given an fname and a column offset, return the
                     # identifier from the header
-                    identifier, subfield = field_mapping[fname][idx]
+                    identifier, subfield = field_mapping[fname][i]
                     if klass is not None:
                         _d = datum[identifier][self.toolname][klass]
                     else:
@@ -2913,13 +2919,11 @@ def ip_address_to_ip_o_addr(contents):
     the preferred case - at least similar enough to satisfy the caller of this
     function.
     """
-    as_is = True
     lines = contents.split("\n")
     for line in lines[:-1]:
         if not re.match(_ip_o_addr_pat, line):
-            as_is = False
             break
-    if as_is:
+    else:
         return lines
 
     # Handle various formats encountered via a state machine:
@@ -2954,7 +2958,6 @@ def ip_address_to_ip_o_addr(contents):
             proto, addr = line.lstrip().split()[0:2]
     if state == 2:
         newlines.append(f"{serial}: {ifname} {proto} {addr}\n")
-        state = 3
     return newlines
 
 
@@ -3557,8 +3560,8 @@ class PbenchTarBall:
                 continue
             else:
                 return dt, dt.isoformat()
-        else:
-            raise Exception()
+
+        raise ValueError(f"Unrecognized date-time format, {dt_str!r}")
 
     def make_all_actions(self):
         """Driver for generating all actions on source documents for indexing into
@@ -4017,10 +4020,8 @@ class IdxContext:
         # test environments.
         self.time = pbench.server._time
         if self.config._unittests:
-            import collections
-
             global _dict_const
-            _dict_const = collections.OrderedDict
+            _dict_const = OrderedDict
 
             def _do_gethostname():
                 return "example.com"

@@ -124,7 +124,7 @@ try:
     for component in components:
         if terminate:
             # During the creation of sub-processes we were told to terminate.
-            break
+            break  # lgtm [py/unreachable-statement]
 
         # Wait 5 seconds between starting watchers.
         time.sleep(_OC_DELAY)

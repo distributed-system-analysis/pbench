@@ -180,7 +180,7 @@ if parent:
                         host,
                         exc,
                     )
-    sys.exit(0)
+    sys.exit(0)  # lgtm [py/unreachable-statement]
 
 # We are in the child process from here on down ...
 

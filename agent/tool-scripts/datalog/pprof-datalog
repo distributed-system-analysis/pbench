@@ -288,7 +288,7 @@ if parent:
                         operation.op_id,
                         exc,
                     )
-    sys.exit(0)
+    sys.exit(0)  # lgtm [py/unreachable-statement]
 
 # We are now in the "child" ONLY at this point.
 
