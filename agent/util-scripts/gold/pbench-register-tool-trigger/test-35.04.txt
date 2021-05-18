@@ -1,0 +1,9 @@
++++ Running test-35.04 pbench-register-tool-trigger --group=foobar --start-trigger=foo
+Both --start-trigger and --stop-trigger must be specified and must be non-empty.
+usage:
+pbench-register-tool-trigger [--group=<tool group>] --start-trigger=<string to match> --stop-trigger=<string to match>
+--- Finished test-35.04 pbench-register-tool-trigger (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state

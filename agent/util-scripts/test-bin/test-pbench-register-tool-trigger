@@ -1,0 +1,23 @@
+#! /bin/bash
+
+case $1 in
+    one)
+        pbench-register-tool-trigger --group=default --start-trigger="START DEFAULT" --stop-trigger="STOP DEFAULT"
+        sts=${?}
+        ;;
+    two)
+        pbench-register-tool-trigger --group=other --start-trigger="START OTHER" --stop-trigger="STOP OTHER"
+        sts=${?}
+        ;;
+    three)
+        pbench-register-tool-trigger --start-trigger="START DEFAULT" --stop-trigger="STOP DEFAULT"
+        sts=${?}
+        ;;
+    *)
+        exit 123
+esac
+
+echo "+++ tool-triggers file contents"
+cat ${_testdir}/tool-triggers
+echo "--- tool-triggers file contents"
+exit ${sts}

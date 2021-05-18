@@ -324,7 +324,6 @@ declare -A tools=(
     [test-12.05]="pbench-list-tools"
     [test-13]="pbench-postprocess-tools"
     [test-14]="pbench-agent-config-activate"
-    [test-15]="pbench-register-tool-trigger"
     [test-16]="pbench-list-triggers"
     [test-17]="pbench-list-triggers"
     [test-18]="pbench-list-triggers"
@@ -345,8 +344,19 @@ declare -A tools=(
     [test-32]="pbench-copy-results"
     [test-33]="pbench-move-results"
     [test-34]="pbench-move-results"
-    [test-35]="pbench-register-tool-trigger"
-    [test-36]="pbench-register-tool-trigger"
+    [test-35.00]="pbench-register-tool-trigger"
+    [test-35.01]="pbench-register-tool-trigger"
+    [test-35.02]="pbench-register-tool-trigger"
+    [test-35.03]="pbench-register-tool-trigger"
+    [test-35.04]="pbench-register-tool-trigger"
+    [test-35.05]="pbench-register-tool-trigger"
+    [test-35.06]="pbench-register-tool-trigger"
+    [test-35.07]="pbench-register-tool-trigger"
+    [test-35.08]="pbench-register-tool-trigger"
+    [test-35.09]="pbench-register-tool-trigger"
+    [test-35.10]="test-pbench-register-tool-trigger"
+    [test-35.11]="test-pbench-register-tool-trigger"
+    [test-35.12]="test-pbench-register-tool-trigger"
     [test-37]="pbench-move-results"
     [test-38]="pbench-move-results"
     [test-39]="pbench-copy-results"
@@ -408,7 +418,6 @@ declare -A options=(
     [test-12.05]="--group default --name iostat"
     [test-13]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample --group=default"
     [test-14]="${_testdir}/tmp/pbench-agent.cfg"
-    [test-15]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
     [test-17]="--group=default"
     [test-18]="--group=foo"
     [test-20]="--dir=${_testdir}/mock-run/mock-iteration/mock-sample --group=default"
@@ -430,8 +439,19 @@ declare -A options=(
     #[test-33]=""
     # pbench-move-results
     [test-34]="--help"
-    [test-35]="--group=default --start-trigger=\"START:DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
-    [test-36]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP:DEFAULT\""
+    [test-35.00]=""
+    [test-35.01]="--help"
+    [test-35.02]="--wrong"
+    [test-35.03]="--group=foobar"
+    [test-35.04]="--group=foobar --start-trigger=foo"
+    [test-35.05]="--group=foobar --stop-trigger=bar"
+    [test-35.06]="--group=default --start-trigger=\"START:DEFAULT\" --stop-trigger=\"STOP DEFAULT\""
+    [test-35.07]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger=\"STOP:DEFAULT\""
+    [test-35.08]="--group=default --start-trigger=\"START DEFAULT\" --stop-trigger="
+    [test-35.09]="--group=default --start-trigger= --stop-trigger=\"STOP DEFAULT\""
+    [test-35.10]="one"
+    [test-35.11]="two"
+    [test-35.12]="three"
     # pbench-move-results
     [test-37]="--prefix="
     # pbench-move-results
@@ -468,8 +488,15 @@ declare -A expected_status=(
     [test-13]=2
     [test-21.00]=1
     [test-29]=1
-    [test-35]=1
-    [test-36]=1
+    [test-35.00]=1
+    [test-35.02]=1
+    [test-35.03]=1
+    [test-35.04]=1
+    [test-35.05]=1
+    [test-35.06]=1
+    [test-35.07]=1
+    [test-35.08]=1
+    [test-35.09]=1
     [test-37]=1
     [test-38]=1
     [test-44]=1

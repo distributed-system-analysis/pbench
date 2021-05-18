@@ -1,0 +1,8 @@
++++ Running test-35.00 pbench-register-tool-trigger 
+usage:
+pbench-register-tool-trigger [--group=<tool group>] --start-trigger=<string to match> --stop-trigger=<string to match>
+--- Finished test-35.00 pbench-register-tool-trigger (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+--- pbench tree state
