@@ -29,28 +29,31 @@ my $script_name = basename($0);
 #
 # This is the data layout used in perl to construct the JSON array:
 #
-my %workload;   # root hash for all data, contains hash refs to
+my %workload;	# root hash for all data, contains hash refs to
 		# %paramters, %throughput, %latency, %resource, %efficiency
-		
+
 my %parameters;	# a hash of parameter-type:parameter-value that was
 		# $parameters{benchmark[0].rate}
+
 my @benchmark;	# each array element contains a hash with:
-		# benchmark_name:
+			# benchmark_name:
 			# :
 			# role:
 			# description:
 
 my %resource;	# a hash of resource-type:array-of-resource-values,
 		# for example $resource{cpu_busy[0..1]}
-my @cpu_busy;	# each array element contains a hash with
-		# hostname: hostname or IP
-		# role: client, server, host, kvm-host, container-host, etc.
-		# timeseries: a hash of timestamp:value key-pairs
 
-my %efficiency; # a hash of throughput-per-resource-type:array-of-throughput-per-resource-values
+my @cpu_busy;	# each array element contains a hash with
+			# hostname: hostname or IP
+			# role: client, server, host, kvm-host, container-host, etc.
+			# timeseries: a hash of timestamp:value key-pairs
+
+my %efficiency;	# a hash of throughput-per-resource-type:array-of-throughput-per-resource-values
 		# for example $efficincy{Mframes_cpu[0..1]}
+
 my @Mframes_cpu;# each array element contains a hash with:
-		# hostname:
+			# hostname:
 			# port_id:
 			# role:
 			# description:
@@ -276,10 +279,10 @@ $config{get_label('uid_label')} = $uid_value;
 push(@benchmark, \%config);
 
 foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
-        #"dev_pair": "0:1",
-        #"direction": "0->1",
-        #"rx": 1,
-        #"tx": 0
+	#"dev_pair": "0:1",
+	#"direction": "0->1",
+	#"rx": 1,
+	#"tx": 0
 
 	# stats from binary-search:
 	# rx_packets, rx_latency_pps, rx_latency_lost_packets_pct, rx_latency_maximum, rx_pps, rx_latency_average,

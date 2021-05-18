@@ -1,9 +1,9 @@
 +++ Running test-40 pbench-trafficgen
-tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: "default"
 found IOMMU option, continuing
 found dpdk-tools, continuing
 [warn][1900-01-01T00:00:00.000000] [pbench-trafficgen] ignoring --config="test-40_tg:trex-profile_r:5000000_fs:74_nf:1000_fm:si,di,sp,dp,protocol_td:bi,uni,revuni_ml:0.0_tt:os" in favor of --rundir="/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00"
 Total number of benchmark iterations: 3
+tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: "default"
 Starting iteration[1-5000000-bidirectional-74B-1000flows-0.0pct_drop] (1 of 3)
 test sample 1 of 1
 [pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
@@ -43,26 +43,32 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/profile-builder.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/profile-builder.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/profile-builder.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/result.txt
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.out
+/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/generate-benchmark-summary.cmd
 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/metadata.log
@@ -88,9 +94,12 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
 [info][1900-01-01T00:00:00.000000] Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3), with 1 pass and 0 failures
 --- pbench.log file contents
 +++ test-execution.log file contents
-./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=mpps --rate=5000000 --traffic-direction=bidirectional --frame-size=74 --num-flows=1000 --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1
-./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=mpps --rate=5000000 --traffic-direction=revunidirectional --frame-size=74 --num-flows=1000 --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1
-./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=mpps --rate=5000000 --traffic-direction=unidirectional --frame-size=74 --num-flows=1000 --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1
+./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=% --rate=100 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1
+./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=% --rate=100 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1
+./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=% --rate=100 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json --output-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1
+./profile-builder.py --frame-size=74 --num-flows=1000 --rate=5000000 --use-src-ip-flows --use-dst-ip-flows --use-src-port-flows --use-dst-port-flows --use-protocol-flows --traffic-direction=bidirectional --measure-latency
+./profile-builder.py --frame-size=74 --num-flows=1000 --rate=5000000 --use-src-ip-flows --use-dst-ip-flows --use-src-port-flows --use-dst-port-flows --use-protocol-flows --traffic-direction=revunidirectional --measure-latency
+./profile-builder.py --frame-size=74 --num-flows=1000 --rate=5000000 --use-src-ip-flows --use-dst-ip-flows --use-src-port-flows --use-dst-port-flows --use-protocol-flows --traffic-direction=unidirectional --measure-latency
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary trafficgen --config=test-40 --traffic-generator=trex-txrx-profile --devices=0000:04:00.0,0000:04:00.1 --max-loss-pct=0.0 --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --skip-git-pull --skip-trex-server --run-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00 /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop Mframes_sec 5 0 1 n y
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples /var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop Mframes_sec 5 0 1 n y
@@ -102,6 +111,9 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-default/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-send-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-default/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=none default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=none default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n dpdk-tools
@@ -140,41 +152,62 @@ iteration_name = 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop
 +++ trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop" Mframes_sec "5" "0" "1" "n" "y"
 --- trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd file contents
++++ trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/profile-builder.cmd file contents
+pushd /var/tmp/pbench-test-bench/tmp/trafficgen > /dev/null
+./profile-builder.py --frame-size=74 --num-flows=1000 --rate=5000000  --use-src-ip-flows --use-dst-ip-flows --use-src-port-flows --use-dst-port-flows --use-protocol-flows --traffic-direction=bidirectional --measure-latency
+cmd_rc=${?}
+popd > /dev/null
+exit ${cmd_rc}
+--- trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/profile-builder.cmd file contents
 +++ trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess "/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1" "testhost.example.com" "5000000" "74" "1000" "" "unknown"
 --- trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd file contents
 +++ trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd file contents
-pushd >/dev/null /var/tmp/pbench-test-bench/tmp/trafficgen
-./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=mpps --rate=5000000 --traffic-direction=bidirectional --frame-size=74 --num-flows=1000  $@
-cmd_rc=$?
-popd >/dev/null
-exit $cmd_rc
+pushd /var/tmp/pbench-test-bench/tmp/trafficgen > /dev/null
+./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=% --rate=100 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json  ${@}
+cmd_rc=${?}
+popd > /dev/null
+exit ${cmd_rc}
 --- trafficgen_test-40_1900.01.01T00.00.00/1-5000000-bidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd file contents
 +++ trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop" Mframes_sec "5" "0" "1" "n" "y"
 --- trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd file contents
++++ trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/profile-builder.cmd file contents
+pushd /var/tmp/pbench-test-bench/tmp/trafficgen > /dev/null
+./profile-builder.py --frame-size=74 --num-flows=1000 --rate=5000000  --use-src-ip-flows --use-dst-ip-flows --use-src-port-flows --use-dst-port-flows --use-protocol-flows --traffic-direction=unidirectional --measure-latency
+cmd_rc=${?}
+popd > /dev/null
+exit ${cmd_rc}
+--- trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/profile-builder.cmd file contents
 +++ trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess "/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1" "testhost.example.com" "5000000" "74" "1000" "" "unknown"
 --- trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd file contents
 +++ trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd file contents
-pushd >/dev/null /var/tmp/pbench-test-bench/tmp/trafficgen
-./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=mpps --rate=5000000 --traffic-direction=unidirectional --frame-size=74 --num-flows=1000  $@
-cmd_rc=$?
-popd >/dev/null
-exit $cmd_rc
+pushd /var/tmp/pbench-test-bench/tmp/trafficgen > /dev/null
+./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=% --rate=100 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json  ${@}
+cmd_rc=${?}
+popd > /dev/null
+exit ${cmd_rc}
 --- trafficgen_test-40_1900.01.01T00.00.00/2-5000000-unidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd file contents
 +++ trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/process-iteration-samples "/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop" Mframes_sec "5" "0" "1" "n" "y"
 --- trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/process-iteration-samples.cmd file contents
++++ trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/profile-builder.cmd file contents
+pushd /var/tmp/pbench-test-bench/tmp/trafficgen > /dev/null
+./profile-builder.py --frame-size=74 --num-flows=1000 --rate=5000000  --use-src-ip-flows --use-dst-ip-flows --use-src-port-flows --use-dst-port-flows --use-protocol-flows --traffic-direction=revunidirectional --measure-latency
+cmd_rc=${?}
+popd > /dev/null
+exit ${cmd_rc}
+--- trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/profile-builder.cmd file contents
 +++ trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess "/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1" "testhost.example.com" "5000000" "74" "1000" "" "unknown"
 --- trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/sample1/trafficgen-postprocess.cmd file contents
 +++ trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd file contents
-pushd >/dev/null /var/tmp/pbench-test-bench/tmp/trafficgen
-./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=mpps --rate=5000000 --traffic-direction=revunidirectional --frame-size=74 --num-flows=1000  $@
-cmd_rc=$?
-popd >/dev/null
-exit $cmd_rc
+pushd /var/tmp/pbench-test-bench/tmp/trafficgen > /dev/null
+./binary-search.py --traffic-generator=trex-txrx-profile --rate-tolerance=3 --one-shot=1 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=1200 --validation-runtime=30 --max-loss-pct=0.0 --rate-unit=% --rate=100 --traffic-profile=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json  ${@}
+cmd_rc=${?}
+popd > /dev/null
+exit ${cmd_rc}
 --- trafficgen_test-40_1900.01.01T00.00.00/3-5000000-revunidirectional-74B-1000flows-0.0pct_drop/trafficgen.cmd file contents
 +++ trafficgen_test-40_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary "trafficgen" "--config=test-40 --traffic-generator=trex-txrx-profile --devices=0000:04:00.0,0000:04:00.1 --max-loss-pct=0.0 --samples=1 --validation-runtime=30 --rate=5000000 --num-flows=1000 --frame-size=74 --traffic-direction=bidirectional,unidirectional,revunidirectional --flow-mods=src-ip,dst-ip,src-port,dst-port,protocol --one-shot --skip-git-pull --skip-trex-server --run-dir=/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00" "/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-40_1900.01.01T00.00.00"

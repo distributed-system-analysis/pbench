@@ -1,8 +1,8 @@
 +++ Running test-50 pbench-trafficgen
-tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: "default"
 found IOMMU option, continuing
 found dpdk-tools, continuing
 Total number of benchmark iterations: 1
+tool trigger strings for start: "Starting binary-search" and for stop: "Finished binary-search" are now registered for tool group: "default"
 Starting iteration[1-none-bidirectional-1500B-128flows-0.002pct_drop] (1 of 1)
 test sample 1 of 3
 [pbench-tool-trigger] starting trigger processing of STDIN using tool group default triggers at /var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
@@ -122,11 +122,11 @@ iteration_name = 1-none-bidirectional-1500B-128flows-0.002pct_drop
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/trafficgen-postprocess "/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900.01.01T00.00.00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample3" "testhost.example.com" "none" "1500" "128" "" "unknown"
 --- trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900.01.01T00.00.00/1-none-bidirectional-1500B-128flows-0.002pct_drop/sample3/trafficgen-postprocess.cmd file contents
 +++ trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900.01.01T00.00.00/1-none-bidirectional-1500B-128flows-0.002pct_drop/trafficgen.cmd file contents
-pushd >/dev/null /var/tmp/pbench-test-bench/tmp/trafficgen
-./binary-search.py --traffic-generator=trex-txrx --rate-tolerance=3 --use-src-ip-flows=1 --use-dst-ip-flows=0 --use-src-mac-flows=0 --use-dst-mac-flows=0 --use-src-port-flows=0 --use-dst-port-flows=0 --use-encap-src-ip-flows=0 --use-encap-dst-ip-flows=0 --use-encap-src-mac-flows=0 --use-encap-dst-mac-flows=0 --use-protocol-flows=0 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=120 --validation-runtime=300 --max-loss-pct=0.002 --rate-unit=% --rate=100 --traffic-direction=bidirectional --frame-size=1500 --num-flows=128  $@
-cmd_rc=$?
-popd >/dev/null
-exit $cmd_rc
+pushd /var/tmp/pbench-test-bench/tmp/trafficgen > /dev/null
+./binary-search.py --traffic-generator=trex-txrx --rate-tolerance=3 --use-src-ip-flows=1 --use-dst-ip-flows=0 --use-src-mac-flows=0 --use-dst-mac-flows=0 --use-src-port-flows=0 --use-dst-port-flows=0 --use-encap-src-ip-flows=0 --use-encap-dst-ip-flows=0 --use-encap-src-mac-flows=0 --use-encap-dst-mac-flows=0 --use-protocol-flows=0 --device-pairs=0:1 --active-device-pairs=0:1 --sniff-runtime=30 --search-runtime=120 --validation-runtime=300 --max-loss-pct=0.002 --rate-unit=% --rate=100 --traffic-direction=bidirectional --frame-size=1500 --num-flows=128  ${@}
+cmd_rc=${?}
+popd > /dev/null
+exit ${cmd_rc}
 --- trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900.01.01T00.00.00/1-none-bidirectional-1500B-128flows-0.002pct_drop/trafficgen.cmd file contents
 +++ trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900.01.01T00.00.00/generate-benchmark-summary.cmd file contents
 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/postprocess/generate-benchmark-summary "trafficgen" "--config=test-50 --samples=3 --frame-sizes=1500 --num-flows=128 --traffic-directions=bidirectional --flow-mods=src-ip --traffic-generator=trex-txrx --devices=d8:00.0,d8:00.1 --search-runtime=120 --validation-runtime=300 --max-loss-pcts=0.002 --skip-git-pull --skip-trex-server" "/var/tmp/pbench-test-bench/pbench-agent/trafficgen_test-50_tg:trex_r:none_fs:1500_nf:128_fm:si_td:bi_ml:0.002_tt:bs_1900.01.01T00.00.00"
