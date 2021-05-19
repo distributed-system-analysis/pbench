@@ -91,7 +91,7 @@ class DatasetBadParameterType(DatasetError):
         )
 
     def __str__(self) -> str:
-        return f'Value "{self.bad_value}" ({type(self.bad_value)}) is not a {type(self.expected_type)}'
+        return f'Value "{self.bad_value}" ({type(self.bad_value)}) is not a {self.expected_type}'
 
 
 class DatasetTransitionError(DatasetError):

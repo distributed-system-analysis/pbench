@@ -1,42 +1,7 @@
 import pytest
-import re
 import requests
 from http import HTTPStatus
-
-
-@pytest.fixture
-def query_helper(client, server_config, requests_mock):
-    """
-    query_helper Help controller queries that want to interact with a mocked
-    Elasticsearch service.
-
-    This is a fixture which exposes a function of the same name that can be
-    used to set up and validate a mocked Elasticsearch query with a JSON
-    payload and an expected status.
-
-    Parameters to the mocked Elasticsearch POST are passed as keyword
-    parameters: these can be any of the parameters supported by the
-    request_mock post method. The most common are 'json' for the JSON
-    response payload, and 'exc' to throw an exception.
-
-    :return: the response object for further checking
-    """
-
-    def query_helper(payload, expected_index, expected_status, server_config, **kwargs):
-        host = server_config.get("elasticsearch", "host")
-        port = server_config.get("elasticsearch", "port")
-        es_url = f"http://{host}:{port}"
-        requests_mock.post(re.compile(f"{es_url}"), **kwargs)
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/detail", json=payload
-        )
-        assert requests_mock.last_request.url == (
-            es_url + expected_index + "/_search?ignore_unavailable=true"
-        )
-        assert response.status_code == expected_status
-        return response
-
-    return query_helper
+from pbench.test.unit.server.query_apis.conftest import make_http_exception
 
 
 class TestDatasetsDetail:
@@ -118,7 +83,12 @@ class TestDatasetsDetail:
             == "Value '2020-19' (str) cannot be parsed as a date/time string"
         )
 
-    def test_query(self, client, server_config, query_helper, user_ok, find_template):
+    @pytest.mark.parametrize(
+        "query_api",
+        [{"pbench": "/datasets/detail", "elastic": "/_search?ignore_unavailable=true"}],
+        indirect=True,
+    )
+    def test_query(self, client, server_config, query_api, user_ok, find_template):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.
@@ -192,7 +162,7 @@ class TestDatasetsDetail:
         }
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
-        response = query_helper(
+        response = query_api(
             json, index, HTTPStatus.OK, server_config, json=response_payload
         )
         res_json = response.json
@@ -237,8 +207,13 @@ class TestDatasetsDetail:
         }
         assert expected == res_json
 
+    @pytest.mark.parametrize(
+        "query_api",
+        [{"pbench": "/datasets/detail", "elastic": "/_search?ignore_unavailable=true"}],
+        indirect=True,
+    )
     def test_empty_query(
-        self, client, server_config, query_helper, user_ok, find_template
+        self, client, server_config, query_api, user_ok, find_template
     ):
         """
         Check the handling of a query that doesn't return any data.
@@ -258,13 +233,18 @@ class TestDatasetsDetail:
         }
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
-        response = query_helper(
+        response = query_api(
             json, index, HTTPStatus.BAD_REQUEST, server_config, json=response_payload
         )
         assert response.json["message"].find("dataset has gone missing") != -1
 
+    @pytest.mark.parametrize(
+        "query_api",
+        [{"pbench": "/datasets/detail", "elastic": "/_search?ignore_unavailable=true"}],
+        indirect=True,
+    )
     def test_nonunique_query(
-        self, client, server_config, query_helper, user_ok, find_template
+        self, client, server_config, query_api, user_ok, find_template
     ):
         """
         Check the handling of a query that returns too much data.
@@ -284,7 +264,7 @@ class TestDatasetsDetail:
         }
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
-        response = query_helper(
+        response = query_api(
             json, index, HTTPStatus.BAD_REQUEST, server_config, json=response_payload
         )
         assert response.json["message"].find("Too many hits for a unique query") != -1
@@ -293,7 +273,7 @@ class TestDatasetsDetail:
         "exceptions",
         (
             {
-                "exception": requests.exceptions.HTTPError,
+                "exception": make_http_exception(HTTPStatus.BAD_REQUEST),
                 "status": HTTPStatus.BAD_GATEWAY,
             },
             {
@@ -311,13 +291,18 @@ class TestDatasetsDetail:
             {"exception": Exception, "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
+    @pytest.mark.parametrize(
+        "query_api",
+        [{"pbench": "/datasets/detail", "elastic": "/_search?ignore_unavailable=true"}],
+        indirect=True,
+    )
     def test_http_error(
-        self, client, server_config, query_helper, exceptions, user_ok, find_template
+        self, client, server_config, query_api, exceptions, user_ok, find_template
     ):
         """
         test_http_error Check that an Elasticsearch error is reported
         correctly.
-       """
+        """
         json = {
             "user": "drb",
             "name": "foobar",
@@ -325,7 +310,7 @@ class TestDatasetsDetail:
             "end": "2020-08",
         }
         index = self.build_index(server_config, ("2020-08",))
-        query_helper(
+        query_api(
             json,
             index,
             exceptions["status"],

@@ -1,37 +1,7 @@
 import pytest
-import re
 import requests
-
-
-@pytest.fixture
-def query_helper(client, server_config, requests_mock):
-    """
-    query_helper Help controller queries that want to interact with a mocked
-    Elasticsearch service.
-
-    This is a fixture which exposes a function of the same name that can be
-    used to set up and validate a mocked Elasticsearch query with a JSON
-    payload and an expected status.
-
-    Parameters to the mocked Elasticsearch POST are passed as keyword
-    parameters: these can be any of the parameters supported by the
-    request_mock post method. The most common are 'json' for the JSON
-    response payload, and 'exc' to throw an exception.
-
-    :return: the response object for further checking
-    """
-
-    def query_helper(payload, expected_index, expected_status, server_config, **kwargs):
-        host = server_config.get("elasticsearch", "host")
-        port = server_config.get("elasticsearch", "port")
-        es_url = f"http://{host}:{port}"
-        requests_mock.post(re.compile(f"{es_url}"), **kwargs)
-        response = client.post(f"{server_config.rest_uri}/datasets/list", json=payload)
-        assert requests_mock.last_request.url == (es_url + expected_index + "/_search")
-        assert response.status_code == expected_status
-        return response
-
-    return query_helper
+from http import HTTPStatus
+from pbench.test.unit.server.query_apis.conftest import make_http_exception
 
 
 class TestDatasetsList:
@@ -61,7 +31,7 @@ class TestDatasetsList:
         test_missing_json_object Test behavior when no JSON payload is given
         """
         response = client.post(f"{server_config.rest_uri}/datasets/list")
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid request payload"
 
     @pytest.mark.parametrize(
@@ -87,7 +57,7 @@ class TestDatasetsList:
         specified.
        """
         response = client.post(f"{server_config.rest_uri}/datasets/list", json=keys)
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         missing = [k for k in ("user", "controller", "start", "end") if k not in keys]
         assert (
             response.json.get("message")
@@ -107,13 +77,18 @@ class TestDatasetsList:
                 "end": "2020-19",
             },
         )
-        assert response.status_code == 400
+        assert response.status_code == HTTPStatus.BAD_REQUEST
         assert (
             response.json.get("message")
             == "Value '2020-19' (str) cannot be parsed as a date/time string"
         )
 
-    def test_query(self, client, server_config, query_helper, user_ok, find_template):
+    @pytest.mark.parametrize(
+        "query_api",
+        [{"pbench": "/datasets/list", "elastic": "/_search?ignore_unavailable=true"}],
+        indirect=True,
+    )
+    def test_query(self, client, server_config, query_api, user_ok, find_template):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.
@@ -156,41 +131,58 @@ class TestDatasetsList:
         }
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
-        response = query_helper(json, index, 200, server_config, json=response_payload)
-        res_json = response.json
-        assert isinstance(res_json, list)
-        assert len(res_json) == 1
-        assert (
-            res_json[0]["key"]
-            == "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"
+        response = query_api(
+            json, index, HTTPStatus.OK, server_config, json=response_payload
         )
-        assert res_json[0]["@metadata.controller_dir"] == "dhcp31-187.example.com"
+        res_json = response.json
+        assert isinstance(res_json, dict)
+        assert len(res_json.keys()) == 1
+        data = res_json["dhcp31-187.example.com"]
+        assert isinstance(data, list)
+        assert len(data) == 1
+        assert data[0]["@metadata.controller_dir"] == "dhcp31-187.example.com"
         assert (
-            res_json[0]["run.config"]
+            data[0]["config"]
             == "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus"
         )
-        assert res_json[0]["run.controller"] == "dhcp31-187.example.com"
+        assert data[0]["controller"] == "dhcp31-187.example.com"
         assert (
-            res_json[0]["run.name"]
+            data[0]["result"]
             == "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"
         )
-        assert res_json[0]["run.start"] == "2020-04-29T12:49:13.560620"
-        assert res_json[0]["run.end"] == "2020-04-29T13:30:04.918704"
-        assert res_json[0]["startUnixTimestamp"] == 1588167004918
-        assert res_json[0]["id"] == "12fb1e952fd826727810868c9327254f"
+        assert data[0]["start"] == "2020-04-29T12:49:13.560620"
+        assert data[0]["end"] == "2020-04-29T13:30:04.918704"
+        assert data[0]["id"] == "12fb1e952fd826727810868c9327254f"
 
     @pytest.mark.parametrize(
         "exceptions",
         (
-            {"exception": requests.exceptions.HTTPError, "status": 502},
-            {"exception": requests.exceptions.ConnectionError, "status": 502},
-            {"exception": requests.exceptions.Timeout, "status": 504},
-            {"exception": requests.exceptions.InvalidURL, "status": 500},
-            {"exception": Exception, "status": 500},
+            {
+                "exception": make_http_exception(HTTPStatus.BAD_REQUEST),
+                "status": HTTPStatus.BAD_GATEWAY,
+            },
+            {
+                "exception": requests.exceptions.ConnectionError,
+                "status": HTTPStatus.BAD_GATEWAY,
+            },
+            {
+                "exception": requests.exceptions.Timeout,
+                "status": HTTPStatus.GATEWAY_TIMEOUT,
+            },
+            {
+                "exception": requests.exceptions.InvalidURL,
+                "status": HTTPStatus.INTERNAL_SERVER_ERROR,
+            },
+            {"exception": Exception, "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
+    @pytest.mark.parametrize(
+        "query_api",
+        [{"pbench": "/datasets/list", "elastic": "/_search?ignore_unavailable=true"}],
+        indirect=True,
+    )
     def test_http_error(
-        self, client, server_config, query_helper, exceptions, user_ok, find_template
+        self, client, server_config, query_api, exceptions, user_ok, find_template
     ):
         """
         test_http_error Check that an Elasticsearch error is reported
@@ -203,7 +195,7 @@ class TestDatasetsList:
             "end": "2020-08",
         }
         index = self.build_index(server_config, ("2020-08",))
-        query_helper(
+        query_api(
             json,
             index,
             exceptions["status"],
