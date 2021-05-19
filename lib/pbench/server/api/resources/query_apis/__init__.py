@@ -428,12 +428,13 @@ class ElasticBase(Resource):
         Returns:
             Postprocessed JSON body to return to client
         """
+        klasname = self.__class__.__name__
         try:
             es_request = self.assemble(json_data)
             path = es_request.get("path")
             url = urljoin(self.es_url, path)
         except Exception as e:
-            self.logger.exception("Blew it in setup: {}", type(e).__name__)
+            self.logger.exception("{} blew it in setup: {}", klasname, type(e).__name__)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
@@ -441,20 +442,24 @@ class ElasticBase(Resource):
             es_response = method(url, **es_request["kwargs"])
             es_response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            self.logger.exception("HTTP error {} from Elasticsearch request", e)
+            self.logger.exception(
+                "{} HTTP error {} from Elasticsearch request", klasname, e
+            )
             abort(
                 HTTPStatus.BAD_GATEWAY,
-                message="Elasticsearch query failure {e.response.reason} ({e.response.status_code})",
+                message=f"Elasticsearch query failure {e.response.reason} ({e.response.status_code})",
             )
         except requests.exceptions.ConnectionError:
-            self.logger.exception("Connection refused during the Elasticsearch request")
+            self.logger.exception(
+                "{}: connection refused during the Elasticsearch request", klasname
+            )
             abort(
                 HTTPStatus.BAD_GATEWAY,
                 message="Network problem, could not reach Elasticsearch",
             )
         except requests.exceptions.Timeout:
             self.logger.exception(
-                "Connection timed out during the Elasticsearch request"
+                "{}: connection timed out during the Elasticsearch request", klasname
             )
             abort(
                 HTTPStatus.GATEWAY_TIMEOUT,
@@ -462,12 +467,13 @@ class ElasticBase(Resource):
             )
         except requests.exceptions.InvalidURL:
             self.logger.exception(
-                "Invalid url {} during the Elasticsearch request", url
+                "{}: invalid url {} during the Elasticsearch request", klasname, url
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         except Exception as e:
             self.logger.exception(
-                "Exception {} occurred during the Elasticsearch request",
+                "{}: exception {} occurred during the Elasticsearch request",
+                klasname,
                 type(e).__name__,
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
@@ -475,18 +481,19 @@ class ElasticBase(Resource):
         try:
             return self.postprocess(es_response.json())
         except PostprocessError as e:
-            msg = f"The query postprocessor was unable to complete: {e}"
+            msg = f"{klasname}: the query postprocessor was unable to complete: {e}"
             self.logger.warning(msg)
             abort(HTTPStatus.BAD_REQUEST, message=msg)
         except KeyError as e:
-            self.logger.error("Missing Elasticsearch key {}", e)
+            self.logger.error("{}: missing Elasticsearch key {}", klasname, e)
             abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Missing Elasticsearch key {e}",
+                message=f"Missing Elasticsearch key {e}",
             )
         except Exception as e:
             self.logger.exception(
-                "Unexpected problem postprocessing Elasticsearch response {}: {}",
+                "{}: unexpected problem postprocessing Elasticsearch response {}: {}",
+                klasname,
                 es_response.json(),
                 e,
             )
@@ -510,10 +517,9 @@ class ElasticBase(Resource):
         try:
             new_data = self.schema.validate(json_data)
         except SchemaError as e:
-            # The format string here is important as the value we're
-            # trying to convert might contain "{}" brackets that would
-            # be interpreted as formatting commands.
-            self.logger.warning("{}", str(e))
+            self.logger.warning(
+                "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
+            )
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
         return self._call(requests.post, new_data)
 

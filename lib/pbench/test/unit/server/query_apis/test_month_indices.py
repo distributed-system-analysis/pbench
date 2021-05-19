@@ -1,6 +1,7 @@
 import pytest
-import re
 import requests
+from http import HTTPStatus
+from pbench.test.unit.server.query_apis.conftest import make_http_exception
 
 
 @pytest.fixture
@@ -24,10 +25,10 @@ def get_helper(client, server_config, requests_mock):
     def get_helper(expected_status, server_config, **kwargs):
         host = server_config.get("elasticsearch", "host")
         port = server_config.get("elasticsearch", "port")
-        es_url = f"http://{host}:{port}"
-        requests_mock.get(re.compile(f"{es_url}"), **kwargs)
+        es_url = f"http://{host}:{port}/_aliases"
+        requests_mock.get(es_url, **kwargs)
         response = client.get(f"{server_config.rest_uri}/controllers/months")
-        assert requests_mock.last_request.url == (es_url + "/_aliases")
+        assert requests_mock.last_request.url == es_url
         assert response.status_code == expected_status
         return response
 
@@ -95,7 +96,7 @@ class TestMonthIndices:
             "unit-test.v6.run-data.2020-11": {"aliases": {}},
         }
 
-        response = get_helper(200, server_config, json=response_payload)
+        response = get_helper(HTTPStatus.OK, server_config, json=response_payload)
         res_json = response.json
         assert isinstance(res_json, list)
         assert len(res_json) == 3
@@ -106,11 +107,23 @@ class TestMonthIndices:
     @pytest.mark.parametrize(
         "exceptions",
         (
-            {"exception": requests.exceptions.HTTPError, "status": 502},
-            {"exception": requests.exceptions.ConnectionError, "status": 502},
-            {"exception": requests.exceptions.Timeout, "status": 504},
-            {"exception": requests.exceptions.InvalidURL, "status": 500},
-            {"exception": Exception, "status": 500},
+            {
+                "exception": make_http_exception(HTTPStatus.BAD_REQUEST),
+                "status": HTTPStatus.BAD_GATEWAY,
+            },
+            {
+                "exception": requests.exceptions.ConnectionError,
+                "status": HTTPStatus.BAD_GATEWAY,
+            },
+            {
+                "exception": requests.exceptions.Timeout,
+                "status": HTTPStatus.GATEWAY_TIMEOUT,
+            },
+            {
+                "exception": requests.exceptions.InvalidURL,
+                "status": HTTPStatus.INTERNAL_SERVER_ERROR,
+            },
+            {"exception": Exception, "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
     def test_http_error(

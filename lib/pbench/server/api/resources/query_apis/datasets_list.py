@@ -1,4 +1,3 @@
-from dateutil import parser
 from flask import jsonify
 from logging import Logger
 from typing import Any, AnyStr, Dict
@@ -98,7 +97,8 @@ class DatasetsList(ElasticBase):
                         }
                     },
                     "size": 5000,
-                }
+                },
+                "params": {"ignore_unavailable": "true"},
             },
         }
 
@@ -120,30 +120,28 @@ class DatasetsList(ElasticBase):
         datasets = []
         hits = es_json["hits"]["hits"]
         self.logger.info("{} controllers found", len(hits))
+        controller = None
         for dataset in hits:
             src = dataset["_source"]
             run = src["run"]
+            if not controller:
+                controller = run["controller"]
+            elif controller != run["controller"]:
+                self.logger.warning(
+                    "Expected all controllers to match: {} and {} don't match",
+                    controller,
+                    run["controller"],
+                )
             d = {
-                "key": run["name"],
-                "run.name": run["name"],
-                "run.controller": run["controller"],
-                "run.start": run["start"],
-                "run.end": run["end"],
+                "result": run["name"],
+                "controller": run["controller"],
+                "start": run["start"],
+                "end": run["end"],
                 "id": run["id"],
             }
-            try:
-                timestamp = parser.parse(run["start"]).utcfromtimestamp()
-            except Exception as e:
-                self.logger.info(
-                    "Can't parse start time {} to integer timestamp: {}",
-                    run["start"],
-                    e,
-                )
-                timestamp = dataset["sort"][0]
 
-            d["startUnixTimestamp"] = timestamp
             if "config" in run:
-                d["run.config"] = run["config"]
+                d["config"] = run["config"]
             if "prefix" in run:
                 d["run.prefix"] = run["prefix"]
             if "@metadata" in src:
@@ -153,5 +151,7 @@ class DatasetsList(ElasticBase):
                 if "satellite" in meta:
                     d["@metadata.satellite"] = meta["satellite"]
             datasets.append(d)
+        result = {controller: datasets}
+
         # construct response object
-        return jsonify(datasets)
+        return jsonify(result)

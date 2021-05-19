@@ -259,12 +259,16 @@ function _verify_output {
 
 function _create_user {
     name=${1}
-    # NOTE: we ignore failures here deliberately; it'll always fail in
-    # the 0[.x] tests because of intentionally corrupted configuration,
-    # and unintentional failure in other tests will result in visible
-    # symptoms later.
+    # NOTE: we ignore chatty stdout messages; we fail on a return status of
+    # 1, which means a problem creating the user, while ignoring failure status
+    # of 2, which means bad configuration. This is because some unittests
+    # deliberately run with a bad configuration file, and we don't want user
+    # creation to obscure "real" problems.
     pbench-user-create --username=${name} --email=${name}@example.com \
-        --first-name=${name^} --last-name=User --password=password >/dev/null 2>&1
+        --first-name=${name^} --last-name=User --password=password >/dev/null
+    if [[ ${?} -eq 1 ]]; then
+        exit 101
+    fi
 }
 
 function _setup_state {
@@ -934,7 +938,7 @@ for testname in $tests ;do
         fi
     fi
 done
-if [ $count -eq 0 ]; then
+if [[ $count -eq 0 ]]; then
     printf "No tests run!\n" >&2
     let failures=1
 elif [[ $mode == "parallel" ]]; then
