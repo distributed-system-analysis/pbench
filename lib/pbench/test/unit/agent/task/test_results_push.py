@@ -6,7 +6,7 @@ import requests
 import responses
 from click.testing import CliRunner
 
-from pbench.cli.agent.commands import results
+from pbench.cli.agent.commands.results import push
 from pbench.test.unit.agent.task.common import bad_tarball, tarball
 
 
@@ -42,7 +42,7 @@ class TestResultsPush:
     @responses.activate
     def test_help(pytestconfig):
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(results.results_push, ["--help"])
+        result = runner.invoke(push.results_push, ["--help"])
         assert result.exit_code == 0, result.stderr
         assert str(result.stdout).startswith("Usage:")
         assert not result.stderr_bytes
@@ -52,7 +52,7 @@ class TestResultsPush:
     def test_missing_arg(valid_config, pytestconfig):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.results_push,
+            push.results_push,
             args=[
                 TestResultsPush.TOKN_SWITCH,
                 TestResultsPush.TOKN_TEXT,
@@ -67,7 +67,7 @@ class TestResultsPush:
     def test_bad_arg(valid_config, pytestconfig):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.results_push,
+            push.results_push,
             args=[
                 TestResultsPush.TOKN_SWITCH,
                 TestResultsPush.TOKN_TEXT,
@@ -89,7 +89,7 @@ class TestResultsPush:
     def test_extra_arg(valid_config, pytestconfig):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.results_push,
+            push.results_push,
             args=[
                 TestResultsPush.TOKN_SWITCH,
                 TestResultsPush.TOKN_TEXT,
@@ -109,7 +109,7 @@ class TestResultsPush:
         TestResultsPush.add_http_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.results_push,
+            push.results_push,
             args=[
                 TestResultsPush.TOKN_SWITCH,
                 TestResultsPush.TOKN_TEXT,
@@ -128,7 +128,7 @@ class TestResultsPush:
         TestResultsPush.add_http_mock_response()
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.results_push,
+            push.results_push,
             args=[TestResultsPush.CTRL_TEXT, tarball],
             input=TestResultsPush.TOKN_TEXT + "\n",
         )
@@ -145,7 +145,7 @@ class TestResultsPush:
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.results_push, args=[TestResultsPush.CTRL_TEXT, tarball],
+            push.results_push, args=[TestResultsPush.CTRL_TEXT, tarball],
         )
         assert result.exit_code == 0, result.stderr
         assert result.stderr_bytes == b"File uploaded successfully\n"
@@ -160,7 +160,7 @@ class TestResultsPush:
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.results_push, args=[TestResultsPush.CTRL_TEXT, tarball],
+            push.results_push, args=[TestResultsPush.CTRL_TEXT, tarball],
         )
         assert result.exit_code == 1
         assert str(result.stderr).startswith("Cannot connect to")
@@ -175,7 +175,7 @@ class TestResultsPush:
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.results_push, args=[TestResultsPush.CTRL_TEXT, tarball],
+            push.results_push, args=[TestResultsPush.CTRL_TEXT, tarball],
         )
         assert result.exit_code == 1
         assert str(result.stderr).find("Not Found") > -1
