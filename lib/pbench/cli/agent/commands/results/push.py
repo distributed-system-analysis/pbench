@@ -35,7 +35,7 @@ class ResultsPush(BaseCommand):
     type=click.Path(exists=True, file_okay=True, dir_okay=False, readable=True),
 )
 @pass_cli_context
-def results_push(
+def main(
     context: click.Context, controller: str, result_tb_name: str, token: str,
 ):
     """Push a results tarball to the Pbench server.
