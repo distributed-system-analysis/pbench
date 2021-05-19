@@ -1,5 +1,7 @@
 import logging
 import os
+from pathlib import Path
+
 import pytest
 import responses
 
@@ -23,13 +25,20 @@ class TestCopyResults:
 
     @responses.activate
     def test_copy_tar(self, valid_config):
-        tbname = os.path.basename(tarball)
+        tbname = Path(tarball)
         responses.add(
             responses.PUT,
-            f"http://pbench.example.com/api/v1/upload/{tbname}",
+            f"http://pbench.example.com/api/v1/upload/{tbname.name}",
             status=HTTPStatus.OK,
         )
-        crt = CopyResultTb("controller", tarball, self.config, self.logger)
+        crt = CopyResultTb(
+            "controller",
+            tbname,
+            tbname.stat().st_size,
+            "someMD5",
+            self.config,
+            self.logger,
+        )
         crt.copy_result_tb("token")
 
     @responses.activate
@@ -40,10 +49,12 @@ class TestCopyResults:
             status=HTTPStatus.OK,
         )
         expected_error_message = (
-            f"FileNotFoundError: Tarball '{bad_tarball}' does not exist"
+            f"FileNotFoundError: Tar ball '{bad_tarball}' does not exist"
         )
         caplog.set_level(logging.ERROR, logger=self.logger.name)
         with pytest.raises(FileNotFoundError) as e:
-            crt = CopyResultTb("controller", bad_tarball, self.config, self.logger)
+            crt = CopyResultTb(
+                "controller", bad_tarball, 0, "ignoremd5", self.config, self.logger
+            )
             crt.copy_result_tb("token")
         assert str(e).endswith(expected_error_message)

@@ -6,7 +6,7 @@ from pathlib import Path
 import responses
 from click.testing import CliRunner
 
-from pbench.cli.agent.commands import results
+from pbench.cli.agent.commands.results import move
 from pbench.test.unit.agent.task.common import MockDatetime
 
 # Template for a mocked "metadata.log" file; the caller needs to
@@ -40,17 +40,12 @@ user_script = sleep
 class TestMoveResults:
 
     CTRL_SWITCH = "--controller"
-    USER_SWITCH = "--user"
     TOKN_SWITCH = "--token"
-    PRFX_SWITCH = "--prefix"
     XZST_SWITCH = "--xz-single-threaded"
     SWSR_SWITCH = "--show-server"
     TOKN_PROMPT = "Token: "
     CTRL_TEXT = "ctrl"
-    USER_TEXT = None
     TOKN_TEXT = "what is a token but 139 characters of gibberish"
-    PRFX_TEXT = None
-    XZST_TEXT = None
     SWSR_TEXT = None
     URL = "http://pbench.example.com/api/v1"
     ENDPOINT = "/login"
@@ -59,7 +54,7 @@ class TestMoveResults:
     @responses.activate
     def test_help(pytestconfig):
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(results.pmr, ["--help"])
+        result = runner.invoke(move.main, ["--help"])
         assert result.exit_code == 0
         assert str(result.stdout).startswith("Usage:")
         assert not result.stderr_bytes
@@ -69,42 +64,30 @@ class TestMoveResults:
     def test_args(valid_config, pytestconfig):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.pmr,
+            move.main,
             args=[
                 TestMoveResults.CTRL_SWITCH,
                 TestMoveResults.CTRL_TEXT,
-                TestMoveResults.USER_SWITCH,
-                TestMoveResults.USER_TEXT,
                 TestMoveResults.TOKN_SWITCH,
                 TestMoveResults.TOKN_TEXT,
-                TestMoveResults.PRFX_SWITCH,
-                TestMoveResults.PRFX_TEXT,
                 TestMoveResults.XZST_SWITCH,
-                TestMoveResults.XZST_TEXT,
                 TestMoveResults.SWSR_SWITCH,
                 TestMoveResults.SWSR_TEXT,
             ],
         )
-        assert result.exit_code == 0, f"{result.stderr_bytes}"
-        assert result.stderr_bytes
+        assert result.exit_code == 0, f"Expected success exit code of 0: {result!r}"
+        assert (
+            not result.stderr_bytes
+        ), f"Unexpected stderr bytes: '{result.stderr_bytes}', stdout: '{result.stdout_bytes}'"
+        assert result.stdout_bytes.startswith(
+            b"Status: total "
+        ), f"Unexpected stdout bytes: '{result.stdout_bytes}', stderr: '{result.stderr_bytes}'"
 
     @staticmethod
     @responses.activate
     def test_move_results(monkeypatch, caplog, pytestconfig):
         monkeypatch.setenv("_pbench_full_hostname", "localhost")
         monkeypatch.setattr(datetime, "datetime", MockDatetime)
-
-        responses.add(
-            responses.GET,
-            "http://pbench.example.com/api/v1/host_info",
-            status=200,
-            body="pbench@pbench-server:/srv/pbench/pbench-move-results-receive/fs-version-002",
-        )
-        responses.add(
-            responses.PUT,
-            "http://pbench.example.com/api/v1/upload/ctrl/controller",
-            status=200,
-        )
 
         ctx = {"args": {"config": os.environ["_PBENCH_AGENT_CONFIG"]}}
 
@@ -125,18 +108,32 @@ class TestMoveResults:
 
         caplog.set_level(logging.DEBUG)
 
+        responses.add(
+            responses.GET,
+            "http://pbench.example.com/api/v1/host_info",
+            status=200,
+            body="pbench@pbench-server:/srv/pbench/pbench-move-results-receive/fs-version-002",
+        )
+        responses.add(
+            responses.PUT,
+            f"http://pbench.example.com/api/v1/upload/{script}_{config}_{date}.tar.xz",
+            status=200,
+        )
+
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            results.pmr,
+            move.main,
             args=[
                 TestMoveResults.CTRL_SWITCH,
                 TestMoveResults.CTRL_TEXT,
-                TestMoveResults.USER_SWITCH,
-                TestMoveResults.USER_TEXT,
-                TestMoveResults.PRFX_SWITCH,
-                TestMoveResults.PRFX_TEXT,
+                TestMoveResults.TOKN_SWITCH,
+                TestMoveResults.TOKN_TEXT,
             ],
-            input=f"{TestMoveResults.TOKN_TEXT}\n",
         )
-        assert result.exit_code == 0
-        assert result.stdout_bytes
+        assert (
+            result.exit_code == 0
+        ), f"Expected a successful operation, exit_code == {result.exit_code:d}"
+        assert (
+            result.stdout
+            == "Status: total # of result directories considered 1, successfully moved 1, encountered 0 failures\n"
+        )

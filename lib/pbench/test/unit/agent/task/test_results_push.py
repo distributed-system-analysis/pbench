@@ -151,7 +151,7 @@ class TestResultsPush:
     @staticmethod
     @responses.activate
     def test_connection_error(monkeypatch, caplog, valid_config, pytestconfig):
-        """Test normal operation with the token in an environment variable"""
+        """Test handling of connection errors"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
         TestResultsPush.add_connectionerr_mock_response()
@@ -164,12 +164,14 @@ class TestResultsPush:
     @staticmethod
     @responses.activate
     def test_http_error(monkeypatch, caplog, valid_config, pytestconfig):
-        """Test normal operation with the token in an environment variable"""
+        """Test handling of 404 errors"""
 
         monkeypatch.setenv("PBENCH_ACCESS_TOKEN", TestResultsPush.TOKN_TEXT)
         TestResultsPush.add_http_mock_response(HTTPStatus.NOT_FOUND)
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(push.main, args=[TestResultsPush.CTRL_TEXT, tarball],)
+        result = runner.invoke(push.main, args=[TestResultsPush.CTRL_TEXT, tarball])
         assert result.exit_code == 1
-        assert str(result.stderr).find("Not Found") > -1
+        assert (
+            str(result.stderr).find("Not Found") > -1
+        ), f"stderr: {str(result.stderr)!r}; stdout: {str(result.stdout)!r}"

@@ -4,6 +4,7 @@ from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb
 from pbench.cli.agent import pass_cli_context
 from pbench.cli.agent.options import common_options
+from pbench.common.utils import md5sum
 
 
 class ResultsPush(BaseCommand):
@@ -11,9 +12,12 @@ class ResultsPush(BaseCommand):
         super().__init__(context)
 
     def execute(self) -> int:
+        tarball_len, tarball_md5 = md5sum(self.context.result_tb_name)
         crt = CopyResultTb(
             self.context.controller,
             self.context.result_tb_name,
+            tarball_len,
+            tarball_md5,
             self.config,
             self.logger,
         )
@@ -39,11 +43,11 @@ class ResultsPush(BaseCommand):
 def main(
     context: click.Context, controller: str, result_tb_name: str, token: str,
 ):
-    """Push a results tarball to the Pbench server.
+    """Push a result tar ball to the Pbench server.
 
         \b
         CONTROLLER is the name of the controlling node.
-        RESULT_TB_NAME is the path to the results tarball.
+        RESULT_TB_NAME is the path to the result tar ball.
         \f
         (This docstring will be printed as the help text for this command;
         the backslash-escaped letters are formatting directives; this
