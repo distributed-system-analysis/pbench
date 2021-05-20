@@ -1,0 +1,1 @@
+-t rw -b 4 --postprocess-only=yes --run-dir=${_testdir}/fio_test-52_1970.01.01T00.00.00
