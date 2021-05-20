@@ -7,7 +7,7 @@ use lib $ENV{'pbench_lib_dir'};
 use lib $ENV{'pbench_bspp_dir'};
 no lib ".";
 use GenData qw(gen_data);
-use BenchPostprocess qw(value_exists trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash get_json);
+use BenchPostprocess qw(get_label create_uid calc_aggregate_metrics create_graph_hash);
 use File::Basename;
 use Data::Dumper;
 use List::Util('sum');
