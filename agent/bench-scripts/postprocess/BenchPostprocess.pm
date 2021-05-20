@@ -143,7 +143,7 @@ sub get_mean {
 	}
 }
 
-# in a array of { 'date' => x, 'value' => y } hashes, find the hash which $timestamp matchs x and then return y
+# in a array of { 'date' => x, 'value' => y } hashes, find the hash which $timestamp matches x and then return y
 sub get_value {
 	my $array_ref = shift;
 	my $timestamp = shift;
@@ -155,7 +155,7 @@ sub get_value {
 	}
 }
 
-# in a array of { 'date' => x, 'value' => y } hashes, either find the hash which $timestamp matchs x and update y, or
+# in a array of { 'date' => x, 'value' => y } hashes, either find the hash which $timestamp matches x and update y, or
 # if there is no hash which $timestamp matches x, add a new hash
 sub put_value {
 	my $array_ref = shift;
@@ -440,6 +440,7 @@ sub calc_sum_series {
 		}
 	}
 }
+
 sub value_exists {
 	my $params = shift;
 	my $key = $params;
@@ -504,6 +505,7 @@ sub calc_aggregate_metrics {
 					# A timeseries is considered valid if it has at least 2 timestamps
 					if ((defined $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')}) and
 					    (scalar get_timestamps(\@{ $$workload_ref{$metric_class}{$metric_type}[$i]{get_label('timeseries_label')}}) > 1)) {
+						# FIXME - Why are we calling get_timestamps(), which creates, sorts, and returns a new array only to throw it away?
 						$num_ts++;
 					}
 					$num_metrics++;
