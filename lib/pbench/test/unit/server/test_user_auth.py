@@ -431,3 +431,29 @@ class TestUserAuthentication:
                 headers=dict(Authorization="Bearer " + data_login["auth_token"]),
             )
             assert response.status_code == 200
+
+    @staticmethod
+    def test_non_existent_user_delete(client, server_config):
+        with client:
+            resp_register = register_user(
+                client,
+                server_config,
+                username="username",
+                firstname="firstname",
+                lastname="lastName",
+                email="user@domain.com",
+                password="12345",
+            )
+            assert resp_register.status_code == 201
+
+            # user login
+            resp_login = login_user(client, server_config, "username", "12345")
+            data_login = resp_login.json
+            assert data_login["auth_token"]
+
+            response = client.delete(
+                f"{server_config.rest_uri}/user/username1",
+                headers=dict(Authorization="Bearer " + data_login["auth_token"]),
+            )
+            assert response.status_code == 403
+            assert response.json["message"] == "Not authorized to access user username1"

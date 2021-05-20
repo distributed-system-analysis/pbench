@@ -10,18 +10,6 @@ from sqlalchemy.orm.exc import NoResultFound
 from pbench.server.database.database import Database
 
 
-class AdminUserDeletion(Exception):
-    """
-    Attempt to delete an admin user.
-    """
-
-    def __init__(self, username: str):
-        self.username = username
-
-    def __str__(self):
-        return f"Admin User {self.username} can not be deleted"
-
-
 class Roles(enum.Enum):
     ADMIN = 1
 
