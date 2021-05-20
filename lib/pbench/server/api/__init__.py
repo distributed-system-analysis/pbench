@@ -99,7 +99,7 @@ def register_endpoints(api, app, config):
     )
     api.add_resource(
         UserAPI,
-        f"{base_uri}/user/<string:username>",
+        f"{base_uri}/user/<string:target_username>",
         resource_class_args=(logger, token_auth),
     )
 

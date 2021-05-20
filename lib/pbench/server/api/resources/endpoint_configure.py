@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import re
 from flask import request, jsonify
 from flask.globals import current_app
@@ -163,7 +164,7 @@ class EndpointConfig(Resource):
             response = jsonify(endpoints)
         except Exception:
             self.logger.exception("Something went wrong constructing the endpoint info")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         else:
-            response.status_code = 200
+            response.status_code = HTTPStatus.OK
             return response

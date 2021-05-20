@@ -1,12 +1,12 @@
-import jwt
 from http import HTTPStatus
+import jwt
 from flask import request, jsonify, make_response
 from flask_restful import Resource, abort
 from flask_bcrypt import check_password_hash
 from email_validator import EmailNotValidError
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from sqlalchemy.orm.exc import NoResultFound
-from pbench.server.database.models.users import User, AdminUserDeletion
+from typing import NamedTuple
+from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.api.auth import Auth
 
@@ -49,17 +49,17 @@ class RegisterUser(Resource):
         user_data = request.get_json()
         if not user_data:
             self.logger.warning("Invalid json object: {}", request.url)
-            abort(400, message="Invalid json object in request")
+            abort(HTTPStatus.BAD_REQUEST, message="Invalid json object in request")
 
         username = user_data.get("username")
         if not username:
             self.logger.warning("Missing username field")
-            abort(400, message="Missing username field")
+            abort(HTTPStatus.BAD_REQUEST, message="Missing username field")
         username = username.lower()
         if User.is_admin_username(username):
             self.logger.warning("User tried to register with admin username")
             abort(
-                400, message="Please choose another username",
+                HTTPStatus.BAD_REQUEST, message="Please choose another username",
             )
 
         # check if provided username already exists
@@ -67,41 +67,41 @@ class RegisterUser(Resource):
             user = User.query(username=user_data.get("username"))
         except Exception:
             self.logger.exception("Exception while querying username")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         if user:
             self.logger.warning(
                 "A user tried to re-register. Username: {}", user.username
             )
-            abort(403, message="Provided username is already in use.")
+            abort(HTTPStatus.FORBIDDEN, message="Provided username is already in use.")
 
         password = user_data.get("password")
         if not password:
             self.logger.warning("Missing password field")
-            abort(400, message="Missing password field")
+            abort(HTTPStatus.BAD_REQUEST, message="Missing password field")
 
         email_id = user_data.get("email")
         if not email_id:
             self.logger.warning("Missing email field")
-            abort(400, message="Missing email field")
+            abort(HTTPStatus.BAD_REQUEST, message="Missing email field")
         # check if provided email already exists
         try:
             user = User.query(email=email_id)
         except Exception:
             self.logger.exception("Exception while querying user email")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         if user:
             self.logger.warning("A user tried to re-register. Email: {}", user.email)
-            abort(403, message="Provided email is already in use")
+            abort(HTTPStatus.FORBIDDEN, message="Provided email is already in use")
 
         first_name = user_data.get("first_name")
         if not first_name:
             self.logger.warning("Missing first_name field")
-            abort(400, message="Missing first_name field")
+            abort(HTTPStatus.BAD_REQUEST, message="Missing first_name field")
 
         last_name = user_data.get("last_name")
         if not last_name:
             self.logger.warning("Missing last_name field")
-            abort(400, message="Missing last_name field")
+            abort(HTTPStatus.BAD_REQUEST, message="Missing last_name field")
 
         try:
             user = User(
@@ -117,13 +117,13 @@ class RegisterUser(Resource):
             self.logger.info(
                 "New user registered, username: {}, email: {}", username, email_id
             )
-            return "", 201
+            return "", HTTPStatus.CREATED
         except EmailNotValidError:
             self.logger.warning("Invalid email {}", email_id)
-            abort(400, message=f"Invalid email: {email_id}")
+            abort(HTTPStatus.BAD_REQUEST, message=f"Invalid email: {email_id}")
         except Exception:
             self.logger.exception("Exception while registering a user")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
 
 class Login(Resource):
@@ -170,35 +170,35 @@ class Login(Resource):
         post_data = request.get_json()
         if not post_data:
             self.logger.warning("Invalid json object: {}", request.url)
-            abort(400, message="Invalid json object in request")
+            abort(HTTPStatus.BAD_REQUEST, message="Invalid json object in request")
 
         username = post_data.get("username")
         if not username:
             self.logger.warning("Username not provided during the login process")
-            abort(400, message="Please provide a valid username")
+            abort(HTTPStatus.BAD_REQUEST, message="Please provide a valid username")
 
         password = post_data.get("password")
         if not password:
             self.logger.warning("Password not provided during the login process")
-            abort(400, message="Please provide a valid password")
+            abort(HTTPStatus.BAD_REQUEST, message="Please provide a valid password")
 
         try:
             # fetch the user data
             user = User.query(username=username)
         except Exception:
             self.logger.exception("Exception occurred during user login")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         if not user:
             self.logger.warning(
                 "No user found in the db for Username: {} while login", username
             )
-            abort(401, message="Bad login")
+            abort(HTTPStatus.UNAUTHORIZED, message="Bad login")
 
         # Validate the password
         if not check_password_hash(user.password, password):
             self.logger.warning("Wrong password for user: {} during login", username)
-            abort(401, message="Bad login")
+            abort(HTTPStatus.UNAUTHORIZED, message="Bad login")
 
         try:
             auth_token = self.auth.encode_auth_token(
@@ -214,7 +214,7 @@ class Login(Resource):
                 "Could not encode the JWT auth token for user: {} while login", username
             )
             abort(
-                500, message="INTERNAL ERROR",
+                HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
             )
 
         # Add the new auth token to the database for later access
@@ -228,21 +228,21 @@ class Login(Resource):
             self.logger.warning(
                 "Duplicate auth token got created, user might have tried to re-login immediately"
             )
-            abort(409, message="Retry login after some time")
+            abort(HTTPStatus.CONFLICT, message="Login collision; please wait and retry")
         except SQLAlchemyError as e:
             self.logger.error(
                 "SQLAlchemy Exception while logging in a user {}", type(e)
             )
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         except Exception:
             self.logger.exception("Exception while logging in a user")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         response_object = {
             "auth_token": auth_token,
             "username": username,
         }
-        return make_response(jsonify(response_object), 200)
+        return make_response(jsonify(response_object), HTTPStatus.OK)
 
 
 class Logout(Resource):
@@ -282,13 +282,13 @@ class Logout(Resource):
                 ActiveTokens.delete(auth_token)
             except Exception:
                 self.logger.exception("Exception occurred deleting an auth token")
-                abort(500, message="INTERNAL ERROR")
+                abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
             else:
                 self.logger.debug("User {} logged out", user.username)
         else:
             self.logger.info("User logout with invalid or expired token")
 
-        return "", 200
+        return "", HTTPStatus.OK
 
 
 class UserAPI(Resource):
@@ -296,12 +296,62 @@ class UserAPI(Resource):
     Abstracted pbench API to get user data
     """
 
+    TargetUser = NamedTuple(
+        "TargetUser",
+        [("target_user", User), ("http_status", HTTPStatus), ("http_message", str)],
+    )
+
     def __init__(self, logger, auth):
         self.logger = logger
         self.auth = auth
 
+    def get_valid_target_user(
+        self, target_username: str, request_type: str
+    ) -> "UserAPI.TargetUser":
+        """
+        Helper function to determine whether the API call is permitted for the target username
+        Right now it is only permitted for an admin user and the target user itself.
+        This returns a target User on success or None on failure; in the case of failure,
+        also returns the corresponding HTTP status code and message string
+        """
+        current_user = self.auth.token_auth.current_user()
+        if current_user.username == target_username:
+            return UserAPI.TargetUser(
+                target_user=current_user, http_status=HTTPStatus.OK, http_message=""
+            )
+        if current_user.is_admin():
+            target_user = User.query(username=target_username)
+            if target_user:
+                return UserAPI.TargetUser(
+                    target_user=target_user, http_status=HTTPStatus.OK, http_message=""
+                )
+
+            self.logger.warning(
+                "User {} requested {} operation but user {} is not found.",
+                current_user.username,
+                request_type,
+                target_username,
+            )
+            return UserAPI.TargetUser(
+                target_user=None,
+                http_status=HTTPStatus.NOT_FOUND,
+                http_message=f"User {target_username} not found",
+            )
+
+        self.logger.warning(
+            "User {} is not authorized to {} user {}.",
+            current_user.username,
+            request_type,
+            target_username,
+        )
+        return UserAPI.TargetUser(
+            target_user=None,
+            http_status=HTTPStatus.FORBIDDEN,
+            http_message=f"Not authorized to access user {target_username}",
+        )
+
     @Auth.token_auth.login_required()
-    def get(self, username):
+    def get(self, target_username):
         """
         Get request for getting user data.
         This requires a Pbench auth token in the header field
@@ -325,37 +375,14 @@ class UserAPI(Resource):
                         "message": "failure message"
                     }
         """
-        try:
-            user, verified = self.auth.verify_user(username)
-        except Exception:
-            self.logger.exception("Exception occurred during verifying the user")
-            abort(500, message="INTERNAL ERROR")
-
-        # TODO: Check if the user has the right privileges
-        if verified:
-            response_object = user.get_json()
-            return make_response(jsonify(response_object), 200)
-        elif user.is_admin():
-            try:
-                target_user = User.query(username=username)
-                response_object = target_user.get_json()
-                return make_response(jsonify(response_object), 200)
-            except Exception:
-                self.logger.exception(
-                    "Exception occurred while querying the user. Username: {}", username
-                )
-                abort(500, message="INTERNAL ERROR")
-        else:
-            self.logger.warning(
-                "User {} is not authorized to get user {}.", user.username, username,
-            )
-            abort(
-                403,
-                message=f"Not authorized to access information about user {username}",
-            )
+        result = self.get_valid_target_user(target_username, "GET")
+        if not result.target_user:
+            abort(result.http_status, message=result.http_message)
+        response_object = result.target_user.get_json()
+        return make_response(jsonify(response_object), HTTPStatus.OK)
 
     @Auth.token_auth.login_required()
-    def put(self, username):
+    def put(self, target_username):
         """
         PUT request for updating user data.
         This requires a Pbench auth token in the header field
@@ -387,31 +414,19 @@ class UserAPI(Resource):
                         "message": "failure message"
                     }
         """
-        post_data = request.get_json()
-        if not post_data:
+        user_payload = request.get_json()
+        if not user_payload:
             self.logger.warning("Invalid json object: {}", request.url)
-            abort(400, message="Invalid json object in request")
+            abort(HTTPStatus.BAD_REQUEST, message="Invalid json object in request")
 
-        try:
-            user, verified = self.auth.verify_user(username)
-        except Exception:
-            self.logger.exception("Exception occurred while verifying the user")
-            abort(500, message="INTERNAL ERROR")
-
-        # TODO: Check if the user has the right privileges
-        if not verified:
-            self.logger.warning(
-                "User {} is not authorized to delete user {}.", user.username, username,
-            )
-            abort(
-                403,
-                message=f"Not authorized to update information about user {username}",
-            )
+        result = self.get_valid_target_user(target_username, "PUT")
+        if not result.target_user:
+            abort(result.http_status, message=result.http_message)
 
         # Check if the user payload contain fields that are either protected or
         # are not present in the user db. If any key in the payload does not match
         # with the column name we will abort the update request.
-        non_existent = set(post_data.keys()).difference(
+        non_existent = set(user_payload.keys()).difference(
             set(User.__table__.columns.keys())
         )
         if non_existent:
@@ -419,27 +434,40 @@ class UserAPI(Resource):
                 "User trying to update fields that are not present in the user database. Fields: {}",
                 non_existent,
             )
-            abort(400, message="Invalid fields in update request payload")
-        protected = set(post_data.keys()).intersection(set(User.get_protected()))
+            abort(
+                HTTPStatus.BAD_REQUEST,
+                message="Invalid fields in update request payload",
+            )
+        # Only admin user will be allowed to change other user's role. However,
+        # Admin users will not be able to change their admin role,
+        # This is done to prevent last admin user from de-admining him/herself
+        protected_db_fields = User.get_protected()
+        if (
+            not self.auth.token_auth.current_user().is_admin()
+            or self.auth.token_auth.current_user() == result.target_user
+        ):
+            protected_db_fields.append("role")
+
+        protected = set(user_payload.keys()).intersection(set(protected_db_fields))
         for field in protected:
-            if getattr(user, field) != post_data[field]:
+            if getattr(result.target_user, field) != user_payload[field]:
                 self.logger.warning(
                     "User trying to update the non-updatable fields. {}: {}",
                     field,
-                    post_data[field],
+                    user_payload[field],
                 )
-                abort(403, message="Invalid update request payload")
+                abort(HTTPStatus.FORBIDDEN, message="Invalid update request payload")
         try:
-            user.update(**post_data)
+            result.target_user.update(**user_payload)
         except Exception:
             self.logger.exception("Exception occurred during updating user object")
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
-        response_object = user.get_json()
-        return make_response(jsonify(response_object), 200)
+        response_object = result.target_user.get_json()
+        return make_response(jsonify(response_object), HTTPStatus.OK)
 
     @Auth.token_auth.login_required()
-    def delete(self, username):
+    def delete(self, target_username):
         """
         Delete request for deleting a user from database.
         This requires a Pbench auth token in the header field
@@ -457,45 +485,32 @@ class UserAPI(Resource):
                         "message": "failure message"
                     }
         """
-        try:
-            current_auth_user, verified = self.auth.verify_user(username)
-        except Exception:
-            self.logger.exception("Exception occurred during the getUser {}", username)
-            abort(500, message="INTERNAL ERROR")
-
-        # TODO: Check if the user has the right privileges
-        if not verified and not current_auth_user.is_admin():
+        result = self.get_valid_target_user(target_username, "DELETE")
+        if not result.target_user:
+            abort(result.http_status, message=result.http_message)
+        # Do not allow admin user to get self deleted via API
+        if (
+            result.target_user.is_admin()
+            and self.auth.token_auth.current_user() == result.target_user
+        ):
             self.logger.warning(
-                "User {} is not authorized to delete user {}.",
-                current_auth_user.username,
-                username,
+                "Admin user is not allowed to self delete via API call. Username: {}",
+                target_username,
             )
-            abort(403, message="Not authorized to delete user")
+            abort(HTTPStatus.FORBIDDEN, message="Not authorized to delete user")
 
+        # If target user is a valid and not an admin proceed to delete
         try:
-            target_user = User.query(username=username)
-            # Do not delete if the user is an admin
-            if target_user.is_admin():
-                raise AdminUserDeletion(username)
-            User.delete(username)
+            User.delete(target_username)
             self.logger.info(
                 "User entry deleted for user with username: {}, by user: {}",
-                username,
-                current_auth_user.username,
+                target_username,
+                self.auth.token_auth.current_user().username,
             )
-        except NoResultFound:
-            self.logger.info(
-                "Delete operation on non-existent user '{}'", username,
-            )
-            abort(HTTPStatus.NOT_FOUND, message="User not found")
-        except AdminUserDeletion as exc:
-            self.logger.info(str(exc))
-            abort(HTTPStatus.FORBIDDEN, message=f"User {username} can not be deleted")
         except Exception:
             self.logger.exception(
-                "Exception occurred during deleting the user entry for user '{}'",
-                username,
+                "Exception occurred while deleting a user {}", target_username,
             )
-            abort(500, message="INTERNAL ERROR")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
-        return "", 200
+        return "", HTTPStatus.OK

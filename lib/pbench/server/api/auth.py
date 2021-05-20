@@ -76,21 +76,6 @@ class Auth:
         except Exception as e:
             Auth.logger.exception(f"{__name__}: ERROR: {e.__traceback__}")
 
-    def verify_user(self, username):
-        """
-        Check if the provided username belongs to the current user by
-        querying the Usermodel with the current user
-        :param username:
-        :param logger
-        :return: User (UserModel instance), verified status (boolean)
-        """
-        user = User.query(id=self.token_auth.current_user().id)
-        # check if the current username matches with the one provided
-        verified = user is not None and user.username == username
-        Auth.logger.warning("verified status of user '{}' is '{}'", username, verified)
-
-        return user, verified
-
     def get_auth_token(self, logger):
         # get auth token
         auth_header = request.headers.get("Authorization")
