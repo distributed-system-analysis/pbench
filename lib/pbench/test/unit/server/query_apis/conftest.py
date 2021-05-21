@@ -1,28 +1,14 @@
+from typing import Any, Dict
 import pytest
 import requests
-from requests.exceptions import HTTPError
-
-
-def make_http_exception(status: int) -> HTTPError:
-    """
-    Helper to create a properly annotated HTTPError for testing
-
-    Args:
-        status: HTTP status code
-
-    Returns:
-        HTTPError object
-    """
-    response = requests.Response()
-    response.status_code = status
-    response.reason = "Fake reason"
-    return HTTPError(response=response)
+import responses
 
 
 @pytest.fixture
-def query_api(client, server_config, requests_mock, request):
+@responses.activate
+def query_api(client, server_config):
     """
-    query_helper Help controller queries that want to interact with a mocked
+    Help controller queries that want to interact with a mocked
     Elasticsearch service.
 
     This is a fixture which exposes a function of the same name that can be
@@ -31,41 +17,29 @@ def query_api(client, server_config, requests_mock, request):
 
     Parameters to the mocked Elasticsearch POST are passed as keyword
     parameters: these can be any of the parameters supported by the
-    request_mock post method. The most common are 'json' for the JSON
-    response payload, and 'exc' to throw an exception.
-
-    NOTE: the expected URI for the server query and the resulting Elasticsearch
-    query come from a test case parameter, which is passed through the Pytest
-    "mark" mechanism and accessed through the "param" attribute of the Pytest
-    request fixture. E.g.,
-
-            @pytest.mark.parametrize(
-                "query_api",
-                [
-                    {
-                        "pbench": "/controllers/list",
-                        "elastic": "/_search?ignore_unavailable=true",
-                    }
-                ],
-                indirect=True,
-            )
-
-    The first parameter must match the name of this fixture, and the second should
-    be a list (or tuple) with a single dict defining the "pbench" and "elastic"
-    URI paths.
+    responses mock. Exceptions are specified by providing an Exception()
+    instance as the 'body'.
 
     :return: the response object for further checking
     """
 
-    def query_api(payload, expected_index, expected_status, server_config, **kwargs):
+    def query_api(
+        pbench_uri: str,
+        es_uri: str,
+        payload: Dict[str, Any],
+        expected_index: str,
+        expected_status: str,
+        **kwargs,
+    ) -> requests.Response:
         host = server_config.get("elasticsearch", "host")
         port = server_config.get("elasticsearch", "port")
-        es_url = f"http://{host}:{port}{expected_index}{request.param['elastic']}"
-        requests_mock.post(es_url, **kwargs)
-        response = client.post(
-            f"{server_config.rest_uri}{request.param['pbench']}", json=payload
-        )
-        assert requests_mock.last_request.url == es_url
+        es_url = f"http://{host}:{port}{expected_index}{es_uri}"
+        with responses.RequestsMock() as rsp:
+            rsp.add(responses.POST, es_url, **kwargs)
+            response = client.post(
+                f"{server_config.rest_uri}{pbench_uri}", json=payload
+            )
+            assert rsp.assert_call_count(es_url, 1) is True
         assert response.status_code == expected_status
         return response
 

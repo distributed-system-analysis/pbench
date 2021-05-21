@@ -1,34 +1,36 @@
 import pytest
 import requests
+import responses
 from http import HTTPStatus
-from pbench.test.unit.server.query_apis.conftest import make_http_exception
 
 
+@responses.activate
 @pytest.fixture
-def get_helper(client, server_config, requests_mock):
+def get_helper(client, server_config):
     """
-    query_helper Help controller queries that want to interact with a mocked
+    Help controller queries that want to interact with a mocked
     Elasticsearch service.
 
     This is a fixture which exposes a function of the same name that can be
     used to set up and validate a mocked Elasticsearch query with a JSON
     payload and an expected status.
 
-    Parameters to the mocked Elasticsearch POST are passed as keyword
+    Parameters to the mocked Elasticsearch GET are passed as keyword
     parameters: these can be any of the parameters supported by the
-    request_mock post method. The most common are 'json' for the JSON
-    response payload, and 'exc' to throw an exception.
+    responses mock. Exceptions are specified by providing an Exception()
+    instance as the 'body'.
 
     :return: the response object for further checking
     """
 
-    def get_helper(expected_status, server_config, **kwargs):
+    def get_helper(expected_status: int, **kwargs) -> requests.Response:
         host = server_config.get("elasticsearch", "host")
         port = server_config.get("elasticsearch", "port")
         es_url = f"http://{host}:{port}/_aliases"
-        requests_mock.get(es_url, **kwargs)
-        response = client.get(f"{server_config.rest_uri}/controllers/months")
-        assert requests_mock.last_request.url == es_url
+        with responses.RequestsMock() as rsp:
+            rsp.add(responses.GET, es_url, **kwargs)
+            response = client.get(f"{server_config.rest_uri}/controllers/months")
+            assert rsp.assert_call_count(es_url, 1) is True
         assert response.status_code == expected_status
         return response
 
@@ -44,10 +46,10 @@ class TestMonthIndices:
     constructor and `post` service.
     """
 
-    def test_query(self, client, server_config, get_helper, find_template):
+    def test_query(self, get_helper, find_template):
         """
-        test_query Check the construction of Elasticsearch query URI
-        and filtering of the response body.
+        Check the construction of Elasticsearch query URI and filtering of the
+        response body.
         """
         response_payload = {
             ".opendistro-alerting-alert-history-2020.12.05-000177": {"aliases": {}},
@@ -96,7 +98,7 @@ class TestMonthIndices:
             "unit-test.v6.run-data.2020-11": {"aliases": {}},
         }
 
-        response = get_helper(HTTPStatus.OK, server_config, json=response_payload)
+        response = get_helper(HTTPStatus.OK, json=response_payload)
         res_json = response.json
         assert isinstance(res_json, list)
         assert len(res_json) == 3
@@ -108,31 +110,34 @@ class TestMonthIndices:
         "exceptions",
         (
             {
-                "exception": make_http_exception(HTTPStatus.BAD_REQUEST),
+                "exception": requests.exceptions.ConnectionError(),
                 "status": HTTPStatus.BAD_GATEWAY,
             },
             {
-                "exception": requests.exceptions.ConnectionError,
-                "status": HTTPStatus.BAD_GATEWAY,
-            },
-            {
-                "exception": requests.exceptions.Timeout,
+                "exception": requests.exceptions.Timeout(),
                 "status": HTTPStatus.GATEWAY_TIMEOUT,
             },
             {
-                "exception": requests.exceptions.InvalidURL,
+                "exception": requests.exceptions.InvalidURL(),
                 "status": HTTPStatus.INTERNAL_SERVER_ERROR,
             },
-            {"exception": Exception, "status": HTTPStatus.INTERNAL_SERVER_ERROR},
+            {"exception": Exception(), "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
-    def test_http_error(
-        self, client, server_config, get_helper, exceptions, find_template
-    ):
+    def test_http_exception(self, get_helper, exceptions, find_template):
         """
-        test_http_error Check that an Elasticsearch error is reported
-        correctly.
+        Check that an exception in calling Elasticsearch is reported correctly.
         """
         get_helper(
-            exceptions["status"], server_config, exc=exceptions["exception"],
+            exceptions["status"], body=exceptions["exception"],
+        )
+
+    @pytest.mark.parametrize("errors", (400, 500, 409))
+    def test_http_error(self, get_helper, errors, find_template):
+        """
+        Check that an Elasticsearch error is reported correctly through the
+        response.raise_for_status() and Pbench handlers.
+        """
+        get_helper(
+            HTTPStatus.BAD_GATEWAY, status=errors,
         )
