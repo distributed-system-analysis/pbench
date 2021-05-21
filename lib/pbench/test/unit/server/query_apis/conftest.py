@@ -39,7 +39,7 @@ def query_api(client, server_config):
             response = client.post(
                 f"{server_config.rest_uri}{pbench_uri}", json=payload
             )
-            assert rsp.assert_call_count(es_url, 1) is True
+            assert len(rsp.calls) == 1
         assert response.status_code == expected_status
         return response
 

@@ -30,7 +30,7 @@ def get_helper(client, server_config):
         with responses.RequestsMock() as rsp:
             rsp.add(responses.GET, es_url, **kwargs)
             response = client.get(f"{server_config.rest_uri}/controllers/months")
-            assert rsp.assert_call_count(es_url, 1) is True
+            assert len(rsp.calls) == 1
         assert response.status_code == expected_status
         return response
 
@@ -122,6 +122,7 @@ class TestMonthIndices:
                 "status": HTTPStatus.INTERNAL_SERVER_ERROR,
             },
             {"exception": Exception(), "status": HTTPStatus.INTERNAL_SERVER_ERROR},
+            {"exception": KeyError(), "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
     def test_http_exception(self, get_helper, exceptions, find_template):
