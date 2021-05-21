@@ -1,7 +1,6 @@
 import pytest
 import requests
 from http import HTTPStatus
-from pbench.test.unit.server.query_apis.conftest import make_http_exception
 
 
 class TestDatasetsDetail:
@@ -83,12 +82,7 @@ class TestDatasetsDetail:
             == "Value '2020-19' (str) cannot be parsed as a date/time string"
         )
 
-    @pytest.mark.parametrize(
-        "query_api",
-        [{"pbench": "/datasets/detail", "elastic": "/_search?ignore_unavailable=true"}],
-        indirect=True,
-    )
-    def test_query(self, client, server_config, query_api, user_ok, find_template):
+    def test_query(self, server_config, query_api, user_ok, find_template):
         """
         test_query Check the construction of Elasticsearch query URI
         and filtering of the response body.
@@ -163,7 +157,12 @@ class TestDatasetsDetail:
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
         response = query_api(
-            json, index, HTTPStatus.OK, server_config, json=response_payload
+            "/datasets/detail",
+            "/_search?ignore_unavailable=true",
+            json,
+            index,
+            HTTPStatus.OK,
+            json=response_payload,
         )
         res_json = response.json
 
@@ -207,11 +206,6 @@ class TestDatasetsDetail:
         }
         assert expected == res_json
 
-    @pytest.mark.parametrize(
-        "query_api",
-        [{"pbench": "/datasets/detail", "elastic": "/_search?ignore_unavailable=true"}],
-        indirect=True,
-    )
     def test_empty_query(
         self, client, server_config, query_api, user_ok, find_template
     ):
@@ -234,15 +228,15 @@ class TestDatasetsDetail:
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
         response = query_api(
-            json, index, HTTPStatus.BAD_REQUEST, server_config, json=response_payload
+            "/datasets/detail",
+            "/_search?ignore_unavailable=true",
+            json,
+            index,
+            HTTPStatus.BAD_REQUEST,
+            json=response_payload,
         )
         assert response.json["message"].find("dataset has gone missing") != -1
 
-    @pytest.mark.parametrize(
-        "query_api",
-        [{"pbench": "/datasets/detail", "elastic": "/_search?ignore_unavailable=true"}],
-        indirect=True,
-    )
     def test_nonunique_query(
         self, client, server_config, query_api, user_ok, find_template
     ):
@@ -265,7 +259,12 @@ class TestDatasetsDetail:
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
         response = query_api(
-            json, index, HTTPStatus.BAD_REQUEST, server_config, json=response_payload
+            "/datasets/detail",
+            "/_search?ignore_unavailable=true",
+            json,
+            index,
+            HTTPStatus.BAD_REQUEST,
+            json=response_payload,
         )
         assert response.json["message"].find("Too many hits for a unique query") != -1
 
@@ -273,35 +272,25 @@ class TestDatasetsDetail:
         "exceptions",
         (
             {
-                "exception": make_http_exception(HTTPStatus.BAD_REQUEST),
+                "exception": requests.exceptions.ConnectionError(),
                 "status": HTTPStatus.BAD_GATEWAY,
             },
             {
-                "exception": requests.exceptions.ConnectionError,
-                "status": HTTPStatus.BAD_GATEWAY,
-            },
-            {
-                "exception": requests.exceptions.Timeout,
+                "exception": requests.exceptions.Timeout(),
                 "status": HTTPStatus.GATEWAY_TIMEOUT,
             },
             {
-                "exception": requests.exceptions.InvalidURL,
+                "exception": requests.exceptions.InvalidURL(),
                 "status": HTTPStatus.INTERNAL_SERVER_ERROR,
             },
-            {"exception": Exception, "status": HTTPStatus.INTERNAL_SERVER_ERROR},
+            {"exception": Exception(), "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
-    @pytest.mark.parametrize(
-        "query_api",
-        [{"pbench": "/datasets/detail", "elastic": "/_search?ignore_unavailable=true"}],
-        indirect=True,
-    )
-    def test_http_error(
+    def test_http_exception(
         self, client, server_config, query_api, exceptions, user_ok, find_template
     ):
         """
-        test_http_error Check that an Elasticsearch error is reported
-        correctly.
+        Check that an exception in calling Elasticsearch is reported correctly.
         """
         json = {
             "user": "drb",
@@ -311,9 +300,32 @@ class TestDatasetsDetail:
         }
         index = self.build_index(server_config, ("2020-08",))
         query_api(
+            "/datasets/detail",
+            "/_search?ignore_unavailable=true",
             json,
             index,
             exceptions["status"],
-            server_config,
-            exc=exceptions["exception"],
+            body=exceptions["exception"],
+        )
+
+    @pytest.mark.parametrize("errors", (400, 500, 409))
+    def test_http_error(self, server_config, query_api, errors, user_ok, find_template):
+        """
+        Check that an Elasticsearch error is reported correctly through the
+        response.raise_for_status() and Pbench handlers.
+        """
+        json = {
+            "user": "drb",
+            "name": "foobar",
+            "start": "2020-08",
+            "end": "2020-08",
+        }
+        index = self.build_index(server_config, ("2020-08",))
+        query_api(
+            "/datasets/detail",
+            "/_search?ignore_unavailable=true",
+            json,
+            index,
+            HTTPStatus.BAD_GATEWAY,
+            status=errors,
         )
