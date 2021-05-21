@@ -1,0 +1,12 @@
++++ Running test-35.11 test-pbench-register-tool-trigger two
+tool trigger strings for start: "START OTHER" and for stop: "STOP OTHER" are now registered for tool group: other
++++ tool-triggers file contents
+#group:start-trigger:stop-trigger
+other:START OTHER:STOP OTHER
+--- tool-triggers file contents
+--- Finished test-35.11 test-pbench-register-tool-trigger (status=0)
++++ pbench tree state
+/var/tmp/pbench-test-utils/pbench
+/var/tmp/pbench-test-utils/pbench/tmp
+/var/tmp/pbench-test-utils/pbench/tool-triggers
+--- pbench tree state
