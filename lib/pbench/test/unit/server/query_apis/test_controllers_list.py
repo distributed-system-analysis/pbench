@@ -194,6 +194,7 @@ class TestControllersList:
                 "status": HTTPStatus.INTERNAL_SERVER_ERROR,
             },
             {"exception": Exception(), "status": HTTPStatus.INTERNAL_SERVER_ERROR},
+            {"exception": ValueError(), "status": HTTPStatus.INTERNAL_SERVER_ERROR},
         ),
     )
     def test_http_exception(
