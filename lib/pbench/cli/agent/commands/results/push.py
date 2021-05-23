@@ -4,7 +4,6 @@ from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb
 from pbench.cli.agent import pass_cli_context
 from pbench.cli.agent.options import common_options
-from pbench.common.logger import get_pbench_logger
 
 
 class ResultsPush(BaseCommand):
@@ -12,9 +11,11 @@ class ResultsPush(BaseCommand):
         super().__init__(context)
 
     def execute(self) -> int:
-        logger = get_pbench_logger("pbench-agent", self.config)
         crt = CopyResultTb(
-            self.context.controller, self.context.result_tb_name, self.config, logger
+            self.context.controller,
+            self.context.result_tb_name,
+            self.config,
+            self.logger,
         )
         crt.copy_result_tb(self.context.token)
         return 0
