@@ -119,10 +119,10 @@ class MakeResultTb:
         """Make the result tar ball from result directory.
 
         The metadata.log file in the result directory is double checked to be
-        sure it is valid, and then we add the "run.raw_size" and the
-        "pbench.tar-ball-creation-timestamp" fields.
+        sure it is valid, and then the "run.raw_size" and the
+        "pbench.tar-ball-creation-timestamp" fields are added.
 
-        We then create the tar ball, verify and generate its MD5 sum value.
+        The tar ball is created, verified, and the MD5 sum value is generated.
 
         Returns a tuple of the Path object of the create tar ball, its length,
         and its MD5 checksum value.
