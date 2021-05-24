@@ -2,13 +2,13 @@ import click
 
 from pbench.agent.base import BaseCommand
 from pbench.agent.results import CopyResultTb
-from pbench.cli.agent import pass_cli_context
+from pbench.cli.agent import pass_cli_context, CliContext
 from pbench.cli.agent.options import common_options
 from pbench.common.utils import md5sum
 
 
 class ResultsPush(BaseCommand):
-    def __init__(self, context: click.Context):
+    def __init__(self, context: CliContext):
         super().__init__(context)
 
     def execute(self) -> int:
@@ -41,7 +41,7 @@ class ResultsPush(BaseCommand):
 )
 @pass_cli_context
 def main(
-    context: click.Context, controller: str, result_tb_name: str, token: str,
+    context: CliContext, controller: str, result_tb_name: str, token: str,
 ):
     """Push a result tar ball to the Pbench server.
 
