@@ -114,7 +114,7 @@ class MakeResultTb:
         """make_result_tb - make the result tar ball from result directory.
 
         The metadata.log file in the result directory is double checked to be
-        sure it is properly setup, and then add the "run.raw_size" and the
+        sure it is valid, and then we add the "run.raw_size" and the
         "pbench.tar-ball-creation-timestamp" fields.
 
         We then create the tar ball, verify and generate its MD5 sum value.
