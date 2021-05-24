@@ -239,7 +239,6 @@ class MakeResultTb:
         else:
             if tar_proc.returncode == 0:
                 if xz_proc is not None and xz_proc.returncode != 0:
-                    # We explicitly ignore the return code from the optional 'xz' process.
                     msg = f"Failed to create tar ball; 'xz' return code: {xz_proc.returncode:d}"
                     try:
                         tarball.unlink()
