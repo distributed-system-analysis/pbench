@@ -1,3 +1,4 @@
+import collections
 import datetime
 import os
 import subprocess
@@ -12,6 +13,9 @@ from pbench.agent import PbenchAgentConfig
 from pbench.common import MetadataLog
 from pbench.common.exceptions import BadMDLogFormat
 from pbench.common.utils import md5sum, validate_hostname
+
+
+TarballRecord = collections.namedtuple("TarballRecord", ["name", "length", "md5"])
 
 
 class MakeResultTb:
@@ -110,7 +114,7 @@ class MakeResultTb:
                     )
         return path
 
-    def make_result_tb(self, single_threaded: bool = False) -> str:
+    def make_result_tb(self, single_threaded: bool = False) -> TarballRecord:
         """make_result_tb - make the result tar ball from result directory.
 
         The metadata.log file in the result directory is double checked to be
@@ -278,7 +282,7 @@ class MakeResultTb:
 
         # The contract with the caller is to just return the full path to the
         # created tar ball.
-        return tarball, tar_len, tar_md5
+        return TarballRecord(tarball, tar_len, tar_md5)
 
 
 class CopyResultTb:
