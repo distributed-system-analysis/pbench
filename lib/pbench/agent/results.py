@@ -19,7 +19,7 @@ TarballRecord = collections.namedtuple("TarballRecord", ["name", "length", "md5"
 
 
 class MakeResultTb:
-    """MakeResultTb - Creates the result tar file.
+    """Interfaces for managing the creation a result tar ball.
 
     """
 
@@ -45,7 +45,7 @@ class MakeResultTb:
         config: PbenchAgentConfig,
         logger: Logger,
     ):
-        """__init__ - Initializes the required attributes for making a tar ball
+        """Initializes the required attributes for making a tar ball
 
         Args:
             result_dir -- results directory from which a tar ball will be
@@ -95,8 +95,7 @@ class MakeResultTb:
 
     @staticmethod
     def _check_result_target_dir(dir_path: str, name: str) -> Path:
-        """check_result_target_dir - confirms the availability and
-                integrity of the specified directory.
+        """Confirms the availability and integrity of the specified directory.
         """
         if not dir_path:
             raise FileNotFoundError(f"{name} directory not provided")
@@ -115,7 +114,7 @@ class MakeResultTb:
         return path
 
     def make_result_tb(self, single_threaded: bool = False) -> TarballRecord:
-        """make_result_tb - make the result tar ball from result directory.
+        """Make the result tar ball from result directory.
 
         The metadata.log file in the result directory is double checked to be
         sure it is valid, and then we add the "run.raw_size" and the
@@ -286,7 +285,8 @@ class MakeResultTb:
 
 
 class CopyResultTb:
-    """CopyResultTb - Use the server's HTTP PUT method to upload a tar ball
+    """Interfaces for copying result tar balls remotely using the server's HTTP
+    PUT method for uploads.
     """
 
     class FileUploadError(Exception):
@@ -303,7 +303,7 @@ class CopyResultTb:
         config: PbenchAgentConfig,
         logger: Logger,
     ):
-        """CopyResultTb contructor
+        """Contructor for object representing tar ball to be copied remotely.
 
         Raises
             ValueError          if the given controller is not a valid hostname
@@ -321,7 +321,8 @@ class CopyResultTb:
         self.logger = logger
 
     def copy_result_tb(self, token: str) -> None:
-        """copy_result_tb - copies tb from agent to configured server upload URL
+        """Copies the tar ball from the agent to the configured server using upload
+        API.
 
         Args
             token -- a token which establishes that the caller is
@@ -331,6 +332,7 @@ class CopyResultTb:
         Raises
             RuntimeError     if a connection fails to be make to the server
             FileUploadError  if the tar balls to upload properly
+
         """
         headers = {
             "Content-MD5": self.tarball_md5,
