@@ -254,7 +254,7 @@ class MakeResultTb:
                         pass
                     except Exception as unlink_exc:
                         self.logger.warning(
-                            "Failed to remove 'tar' stder file, %s: '%s'",
+                            "Failed to remove 'tar' stderr file, %s: '%s'",
                             e_file,
                             unlink_exc,
                         )
