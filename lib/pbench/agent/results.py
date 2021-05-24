@@ -235,7 +235,7 @@ class MakeResultTb:
                 pass
             except Exception as unlink_exc:
                 msg = f"{msg}; also encountered an error while removing failed tar ball, {tarball}: '{unlink_exc}'"
-            raise RuntimeError(msg) from exc
+            raise RuntimeError(msg)
         else:
             if tar_proc.returncode == 0:
                 if xz_proc is not None and xz_proc.returncode != 0:
@@ -271,7 +271,7 @@ class MakeResultTb:
                 raise RuntimeError(msg)
         try:
             (tar_len, tar_md5) = md5sum(tarball)
-        except Exception as exc:
+        except Exception:
             msg = f"Failed to verify and generate MD5 for created tar ball, '{tarball}'"
             try:
                 tarball.unlink()
@@ -279,7 +279,7 @@ class MakeResultTb:
                 pass
             except Exception as unlink_exc:
                 msg = f"{msg}; also encountered an error while removing failed tar ball, {tarball}: '{unlink_exc}'"
-            raise RuntimeError(msg) from exc
+            raise RuntimeError(msg)
 
         # The contract with the caller is to just return the full path to the
         # created tar ball.
