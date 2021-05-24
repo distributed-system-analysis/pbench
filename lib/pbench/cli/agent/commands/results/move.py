@@ -14,7 +14,7 @@ from pbench.common.utils import validate_hostname
 
 
 class MoveResults(BaseCommand):
-    """MoveResutls - command implementation for "pbench results move."
+    """Command implementation for "pbench results move."
 
     This command replaces the previous (legacy) interface,
     `pbench-move-results`, and its sibling, `pbench-copy-results`, with no
@@ -35,7 +35,7 @@ class MoveResults(BaseCommand):
         no_of_tb = 0
 
         with tempfile.TemporaryDirectory(
-            dir=self.config.pbench_tmp, prefix="pbench-move-results."
+            dir=self.config.pbench_tmp, prefix="pbench-results-move."
         ) as temp_dir:
             for dirent in self.config.pbench_run.iterdir():
                 if not dirent.is_dir():
