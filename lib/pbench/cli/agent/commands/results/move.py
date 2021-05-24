@@ -104,8 +104,7 @@ class MoveResults(BaseCommand):
                         "Error uploading file, '%s', '%s'", result_tb_name, exc
                     )
                     failures += 1
-                    # We don't know what this operation failed; regardless,
-                    # given that we could not copy this tar ball remotely,
+                    # We don't know why this operation failed; regardless,
                     # trying to copy another tar ball remotely does not have
                     # much chance of success.
                     break
@@ -116,8 +115,7 @@ class MoveResults(BaseCommand):
                         exc,
                     )
                     failures += 1
-                    # We don't know what this operation failed; regardless,
-                    # given that we could not copy this tar ball remotely,
+                    # We don't know why this operation failed; regardless,
                     # trying to copy another tar ball remotely does not have
                     # much chance of success.
                     break
