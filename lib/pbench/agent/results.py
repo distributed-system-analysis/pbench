@@ -67,6 +67,8 @@ class MakeResultTb:
             NotADirectoryError  if either the result or target directories are
                                 not actual directories
             RuntimeError        if it cannot find the 'tar' command on the PATH
+            ValueError          if the given controller is not a valid host
+                                name
         """
         assert (
             config and logger
