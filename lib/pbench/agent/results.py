@@ -44,10 +44,14 @@ class MakeResultTb:
         """__init__ - Initializes the required attributes for making a tar ball
 
         Args:
-            result_dir -- directory where tb file is collected.
-            target_dir -- directory where tar file needs to be moved.
+            result_dir -- results directory from which a tar ball will be
+                          constructed
+            target_dir -- target directory where the tar ball should be placed
+            controller -- the name of the controller to be associated with the
+                          tar ball
             config -- PbenchAgent config object
-            logger -- logger objects helps logging important details
+            logger -- logger object to use when emitting log entries during
+                      operation
 
         Raises:
             AlreadyCopied       if we find a "*.copied" marker for the result
