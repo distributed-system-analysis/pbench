@@ -185,8 +185,6 @@ class MakeResultTb:
         with mdlog_name.open("w") as fp:
             mdlog.write(fp)
 
-        # FIXME: /bin/cp pbench.log ${pbench_run_name}/
-
         tarball = self.target_dir / f"{pbench_run_name}.tar.xz"
         e_file = self.target_dir / f"{pbench_run_name}.tar.err"
         args = [self.tar_path, "--create", "--force-local"]
