@@ -59,7 +59,7 @@ class TestMoveResults:
         result = runner.invoke(move.main, ["--help"])
         assert result.exit_code == 0
         assert str(result.stdout).startswith("Usage:")
-        assert not result.stderr_bytes
+        assert not result.stderr
 
     @staticmethod
     @responses.activate
@@ -80,11 +80,11 @@ class TestMoveResults:
         )
         assert result.exit_code == 0, f"Expected success exit code of 0: {result!r}"
         assert (
-            not result.stderr_bytes
-        ), f"Unexpected stderr bytes: '{result.stderr_bytes}', stdout: '{result.stdout_bytes}'"
-        assert result.stdout_bytes.startswith(
-            b"Status: total "
-        ), f"Unexpected stdout bytes: '{result.stdout_bytes}', stderr: '{result.stderr_bytes}'"
+            not result.stderr
+        ), f"Unexpected stderr: '{result.stderr}', stdout: '{result.stdout}'"
+        assert result.stdout.startswith(
+            "Status: total "
+        ), f"Unexpected stdout: '{result.stdout}', stderr: '{result.stderr}'"
 
     @staticmethod
     @responses.activate
