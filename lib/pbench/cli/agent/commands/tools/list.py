@@ -15,6 +15,13 @@ from pbench.cli.agent.commands.tools.base import ToolCommand
 from pbench.cli.agent.options import common_options
 from pbench.agent.tool_group import BadToolGroup
 
+# FIX:
+# the set of error codes is currently
+# 0
+# 1 = Bad tool group
+# 2 = anything else
+
+
 class ListTools(ToolCommand):
     """ List registered Tools """
 
@@ -24,8 +31,10 @@ class ListTools(ToolCommand):
     def execute(self):
         if not self.pbench_run.exists():
             self.logger.warn("The %s directory does not exist", self.pbench_run)
-            return 0
+            # FIX: do we want to distinguish this from the "bad name" code below.
+            return 2
 
+        status = 0
         # list tools in one or all groups
         if self.context.group:
             groups = self.context.group
@@ -43,9 +52,10 @@ class ListTools(ToolCommand):
                                 p.read_text() for p in self.tools(path)
                             ]
                         else:
-                            host_tools[group][path.name] = [p for p in self.tools(path)]
+                            host_tools[group][path.name] = [p.name for p in self.tools(path)]
                 except BadToolGroup:
                     self.logger.error("Bad tool group name: %s", group)
+                    return 1
             if host_tools:
                 for k, v in host_tools.items():
                     for h, t in v.items():
@@ -58,16 +68,22 @@ class ListTools(ToolCommand):
                     tg_dir = self.gen_tools_group_dir(group)
                     if not tg_dir.exists():
                         self.logger.error("bad or missing tool group %s", group)
+                        status = 1
                         continue
                 except BadToolGroup:
                     self.logger.error("Bad Tool Group: %s", group)
+                    status = 1
                     continue
                 for path in tg_dir.iterdir():
                     # Check to see if the tool is in any of the hosts.
-                    if self.context.name in self.tools(path):
+                    if self.context.name in [tool.name for tool in self.tools(path)]:
                         group_list.append(group)
             if group_list:
                 print(f"tool name: {self.context.name} groups: {', '.join(group_list)}")
+            elif status == 0:
+                # the group list is empty but not because of a bad tool group, so set an "other"
+                status = 2
+        return status
 
 
 def _group_option(f):
