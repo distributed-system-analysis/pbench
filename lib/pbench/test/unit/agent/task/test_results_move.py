@@ -6,7 +6,7 @@ from pathlib import Path
 import responses
 from click.testing import CliRunner
 
-from pbench.cli.agent.commands.results import move
+from pbench.cli.agent.commands.results.move import main
 from pbench.test.unit.agent.task.common import MockDatetime
 
 # Template for a mocked "metadata.log" file; the caller needs to
@@ -56,7 +56,7 @@ class TestMoveResults:
     @responses.activate
     def test_help(pytestconfig):
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(move.main, ["--help"])
+        result = runner.invoke(main, ["--help"])
         assert result.exit_code == 0
         assert result.stdout.startswith(
             "Usage: pbench-results-move"
@@ -68,7 +68,7 @@ class TestMoveResults:
     def test_args(valid_config, pytestconfig):
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(
-            move.main,
+            main,
             args=[
                 TestMoveResults.CTRL_SWITCH,
                 TestMoveResults.CTRL_TEXT,
@@ -131,7 +131,7 @@ class TestMoveResults:
 
         # Test --no-delete
         result = runner.invoke(
-            move.main,
+            main,
             args=[
                 TestMoveResults.CTRL_SWITCH,
                 TestMoveResults.CTRL_TEXT,
@@ -153,7 +153,7 @@ class TestMoveResults:
         # Test --delete (default) with .running directory.
         (pbrun / name / ".running").mkdir()
         result = runner.invoke(
-            move.main,
+            main,
             args=[
                 TestMoveResults.CTRL_SWITCH,
                 TestMoveResults.CTRL_TEXT,
@@ -172,7 +172,7 @@ class TestMoveResults:
 
         # Test --delete (default).
         result = runner.invoke(
-            move.main,
+            main,
             args=[
                 TestMoveResults.CTRL_SWITCH,
                 TestMoveResults.CTRL_TEXT,
