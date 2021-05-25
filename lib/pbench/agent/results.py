@@ -88,11 +88,13 @@ class MakeResultTb:
         self.controller = controller
         if (self.result_dir.parent / f"{self.result_dir.name}.copied").exists():
             raise self.AlreadyCopied(f"Already copied {self.result_dir.name}")
-        if (self.result_dir / ".running").exists():
+        running = self.result_dir / ".running"
+        if running.exists():
+            running_str = f"{running.parent.name}/{running.name}"
             raise self.BenchmarkRunning(
-                f"The benchmark is still running in {self.result_dir.name} - skipping; "
-                f"if that is not true, rmdir {self.result_dir.name}/.running, "
-                "and try again",
+                f"The benchmark is still running in {self.result_dir.name} -"
+                f" skipping; if that is not true, rmdir {running_str}, and try"
+                " again",
             )
 
     @staticmethod
@@ -114,6 +116,24 @@ class MakeResultTb:
                         f"Invalid {name} directory provided: {dir_path}"
                     )
         return path
+
+    def _unlink_tarball(self, tarball: Path, msg: str) -> str:
+        """Helper function for silently unlinking a tar ball, extending a given
+        "message" string if an error is encountered while performing the
+        unlink.
+
+        Returns a message string.
+        """
+        try:
+            tarball.unlink()
+        except FileNotFoundError:
+            pass
+        except Exception as unlink_exc:
+            msg = (
+                f"{msg}; also encountered an error while removing failed tar"
+                f" ball, {tarball}: '{unlink_exc}'"
+            )
+        return msg
 
     def make_result_tb(self, single_threaded: bool = False) -> TarballRecord:
         """Make the result tar ball from result directory.
@@ -226,24 +246,18 @@ class MakeResultTb:
                     xz_proc.stdin.close()
                     xz_proc.wait()
         except Exception as exc:
-            msg = f"Tar ball creation failed for {self.result_dir}, skipping {exc}"
-            try:
-                tarball.unlink()
-            except FileNotFoundError:
-                pass
-            except Exception as unlink_exc:
-                msg = f"{msg}; also encountered an error while removing failed tar ball, {tarball}: '{unlink_exc}'"
+            msg = self._unlink_tarball(
+                tarball,
+                f"Tar ball creation failed for {self.result_dir}, skipping {exc}",
+            )
             raise RuntimeError(msg)
         else:
             if tar_proc.returncode == 0:
                 if xz_proc is not None and xz_proc.returncode != 0:
-                    msg = f"Failed to create tar ball; 'xz' return code: {xz_proc.returncode:d}"
-                    try:
-                        tarball.unlink()
-                    except FileNotFoundError:
-                        pass
-                    except Exception as unlink_exc:
-                        msg = f"{msg}; also encountered an error while removing failed tar ball, {tarball}: '{unlink_exc}'"
+                    msg = self._unlink_tarball(
+                        tarball,
+                        f"Failed to create tar ball; 'xz' return code: {xz_proc.returncode:d}",
+                    )
                     raise RuntimeError(msg)
                 else:
                     try:
@@ -258,24 +272,18 @@ class MakeResultTb:
                         )
             else:
                 # We explicitly ignore the return code from the optional 'xz' process.
-                msg = f"Failed to create tar ball; 'tar' return code: {tar_proc.returncode:d}"
-                try:
-                    tarball.unlink()
-                except FileNotFoundError:
-                    pass
-                except Exception as unlink_exc:
-                    msg = f"{msg}; also encountered an error while removing failed tar ball, {tarball}: '{unlink_exc}'"
+                msg = self._unlink_tarball(
+                    tarball,
+                    f"Failed to create tar ball; 'tar' return code: {tar_proc.returncode:d}",
+                )
                 raise RuntimeError(msg)
         try:
             (tar_len, tar_md5) = md5sum(tarball)
         except Exception:
-            msg = f"Failed to verify and generate MD5 for created tar ball, '{tarball}'"
-            try:
-                tarball.unlink()
-            except FileNotFoundError:
-                pass
-            except Exception as unlink_exc:
-                msg = f"{msg}; also encountered an error while removing failed tar ball, {tarball}: '{unlink_exc}'"
+            msg = self._unlink_tarball(
+                tarball,
+                f"Failed to verify and generate MD5 for created tar ball, '{tarball}'",
+            )
             raise RuntimeError(msg)
 
         # The contract with the caller is to just return the full path to the
