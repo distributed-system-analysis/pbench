@@ -29,7 +29,7 @@ class MoveResults(BaseCommand):
     def __init__(self, context: CliContext):
         super().__init__(context)
 
-    def execute(self, single_threaded: bool, copy_only: bool = False) -> int:
+    def execute(self, single_threaded: bool, delete: bool = True) -> int:
         runs_copied = 0
         failures = 0
         no_of_tb = 0
@@ -131,7 +131,22 @@ class MoveResults(BaseCommand):
                             "Failed to remove '%s', '%s'", result_tb_name, exc
                         )
 
-                if copy_only:
+                if delete:
+                    try:
+                        shutil.rmtree(result_dir)
+                    except OSError:
+                        self.logger.error(
+                            "Failed to remove the %s directory hierarchy", result_dir
+                        )
+                        failures += 1
+                        # If we can't hold up the contract of removing the
+                        # local directory tree that was copied, we exit the
+                        # loop that is processing result directories.  Not
+                        # being able to remove the local directory tree will
+                        # usually indicate a serious problem that needs to be
+                        # resolved before doing anything else.
+                        break
+                else:
                     copied = result_dir.parent / f"{result_dir.name}.copied"
                     try:
                         copied.touch()
@@ -149,23 +164,8 @@ class MoveResults(BaseCommand):
                         # result directory lives, it likely indicates bigger
                         # problems.
                         break
-                else:
-                    try:
-                        shutil.rmtree(result_dir)
-                    except OSError:
-                        self.logger.error(
-                            "Failed to remove the %s directory hierarchy", result_dir
-                        )
-                        failures += 1
-                        # If we can't hold up the contract of removing the
-                        # local directory tree that was copied, we exit the
-                        # loop that is processing result directories.  Not
-                        # being able to remove the local directory tree will
-                        # usually indicate a serious problem that needs to be
-                        # resolved before doing anything else.
-                        break
 
-        action = "copied" if copy_only else "moved"
+        action = "moved" if delete else "copied"
         click.echo(
             f"Status: total # of result directories considered {no_of_tb:d},"
             f" successfully {action} {runs_copied:d}, encountered"
@@ -193,9 +193,10 @@ class MoveResults(BaseCommand):
     help="pbench server authentication token",
 )
 @click.option(
-    "--copy",
-    is_flag=True,
-    help="Only perform the remote copy, do not remove local data",
+    "--delete/--no-delete",
+    default=True,
+    show_default=True,
+    help="Remove local data after successful copy",
 )
 @click.option(
     "--xz-single-threaded",
@@ -204,14 +205,17 @@ class MoveResults(BaseCommand):
 )
 @click.option(
     "--show-server",
-    help="Display information about the pbench server where the result(s) will be moved (Not implemented)",
+    help=(
+        "Display information about the pbench server where the result(s) will"
+        " be moved (Not implemented)"
+    ),
 )
 @pass_cli_context
 def main(
     context: CliContext,
     controller: str,
     token: str,
-    copy: bool,
+    delete: bool,
     xz_single_threaded: bool,
     show_server: str,
 ):
@@ -243,7 +247,7 @@ def main(
         click.echo(f"WARNING -- Option '--show-server' is not implemented", err=True)
 
     try:
-        rv = MoveResults(context).execute(xz_single_threaded, copy_only=copy)
+        rv = MoveResults(context).execute(xz_single_threaded, delete=delete)
     except Exception as exc:
         click.echo(exc, err=True)
         rv = 1

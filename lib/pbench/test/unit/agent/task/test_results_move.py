@@ -41,6 +41,8 @@ class TestMoveResults:
 
     CTRL_SWITCH = "--controller"
     TOKN_SWITCH = "--token"
+    DELY_SWITCH = "--delete"
+    DELN_SWITCH = "--no-delete"
     XZST_SWITCH = "--xz-single-threaded"
     SWSR_SWITCH = "--show-server"
     TOKN_PROMPT = "Token: "
@@ -70,6 +72,7 @@ class TestMoveResults:
                 TestMoveResults.CTRL_TEXT,
                 TestMoveResults.TOKN_SWITCH,
                 TestMoveResults.TOKN_TEXT,
+                TestMoveResults.DELY_SWITCH,
                 TestMoveResults.XZST_SWITCH,
                 TestMoveResults.SWSR_SWITCH,
                 TestMoveResults.SWSR_TEXT,
@@ -85,7 +88,7 @@ class TestMoveResults:
 
     @staticmethod
     @responses.activate
-    def test_move_results(monkeypatch, caplog, pytestconfig):
+    def test_results_move(monkeypatch, caplog, pytestconfig):
         monkeypatch.setenv("_pbench_full_hostname", "localhost")
         monkeypatch.setattr(datetime, "datetime", MockDatetime)
 
@@ -98,12 +101,12 @@ class TestMoveResults:
         TMP = pytestconfig.cache.get("TMP", None)
         pbrun = Path(TMP) / "var" / "lib" / "pbench-agent"
         script = "pbench-user-benchmark"
-        config = "test-move-results"
+        config = "test-results-move"
         date = "YYYY.MM.DDTHH.MM.SS"
         name = f"{script}_{config}_{date}"
-        run_dir = pbrun / name
-        run_dir.mkdir(parents=True, exist_ok=True)
-        mlog = run_dir / "metadata.log"
+        res_dir = pbrun / name
+        res_dir.mkdir(parents=True, exist_ok=True)
+        mlog = res_dir / "metadata.log"
         mlog.write_text(mdlog_tmpl.format(**locals()))
 
         caplog.set_level(logging.DEBUG)
@@ -121,6 +124,49 @@ class TestMoveResults:
         )
 
         runner = CliRunner(mix_stderr=False)
+
+        # Test --no-delete
+        result = runner.invoke(
+            move.main,
+            args=[
+                TestMoveResults.CTRL_SWITCH,
+                TestMoveResults.CTRL_TEXT,
+                TestMoveResults.TOKN_SWITCH,
+                TestMoveResults.TOKN_TEXT,
+                TestMoveResults.DELN_SWITCH,
+            ],
+        )
+        assert (
+            result.exit_code == 0
+        ), f"Expected a successful operation, exit_code == {result.exit_code:d}"
+        assert (
+            result.stdout
+            == "Status: total # of result directories considered 1, successfully copied 1, encountered 0 failures\n"
+        )
+        # This should raise an unexpected exception if it was not created.
+        (pbrun / f"{name}.copied").unlink()
+
+        # Test --delete (default) with .running directory.
+        (pbrun / name / ".running").mkdir()
+        result = runner.invoke(
+            move.main,
+            args=[
+                TestMoveResults.CTRL_SWITCH,
+                TestMoveResults.CTRL_TEXT,
+                TestMoveResults.TOKN_SWITCH,
+                TestMoveResults.TOKN_TEXT,
+            ],
+        )
+        assert (
+            result.exit_code == 1
+        ), f"Expected an unsuccessful operation, exit_code == {result.exit_code:d}"
+        assert (
+            result.stdout
+            == "Status: total # of result directories considered 1, successfully moved 0, encountered 1 failures\n"
+        )
+        (pbrun / name / ".running").rmdir()
+
+        # Test --delete (default).
         result = runner.invoke(
             move.main,
             args=[
