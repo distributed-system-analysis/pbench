@@ -223,7 +223,10 @@ def main(
         controller = os.environ.get("_pbench_full_hostname", socket.getfqdn())
         if not controller:
             click.echo(
-                "INTERNAL ERROR - unable to determine the controller name, could not fetch the FQDN of the host",
+                "INTERNAL ERROR - unable to determine the controller name,"
+                " could not fetch the FQDN of the host; to work around this"
+                " problem consider explicitly providing a value for the"
+                " --controller switch",
                 err=True,
             )
             clk_ctx.exit(1)
