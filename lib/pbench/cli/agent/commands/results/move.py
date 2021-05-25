@@ -99,21 +99,12 @@ class MoveResults(BaseCommand):
                         self.logger,
                     )
                     crt.copy_result_tb(self.context.token)
-                except (CopyResultTb.FileUploadError, RuntimeError) as exc:
-                    self.logger.error(
-                        "Error uploading file, '%s', '%s'", result_tb_name, exc
-                    )
-                    failures += 1
-                    # We don't know why this operation failed; regardless,
-                    # trying to copy another tar ball remotely does not have
-                    # much chance of success.
-                    break
                 except Exception as exc:
-                    self.logger.error(
-                        "Unexpected error occurred copying tar ball remotely, '%s', %s",
-                        result_tb_name,
-                        exc,
-                    )
+                    if isinstance(exc, (CopyResultTb.FileUploadError, RuntimeError)):
+                        msg = "Error uploading file"
+                    else:
+                        msg = "Unexpected error occurred copying tar ball remotely"
+                    self.logger.error(f"{msg}, '%s', %s", result_tb_name, exc)
                     failures += 1
                     # We don't know why this operation failed; regardless,
                     # trying to copy another tar ball remotely does not have
