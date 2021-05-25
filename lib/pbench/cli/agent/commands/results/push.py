@@ -25,7 +25,7 @@ class ResultsPush(BaseCommand):
         return 0
 
 
-@click.command()
+@click.command("pbench-results-push")
 @common_options
 @click.option(
     "--token",
@@ -43,7 +43,7 @@ class ResultsPush(BaseCommand):
 def main(
     context: CliContext, controller: str, result_tb_name: str, token: str,
 ):
-    """Push a result tar ball to the Pbench server.
+    """Push a result tar ball to the configured Pbench server.
 
         \b
         CONTROLLER is the name of the controlling node.

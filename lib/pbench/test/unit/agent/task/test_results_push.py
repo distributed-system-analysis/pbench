@@ -44,8 +44,8 @@ class TestResultsPush:
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(push.main, ["--help"])
         assert result.exit_code == 0, result.stderr
-        assert str(result.stdout).startswith("Usage:")
-        assert not result.stderr_bytes
+        assert result.stdout.startswith("Usage: pbench-results-push")
+        assert not result.stderr
 
     @staticmethod
     @responses.activate
@@ -60,7 +60,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2
-        assert str(result.stderr_bytes).find("Missing argument") > -1
+        assert result.stderr.find("Missing argument") > -1
 
     @staticmethod
     @responses.activate
@@ -77,7 +77,7 @@ class TestResultsPush:
         )
         assert result.exit_code == 2
         assert (
-            str(result.stderr_bytes).find(
+            result.stderr.find(
                 "Invalid value for 'RESULT_TB_NAME': "
                 "File 'nothing.tar.xz' does not exist."
             )
@@ -99,7 +99,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 2
-        assert str(result.stderr_bytes).find("unexpected extra argument") > -1
+        assert result.stderr.find("unexpected extra argument") > -1
 
     @staticmethod
     @responses.activate
@@ -118,7 +118,7 @@ class TestResultsPush:
             ],
         )
         assert result.exit_code == 0, result.stderr
-        assert result.stderr_bytes == b"File uploaded successfully\n"
+        assert result.stderr == "File uploaded successfully\n"
 
     @staticmethod
     @responses.activate
@@ -133,7 +133,7 @@ class TestResultsPush:
             input=TestResultsPush.TOKN_TEXT + "\n",
         )
         assert result.exit_code == 0, result.stderr
-        assert result.stderr_bytes == b"File uploaded successfully\n"
+        assert result.stderr == "File uploaded successfully\n"
 
     @staticmethod
     @responses.activate
@@ -146,7 +146,7 @@ class TestResultsPush:
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(push.main, args=[TestResultsPush.CTRL_TEXT, tarball],)
         assert result.exit_code == 0, result.stderr
-        assert result.stderr_bytes == b"File uploaded successfully\n"
+        assert result.stderr == "File uploaded successfully\n"
 
     @staticmethod
     @responses.activate

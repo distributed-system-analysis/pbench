@@ -175,7 +175,7 @@ class MoveResults(BaseCommand):
         return 0 if failures == 0 else 1
 
 
-@click.command()
+@click.command(name="pbench-results-move")
 @common_options
 @click.option(
     "--controller",
@@ -219,6 +219,8 @@ def main(
     xz_single_threaded: bool,
     show_server: str,
 ):
+    """Move result directories to the configured Pbench server.
+    """
     clk_ctx = click.get_current_context()
 
     if controller:

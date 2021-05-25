@@ -58,7 +58,9 @@ class TestMoveResults:
         runner = CliRunner(mix_stderr=False)
         result = runner.invoke(move.main, ["--help"])
         assert result.exit_code == 0
-        assert str(result.stdout).startswith("Usage:")
+        assert result.stdout.startswith(
+            "Usage: pbench-results-move"
+        ), f"Unexpected output: {result.stdout!r}"
         assert not result.stderr
 
     @staticmethod
