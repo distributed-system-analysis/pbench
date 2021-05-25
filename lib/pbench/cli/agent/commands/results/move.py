@@ -187,7 +187,7 @@ class MoveResults(BaseCommand):
 )
 @click.option(
     "--token",
-    required=False,
+    required=True,
     envvar="PBENCH_ACCESS_TOKEN",
     prompt=False,
     help="pbench server authentication token",
@@ -237,13 +237,6 @@ def main(
         clk_ctx.exit(1)
     context.controller = controller
 
-    if not token:
-        click.echo(
-            "No token provided: use the --token option on the command line, or"
-            " define the PBENCH_ACCESS_TOKEN environment varible",
-            err=True,
-        )
-        clk_ctx.exit(1)
     context.token = token
 
     if show_server:
