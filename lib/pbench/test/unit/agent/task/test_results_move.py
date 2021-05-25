@@ -78,7 +78,9 @@ class TestMoveResults:
                 TestMoveResults.SWSR_TEXT,
             ],
         )
-        assert result.exit_code == 0, f"Expected success exit code of 0: {result!r}"
+        assert (
+            result.exit_code == 0
+        ), f"Expected success exit code of 0: exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
         assert (
             not result.stderr
         ), f"Unexpected stderr: '{result.stderr}', stdout: '{result.stdout}'"
@@ -138,7 +140,7 @@ class TestMoveResults:
         )
         assert (
             result.exit_code == 0
-        ), f"Expected a successful operation, exit_code == {result.exit_code:d}"
+        ), f"Expected a successful operation, exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
         assert (
             result.stdout
             == "Status: total # of result directories considered 1, successfully copied 1, encountered 0 failures\n"
@@ -159,7 +161,7 @@ class TestMoveResults:
         )
         assert (
             result.exit_code == 1
-        ), f"Expected an unsuccessful operation, exit_code == {result.exit_code:d}"
+        ), f"Expected an unsuccessful operation, exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
         assert (
             result.stdout
             == "Status: total # of result directories considered 1, successfully moved 0, encountered 1 failures\n"
@@ -178,7 +180,7 @@ class TestMoveResults:
         )
         assert (
             result.exit_code == 0
-        ), f"Expected a successful operation, exit_code == {result.exit_code:d}"
+        ), f"Expected a successful operation, exit_code = {result.exit_code:d}, stderr: {result.stderr}, stdout: {result.stdout}"
         assert (
             result.stdout
             == "Status: total # of result directories considered 1, successfully moved 1, encountered 0 failures\n"
