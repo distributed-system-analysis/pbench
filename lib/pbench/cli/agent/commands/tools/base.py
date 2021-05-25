@@ -15,7 +15,7 @@ class ToolCommand(BaseCommand):
         """List all tools in a given path"""
         return sorted(
             [
-                p.name
+                p
                 for p in path.iterdir()
                 if p.name != "__label__" and p.suffix != ".__noinstall__"
             ]

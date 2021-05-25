@@ -13,7 +13,7 @@ import click
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
 from pbench.cli.agent.options import common_options
-
+from pbench.agent.tool_group import BadToolGroup
 
 class ListTools(ToolCommand):
     """ List registered Tools """
@@ -36,35 +36,38 @@ class ListTools(ToolCommand):
             host_tools = {}
             for group in groups:
                 host_tools[group] = {}
-                for path in self.gen_tools_group_dir(group).glob("*/**"):
-                    if self.context.with_option:
-                        host_tools[group][path.name] = [
-                            p.read_text() for p in self.tools(path)
-                        ]
-                    else:
-                        host_tools[group][path.name] = [p for p in self.tools(path)]
+                try:
+                    for path in self.gen_tools_group_dir(group).glob("*/**"):
+                        if self.context.with_option:
+                            host_tools[group][path.name] = [
+                                p.read_text() for p in self.tools(path)
+                            ]
+                        else:
+                            host_tools[group][path.name] = [p for p in self.tools(path)]
+                except BadToolGroup:
+                    self.logger.error("Bad tool group name: %s", group)
             if host_tools:
                 for k, v in host_tools.items():
                     for h, t in v.items():
-                        print("%s: %s %s" % (k, h, t))
+                        print(f"{k}: {h} {t}")
         else:
             # List the groups which include this tool
             group_list = []
             for group in groups:
-                tg_dir = self.gen_tools_group_dir(group)
-                if not tg_dir.exists():
-                    self.logger.error("bad or missing tool group %s", group)
+                try:
+                    tg_dir = self.gen_tools_group_dir(group)
+                    if not tg_dir.exists():
+                        self.logger.error("bad or missing tool group %s", group)
+                        continue
+                except BadToolGroup:
+                    self.logger.error("Bad Tool Group: %s", group)
                     continue
-
                 for path in tg_dir.iterdir():
                     # Check to see if the tool is in any of the hosts.
                     if self.context.name in self.tools(path):
                         group_list.append(group)
             if group_list:
-                print(
-                    "tool name: %s groups: %s"
-                    % (self.context.name, ", ".join(group_list))
-                )
+                print(f"tool name: {self.context.name} groups: {', '.join(group_list)}")
 
 
 def _group_option(f):
