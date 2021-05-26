@@ -109,7 +109,7 @@ class Test_list_tool_tools_registered:
 
         command = ["pbench-list-tools", "-n", "perf"]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert b"tool name: perf groups: default\n" == out
+        assert b"tool name: perf groups: ['default']\n" == out
         assert exitcode == 0
 
     def test_non_existent_group(
@@ -137,7 +137,7 @@ class Test_list_tool_tools_registered:
 
         command = ["pbench-list-tools", "--group", "default", "--name", "perf"]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert b"tool name: perf groups: default\n" == out
+        assert b"tool name: perf groups: ['default']\n" == out
         assert exitcode == 0
 
     def test_existing_group_non_existent_name(
@@ -158,6 +158,20 @@ class Test_list_tool_tools_registered:
         out, err, exitcode = pytest.helpers.capture(command)
         assert exitcode == 1
 
+
+class Test_list_tool_tools_registered_with_options:
+    @pytest.fixture
+    def tool(self, pbench_run):
+
+        for group in ["default", "test"]:
+            p = pbench_run / f"tools-v1-{group}" / "testhost.example.com"
+            p.mkdir(parents=True)
+            tool = p / "iostat"
+            tool.write_text("--interval=30")
+            tool = p / "mpstat"
+            tool.write_text("--interval=300")
+        return
+
     def test_existing_group_options(
         self, monkeypatch, tool, agent_config, pbench_run, pbench_cfg
     ):
@@ -165,8 +179,10 @@ class Test_list_tool_tools_registered:
 
         command = ["pbench-list-tools", "--group", "default", "--with-option"]
         out, err, exitcode = pytest.helpers.capture(command)
-        # FIX
-        assert b"" == out
+        assert (
+            b"default: testhost.example.com [{'iostat': '--interval=30'}, {'mpstat': '--interval=300'}]\n"
+            == out
+        )
         assert exitcode == 0
 
     def test_non_existent_group_options(
@@ -188,12 +204,14 @@ class Test_list_tool_tools_registered:
             "--group",
             "default",
             "--name",
-            "perf",
+            "mpstat",
             "--with-option",
         ]
         out, err, exitcode = pytest.helpers.capture(command)
-        # FIX
-        assert b"" == out
+        assert (
+            b"tool name: mpstat groups and options: [{'default': '--interval=300'}]\n"
+            == out
+        )
         assert exitcode == 0
 
     def test_option(self, monkeypatch, tool, agent_config, pbench_run, pbench_cfg):
@@ -201,6 +219,8 @@ class Test_list_tool_tools_registered:
 
         command = ["pbench-list-tools", "--with-option"]
         out, err, exitcode = pytest.helpers.capture(command)
-        # FIX
-        assert b"" == out
+        assert (
+            b"default: testhost.example.com [{'iostat': '--interval=30'}, {'mpstat': '--interval=300'}]\ntest: testhost.example.com [{'iostat': '--interval=30'}, {'mpstat': '--interval=300'}]\n"
+            == out
+        )
         assert exitcode == 0

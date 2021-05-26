@@ -49,10 +49,12 @@ class ListTools(ToolCommand):
                     for path in self.gen_tools_group_dir(group).glob("*/**"):
                         if self.context.with_option:
                             host_tools[group][path.name] = [
-                                p.read_text() for p in self.tools(path)
+                                {p.name: p.read_text()} for p in self.tools(path)
                             ]
                         else:
-                            host_tools[group][path.name] = [p.name for p in self.tools(path)]
+                            host_tools[group][path.name] = [
+                                p.name for p in self.tools(path)
+                            ]
                 except BadToolGroup:
                     self.logger.error("Bad tool group name: %s", group)
                     return 1
@@ -77,9 +79,18 @@ class ListTools(ToolCommand):
                 for path in tg_dir.iterdir():
                     # Check to see if the tool is in any of the hosts.
                     if self.context.name in [tool.name for tool in self.tools(path)]:
-                        group_list.append(group)
+                        if self.context.with_option:
+                            p = path / self.context.name
+                            group_list.append({group: p.read_text()})
+                        else:
+                            group_list.append(group)
             if group_list:
-                print(f"tool name: {self.context.name} groups: {', '.join(group_list)}")
+                if self.context.with_option:
+                    print(
+                        f"tool name: {self.context.name} groups and options: {group_list}"
+                    )
+                else:
+                    print(f"tool name: {self.context.name} groups: {group_list}")
             elif status == 0:
                 # the group list is empty but not because of a bad tool group, so set an "other"
                 status = 2
