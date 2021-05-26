@@ -47,11 +47,12 @@ class ClearTools(ToolCommand):
                 )
                 continue
 
+            # N.B. self.context.name is a singleton list (when non-empty)
             if self.context.name:
                 names = self.context.name
             else:
                 # Discover all the tools registered for this remote
-                names = self.tools(tg_dir_r)
+                names = [tool.name for tool in self.tools(tg_dir_r)]
 
             for name in names:
                 status = self._clear_tools(name, remote)
@@ -152,7 +153,7 @@ def _name_option(f):
         expose_value=False,
         callback=callback,
         help=(
-            "list the tool groups in which <tool-name> is used.\n"
+            "clear the tool groups in which <tool-name> is used.\n"
             "Not allowed with the --group option"
         ),
     )(f)
