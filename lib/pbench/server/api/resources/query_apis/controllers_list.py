@@ -22,7 +22,7 @@ class ControllersList(ElasticBase):
             config,
             logger,
             Schema(
-                Parameter("user", ParamType.USER, required=True),
+                Parameter("user", ParamType.USER, required=False),
                 Parameter("start", ParamType.DATE, required=True),
                 Parameter("end", ParamType.DATE, required=True),
             ),
@@ -58,9 +58,9 @@ class ControllersList(ElasticBase):
             "start" and "end" are datetime objects representing a set of Elasticsearch
                 run document indices in which to search.
         """
-        user = json_data["user"]
-        start = json_data["start"]
-        end = json_data["end"]
+        user = json_data.get("user")
+        start = json_data.get("start")
+        end = json_data.get("end")
 
         # We need to pass string dates as part of the Elasticsearch query; we
         # use the unconverted strings passed by the caller rather than the

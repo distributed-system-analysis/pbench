@@ -22,7 +22,21 @@ class SchemaError(TypeError):
     Generic base class for errors in processing a JSON schema.
     """
 
-    pass
+    def __init__(self, status: int = 400):
+        self.http_status = status
+
+
+class UnverifiedUser(SchemaError):
+    """
+    Unverified attempt to access other user data.
+    """
+
+    def __init__(self, username: str):
+        self.username = username
+        super().__init__(status=401)
+
+    def __str__(self):
+        return f"{self.username} can not be verified"
 
 
 class InvalidRequestPayload(SchemaError):
@@ -41,6 +55,7 @@ class MissingParameters(SchemaError):
     """
 
     def __init__(self, keys: List[AnyStr]):
+        super().__init__()
         self.keys = keys
 
     def __str__(self):
@@ -61,6 +76,7 @@ class ConversionError(SchemaError):
             expected_type: The expected type
             actual_type: The actual type
         """
+        super().__init__()
         self.value = value
         self.expected_type = expected_type
         self.actual_type = actual_type
@@ -115,9 +131,12 @@ def convert_username(value: str) -> str:
         internal username representation
     """
     try:
-        return Auth.validate_user(value)
+        user = Auth().verify_user(value)
     except Exception:
         raise ConversionError(value, "username", type(value).__name__)
+    if not user:
+        raise UnverifiedUser(value)
+    return str(user.id)
 
 
 def convert_json(value: dict) -> dict:
@@ -499,6 +518,7 @@ class ElasticBase(Resource):
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
+    @Auth.token_auth.login_required(optional=True)
     def post(self):
         """
         Handle a Pbench server POST operation that will involve a call to the
@@ -512,10 +532,26 @@ class ElasticBase(Resource):
         validation/conversion where necessary. Missing "required" parameters
         and any parameter with a null value are rejected. Parameters that
         are not in the class schema are ignored but logged.
+
+        If the request does not contain the user field, it will be interpreted
+        as a public dataset query.
         """
         json_data = request.get_json(silent=True)
+        if json_data and "user" in json_data:
+            if not json_data["user"]:
+                # There is an empty user field present in the json data;
+                # therefore, this request will be interpreted as a
+                # public dataset query.  Remove it before validating the
+                # remaining json data.
+                del json_data["user"]
+            elif Auth.token_auth.current_user() is None:
+                # Only logged-in users are allowed to query non-public data.
+                abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
         try:
             new_data = self.schema.validate(json_data)
+        except UnverifiedUser as e:
+            self.logger.warning("{}", str(e))
+            abort(HTTPStatus.FORBIDDEN, message=str(e))
         except SchemaError as e:
             self.logger.warning(
                 "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
@@ -523,6 +559,7 @@ class ElasticBase(Resource):
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
         return self._call(requests.post, new_data)
 
+    @Auth.token_auth.login_required(optional=True)
     def get(self):
         """
         Handle a GET operation involving a call to the server's Elasticsearch

@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from typing import Any, Dict
 import pytest
 import requests
@@ -6,7 +7,7 @@ import responses
 
 @pytest.fixture
 @responses.activate
-def query_api(client, server_config):
+def query_api(client, server_config, pbench_token):
     """
     Help controller queries that want to interact with a mocked
     Elasticsearch service.
@@ -29,17 +30,20 @@ def query_api(client, server_config):
         payload: Dict[str, Any],
         expected_index: str,
         expected_status: str,
+        headers: dict = {},
         **kwargs,
     ) -> requests.Response:
         host = server_config.get("elasticsearch", "host")
         port = server_config.get("elasticsearch", "port")
         es_url = f"http://{host}:{port}{expected_index}{es_uri}"
         with responses.RequestsMock() as rsp:
-            rsp.add(responses.POST, es_url, **kwargs)
+            # We need to set up mocks for the Server's call to Elasticsearch,
+            # which will only be made if the request is not forbidden nor unauthorized.
+            if expected_status not in [HTTPStatus.FORBIDDEN, HTTPStatus.UNAUTHORIZED]:
+                rsp.add(responses.POST, es_url, **kwargs)
             response = client.post(
-                f"{server_config.rest_uri}{pbench_uri}", json=payload
+                f"{server_config.rest_uri}{pbench_uri}", headers=headers, json=payload,
             )
-            assert len(rsp.calls) == 1
         assert response.status_code == expected_status
         return response
 

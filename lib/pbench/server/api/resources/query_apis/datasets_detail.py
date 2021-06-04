@@ -22,7 +22,7 @@ class DatasetsDetail(ElasticBase):
             config,
             logger,
             Schema(
-                Parameter("user", ParamType.USER, required=True),
+                Parameter("user", ParamType.USER, required=False),
                 Parameter("name", ParamType.STRING, required=True),
                 Parameter("start", ParamType.DATE, required=True),
                 Parameter("end", ParamType.DATE, required=True),
@@ -53,10 +53,10 @@ class DatasetsDetail(ElasticBase):
             "start" and "end" are time strings representing a set of Elasticsearch
                 run document indices in which the dataset will be found.
         """
-        user = json_data["user"]
-        name = json_data["name"]
-        start = json_data["start"]
-        end = json_data["end"]
+        user = json_data.get("user")
+        name = json_data.get("name")
+        start = json_data.get("start")
+        end = json_data.get("end")
         self.logger.info(
             "Return dataset {} for user {}, prefix {}: ({} - {})",
             name,
