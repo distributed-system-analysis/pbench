@@ -772,13 +772,17 @@ fi
 
 log_finish
 
-# send it
-subj="$PROG.$TS($PBENCH_ENV)"
-cat << EOF > ${index_content}
+subj="$PROG.$TS ($PBENCH_ENV)"
+if [[ -s ${report} ]]; then
+    cat << EOF > ${index_content}
 $subj
-EOF
 
-cat ${report} >> ${index_content}
+EOF
+    cat ${report} >> ${index_content}
+else
+    printf "${subj} - Successful audit, nothing to report.\n" > ${index_content}
+fi
+# send it
 pbench-report-status --name ${PROG} --pid ${$} --timestamp $(timestamp) --type status ${index_content}
 
 exit $ret
