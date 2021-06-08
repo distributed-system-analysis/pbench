@@ -1,7 +1,9 @@
 ---
+- name: install pbench RPM repo
+  import_playbook: pbench-repo-install.yml
+
 - name: install pbench-server
   hosts: servers
-  remote_user: root
   become: yes
   become_user: root
 
@@ -11,6 +13,5 @@
     apache_options: "+Indexes +FollowSymLinks"
 
   roles:
-    - pbench-repo-install
     - pbench-server-install
     - pbench-server-config

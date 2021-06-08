@@ -64,7 +64,7 @@ binlinks = \
 	install-build-artifacts
 
 install: install-dirs install-bin install-lib
-	${COPY} VERSION ${DESTDIR}
+	${COPY} VERSION ${DESTDIR}/
 
 install-dirs:
 	${INSTALL} ${INSTALLOPTS} ${DESTDIR}
@@ -77,37 +77,38 @@ install-bin: install-binbase install-bintools install-binscripts install-configt
 
 install-binbase:
 	for f in ${binbase} ;do \
-	    ${COPY} bin/$$f ${BINDIR} \
+	    ${COPY} bin/$$f ${BINDIR}/ \
 	;done
 
 install-bintools:
 	for f in ${bintools} ;do \
-	    ${COPY} bin/$$f ${BINDIR} \
+	    ${COPY} bin/$$f ${BINDIR}/ \
 	;done
 
 install-binscripts:
 	cd bin; \
 	for f in ${binlinks} ;do \
-	    ${COPY} $$f ${BINDIR}; \
+	    ${COPY} $$f ${BINDIR}/; \
 	    if [ -e $$f.sh ] ;then \
-	        ${COPY} $$f.sh ${BINDIR} \
+	        ${COPY} $$f.sh ${BINDIR}/ \
 	    ;elif [ -e $$f.py ] ;then \
-	        ${COPY} $$f.py ${BINDIR} \
+	        ${COPY} $$f.py ${BINDIR}/ \
 	    ;fi \
 	;done
 
 install-lib:
-	${COPY} -r lib ${DESTDIR}
+	${COPY} requirements.txt ${DESTDIR}/
+	${COPY} -r lib ${DESTDIR}/
 
 install-configtools:
-	${COPY} -r ../lib/configtools ${LIBDIR}
+	${COPY} -r ../lib/configtools ${LIBDIR}/
 
 # SHA1 and SEQNO - these are used when building an RPM only
 # so we provide a target for the spec file to invoke. This
 # is *NOT* meant to be invoked interactively.
 install-build-artifacts:
-	${COPY} ../SHA1 ${DESTDIR}
-	${COPY} ../SEQNO ${DESTDIR}
+	${COPY} ../SHA1 ${DESTDIR}/
+	${COPY} ../SEQNO ${DESTDIR}/
 
 clean:
 	rm -rf ${DESTDIR}

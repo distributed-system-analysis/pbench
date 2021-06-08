@@ -59,7 +59,6 @@ tarball: spec
 
 ###########################################################################
 # build RPMs in COPR
-seqno := $(shell if [ -f seqno ] ;then cat seqno ;else echo 1; fi)
 
 include rpm.mk
 
@@ -67,4 +66,3 @@ clean-sha1:
 	rm -f ${upstmtree}/${prog}.SHA1
 
 clean:: localclean
-

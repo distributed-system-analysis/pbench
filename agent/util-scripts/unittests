@@ -21,13 +21,13 @@ export _testdir=${_testroot}/pbench
 # Copy util-scripts execution environment to _testroot
 _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p ${_testopt}/config ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
+mkdir -p ${_testopt}/config ${_testopt}/util-scripts ${_testopt}/tool-scripts ${_testopt}/lib ${_testopt}/unittest-scripts
 let res=res+${?}
 cp -L ${_tdir}/../base ${_testopt}/
 let res=res+${?}
 cp -rL ${_tdir}/../config/* ${_testopt}/config/
 let res=res+${?}
-cp -a $_tdir/../../lib/* $_testopt/common/lib/
+cp -a $_tdir/../../lib/* $_testopt/lib/
 let res=res+${?}
 cp -a ${_tdir}/{getconf.py,require-rpm,pbench-*} ${_testopt}/util-scripts/
 let res=res+${?}
@@ -86,7 +86,7 @@ PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
 PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 # Allows us to intercept scp, ssh, rsync, etc.
 export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/tool-scripts:${PATH}
-export PYTHONPATH=${_testopt}/common/lib:${PYTHONPATH}
+export PYTHONPATH=${_testopt}/lib:${PYTHONPATH}
 
 # Fixed timestamp output
 export _PBENCH_UNIT_TESTS=1
