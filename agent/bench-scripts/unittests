@@ -27,7 +27,7 @@ export _testdir=${_testroot}/pbench-agent
 # Copy bench-scripts execution environment to _testroot
 export _testopt=${_testroot}/opt/pbench-agent
 res=0
-mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts ${_testopt}/common/lib
+mkdir -p ${_testopt}/bench-scripts/postprocess ${_testopt}/bench-scripts/templates ${_testopt}/util-scripts ${_testopt}/lib ${_testopt}/unittest-scripts
 let res=res+${?}
 cp ${_tdir}/../base ${_testopt}/
 let res=res+${?}
@@ -43,7 +43,7 @@ cp ${_tdir}/templates/* ${_testopt}/bench-scripts/templates
 let res=res+${?}
 cp -a $_tdir/../util-scripts/{getconf.py,require-rpm,pbench-*} $_testopt/util-scripts/
 let res=res+$?
-cp -a $_tdir/../../lib/* $_testopt/common/lib/
+cp -a $_tdir/../../lib/* $_testopt/lib/
 let res=res+${?}
 cp -rH ${_tdir}/test-bin/* ${_testopt}/unittest-scripts/
 let res=res+${?}
@@ -76,7 +76,7 @@ PATH=$(remove_path /opt/pbench-agent/bench-scripts ${PATH})
 PATH=$(remove_path /opt/pbench-agent/util-scripts ${PATH})
 # Allows us to intercept scp, ssh, rsync, etc.
 export PATH=${_testopt}/unittest-scripts:${_testopt}/util-scripts:${_testopt}/bench-scripts:${PATH}
-export PYTHONPATH=${_testopt}/common/lib:${PYTHONPATH}
+export PYTHONPATH=${_testopt}/lib:${PYTHONPATH}
 
 # Fixed timestamp output
 export _PBENCH_UNIT_TESTS=1

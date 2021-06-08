@@ -171,7 +171,7 @@ function invokit {
 
     PYTHONUNBUFFERED=True \
     _testlog=${_rundir}/test-execution.log \
-    PATH=${_optdir}/util-scripts:${_optdir}/tool-scripts:${_optdir}/common/bin:${PATH} \
+    PATH=${_optdir}/util-scripts:${_optdir}/tool-scripts:${PATH} \
     ${_optdir}/tool-scripts/${name} ${args}
 }
 
