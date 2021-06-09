@@ -9960,5 +9960,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-test|master_40gb|uperf__2016-10-06_16:34:03|INDEXED|
+test|master_40gb|uperf__2016-10-06_16:34:03|INDEXED| INDEX_MAP = (714886) {"pbench-unittests.v6.run-data.2016-10": ["393e019b97d31ab32999a0b48d4ff0a9"], "
 --- SqliteDB Datasets

@@ -8,6 +8,7 @@ from sqlalchemy import (
     Column,
     Integer,
     String,
+    Text,
     DateTime,
     Enum,
     ForeignKey,
@@ -295,6 +296,7 @@ class Dataset(Database.Base):
     Columns:
         id          Generated unique ID of table row
         owner       Owning username of the dataset
+        access      Dataset is "private" to owner, or "public"
         controller  Name of controller node
         name        Base name of dataset (tarball)
         md5         The dataset MD5 hash (Elasticsearch ID)
@@ -317,9 +319,14 @@ class Dataset(Database.Base):
         # because they're terminal states that cannot be exited.
     }
 
+    PUBLIC_ACCESS = "public"
+    PRIVATE_ACCESS = "private"
+    ACCESS_KEYWORDS = [PUBLIC_ACCESS, PRIVATE_ACCESS]
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     owner = relationship("User")
+    access = Column(String(255), unique=False, nullable=False, default="private")
     controller = Column(String(255), unique=False, nullable=False)
     name = Column(String(255), unique=False, nullable=False)
 
@@ -395,6 +402,26 @@ class Dataset(Database.Base):
             if user:
                 return user
         raise DatasetBadParameterType(value, "username")
+
+    @validates("access")
+    def validate_access(self, key: str, value: str) -> str:
+        """
+        Validate the access key for the dataset.
+
+        Args:
+            key: access
+            value: string "private" or "public"
+
+        Raises:
+            DatasetBadParameterType: the access value given isn't allowed.
+
+        Returns:
+            access keyword string
+        """
+        access = value.lower()
+        if access in Dataset.ACCESS_KEYWORDS:
+            return access
+        raise DatasetBadParameterType(value, "access keyword")
 
     @staticmethod
     def _render_path(patharg=None, controllerarg=None, namearg=None) -> Tuple[str, str]:
@@ -633,7 +660,7 @@ def path_init(target, args, kwargs):
 
 
 class Metadata(Database.Base):
-    """ Retain secondary information about datasets
+    """Retain secondary information about datasets
 
     Columns:
         id          Generated unique ID of table row
@@ -644,16 +671,33 @@ class Metadata(Database.Base):
 
     __tablename__ = "dataset_metadata"
 
-    # Currently defined metadata keys
+    # REINDEX boolean flag to indicate when a dataset should be re-indexed
+    #
+    # {"REINDEX": True}
     REINDEX = "REINDEX"
+
+    # ARCHIVED boolean flag to indicate when a tarball has been archived
+    #
+    # {"ARCHIVED": True}
     ARCHIVED = "ARCHIVED"
+
+    # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
+    # to record an S3 object store key.) NOT YET USED.
+    #
+    # {"TARBALL_PATH": "/srv/pbench/archive/fs-version-001/ctrl/example__2021.05.21T07.15.27.tar.xz"}
     TARBALL_PATH = "TARBALL_PATH"
 
-    METADATA_KEYS = [REINDEX, ARCHIVED, TARBALL_PATH]
+    # INDEX_MAP a two-level dict recording the MD5 document IDs for each
+    # Elasticsearch index containing documents for this dataset.
+    #
+    # {"drb.v6.run-data.2021-07": ["MD5"], "drb.v6.run-toc.2021-07": ["MD5-1", "MD5-2"]}
+    INDEX_MAP = "INDEX_MAP"
+
+    METADATA_KEYS = [REINDEX, ARCHIVED, TARBALL_PATH, INDEX_MAP]
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=False, nullable=False, index=True)
-    value = Column(String(2048), unique=False, nullable=True)
+    value = Column(Text, unique=False, nullable=True)
     dataset_ref = Column(
         Integer, ForeignKey("datasets.id", ondelete="CASCADE"), nullable=False
     )

@@ -21,7 +21,7 @@ class TestParamType:
 
     def test_enum(self):
         assert (
-            len(ParamType.__members__) == 4
+            len(ParamType.__members__) == 5
         ), "Number of ParamType ENUM values has changed; confirm test coverage!"
         for n, t in ParamType.__members__.items():
             assert str(t) == t.friendly.upper()
@@ -34,6 +34,7 @@ class TestParamType:
             (ParamType.JSON, {"key": "value"}, {"key": "value"}),
             (ParamType.DATE, "2021-06-29", dateutil.parser.parse("2021-06-29")),
             (ParamType.USER, "drb", "1"),
+            (ParamType.ACCESS, "PRIVATE", "private"),
         ),
     )
     def test_successful_conversions(self, client, test, monkeypatch):
@@ -57,10 +58,15 @@ class TestParamType:
     @pytest.mark.parametrize(
         "test",
         (
-            (ParamType.STRING, {"not": "string"}),
-            (ParamType.JSON, "not_json"),
-            (ParamType.DATE, "2021-06-45"),
-            (ParamType.USER, "drb"),
+            (ParamType.STRING, {"not": "string"}),  # dict is not string
+            (ParamType.JSON, (1, False)),  # tuple is not JSON
+            (ParamType.DATE, "2021-06-45"),  # few months have 45 days
+            (ParamType.DATE, "notadate"),  # not valid date string
+            (ParamType.DATE, 1),  # not a string representing a date
+            (ParamType.USER, "drb"),  # we haven't established a "drb" user
+            (ParamType.USER, False),  # not a user string
+            (ParamType.ACCESS, "foobar"),  # ACCESS is "public" or "private"
+            (ParamType.ACCESS, 0),  # ACCESS must be a string
         ),
     )
     def test_failed_conversions(self, test, monkeypatch):
@@ -91,6 +97,11 @@ class TestParameter:
         assert y.name == "foo"
         assert y.type is ParamType.JSON
 
+        z = Parameter("foo", ParamType.JSON, required=False)
+        assert not z.required
+        assert z.name == "foo"
+        assert z.type is ParamType.JSON
+
     @pytest.mark.parametrize(
         "test",
         (
@@ -115,7 +126,7 @@ class TestParameter:
         ),
     )
     def test_invalid_optional(self, test):
-        x = Parameter("data", ParamType.STRING)
+        x = Parameter("data", ParamType.STRING, required=False)
         json, expected = test
         assert x.invalid(json) is expected
 
@@ -146,6 +157,10 @@ class TestSchema:
     def test_bad_dates(self):
         with pytest.raises(ConversionError):
             self.schema.validate({"key1": "yes", "key3": "2000-02-56"})
+
+    def test_null_required(self):
+        with pytest.raises(MissingParameters):
+            self.schema.validate({"key1": None})
 
     def test_bad_json(self):
         with pytest.raises(ConversionError):

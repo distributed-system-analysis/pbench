@@ -13,6 +13,7 @@ from pbench.test.unit.server.test_user_auth import login_user, register_user
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.template import Template
+from pbench.server.database.models.users import User
 
 server_cfg_tmpl = """[DEFAULT]
 install-dir = {TMP}/opt/pbench-server
@@ -150,15 +151,28 @@ def db_session(server_config):
     Database.db_session.remove()
 
 
+@pytest.fixture()
+def create_user() -> User:
+    user = User(
+        email="test@example.com",
+        password="12345",
+        username="test",
+        first_name="Test",
+        last_name="Account",
+    )
+    user.add()
+    return user
+
+
 @pytest.fixture
-def user_ok(monkeypatch):
+def user_ok(monkeypatch, create_user):
     """
     Override the Auth.validate_user method to pass without checking the
     database.
     """
 
     def ok(user: str) -> str:
-        return user
+        return str(create_user.id)
 
     monkeypatch.setattr(Auth, "validate_user", ok)
 

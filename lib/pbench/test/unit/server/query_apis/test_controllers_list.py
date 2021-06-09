@@ -82,14 +82,16 @@ class TestControllersList:
             {"some_additional_key": "test"},
         ),
     )
-    def test_missing_keys(self, client, server_config, keys, user_ok, pbench_token):
+    def test_missing_keys(
+        self, client, server_config, keys, find_template, user_ok, pbench_token
+    ):
         """
         Test behavior when JSON payload does not contain all required keys.
 
         Note that "start", and "end" are required whereas "user" is not mandatory;
         however, Pbench will silently ignore any additional keys that are
         specified.
-       """
+        """
         response = client.post(
             f"{server_config.rest_uri}/controllers/list",
             headers={"Authorization": "Bearer " + pbench_token},
@@ -118,7 +120,7 @@ class TestControllersList:
         )
 
     @pytest.mark.parametrize(
-        "user", ("drb", "", "no_user", None),
+        "user", ("drb", "badwolf", "no_user"),
     )
     def test_query(
         self,
@@ -129,6 +131,7 @@ class TestControllersList:
         find_template,
         build_auth_header,
         user,
+        pbench_token,
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
@@ -137,11 +140,15 @@ class TestControllersList:
         """
         json = {
             "user": user,
+            "access": "private",
             "start": "2020-08",
             "end": "2020-10",
         }
+        # "no_user" means omitting the "user" parameter entirely.
         if user == "no_user":
             json.pop("user", None)
+        if user == "no_user" or user is None:
+            json["access"] = "public"
 
         response_payload = {
             "took": 1,
@@ -179,14 +186,17 @@ class TestControllersList:
         }
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
-        # If we're not asking about a particular user, or if the user
-        # field is to be omitted altogether, or if we have a valid
-        # token, then the request should succeed.
+
+        # Determine whether we should expect the request to succeed, or to
+        # fail with a permission error. We always authenticate with the
+        # user "drb" as fabricated by the build_auth_header fixure; we
+        # don't expect success for an "invalid" authentication, for a different
+        # user, or for an invalid username.
         if (
             not user
             or user == "no_user"
             or build_auth_header["header_param"] == "valid"
-        ):
+        ) and user != "badwolf":
             expected_status = HTTPStatus.OK
         else:
             expected_status = HTTPStatus.FORBIDDEN
@@ -225,6 +235,7 @@ class TestControllersList:
         user_ok,
         find_template,
         build_auth_header,
+        pbench_token,
     ):
         """
         Check proper handling of a query resulting in no Elasticsearch matches.
@@ -292,7 +303,6 @@ class TestControllersList:
         Check that an exception in calling Elasticsearch is reported correctly.
         """
         json = {
-            "user": "",
             "start": "2020-08",
             "end": "2020-08",
         }
@@ -313,7 +323,6 @@ class TestControllersList:
         response.raise_for_status() and Pbench handlers.
         """
         json = {
-            "user": "",
             "start": "2020-08",
             "end": "2020-08",
         }

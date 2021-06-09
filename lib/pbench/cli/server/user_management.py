@@ -10,6 +10,7 @@ USER_LIST_HEADER_ROW = USER_LIST_ROW_FORMAT.format(
     "Username", "First Name", "Last Name", "Registered On", "Email"
 )
 
+
 # User create CLI
 @click.group("user_group")
 @click.version_option()

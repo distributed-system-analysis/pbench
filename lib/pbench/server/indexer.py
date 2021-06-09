@@ -65,6 +65,7 @@ import pyesbulk
 #     patch: change when:
 #       - bug fixes are made to existing code that don't affect indices or
 #         mappings
+#
 # We add the version to the run documents we generate.  Having the version
 # number in each run document helps us track down the version of the code that
 # generated those documents.  In turn, this can help us fix indexing problems
@@ -1012,8 +1013,7 @@ class ResultData(PbenchData):
         return
 
     def _handle_iteration(self, iter_data, iter_name, iter_number, result_json):
-        """Generate source documents for iteration data.
-        """
+        """Generate source documents for iteration data."""
         # There should always be a 'parameters' element with 'benchmark'
         # array element inside it.  There is no reason for this to be an
         # array, but it is: we just pick the 0^th (and only element) as
@@ -1378,7 +1378,7 @@ class ResultData(PbenchData):
                             if prev_ts is not None:
                                 assert prev_ts <= ts, (
                                     "prev_ts (%r, %r) > ts (%r, %r)"
-                                    % (prev_ts, prev_orig_ts, ts, orig_ts)
+                                    % (prev_ts, prev_orig_ts, ts, orig_ts,)
                                 )
                             prev_orig_ts = orig_ts
                             prev_ts = ts
@@ -2142,7 +2142,7 @@ class ToolData(PbenchData):
             if prev_ts_val is not None:
                 assert prev_ts_val <= ts_val, (
                     "prev_ts_val (%r, %r) > first (%r, %r)"
-                    % (prev_ts_val, prev_first, ts_val, first)
+                    % (prev_ts_val, prev_first, ts_val, first,)
                 )
             prev_first = first
             prev_ts_val = ts_val
@@ -2253,7 +2253,7 @@ class ToolData(PbenchData):
                         if prev_ts_val is not None:
                             assert prev_ts_val <= ts_val, (
                                 "prev_ts_val (%r, %r) > ts_val (%r, %r)"
-                                % (prev_ts_val, prev_val, ts_val, val)
+                                % (prev_ts_val, prev_val, ts_val, val,)
                             )
                         prev_val = val
                         prev_ts_val = ts_val
@@ -2597,16 +2597,16 @@ class ToolData(PbenchData):
 
     def _make_source_json(self):
         """Process JSON files in the form of an outer JSON array of ready to
-           source documents.  It is expected that each source document has an
-           "@timestamp" field as either an ISO format string,
-           "YYYY-mm-ddTHH:MM:SS.ssssss", or as a unix seconds since the epoch
-           floating point timestamp value.
+        source documents.  It is expected that each source document has an
+        "@timestamp" field as either an ISO format string,
+        "YYYY-mm-ddTHH:MM:SS.ssssss", or as a unix seconds since the epoch
+        floating point timestamp value.
 
-           Any JSON document missing an "@timestamp" field is ignored.  Each
-           JSON document will have its "@timestamp" field validated that it
-           lands within the start/end run time frame.  The source JSON that
-           will be indexed into Elasticsearch will convert the "@timetamp"
-           value to millis since the epoch.
+        Any JSON document missing an "@timestamp" field is ignored.  Each
+        JSON document will have its "@timestamp" field validated that it
+        lands within the start/end run time frame.  The source JSON that
+        will be indexed into Elasticsearch will convert the "@timetamp"
+        value to millis since the epoch.
         """
         for df in self.files:
             try:
@@ -3171,7 +3171,7 @@ class PbenchTarBall:
         self.idxctx = idxctx
         self.authorization = {
             "owner": username,
-            "access": "public" if username is None else "private",
+            "access": "private",
         }
         self.tbname = tbarg
         self.controller_dir = os.path.basename(os.path.dirname(self.tbname))
@@ -3183,6 +3183,17 @@ class PbenchTarBall:
         tb_stat = os.stat(self.tbname)
         mtime = datetime.utcfromtimestamp(tb_stat.st_mtime)
         self.tb = tarfile.open(self.tbname)
+
+        # Build a map showing the documents in each Elasticsearch index so we
+        # can find them later to UPDATE or DELETE without searching all
+        # indices.
+        #
+        # {
+        #     "jam-pbench.v6.run-data.2021-05": ["<doc-id>"],
+        #     "jam-pbench.v6.run-toc.2021-05": ["<doc-id>", "<doc-id>"],
+        #     [...]
+        # }
+        self.index_map = {}
 
         # This is the top-level name of the run - it should be the common
         # first component of every member of the tar ball.
@@ -3379,6 +3390,22 @@ class PbenchTarBall:
         # additional context to add.
         self._tbctx = f"{self.controller_dir}/{os.path.basename(tbarg)}({md5sum})"
 
+    def map_document(self, index: str, id: str) -> None:
+        """
+        Create an entry in the document indexing dictionary to record the index
+        name and document ID. This map will be stored as Dataset metadata to be
+        retrieved later when we want to locate the documents for UPDATE and
+        DELETE operations.
+
+        Args:
+            index: Fully qualified index in which the document is stored
+            id: The Elasticsearch document ID
+        """
+        try:
+            self.index_map[index].append(id)
+        except KeyError:
+            self.index_map[index] = [id]
+
     def gen_files_by_partial_path(self, path):
         """Generator for all files in the tar ball which match the given path
         pattern.
@@ -3443,8 +3470,7 @@ class PbenchTarBall:
         return iter_objs
 
     def get_samples(self, iteration):
-        """Get the list of Sample objects for a given iteration object.
-        """
+        """Get the list of Sample objects for a given iteration object."""
         samples = []
         for member in self.members:
             if not member.isdir():
@@ -3604,6 +3630,7 @@ class PbenchTarBall:
         # make a simple action for indexing
         pd = PbenchData(self)
         idx_name = pd.generate_index_name("run", source)
+        self.map_document(idx_name, self.run_metadata["id"])
         action = _dict_const(
             _op_type=_op_type,
             _index=idx_name,
@@ -3733,11 +3760,10 @@ class PbenchTarBall:
         count = 0
         for source in self.gen_toc():
             source["@timestamp"] = tstamp
+            source_id = get_md5sum_of_dir(source, self.run_metadata["id"])
+            self.map_document(idx_name, source_id)
             action = _dict_const(
-                _id=get_md5sum_of_dir(source, self.run_metadata["id"]),
-                _op_type=_op_type,
-                _index=idx_name,
-                _source=source,
+                _id=source_id, _op_type=_op_type, _index=idx_name, _source=source,
             )
             count += 1
             yield action
@@ -3914,8 +3940,7 @@ class PbenchTarBall:
         return
 
     def mk_tool_data_actions(self):
-        """Generate all the tool data actions from the entire run hierarchy.
-        """
+        """Generate all the tool data actions from the entire run hierarchy."""
         self.idxctx.logger.debug("start")
         count = 0
         for td in self.mk_tool_data():
@@ -3937,6 +3962,7 @@ class PbenchTarBall:
                 except BadDate:
                     pass
                 else:
+                    self.map_document(idx_name, source_id)
                     source["@generated-by"] = self.idxctx.get_tracking_id()
                     source["authorization"] = self.authorization
                     action = _dict_const(
@@ -3951,8 +3977,7 @@ class PbenchTarBall:
         return
 
     def mk_result_data_actions(self):
-        """Generate all the result data actions.
-        """
+        """Generate all the result data actions."""
         self.idxctx.logger.debug("start")
         rd = ResultData(self)
         if not rd:
@@ -3982,6 +4007,7 @@ class PbenchTarBall:
                 action = _dict_const(
                     _op_type=_op_type, _index=idx_name, _id=source_id, _source=source,
                 )
+                self.map_document(idx_name, source_id)
                 if parent_id is None:
                     # Only the parent result data documents hold the tracking IDs.
                     source["@generated-by"] = self.idxctx.get_tracking_id()

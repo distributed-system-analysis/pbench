@@ -1,8 +1,10 @@
+import json
+
 from datetime import datetime
 from enum import Enum
 from http import HTTPStatus
 from logging import Logger
-from typing import Any, AnyStr, Callable, Dict, List
+from typing import Any, AnyStr, Callable, Dict, List, Union
 from urllib.parse import urljoin
 
 import requests
@@ -15,6 +17,38 @@ from flask_restful import Resource, abort
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.template import Template
+from pbench.server.database.models.tracker import Dataset
+from pbench.server.database.models.users import User
+
+
+# A type defined to conform to the semantic definition of a JSON structure
+# with Python syntax.
+JSONSTRING = str
+JSONNUMBER = Union[int, float]
+JSONVALUE = Union["JSONOBJECT", "JSONARRAY", JSONSTRING, JSONNUMBER, bool, None]
+JSONARRAY = List[JSONVALUE]
+JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
+JSON = JSONVALUE
+
+# A type defined to allow the preprocess subclass method to provide shared
+# context with the assemble and postprocess methods.
+CONTEXT = Dict[str, Any]
+
+
+class UnauthorizedAccess(Exception):
+    """
+    The user is not authorized for the requested operation on the specified
+    resource.
+    """
+
+    def __init__(self, user: str, operation: "API_OPERATION", owner: str, access: str):
+        self.user = user
+        self.operation = operation
+        self.owner = owner
+        self.access = access
+
+    def __str__(self) -> str:
+        return f"User {self.user} is not authorized to {self.operation} a resource owned by {self.owner} with {self.access} access"
 
 
 class SchemaError(TypeError):
@@ -22,7 +56,7 @@ class SchemaError(TypeError):
     Generic base class for errors in processing a JSON schema.
     """
 
-    def __init__(self, status: int = 400):
+    def __init__(self, status: int = HTTPStatus.BAD_REQUEST):
         self.http_status = status
 
 
@@ -33,7 +67,7 @@ class UnverifiedUser(SchemaError):
 
     def __init__(self, username: str):
         self.username = username
-        super().__init__(status=401)
+        super().__init__(status=HTTPStatus.UNAUTHORIZED)
 
     def __str__(self):
         return f"{self.username} can not be verified"
@@ -44,8 +78,23 @@ class InvalidRequestPayload(SchemaError):
     A required client JSON input document is missing.
     """
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "Invalid request payload"
+
+
+class UnsupportedAccessMode(SchemaError):
+    """
+    Unsupported values for user or access, or an unsupported combination of
+    both.
+    """
+
+    def __init__(self, user: str, access: str):
+        super().__init__()
+        self.user = user
+        self.access = access
+
+    def __str__(self) -> str:
+        return f"Unsupported mode {self.user}:{self.access}"
 
 
 class MissingParameters(SchemaError):
@@ -69,7 +118,7 @@ class ConversionError(SchemaError):
 
     def __init__(self, value: Any, expected_type: str, actual_type: str):
         """
-        __init__ Construct a ConversionError exception
+        Construct a ConversionError exception
 
         Args:
             value: The value we tried to convert
@@ -91,12 +140,18 @@ class PostprocessError(Exception):
     Elasticsearch response document.
     """
 
-    pass
+    def __init__(self, status: int, message: str, data: JSON = None):
+        self.status = status
+        self.message = message
+        self.data = data
+
+    def __str__(self) -> str:
+        return f"Postprocessing error returning {self.status}: '{str(self.message)} [{self.data}]'"
 
 
 def convert_date(value: str) -> datetime:
     """
-    convert_date Convert a date/time string to a datetime.datetime object.
+    Convert a date/time string to a datetime.datetime object.
 
     Args:
         value: String representation of date/time
@@ -115,11 +170,13 @@ def convert_date(value: str) -> datetime:
 
 def convert_username(value: str) -> str:
     """
-    convert_username Convert the external representation of a username
-    by validating that the specified username exists, and returns the
-    desired internal representation of that user.
+    Convert the external string representation of a username by validating that
+    the specified username exists, and returns the desired internal
+    representation of that user.
 
-    The internal representation is the user row ID as a string.
+    The internal representation is the user row ID as a string. If the external
+    value is None, (which means the API's user parameter is nullable), we
+    return None to indicate that instead of attempting to query the User DB.
 
     Args:
         value: external user representation
@@ -128,8 +185,12 @@ def convert_username(value: str) -> str:
         ConversionError: input can't be converted
 
     Returns:
-        internal username representation
+        internal username representation or None
     """
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise ConversionError(value, str.__name__, type(value).__name__)
     try:
         user = Auth().verify_user(value)
     except Exception:
@@ -139,10 +200,9 @@ def convert_username(value: str) -> str:
     return str(user.id)
 
 
-def convert_json(value: dict) -> dict:
+def convert_json(value: JSON) -> JSON:
     """
-    convert_json Process a parameter of JSON type; currently just by validating
-    that it's a Python dict.
+    Process a parameter of JSON type.
 
     Args:
         value: JSON dict
@@ -153,15 +213,18 @@ def convert_json(value: dict) -> dict:
     Returns:
         The JSON dict
     """
-    if type(value) is not dict:
-        raise ConversionError(value, dict.__name__, type(value).__name__)
+    try:
+        if json.loads(json.dumps(value)) != value:
+            raise TypeError
+    except Exception:
+        raise ConversionError(value, "JSON", type(value).__name__) from None
     return value
 
 
 def convert_string(value: str) -> str:
     """
-    convert_string Verify that the parameter value is a string (e.g.,
-    not a JSON dict, or an int), and return it.
+    Verify that the parameter value is a string (e.g., not a JSON dict, or an
+    int), and return it.
 
     Args:
         value: parameter value
@@ -177,6 +240,31 @@ def convert_string(value: str) -> str:
     return value
 
 
+def convert_access(value: str) -> str:
+    """
+    Verify that the parameter value is an access scope. Currently this means
+    either "public" or "private".
+
+    NOTE: This is not implemented as an ENUM because it's expected that we'll
+    extend this to support some form of group reference in the future.
+
+    Args:
+        value: parameter value
+
+    Raises:
+        ConversionError: input can't be converted
+
+    Returns:
+        the validated access string
+    """
+    if type(value) is not str:
+        raise ConversionError(value, str.__name__, type(value).__name__)
+    v = value.lower()
+    if v not in Dataset.ACCESS_KEYWORDS:
+        raise ConversionError(value, "access", type(value).__name__)
+    return v
+
+
 class ParamType(Enum):
     """
     Define the possible JSON query parameter keys, and their type.
@@ -189,12 +277,13 @@ class ParamType(Enum):
     USER = ("User", convert_username)
     JSON = ("Json", convert_json)
     STRING = ("String", convert_string)
+    ACCESS = ("Access", convert_access)
 
     def __init__(self, name: AnyStr, convert: Callable[[AnyStr], Any]):
         """
-        ParamType Enum initializer: this uses a mixed-case name string in
-        addition to the conversion method simply because with only the
-        Callable value I ran into naming issues.
+        Enum initializer: this uses a mixed-case name string in addition to the
+        conversion method simply because with only the Callable value I ran
+        into naming issues.
         """
         self.friendly = name
         self.convert = convert
@@ -210,10 +299,12 @@ class Parameter:
     Note that a parameter that's "required" must also be non-empty.
     """
 
-    def __init__(self, name: AnyStr, type: ParamType, required: bool = False):
+    def __init__(
+        self, name: AnyStr, type: ParamType, required: bool = False,
+    ):
         """
-        __init__ Initialize a Parameter object describing a JSON parameter
-        with its type and attributes.
+        Initialize a Parameter object describing a JSON parameter with its type
+        and attributes.
 
         Args:
             name: Parameter name
@@ -224,24 +315,27 @@ class Parameter:
         self.type = type
         self.required = required
 
-    def invalid(self, json: Dict[AnyStr, Any]) -> bool:
+    def invalid(self, json: JSON) -> bool:
         """
         Check whether the value of this parameter in the JSON document
         is invalid.
-
-        If the parameter is required and missing (or null), then it's invalid;
-        if the parameter is not required and specified as null, it's invalid.
 
         Args:
             json: The client JSON document being validated.
 
         Returns:
-            True if unacceptable
+            True if the specified value is unacceptable
         """
-        return not json[self.name] if self.name in json else self.required
+        if self.name in json:
+            return json[self.name] is None
+        else:
+            return self.required
 
     def __str__(self) -> str:
-        return f"Parameter<{self.name}:{self.type}>"
+        return (
+            f"Parameter<{self.name}:{self.type}"
+            f"{',required' if self.required else ''}>"
+        )
 
 
 class Schema:
@@ -259,17 +353,17 @@ class Schema:
 
     def __init__(self, *parameters: Parameter):
         """
-        __init__ Specify an interface schema as a list of Parameter objects.
+        Specify an interface schema as a list of Parameter objects.
 
         Args:
             parameters: a list of Parameter objects
         """
         self.parameters = {p.name: p for p in parameters}
 
-    def validate(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def validate(self, json_data: JSON) -> JSON:
         """
-        validate Validate an incoming JSON document against the schema and
-        return a new JSON dict with translated values.
+        Validate an incoming JSON document against the schema and return a new
+        JSON dict with translated values.
 
         Args:
             json_data: Incoming client JSON document
@@ -290,29 +384,58 @@ class Schema:
             processed[p] = tp.type.convert(json_data[p]) if tp else json_data[p]
         return processed
 
+    def __contains__(self, key):
+        return key in self.parameters
+
     def __str__(self) -> str:
         return f"Schema<{self.parameters}>"
 
 
+class API_OPERATION(Enum):
+    """
+    The standard CRUD REST API operations:
+
+        CREATE: Instantiate a new resource
+        READ:   Retrieve the state of a resource
+        UPDATE: Modify the state of a resource
+        DELETE: Remove a resource
+    """
+
+    CREATE = 1
+    READ = 2
+    UPDATE = 3
+    DELETE = 4
+
+
 class ElasticBase(Resource):
     """
-    ElasticBase A base class for Elasticsearch queries that allows subclasses
-    to provide customers pre- and post- processing.
+    A base class for Elasticsearch queries that allows subclasses to provide
+    custom pre- and post- processing.
 
     This class extends the Flask Resource class in order to connect the post
     and get methods to Flask's URI routing algorithms. It implements a common
     JSON client payload intake and validation, along with the mechanism for
     calling Elasticsearch and processing errors.
 
-    Hooks are defined for subclasses extending this class to "assemble" the
-    Elasticsearch request payload from Pbench server data and the client's
-    JSON payload, and to "postprocess" a successful response payload from
-    Elasticsearch.
+    Hooks are defined for subclasses extending this class to "preprocess"
+    the query, to "assemble" the Elasticsearch request payload from Pbench
+    server data and the client's JSON payload, and to "postprocess" a
+    successful response payload from Elasticsearch.
+
+    Note that "preprocess" can provide context that's passed to the assemble
+    and postprocess methods.
     """
 
-    def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
+    def __init__(
+        self,
+        config: PbenchServerConfig,
+        logger: Logger,
+        schema: Schema,
+        *,
+        role: API_OPERATION = API_OPERATION.READ,
+    ):
         """
-        __init__ Construct the base class
+        Base class constructor.
 
         Args:
             config: server configuration
@@ -322,10 +445,11 @@ class ElasticBase(Resource):
                         Parameter("user", ParamType.USER, required=True),
                         Parameter("start", ParamType.DATE)
                     )
+            role: specify the API role, defaulting to READ
 
         NOTE: each class currently only supports one HTTP method, so we can
         describe only one set of parameters. If we ever need to change this,
-        we can add a level and describe parameters by method.
+        we can add a level and describe distinct parameters for each method.
         """
         super().__init__()
         self.logger = logger
@@ -334,31 +458,52 @@ class ElasticBase(Resource):
         port = config.get("elasticsearch", "port")
         self.es_url = f"http://{host}:{port}"
         self.schema = schema
+        self.role = role
 
-    def _get_user_term(self, user: str) -> dict:
+    def _get_user_term(self, json: JSON) -> Dict[str, str]:
         """
-        _get_user_term Generate the user term for an Elasticsearch document
-        query. If the specified user parameter is not None, search for
-        documents with that value as the authorized owner. If the user
-        parameter is None, instead search for documents with public access.
+        Generate the user term for an Elasticsearch document query. If the
+        specified "user" parameter is not None, search for documents with that
+        value as the authorized owner. If the "user" parameter is absent or
+        None, and the "access" parameter is "public", search for all published
+        documents.
+
+        TODO: Currently this code supports either all published data, or all
+        data owned by a specified user. More work in query construction must
+        be completed to support additional combinations. I plan to support
+        additional flexibility in a separate PR based on issue #2370.
 
         Args:
-            user: Pbench internal username or None
+            JSON query parameters containing keys:
+                "user": Pbench internal username if present and not None
+                "access": Access category, "public" or "private"; defaults
+                    to "private" if "user" is specified, and "public" if
+                    user is not specified. (NOTE: other combinations are
+                    not currently supported.)
+
+        Raises:
+            UnsupportedAccessMode: This is a temporary situation due to the
+            current query limitations. When the full semantics are complete
+            there will be no "illegal" constraint combinations but only
+            combinations that yield no data (e.g, "private" data for another
+            user).
 
         Returns:
             An assembled Elasticsearch query term
         """
+        user = json.get("user")
         if user:
             term = {"authorization.owner": user}
+        elif json.get("access") == Dataset.PRIVATE_ACCESS:
+            raise UnsupportedAccessMode(user, Dataset.PRIVATE_ACCESS)
         else:
-            term = {"authorization.access": "public"}
+            term = {"authorization.access": Dataset.PUBLIC_ACCESS}
         return term
 
     def _gen_month_range(self, index: str, start: datetime, end: datetime) -> str:
         """
-        _gen_month_range Construct a comma-separated list of index names
-        qualified by year and month suitable for use in the Elasticsearch
-        /_search query URI.
+        Construct a comma-separated list of index names qualified by year and
+        month suitable for use in the Elasticsearch /_search query URI.
 
         The month is incremented by 1 from "start" to "end"; for example,
         _gen_month_range('run', '2020-08', '2020-10') might result
@@ -392,14 +537,42 @@ class ElasticBase(Resource):
             )
         return indices
 
-    def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def preprocess(self, client_json: JSON) -> CONTEXT:
         """
-        assemble Assemble the Elasticsearch parameters
+        Given the client Request payload, perform any preprocessing activities
+        necessary prior to constructing an Elasticsearch query.
 
-        This must be overridden by the subclasses!
+        The base class assumes no preprocessing is necessary, and returns an
+        empty dictionary to indicate that the Elasticsearch operation should
+        continue; this can be overridden by subclasses as necessary.
+
+        The value returned here (if not None) will be passed to the "assemble"
+        and "postprocess" methods to provide shared context across the set of
+        operations. Note that "assemble" can modify the CONTEXT dict to pass
+        additional context to "postprocess" if necessary.
+
+        Args:
+            client_json: Request JSON payload
+
+        Raises:
+            Any errors in the postprocess method shall be reported by
+            exceptions which will be logged and will terminate the operation.
+
+        Returns:
+            None if Elasticsearch query shouldn't proceed, or a CONTEXT dict to
+            provide shared context for the assemble and postprocess methods.
+        """
+        return {}
+
+    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
+        """
+        Assemble the Elasticsearch parameters.
+
+        This is an abstract method that must be implemented by a subclass.
 
         Args:
             json_data: Input JSON payload, processed by type conversion
+            context: CONTEXT dict returned by preprocess method
 
         Raises:
             Any errors in the assemble method shall be reported by exceptions
@@ -416,15 +589,16 @@ class ElasticBase(Resource):
         """
         raise NotImplementedError()
 
-    def postprocess(self, es_json: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         """
-        postprocess Given the Elasticsearch Response object, construct a JSON
-                dict to be returned to the original caller.
+        Given the Elasticsearch Response object, construct a JSON document to
+        be returned to the original caller.
 
-        This must be overridden by the subclasses!
+        This is an abstract method that must be implemented by a subclass.
 
         Args:
-            response: Response object
+            es_json: Elasticsearch Response payload
+            context: CONTEXT value returned by preprocess method
 
         Raises:
             Any errors in the postprocess method shall be reported by
@@ -435,10 +609,9 @@ class ElasticBase(Resource):
         """
         raise NotImplementedError()
 
-    def _call(self, method: Callable, json_data: Dict[AnyStr, Any]):
+    def _call(self, method: Callable, json_data: JSON):
         """
-        _call Perform the requested call to Elasticsearch, and handle any
-        exceptions.
+        Perform the requested call to Elasticsearch, and handle any exceptions.
 
         Args:
             method: Any requests HTTP method (e.g., requests.post)
@@ -449,20 +622,43 @@ class ElasticBase(Resource):
         """
         klasname = self.__class__.__name__
         try:
-            es_request = self.assemble(json_data)
-            path = es_request.get("path")
-            url = urljoin(self.es_url, path)
+            context = self.preprocess(json_data)
+            self.logger.debug("PREPROCESS returns {}", context)
+            if context is None:
+                return "", HTTPStatus.NO_CONTENT
+        except UnauthorizedAccess as e:
+            self.logger.warning("{}", e)
+            abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
+        except KeyError as e:
+            self.logger.exception("{} problem in preprocess, missing {}", klasname, e)
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
         except Exception as e:
-            self.logger.exception("{} blew it in setup: {}", klasname, type(e).__name__)
+            self.logger.exception("{} preprocess failed: {}", klasname, e)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
-            # query Elasticsearch
+            # prepare payload for Elasticsearch query
+            es_request = self.assemble(json_data, context)
+            path = es_request.get("path")
+            url = urljoin(self.es_url, path)
+            self.logger.debug("ASSEMBLE returned URL {}", url)
+        except Exception as e:
+            self.logger.exception("{} assembly failed: {}", klasname, e)
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+
+        try:
+            # perform the Elasticsearch query
             es_response = method(url, **es_request["kwargs"])
+            self.logger.debug(
+                "ES query response {}:{}", es_response.reason, es_response.status_code
+            )
             es_response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             self.logger.exception(
-                "{} HTTP error {} from Elasticsearch request", klasname, e
+                "{} HTTP error {} from Elasticsearch request: {}",
+                klasname,
+                e,
+                es_request,
             )
             abort(
                 HTTPStatus.BAD_GATEWAY,
@@ -498,11 +694,12 @@ class ElasticBase(Resource):
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
-            return self.postprocess(es_response.json())
+            # postprocess Elasticsearch response
+            return self.postprocess(es_response.json(), context)
         except PostprocessError as e:
             msg = f"{klasname}: the query postprocessor was unable to complete: {e}"
-            self.logger.warning(msg)
-            abort(HTTPStatus.BAD_REQUEST, message=msg)
+            self.logger.warning("{}", msg)
+            abort(e.status, message=msg, data=e.data)
         except KeyError as e:
             self.logger.error("{}: missing Elasticsearch key {}", klasname, e)
             abort(
@@ -517,6 +714,69 @@ class ElasticBase(Resource):
                 e,
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+
+    def _check_authorization(self, user: str, access: str):
+        """
+        Check whether an API call is able to access data, based on the API's
+        authorization header, the requested user, the requested access
+        policy, and the API's role.
+
+        If "user" is None, then the request is unauthenticated. READ operations
+        may be allowed, UPDATE and DELETE operations will not be allowed.
+
+        If "access" is None, READ will assume we're looking for access only to
+        public datasets.
+
+        for API_OPERATION.READ:
+
+            Any call, with or without an authenticated user token, can access
+            public data.
+
+            Any authenticated user can access their own private data.
+
+            Any authenticated ADMIN user can access any private data.
+
+        for API_OPERATION.UPDATE:
+
+            An authenticated user is required.
+
+            Any authenticated user can update their own data.
+
+            Any authenticated ADMIN user can update any data.
+
+        Args:
+            user: The user parameter to the API, or None
+            access: The access parameter to the API, or None
+
+        Raises:
+            UnauthorizedAccess The user isn't authorized for the requested
+                access.
+        """
+        authorized_user: User = Auth.token_auth.current_user()
+        authorized = True
+        self.logger.debug(
+            "Authorizing {} access for {} to user {} with access {}",
+            self.role,
+            authorized_user,
+            user,
+            access,
+        )
+        if self.role != API_OPERATION.READ or access == Dataset.PRIVATE_ACCESS:
+            if authorized_user is None:
+                self.logger.warning(
+                    "Attempt to {} user {} data without login", self.role, user
+                )
+                authorized = False
+            elif user != authorized_user.username and not authorized_user.is_admin():
+                self.logger.warning(
+                    "Unauthorized attempt by {} to {} user {} data",
+                    authorized_user,
+                    self.role,
+                    user,
+                )
+                authorized = False
+        if not authorized:
+            raise UnauthorizedAccess(authorized_user, self.role, user, access)
 
     @Auth.token_auth.login_required(optional=True)
     def post(self):
@@ -534,19 +794,10 @@ class ElasticBase(Resource):
         are not in the class schema are ignored but logged.
 
         If the request does not contain the user field, it will be interpreted
-        as a public dataset query.
+        as a public dataset query. [TODO: See issue #2370 for more context on
+        plans for "user" vs "access" in queries.]
         """
         json_data = request.get_json(silent=True)
-        if json_data and "user" in json_data:
-            if not json_data["user"]:
-                # There is an empty user field present in the json data;
-                # therefore, this request will be interpreted as a
-                # public dataset query.  Remove it before validating the
-                # remaining json data.
-                del json_data["user"]
-            elif Auth.token_auth.current_user() is None:
-                # Only logged-in users are allowed to query non-public data.
-                abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
         try:
             new_data = self.schema.validate(json_data)
         except UnverifiedUser as e:
@@ -557,6 +808,23 @@ class ElasticBase(Resource):
                 "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
             )
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
+        except Exception as e:
+            self.logger.exception("POST unexpected {}: {}", e.__class__.__name__, e)
+            abort(
+                HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR IN VALIDATION"
+            )
+
+        # Automatically authorize the operation only if the API schema has the
+        # "user" key; otherwise we assume that authorization is unnecessary, or
+        # that the API-specific subclass will take care of that in preprocess.
+        if "user" in self.schema:
+            user = json_data.get("user")  # original username, not user ID
+            access = new_data.get("access")  # normalized access policy
+            try:
+                self._check_authorization(user, access)
+            except UnauthorizedAccess as e:
+                self.logger.warning("{}", e)
+                abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
         return self._call(requests.post, new_data)
 
     @Auth.token_auth.login_required(optional=True)

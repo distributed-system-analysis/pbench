@@ -121,12 +121,7 @@ class TestUserManagement:
             ],
         )
         assert result.exit_code == 2, result.stderr
-        assert (
-            result.stderr.find(
-                "Invalid value for '--role': invalid choice: ADMN. (choose from ADMIN)"
-            )
-            > -1
-        )
+        assert result.stderr.find("Invalid value for '--role'") > -1
 
     @staticmethod
     def test_valid_user_delete(monkeypatch, server_config, pytestconfig):
@@ -204,11 +199,7 @@ class TestUserManagement:
             cli.user_update, args=["test_user", TestUserManagement.ROLE_SWITCH, "ADMN"],
         )
         assert result.exit_code == 2
-        assert (
-            result.stderr_bytes
-            == b"Usage: user-update [OPTIONS] UPDATEUSER\nTry 'user-update --help' for help.\n"
-            + b"\nError: Invalid value for '--role': invalid choice: ADMN. (choose from ADMIN)\n"
-        )
+        assert result.stderr.find("Invalid value for '--role'") > -1
 
     @staticmethod
     def test_invalid_user_update(server_config, pytestconfig):

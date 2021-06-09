@@ -1,10 +1,12 @@
+from http import HTTPStatus
 from flask import jsonify
 from logging import Logger
-from typing import Any, AnyStr, Dict
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.query_apis import (
+    CONTEXT,
     ElasticBase,
+    JSON,
     Schema,
     Parameter,
     ParamType,
@@ -23,13 +25,14 @@ class DatasetsDetail(ElasticBase):
             logger,
             Schema(
                 Parameter("user", ParamType.USER, required=False),
+                Parameter("access", ParamType.ACCESS, required=False),
                 Parameter("name", ParamType.STRING, required=True),
                 Parameter("start", ParamType.DATE, required=True),
                 Parameter("end", ParamType.DATE, required=True),
             ),
         )
 
-    def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
         Get details for a specific Pbench dataset which is either owned
         by a specified username, or has been made publicly accessible.
@@ -41,7 +44,7 @@ class DatasetsDetail(ElasticBase):
             "end": "end-time"
         }
 
-        JSON parameters:
+        json_data: JSON dictionary of type-normalized key-value pairs
             user: specifies the owner of the data to be searched; it need not
                 necessarily be the user represented by the session token
                 header, assuming the session user is authorized to view "user"s
@@ -52,6 +55,8 @@ class DatasetsDetail(ElasticBase):
 
             "start" and "end" are time strings representing a set of Elasticsearch
                 run document indices in which the dataset will be found.
+
+        context: Context passed from preprocess method: not used here.
         """
         user = json_data.get("user")
         name = json_data.get("name")
@@ -75,8 +80,8 @@ class DatasetsDetail(ElasticBase):
                     "query": {
                         "bool": {
                             "filter": [
-                                {"match": {"run.name": name}},
-                                {"match": self._get_user_term(user)},
+                                {"term": {"run.name": name}},
+                                {"term": self._get_user_term(json_data)},
                             ]
                         }
                     },
@@ -85,7 +90,7 @@ class DatasetsDetail(ElasticBase):
             },
         }
 
-    def postprocess(self, es_json: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         """
         Returns details from the run, @metadata, and host_tools_info subdocuments
         of the Elasticsearch run document:
@@ -115,9 +120,13 @@ class DatasetsDetail(ElasticBase):
         # NOTE: we're expecting just one. We're matching by just the
         # dataset name, which ought to be unique.
         if len(hits) == 0:
-            raise PostprocessError("The specified dataset has gone missing")
+            raise PostprocessError(
+                HTTPStatus.BAD_REQUEST, "The specified dataset has gone missing"
+            )
         elif len(hits) > 1:
-            raise PostprocessError("Too many hits for a unique query")
+            raise PostprocessError(
+                HTTPStatus.BAD_REQUEST, "Too many hits for a unique query"
+            )
         src = hits[0]["_source"]
 
         # We're merging the "run" and "@metadata" sub-documents into

@@ -1,9 +1,10 @@
 from logging import Logger
-from typing import Any, AnyStr, Dict
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.query_apis import (
+    CONTEXT,
     ElasticBase,
+    JSON,
     Schema,
     Parameter,
     ParamType,
@@ -38,7 +39,7 @@ class Elasticsearch(ElasticBase):
             ),
         )
 
-    def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         return {
             "path": json_data["indices"],
             "kwargs": {
@@ -47,5 +48,5 @@ class Elasticsearch(ElasticBase):
             },
         }
 
-    def postprocess(self, es_json: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         return es_json

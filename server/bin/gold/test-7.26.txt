@@ -1292,5 +1292,5 @@ drwxrwxr-x          - tmp
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-fake|ctlrA|linpack_mock_2020.02.28T19.10.55|INDEXED|
+fake|ctlrA|linpack_mock_2020.02.28T19.10.55|INDEXED| INDEX_MAP = (1074) {"pbench-unittests.v6.run-data.2020-02": ["38c50b45fa28a3958e4f4310abe19587"], "
 --- SqliteDB Datasets
