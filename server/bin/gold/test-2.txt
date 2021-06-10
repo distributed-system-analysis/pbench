@@ -89,7 +89,7 @@ len(actions) = 1
 ]
 --- Finished pbench-dispatch (status=0)
 +++ Running pbench-unpack-tarballs small
-pbench-unpack-tarballs: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
+pbench-unpack-tarballs-small: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-copy-sosreports
 pbench-copy-sosreports: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
@@ -98,6 +98,9 @@ pbench-copy-sosreports: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/p
 --- Finished pbench-index (status=3)
 +++ Running pbench-index --tool-data
 --- Finished pbench-index (status=3)
++++ Running pbench-unpack-tarballs none re-unpack
+pbench-re-unpack-tarballs: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench/public_html/incoming
+--- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
 +++ Running pbench-cull-unpacked-tarballs

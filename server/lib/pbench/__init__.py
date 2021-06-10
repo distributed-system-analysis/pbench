@@ -288,7 +288,7 @@ class PbenchConfig(object):
         # their final state at the end.
         self.LINKDIRS = (
             "TODO BAD-MD5"
-            " TO-UNPACK UNPACKED WONT-UNPACK"
+            " TO-UNPACK TO-RE-UNPACK UNPACKED WONT-UNPACK"
             " TO-SYNC SYNCED"
             " TO-LINK"
             " TO-INDEX TO-RE-INDEX TO-INDEX-TOOL INDEXED WONT-INDEX"

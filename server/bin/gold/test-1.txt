@@ -8,7 +8,7 @@ pbench-sync-satellite: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/arc
 pbench-dispatch: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-dispatch (status=1)
 +++ Running pbench-unpack-tarballs small
-pbench-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
+pbench-unpack-tarballs-small: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-copy-sosreports
 pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
@@ -17,6 +17,9 @@ pbench-copy-sosreports: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/ar
 --- Finished pbench-index (status=3)
 +++ Running pbench-index --tool-data
 --- Finished pbench-index (status=3)
++++ Running pbench-unpack-tarballs none re-unpack
+pbench-re-unpack-tarballs: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
+--- Finished pbench-unpack-tarballs (status=1)
 +++ Running pbench-clean-up-dangling-results-links
 pbench-clean-up-dangling-results-links: Bad ARCHIVE=/var/tmp/pbench-test-server/test-1/pbench/archive/fs-version-001
 --- Finished pbench-clean-up-dangling-results-links (status=1)

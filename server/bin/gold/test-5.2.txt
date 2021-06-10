@@ -222,6 +222,36 @@ len(actions) = 1
 --- Finished pbench-index (status=0)
 +++ Running pbench-index --tool-data
 --- Finished pbench-index (status=0)
++++ Running pbench-unpack-tarballs none re-unpack
+Template:  pbench-unittests.v3.server-reports
+Index:  pbench-unittests.v3.server-reports.1970-01 1
+len(actions) = 1
+[
+    {
+        "_id": "5ca1ab1e70015f100dedfab1ed0ff1ce",
+        "_index": "pbench-unittests.v3.server-reports.1970-01",
+        "_op_type": "create",
+        "_source": {
+            "@generated-by": {
+                "commit_id": "unit-test",
+                "group_id": 43,
+                "hostname": "example.com",
+                "pid": 42,
+                "user_id": 44,
+                "version": ""
+            },
+            "@timestamp": "1970-01-01T00:00:42",
+            "chunk_id": 1,
+            "doctype": "status",
+            "name": "pbench-re-unpack-tarballs",
+            "text": "pbench-re-unpack-tarballs.run-1970-01-01T00:00:42-UTC(unit-test) - w/ 0 errors\nProcessed 0 result tar balls, 0 successfully, 0 warnings, 0 errors, and 0 duplicates\n\n",
+            "total_chunks": 1,
+            "total_size": 165
+        },
+        "_type": "pbench-server-reports"
+    }
+]
+--- Finished pbench-unpack-tarballs (status=0)
 +++ Running pbench-clean-up-dangling-results-links
 --- Finished pbench-clean-up-dangling-results-links (status=0)
 +++ Running pbench-cull-unpacked-tarballs
@@ -397,6 +427,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-RE-INDEX
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerA/TODO
@@ -428,6 +459,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-RE-INDEX
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerB/TODO
@@ -461,6 +493,7 @@ drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-RE-INDEX
+drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/ONE::controllerC/TODO
@@ -495,6 +528,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-RE-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-b-with-prefixes/TODO
@@ -552,6 +586,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-RE-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-g-normal/TODO
@@ -580,6 +615,7 @@ drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-INDEX
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-INDEX-TOOL
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-LINK
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-RE-INDEX
+drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-RE-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-SYNC
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TO-UNPACK
 drwxrwxr-x          - archive/fs-version-001/controller-h-bad-md5/TODO
@@ -691,6 +727,9 @@ drwxrwxr-x          - logs/pbench-index
 drwxrwxr-x          - logs/pbench-index-tool-data
 -rw-rw-r--        254 logs/pbench-index-tool-data/pbench-index-tool-data.log
 -rw-rw-r--       7305 logs/pbench-index/pbench-index.log
+drwxrwxr-x          - logs/pbench-re-unpack-tarballs
+-rw-rw-r--          0 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
+-rw-rw-r--        527 logs/pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 drwxrwxr-x          - logs/pbench-server-prep-shim-002
 -rw-rw-r--        650 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 -rw-rw-r--       1015 logs/pbench-server-prep-shim-002/pbench-server-prep-shim-002.log
@@ -1006,6 +1045,14 @@ run-1970-01-01T00:00:42-UTC: Processed 10 result tar balls, 7 successfully (0 pa
 1970-01-01T00:00:42.000000 INFO pbench-index.pbench-index main -- pbench-index.run-1970-01-01T00:00:42-UTC: indexed 0 (skipped 7) results, 0 errors
 1970-01-01T00:00:42.000000 DEBUG pbench-index.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
 ----- pbench-index/pbench-index.log
++++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
+----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.error
++++++ pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
+run-1970-01-01T00:00:42-UTC
+run-1970-01-01T00:00:42-UTC: Processed 0 tarballs
+1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.indexer update_templates -- done templates (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, retries: 0)
+1970-01-01T00:00:42.000000 DEBUG pbench-re-unpack-tarballs.report post_status -- posted status (start ts: 1970-01-01T00:00:42-UTC, end ts: 1970-01-01T00:00:42-UTC, duration: 0.00s, successes: 1, duplicates: 0, failures: 0, retries: 0)
+----- pbench-re-unpack-tarballs/pbench-re-unpack-tarballs.log
 +++++ pbench-server-prep-shim-002/pbench-server-prep-shim-002.error
 run-1970-01-01T00:00:42-UTC: Duplicate: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-d-duplicate/tarball-duplicate_1970.01.01T00.42.00.tar.xz duplicate name
 run-1970-01-01T00:00:42-UTC: Quarantined: /var/tmp/pbench-test-server/test-5.2/pbench-local/pbench-move-results-receive/fs-version-002/controller-e-bad-md5/tarball-bad-md5_1970.01.01T00.42.00.tar.xz failed MD5 check

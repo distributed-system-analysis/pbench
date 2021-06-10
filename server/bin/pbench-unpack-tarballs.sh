@@ -37,6 +37,19 @@
 # symlink from $ARCHIVE/TODO to $ARCHIVE/TO-COPY-SOS.
 
 
+BUCKET="${1:-none}"
+PIPELINE="${2}"
+
+if [[ "${PIPELINE}" == "re-unpack" ]]; then
+    export PROG="pbench-re-unpack-tarballs"
+fi
+if [[ "${BUCKET}" != "none" ]]; then
+    # We rename the PROG to include the bucket since we don't want to conflict
+    # with other unpack tar balls running using different buckets at the same
+    # time.
+    export PROG="${PROG}-${BUCKET}"
+fi
+
 # load common things
 . ${dir}/pbench-base.sh
 
@@ -46,19 +59,15 @@ test -d ${INCOMING} || doexit "Bad INCOMING=${INCOMING}"
 test -d ${RESULTS} || doexit "Bad RESULTS=${RESULTS}"
 test -d ${USERS} || doexit "Bad USERS=${USERS}"
 
-# The link source and destination(s) for this script.
-linksrc=TO-UNPACK
+# The base destinations for this script are always the following:
 linkdest=UNPACKED
 linkerr=WONT-UNPACK
-linkdestlist=$(getconf.py -l unpacked-states pbench-server)
 
-BUCKET="${1}"
-if [[ -z "${BUCKET}" ]]; then
+if [[ "${BUCKET}" == "none" ]]; then
     lb_arg=""
     ub_arg=""
     lowerbound=0
     upperbound=""
-    export PROG="${PROG}"
 else
     lowerbound=$(getconf.py lowerbound pbench-unpack-tarballs/${BUCKET})
     if [[ -z "${lowerbound}" ]]; then
@@ -77,10 +86,19 @@ else
         upperbound=$(( ${upperbound} * 1024 * 1024 ))
         ub_arg="-size -$(( ${upperbound} ))c"
     fi
-    # We rename the PROG to include the bucket since we don't want to conflict
-    # with other unpack tar balls running using different buckets at the same
-    # time.
-    export PROG="${PROG}-${BUCKET}"
+fi
+
+if [[ "${PIPELINE}" == "re-unpack" ]]; then
+    # The link source for re-unpacking.
+    linksrc=TO-RE-UNPACK
+    # When re-unpacking, the default destination is enough.
+    linkdestlist=""
+else
+    # The link source for normal flow of unpacking.
+    linksrc=TO-UNPACK
+    # Read the system configuration for additional states when unpacking
+    # normally.
+    linkdestlist=$(getconf.py -l unpacked-states pbench-server)
 fi
 
 tmp=${TMP}/${PROG}.${$}
