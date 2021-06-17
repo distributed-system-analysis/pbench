@@ -7,7 +7,10 @@ use lib $ENV{'pbench_lib_dir'};
 use lib $ENV{'pbench_bspp_dir'};
 no lib ".";
 use GenData qw(gen_data);
-use BenchPostprocess qw(trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash);
+use BenchPostprocess qw(
+       calc_aggregate_metrics calc_efficiency_metrics
+       convert_samples_hash_to_array create_graph_hash
+       create_uid get_cpubusy_series get_label get_mean_hash);
 use File::Basename;
 use Data::Dumper;
 use List::Util('sum');
@@ -33,13 +36,6 @@ my $tool_label_pattern = $ARGV[7];
 my $tool_group = $ARGV[8];
 my $benchmark_version = $ARGV[9];
 my $benchmark_name = 'uperf';
-my %uperf_sample;
-my $timestamp_ms = 0;
-my $prev_timestamp_ms = 0;
-my $timestamp_ms_diff;
-my $line;
-my %avg;
-my %total;
 my $series_trim = 3;
 my $primary_metric;
 if ($test_type =~ /rr/) {
@@ -68,7 +64,7 @@ my @cpu_busy;	# each array element contains a hash with
 		# hostname: hostname or IP
 		# role: client, server, host, kvm-host, container-host, etc.
 		# timeseries: a hash of timestamp:value key-pairs
-my %efficiency;
+# my %efficiency;
 my %latency;    # a hash of throughput-type:array-of-throughput-values,
 		# for example $throughput{Gb_sec[0..1]
 my @usec;	# each array element contains a hash with:
@@ -117,24 +113,26 @@ if (opendir($dh, $tool_group_dir)) {
 		}
 	}
 } else {
-	print "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
+       print STDERR "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
 }
 closedir  $dh;
 foreach $this_tool_dir (sort keys %tool_ids) {
-	my $res;
 	my $this_tool_id = $tool_ids{$this_tool_dir};
 	my $role = "host";
-	my $url;
 	my $hostname;
 	($role, $hostname) = split(/:/,$this_tool_id);
-	my @cpubusy_samples;
-	$res = get_cpubusy_series($this_tool_dir, \@cpubusy_samples );
+       my %cpubusy_samples;
+       my $res = get_cpubusy_series($this_tool_dir, \%cpubusy_samples );
 	if ( $res == 0 ) {
-		my %this_cpubusy_dataset;
 		my $description = "Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU";
-		my $mean = get_mean(\@cpubusy_samples);
-		%this_cpubusy_dataset = ( get_label('uid_label') => create_uid('hostname_label'), get_label('description_label') => $description, get_label('role_label') => $role, get_label('hostname_label') => $hostname, get_label('value_label') => $mean, get_label('timeseries_label') => \@cpubusy_samples );
-		push(@cpu_busy, \%this_cpubusy_dataset);
+		push(@cpu_busy, {
+			get_label('uid_label')         => create_uid('hostname_label'),
+			get_label('description_label') => $description,
+			get_label('role_label')        => $role,
+			get_label('hostname_label')    => $hostname,
+			get_label('value_label')       => get_mean_hash(\%cpubusy_samples),
+			get_label('timeseries_label')  => \%cpubusy_samples
+		});
 	}
 }
 if ( @cpu_busy ) {
@@ -144,7 +142,6 @@ if ( @cpu_busy ) {
 # Load the data from uperf output and create throughput metrics
 # There can be several result files, once for each server involved in this test
 # These are organized by server IP:port.
-#print "going to read dir: [$dir]\n";
 opendir($dh, $dir) || die "$script: could not open directory $dir: $!\n";
 my $nr_result_files=0;
 my $result_file;
@@ -162,27 +159,39 @@ foreach $result_file (sort readdir($dh) ) {
 		my $server_hostname = $2;
 		my $server_port = "$3";
 		my $role = "client";
-		my $average;
-		my @throughput_samples;
-		my @latency_samples;
+               my %throughput_samples;
+               my %latency_samples;
 		open(IN_FILE, "$dir/$result_file") || die "$script: could not open file $dir/$result_file: $!\n";
-		$prev_timestamp_ms = 0;
+               my %prev;
+               my $timestamp_limit = 0;
+               my $count = 0;
 		while (<IN_FILE>) {
-			$line = "$_";
+                       my $line = "$_";
 			chomp($line);
 
 			# for each sample in the uperf result file, we get a number of bytes and a timestamp
 			# example of a sample: "time:1395170796.1234 name:Txn2 nr_bytes:22037790720 nr_ops:43042560"
 			if ( $line =~  /^timestamp_ms:(\d+)\.\d+\s+name:Txn2\s+nr_bytes:(\d+)\s+nr_ops:(\d+)/ ) {
-				$timestamp_ms = $1;
+                               my $timestamp_ms = $1;
 				my $bytes = $2;
 				my $ops = $3;
-				$uperf_sample{'ops'}{$timestamp_ms} = $ops;
-				$uperf_sample{'bytes'}{$timestamp_ms} = $bytes;
-				if ( $prev_timestamp_ms != 0 ) {
-	 				my $timestamp_s_diff = ($timestamp_ms - $prev_timestamp_ms)/1000;
-					my $nr_bytes_diff = $uperf_sample{'bytes'}{$timestamp_ms} - $uperf_sample{'bytes'}{$prev_timestamp_ms};
-					my $nr_ops_diff = $uperf_sample{'ops'}{$timestamp_ms} - $uperf_sample{'ops'}{$prev_timestamp_ms};
+                               $count++;
+                               if ($count <= 2 and $series_trim > 0 or $count == 1) {
+                                       # We don't record the first several data points:  we skip
+                                       # the first because we need a reference against which to
+                                       # calculate diffs; and, then we skip a configurable number
+                                       # of seconds -- however, the time is relative to the
+                                       # -second- data point, for historical reasons.  So, we set
+                                       # the limit *twice*, once to skip the first data point,
+                                       # and again once we have the second timestamp to calculate
+                                       # from.  (However, if the configured limit is zero, then
+                                       # we only skip the first data point.)
+                                       $timestamp_limit = $timestamp_ms + $series_trim * 1000;
+                               }
+                               if ($timestamp_ms > $timestamp_limit) {
+                                       my $timestamp_s_diff = ($timestamp_ms - $prev{'timestamp'})/1000;
+                                       my $nr_bytes_diff = $bytes - $prev{'bytes'};
+                                       my $nr_ops_diff = $ops - $prev{'ops'};
 					# This is what we are really interested in: computing value/sec metrics like Gb/sec and ops/sec
 					# We can do that once we have more than one sample
 					if ($test_type =~ /rr/) {
@@ -192,47 +201,89 @@ foreach $result_file (sort readdir($dh) ) {
 						# the latency is the full round trip for 1 transaction, which is also = ($instances / trans_sec)
 						# if --log-response-times in pbench_uperf is used, the write and read latency can be computed (later).
 						if ( $nr_ops_diff != 0) {
-							my %latency_sample = ( get_label('date_label') => int $timestamp_ms, get_label('value_label') => $instances /$trans_sec *1000000);
-							push(@latency_samples, \%latency_sample);
+							$latency_samples{$timestamp_ms} = {
+								get_label('date_label')  => int $timestamp_ms,
+								get_label('value_label') =>
+									$instances / $trans_sec * 1000000
+							};
 						}
-						my %throughput_sample = (get_label('date_label') => int $timestamp_ms, get_label('value_label') => $trans_sec);
-						push(@throughput_samples, \%throughput_sample);
+                                               $throughput_samples{$timestamp_ms} = {
+                                                       get_label('date_label')  => int $timestamp_ms,
+                                                       get_label('value_label') => $trans_sec
+                                               };
 					} else {
-						my $bytes_sec = $nr_bytes_diff /$timestamp_s_diff;
-						my %throughput_sample = (get_label('date_label') => int $timestamp_ms, get_label('value_label') => ($nr_bytes_diff *8 /1000000000 /$timestamp_s_diff));
-						push(@throughput_samples, \%throughput_sample);
+						$throughput_samples{$timestamp_ms} = {
+							get_label('date_label')  => int $timestamp_ms,
+							get_label('value_label') =>
+								($nr_bytes_diff * 8 / 1000000000 / $timestamp_s_diff)
+						};
 					}
 				}
-				$prev_timestamp_ms = $timestamp_ms;
+                               $prev{'timestamp'} = $timestamp_ms;
+                               $prev{'ops'} = $ops;
+                               $prev{'bytes'} = $bytes;
 			}
 		}
 		$nr_result_files++;
 		close(IN_FILE);
-		# the uid should be unique
-		if ( (@latency_samples) ) {
-			trim_series(\@latency_samples, $series_trim, $series_trim);
-			my %this_lat_dataset;
-			my $description = "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window";
-			my $mean = get_mean(\@latency_samples);
-			%this_lat_dataset = ( 	get_label('uid_label') => create_uid('client_hostname_label', 'server_hostname_label', 'server_port_label'), get_label('description_label') => $description,
-						get_label('role_label') => $role, get_label('client_hostname_label') => $client_hostname,
-						get_label('server_hostname_label') => $server_hostname, get_label('server_port_label') => "$server_port",
-						get_label('value_label') => $mean, get_label('timeseries_label') => \@latency_samples   );
-			push(@usec, \%this_lat_dataset);
+
+		# Trim the last several seconds of data from the series.
+		my $limit = $prev{'timestamp'} - $series_trim * 1000;
+		foreach my $ts (sort {$b <=> $a} keys %latency_samples) {  # Reverse-order
+			if ($ts <= $limit) {
+				last;
+			}
+			delete $latency_samples{$ts};
 		}
-		if ( (@throughput_samples) ) {
-			trim_series(\@throughput_samples, $series_trim, $series_trim);
+
+               if (%latency_samples) {
+			my $description = "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window";
+			my $mean = get_mean_hash(\%latency_samples);
+			push(@usec, {
+				get_label('description_label')     => $description,
+				get_label('role_label')            => $role,
+				get_label('client_hostname_label') => $client_hostname,
+				get_label('server_hostname_label') => $server_hostname,
+				get_label('server_port_label')     => "$server_port",
+				get_label('value_label')           => $mean,
+				get_label('timeseries_label')      => \%latency_samples,
+				get_label('uid_label')             => create_uid(
+					                                   'client_hostname_label',
+					                                   'server_hostname_label',
+					                                   'server_port_label')
+			});
+		}
+
+		# Trim the last several seconds of data from the series.
+		foreach my $ts (sort {$b <=> $a} keys %throughput_samples) {  # Reverse-order
+			if ($ts < $limit) {
+				last;
+			}
+			delete $throughput_samples{$ts};
+		}
+
+               if (%throughput_samples) {
 			my %this_tput_dataset;
-			my $mean = get_mean(\@throughput_samples);
-			%this_tput_dataset = ( 	get_label('role_label') => $role, get_label('client_hostname_label') => $client_hostname,
-						get_label('server_hostname_label') => $server_hostname, get_label('server_port_label') => "$server_port",
-						get_label('value_label') => $mean, get_label('timeseries_label') => \@throughput_samples,
-						get_label('uid_label') => create_uid('client_hostname_label', 'server_hostname_label', 'server_port_label')  );
+			my $mean = get_mean_hash(\%throughput_samples);
+			%this_tput_dataset = (
+				get_label('role_label')            => $role,
+				get_label('client_hostname_label') => $client_hostname,
+				get_label('server_hostname_label') => $server_hostname,
+				get_label('server_port_label')     => "$server_port",
+				get_label('value_label')           => $mean,
+				get_label('timeseries_label')      => \%throughput_samples,
+				get_label('uid_label')             => create_uid(
+					                                   'client_hostname_label',
+					                                   'server_hostname_label',
+					                                   'server_port_label')
+			);
 			if ($test_type =~ /rr/) {
-				$this_tput_dataset{get_label('description_label')} = "Number of transactions sent by client for a period of 1 second";
+				$this_tput_dataset{get_label('description_label')} =
+					"Number of transactions sent by client for a period of 1 second";
 				push(@trans_sec, \%this_tput_dataset);
 			} else {
-				$this_tput_dataset{get_label('description_label')} = "Number of gigabits sent by client for a period of 1 second";
+				$this_tput_dataset{get_label('description_label')} =
+					"Number of gigabits sent by client for a period of 1 second";
 				push(@Gb_sec, \%this_tput_dataset);
 			}
 		}
@@ -240,7 +291,7 @@ foreach $result_file (sort readdir($dh) ) {
 }
 closedir $dh;
 if ($nr_result_files == 0) {
-	print "$script: could not find any result files to process, exiting\n";
+       print STDERR "$script: could not find any result files to process, exiting\n";
 	exit;
 }
 # construct what we have so far in a master workload hash
@@ -302,24 +353,20 @@ my $nr_resp_files = 0;
 opendir($dh, $dir) || die "$script: can't open directory $dir: $!\n";
 foreach my $resp_file (sort readdir($dh) ) {
 	if ( $resp_file =~ /^client::(.+)-server::(.+):(\d+)--response-times\.txt$/) {
-		my $server_ip = $1;
-		# The server ip should be in the file name, like "response-times-192.168.1.1.txt"
 		open(RESP_FILE, "$dir/$resp_file") || die "$script: can't open file $dir/$resp_file: $!\n";
-		#printf "$script: processing %s\n", $resp_file;
 		#  This response file contains an elapsed time value for each "flow op" in the 5th column:
 		#  35609 140172276365056  0 1408072771750861084           42765
 		#  For request-response, 2 lines contain the two values: first the request (a write) and next a response (a read).
 		#  The write is usually very fast, as it's just the write to the socket and should return almost immediately.
 		#  The read is the time for the packet to be sent out, responded by the other system, sent back, and read by the
 		#  uperf process.
-		$line = <RESP_FILE>; # this first value is the time it takes to open the stream
+               my $line = <RESP_FILE>; # this first value is the time it takes to open the stream
 		# the following lines will have a pattern of write (send) then read (receive)
 		my $time_us;
 		my $time_ns;
 		my $read_time;
 		my $write_time;
 		my @this_server_transaction_times;
-		my $transaction_time;
 		my $this_server_write_avg_time;
 		my $this_server_read_avg_time;
 		my $this_server_nr_reads;
@@ -379,10 +426,9 @@ if ($nr_resp_files > 0) {
 	printf RESP_SUMMARY "99.995th percentile transaction latency: %.4fus\n", $all_server_transaction_times[sprintf("%.0f",(0.99995*($#all_server_transaction_times)))];
 	printf RESP_SUMMARY "Maximum transaction latency: %.4fus\n", $all_server_transaction_times[$#all_server_transaction_times];
 	close(RESP_SUMMARY);
-	$total{"write_latency_us"} = $all_server_write_avg_time;
-	$total{"read_latency_us"} = $all_server_read_avg_time;
 }
 
+convert_samples_hash_to_array(\%workload);
 
 # write to JSON format file
 my $json_file = $dir . "/result.json";
@@ -390,4 +436,3 @@ my $json_text   = to_json( \%workload, { ascii => 1, pretty => 1, canonical => 1
 open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
 print JSON $json_text;
 close(JSON);
-

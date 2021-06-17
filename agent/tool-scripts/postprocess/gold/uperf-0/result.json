@@ -632,7 +632,7 @@
                }
             ],
             "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
-            "value" : 93.1489679076978
+            "value" : 93.1489679076977
          },
          {
             "client_hostname" : "perf102",
@@ -1086,7 +1086,7 @@
                }
             ],
             "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
-            "value" : 92.9351098640983
+            "value" : 92.9351098640984
          }
       ]
    },
@@ -2062,7 +2062,7 @@
                }
             ],
             "uid" : "client_hostname:%client_hostname%-server_hostname:%server_hostname%-server_port:%server_port%",
-            "value" : 10759.0509666094
+            "value" : 10759.0509666093
          },
          {
             "client_hostname" : "perf102",
