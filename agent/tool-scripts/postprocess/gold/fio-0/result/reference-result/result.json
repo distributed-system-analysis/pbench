@@ -2441,11 +2441,11 @@
                },
                {
                   "date" : 15000,
-                  "value" : 5408
+                  "value" : 51675
                }
             ],
             "uid" : "client_hostname:%client_hostname%",
-            "value" : 90320.4246824509
+            "value" : 93404.8913491175
          },
          {
             "client_hostname" : "perf36-1",

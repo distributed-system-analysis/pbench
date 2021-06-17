@@ -110,6 +110,8 @@ function _run {
     printf -- "export pbench_run=%s\n" "${_testdir}" >> ${_testroot}/run.cmd
     printf -- "export pbench_log=%s/pbench.log\n" "${_testdir}" >> ${_testroot}/run.cmd
     printf -- "export benchmark_bin=%s/unittest-scripts/bm\n\n" "${_testopt}" >> ${_testroot}/run.cmd
+    printf -- "export PERL_HASH_SEED=0\n" "${_testopt}" >> ${_testroot}/run.cmd
+
     if [[ -e "${env_file}" ]]; then
         ${_real_cat} ${env_file} >> ${_testroot}/run.cmd
         printf -- "\n" >> ${_testroot}/run.cmd

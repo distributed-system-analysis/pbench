@@ -2261,7 +2261,7 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                   "description" : "The RX port utilization",
                   "field" : "util",
                   "group" : "rx",
-                  "mean" : 9.20954700444445,
+                  "mean" : 9.20954700444444,
                   "port" : "0",
                   "samples" : [
                      {
@@ -2303,7 +2303,7 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                               "value" : 9.37583504
                            }
                         ],
-                        "value" : 9.20954700444445
+                        "value" : 9.20954700444444
                      }
                   ],
                   "skip_aggregate" : 1,
@@ -15602,7 +15602,7 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                   "description" : "The RX port utilization",
                   "field" : "util",
                   "group" : "rx",
-                  "mean" : 0.0349446942577068,
+                  "mean" : 0.0349446942577069,
                   "port" : "0",
                   "samples" : [
                      {
@@ -15644,7 +15644,7 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                               "value" : 2.66660110652447e-08
                            }
                         ],
-                        "value" : 0.0349446942577068
+                        "value" : 0.0349446942577069
                      }
                   ],
                   "skip_aggregate" : 1,
