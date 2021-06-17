@@ -15,9 +15,9 @@ use lib $ENV{'pbench_bspp_dir'};
 no lib ".";
 use GenData qw(gen_data);
 use BenchPostprocess qw(
-	calc_aggregate_metrics create_graph_hash create_uid get_label get_mean);
+	calc_aggregate_metrics create_graph_hash create_uid
+	convert_samples_hash_to_array get_label get_mean_hash);
 use File::Basename;
-use Data::Dumper;
 use JSON;
 
 my $script_name = basename($0);
@@ -36,9 +36,9 @@ my %parameters;	# a hash of parameter-type:parameter-value that was
 		# $parameters{benchmark[0].rate}
 my @benchmark;	# each array element contains a hash with:
 		# benchmark_name:
-	    	# :
-	    	# role:
-	    	# description:
+			# :
+			# role:
+			# description:
 
 my %resource;	# a hash of resource-type:array-of-resource-values,
 		# for example $resource{cpu_busy[0..1]}
@@ -51,19 +51,19 @@ my %efficiency; # a hash of throughput-per-resource-type:array-of-throughput-per
 		# for example $efficincy{Mframes_cpu[0..1]}
 my @Mframes_cpu;# each array element contains a hash with:
 		# hostname:
-	    	# port_id:
-	    	# role:
-	    	# description:
-	    	# timeseries: a hash of timestamp,value elements
+			# port_id:
+			# role:
+			# description:
+			# timeseries: a hash of timestamp,value elements
 
 my %latency;    # a hash of latency-type:array-of-latency-values,
 		# for example $latency{usec[0..1]}
 		#
 		# each array element contains a hash with:
-	    	# hostname:
-	    	# port_id:
-	    	# role:
-	    	# description:
+			# hostname:
+			# port_id:
+			# role:
+			# description:
 my @usec_avg;
 my @usec_min;
 my @usec_max;
@@ -71,26 +71,26 @@ my @usec_max;
 my %throughput; # a hash of throughput-type:array-of-throughput-values,
 		# for example $throughput{Mpps[0..1]
 
-my @rx_Mpps;    #
-my @tx_Mpps;    # each array element contains a hash with:
-	    	# hostname:
-	    	# port_id:
-	    	# role: packet-generator
-	    	# value: the number value for millions of pckets (frames) per second
+# my @rx_Mpps;    #
+# my @tx_Mpps;    # each array element contains a hash with:
+			# hostname:
+			# port_id:
+			# role: packet-generator
+			# value: the number value for millions of pckets (frames) per second
 
-my @rx_L1_Gbps; #
-my @tx_L1_Gbps; # each array element contains a hash with:
-	    	# hostname:
-	    	# port_id:
-	    	# role: packet-generator
-	    	# the number value for 10^9 bits per second for physical Ethernet (layer 1, including CRC and padding)
-	    	
-my @rx_L2_Gbps; #
-my @tx_L2_Gbps; # each array element contains a hash with:
-	    	# hostname:
-	    	# port_id:
-	    	# role: packet-generator
-	    	# the number value for 10^9 bits per second for physical Ethernet (layer 1, including CRC and padding)
+# my @rx_L1_Gbps; #
+# my @tx_L1_Gbps; # each array element contains a hash with:
+			# hostname:
+			# port_id:
+			# role: packet-generator
+			# the number value for 10^9 bits per second for physical Ethernet (layer 1, including CRC and padding)
+
+# my @rx_L2_Gbps; #
+# my @tx_L2_Gbps; # each array element contains a hash with:
+			# hostname:
+			# port_id:
+			# role: packet-generator
+			# the number value for 10^9 bits per second for physical Ethernet (layer 1, including CRC and padding)
 
 my $script = basename($0);
 my $dir = $ARGV[0];
@@ -123,6 +123,8 @@ if (! -e $result_file) {
 my $json_file = $dir . "/result.json";
 my $benchmark_name = 'trafficgen';
 my $primary_metric="rx_mpps";
+my $date_label = get_label('date_label');
+my $value_label = get_label('value_label');
 my %config;
 
 my %benchmark_parameters_dataset = (
@@ -131,8 +133,8 @@ my %benchmark_parameters_dataset = (
 	get_label('benchmark_version_label') => $benchmark_version,
 	get_label('primary_metric_label')    => $primary_metric,
 	get_label('uid_label')               => create_uid(
-												'benchmark_name_label',
-												'controller_host_label'));
+		                                         'benchmark_name_label',
+		                                         'controller_host_label'));
 
 push(@benchmark, \%benchmark_parameters_dataset);
 
@@ -210,10 +212,8 @@ while ( <TXT> ) {
 }
 close TXT;
 my $json_result = from_json($json_text);
+$json_text = "";  # Release this huge string to relieve my IDE's debugger
 my %last_trial = %{ $$json_result{'trials'}[-1] };
-
-#print Dumper $json_result;
-#exit;
 
 foreach my $trial_param ( keys %{ $last_trial{'trial_params'} } ) {
 	if ( $trial_param eq 'output_dir' ) {
@@ -222,38 +222,57 @@ foreach my $trial_param ( keys %{ $last_trial{'trial_params'} } ) {
 		# same sample data sets together.
 		next;
 	}
-	if ( $last_trial{'trial_params'}{$trial_param} ) {
-		$config{$trial_param} = $last_trial{'trial_params'}{$trial_param}
+	if (exists($last_trial{'trial_params'}{$trial_param}) &&
+			defined($last_trial{'trial_params'}{$trial_param}) &&
+			$last_trial{'trial_params'}{$trial_param} ne "") {
+		my $tmp = $last_trial{'trial_params'}{$trial_param};
+		# Check to see if the value looks numeric (but, ignore it if it's a
+		# JSON boolean value which, apparently, looks like a number).
+		if (!JSON::is_bool($tmp) && $tmp =~ /^[+-]?\ *\d*(?:\.\d*)?$/) {
+			# Perform a no-op numerical operation on the value.  If we don't do
+			# this, then when we dump it as JSON, it will be formatted as a
+			# string, because the last thing we did was treat it as a string in
+			# the empty-string check above.
+			$tmp += 0;
+		}
+		$config{$trial_param} = $tmp
 	}
 }
-$config{get_label('uid_label')} = sprintf("%s-%s", $benchmark_name, $benchmark_version);
+
+my $uid_value = sprintf("%s-%s", $benchmark_name, $benchmark_version);
 if (exists($config{'traffic_generator'}) && defined($config{'traffic_generator'})) {
 	my $traffic_generator = $config{'traffic_generator'};
 	if ($traffic_generator eq "trex-txrx-profile" and $traffic_profile_arg ne "") {
 		$config{'traffic_profile_arg'} = $traffic_profile_arg;
-		$config{get_label('uid_label')} .= "-traffic_profile:%traffic_profile_arg%";
+		$uid_value .= "-traffic_profile:%traffic_profile_arg%";
 	} else {
 		$config{'rate_arg'} = $rate_arg;
-		$config{get_label('uid_label')} .= "-rate:%rate_arg%";
+		$uid_value .= "-rate:%rate_arg%";
+		$uid_value .= "-traffic_direction:";
 		if (exists($config{'traffic_direction'}) && defined($config{'traffic_direction'})) {
-			$config{get_label('uid_label')} .= "-traffic_direction:%traffic_direction%";
+			$uid_value .= "%traffic_direction%";
 		} else {
-			$config{get_label('uid_label')} .= "-traffic_direction:MISSING";
+			$uid_value .= "MISSING";
 		}
-		$config{'frame_size'} = $frame_size_arg;
-		$config{get_label('uid_label')} .= "-frame_size:%frame_size%";
-		$config{'num_flows'} = $num_flows_arg;
-		$config{get_label('uid_label')} .= "-num_flows:%num_flows%";
+		$config{'frame_size'} = int $frame_size_arg;
+		$uid_value .= "-frame_size:%frame_size%";
+		$config{'num_flows'} = int $num_flows_arg;
+		$uid_value .= "-num_flows:%num_flows%";
 	}
 } else {
-	$config{get_label('uid_label')} .= "-rate:MISSING";
-	$config{get_label('uid_label')} .= "-traffic_direction:MISSING";
-	$config{get_label('uid_label')} .= "-frame_size:MISSING";
-	$config{get_label('uid_label')} .= "-num_flows:MISSING";
+	$uid_value .= "-rate:MISSING";
+	$uid_value .= "-traffic_direction:MISSING";
+	$uid_value .= "-frame_size:MISSING";
+	$uid_value .= "-num_flows:MISSING";
 }
+$uid_value .= "-pct_drop:";
 if (exists($config{'max_loss_pct'}) && defined($config{'max_loss_pct'})) {
-	$config{get_label('uid_label')} .= "-pct_drop:%max_loss_pct%";
+	$uid_value .= "%max_loss_pct%";
+} else {
+	$uid_value .= "MISSING";
 }
+$config{get_label('uid_label')} = $uid_value;
+
 push(@benchmark, \%config);
 
 foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
@@ -287,8 +306,6 @@ foreach my $dev_pair ( @{ $last_trial{'trial_params'}{'test_dev_pairs'} } ) {
 }
 
 if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'})) {
-	#print Dumper $last_trial{'profiler-data'};
-
 	my @profiler_metrics = (
 		{ 'category'       => 'global',
 			'js_label'     => 'Global PPS',
@@ -554,32 +571,33 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 	}
 
 	if ($tsdelta_present) {
-		my @samples;
+		my %samples;
+		foreach my $timestamp_ms (keys %{ $last_trial{'profiler-data'} } ) {
+			printf STDERR ("[WARNING] %s - %s:  timestamp %s found multiple times, previous samples overwritten\n",
+				$controller_host, $json_file, $timestamp_ms) if exists($samples{$timestamp_ms});
 
-		foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
 			my $value = $last_trial{'profiler-data'}{$timestamp_ms}{'tsdelta'};
-
-			my %sample = ( get_label('date_label') => int $timestamp_ms,
-				       get_label('value_label') => $value );
-			push(@samples, \%sample);
+			$samples{$timestamp_ms} = {
+				$date_label  => int $timestamp_ms,
+				$value_label => $value
+			};
 		}
 
-		if (@samples) {
-			my %this_dataset;
-			my $mean = get_mean(\@samples);
-			%this_dataset = ( get_label('skip_aggregate_label') => 1,
-					  get_label('value_label') => $mean,
-					  get_label('timeseries_label') => \@samples,
-					  get_label('description_label') => "Time (in milliseconds) to collect a profiler data sample",
-					  get_label('uid_label') => 'tsdelta' );
-
-			push(@{ $latency{"Profiler data sample collection latency"}}, \%this_dataset);
+		if (%samples) {
+			my $mean = get_mean_hash(\%samples);
+			push(@{ $latency{"Profiler data sample collection latency"}}, {
+				get_label('skip_aggregate_label') => 1,
+				$value_label                      => $mean,
+				get_label('timeseries_label')     => \%samples,
+				get_label('description_label')    => "Time (in milliseconds) to collect a profiler data sample",
+				get_label('uid_label')            => 'tsdelta'
+			});
 		}
 	}
 
 	for my $profiler_metric ( @profiler_metrics ) {
 		if ($$profiler_metric{'category'} eq 'global') {
-			my @samples;
+			my %samples;
 
 			$$profiler_metric{'last'} = 0;
 			foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
@@ -591,34 +609,39 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 					$$profiler_metric{'last'} = $tmp;
 				}
 
-				my %sample = ( get_label('date_label') => int $timestamp_ms,
-					       get_label('value_label') => $value );
-				push(@samples, \%sample);
+				$samples{$timestamp_ms} = {
+					$date_label  => int $timestamp_ms,
+					$value_label => $value
+				};
 			}
 
-			if (@samples) {
+			if (%samples) {
 				my %this_dataset;
-				my $mean = get_mean(\@samples);
-				%this_dataset = ( get_label('skip_aggregate_label') => 1,
-						  get_label('value_label') => $mean,
-						  get_label('timeseries_label') => \@samples,
-						  get_label('description_label') => $$profiler_metric{'desc'},
-						  'category' => $$profiler_metric{'category'},
-						  'group' => $$profiler_metric{'group'},
-						  'field' => $$profiler_metric{'field'},
-						  get_label('uid_label') => 'category:%category%-group:%group%-field:%field%' );
+				my $mean = get_mean_hash(\%samples);
+				%this_dataset = (
+					get_label('skip_aggregate_label') => 1,
+					$value_label                      => $mean,
+					get_label('timeseries_label')     => \%samples,
+					get_label('description_label')    => $$profiler_metric{'desc'},
+					'category'                        => $$profiler_metric{'category'},
+					'group'                           => $$profiler_metric{'group'},
+					'field'                           => $$profiler_metric{'field'},
+					get_label('uid_label')            =>
+						'category:%category%-group:%group%-field:%field%'
+				);
 
+				my $dataset_label = $$profiler_metric{'js_label'};
 				if ($$profiler_metric{'metric_class'} eq 'throughput') {
-					push(@{ $throughput{$$profiler_metric{'js_label'}}}, \%this_dataset);
+					push(@{ $throughput{$dataset_label}}, \%this_dataset);
 				} elsif ($$profiler_metric{'metric_class'} eq 'resource') {
-					push(@{ $resource{$$profiler_metric{'js_label'}}}, \%this_dataset);
+					push(@{ $resource{$dataset_label}}, \%this_dataset);
 				} elsif ($$profiler_metric{'metric_class'} eq 'latency') {
-					push(@{ $latency{$$profiler_metric{'js_label'}}}, \%this_dataset);
+					push(@{ $latency{$dataset_label}}, \%this_dataset);
 				}
 			}
 		} elsif ($$profiler_metric{'category'} eq 'ports') {
 			foreach my $port (sort (keys %trex_ports)) {
-				my @samples;
+				my %samples;
 
 				$$profiler_metric{'last'} = 0;
 				foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
@@ -630,37 +653,42 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 						$$profiler_metric{'last'} = $tmp;
 					}
 
-					my %sample = ( get_label('date_label') => int $timestamp_ms,
-						       get_label('value_label') => $value );
-					push(@samples, \%sample);
+					$samples{$timestamp_ms} = {
+						$date_label  => int $timestamp_ms,
+						$value_label => $value
+					};
 				}
 
-				if (@samples) {
+				if (%samples) {
 					my %this_dataset;
-					my $mean = get_mean(\@samples);
-					%this_dataset = ( get_label('skip_aggregate_label') => 1,
-							  get_label('value_label') => $mean,
-							  get_label('timeseries_label') => \@samples,
-							  get_label('description_label') => $$profiler_metric{'desc'},
-							  'category' => $$profiler_metric{'category'},
-							  'group' => $$profiler_metric{'group'},
-							  'field' => $$profiler_metric{'field'},
-							  'port' => $port,
-							  get_label('uid_label') => "category:%category%-port:%port%-group:%group%-field:%field%" );
+					my $mean = get_mean_hash(\%samples);
+					%this_dataset = (
+						get_label('skip_aggregate_label') => 1,
+						$value_label                      => $mean,
+						get_label('timeseries_label')     => \%samples,
+						get_label('description_label')    => $$profiler_metric{'desc'},
+						'category'                        => $$profiler_metric{'category'},
+						'group'                           => $$profiler_metric{'group'},
+						'field'                           => $$profiler_metric{'field'},
+						'port'                            => $port,
+						get_label('uid_label')            =>
+							"category:%category%-port:%port%-group:%group%-field:%field%"
+					);
 
+					my $dataset_label = $$profiler_metric{'js_label'} . $port;
 					if ($$profiler_metric{'metric_class'} eq 'throughput') {
-						push(@{ $throughput{$$profiler_metric{'js_label'} . $port}}, \%this_dataset);
+						push(@{ $throughput{$dataset_label}}, \%this_dataset);
 					} elsif ($$profiler_metric{'metric_class'} eq 'resource') {
-						push(@{ $resource{$$profiler_metric{'js_label'} . $port}}, \%this_dataset);
+						push(@{ $resource{$dataset_label}}, \%this_dataset);
 					} elsif ($$profiler_metric{'metric_class'} eq 'latency') {
-						push(@{ $latency{$$profiler_metric{'js_label'} . $port}}, \%this_dataset);
+						push(@{ $latency{$dataset_label}}, \%this_dataset);
 					}
 				}
 			}
 		} elsif ($$profiler_metric{'category'} eq 'pgids') {
 			foreach my $pgid (sort (keys %trex_pgids)) {
 				if ($$profiler_metric{'group'} eq 'latency') {
-					my @samples;
+					my %samples;
 					my $valid = 0;
 
 					$$profiler_metric{'last'} = 0;
@@ -679,35 +707,40 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 							$$profiler_metric{'last'} = $tmp;
 						}
 
-						my %sample = ( get_label('date_label') => int $timestamp_ms,
-							       get_label('value_label') => $value );
-						push(@samples, \%sample);
+						$samples{$timestamp_ms} = {
+							$date_label  => int $timestamp_ms,
+							$value_label => $value
+						};
 					}
 
-					if ($valid && @samples) {
+					if ($valid && %samples) {
 						my %this_dataset;
-						my $mean = get_mean(\@samples);
-						%this_dataset = ( get_label('skip_aggregate_label') => 1,
-								  get_label('value_label') => $mean,
-								  get_label('timeseries_label') => \@samples,
-								  get_label('description_label') => $$profiler_metric{'desc'},
-								  'category' => $$profiler_metric{'category'},
-								  'group' => $$profiler_metric{'group'},
-								  'pgid' => $pgid,
-								  'field' => $$profiler_metric{'field'},
-								  get_label('uid_label') => "category:%category%-pgid:%pgid%-group:%group%-field:%field%" );
+						my $mean = get_mean_hash(\%samples);
+						%this_dataset = (
+							get_label('skip_aggregate_label') => 1,
+							$value_label                      => $mean,
+							get_label('timeseries_label')     => \%samples,
+							get_label('description_label')    => $$profiler_metric{'desc'},
+							'category'                        => $$profiler_metric{'category'},
+							'group'                           => $$profiler_metric{'group'},
+							'pgid'                            => $pgid,
+							'field'                           => $$profiler_metric{'field'},
+							get_label('uid_label')            =>
+								"category:%category%-pgid:%pgid%-group:%group%-field:%field%"
+						);
 
+						my $dataset_label = $$profiler_metric{'js_label'} . $pgid;
 						if ($$profiler_metric{'metric_class'} eq 'throughput') {
-							push(@{ $throughput{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+							push(@{ $throughput{$dataset_label}}, \%this_dataset);
 						} elsif ($$profiler_metric{'metric_class'} eq 'resource') {
-							push(@{ $resource{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+							push(@{ $resource{$dataset_label}}, \%this_dataset);
 						} elsif ($$profiler_metric{'metric_class'} eq 'latency') {
-							push(@{ $latency{$$profiler_metric{'js_label'} . $pgid}}, \%this_dataset);
+							push(@{ $latency{$dataset_label}}, \%this_dataset);
 						}
 					}
 				} else {
 					foreach my $port (sort (keys %trex_ports)) {
-						my @samples;
+						my %samples;
 
 						$$profiler_metric{'last'} = 0;
 						foreach my $timestamp_ms (sort (keys %{ $last_trial{'profiler-data'} } ) ) {
@@ -724,24 +757,27 @@ if (exists($last_trial{'profiler-data'}) && defined($last_trial{'profiler-data'}
 								$$profiler_metric{'last'} = $tmp;
 							}
 
-							my %sample = ( get_label('date_label') => int $timestamp_ms,
-								       get_label('value_label') => $value );
-							push(@samples, \%sample);
+							$samples{$timestamp_ms} = {
+								$date_label  => int $timestamp_ms,
+								$value_label => $value
+							};
 						}
 
-						if (@samples) {
+						if (%samples) {
 							my %this_dataset;
-							my $mean = get_mean(\@samples);
-							%this_dataset = ( get_label('skip_aggregate_label') => 1,
-									  get_label('value_label') => $mean,
-									  get_label('timeseries_label') => \@samples,
-									  get_label('description_label') => $$profiler_metric{'desc'},
-									  'category' => $$profiler_metric{'category'},
-									  'group' => $$profiler_metric{'group'},
-									  'port' => $port,
-									  'pgid' => $pgid,
-									  get_label('uid_label') =>
-										  "category:%category%-pgid:%pgid%-group:%group%-port:%port%" );
+							my $mean = get_mean_hash(\%samples);
+							%this_dataset = (
+								get_label('skip_aggregate_label') => 1,
+								$value_label                      => $mean,
+								get_label('timeseries_label')     => \%samples,
+								get_label('description_label')    => $$profiler_metric{'desc'},
+								'category'                        => $$profiler_metric{'category'},
+								'group'                           => $$profiler_metric{'group'},
+								'port'                            => $port,
+								'pgid'                            => $pgid,
+								get_label('uid_label')            =>
+									"category:%category%-pgid:%pgid%-group:%group%-port:%port%"
+							);
 							my $pgid_label = $$profiler_metric{'js_label'} .
 								'PGID ' . $pgid;
 							my $port_label = $$profiler_metric{'js_label'} .
@@ -820,9 +856,9 @@ foreach my $key (keys %{$graph{'trafficgen'}}) {
 }
 gen_data(\%graph, \%graph_type, \%graph_threshold, $dir, 1);
 
-$json_text   = to_json( \%workload, { ascii => 1, pretty => 1 } );
+convert_samples_hash_to_array(\%workload);
+
+$json_text = to_json( \%workload, { ascii => 1, pretty => 1 } );
 open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
 print JSON $json_text;
 close(JSON);
-
-exit;

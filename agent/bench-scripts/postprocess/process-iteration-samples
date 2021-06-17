@@ -206,13 +206,13 @@ foreach $sample (@json_samples) { # samples 0..N
 					# Either find metric_name element within %iteration
 					# with same uid, or create a new one.
 					my $iteration_matching_index;
-					if ($iteration{$metric_type}{$metric_name}) {
+					if (exists($iteration{$metric_type}{$metric_name})) {
 						for (
 							my $j = 0;
 							$j < scalar @{ $iteration{$metric_type}{$metric_name} };
 							$j++
 						) {
-							if ( $iteration{$metric_type}{$metric_name}[$j]{$uid_label} ) {
+							if (exists($iteration{$metric_type}{$metric_name}[$j]{$uid_label})) {
 								my $target_uid = get_uid(
 									$iteration{$metric_type}{$metric_name}[$j]{$uid_label},
 									\%{ $iteration{$metric_type}{$metric_name}[$j] });
@@ -244,15 +244,15 @@ foreach $sample (@json_samples) { # samples 0..N
 						# So, for the iteration hash, we store all of
 						# the "value" values from all samples, and
 						# compute a mean of those samples, as well as
-						# a standard devivation percent.
+						# a standard deviation percent.
 						if ($key eq $value_label) {
 							my %samples_hash;
 							$samples_hash{$value_label} = $sample_value;
-							if ($sample_hash{$metric_type}{$metric_name}[$i]{$ts_label}) {
+							if (exists($sample_hash{$metric_type}{$metric_name}[$i]{$ts_label})) {
 								$samples_hash{$ts_label} =
 									$sample_hash{$metric_type}{$metric_name}[$i]{$ts_label};
 							}
-							if ( not defined $iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$samples_label} ) {
+							if (not exists($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$samples_label})) {
 								# Create an array to hold the samples
 								# for "value" values.  For example, if
 								# uperf had 5 sample runs, there would
@@ -269,23 +269,23 @@ foreach $sample (@json_samples) { # samples 0..N
 							# create it.  (Note that timeseries was
 							# already handled above.)
 							if ( $key ne $ts_label and $key ne $uid_label ) {
-								if ($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key}) {
+								if (exists($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key})) {
 									my $iteration_value =
 										$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key};
 									if ("$sample_value" ne "$iteration_value") {
 										my $sv = ref($sample_value);
 										my $iv = ref($iteration_value);
-										if ($sv and ($sv eq $iv)) {
+										if (($sv ne "") and ($sv eq $iv)) {
 											my $sv_s = Dumper($sample_value);
 											my $iv_s = Dumper($iteration_value);
 											if ($sv_s ne $iv_s) {
 												print STDERR "Error: aggregate values do not match\n" .
-													"key: $key\n\titeration value: $iv_s\n" .
+													"\tkey: $key\n\titeration value: $iv_s\n" .
 													"\tsample    value: $sv_s\n";
 											}
 										} else {
 											print STDERR "Error: scalar values do not match\n" .
-												"key: $key\n\titeration value: $iteration_value\n" .
+												"\tkey: $key\n\titeration value: $iteration_value\n" .
 												"\tsample    value: $sample_value\n";
 										}
 									}
@@ -317,7 +317,7 @@ foreach my $metric_type (sort keys %iteration) {
 			my $key;
 			foreach $key (sort keys %{$iteration{$metric_type}{$metric_name}[$i]}) {
 				if ($key eq $samples_label) {
-					# Compute mean, stabdard deviation, and the sample
+					# Compute mean, standard deviation, and the sample
 					# value that is closest to the mean value.
 					($iteration{$metric_type}{$metric_name}[$i]{get_label('mean_label')},
 						$iteration{$metric_type}{$metric_name}[$i]{get_label('stddev_label')},
@@ -326,7 +326,7 @@ foreach my $metric_type (sort keys %iteration) {
 							get_avg_stddev(
 								$samples_start_index,
 								@{$iteration{$metric_type}{$metric_name}[$i]{$samples_label}});
-					if ($iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')} and
+					if (exists($iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')}) and
 							$iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')} eq 'aggregate' and
 							$metric_type eq "throughput" and
 							$metric_name eq $primary_metric and
@@ -342,13 +342,13 @@ foreach my $metric_type (sort keys %iteration) {
 $iteration{'parameters'}{'benchmark'}[0]{get_label('max_stddevpct_label')} = 1.0 * $max_stddevpct;
 
 # Link reference result
-if ( $iteration{'throughput'}{$primary_metric} ) {
+if (exists($iteration{'throughput'}{$primary_metric})) {
 	for (
 		my $sample_num = 1;
 		$sample_num < scalar @{$iteration{'throughput'}{$primary_metric}[0]{$samples_label}} + 1;
 		$sample_num++
 	) {
-		if ($iteration{'throughput'}{$primary_metric}[0]{'closest_sample'} and
+		if (exists($iteration{'throughput'}{$primary_metric}[0]{'closest_sample'}) and
 				$sample_num == $iteration{'throughput'}{$primary_metric}[0]{'closest_sample'}) {
 			# Use "reference-result" to point to result which is
 			# closest to the average.

@@ -2049,10 +2049,12 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                      ]
                   },
                   "loss_granularity" : "direction",
+                  "max_loss_pct" : "0",
                   "max_port" : 3,
                   "max_retries" : 3,
                   "max_stddevpct" : 5,
                   "measure_latency" : 1,
+                  "min_rate" : 0,
                   "negative_packet_loss_mode" : "quit",
                   "null_stats" : {
                      "rx_active" : false,
@@ -2122,11 +2124,12 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                   "traffic_profile" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/1-bidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json",
                   "trex_profiler_interval" : 3,
                   "trial" : 1,
+                  "trial_gap" : 0,
                   "trial_mode" : "validation",
                   "trial_primary_output_file" : "binary-search.trial-001.txt",
                   "trial_profiler_file" : "binary-search.trial-001.profiler.txt",
                   "trial_secondary_output_file" : "binary-search.trial-001.extra.txt",
-                  "uid" : "trafficgen-unknown-rate:%rate_arg%-traffic_direction:%traffic_direction%-frame_size:%frame_size%-num_flows:%num_flows%",
+                  "uid" : "trafficgen-unknown-rate:%rate_arg%-traffic_direction:%traffic_direction%-frame_size:%frame_size%-num_flows:%num_flows%-pct_drop:%max_loss_pct%",
                   "validation_runtime" : 30
                },
                {
@@ -2258,7 +2261,7 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                   "description" : "The RX port utilization",
                   "field" : "util",
                   "group" : "rx",
-                  "mean" : 9.20954700444445,
+                  "mean" : 9.20954700444444,
                   "port" : "0",
                   "samples" : [
                      {
@@ -2300,7 +2303,7 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                               "value" : 9.37583504
                            }
                         ],
-                        "value" : 9.20954700444445
+                        "value" : 9.20954700444444
                      }
                   ],
                   "skip_aggregate" : 1,
@@ -15386,10 +15389,12 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                      ]
                   },
                   "loss_granularity" : "direction",
+                  "max_loss_pct" : "0",
                   "max_port" : 3,
                   "max_retries" : 3,
                   "max_stddevpct" : 5,
                   "measure_latency" : 1,
+                  "min_rate" : 0,
                   "negative_packet_loss_mode" : "quit",
                   "null_stats" : {
                      "rx_active" : false,
@@ -15459,11 +15464,12 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                   "traffic_profile" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/2-unidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json",
                   "trex_profiler_interval" : 3,
                   "trial" : 1,
+                  "trial_gap" : 0,
                   "trial_mode" : "validation",
                   "trial_primary_output_file" : "binary-search.trial-001.txt",
                   "trial_profiler_file" : "binary-search.trial-001.profiler.txt",
                   "trial_secondary_output_file" : "binary-search.trial-001.extra.txt",
-                  "uid" : "trafficgen-unknown-rate:%rate_arg%-traffic_direction:%traffic_direction%-frame_size:%frame_size%-num_flows:%num_flows%",
+                  "uid" : "trafficgen-unknown-rate:%rate_arg%-traffic_direction:%traffic_direction%-frame_size:%frame_size%-num_flows:%num_flows%-pct_drop:%max_loss_pct%",
                   "validation_runtime" : 30
                },
                {
@@ -15595,7 +15601,7 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                   "description" : "The RX port utilization",
                   "field" : "util",
                   "group" : "rx",
-                  "mean" : 0.0349446942577068,
+                  "mean" : 0.0349446942577069,
                   "port" : "0",
                   "samples" : [
                      {
@@ -15637,7 +15643,7 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                               "value" : 2.66660110652447e-08
                            }
                         ],
-                        "value" : 0.0349446942577068
+                        "value" : 0.0349446942577069
                      }
                   ],
                   "skip_aggregate" : 1,
@@ -24235,10 +24241,12 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                      ]
                   },
                   "loss_granularity" : "direction",
+                  "max_loss_pct" : "0",
                   "max_port" : 3,
                   "max_retries" : 3,
                   "max_stddevpct" : 5,
                   "measure_latency" : 1,
+                  "min_rate" : 0,
                   "negative_packet_loss_mode" : "quit",
                   "null_stats" : {
                      "rx_active" : false,
@@ -24308,11 +24316,12 @@ Iteration 3-5000000-revunidirectional-74B-1000flows-0.0pct_drop complete (3 of 3
                   "traffic_profile" : "/var/lib/pbench-agent/trafficgen_test-22_tg[trex-profile]r[5000000]fs[74]nf[1000]fm[si,di,sp,dp,protocol]td[bi,uni,revuni]ml[0.0]tt[os]_2018-09-24T19:10:50/3-revunidirectional-74B-1000flows-0.0pct_drop/traffic-profile.json",
                   "trex_profiler_interval" : 3,
                   "trial" : 1,
+                  "trial_gap" : 0,
                   "trial_mode" : "validation",
                   "trial_primary_output_file" : "binary-search.trial-001.txt",
                   "trial_profiler_file" : "binary-search.trial-001.profiler.txt",
                   "trial_secondary_output_file" : "binary-search.trial-001.extra.txt",
-                  "uid" : "trafficgen-unknown-rate:%rate_arg%-traffic_direction:%traffic_direction%-frame_size:%frame_size%-num_flows:%num_flows%",
+                  "uid" : "trafficgen-unknown-rate:%rate_arg%-traffic_direction:%traffic_direction%-frame_size:%frame_size%-num_flows:%num_flows%-pct_drop:%max_loss_pct%",
                   "validation_runtime" : 30
                },
                {
