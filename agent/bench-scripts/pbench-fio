@@ -470,7 +470,7 @@ function fio_process_options() {
 				found=1
 				break;
 			fi
-	        done
+		done
 		if [[ ${found} -ne 1 ]]; then
 			error_log "Unsupported --test-types=${test_types} encountered"
 			usage
@@ -865,16 +865,17 @@ function fio_run_benchmark() {
 								mkdir -p $benchmark_results_dir
 								fio_run_job "$iteration" "$benchmark_results_dir" "$fio_job_file" "$dev" "$clients"
 							else
-								# if we are only postprocessing, then we might have to untar an existing result
-								pushd $iteration_dir >/dev/null
-								if [ ! -e sample$sample ]; then
-									if [ -e sample$sample.tar.xz ]; then
+								# we are only postprocessing, so we might have to untar an existing result
+								if [ ! -e $benchmark_results_dir ]; then
+									if [ -e ${iteration_dir}/sample${sample}.tar.xz ]; then
+										pushd $iteration_dir >/dev/null
 										tar Jxf sample$sample.tar.xz && /bin/rm sample$sample.tar.xz
+										popd >/dev/null
 									else
 										echo "sample $sample missing.  There should be $nr_samples samples"
+										break 2
 									fi
 								fi
-								popd >/dev/null
 							fi
 							debug_log "post-processing tool data"
 							pbench-postprocess-tools --group=$tool_group --dir=$benchmark_results_dir
@@ -890,7 +891,7 @@ function fio_run_benchmark() {
 							fi
 							if [ $sample_failed -eq 1 ]; then
 								# we need all samples to be good, so bust out of testing samples now
-								break
+								break 2
 							fi
 						done
 					fi
@@ -902,7 +903,7 @@ function fio_run_benchmark() {
 						((failures++))
 					fi
 					if [ $fail -eq 0 -o $failures -ge $max_failures ]; then
-						break
+						break 1
 					fi
 				done
 			let count=$count+1 # now we can move to the next iteration
@@ -950,6 +951,5 @@ if [[ "$postprocess_only" == "n" ]]; then
 	if [[ ${?} != 0 ]]; then
 		error_log "[${script_name}]: failed to stop the tool meisters."
 	fi
+	rmdir $benchmark_run_dir/.running
 fi
-
-rmdir $benchmark_run_dir/.running
