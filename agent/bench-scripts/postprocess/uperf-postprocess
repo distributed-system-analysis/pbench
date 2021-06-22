@@ -8,9 +8,9 @@ use lib $ENV{'pbench_bspp_dir'};
 no lib ".";
 use GenData qw(gen_data);
 use BenchPostprocess qw(
-       calc_aggregate_metrics calc_efficiency_metrics
-       convert_samples_hash_to_array create_graph_hash
-       create_uid get_cpubusy_series get_label get_mean_hash);
+		calc_aggregate_metrics calc_efficiency_metrics
+		convert_samples_hash_to_array create_graph_hash
+		create_uid get_cpubusy_series get_label get_mean_hash);
 use File::Basename;
 use Data::Dumper;
 use List::Util('sum');
@@ -113,7 +113,7 @@ if (opendir($dh, $tool_group_dir)) {
 		}
 	}
 } else {
-       print STDERR "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
+	print STDERR "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
 }
 closedir  $dh;
 foreach $this_tool_dir (sort keys %tool_ids) {
@@ -121,8 +121,8 @@ foreach $this_tool_dir (sort keys %tool_ids) {
 	my $role = "host";
 	my $hostname;
 	($role, $hostname) = split(/:/,$this_tool_id);
-       my %cpubusy_samples;
-       my $res = get_cpubusy_series($this_tool_dir, \%cpubusy_samples );
+	my %cpubusy_samples;
+	my $res = get_cpubusy_series($this_tool_dir, \%cpubusy_samples );
 	if ( $res == 0 ) {
 		my $description = "Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU";
 		push(@cpu_busy, {
@@ -159,39 +159,39 @@ foreach $result_file (sort readdir($dh) ) {
 		my $server_hostname = $2;
 		my $server_port = "$3";
 		my $role = "client";
-               my %throughput_samples;
-               my %latency_samples;
+		my %throughput_samples;
+		my %latency_samples;
 		open(IN_FILE, "$dir/$result_file") || die "$script: could not open file $dir/$result_file: $!\n";
-               my %prev;
-               my $timestamp_limit = 0;
-               my $count = 0;
+		my %prev;
+		my $timestamp_limit = 0;
+		my $count = 0;
 		while (<IN_FILE>) {
-                       my $line = "$_";
+			my $line = "$_";
 			chomp($line);
 
 			# for each sample in the uperf result file, we get a number of bytes and a timestamp
 			# example of a sample: "time:1395170796.1234 name:Txn2 nr_bytes:22037790720 nr_ops:43042560"
 			if ( $line =~  /^timestamp_ms:(\d+)\.\d+\s+name:Txn2\s+nr_bytes:(\d+)\s+nr_ops:(\d+)/ ) {
-                               my $timestamp_ms = $1;
+				my $timestamp_ms = $1;
 				my $bytes = $2;
 				my $ops = $3;
-                               $count++;
-                               if ($count <= 2 and $series_trim > 0 or $count == 1) {
-                                       # We don't record the first several data points:  we skip
-                                       # the first because we need a reference against which to
-                                       # calculate diffs; and, then we skip a configurable number
-                                       # of seconds -- however, the time is relative to the
-                                       # -second- data point, for historical reasons.  So, we set
-                                       # the limit *twice*, once to skip the first data point,
-                                       # and again once we have the second timestamp to calculate
-                                       # from.  (However, if the configured limit is zero, then
-                                       # we only skip the first data point.)
-                                       $timestamp_limit = $timestamp_ms + $series_trim * 1000;
-                               }
-                               if ($timestamp_ms > $timestamp_limit) {
-                                       my $timestamp_s_diff = ($timestamp_ms - $prev{'timestamp'})/1000;
-                                       my $nr_bytes_diff = $bytes - $prev{'bytes'};
-                                       my $nr_ops_diff = $ops - $prev{'ops'};
+				$count++;
+				if ($count <= 2 and $series_trim > 0 or $count == 1) {
+					# We don't record the first several data points:  we skip
+					# the first because we need a reference against which to
+					# calculate diffs; and, then we skip a configurable number
+					# of seconds -- however, the time is relative to the
+					# -second- data point, for historical reasons.  So, we set
+					# the limit *twice*, once to skip the first data point,
+					# and again once we have the second timestamp to calculate
+					# from.  (However, if the configured limit is zero, then
+					# we only skip the first data point.)
+					$timestamp_limit = $timestamp_ms + $series_trim * 1000;
+				}
+				if ($timestamp_ms > $timestamp_limit) {
+					my $timestamp_s_diff = ($timestamp_ms - $prev{'timestamp'})/1000;
+					my $nr_bytes_diff = $bytes - $prev{'bytes'};
+					my $nr_ops_diff = $ops - $prev{'ops'};
 					# This is what we are really interested in: computing value/sec metrics like Gb/sec and ops/sec
 					# We can do that once we have more than one sample
 					if ($test_type =~ /rr/) {
@@ -207,10 +207,10 @@ foreach $result_file (sort readdir($dh) ) {
 									$instances / $trans_sec * 1000000
 							};
 						}
-                                               $throughput_samples{$timestamp_ms} = {
-                                                       get_label('date_label')  => int $timestamp_ms,
-                                                       get_label('value_label') => $trans_sec
-                                               };
+						$throughput_samples{$timestamp_ms} = {
+							get_label('date_label')  => int $timestamp_ms,
+							get_label('value_label') => $trans_sec
+						};
 					} else {
 						$throughput_samples{$timestamp_ms} = {
 							get_label('date_label')  => int $timestamp_ms,
@@ -219,9 +219,9 @@ foreach $result_file (sort readdir($dh) ) {
 						};
 					}
 				}
-                               $prev{'timestamp'} = $timestamp_ms;
-                               $prev{'ops'} = $ops;
-                               $prev{'bytes'} = $bytes;
+				$prev{'timestamp'} = $timestamp_ms;
+				$prev{'ops'} = $ops;
+				$prev{'bytes'} = $bytes;
 			}
 		}
 		$nr_result_files++;
@@ -236,7 +236,7 @@ foreach $result_file (sort readdir($dh) ) {
 			delete $latency_samples{$ts};
 		}
 
-               if (%latency_samples) {
+		if (%latency_samples) {
 			my $description = "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window";
 			my $mean = get_mean_hash(\%latency_samples);
 			push(@usec, {
@@ -262,7 +262,7 @@ foreach $result_file (sort readdir($dh) ) {
 			delete $throughput_samples{$ts};
 		}
 
-               if (%throughput_samples) {
+		if (%throughput_samples) {
 			my %this_tput_dataset;
 			my $mean = get_mean_hash(\%throughput_samples);
 			%this_tput_dataset = (
@@ -291,7 +291,7 @@ foreach $result_file (sort readdir($dh) ) {
 }
 closedir $dh;
 if ($nr_result_files == 0) {
-       print STDERR "$script: could not find any result files to process, exiting\n";
+	print STDERR "$script: could not find any result files to process, exiting\n";
 	exit;
 }
 # construct what we have so far in a master workload hash
@@ -360,7 +360,7 @@ foreach my $resp_file (sort readdir($dh) ) {
 		#  The write is usually very fast, as it's just the write to the socket and should return almost immediately.
 		#  The read is the time for the packet to be sent out, responded by the other system, sent back, and read by the
 		#  uperf process.
-               my $line = <RESP_FILE>; # this first value is the time it takes to open the stream
+		my $line = <RESP_FILE>; # this first value is the time it takes to open the stream
 		# the following lines will have a pattern of write (send) then read (receive)
 		my $time_us;
 		my $time_ns;
