@@ -469,6 +469,8 @@ class RedisServer(RedisServerCommon):
     conf_tmpl = """bind {bind_host_names}
 daemonize yes
 dir {tm_dir}
+save ""
+appendonly no
 dbfilename pbench-redis.rdb
 logfile {tm_dir}/redis.log
 loglevel notice
