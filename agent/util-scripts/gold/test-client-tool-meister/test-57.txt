@@ -425,6 +425,8 @@ Listening on http://localhost:8080/
 bind localhost
 daemonize yes
 dir /var/tmp/pbench-test-utils/pbench/mock-run/tm
+save ""
+appendonly no
 dbfilename pbench-redis.rdb
 logfile /var/tmp/pbench-test-utils/pbench/mock-run/tm/redis.log
 loglevel notice
