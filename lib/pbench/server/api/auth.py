@@ -1,10 +1,13 @@
+import datetime
 import jwt
 import os
-import datetime
-from flask import request, abort
+
+from http import HTTPStatus
+from flask import abort, request
 from flask_httpauth import HTTPTokenAuth
-from pbench.server.database.models.users import User
+
 from pbench.server.database.models.active_tokens import ActiveTokens
+from pbench.server.database.models.users import User
 
 
 class UnknownUser(Exception):
@@ -83,7 +86,7 @@ class Auth:
         if not auth_header:
             logger.warning("Missing expected Authorization header")
             abort(
-                403,
+                HTTPStatus.FORBIDDEN,
                 message="Please add 'Authorization' token as Authorization: Bearer <session_token>",
             )
 
@@ -92,7 +95,7 @@ class Auth:
         except ValueError:
             logger.warning("Malformed Auth header")
             abort(
-                401,
+                HTTPStatus.UNAUTHORIZED,
                 message="Malformed Authorization header, please add request header as Authorization: Bearer <session_token>",
             )
         else:
@@ -102,7 +105,7 @@ class Auth:
                     auth_schema,
                 )
                 abort(
-                    401,
+                    HTTPStatus.UNAUTHORIZED,
                     message="Malformed Authorization header, request needs bearer token: Bearer <session_token>",
                 )
             return auth_token

@@ -206,7 +206,7 @@ class TestDataSinkWsgiServer:
         handler.log_message("test msg %d %s", 42, "43")
         assert caplog.records[2].levelname == "WARNING"
         assert caplog.records[2].message == "0 - - test msg 42 43"
-        handler.log_request(code=HTTPStatus(404), size=42)
+        handler.log_request(code=HTTPStatus.NOT_FOUND, size=42)
         assert caplog.records[3].levelname == "INFO"
         assert caplog.records[3].message == '0 - - "GET / HTTP/1.1" 404 42'
 

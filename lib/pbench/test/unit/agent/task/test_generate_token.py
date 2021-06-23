@@ -1,4 +1,5 @@
 from click.testing import CliRunner
+from http import HTTPStatus
 import requests
 import responses
 
@@ -22,7 +23,7 @@ class TestGenerateToken:
         responses.add(
             responses.POST,
             TestGenerateToken.URL + TestGenerateToken.ENDPOINT,
-            status=200,
+            status=HTTPStatus.OK,
             json={"auth_token": TestGenerateToken.TOKEN_TEXT},
         )
 
@@ -31,7 +32,7 @@ class TestGenerateToken:
         responses.add(
             responses.POST,
             TestGenerateToken.URL + TestGenerateToken.ENDPOINT,
-            status=403,
+            status=HTTPStatus.FORBIDDEN,
             json={"message": "Bad login"},
         )
 

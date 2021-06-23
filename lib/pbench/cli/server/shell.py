@@ -3,13 +3,13 @@
 import subprocess
 import sys
 
-from configparser import NoSectionError, NoOptionError
-from sqlalchemy_utils import database_exists, create_database
+from configparser import NoOptionError, NoSectionError
+from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
+from pbench.common.logger import get_pbench_logger
 from pbench.server.api import create_app, get_server_config
 from pbench.server.database.database import Database
-from pbench.common.logger import get_pbench_logger
 
 
 def app():
