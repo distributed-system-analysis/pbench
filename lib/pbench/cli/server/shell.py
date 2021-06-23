@@ -33,6 +33,7 @@ def main():
         port = str(server_config.get("pbench-server", "bind_port"))
         db = str(server_config.get("Postgres", "db_uri"))
         workers = str(server_config.get("pbench-server", "workers"))
+        worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
 
         # Multiple gunicorn workers will attempt to connect to the DB; rather
         # than attempt to synchronize them, detect a missing DB (from the
@@ -52,6 +53,8 @@ def main():
             "gunicorn",
             "--workers",
             workers,
+            "--timeout",
+            worker_timeout,
             "--pid",
             "/run/pbench-server/gunicorn.pid",
             "--bind",
