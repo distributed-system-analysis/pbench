@@ -226,7 +226,7 @@ def main(
             click.echo(
                 "Unable to determine the controller name, could not fetch the"
                 " FQDN of the host; to work around this problem consider"
-                " explicitly providing a value for the --controller switch",
+                " explicitly providing a value for the --controller option",
                 err=True,
             )
             clk_ctx.exit(1)
