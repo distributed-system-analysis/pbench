@@ -144,7 +144,7 @@ class TestResultsPush:
         TestResultsPush.add_http_mock_response()
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball],)
+        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball])
         assert result.exit_code == 0, result.stderr
         assert result.stderr == "File uploaded successfully\n"
 
@@ -157,7 +157,7 @@ class TestResultsPush:
         TestResultsPush.add_connectionerr_mock_response()
         caplog.set_level(logging.DEBUG)
         runner = CliRunner(mix_stderr=False)
-        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball],)
+        result = runner.invoke(main, args=[TestResultsPush.CTRL_TEXT, tarball])
         assert result.exit_code == 1
         assert str(result.stderr).startswith("Cannot connect to")
 
@@ -174,4 +174,4 @@ class TestResultsPush:
         assert result.exit_code == 1
         assert (
             str(result.stderr).find("Not Found") > -1
-        ), f"stderr: {str(result.stderr)!r}; stdout: {str(result.stdout)!r}"
+        ), f"stderr: {result.stderr!r}; stdout: {result.stdout!r}"
