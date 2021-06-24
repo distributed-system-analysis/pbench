@@ -19,8 +19,7 @@ TarballRecord = collections.namedtuple("TarballRecord", ["name", "length", "md5"
 
 
 class MakeResultTb:
-    """Interfaces for managing the creation a result tar ball.
-
+    """Interfaces for creating a result tar ball.
     """
 
     class AlreadyCopied(RuntimeError):
