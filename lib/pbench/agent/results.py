@@ -205,19 +205,10 @@ class MakeResultTb:
         args.append(pbench_run_name)
         try:
             # Invoke tar directly for efficiency.
-            if single_threaded:
-                with tarball.open("w") as ofp, e_file.open("w") as efp:
-                    tar_proc = subprocess.Popen(
-                        args,
-                        cwd=str(self.result_dir.parent),
-                        stdin=None,
-                        stdout=ofp,
-                        stderr=efp,
-                    )
-                    tar_proc.wait()
-                xz_proc = None
-            else:
-                with tarball.open("w") as ofp, e_file.open("w") as efp:
+            with tarball.open("w") as ofp, e_file.open("w") as efp:
+                if single_threaded:
+                    xz_proc = None
+                else:
                     xz_proc = subprocess.Popen(
                         [self.xz_path, "-T0"],
                         cwd=str(self.target_dir),
@@ -225,14 +216,15 @@ class MakeResultTb:
                         stdout=ofp,
                         stderr=efp,
                     )
-                    tar_proc = subprocess.Popen(
-                        args,
-                        cwd=str(self.result_dir.parent),
-                        stdin=None,
-                        stdout=xz_proc.stdin,
-                        stderr=efp,
-                    )
-                    tar_proc.wait()
+                tar_proc = subprocess.Popen(
+                    args,
+                    cwd=str(self.result_dir.parent),
+                    stdin=None,
+                    stdout=xz_proc.stdin if xz_proc else ofp,
+                    stderr=efp,
+                )
+                tar_proc.wait()
+                if xz_proc:
                     # Now that the `tar` command has exited, we close the
                     # `stdin` of the `xz` command to shut it down.
                     xz_proc.stdin.close()
