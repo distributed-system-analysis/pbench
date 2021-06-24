@@ -54,12 +54,17 @@ class MoveResults(BaseCommand):
                         self.config,
                         self.logger,
                     )
-                except (
-                    NotADirectoryError,
-                    FileNotFoundError,
-                    MakeResultTb.AlreadyCopied,
-                    MakeResultTb.BenchmarkRunning,
-                ) as exc:
+                except MakeResultTb.AlreadyCopied:
+                    self.logger.info(f"Already copied {result_dir}")
+                    continue
+                except MakeResultTb.BenchmarkRunning:
+                    self.logger.warning(
+                        f"Skipping {result_dir}: the benchmark appears to be"
+                        " running.  If that's incorrect, remove the"
+                        f" {result_dir}/.running directory and try again"
+                    )
+                    continue
+                except (NotADirectoryError, FileNotFoundError) as exc:
                     self.logger.error(str(exc))
                     failures += 1
                     continue
@@ -210,8 +215,7 @@ def main(
     xz_single_threaded: bool,
     show_server: str,
 ):
-    """Move result directories to the configured Pbench server.
-    """
+    """Move result directories to the configured Pbench server."""
     clk_ctx = click.get_current_context()
 
     if controller:
@@ -236,7 +240,7 @@ def main(
     context.token = token
 
     if show_server:
-        click.echo(f"WARNING -- Option '--show-server' is not implemented", err=True)
+        click.echo("WARNING -- Option '--show-server' is not implemented", err=True)
 
     try:
         rv = MoveResults(context).execute(xz_single_threaded, delete=delete)

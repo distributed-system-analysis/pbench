@@ -19,8 +19,7 @@ TarballRecord = collections.namedtuple("TarballRecord", ["name", "length", "md5"
 
 
 class MakeResultTb:
-    """Interfaces for creating a result tar ball.
-    """
+    """Interfaces for creating a result tar ball."""
 
     class AlreadyCopied(RuntimeError):
         """Specific run time error raised when a result directory has a .copied
@@ -74,10 +73,10 @@ class MakeResultTb:
         ), f"config, '{config!r}', and/or logger, '{logger!r}', not provided"
         self.tar_path = find_executable("tar")
         if self.tar_path is None:
-            raise RuntimeError(f"External 'tar' executable not found")
+            raise RuntimeError("External 'tar' executable not found")
         self.xz_path = find_executable("xz")
         if self.xz_path is None:
-            raise RuntimeError(f"External 'xz' executable not found")
+            raise RuntimeError("External 'xz' executable not found")
         self.result_dir = self._check_result_target_dir(result_dir, "Result")
         self.target_dir = self._check_result_target_dir(target_dir, "Target")
         self.config = config
@@ -86,20 +85,14 @@ class MakeResultTb:
             raise ValueError(f"Controller {controller!r} is not a valid host name")
         self.controller = controller
         if (self.result_dir.parent / f"{self.result_dir.name}.copied").exists():
-            raise self.AlreadyCopied(f"Already copied {self.result_dir.name}")
+            raise self.AlreadyCopied()
         running = self.result_dir / ".running"
         if running.exists():
-            running_str = f"{running.parent.name}/{running.name}"
-            raise self.BenchmarkRunning(
-                f"The benchmark is still running in {self.result_dir.name} -"
-                f" skipping; if that is not true, rmdir {running_str}, and try"
-                " again",
-            )
+            raise self.BenchmarkRunning()
 
     @staticmethod
     def _check_result_target_dir(dir_path: str, name: str) -> Path:
-        """Confirms the availability and integrity of the specified directory.
-        """
+        """Confirms the specified directory after resolving all symlinks."""
         if not dir_path:
             raise FileNotFoundError(f"{name} directory not provided")
         else:
@@ -143,8 +136,8 @@ class MakeResultTb:
 
         The tar ball is created, verified, and the MD5 sum value is generated.
 
-        Returns a tuple of the Path object of the create tar ball, its length,
-        and its MD5 checksum value.
+        Returns a named tuple consisting of the Path object of the created tar
+        ball, its length, and its MD5 checksum value.
 
         Raises
           - FileNotFoundError  if the result directory does not have a
@@ -172,7 +165,7 @@ class MakeResultTb:
         if res_name != pbench_run_name:
             raise BadMDLogFormat(
                 f"The run in directory {self.config.pbench_run / pbench_run_name}"
-                f" has an unexpected metadata name, '{res_name}' - skipping"
+                f" has an unexpected metadata name, '{res_name}'"
             )
 
         mdlog.set("pbench", "hostname_f", os.environ.get("_pbench_full_hostname", ""))
@@ -187,7 +180,7 @@ class MakeResultTb:
             # save the current controller as "controller_orig", and save the
             # controller directory as the new controller name.
             if md_controller:
-                mdlog.set("run", "controller_org", md_controller)
+                mdlog.set("run", "controller_orig", md_controller)
             mdlog.set("run", "controller", self.controller)
 
         result_size = sum(f.stat().st_size for f in self.result_dir.rglob("*"))
@@ -246,8 +239,7 @@ class MakeResultTb:
                     xz_proc.wait()
         except Exception as exc:
             msg = self._unlink_tarball(
-                tarball,
-                f"Tar ball creation failed for {self.result_dir}, skipping {exc}",
+                tarball, f"Tar ball creation failed for {self.result_dir}, {exc}"
             )
             raise RuntimeError(msg)
         else:
@@ -285,9 +277,7 @@ class MakeResultTb:
             )
             raise RuntimeError(msg)
 
-        # The contract with the caller is to just return the full path to the
-        # created tar ball.
-        return TarballRecord(tarball, tar_len, tar_md5)
+        return TarballRecord(name=tarball, length=tar_len, md5=tar_md5)
 
 
 class CopyResultTb:
@@ -309,12 +299,14 @@ class CopyResultTb:
         config: PbenchAgentConfig,
         logger: Logger,
     ):
-        """Contructor for object representing tar ball to be copied remotely.
+        """Constructor for object representing tar ball to be copied remotely.
 
         Raises
             ValueError          if the given controller is not a valid hostname
             FileNotFoundError   if the given tar ball does not exist
         """
+        if validate_hostname(controller) != 0:
+            raise ValueError(f"Controller {controller!r} is not a valid host name")
         self.controller = controller
         self.tarball = Path(tarball)
         if not self.tarball.exists():
@@ -336,8 +328,8 @@ class CopyResultTb:
                 specific user.
 
         Raises
-            RuntimeError     if a connection fails to be make to the server
-            FileUploadError  if the tar balls to upload properly
+            RuntimeError     if a connection to the server fails
+            FileUploadError  if the tar ball failed to upload properly
 
         """
         headers = {

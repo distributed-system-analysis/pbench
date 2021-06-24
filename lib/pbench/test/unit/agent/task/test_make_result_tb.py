@@ -84,9 +84,8 @@ class TestMakeResultTb:
     def test_already_copied(self, caplog):
         caplog.set_level(logging.DEBUG, logger=self.logger.name)
         full_result_dir = self.result_dir.resolve(strict=True)
-        expected_error_message = f"Already copied {full_result_dir.name}"
         with open(f"{full_result_dir}.copied", "x"):
-            with pytest.raises(Exception) as e:
+            with pytest.raises(MakeResultTb.AlreadyCopied):
                 mrt = MakeResultTb(
                     self.result_dir,
                     self.target_dir,
@@ -95,19 +94,12 @@ class TestMakeResultTb:
                     self.logger,
                 )
                 mrt.make_result_tb()
-            assert str(e).endswith(
-                expected_error_message
-            ), f"Unexpected error: '{e}', expecting: '{expected_error_message}'"
 
     def test_running(self, caplog):
         caplog.set_level(logging.DEBUG, logger=self.logger.name)
-        expected_error_message = (
-            f"The benchmark is still running in {self.result_dir.name} - skipping;"
-            f" if that is not true, rmdir {self.result_dir.name}/.running, and try again"
-        )
         full_result_dir = self.result_dir.resolve(strict=True)
         with open(f"{full_result_dir}/.running", "x"):
-            with pytest.raises(RuntimeError) as e:
+            with pytest.raises(MakeResultTb.BenchmarkRunning):
                 mrt = MakeResultTb(
                     self.result_dir,
                     self.target_dir,
@@ -116,9 +108,6 @@ class TestMakeResultTb:
                     self.logger,
                 )
                 mrt.make_result_tb()
-            assert str(e).endswith(
-                expected_error_message
-            ), f"Unexpected error: '{e}', expecting: '{expected_error_message}'"
 
     def test_make_tb(self, monkeypatch):
         monkeypatch.setattr(datetime, "datetime", MockDatetime)
