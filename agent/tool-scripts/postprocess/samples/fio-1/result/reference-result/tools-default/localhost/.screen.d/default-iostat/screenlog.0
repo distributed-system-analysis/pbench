@@ -1,0 +1,2 @@
+iostat: running "/opt/pbench-agent/tool-scripts/datalog/iostat-datalog 3 "
+/opt/pbench-agent/tool-scripts/iostat: line 760: 53260 Terminated              ${tool_cmd_file} > "${tool_stdout_file}" 2> "${tool_stderr_file}"
