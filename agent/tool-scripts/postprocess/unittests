@@ -2,6 +2,7 @@
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 export PERL_HASH_SEED=0
+let MAX_RESULT_LINES=100000
 
 _tdir=$(dirname $(readlink -f $0))
 cd $_tdir
@@ -80,30 +81,18 @@ function testit {
     return ${sts}
 }
 
-# Remove any file that is in the sample directory that
-# is still the same in the test directory, removing any
-# empty directories first.
+# Remove any file from the test directory that is the same as the
+# corresponding file in the sample directory (or is a symlink), and
+# then recursively remove any empty directories.
 function remove_sample_data {
-    local i
-    # First remove symlinks
-    for i in $(cd samples/$1; find . -type l); do
-        rm -rf ${_testroot}/$1/$i
-    done
-    # Remove all files that have not changed from the
-    # original sample
-    for i in $(cd samples/$1; find . -type f); do
-        diff -cq samples/$1/$i ${_testroot}/$1/$i > /dev/null 2>&1 && rm -f ${_testroot}/$1/$i
-    done
-    let dir_cnt=-1
-    while [[ $dir_cnt -gt 0 || $dir_cnt -lt 0 ]]; do
-        let dir_cnt=0
-        # In the loop, exit condition set should we
-        # find no empty directories.
-        for i in $(find ${_testroot}/$1 -type d -empty); do
-            let dir_cnt=$dir_cnt+1
-            rmdir $i
-        done
-    done
+    local cur_dir=${PWD}
+    pushd ${_testroot}/$1 >/dev/null
+    find . \
+      \( -type l \
+      -or -type f -and -exec diff -q ${cur_dir}/samples/$1/{} {} \; \
+      -or -type d -and -empty \) \
+      -delete >/dev/null 2>&1
+    popd >/dev/null
 }
 
 function testjstack {
@@ -213,9 +202,18 @@ function testfio {
 
     mkdir ${_testroot}/$1
     cp -r samples/$1/* ${_testroot}/$1/
+    result_dir=${_testroot}/$1/result/reference-result
 
-    pbench_lib_dir=$(pwd)/../../lib pbench_bspp_dir=$(pwd)/../../bench-scripts/postprocess \
-        ../../bench-scripts/postprocess/fio-postprocess ${_testroot}/$1/result/reference-result fio- default > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+    pbench_lib_dir=$(pwd)/../../lib \
+        pbench_bspp_dir=$(pwd)/../../bench-scripts/postprocess \
+        ../../bench-scripts/postprocess/fio-postprocess ${result_dir} fio- default \
+        > ${_testroot}/$1/stdout 2> ${_testroot}/$1/stderr
+
+    result_lines=$(wc -l ${result_dir}/result.json | awk '{ print $1 }')
+    if (( result_lines > MAX_RESULT_LINES )); then
+        head -n $MAX_RESULT_LINES ${result_dir}/result.json >${result_dir}/result.json.trunc
+        mv ${result_dir}/result.json.trunc ${result_dir}/result.json
+    fi
 
     remove_sample_data $1
 
