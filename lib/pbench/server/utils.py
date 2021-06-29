@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 
+from pathlib import Path
 from pbench.server.database.models.tracker import Dataset, States, DatasetNotFound
 
 
@@ -72,17 +73,18 @@ def quarantine(dest, logger, *files):
         sys.exit(101)
 
     for afile in files:
-        if not os.path.exists(afile) and not os.path.islink(afile):
+        afile = Path(afile)
+        if not afile.exists():
             continue
         try:
             # If the file we're moving is a tarball, update the dataset
             # state. (If it's the associated MD5 file, skip that.)
-            if str(afile).endswith(".tar.xz"):
+            if afile.name.endswith(".tar.xz"):
                 try:
                     Dataset.attach(path=afile, state=States.QUARANTINED)
                 except DatasetNotFound:
                     logger.exception("quarantine dataset {} not found", afile)
-            shutil.move(afile, os.path.join(dest, os.path.basename(afile)))
+            shutil.move(afile, os.path.join(dest, afile.name))
         except Exception:
             logger.exception(
                 'quarantine {} {!r}: "mv {} {}/" failed', dest, files, afile, dest
