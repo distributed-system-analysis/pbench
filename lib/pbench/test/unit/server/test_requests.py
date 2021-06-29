@@ -69,7 +69,8 @@ class TestElasticsearch:
     @staticmethod
     def test_bad_request(client, caplog, server_config, requests_mock):
         requests_mock.post(
-            "http://elasticsearch.example.com:7080/some_invalid_url", status_code=400
+            "http://elasticsearch.example.com:7080/some_invalid_url",
+            status_code=HTTPStatus.BAD_REQUEST,
         )
         response = client.post(
             f"{server_config.rest_uri}/elasticsearch",

@@ -1,8 +1,9 @@
 import logging
 import os
-
 import pytest
 import responses
+
+from http import HTTPStatus
 
 from pbench.agent import PbenchAgentConfig
 from pbench.agent.results import CopyResultTb
@@ -26,7 +27,7 @@ class TestCopyResults:
         responses.add(
             responses.PUT,
             f"http://pbench.example.com/api/v1/upload/{tbname}",
-            status=200,
+            status=HTTPStatus.OK,
         )
         crt = CopyResultTb("controller", tarball, self.config, self.logger)
         crt.copy_result_tb("token")
@@ -36,7 +37,7 @@ class TestCopyResults:
         responses.add(
             responses.PUT,
             f"http://pbench.example.com/api/v1/upload/{bad_tarball}",
-            status=200,
+            status=HTTPStatus.OK,
         )
         expected_error_message = (
             f"FileNotFoundError: Tarball '{bad_tarball}' does not exist"

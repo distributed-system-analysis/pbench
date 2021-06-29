@@ -3,13 +3,13 @@
 import subprocess
 import sys
 
-from configparser import NoSectionError, NoOptionError
-from sqlalchemy_utils import database_exists, create_database
+from configparser import NoOptionError, NoSectionError
+from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
+from pbench.common.logger import get_pbench_logger
 from pbench.server.api import create_app, get_server_config
 from pbench.server.database.database import Database
-from pbench.common.logger import get_pbench_logger
 
 
 def app():
@@ -33,6 +33,7 @@ def main():
         port = str(server_config.get("pbench-server", "bind_port"))
         db = str(server_config.get("Postgres", "db_uri"))
         workers = str(server_config.get("pbench-server", "workers"))
+        worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
 
         # Multiple gunicorn workers will attempt to connect to the DB; rather
         # than attempt to synchronize them, detect a missing DB (from the
@@ -52,6 +53,8 @@ def main():
             "gunicorn",
             "--workers",
             workers,
+            "--timeout",
+            worker_timeout,
             "--pid",
             "/run/pbench-server/gunicorn.pid",
             "--bind",
