@@ -147,7 +147,7 @@ if [[ ${?} -ne 0 ]]; then
     exit 1
 fi
 
-for tool in $(find -L ${_ts} -maxdepth 1 -perm 775); do
+for tool in $(find -L ${_ts} -maxdepth 1 -perm -111); do
     toolname="$(basename ${tool})"
     if [[ "${toolname}" == "base-tool" ]]; then
         continue

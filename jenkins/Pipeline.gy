@@ -1,0 +1,11 @@
+pipeline {
+    agent { label 'pbench' }
+    stages {
+        stage('Linting & Unit Tests') {
+            steps {
+                echo 'Linting and legacy unit tests'
+                sh 'jenkins/run jenkins/tox -r --current-env -e jenkins-unittests'
+            }
+        }
+    }
+}
