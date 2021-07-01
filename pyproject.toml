@@ -12,5 +12,6 @@ exclude = '''
 fio-histo-log-pctiles.py
 | agent/stockpile
 | .git
+| .venv
 )
 '''
