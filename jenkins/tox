@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# A wrapper around tox to ensure the jenkins environment is setup
+# properly inside a container.
+
+export USER=pbench
+export LOGNAME=pbench
+
+export TERM=dumb
+export PY_COLORS=0
+export NO_COLORS=0
+
+export TOXWORKDIR=/var/tmp/tox
+mkdir -p ${TOXWORKDIR}
+if [[ ${?} -ne 0 ]]; then
+    exit 1
+fi
+export HOME=${TOXWORKDIR}
+export XDG_CONFIG_HOME=${TOXWORKDIR}/.config
+
+tox ${*}
