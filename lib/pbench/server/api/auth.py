@@ -79,6 +79,27 @@ class Auth:
         except Exception as e:
             Auth.logger.exception(f"{__name__}: ERROR: {e.__traceback__}")
 
+    def verify_user(self, target_username: str) -> User:
+        """
+        Check whether the requested target user is the owner of the authorization
+        token provided to the API.
+
+        We're returning a User instance corresponding to the target username provided.
+        If the request is not authenticated (current user is None) we return None as
+        we won't be able to verify the target user. However, if the current user is
+        an admin, we return the instance of the target user by querying the target
+        username provided.
+        """
+        current_user = Auth.token_auth.current_user()
+        if not current_user:
+            return None
+        if current_user.username == target_username:
+            return current_user
+        if current_user.is_admin():
+            target_user = User.query(username=target_username)
+            return target_user
+        return None
+
     def get_auth_token(self, logger):
         # get auth token
         auth_header = request.headers.get("Authorization")

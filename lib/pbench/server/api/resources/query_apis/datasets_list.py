@@ -21,7 +21,7 @@ class DatasetsList(ElasticBase):
             config,
             logger,
             Schema(
-                Parameter("user", ParamType.USER, required=True),
+                Parameter("user", ParamType.USER, required=False),
                 Parameter("controller", ParamType.STRING, required=True),
                 Parameter("start", ParamType.DATE, required=True),
                 Parameter("end", ParamType.DATE, required=True),
@@ -55,10 +55,10 @@ class DatasetsList(ElasticBase):
                 Elasticsearch run document indices in which the dataset will be
                 found.
             """
-        user = json_data["user"]
-        controller = json_data["controller"]
-        start = json_data["start"]
-        end = json_data["end"]
+        user = json_data.get("user")
+        controller = json_data.get("controller")
+        start = json_data.get("start")
+        end = json_data.get("end")
 
         self.logger.info(
             "Discover datasets for user {}, prefix {}: ({}: {} - {})",

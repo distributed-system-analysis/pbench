@@ -14,7 +14,7 @@ class TestDatasetsList:
 
     def build_index(self, server_config, dates):
         """
-        build_index Build the index list for query
+        Build the index list for query
 
         Args:
             dates (iterable): list of date strings
@@ -25,11 +25,54 @@ class TestDatasetsList:
             index += f"{idx}{d},"
         return index
 
-    def test_missing_json_object(self, client, server_config):
+    def test_non_accessible_user_data(self, client, server_config, pbench_token):
         """
-        test_missing_json_object Test behavior when no JSON payload is given
+        Test behavior when Authorization header does not have access to other user's data
         """
-        response = client.post(f"{server_config.rest_uri}/datasets/list")
+        # The pbench_token fixture logs in as user "drb"
+        # Trying to access the data belong to the user "pp"
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/list",
+            headers={"Authorization": "Bearer " + pbench_token},
+            json={
+                "user": "pp",
+                "controller": "cpntroller.name",
+                "start": "2020-08",
+                "end": "2020-10",
+            },
+        )
+        assert response.status_code == HTTPStatus.FORBIDDEN
+
+    @pytest.mark.parametrize(
+        "user", ("drb", "pp"),
+    )
+    def test_accessing_data_with_invalid_token(
+        self, client, server_config, pbench_token, user
+    ):
+        """
+        Test behavior when Authorization header does not have access to other user's data
+        """
+        # valid token logout
+        response = client.post(
+            f"{server_config.rest_uri}/logout",
+            headers=dict(Authorization="Bearer " + pbench_token),
+        )
+        assert response.status_code == 200
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/list",
+            headers={"Authorization": "Bearer " + pbench_token},
+            json={"user": user, "start": "2020-08", "end": "2020-10"},
+        )
+        assert response.status_code == HTTPStatus.FORBIDDEN
+
+    def test_missing_json_object(self, client, server_config, pbench_token):
+        """
+        Test behavior when no JSON payload is given
+        """
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/list",
+            headers={"Authorization": "Bearer " + pbench_token},
+        )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid request payload"
 
@@ -43,32 +86,37 @@ class TestDatasetsList:
             {"user": "x", "start": "2020"},
             {"user": "x", "end": "2020"},
             {"user": "x", "controller": "y", "start": "2021"},
-            {"start": "2020", "end": "2020"},
+            {"some_additional_key": "test"},
         ),
     )
-    def test_missing_keys(self, client, server_config, keys):
+    def test_missing_keys(self, client, server_config, pbench_token, keys):
         """
-        test_missing_keys Test behavior when JSON payload does not contain
+        Test behavior when JSON payload does not contain
         all required keys.
 
-        Note that "user", "controller", "start", and "end" are all required;
+        Note that "start", "controller", "end" are required whereas "user" is not mandatory;
         however, Pbench will silently ignore any additional keys that are
         specified.
        """
-        response = client.post(f"{server_config.rest_uri}/datasets/list", json=keys)
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/list",
+            headers={"Authorization": "Bearer " + pbench_token},
+            json=keys,
+        )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        missing = [k for k in ("user", "controller", "start", "end") if k not in keys]
+        missing = [k for k in ("controller", "start", "end") if k not in keys]
         assert (
             response.json.get("message")
             == f"Missing required parameters: {','.join(missing)}"
         )
 
-    def test_bad_dates(self, client, server_config):
+    def test_bad_dates(self, client, server_config, pbench_token):
         """
-        test_bad_dates Test behavior when a bad date string is given
+        Test behavior when a bad date string is given
         """
         response = client.post(
             f"{server_config.rest_uri}/datasets/list",
+            headers={"Authorization": "Bearer " + pbench_token},
             json={
                 "user": "drb",
                 "controller": "dbutenho.csb",
@@ -87,17 +135,32 @@ class TestDatasetsList:
         [{"pbench": "/datasets/list", "elastic": "/_search?ignore_unavailable=true"}],
         indirect=True,
     )
-    def test_query(self, client, server_config, query_api, user_ok, find_template):
+    @pytest.mark.parametrize(
+        "user", ("drb", "", "no_user", None),
+    )
+    def test_query(
+        self,
+        client,
+        server_config,
+        query_api,
+        user_ok,
+        find_template,
+        build_auth_header,
+        user,
+    ):
         """
-        test_query Check the construction of Elasticsearch query URI
-        and filtering of the response body.
+        Check the construction of Elasticsearch query URI and filtering of the response body.
+        The test will run once with each parameter supplied from the local parameterization,
+        and, for each of those, three times with different values of the build_auth_header fixture.
         """
         json = {
-            "user": "drb",
+            "user": user,
             "controller": "dbutenho.csb",
             "start": "2020-08",
             "end": "2020-10",
         }
+        if user == "no_user":
+            json.pop("user", None)
         response_payload = {
             "took": 6,
             "timed_out": False,
@@ -130,33 +193,49 @@ class TestDatasetsList:
         }
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+
+        # If we're not asking about a particular user, or if the user
+        # field is to be omitted altogether, or if we have a valid
+        # token, then the request should succeed.
+        if (
+            not user
+            or user == "no_user"
+            or build_auth_header["header_param"] == "valid"
+        ):
+            expected_status = HTTPStatus.OK
+        else:
+            expected_status = HTTPStatus.FORBIDDEN
+
         response = query_api(
             "/datasets/list",
             "/_search?ignore_unavailable=true",
             json,
             index,
-            HTTPStatus.OK,
+            expected_status,
+            headers=build_auth_header["header"],
             json=response_payload,
         )
-        res_json = response.json
-        assert isinstance(res_json, dict)
-        assert len(res_json.keys()) == 1
-        data = res_json["dhcp31-187.example.com"]
-        assert isinstance(data, list)
-        assert len(data) == 1
-        assert data[0]["@metadata.controller_dir"] == "dhcp31-187.example.com"
-        assert (
-            data[0]["config"]
-            == "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus"
-        )
-        assert data[0]["controller"] == "dhcp31-187.example.com"
-        assert (
-            data[0]["result"]
-            == "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"
-        )
-        assert data[0]["start"] == "2020-04-29T12:49:13.560620"
-        assert data[0]["end"] == "2020-04-29T13:30:04.918704"
-        assert data[0]["id"] == "12fb1e952fd826727810868c9327254f"
+        assert response.status_code == expected_status
+        if response.status_code == HTTPStatus.OK:
+            res_json = response.json
+            assert isinstance(res_json, dict)
+            assert len(res_json.keys()) == 1
+            data = res_json["dhcp31-187.example.com"]
+            assert isinstance(data, list)
+            assert len(data) == 1
+            assert data[0]["@metadata.controller_dir"] == "dhcp31-187.example.com"
+            assert (
+                data[0]["config"]
+                == "rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus"
+            )
+            assert data[0]["controller"] == "dhcp31-187.example.com"
+            assert (
+                data[0]["result"]
+                == "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13"
+            )
+            assert data[0]["start"] == "2020-04-29T12:49:13.560620"
+            assert data[0]["end"] == "2020-04-29T13:30:04.918704"
+            assert data[0]["id"] == "12fb1e952fd826727810868c9327254f"
 
     @pytest.mark.parametrize(
         "exceptions",
@@ -183,7 +262,7 @@ class TestDatasetsList:
         Check that an exception in calling Elasticsearch is reported correctly.
         """
         json = {
-            "user": "drb",
+            "user": "",
             "controller": "foobar",
             "start": "2020-08",
             "end": "2020-08",
@@ -205,7 +284,7 @@ class TestDatasetsList:
         response.raise_for_status() and Pbench handlers.
         """
         json = {
-            "user": "drb",
+            "user": "",
             "controller": "foobar",
             "start": "2020-08",
             "end": "2020-08",

@@ -1,4 +1,5 @@
 import datetime
+from http import HTTPStatus
 import os
 import pytest
 import shutil
@@ -8,6 +9,7 @@ from posix import stat_result
 from stat import ST_MTIME
 
 from pbench.server.api import create_app, get_server_config
+from pbench.test.unit.server.test_user_auth import login_user, register_user
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.template import Template
@@ -221,3 +223,42 @@ def find_template(monkeypatch, fake_mtime):
     with monkeypatch.context() as m:
         m.setattr(Template, "find", fake_find)
         yield
+
+
+@pytest.fixture
+def pbench_token(client, server_config):
+    # First create a user
+    response = register_user(
+        client,
+        server_config,
+        username="drb",
+        firstname="firstname",
+        lastname="lastName",
+        email="user@domain.com",
+        password="12345",
+    )
+    assert response.status_code == HTTPStatus.CREATED
+
+    # Login user to get valid pbench token
+    response = login_user(client, server_config, "drb", "12345")
+    assert response.status_code == HTTPStatus.OK
+    data = response.json
+    assert data["auth_token"]
+    return data["auth_token"]
+
+
+@pytest.fixture(params=("valid", "invalid", "empty"))
+def build_auth_header(request, server_config, pbench_token, client):
+    header = (
+        {} if request.param == "empty" else {"Authorization": "Bearer " + pbench_token}
+    )
+
+    if request.param == "invalid":
+        # Create an invalid token by logging the user out
+        response = client.post(
+            f"{server_config.rest_uri}/logout",
+            headers=dict(Authorization="Bearer " + pbench_token),
+        )
+        assert response.status_code == HTTPStatus.OK
+
+    return {"header": header, "header_param": request.param}

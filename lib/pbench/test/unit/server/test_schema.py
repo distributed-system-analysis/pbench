@@ -3,6 +3,7 @@ import pytest
 from typing import Callable
 
 from pbench.server.api.auth import Auth, UnknownUser
+from pbench.server.database.models.users import User
 from pbench.server.api.resources.query_apis import (
     ParamType,
     ConversionError,
@@ -32,14 +33,22 @@ class TestParamType:
             (ParamType.STRING, "x", "x"),
             (ParamType.JSON, {"key": "value"}, {"key": "value"}),
             (ParamType.DATE, "2021-06-29", dateutil.parser.parse("2021-06-29")),
-            (ParamType.USER, "drb", "drb"),
+            (ParamType.USER, "drb", "1"),
         ),
     )
-    def test_successful_conversions(self, test, monkeypatch):
-        def ok(user: str) -> str:
+    def test_successful_conversions(self, client, test, monkeypatch):
+        def ok(auth: Auth, username: str) -> User:
+            user = User(
+                id=1,
+                username=username,
+                password="password",
+                first_name="first_name",
+                last_name="last_name",
+                email="test@test.com",
+            )
             return user
 
-        monkeypatch.setattr(Auth, "validate_user", ok)
+        monkeypatch.setattr(Auth, "verify_user", ok)
 
         ptype, value, expected = test
         result = ptype.convert(value)
@@ -55,10 +64,10 @@ class TestParamType:
         ),
     )
     def test_failed_conversions(self, test, monkeypatch):
-        def not_ok(user: str) -> str:
+        def not_ok(auth: Auth, username: str) -> User:
             raise UnknownUser()
 
-        monkeypatch.setattr(Auth, "validate_user", not_ok)
+        monkeypatch.setattr(Auth, "verify_user", not_ok)
 
         ptype, value = test
         with pytest.raises(ConversionError) as exc:
