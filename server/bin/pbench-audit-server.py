@@ -9,6 +9,7 @@ from pathlib import Path
 from pbench.server import PbenchServerConfig
 from pbench.common.exceptions import BadConfig
 from pbench.common.logger import get_pbench_logger
+from pbench.server.database import init_db
 from pbench.server.report import Report
 from configparser import ConfigParser, NoSectionError, NoOptionError
 from pbench.server.hierarchy import (
@@ -493,6 +494,7 @@ def main():
         return 1
 
     logger = get_pbench_logger(_NAME_, config)
+    init_db(config, logger)
 
     ret = 0
 
