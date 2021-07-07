@@ -1,8 +1,13 @@
-# Fedora 32 pbench development image
+# Fedora 33 pbench development image
 #
 # We maintain this image with all the necessary user-space setup required to
 # run the various unit tests and functional tests in a common development
-# environment.
+# environment.  However, in certain instances, the tests require specific
+# versions of software packages (Black and Flake8 being notable examples),
+# and these cannot always be satisfied by the RPMs available from the
+# distribution.  In these cases, Tox will install the packages at run-time.
+# Nevertheless, in order to avoid run-time installations where possible, we
+# install indirect dependencies of the run-time installations below, as well.
 #
 # The image is published to https://quay.io/pbench/development and "tagged"
 # using the branch name in which it works: `master`, `b0.70`, `b0.71`, etc.
@@ -14,7 +19,7 @@
 #
 #  $ podman run -it --rm pbench-devel:<branch name> /bin/bash
 #
-# which will allow you to run a Fedora 32 pbench development environment.
+# which will allow you to run a Fedora 33 pbench development environment.
 # Or you can use this image as a base image, and build another image on top
 # of it to run your own end-points.
 #
@@ -22,23 +27,22 @@
 # we create a local directory, /home/pbench, to which one can mount an
 # external directory [1] containing the source tree.
 #
-# Build the image using:
+# Build the image using (see jenkins/Makefile):
 #
 #   $ buildah bud -f development.Dockerfile -t pbench-devel:<branch name>
 #
-# Run tests using:
+# Run tests using (see jenkins/run):
 #
 #   $ podman run -it --userns=keep-id --volume $(pwd):/home/pbench:z \
 #     --rm localhost/pbench-devel:<branch name> /bin/bash -c 'tox -e lint'
 #
 # [1] See https://www.redhat.com/sysadmin/user-flag-rootless-containers
 
-FROM docker.io/library/fedora:32
+FROM docker.io/library/fedora:33
 RUN \
     dnf install -y \
         ansible \
         bc \
-        black \
         bzip2 \
         diffutils \
         git \
@@ -56,6 +60,7 @@ RUN \
         perl-Time-HiRes \
         procps-ng \
         psmisc \
+        python3-appdirs \
         python3-GitPython \
         python3-boto3 \
         python3-botocore \
@@ -65,6 +70,7 @@ RUN \
         python3-coverage \
         python3-daemon \
         python3-elasticsearch \
+        python3-entrypoints \
         python3-flake8 \
         python3-flask \
         python3-flask-cors \
@@ -77,6 +83,7 @@ RUN \
         python3-jinja2-cli \
         python3-libselinux \
         python3-mock \
+        python3-pathspec \
         python3-pip \
         python3-psutil \
         python3-pytest \
@@ -84,6 +91,7 @@ RUN \
         python3-pytest-helpers-namespace \
         python3-pytest-mock \
         python3-redis \
+        python3-regex \
         python3-requests \
         python3-requests-mock \
         python3-responses \
@@ -93,6 +101,8 @@ RUN \
         python3-sphinx \
         python3-tox \
         python3-tox-current-env \
+        python3-typed_ast \
+        python3-wheel \
         redis \
         rpmdevtools \
         rpmlint \
