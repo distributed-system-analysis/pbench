@@ -38,7 +38,6 @@ RUN \
     dnf install -y \
         ansible \
         bc \
-        black \
         bzip2 \
         diffutils \
         git \
