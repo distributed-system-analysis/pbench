@@ -91,6 +91,10 @@ function collect_sos {
 	else
 		_quiet=" --quiet"
 	fi
+
+	_sos_report_cmd="sosreport"
+	_cksum_suffix="md5"
+
 	if [[ ${sos_ver} -lt 3 || ( ${sos_ver} -eq 3 && ( "${sos_ver_minor}" -lt 5 || ( "${sos_ver_minor}" -eq 5 && -z "${sos_ver_subminor}" ) ) ) ]]; then
 		# Pre-v3.5.1+
 		_modules="general lsbrelease"
@@ -116,10 +120,18 @@ function collect_sos {
 		# ref for plugin tuned: https://github.com/sosreport/sos/commit/c55c58cf2dabf93c924c839c8ed045c18e31ba1c
 		_modules="${_modules} tuned"
 	fi
+	if [[ "${sos_ver}" -ge 4 ]]; then
+		# the command is now "sos report" in 4.0+
+		_sos_report_cmd="sos report"
+	fi
+	if [[ "${sos_ver}" -gt 4 || ( "${sos_ver}" -eq 4 && "${sos_ver_minor}" -ge 1 )]]; then
+		# sos uses sha256 sums, not md5, in 4.1+
+		_cksum_suffix="sha256"
+	fi
 
 	_name="pbench-$(hostname -f)"
 	_cmd="${dir}/sosreport-${_name}.cmd"
-	printf -- "sosreport" > ${_cmd}
+	printf -- "%s" "${_sos_report_cmd}" > ${_cmd}
 	for mod in ${_modules}; do
 		printf -- " -o %s" "${mod}" >> ${_cmd}
 	done
@@ -129,13 +141,14 @@ function collect_sos {
 	debug_log "[${script_name}]collecting sosreport"
 	${_cmd} > ${dir}/sosreport-${_name}.log 2>&1
 
-	# The latest version of sosreport (3.6 right now) generates different names
-	# for the sosreport tar balls, inserting a short hostname before the label.
-	# Since older versions of sosreport did not do that, we use a wildcard
-	# pattern to capture both names when checking for success.
+	# Version of sosreport >= 3.6 generate different names for the
+	# sosreport tar balls, inserting a short hostname before the
+	# label.  Since older versions of sosreport did not do that,
+	# we use a wildcard pattern to capture both names when
+	# checking for success.
 	_sosreport_tb="${dir}/sosreport-*${_name}-*.tar.xz"
-	_sosreport_md5="${_sosreport_tb}.md5"
-	ls -1 ${_sosreport_tb} ${_sosreport_md5} > ${dir}/sosreport-names.lis 2> /dev/null
+	_sosreport_cksum="${_sosreport_tb}.${_cksum_suffix}"
+	ls -1 ${_sosreport_tb} ${_sosreport_cksum} > ${dir}/sosreport-names.lis 2> /dev/null
 	if [[ $? -ne 0 ]]; then
 		error_log "[$script_name]sosreport collection failed!"
 	else
