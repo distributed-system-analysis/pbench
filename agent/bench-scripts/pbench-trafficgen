@@ -86,7 +86,6 @@ tool_group=default
 one_shot="n"
 skip_trex_install="n"
 skip_trex_server="n"
-skip_git_pull="n"
 flow_mods_def="src-ip,dst-ip,src-mac,dst-mac"
 flow_mods="${flow_mods_def}"
 all_possible_flow_mods="src-ip,dst-ip,src-mac,dst-mac,src-port,dst-port,encap-src-ip,encap-dst-ip,encap-src-mac,encap-dst-mac,protocol,none"
@@ -100,7 +99,7 @@ sysinfo="none"
 tool_period="binary-search" # can also be "repeat-final-validation"
 trafficgen_version="unknown"
 if [[ -z "${trafficgen_dir}" ]]; then
-	trafficgen_dir="/opt/trafficgen"
+	trafficgen_dir="/opt/bench-trafficgen/trafficgen"
 fi
 
 function kill_trex() {
@@ -404,9 +403,6 @@ function usage {
 	printf -- "--skip-trex-server\n"
 	printf -- "  Do no kill existing or start a new TRex server process (assumes you have one)\n"
 	printf -- "  running already)\n"
-	printf -- "\n"
-	printf -- "--skip-git-pull\n"
-	printf -- "  Do not call git pull on the trafficgen repo if it already exists\n"
 	printf -- "\n\n"
 	printf -- "options common in most pbench benchmark scripts\n"
 	printf -- "-----------------------------------------------\n"
@@ -450,7 +446,7 @@ function usage {
 }
 
 # Process options and arguments
-opts=$(getopt -q -o h --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,skip-git-pull,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:,sysinfo:,tool-period:,help" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o h --longoptions "pre-benchmark-cmd:,skip-trex-install,skip-trex-server,traffic-generator:,devices:,active-devices:,rate-unit:,rate:,rates:,rate-tolerance-pct:,max-loss-pct:,max-loss-pcts:,start-iteration-num:,config:,num-flows:,test-type:,traffic-direction:,traffic-directions:,sniff-runtime:,search-runtime:,validation-runtime:,frame-size:,frame-sizes:,samples:,max-stddev:,max-failures:,postprocess-only:,run-dir:,tool-group:,one-shot,src-ports:,dst-ports:,src-macs:,src-ips:,dst-macs:,dst-ips:,encap-src-macs:,encap-src-ips:,encap-dst-macs:,encapdst-ips:,vlan-ids:,overlay-ids:,overlay-types:,flow-mods:,packet-protocol:,trex-use-ht,trex-use-l2,traffic-profile:,traffic-profiles:,sysinfo:,tool-period:,help" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} ${*}\n\n\tunrecognized option specified\n\n" >&2
 	usage >&2
@@ -656,10 +652,6 @@ while true; do
 		shift
 		skip_trex_server="y"
 		;;
-	--skip-git-pull)
-		shift
-		skip_git_pull="y"
-		;;
 	--traffic-profile|--traffic-profiles)
 		shift
 		if [ -n "$1" ]; then
@@ -856,39 +848,19 @@ if [ "${postprocess_only}" == "n" ]; then
 	# Ensure all specified devices are properly configured via dpdk.
 	configure_devices "${devices}"
 
-	if [ -d $trafficgen_dir ]; then
-		if [ $skip_git_pull == "n" ]; then
-			if pushd $trafficgen_dir >/dev/null && git pull && git checkout master; then
-				echo "trafficgen is up to date"
-				trafficgen_version=$(git log --max-count=1 --pretty=%h)
-				popd >/dev/null
-			else
-				error_log "could not pull latest trafficgen"
-				exit 1
-			fi
-		fi
-	else
-		if pushd /opt >/dev/null && git clone https://github.com/atheurer/trafficgen.git; then
-			trafficgen_version=$(git log --max-count=1 --pretty=%h)
-			echo "trafficgen cloned"
-			popd >/dev/null
-		else
-			error_log "could not clone latest trafficgen"
-			exit 1
-		fi
+	if [[ ! -d ${trafficgen_dir} ]]; then
+		error_log "Installation of trafficgen could not be found at: ${trafficgen_dir}"
+		exit 1
 	fi
-
-	# Moongen is built under the trafficgen repo
+	if [[ -f ${trafficgen_dir}/VERSION && -s ${trafficgen_dir}/VERSION ]]; then
+		trafficgen_version=$(cat ${trafficgen_dir}/VERSION)
+	fi
+	
 	if [ $traffic_generator == "moongen-txrx" ]; then
-		if ! [ -x $trafficgen_dir/MoonGen/build/MoonGen ]; then
-			pushd >/dev/null $trafficgen_dir
-			echo "building MoonGen"
-			if ./setup.sh; then
-				echo "MoonGen build complete"
-			else
-				error_log "could not build MoonGen"
-				exit 1
-			fi
+		_moongen_exe="${trafficgen_dir}/MoonGen/build/MoonGen"
+		if [[ ! -x ${_moongen_exe} ]]; then
+			error_log "Could not find MoonGen in the traffcigen installation at: ${_moongen_exe}"
+			exit 1
 		fi
 	fi
 
