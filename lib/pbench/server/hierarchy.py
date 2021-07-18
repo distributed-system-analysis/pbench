@@ -2,41 +2,17 @@
 """
 
 import os
+import stat
 import time
 
-from pathlib import Path
 from collections import OrderedDict
+from pathlib import Path
+from typing import IO, List
+
+from pbench.server import PbenchServerConfig
 
 
-permdict = {
-    "0": "---",
-    "1": "--x",
-    "2": "-w-",
-    "3": "-wx",
-    "4": "r--",
-    "5": "r-x",
-    "6": "rw-",
-    "7": "rwx",
-}
-
-
-def filepermissions(mode):
-    """Convert File permissions from numeric to symbolic.
-    from '755' --> 'rwxr-xr-x' """
-    fperm = ""
-    modebits = oct(mode)[-3:]
-    for bits in modebits:
-        try:
-            fperm += permdict[bits]
-        except IndexError:
-            raise ValueError(
-                f"Could not find key '{bits}' in file permissions dictionary"
-            )
-
-    return fperm
-
-
-class Hierarchy(object):
+class Hierarchy:
     """Super class of Hierarchies"""
 
     UNEXPECTED_DIRS = "unexpected_dirs"
@@ -64,144 +40,147 @@ class Hierarchy(object):
     WRONG_USER_LINKS = "wrong_user_links"
     INCONCEIVABLE = "inconceivable"
     ERROR = "error"
+    SUBDIR = "subdirs"
+    PREFIX_DIR = "prefix_dir"
 
-    def __init__(self, name, path, config):
+    def __init__(self, name: str, path: Path, config: PbenchServerConfig):
         self.name = name
         self.path = path
         self.config = config
+        self.lead_tab = "\t\t"
         self.controllers = list()
         self.bad_controllers = list()
-        self.validation_list = None
+        self.validation_list = dict()
 
-    def add_controller(self, controller):
+    def add_controller(self, controller: str):
         self.controllers.append(controller)
 
-    def add_bad_controller(self, controller):
+    def add_bad_controller(self, controller: str):
         self.bad_controllers.append(controller)
 
-    def add_error_or_inconceivable_entries(self, val, controller, dirs):
+    def add_error_or_inconceivable_entries(self, val: str, controller: str, dirs: str):
+        """Args:
+
+            val -- Discrete Values for which the collection takes place
+            controller -- the name of the controller associated with the
+                        tar ball
+            dirs -- directories associated with that controller
+        """
         self.validation_list[val][controller] = dirs
 
-    def add_unexpected_entries(self, val, controller, dirs):
-        """Gather values for each validation_list dict key"""
-        self.validation_list[val][controller] = dirs
+    def add_unexpected_entries(self, val: str, controller: str, dirs: str):
+        self.add_error_or_inconceivable_entries(val, controller, dirs)
 
-    def header(self, fp, status):
-        """Adds main starting and ending messages for each Hierarchy"""
-        lead_newline = "\n" if status == "start" else ""
+    def header(self, fp: IO, status: str, is_newline: bool):
+        """Adds main starting and ending message for each Hierarchy"""
+        newline = "\n" if is_newline else ""
         fp.write(
-            f"{lead_newline}\n{status}-{self.config.TS[4:]}: {self.name} hierarchy: {self.path}\n"
-        )
-        return
-
-    def check_controller_in_list(self, controller):
-        """Checks whether there are controllers in dictionary or not"""
-        return any(
-            [
-                controller in self.validation_list[key]._dict
-                for key in self.validation_list
-            ]
+            f"\n{status}-{self.config.TS[4:]}: {self.name} hierarchy: {self.path}{newline}\n"
         )
 
-    """
-    ##FIXME: The mention of hierarchies(archive, controller) from here on, in
-            Hierarchy class is mainly to keep the format algned with the shell script
-    """
+    def is_controller_in_list(self, controller: str) -> bool:
+        """Returns whether the specified controller is in any of the validation lists"""
+        for key in self.validation_list:
+            if controller in self.validation_list[key]:
+                return True
+        return False
 
-    def dump_check(self, fp, controller, key, cnt, hierarchy=False):
-        """Output Messages for each list of controllers, files,
-        directories, etc depicting their cause of being added to
-        that list or dictionary
+    def dump_check(
+        self, fp: IO, controller: str, key: str, cnt: int, lead_tab: str, hierarchy: str
+    ) -> int:
+        """Output Messages for each list of controllers, files, directories, etc
+        and depicting their cause of being added to that list or dictionary
+
+        Args-
+
+            fp -- file object for writing to the pbench-audit-server.log file
+            controller -- name of the controller associated with the tar ball
+            key -- Discrete Values for which the collection takes place
+            cnt -- flag to check whether there is anything to report
+            lead_tab -- tab space that needs to be associated with the result
+                        message of each hierarchy result
+            hierarchy -- name of the hierarchy
         """
         lead_asterisk = "\t* " if hierarchy == "archive" else "\t"
-        if controller in self.validation_list[key]._dict:
-            if key not in ["subdir_status_indicators", "prefix_status_indicators"]:
-                fp.write(f"{lead_asterisk}{self.validation_list[key]._get_msg()}\n")
-                if hierarchy == "archive":
-                    cnt = self.output_format(
-                        fp, self.validation_list[key]._dict[controller], cnt, "archive"
-                    )
-                else:
-                    cnt = self.output_format(
-                        fp, self.validation_list[key]._dict[controller], cnt
-                    )
-            elif "subdirs" in self.validation_list[key]._dict[controller]:
-                fp.write(f"{lead_asterisk}{self.validation_list[key]._get_msg()}\n")
-                cnt += 1
-            elif "prefix_dir" in self.validation_list[key]._dict[controller]:
-                fp.write(f"{lead_asterisk}{self.validation_list[key]._get_msg()}\n")
-                cnt += 1
+        if controller in self.validation_list[key]:
+            fp.write(f"{lead_asterisk}{self.validation_list[key].get_msg()}\n")
+            if key in [
+                self.SUBDIR_STATUS_INDICATORS,
+                self.PREFIX_STATUS_INDICATORS,
+            ] or self.output_format(
+                fp, self.validation_list[key][controller], cnt, lead_tab, hierarchy
+            ):
+                cnt = 1
         return cnt
 
-    def check_tab_format(self, hierarchy):
-        """Check the format of tab acc. to hierarchy"""
+    def output_format(
+        self, fp: IO, ctrl_tb_list: List, cnt: int, lead_tab: str, hierarchy: str,
+    ) -> int:
+        """
+        Args:
 
-        lead_tab = ""
-        if hierarchy == "controller":
-            lead_tab = "\t"
-        elif hierarchy == "archive":
-            lead_tab = "\t  "
+            ctrl_tb_list -- list of controllers and tarballs that are
+                                associated with the discrete values
 
-        return lead_tab
-
-    def output_format(self, fp, controller_list, cnt, hierarchy=False):
-        """Output format of list"""
-
-        lead_tab = self.check_tab_format(hierarchy) if hierarchy else "\t\t"
+        """
         if hierarchy == "archive":
             fp.write("\t  ++++++++++\n")
-        self.output_list(fp, lead_tab, controller_list)
+        for value in sorted(ctrl_tb_list):
+            fp.write(f"{lead_tab}{value}\n")
         if hierarchy == "archive":
             fp.write("\t  ----------\n")
-        cnt += 1
+        cnt = 1
         return cnt
 
-    def output_list(self, fp, lead_tab, controller_list):
-        """ Writing list value to file"""
-        for value in sorted(controller_list):
-            fp.write(f"{lead_tab}{value}\n")
-        return
 
+class DictOfList(OrderedDict):
+    """Class to add controller and tarballs as dictionary for
+    discrete fields
+    {
+        fixed_val1:
+            DictOfList([(ctrl1, [tb1, tb2])]),
+        fixed_val2:
+            DictOfList([(ctrl2: [tb3])])
+    }
+    """
 
-class DictOfList(object):
-    """Class used to create and add elements to Dictionary"""
-
-    def __init__(self, msg):
-        self._dict = OrderedDict()
+    def __init__(self, msg: str):
+        super().__init__()
         self._msg = msg
 
-    def _get_msg(self):
+    def get_msg(self):
         return self._msg
 
-    def __setitem__(self, key, value):
-        if key in self._dict:
-            self._dict[key].append(value)
+    def __setitem__(self, key: str, value: str):
+        if key in self:
+            self[key].append(value)
         else:
-            self._dict[key] = [value]
+            super().__setitem__(key, [value])
 
 
-class List(object):
-    """Class used to create and add elements to Dictionary"""
+class ListOfController(list):
+    """Class used to add list of elements to Dictionary
+    {
+        val1: [controller1],
+        val2: [controller2],
+        val3: [controller3, controller4]
+    }
+    """
 
-    def __init__(self, msg):
-        self._list = list()
+    def __init__(self, msg: str):
+        super().__init__()
         self._msg = msg
 
-    def _get_msg(self):
+    def get_msg(self):
         return self._msg
-
-    def additem(self, value):
-        self._list.append(value)
-
-    def getlist(self):
-        return self._list
 
 
 class ArchiveHierarchy(Hierarchy):
-    def __init__(self, name, path, config):
+    def __init__(self, name: str, path: Path, config: PbenchServerConfig):
         super().__init__(name, path, config)
 
         self.tarballs = list()
+        self.lead_tab = "\t  "
         self.validation_list = {
             self.UNEXPECTED_DIRS: DictOfList(
                 "Unexpected state directories found in this controller directory:"
@@ -228,118 +207,124 @@ class ArchiveHierarchy(Hierarchy):
             self.INCONCEIVABLE: DictOfList("Inconceivable Conditions:"),
         }
 
-    def add_tarballs(self, controller):
+    def add_tarballs(self, controller: str):
+        """Add controllers which consist of tarballs"""
         self.tarballs.append(controller)
 
-    def dump(self, fp):
+    def dump(self, fp: IO) -> int:
         """Checks and Output collected data"""
         cnt = 0
         if self.bad_controllers:
             self.output_bad_controllers(fp)
-            cnt += 1
+            cnt = 1
         for controller in sorted(self.controllers):
-            check = self.check_controller_in_list(controller)
+            check = self.is_controller_in_list(controller)
             if check or controller not in self.tarballs:
                 fp.write(f"\nController: {controller}\n")
                 for key in self.validation_list:
-                    cnt += self.dump_check(fp, controller, key, cnt, "archive")
+                    cnt = self.dump_check(
+                        fp, controller, key, cnt, self.lead_tab, self.name
+                    )
                 if controller not in self.tarballs:
                     fp.write(
-                        "\t* No tar ball files found in this controller directory.\n"
+                        f"{self.lead_tab[:-2]}* No tar ball files found in this controller directory.\n"
                     )
-                    cnt += 1
+                    cnt = 1
         return cnt
 
-    def check_controller(self):
-        for controller in sorted(self.controllers):
+    def check_controller(self) -> bool:
+        for controller in self.controllers:
             if (
-                self.check_controller_in_list(controller)
+                self.is_controller_in_list(controller)
                 or controller not in self.tarballs
             ):
                 return True
         return False
 
-    def output_bad_controllers(self, fp):
+    def output_bad_controllers(self, fp: IO):
         fp.write("\nBad Controllers:\n")
         for controller in sorted(self.bad_controllers):
-            """Formatting output into ls -l format to align
-            output with gold files
-            """
+            """Formatting output into ls -l format"""
             contStatOb = os.stat(controller)
-            fperm = filepermissions(contStatOb.st_mode)
+            fperm = stat.filemode(contStatOb.st_mode)
             mTime = time.strftime(
                 "%a %b %d %H:%M:%S.0000000000 %Y", time.gmtime(contStatOb.st_mtime)
             )
-            fp.write(f"\t-{fperm}          0 {mTime} {controller.name}\n")
-        return
+            fp.write(f"\t{fperm}          0 {mTime} {controller.name}\n")
 
 
 class ControllerHierarchy(Hierarchy):
-    def __init__(self, name, path, config):
+    def __init__(self, name: str, path: Path, config: PbenchServerConfig):
         super().__init__(name, path, config)
 
-        self.verifylist = list()
+        self.verifylist = set()
+        self.lead_tab = "\t"
         self.validation_list = {
-            self.MIALIST: List(
+            self.MIALIST: ListOfController(
                 f"Controllers which do not have a {self.config.ARCHIVE} directory:"
             ),
-            self.EMPTY_CONTROLLERS: List("Controllers which are empty:"),
-            self.UNEXPECTED_CONTROLLERS: List(
+            self.EMPTY_CONTROLLERS: ListOfController("Controllers which are empty:"),
+            self.UNEXPECTED_CONTROLLERS: ListOfController(
                 "Controllers which have unexpected objects:"
             ),
         }
 
-    def add_controller_list(self, val, controller):
-        """Gather values for each controller_check dict key"""
-        self.validation_list[val].additem(controller)
+    def add_controller_list(self, val: str, controller: str):
+        """Gather controllers for each discrete values"""
+        self.validation_list[val].append(controller)
 
-    def add_verify_list(self, controller):
+    def add_verify_list(self, controller: str):
         if controller not in self.verifylist:
-            self.verifylist.append(controller)
+            self.verifylist.add(controller)
 
-    def check_controller(self):
+    def check_controller(self) -> List:
         return self.bad_controllers or any(
-            [self.validation_list[val].getlist() for val in self.validation_list]
+            [self.validation_list[val] for val in self.validation_list]
         )
 
-    def dump(self, fp):
-        """Validates and Output collected Hierarchy data"""
+    def dump(self, fp: IO) -> int:
         cnt = 0
         if self.bad_controllers:
             fp.write("\nUnexpected files found:\n")
             for controller in sorted(self.bad_controllers):
                 fp.write(f"\t{controller.name}\n")
-            cnt = cnt + 1
+            cnt = 1
         for val in self.validation_list:
-            if self.validation_list[val].getlist():
-                fp.write(f"\n{self.validation_list[val]._get_msg()}\n")
-                cnt += self.output_format(
-                    fp, self.validation_list[val].getlist(), cnt, "controller"
+            if self.validation_list[val]:
+                fp.write(f"\n{self.validation_list[val].get_msg()}\n")
+                cnt = self.output_format(
+                    fp, self.validation_list[val], cnt, self.lead_tab, self.name
                 )
         return cnt
 
 
-class IRHierarchy(object):
-    def check_controller(self):
-        for controller in sorted(self.controllers):
-            if self.check_controller_in_list(controller):
+class IRHierarchy:
+    """Deals with both Incoming and Results Hierarchy
+        * checks whether the controllers are present in the controllers list
+        * Validates and Output the collected Data
+    """
+
+    def check_controller(self) -> bool:
+        for controller in self.controllers:
+            if self.is_controller_in_list(controller):
                 return True
         return False
 
-    def dump(self, fp):
-        """Validates and Output collected data"""
+    def dump(self, fp: IO) -> int:
         cnt = 0
         for controller in sorted(self.controllers):
-            if self.check_controller_in_list(controller):
+            if self.is_controller_in_list(controller):
                 fp.write(f"\n{self.name} issues for controller: {controller}\n")
                 for key in self.validation_list:
-                    cnt = self.dump_check(fp, controller, key, cnt)
+                    cnt = self.dump_check(
+                        fp, controller, key, cnt, self.lead_tab, self.name
+                    )
 
         return cnt
 
 
 class IncomingHierarchy(Hierarchy, IRHierarchy):
-    def __init__(self, name, path, config):
+    def __init__(self, name: str, path: Path, config: PbenchServerConfig):
         super().__init__(name, path, config)
 
         self.validation_list = {
@@ -356,7 +341,9 @@ class IncomingHierarchy(Hierarchy, IRHierarchy):
 
 
 class ResultsHierarchy(Hierarchy, IRHierarchy):
-    def __init__(self, name, path, config, global_results=False):
+    def __init__(
+        self, name: str, path: Path, config: PbenchServerConfig, global_results=False
+    ):
         super().__init__(name, path, config)
 
         self.global_results = global_results
@@ -385,11 +372,10 @@ class ResultsHierarchy(Hierarchy, IRHierarchy):
             self.WRONG_USER_LINKS: DictOfList("Tar ball links for the wrong user:"),
         }
 
-    def dump(self, fp):
-        """Validates and Output collected data"""
+    def dump(self, fp: IO) -> int:
         cnt = 0
         for controller in sorted(self.controllers):
-            if self.check_controller_in_list(controller):
+            if self.is_controller_in_list(controller):
                 if self.global_results:
                     fp.write(
                         f"\nResults issues for controller: {self.name}/{controller}\n"
@@ -397,13 +383,15 @@ class ResultsHierarchy(Hierarchy, IRHierarchy):
                 else:
                     fp.write(f"\n{self.name} issues for controller: {controller}\n")
                 for key in self.validation_list:
-                    cnt = self.dump_check(fp, controller, key, cnt)
+                    cnt = self.dump_check(
+                        fp, controller, key, cnt, self.lead_tab, self.name
+                    )
 
         return cnt
 
 
 class UserHierarchy(Hierarchy):
-    def __init__(self, name, path, config):
+    def __init__(self, name: str, path: Path, config: PbenchServerConfig):
         super().__init__(name, path, config)
 
         self.users = list()
@@ -411,13 +399,16 @@ class UserHierarchy(Hierarchy):
         # To check availability of controllers in another hierarchy
         self.check = False
 
-    def add_unexpected_objects(self, user):
+    def add_unexpected_objects(self, user: str):
         self.unexpected_objects.append(user)
 
-    def add_user_dir(self, user):
+    def add_user_dir(self, user: str):
         self.users.append(
             ResultsHierarchy(
-                user.name, Path(self.config.USERS, user), self.config, True
+                user.name,
+                Path(self.config.USERS, user),
+                self.config,
+                global_results=True,
             )
         )
 
@@ -428,17 +419,16 @@ class UserHierarchy(Hierarchy):
                 break
         return self.unexpected_objects or self.check
 
-    def dump(self, fp):
-        """Validates and Output Collected data"""
+    def dump(self, fp: IO) -> int:
         cnt = 0
         if self.unexpected_objects:
             fp.write("\nUnexpected files found:\n")
             for controller in sorted(self.unexpected_objects):
                 fp.write(f"\t{controller}\n")
-            cnt = cnt + 1
+            cnt = 1
 
         if self.check:
             for user in self.users:
-                cnt += user.dump(fp)
+                cnt = user.dump(fp)
 
         return cnt
