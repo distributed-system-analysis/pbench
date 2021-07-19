@@ -1,0 +1,44 @@
+#!/bin/bash
+
+NCPUS=${1}
+if [[ -z "${NCPUS}" ]]; then
+    echo "Missing number of CPUs to use" >&2
+    exit 1
+fi
+
+TARGETDIR=${2}
+if [[ -z "${TARGETDIR}" ]]; then
+    echo "Missing target directory argument" >&2
+    exit 1
+fi
+
+WORKDIR=/var/tmp/bitrot-detect
+mkdir -p ${WORKDIR}
+
+# Clean up previous run.
+rm -f ${WORKDIR}/tbs.md5-*
+
+find ${TARGETDIR}/ -maxdepth 1 -type d -printf '%P\n' | sort | while read ctrl; do
+    cat ${TARGETDIR}/${ctrl}/*.md5 2> /dev/null | while read hash file; do
+        echo "${hash} ${TARGETDIR}/${ctrl}/${file}"
+    done
+done > ${WORKDIR}/tbs.md5 2> ${WORKDIR}/tbs.err
+
+cat ${WORKDIR}/tbs.err; echo ""
+
+# We use the `--number=r/N` form so that all the workers below will
+# chew through the list together in alphabetical order, and reduces
+# the possibility of one workre getting all the biggest tar balls to
+# process.
+split --number=r/${NCPUS} ${WORKDIR}/tbs.md5 ${WORKDIR}/tbs.md5-
+
+for i in ${WORKDIR}/tbs.md5-*; do
+    md5sum --check ${i} > ${i}.out 2> ${i}.err &
+done
+wait
+
+cat ${WORKDIR}/tbs.md5-*.err; echo ""
+
+grep -v "OK" ${WORKDIR}/tbs.md5-*.out
+
+exit 0

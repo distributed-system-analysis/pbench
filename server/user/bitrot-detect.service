@@ -1,0 +1,10 @@
+[Unit]
+Description=the bit-rot detection script
+Wants=bitrot-detect.timer
+
+[Service]
+Type=oneshot
+ExecStart=/home/pbench/bin/bitrot-detect 1 /srv/pbenchbackup/archive.backup
+
+[Install]
+WantedBy=default.target
