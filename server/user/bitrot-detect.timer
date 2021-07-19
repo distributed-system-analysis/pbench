@@ -1,0 +1,10 @@
+[Unit]
+Description=Weekly bit-rot detection job
+Requires=bitrot-detect.service
+
+[Timer]
+Unit=bitrot-detect.service
+OnCalendar=Sat *-*-* 12:42:42
+
+[Install]
+WantedBy=timers.target
