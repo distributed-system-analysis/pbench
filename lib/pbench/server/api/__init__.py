@@ -26,6 +26,7 @@ from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetai
 from pbench.server.api.resources.query_apis.index_mappings import IndexMappings
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
+from pbench.server.api.resources.query_apis.index_search import IndexSearch
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources.users_api import (
     RegisterUser,
@@ -76,6 +77,9 @@ def register_endpoints(api, app, config):
         IndexMappings,
         f"{base_uri}/index/mappings/<string:index_name>",
         resource_class_args=(logger,),
+    )
+    api.add_resource(
+        IndexSearch, f"{base_uri}/index/search", resource_class_args=(config, logger),
     )
     api.add_resource(
         MonthIndices,
