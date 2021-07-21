@@ -175,6 +175,12 @@ function _save_tree {
 }
 
 function _audit_server {
+    # Now that the test is complete, replace the test's potentially crazy
+    # configuration file with a known-good one for the audit server.
+    printf "[DEFAULT]\n"                            > ${_PBENCH_SERVER_CONFIG}
+    printf "unittest-dir = ${_testroot}\n"         >> ${_PBENCH_SERVER_CONFIG}
+    cat "${_tdir}/state/config/pbench-server.cfg"  >> ${_PBENCH_SERVER_CONFIG}
+
     echo "+++ Running unit test audit" >> $_testout
     pbench-audit-server >> $_testout 2>&1
     echo "--- Finished unit test audit (status=$?)" >> $_testout
