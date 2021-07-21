@@ -222,17 +222,179 @@ def find_template(monkeypatch, fake_mtime):
     """
 
     def fake_find(name: str) -> Template:
-        return Template(
-            name="run",
-            idxname="run-data",
-            template_name="unit-test.v6.run-data",
-            file="run.json",
-            template_pattern="unit-test.v6.run-data.*",
-            index_template="unit-test.v6.run-data.{year}-{month}",
-            settings={"none": False},
-            mappings={"properties": None},
-            version=5,
-        )
+        if name == "run":
+            return Template(
+                name="run",
+                idxname="run-data",
+                template_name="unit-test.v6.run-data",
+                file="run.json",
+                template_pattern="unit-test.v6.run-data.*",
+                index_template="unit-test.v6.run-data.{year}-{month}",
+                settings={"none": False},
+                mappings={
+                    "_meta": {"version": "6"},
+                    "date_detection": "false",
+                    "properties": {
+                        "@generated-by": {"type": "keyword"},
+                        "@metadata": {
+                            "properties": {
+                                "controller_dir": {"type": "keyword"},
+                                "file-date": {"type": "date"},
+                                "file-name": {"type": "keyword"},
+                                "file-size": {"type": "long"},
+                                "md5": {"type": "keyword"},
+                                "pbench-agent-version": {"type": "keyword"},
+                                "raw_size": {"type": "long"},
+                                "result-prefix": {"type": "text"},
+                                "satellite": {"type": "keyword"},
+                                "tar-ball-creation-timestamp": {"type": "date"},
+                                "toc-prefix": {"type": "text"},
+                            }
+                        },
+                        "@timestamp": {"type": "date"},
+                        "authorization": {
+                            "properties": {
+                                "access": {
+                                    "type": "text",
+                                    "fields": {
+                                        "keyword": {
+                                            "type": "keyword",
+                                            "ignore_above": 256,
+                                        }
+                                    },
+                                },
+                                "owner": {
+                                    "type": "text",
+                                    "fields": {
+                                        "keyword": {
+                                            "type": "keyword",
+                                            "ignore_above": 256,
+                                        }
+                                    },
+                                },
+                            }
+                        },
+                        "host_tools_info": {
+                            "type": "nested",
+                            "properties": {
+                                "hostname": {"type": "keyword"},
+                                "hostname-f": {"type": "keyword"},
+                                "hostname-s": {"type": "keyword"},
+                                "label": {"type": "keyword"},
+                                "tools": {
+                                    "properties": {
+                                        "disk": {"type": "text"},
+                                        "haproxy-ocp": {"type": "text"},
+                                        "iostat": {"type": "text"},
+                                        "mpstat": {"type": "text"},
+                                        "oc": {"type": "text"},
+                                        "perf": {"type": "text"},
+                                        "pidstat": {"type": "text"},
+                                        "pprof": {"type": "text"},
+                                        "proc-interrupts": {"type": "text"},
+                                        "proc-vmstat": {"type": "text"},
+                                        "prometheus-metrics": {"type": "text"},
+                                        "sar": {"type": "text"},
+                                        "turbostat": {"type": "text"},
+                                        "vmstat": {"type": "text"},
+                                    }
+                                },
+                            },
+                        },
+                        "run": {
+                            "properties": {
+                                "config": {"type": "keyword"},
+                                "controller": {"type": "keyword"},
+                                "date": {"type": "date"},
+                                "end": {"type": "date"},
+                                "id": {"type": "keyword"},
+                                "iterations": {"type": "text"},
+                                "name": {"type": "keyword"},
+                                "script": {"type": "keyword"},
+                                "start": {"type": "date"},
+                                "toolsgroup": {"type": "keyword"},
+                                "user": {"type": "keyword"},
+                            }
+                        },
+                        "sosreports": {
+                            "type": "nested",
+                            "properties": {
+                                "hostname-f": {"type": "keyword"},
+                                "hostname-s": {"type": "keyword"},
+                                "inet": {
+                                    "type": "nested",
+                                    "properties": {
+                                        "ifname": {"type": "keyword"},
+                                        "ipaddr": {"type": "ip"},
+                                    },
+                                },
+                                "inet6": {
+                                    "type": "nested",
+                                    "properties": {
+                                        "ifname": {"type": "keyword"},
+                                        "ipaddr": {"type": "keyword"},
+                                    },
+                                },
+                                "md5": {"type": "keyword"},
+                                "name": {"type": "keyword"},
+                                "sosreport-error": {"type": "text"},
+                            },
+                        },
+                    },
+                },
+                version=5,
+            )
+        elif name == "result":
+            return Template(
+                name="result",
+                idxname="result-data",
+                template_name="unit-test.v5.result-data",
+                file="run.json",
+                template_pattern="unit-test.v5.result-data.*",
+                index_template="unit-test.v5.result-data.{year}-{month}",
+                settings={"none": False},
+                mappings={
+                    "_meta": {"version": "5"},
+                    "date_detection": "false",
+                    "properties": {
+                        "@timestamp": {"type": "date", "format": "dateOptionalTime"},
+                        "@timestamp_original": {"type": "keyword", "index": "false"},
+                        "result_data_sample_parent": {"type": "keyword"},
+                        "run": {
+                            "properties": {
+                                "id": {"type": "keyword"},
+                                "name": {"type": "keyword"},
+                            }
+                        },
+                        "iteration": {
+                            "properties": {
+                                "name": {"type": "keyword"},
+                                "number": {"type": "long"},
+                            }
+                        },
+                        "sample": {
+                            "properties": {
+                                "@idx": {"type": "long"},
+                                "name": {"type": "keyword"},
+                                "measurement_type": {"type": "keyword"},
+                                "measurement_idx": {"type": "long"},
+                                "measurement_title": {"type": "text"},
+                                "uid": {"type": "keyword"},
+                            }
+                        },
+                        "result": {
+                            "properties": {
+                                "@idx": {"type": "long"},
+                                "read_or_write": {"type": "long"},
+                                "value": {"type": "double"},
+                            }
+                        },
+                    },
+                },
+                version=5,
+            )
+        else:
+            return None
 
     with monkeypatch.context() as m:
         m.setattr(Template, "find", fake_find)

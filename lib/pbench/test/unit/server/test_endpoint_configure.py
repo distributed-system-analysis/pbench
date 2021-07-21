@@ -55,6 +55,7 @@ class TestEnpointConfig:
                 "controllers_months": f"{uri}/controllers/months",
                 "datasets_list": f"{uri}/datasets/list",
                 "datasets_detail": f"{uri}/datasets/detail",
+                "index_mappings": f"{uri}/index/mappings/",
                 "datasets_publish": f"{uri}/datasets/publish",
                 "register": f"{uri}/register",
                 "login": f"{uri}/login",
