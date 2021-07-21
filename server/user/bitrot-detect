@@ -18,18 +18,37 @@ mkdir -p ${WORKDIR}
 # Clean up previous run.
 rm -f ${WORKDIR}/tbs.md5-*
 
-find ${TARGETDIR}/ -maxdepth 1 -type d -printf '%P\n' | sort | while read ctrl; do
-    cat ${TARGETDIR}/${ctrl}/*.md5 2> /dev/null | while read hash file; do
-        echo "${hash} ${TARGETDIR}/${ctrl}/${file}"
+# We "find" all the controller directories and process them in alphabetical
+# order.
+find ${TARGETDIR} -maxdepth 1 -mindepth 1 -type d -printf '%P\n' | sort | while read ctrl; do
+    find ${TARGETDIR}/${ctrl} -maxdepth 1 -mindepth 1 -type f -name '*.tar.xz' | while read tb; do
+        # Detect empty tar balls
+        if [[ ! -s ${tb} ]]; then
+            printf -- "Empty tar ball found: %s\n" "${tb}" >&2
+            continue
+        fi
+        _md5=${tb}.md5
+        if [[ ! -f ${_md5} ]]; then
+            printf -- "MD5 file for tar ball missing: %s\n" "${tb}" >&2
+        elif [[ ! -s ${_md5} ]]; then
+            printf -- "Empty tar ball MD5 file found: %s\n" "${_md5}" >&2
+        else
+            # For each controller, we read all the .md5 file contents re-
+            # emitting those contents with a file name that contains the full
+            # path.
+            awk "{ print \$1, \"${TARGETDIR}/${ctrl}/\" \$2 }" ${_md5}
+        fi
     done
+    # All the output is captured into one file so that the requested
+    # concurrency can be provided below.
 done > ${WORKDIR}/tbs.md5 2> ${WORKDIR}/tbs.err
 
 cat ${WORKDIR}/tbs.err; echo ""
 
-# We use the `--number=r/N` form so that all the workers below will
-# chew through the list together in alphabetical order, and reduces
-# the possibility of one workre getting all the biggest tar balls to
-# process.
+# We use the `--number=r/N` form so that all the workers below will chew
+# through the list together in alphabetical order. This makes it convenient
+# for an observer to understand how far along the bit-rot detection process
+# has progressed.
 split --number=r/${NCPUS} ${WORKDIR}/tbs.md5 ${WORKDIR}/tbs.md5-
 
 for i in ${WORKDIR}/tbs.md5-*; do
