@@ -232,6 +232,7 @@ debug_log "tool_opts: \"${tool_opts[@]}\""
 
 # Determine what our local hostname(s) and IP(s) are.
 # FIXME: this does not check for ipv6
+if ! command -v ip >/dev/null 2>&1 ; then echo "PATH=$PATH"; fi
 local_ips=$(ip a | grep "inet " | awk '{print $2}' | awk -F/ '{print $1}')
 local_interfaces="${local_ips} ${hostname} ${full_hostname} localhost"
 

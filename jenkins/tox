@@ -18,4 +18,6 @@ fi
 export HOME=${TOXWORKDIR}
 export XDG_CONFIG_HOME=${TOXWORKDIR}/.config
 
+export PATH=${PATH}:/usr/sbin  # For /usr/sbin/ip, used by pbench-register-tool
+
 tox ${*}
