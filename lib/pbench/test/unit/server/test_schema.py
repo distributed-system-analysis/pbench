@@ -21,7 +21,7 @@ class TestParamType:
 
     def test_enum(self):
         assert (
-            len(ParamType.__members__) == 5
+            len(ParamType.__members__) == 6
         ), "Number of ParamType ENUM values has changed; confirm test coverage!"
         for n, t in ParamType.__members__.items():
             assert str(t) == t.friendly.upper()
@@ -35,6 +35,9 @@ class TestParamType:
             (ParamType.DATE, "2021-06-29", dateutil.parser.parse("2021-06-29")),
             (ParamType.USER, "drb", "1"),
             (ParamType.ACCESS, "PRIVATE", "private"),
+            (ParamType.LIST, ["drb"], ["drb"]),
+            (ParamType.LIST, [], []),
+            (ParamType.LIST, ["test1", "test2"], ["test1", "test2"]),
         ),
     )
     def test_successful_conversions(self, client, test, monkeypatch):
@@ -67,6 +70,8 @@ class TestParamType:
             (ParamType.USER, False),  # not a user string
             (ParamType.ACCESS, "foobar"),  # ACCESS is "public" or "private"
             (ParamType.ACCESS, 0),  # ACCESS must be a string
+            (ParamType.LIST, "foobar"),  # Not a list
+            (ParamType.LIST, 0),  # Not a list
         ),
     )
     def test_failed_conversions(self, test, monkeypatch):

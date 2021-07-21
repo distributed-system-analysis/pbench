@@ -240,6 +240,25 @@ def convert_string(value: str) -> str:
     return value
 
 
+def convert_list(value: list) -> list:
+    """
+    Verify that the parameter value is a list (e.g.,
+    not a JSON dict, or an int), and return it.
+
+    Args:
+        value: REST API request parameter value
+
+    Raises:
+        ConversionError: input can't be converted
+
+    Returns:
+        the input value
+    """
+    if type(value) is not list:
+        raise ConversionError(value, list.__name__, type(value).__name__)
+    return value
+
+
 def convert_access(value: str) -> str:
     """
     Verify that the parameter value is an access scope. Currently this means
@@ -278,6 +297,7 @@ class ParamType(Enum):
     JSON = ("Json", convert_json)
     STRING = ("String", convert_string)
     ACCESS = ("Access", convert_access)
+    LIST = ("List", convert_list)
 
     def __init__(self, name: AnyStr, convert: Callable[[AnyStr], Any]):
         """
