@@ -1,4 +1,4 @@
-# Fedora 32 pbench development image
+# Fedora 33 pbench development image
 #
 # We maintain this image with all the necessary user-space setup required to
 # run the various unit tests and functional tests in a common development
@@ -14,7 +14,7 @@
 #
 #  $ podman run -it --rm pbench-devel:<branch name> /bin/bash
 #
-# which will allow you to run a Fedora 32 pbench development environment.
+# which will allow you to run a Fedora 33 pbench development environment.
 # Or you can use this image as a base image, and build another image on top
 # of it to run your own end-points.
 #
@@ -33,7 +33,7 @@
 #
 # [1] See https://www.redhat.com/sysadmin/user-flag-rootless-containers
 
-FROM docker.io/library/fedora:32
+FROM docker.io/library/fedora:33
 RUN \
     dnf install -y \
         ansible \
@@ -55,6 +55,7 @@ RUN \
         perl-Time-HiRes \
         procps-ng \
         psmisc \
+        python3-appdirs \
         python3-GitPython \
         python3-boto3 \
         python3-botocore \
@@ -64,6 +65,7 @@ RUN \
         python3-coverage \
         python3-daemon \
         python3-elasticsearch \
+        python3-entrypoints \
         python3-flake8 \
         python3-flask \
         python3-flask-cors \
@@ -76,6 +78,7 @@ RUN \
         python3-jinja2-cli \
         python3-libselinux \
         python3-mock \
+        python3-pathspec \
         python3-pip \
         python3-psutil \
         python3-pytest \
@@ -83,6 +86,7 @@ RUN \
         python3-pytest-helpers-namespace \
         python3-pytest-mock \
         python3-redis \
+        python3-regex \
         python3-requests \
         python3-requests-mock \
         python3-responses \
@@ -92,6 +96,8 @@ RUN \
         python3-sphinx \
         python3-tox \
         python3-tox-current-env \
+        python3-typed_ast \
+        python3-wheel \
         redis \
         rpmdevtools \
         rpmlint \
