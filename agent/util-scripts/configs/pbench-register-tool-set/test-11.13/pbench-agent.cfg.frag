@@ -1,7 +1,7 @@
 [pbench/tools]
 default-tool-set = mpstat, iostat, pidstat, sar, perf
-light-tool-set = mpstat, iostat
-heavy-tool-set = mpstat, iostat, pidstat, sar, turbostat, proc-interrupts, proc-vmstat, perf
+mylight-tool-set = mpstat, iostat
+myheavy-tool-set = mpstat, iostat, pidstat, sar, turbostat, proc-interrupts, proc-vmstat, perf
 interval = 10
 
 [tools/pidstat]
