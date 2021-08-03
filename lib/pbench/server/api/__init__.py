@@ -23,6 +23,7 @@ from pbench.server.database.database import Database
 from pbench.server.api.resources.query_apis.controllers_list import ControllersList
 from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
 from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
+from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.auth import Auth
 from pbench.server.api.resources.users_api import (
@@ -55,9 +56,7 @@ def register_endpoints(api, app, config):
         HostInfo, f"{base_uri}/host_info", resource_class_args=(config, logger),
     )
     api.add_resource(
-        EndpointConfig,
-        f"{base_uri}/endpoints",
-        resource_class_args=(config, app.logger),
+        EndpointConfig, f"{base_uri}/endpoints", resource_class_args=(config, logger),
     )
     api.add_resource(
         Elasticsearch,
@@ -78,16 +77,18 @@ def register_endpoints(api, app, config):
         resource_class_args=(config, logger),
     )
     api.add_resource(
-        DatasetsList,
-        f"{base_uri}/datasets/list",
-        resource_class_args=(config, app.logger),
+        DatasetsList, f"{base_uri}/datasets/list", resource_class_args=(config, logger),
     )
     api.add_resource(
         DatasetsDetail,
         f"{base_uri}/datasets/detail",
-        resource_class_args=(config, app.logger),
+        resource_class_args=(config, logger),
     )
-
+    api.add_resource(
+        DatasetsPublish,
+        f"{base_uri}/datasets/publish",
+        resource_class_args=(config, logger),
+    )
     api.add_resource(
         RegisterUser, f"{base_uri}/register", resource_class_args=(config, logger),
     )

@@ -15,19 +15,6 @@ from pbench.server.database.models.tracker import (
 from pbench.server.database.models.users import User
 
 
-@pytest.fixture()
-def create_user() -> User:
-    user = User(
-        email="test@example.com",
-        password="12345",
-        username="test",
-        first_name="Test",
-        last_name="Account",
-    )
-    user.add()
-    return user
-
-
 class TestStateTracker:
     def test_state_enum(self):
         """ Test the States ENUM properties

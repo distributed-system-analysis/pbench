@@ -1,10 +1,11 @@
 from flask import jsonify
 from logging import Logger
-from typing import Any, AnyStr, Dict
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.query_apis import (
+    CONTEXT,
     ElasticBase,
+    JSON,
     Schema,
     Parameter,
     ParamType,
@@ -22,13 +23,14 @@ class DatasetsList(ElasticBase):
             logger,
             Schema(
                 Parameter("user", ParamType.USER, required=False),
+                Parameter("access", ParamType.ACCESS, required=False),
                 Parameter("controller", ParamType.STRING, required=True),
                 Parameter("start", ParamType.DATE, required=True),
                 Parameter("end", ParamType.DATE, required=True),
             ),
         )
 
-    def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
         Get a list of datasets recorded for a particular controller and either
         owned by a specified username, or publicly accessible, within the set
@@ -36,12 +38,13 @@ class DatasetsList(ElasticBase):
 
         {
             "user": "username",
+            "access": "private",
             "controller": "controller-name",
             "start": "start-time",
             "end": "end-time"
         }
 
-        JSON parameters:
+        json_data: JSON dictionary of type-normalized key-value pairs
             user: specifies the owner of the data to be searched; it need not
                 necessarily be the user represented by the session token
                 header, assuming the session user is authorized to view "user"s
@@ -54,7 +57,8 @@ class DatasetsList(ElasticBase):
             "start" and "end" are time strings representing a set of
                 Elasticsearch run document indices in which the dataset will be
                 found.
-            """
+        context: Context passed from preprocess method: not used here.
+        """
         user = json_data.get("user")
         controller = json_data.get("controller")
         start = json_data.get("start")
@@ -91,7 +95,7 @@ class DatasetsList(ElasticBase):
                     "query": {
                         "bool": {
                             "filter": [
-                                {"term": self._get_user_term(user)},
+                                {"term": self._get_user_term(json_data)},
                                 {"term": {"run.controller": controller}},
                             ]
                         }
@@ -102,7 +106,7 @@ class DatasetsList(ElasticBase):
             },
         }
 
-    def postprocess(self, es_json: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         """
         Returns a list of run documents including the name, the associated
         controller, start and end timestamps:

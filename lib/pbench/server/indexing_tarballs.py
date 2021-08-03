@@ -1,11 +1,13 @@
 """Initialising Indexing class"""
 
-import os
 import glob
+import json
+import os
 import signal
 import tempfile
-from pathlib import Path
+
 from collections import deque
+from pathlib import Path
 
 from pbench.common.exceptions import (
     BadDate,
@@ -14,17 +16,19 @@ from pbench.common.exceptions import (
     TemplateError,
 )
 from pbench.server import tstos
+from pbench.server.database.models.tracker import (
+    Dataset,
+    MetadataNotFound,
+    States,
+    Metadata,
+    DatasetError,
+    DatasetNotFound,
+    DatasetTransitionError,
+)
 from pbench.server.indexer import (
     PbenchTarBall,
     es_index,
     VERSION,
-)
-from pbench.server.database.models.tracker import (
-    Dataset,
-    States,
-    Metadata,
-    DatasetNotFound,
-    DatasetTransitionError,
 )
 from pbench.server.report import Report
 from pbench.server.utils import rename_tb_link, quarantine
@@ -436,9 +440,56 @@ class Index:
                                         if tb_res.success
                                         else States.QUARANTINED
                                     )
+
+                                    # In case this was a re-index, remove the
+                                    # REINDEX tag.
                                     Metadata.remove(dataset, Metadata.REINDEX)
+
+                                    # Because we're on the `finally` path, we
+                                    # can get here without a PbenchTarBall
+                                    # object, so don't try to write an index
+                                    # map if there is none.
+                                    if ptb:
+                                        # A pbench-index --tool-data follows a
+                                        # pbench-index and generates only the
+                                        # tool-specific documents: we want to
+                                        # merge that with the existing document
+                                        # map. On the other hand, a re-index
+                                        # should replace the entire index. We
+                                        # accomplish this by overwriting each
+                                        # duplicate index key separately.
+                                        try:
+                                            meta = Metadata.get(
+                                                dataset, Metadata.INDEX_MAP
+                                            )
+                                            map = json.loads(meta.value)
+                                            map.update(ptb.index_map)
+                                            meta.value = json.dumps(map)
+                                            meta.update()
+                                        except MetadataNotFound:
+                                            Metadata.create(
+                                                dataset=dataset,
+                                                key=Metadata.INDEX_MAP,
+                                                value=json.dumps(ptb.index_map),
+                                            )
+                                        except Exception as e:
+                                            idxctx.logger.exception(
+                                                "Unexpected Metadata error on {}: {}",
+                                                ptb.tbname,
+                                                e,
+                                            )
                                 except DatasetTransitionError:
-                                    idxctx.logger.exception("Dataset state error")
+                                    idxctx.logger.exception(
+                                        "Dataset state error: {}", ptb.tbname
+                                    )
+                                except DatasetError as e:
+                                    idxctx.logger.exception(
+                                        "Dataset error on {}: {}", ptb.tbname, e
+                                    )
+                                except Exception as e:
+                                    idxctx.logger.exception(
+                                        "Unexpected error on {}: {}", ptb.tbname, e
+                                    )
 
                         try:
                             ie_len = ie_filepath.stat().st_size

@@ -1,9 +1,8 @@
 from flask import jsonify
 from logging import Logger
-from typing import Any, AnyStr, Dict
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources.query_apis import ElasticBase, Schema
+from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase, JSON, Schema
 from pbench.server.database.models.template import Template
 
 
@@ -18,16 +17,16 @@ class MonthIndices(ElasticBase):
         self.template_name = template.template_name + "."
         self.logger.info("month index key is {}", self.template_name)
 
-    def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
         Report the month suffixes for run data indices.
 
         NOTE: No authorization or input parameters are required for this API,
-        and there is no JSON query to form.
+        and there is no JSON query body to form.
         """
         return {"path": "/_aliases", "kwargs": {}}
 
-    def postprocess(self, es_json: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         months = []
         self.logger.debug("looking for {} in {}", self.template_name, es_json)
         for index in es_json.keys():

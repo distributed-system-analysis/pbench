@@ -63,7 +63,7 @@ class TestElasticsearch:
     def test_empty_url_path(client, caplog, server_config, pbench_token):
         response = client.post(
             f"{server_config.rest_uri}/elasticsearch",
-            json={"indices": ""},
+            json={"indices": None},
             headers={"Authorization": "Bearer " + pbench_token},
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -82,7 +82,7 @@ class TestElasticsearch:
             headers={"Authorization": "Bearer " + pbench_token},
             json={"indices": "some_invalid_url", "payload": '{ "babble": "42" }'},
         )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.status_code == HTTPStatus.BAD_GATEWAY
 
 
 class TestGraphQL:
@@ -243,7 +243,7 @@ class TestUpload:
         self, client, pytestconfig, caplog, server_config, setup_ctrl, pbench_token
     ):
         expected_message = (
-            f"Content-Length (0) must be greater than 0 and no greater than 1.1 GB"
+            "Content-Length (0) must be greater than 0 and no greater than 1.1 GB"
         )
         filename = "tmp.tar.xz"
         tmp_d = pytestconfig.cache.get("TMP", None)

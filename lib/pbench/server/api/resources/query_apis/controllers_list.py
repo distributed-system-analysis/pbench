@@ -1,10 +1,12 @@
+from http import HTTPStatus
 from flask import jsonify
 from logging import Logger
-from typing import Any, AnyStr, Dict
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources.query_apis import (
+    CONTEXT,
     ElasticBase,
+    JSON,
     Schema,
     Parameter,
     ParamType,
@@ -23,12 +25,13 @@ class ControllersList(ElasticBase):
             logger,
             Schema(
                 Parameter("user", ParamType.USER, required=False),
+                Parameter("access", ParamType.ACCESS, required=False),
                 Parameter("start", ParamType.DATE, required=True),
                 Parameter("end", ParamType.DATE, required=True),
             ),
         )
 
-    def assemble(self, json_data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
         Construct a search for Pbench controller names which have registered
         datasets within a specified date range and which are either owned
@@ -36,11 +39,12 @@ class ControllersList(ElasticBase):
 
         {
             "user": "username",
+            "access": "private",
             "start": "start-time",
             "end": "end-time"
         }
 
-        json_data: JSON dictionary of type-normalized parameters
+        json_data: JSON dictionary of type-normalized key-value pairs
             user: specifies the owner of the data to be searched; it need not
                 necessarily be the user represented by the session token
                 header, assuming the session user is authorized to view "user"s
@@ -55,19 +59,24 @@ class ControllersList(ElasticBase):
                 "access": "public", "access": "private", or "access": "all" to
                 include both private and public data.
 
-            "start" and "end" are datetime objects representing a set of Elasticsearch
-                run document indices in which to search.
+            "start" and "end" are datetime objects: these are used to select a
+                set of YYYY-mm sequenced Elasticsearch run indices to search,
+                as well as a more fine-grained comparison against the embedded
+                document "@timestamp" data.
+
+        context: Context passed from preprocess method: not used here.
         """
         user = json_data.get("user")
         start = json_data.get("start")
         end = json_data.get("end")
 
-        # We need to pass string dates as part of the Elasticsearch query; we
-        # use the unconverted strings passed by the caller rather than the
-        # adjusted and normalized datetime objects for this.
-        start_arg = f"{start:%Y-%m}"
-        end_arg = f"{end:%Y-%m}"
-
+        # We need to pass string dates as part of the Elasticsearch query. The
+        # _gen_month_range constructs a set of Elasticsearch sequences index
+        # names based on the YYYY-MM granularity of those dates; for this query
+        # we also use the original dates to search for documents within those
+        # indices.
+        start_arg = f"{start:%Y-%m-%d}"
+        end_arg = f"{end:%Y-%m-%d}"
         self.logger.info(
             "Discover controllers for user {}, prefix {}: ({} - {})",
             user,
@@ -84,7 +93,7 @@ class ControllersList(ElasticBase):
                     "query": {
                         "bool": {
                             "filter": [
-                                {"term": self._get_user_term(user)},
+                                {"term": self._get_user_term(json_data)},
                                 {
                                     "range": {
                                         "@timestamp": {"gte": start_arg, "lte": end_arg}
@@ -108,7 +117,7 @@ class ControllersList(ElasticBase):
             },
         }
 
-    def postprocess(self, es_json: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
+    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         """
         Returns a summary of the returned Elasticsearch query results, showing
         the Pbench controller name, the number of runs using that controller
@@ -138,10 +147,13 @@ class ControllersList(ElasticBase):
                 return jsonify(controllers)
         except KeyError as e:
             raise PostprocessError(
-                f"Can't find Elasticsearch match data {e} in {es_json!r}"
+                HTTPStatus.BAD_REQUEST,
+                f"Can't find Elasticsearch match data {e} in {es_json!r}",
             )
         except ValueError as e:
-            raise PostprocessError(f"Elasticsearch hit count {count!r} value: {e}")
+            raise PostprocessError(
+                HTTPStatus.BAD_REQUEST, f"Elasticsearch hit count {count!r} value: {e}"
+            )
         buckets = es_json["aggregations"]["controllers"]["buckets"]
         self.logger.info("{} controllers found", len(buckets))
         for controller in buckets:

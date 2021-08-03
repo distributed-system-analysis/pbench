@@ -61,7 +61,12 @@ class TestDatasetsList:
         response = client.post(
             f"{server_config.rest_uri}/datasets/list",
             headers={"Authorization": "Bearer " + pbench_token},
-            json={"user": user, "start": "2020-08", "end": "2020-10"},
+            json={
+                "controller": "ctrlr",
+                "user": user,
+                "start": "2020-08",
+                "end": "2020-10",
+            },
         )
         assert response.status_code == HTTPStatus.FORBIDDEN
 
@@ -97,7 +102,7 @@ class TestDatasetsList:
         Note that "start", "controller", "end" are required whereas "user" is not mandatory;
         however, Pbench will silently ignore any additional keys that are
         specified.
-       """
+        """
         response = client.post(
             f"{server_config.rest_uri}/datasets/list",
             headers={"Authorization": "Bearer " + pbench_token},
@@ -136,7 +141,7 @@ class TestDatasetsList:
         indirect=True,
     )
     @pytest.mark.parametrize(
-        "user", ("drb", "", "no_user", None),
+        "user", ("drb", "badwolf", "notauser", "no_user"),
     )
     def test_query(
         self,
@@ -194,14 +199,16 @@ class TestDatasetsList:
 
         index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
 
-        # If we're not asking about a particular user, or if the user
-        # field is to be omitted altogether, or if we have a valid
-        # token, then the request should succeed.
+        # Determine whether we should expect the request to succeed, or to
+        # fail with a permission error. We always authenticate with the
+        # user "drb" as fabricated by the build_auth_header fixure; we
+        # don't expect success for an "invalid" authentication, for a different
+        # user, or for an invalid username.
         if (
             not user
             or user == "no_user"
             or build_auth_header["header_param"] == "valid"
-        ):
+        ) and user not in ["badwolf", "notauser"]:
             expected_status = HTTPStatus.OK
         else:
             expected_status = HTTPStatus.FORBIDDEN
@@ -262,7 +269,6 @@ class TestDatasetsList:
         Check that an exception in calling Elasticsearch is reported correctly.
         """
         json = {
-            "user": "",
             "controller": "foobar",
             "start": "2020-08",
             "end": "2020-08",
@@ -284,7 +290,6 @@ class TestDatasetsList:
         response.raise_for_status() and Pbench handlers.
         """
         json = {
-            "user": "",
             "controller": "foobar",
             "start": "2020-08",
             "end": "2020-08",
