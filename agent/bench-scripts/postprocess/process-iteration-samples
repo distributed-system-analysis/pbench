@@ -244,7 +244,7 @@ foreach $sample (@json_samples) { # samples 0..N
 						# So, for the iteration hash, we store all of
 						# the "value" values from all samples, and
 						# compute a mean of those samples, as well as
-						# a standard devivation percent.
+						# a standard deviation percent.
 						if ($key eq $value_label) {
 							my %samples_hash;
 							$samples_hash{$value_label} = $sample_value;
@@ -317,7 +317,7 @@ foreach my $metric_type (sort keys %iteration) {
 			my $key;
 			foreach $key (sort keys %{$iteration{$metric_type}{$metric_name}[$i]}) {
 				if ($key eq $samples_label) {
-					# Compute mean, stabdard deviation, and the sample
+					# Compute mean, standard deviation, and the sample
 					# value that is closest to the mean value.
 					($iteration{$metric_type}{$metric_name}[$i]{get_label('mean_label')},
 						$iteration{$metric_type}{$metric_name}[$i]{get_label('stddev_label')},
