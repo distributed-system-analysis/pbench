@@ -124,17 +124,15 @@ foreach $this_tool_dir (sort keys %tool_ids) {
 	my %cpubusy_samples;
 	my $res = get_cpubusy_series($this_tool_dir, \%cpubusy_samples );
 	if ( $res == 0 ) {
-		my %this_cpubusy_dataset;
 		my $description = "Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU";
-		%this_cpubusy_dataset = (
+		push(@cpu_busy, {
 			get_label('uid_label')         => create_uid('hostname_label'),
 			get_label('description_label') => $description,
 			get_label('role_label')        => $role,
 			get_label('hostname_label')    => $hostname,
 			get_label('value_label')       => get_mean_hash(\%cpubusy_samples),
 			get_label('timeseries_label')  => \%cpubusy_samples
-		);
-		push(@cpu_busy, \%this_cpubusy_dataset);
+		});
 	}
 }
 if ( @cpu_busy ) {
@@ -161,7 +159,6 @@ foreach $result_file (sort readdir($dh) ) {
 		my $server_hostname = $2;
 		my $server_port = "$3";
 		my $role = "client";
-		my $average;
 		my %throughput_samples;
 		my %latency_samples;
 		open(IN_FILE, "$dir/$result_file") || die "$script: could not open file $dir/$result_file: $!\n";
@@ -240,10 +237,9 @@ foreach $result_file (sort readdir($dh) ) {
 		}
 
 		if (%latency_samples) {
-			my %this_lat_dataset;
 			my $description = "Average elapsed time spanning: client sending, server accepting/sending, and client receiving 1 message, over a 1 second window";
 			my $mean = get_mean_hash(\%latency_samples);
-			%this_lat_dataset = (
+			push(@usec, {
 				get_label('description_label')     => $description,
 				get_label('role_label')            => $role,
 				get_label('client_hostname_label') => $client_hostname,
@@ -255,8 +251,7 @@ foreach $result_file (sort readdir($dh) ) {
 					                                   'client_hostname_label',
 					                                   'server_hostname_label',
 					                                   'server_port_label')
-			);
-			push(@usec, \%this_lat_dataset);
+			});
 		}
 
 		# Trim the last several seconds of data from the series.
@@ -358,8 +353,6 @@ my $nr_resp_files = 0;
 opendir($dh, $dir) || die "$script: can't open directory $dir: $!\n";
 foreach my $resp_file (sort readdir($dh) ) {
 	if ( $resp_file =~ /^client::(.+)-server::(.+):(\d+)--response-times\.txt$/) {
-		my $server_ip = $1;
-		# The server ip should be in the file name, like "response-times-192.168.1.1.txt"
 		open(RESP_FILE, "$dir/$resp_file") || die "$script: can't open file $dir/$resp_file: $!\n";
 		#  This response file contains an elapsed time value for each "flow op" in the 5th column:
 		#  35609 140172276365056  0 1408072771750861084           42765
@@ -374,7 +367,6 @@ foreach my $resp_file (sort readdir($dh) ) {
 		my $read_time;
 		my $write_time;
 		my @this_server_transaction_times;
-		my $transaction_time;
 		my $this_server_write_avg_time;
 		my $this_server_read_avg_time;
 		my $this_server_nr_reads;
