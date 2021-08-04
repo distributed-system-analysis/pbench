@@ -100,18 +100,16 @@ foreach $this_tool_dir (sort keys %tool_ids) {
 	my %cpubusy_samples;
 	my $res = get_cpubusy_series($this_tool_dir, \%cpubusy_samples );
 	if ( $res == 0 ) {
-		my %this_cpubusy_dataset;
 		my $description = "Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU";
 		my $mean = get_mean_hash(\%cpubusy_samples);
-		%this_cpubusy_dataset = (
+		push(@cpu_busy, {
 			get_label('uid_label')         => create_uid('hostname_label'),
 			get_label('description_label') => $description,
 			get_label('role_label')        => $role,
 			get_label('hostname_label')    => $hostname,
 			get_label('value_label')       => $mean,
 			get_label('timeseries_label')  => \%cpubusy_samples
-		);
-		push(@cpu_busy, \%this_cpubusy_dataset);
+		});
 	}
 }
 if ( @cpu_busy ) {
