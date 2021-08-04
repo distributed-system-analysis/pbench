@@ -94,7 +94,7 @@ foreach my $per_server_result (@per_server_results) {
 	);
 }
 
-# At the same time, generate an effiicency (GiB_sec/CPU) series for both the client and server CPU data
+# At the same time, generate an efficiency (GiB_sec/CPU) series for both the client and server CPU data
 foreach my $this_tool_dir (keys %tool_ids) {
 	my $this_tool_id = $tool_ids{$this_tool_dir};
 	my $this_cpu_label = "CPU_" . $this_tool_id;
