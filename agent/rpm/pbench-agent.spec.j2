@@ -49,7 +49,7 @@ Patch0: stockpile-shebang.patch
 %define installdir opt/pbench-agent
 
 %description
-The pbench harness
+The pbench "agent" harness
 
 %prep
 
@@ -95,26 +95,35 @@ fi
 %posttrans
 
 %files
-%defattr(775,pbench,pbench,775)
-/%{installdir}/config
-
-/%{installdir}/lib
+%defattr(444,root,root,555)
 /%{installdir}/ansible
-/%{installdir}/base
+/%{installdir}/config
+/%{installdir}/lib
 
+/%{installdir}/base
 /%{installdir}/VERSION
 /%{installdir}/SEQNO
 /%{installdir}/SHA1
 /%{installdir}/profile
 
-%ghost %attr(0400,pbench,pbench) /%{installdir}/id_rsa
+%config(noreplace) %attr(0664,root,root) /%{installdir}/config/pbench-agent.cfg
 
-%defattr(775,pbench,pbench,775)
+%defattr(555,root,root,555)
 /%{installdir}/util-scripts
+%attr(444,root,root) /%{installdir}/util-scripts/README
 /%{installdir}/tool-scripts
+%attr(444,root,root) /%{installdir}/tool-scripts/perf.README
+%attr(444,root,root) /%{installdir}/tool-scripts/README
 /%{installdir}/bench-scripts
+%attr(444,root,root) /%{installdir}/bench-scripts/pbench-fio.md
+%attr(444,root,root) /%{installdir}/bench-scripts/pbench-uperf.md
+%attr(444,root,root) /%{installdir}/bench-scripts/postprocess/BenchPostprocess.pm
+%attr(444,root,root) /%{installdir}/bench-scripts/templates/fio.job
+%attr(444,root,root) /%{installdir}/bench-scripts/templates/fio-shared-fs.job
 
 # stockpile
-%defattr(775,pbench,pbench,775)
+%defattr(444,root,root,555)
 /%{installdir}/stockpile
-
+%attr(555,root,root) /%{installdir}/stockpile/import_roles.sh
+%attr(555,root,root) /%{installdir}/stockpile/roles/openshift-cluster-topology/files/openshift_config_scraper.py
+%attr(555,root,root) /%{installdir}/stockpile/roles/openstack_common/files/openstack-config-parser.py
