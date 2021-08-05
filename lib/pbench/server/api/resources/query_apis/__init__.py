@@ -17,7 +17,7 @@ from flask_restful import Resource, abort
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.template import Template
-from pbench.server.database.models.tracker import Dataset
+from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.users import User
 
 

@@ -2,7 +2,7 @@ import json
 import pytest
 import requests
 from http import HTTPStatus
-from pbench.server.database.models.tracker import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.users import User
 
 

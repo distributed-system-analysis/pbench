@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from pbench.server.database.models.tracker import Dataset, States
+from pbench.server.database.models.datasets import Dataset, States
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 

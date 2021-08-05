@@ -1,5 +1,5 @@
 import pytest
-from pbench.server.database.models.tracker import (
+from pbench.server.database.models.datasets import (
     Dataset,
     States,
     Metadata,
