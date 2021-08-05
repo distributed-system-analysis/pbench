@@ -108,7 +108,7 @@ controller_dir="$(basename -- "${target_dir}")"
 
 # Move into pbench run collection directory
 full_result_dir=$(realpath -e ${result_dir})
-pushd $(dirname full_result_dir) > /dev/null 2>&1
+pushd $(dirname ${full_result_dir}) > /dev/null
 if [[ ${?} -ne 0 ]]; then
     exit 1
 fi
@@ -194,7 +194,7 @@ fi
 tarballmd5="${tarball}.md5.check"
 # We need to calculate the md5 sum in the temp directory
 # in order to get the filename right.
-pushd $(dirname ${tarball}) > /dev/null 2>&1
+pushd $(dirname ${tarball}) > /dev/null
 md5sum "$(basename ${tarball})" > "${tarballmd5}"
 if [[ $? -ne 0 ]]; then
     error_log "ERROR: md5sum failed for ${tarball}, skipping"
