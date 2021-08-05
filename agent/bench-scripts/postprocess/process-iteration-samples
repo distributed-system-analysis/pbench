@@ -8,11 +8,10 @@ use warnings;
 use lib $ENV{'pbench_lib_dir'};
 use lib $ENV{'pbench_bspp_dir'};
 no lib ".";
-use BenchPostprocess qw(get_uid get_label get_cpubusy_series calc_ratio_series calc_sum_series);
+use BenchPostprocess qw(get_label get_uid);
 use File::Basename;
 use Data::Dumper;
 $Data::Dumper::Sortkeys = 1;
-use List::Util('sum');
 use SigFigs;
 use JSON;
 
@@ -70,11 +69,12 @@ my %throughput; # a hash of throughput-type:array-of-throughput-values,
 		# For example, dbench may use "MB_sec" and uperf may use "Gb_sec"
 		#
 		# each array element contains a hash with:
-	    	# hostname:
-	    	# port_id:
-	    	# role: packet-generator
-	    	# mean: the mean (average) of the samples' results
-	    	# stddevpct: a percent standard deviation for the result based on the samples' results
+		#     hostname:
+		#     port_id:
+		#     role: packet-generator
+		#     mean: the mean (average) of the samples' results
+		#     stddevpct: a percent standard deviation for the result
+		#         based on the samples' results
 
 my $script = basename($0);
 
@@ -88,38 +88,34 @@ my $keep_failed_tool_data = $ARGV[6]; # (y/n) keep the tool data for a set of sa
 
 my $nr_significant_figures = 4;
 
+my $uid_label = get_label('uid_label');
+my $value_label = get_label('value_label');
+my $ts_label = get_label('timeseries_label');
+my $samples_label = get_label('samples_label');
+
 sub get_avg_stddev {
 	my $samples_start_index = shift;
-        my @numbers = @_;
+	my @numbers = @_;
 	my $count = scalar @numbers;
 	my $sum = 0;
 
 	if ($count == 1) {
-		return ($numbers[0]{get_label('value_label')}, 0, 0, $samples_start_index);
+		return ($numbers[0]{$value_label}, 0, 0, $samples_start_index);
 	} elsif ($count == 0) {
 		return (0, 0, 0, 0);
 	} else {
-		my $val;
 		my $sum;
-		my $index;
-		my $sqdiff;
+		foreach my $number (@numbers) {
+			$sum += $number->{$value_label};
+		}
+		my $avg = $sum / $count;
+
 		my $closest_index;
 		my $mindiff;
 		my $totalsqdiff;
-		my $stddev;
-		my $stddevpct;
-		my $avg;
-		my $i;
-		for ($i=0; $i < scalar @numbers; $i++) {
-			$val = $numbers[$i]{get_label('value_label')};
-			$sum += $val;
-		}
-		$avg = $sum / $count;
-
-		$index = $samples_start_index;
-		for ($i=0; $i < scalar @numbers; $i++) {
-			$val = $numbers[$i]{get_label('value_label')};
-			$sqdiff = ($avg - $val)**2;
+		my $index = $samples_start_index;
+		foreach my $number (@numbers) {
+			my $sqdiff = ($avg - $number->{$value_label})**2;
 
 			# keep track of the value which has the least difference from the average
 			if (!defined $closest_index) {
@@ -133,13 +129,11 @@ sub get_avg_stddev {
 			$totalsqdiff += $sqdiff;
 			$index++;
 		}
-		$stddev = ($totalsqdiff / ($count)) ** 0.5;
-		# if $stddev is 0 and the avgerage is 0, then return 0 for $stddevpct (do not divide by zero below)
-		if (($stddev == 0) && ($avg == 0)) {
-			$stddevpct = 0;
-		} else {
-			$stddevpct = 100 * $stddev / $avg;
-		}
+		my $stddev = ($totalsqdiff / ($count)) ** 0.5;
+		# If the average is 0, then return 0 for $stddevpct rather than
+		# dividing by zero.
+		my $stddevpct = $avg == 0 ? 0 : 100 * $stddev / $avg;
+
 		return (0 + FormatSigFigs(sprintf("%f", $avg), $nr_significant_figures),
 			0 + FormatSigFigs(sprintf("%f", $stddev), $nr_significant_figures),
 			0 + FormatSigFigs(sprintf("%f", $stddevpct), $nr_significant_figures),
@@ -154,7 +148,8 @@ my $dh;
 opendir($dh, $dir) || die "$script: could not open directory $dir: $!\n";
 foreach $file ( readdir($dh) ) {
 	if ($file =~ /^sample(\d+)\.tar\.xz$/ ) {
-		system("tar --directory=\"$dir\" --extract --xz --force-local --file=$file; /bin/rm -rf \"$file\"");
+		system("tar --directory=\"$dir\" --extract --xz --force-local " .
+			"--file=$file; /bin/rm -rf \"$file\"");
 	}
 }
 # get json data for all samples
@@ -165,7 +160,7 @@ foreach $file ( sort readdir($dh) ) {
 	if ($file =~ /^sample(\d+)$/) {
 		my $sample_id = $1;
 		if (!defined($samples_start_index) || ($sample_id < $samples_start_index)) {
-		    $samples_start_index = $sample_id;
+			$samples_start_index = $sample_id;
 		}
 		my $sample_file = "$dir/sample$sample_id/result.json";
 		open( TXT, "<$sample_file" ) or die "Can't open $sample_file: $!";
@@ -186,62 +181,97 @@ foreach $sample (@json_samples) { # samples 0..N
 	my %sample_hash = %{$sample};
 	my $metric_type;
 	foreach $metric_type (sort keys %sample_hash) {
-		# within each sample, there should be at least a "parameters" and "throughput" key, and possiblly
-		# three other keys: resource, latency, and efficiency
+		# Within each sample, there should be at least a "parameters"
+		# and "throughput" key, and possiblly three other keys --
+		# "resource", "latency", and "efficiency".
 		# my @metric_types = ("parameters", "throughput", "resource", "latency", "efficiency");
-		# For each type of parameter, there is an array of hashes.  For example:
-		# $sample_hash{"parameters"}{"benchmark"}[0]  .This has key:value pairs for things
-		# like message_size_bytes:64 or num_flows:1024. There may be only one hash in this
-		# array, but it's possible to have more (for a potential multi-benchmark-type workload)
+
+		# For each type of parameter, there is an array of hashes.  For
+		# example:  $sample_hash{"parameters"}{"benchmark"}[0].  This
+		# has key:value pairs for things like message_size_bytes:64 or
+		# num_flows:1024.  There may be only one hash in this array,
+		# but it's possible to have more (for a potential
+		# multi-benchmark-type workload)
 		foreach my $metric_name (sort keys %{ $sample_hash{$metric_type} }) {
-			for (my $i = 0; $i < scalar @{ $sample_hash{$metric_type}{$metric_name} }; $i++) {
-				my $mapped_uid = get_uid($sample_hash{$metric_type}{$metric_name}[$i]{get_label('uid_label')}, \%{ $sample_hash{$metric_type}{$metric_name}[$i] });
+			for (
+				my $i = 0;
+				$i < scalar @{ $sample_hash{$metric_type}{$metric_name} };
+				$i++
+			) {
+				my $mapped_uid = get_uid(
+					$sample_hash{$metric_type}{$metric_name}[$i]{$uid_label},
+					\%{ $sample_hash{$metric_type}{$metric_name}[$i] }
+				);
 				if ($mapped_uid) {
-					# either find metric_name element within %iteration with same uid, or create a new one
+					# Either find metric_name element within %iteration
+					# with same uid, or create a new one.
 					my $iteration_matching_index;
 					if (exists($iteration{$metric_type}{$metric_name})) {
-						for (my $j = 0; $j < scalar @{ $iteration{$metric_type}{$metric_name} }; $j++) {
-							if (exists($iteration{$metric_type}{$metric_name}[$j]{get_label('uid_label')}))  {
-								if ( $mapped_uid eq get_uid($iteration{$metric_type}{$metric_name}[$j]{get_label('uid_label')}, \%{ $iteration{$metric_type}{$metric_name}[$j] }) ) {
+						for (
+							my $j = 0;
+							$j < scalar @{ $iteration{$metric_type}{$metric_name} };
+							$j++
+						) {
+							if (exists($iteration{$metric_type}{$metric_name}[$j]{$uid_label})) {
+								my $target_uid = get_uid(
+									$iteration{$metric_type}{$metric_name}[$j]{$uid_label},
+									\%{ $iteration{$metric_type}{$metric_name}[$j] });
+								if ( $mapped_uid eq $target_uid ) {
 									$iteration_matching_index = $j;
 									last;
-								} else {
 								}
-							} else {
 							}
 						}
-					} else {
 					}
-					if ( not defined $iteration_matching_index ) { # since one does not exist, create a new %iteration metric_name element
-						my %sample = (get_label('uid_label') => $sample_hash{$metric_type}{$metric_name}[$i]{get_label('uid_label')});
-						unshift( @{ $iteration{$metric_type}{$metric_name} }, \%sample);
+					if ( not defined $iteration_matching_index ) {
+						# Since one does not exist, create a new
+						# %iteration metric_name element.
+						unshift( @{ $iteration{$metric_type}{$metric_name} }, {
+							$uid_label => $sample_hash{$metric_type}{$metric_name}[$i]{$uid_label}
+						});
 						$iteration_matching_index = 0;
 					}
 					foreach my $key (sort keys %{$sample_hash{$metric_type}{$metric_name}[$i]}) {
 						my $sample_value = $sample_hash{$metric_type}{$metric_name}[$i]{$key};
-						# There are a few keys which are not simply duplicates across all samples.
-						# For example, $json_samples[1]{'throughput'}{Gb_sec}[0].mean is the average Gigabits per second for that test sample.
-						# Other test samples for this benchmark iteration also contain a value like that, but the actual value differs (usually slightly if it is a consistent workload).
-						# So, for the iteration hash, we store all of the "value" values from all samples, and compute a mean of
-						# those samples, as well as a standard devivation percent.
-						if ($key eq get_label('value_label')) {
+						# There are a few keys which are not simply
+						# duplicates across all samples.  For example,
+						# $json_samples[1]{'throughput'}{Gb_sec}[0].mean
+						# is the average Gigabits per second for that
+						# test sample.  Other test samples for this
+						# benchmark iteration also contain a value like
+						# that, but the actual value differs (usually
+						# slightly if it is a consistent workload).
+						# So, for the iteration hash, we store all of
+						# the "value" values from all samples, and
+						# compute a mean of those samples, as well as
+						# a standard deviation percent.
+						if ($key eq $value_label) {
 							my %samples_hash;
-							$samples_hash{get_label('value_label')} = $sample_value;
-							if (exists($sample_hash{$metric_type}{$metric_name}[$i]{get_label('timeseries_label')})) {
-								$samples_hash{get_label('timeseries_label')} = $sample_hash{$metric_type}{$metric_name}[$i]{get_label('timeseries_label')};
+							$samples_hash{$value_label} = $sample_value;
+							if (exists($sample_hash{$metric_type}{$metric_name}[$i]{$ts_label})) {
+								$samples_hash{$ts_label} =
+									$sample_hash{$metric_type}{$metric_name}[$i]{$ts_label};
 							}
-							if (not exists($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')})) {
-								# Create an array to hold the samples for "value" values
-								# For example, if uperf had 5 sample runs, there would be an array of 5 Gb_sec values in this array
-								$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')} = ();
+							if (not exists($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$samples_label})) {
+								# Create an array to hold the samples
+								# for "value" values.  For example, if
+								# uperf had 5 sample runs, there would
+								# be an array of 5 Gb_sec values in
+								# this array.
+								$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$samples_label} = ();
 							}
-							push @{$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{get_label('samples_label')}}, \%samples_hash;
+							push @{$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$samples_label}},
+								\%samples_hash;
 						} else {
-							# For the rest of the keys, either check to see if it matches existing value in the %iteration,
-							# or if it does not exist, create it.
-							if ( $key ne get_label('timeseries_label') and $key ne get_label('uid_label') ) { # timeseries already handled above
+							# For the rest of the keys, either check to
+							# see if it matches existing value in the
+							# %iteration, or if it does not exist,
+							# create it.  (Note that timeseries was
+							# already handled above.)
+							if ( $key ne $ts_label and $key ne $uid_label ) {
 								if (exists($iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key})) {
-									my $iteration_value = $iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key};
+									my $iteration_value =
+										$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key};
 									if ("$sample_value" ne "$iteration_value") {
 										my $sv = ref($sample_value);
 										my $iv = ref($iteration_value);
@@ -249,26 +279,35 @@ foreach $sample (@json_samples) { # samples 0..N
 											my $sv_s = Dumper($sample_value);
 											my $iv_s = Dumper($iteration_value);
 											if ($sv_s ne $iv_s) {
-												print "Error: values do not match\n\tkey: $key\n\titeration value: $iv_s\n\tsample    value: $sv_s\n";
+												print STDERR "Error: aggregate values do not match\n" .
+													"\tkey: $key\n\titeration value: $iv_s\n" .
+													"\tsample    value: $sv_s\n";
 											}
 										} else {
-											print "Error: values do not match\n\tkey: $key\n\titeration value: $iteration_value\n\tsample    value: $sample_value\n";
+											print STDERR "Error: scalar values do not match\n" .
+												"\tkey: $key\n\titeration value: $iteration_value\n" .
+												"\tsample    value: $sample_value\n";
 										}
 									}
 								} else {
-									$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key} = $sample_value;
+									$iteration{$metric_type}{$metric_name}[$iteration_matching_index]{$key} =
+										$sample_value;
 								}
 							}
 						}
 					}
 				} else {
-					printf "Error: iteration sample number %d for metric type %s and metric name %s is missing its uid key\n", $i+1, $metric_type, $metric_name;
+					printf STDERR "Error: iteration sample number %d " .
+						"for metric type %s and metric name %s is missing its uid key\n",
+						$i+1, $metric_type, $metric_name;
 				}
 			}
 		}
 	}
 }
-# we have the multiple sample values, but still don't have a mean, stddev, and a pointer to the sample data which was closest to the mean
+# We have the multiple sample values, but still don't have a mean,
+# stddev, and a pointer to the sample data which was closest to the
+# mean.
 my $fail = 0;
 foreach my $metric_type (sort keys %iteration) {
 	my $metric_name;
@@ -277,17 +316,21 @@ foreach my $metric_type (sort keys %iteration) {
 		for ($i = 0; $i < scalar @{$iteration{$metric_type}{$metric_name}}; $i++) {
 			my $key;
 			foreach $key (sort keys %{$iteration{$metric_type}{$metric_name}[$i]}) {
-				if ($key eq get_label('samples_label')) {
-					# compute mean, stabdard deviation, and the sample value that is closest to the mean value
+				if ($key eq $samples_label) {
+					# Compute mean, standard deviation, and the sample
+					# value that is closest to the mean value.
 					($iteration{$metric_type}{$metric_name}[$i]{get_label('mean_label')},
-					 $iteration{$metric_type}{$metric_name}[$i]{get_label('stddev_label')},
-					 $iteration{$metric_type}{$metric_name}[$i]{get_label('stddevpct_label')},
-					 $iteration{$metric_type}{$metric_name}[$i]{get_label('closest_sample_label')}) = get_avg_stddev($samples_start_index, @{$iteration{$metric_type}{$metric_name}[$i]{get_label('samples_label')}});
+						$iteration{$metric_type}{$metric_name}[$i]{get_label('stddev_label')},
+						$iteration{$metric_type}{$metric_name}[$i]{get_label('stddevpct_label')},
+						$iteration{$metric_type}{$metric_name}[$i]{get_label('closest_sample_label')}) =
+							get_avg_stddev(
+								$samples_start_index,
+								@{$iteration{$metric_type}{$metric_name}[$i]{$samples_label}});
 					if (exists($iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')}) and
-						$iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')} eq 'aggregate' and
-						$metric_type eq "throughput" and
-						$metric_name eq $primary_metric and
-						$iteration{$metric_type}{$metric_name}[$i]{get_label('stddevpct_label')} > $max_stddevpct) {
+							$iteration{$metric_type}{$metric_name}[$i]{get_label('role_label')} eq 'aggregate' and
+							$metric_type eq "throughput" and
+							$metric_name eq $primary_metric and
+							$iteration{$metric_type}{$metric_name}[$i]{get_label('stddevpct_label')} > $max_stddevpct) {
 						$fail = 1;
 					}
 				}
@@ -300,14 +343,23 @@ $iteration{'parameters'}{'benchmark'}[0]{get_label('max_stddevpct_label')} = 1.0
 
 # Link reference result
 if (exists($iteration{'throughput'}{$primary_metric})) {
-	for (my $sample_num = 1; $sample_num < scalar @{$iteration{'throughput'}{$primary_metric}[0]{get_label('samples_label')}} + 1; $sample_num++) {
-		if (exists($iteration{'throughput'}{$primary_metric}[0]{'closest_sample'}) and $sample_num == $iteration{'throughput'}{$primary_metric}[0]{'closest_sample'}) {
-			# use "reference-result" to point to result which is closest to the average
+	for (
+		my $sample_num = 1;
+		$sample_num < scalar @{$iteration{'throughput'}{$primary_metric}[0]{$samples_label}} + 1;
+		$sample_num++
+	) {
+		if (exists($iteration{'throughput'}{$primary_metric}[0]{'closest_sample'}) and
+				$sample_num == $iteration{'throughput'}{$primary_metric}[0]{'closest_sample'}) {
+			# Use "reference-result" to point to result which is
+			# closest to the average.
 			system("rm -rf $dir/reference-result");
 			system("ln -sf sample$sample_num $dir/reference-result");
 		} else {
 			if ($tar_nonref_data eq "y") {
-				system("tar --directory=$dir --create --xz --force-local --file=$dir/sample$sample_num.tar.xz sample$sample_num; /bin/rm -rf \"$dir/sample$sample_num\"");
+				system(
+					"tar --directory=$dir --create --xz --force-local " .
+						"--file=$dir/sample$sample_num.tar.xz sample$sample_num; " .
+						"/bin/rm -rf \"$dir/sample$sample_num\"");
 			}
 		}
 		if ($fail && $keep_failed_tool_data eq "n") {
@@ -324,7 +376,7 @@ print JSON $json_text;
 close(JSON);
 
 if ($fail) {
-	print "This iteration's standard deviation percentage was not within $max_stddevpct\n";
+	print STDERR "This iteration's standard deviation percentage was not within $max_stddevpct\n";
 	$num_failures++;
 	rename $dir, $dir."-fail".$num_failures;
 }

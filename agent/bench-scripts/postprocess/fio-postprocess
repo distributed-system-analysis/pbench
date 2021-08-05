@@ -7,7 +7,10 @@ use lib $ENV{'pbench_lib_dir'};
 use lib $ENV{'pbench_bspp_dir'};
 no lib ".";
 use GenData qw(gen_data);
-use BenchPostprocess qw(value_exists trim_series get_label create_uid get_mean remove_timestamp get_timestamps write_influxdb_line_protocol get_cpubusy_series calc_ratio_series calc_sum_series div_series calc_aggregate_metrics calc_efficiency_metrics create_graph_hash get_json);
+use BenchPostprocess qw(
+	calc_aggregate_metrics calc_efficiency_metrics create_graph_hash
+	convert_samples_hash_to_array create_uid get_cpubusy_series get_json
+	get_label get_mean_hash);
 use File::Basename;
 use Data::Dumper;
 use List::Util('sum');
@@ -25,23 +28,11 @@ my $script = basename($0);
 my $dir = $ARGV[0];
 my $tool_label_pattern = $ARGV[1];
 my $tool_group = $ARGV[2];
-my $benchmark_version = $ARGV[6];
+my $benchmark_version = $ARGV[6];  # NOTE:  Not used (unlike in trafficgen and uperf).
 my $benchmark_name = 'fio';
-my %fio_sample;
-my $timestamp_ms = 0;
-my $prev_timestamp_ms = 0;
-my $timestamp_ms_diff;
 my $line;
-my %avg;
-my %total;
-my $series_trim = 0;
 my $primary_metric="iops_sec";
 
-
-
-# %workload
-#		   {Throughput|Latency|Resource|Efficiency}
-#		   {Throughput}[iops_sec, 
 
 my %workload;  # root hash for all data, contains hash refs to
 		# %throughput, %latency, %resource, %efficiency
@@ -58,31 +49,31 @@ my @cpu_busy;	# each array element contains a hash with
 		# hostname: hostname or IP
 		# role: client, server, host, kvm-host, container-host, etc.
 		# timeseries: a hash of timestamp:value key-pairs
-my %efficiency;
-my %latency;    # a hash of latency-type:array-of-latency-values,
+# my %efficiency;
+my %latency;	# a hash of latency-type:array-of-latency-values,
 		# for example $latency{usec[0..1]
 my @clat;
 my @slat;
 my @lat;	# each array element contains a hash with:
-	    	# hostname: <hostname or IP>
-	    	# role: <client or server>
-	    	# timeseries: a hash of timstamp:value elements
+		# hostname: <hostname or IP>
+		# role: <client or server>
+		# timeseries: a hash of timstamp:value elements
 
 my %throughput; # a hash of throughput-type:array-of-throughput-values,
 		# for example $throughput{MB_sec[0..1]
-my @MB_sec;	# each array element contains a hash with:
-	    	# hostname: <hostname or IP>
-	    	# role: <client or server>
-	    	# timeseries: a hash of timstamp:value key-pairs
+# my @MB_sec;	# each array element contains a hash with:
+		# hostname: <hostname or IP>
+		# role: <client or server>
+		# timeseries: a hash of timstamp:value key-pairs
 my @iops_sec;	# each array element contains a hash with:
-	    	# hostname: <hostname or IP>
-	    	# role: <client or server>
-	    	# timeseries: a hash of timstamp:value key-pair
+		# hostname: <hostname or IP>
+		# role: <client or server>
+		# timeseries: a hash of timstamp:value key-pair
 
 
-# Get the tool data
-# Define a set of tool directories which we want to use to report CPU and efficiency metrics
-# Search for tool directories which match the $tool_label_pattern
+# Get the tool data; define a set of tool directories which we want to use to
+# report CPU and efficiency metrics; search for tool directories which match
+# the $tool_label_pattern.
 my $this_tool_dir;
 my %tool_ids;
 my $tool_group_dir = "$dir/tools-$tool_group";
@@ -98,24 +89,27 @@ if (opendir($dh, $tool_group_dir)) {
 	}
 	closedir  $dh;
 } else {
-	print "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
+	print STDERR "$script: could not find any directories in $tool_group_dir which matched $tool_label_pattern\n";
 }
 
 foreach $this_tool_dir (sort keys %tool_ids) {
-	my $res;
 	my $this_tool_id = $tool_ids{$this_tool_dir};
 	my $role = "host";
-	my $url;
 	my $hostname;
 	($role, $hostname) = split(/:/,$this_tool_id);
-	my @cpubusy_samples;
-	$res = get_cpubusy_series($this_tool_dir, \@cpubusy_samples );
+	my %cpubusy_samples;
+	my $res = get_cpubusy_series($this_tool_dir, \%cpubusy_samples );
 	if ( $res == 0 ) {
-		my %this_cpubusy_dataset;
 		my $description = "Total busy CPU usage, averaged over N seconds, where 1.0 = 1 logical CPU";
-		my $mean = get_mean(\@cpubusy_samples);
-		%this_cpubusy_dataset = ( get_label('uid_label') => create_uid('hostname_label'), get_label('description_label') => $description, get_label('role_label') => $role, get_label('hostname_label') => $hostname, get_label('value_label') => $mean, get_label('timeseries_label') => \@cpubusy_samples );
-		push(@cpu_busy, \%this_cpubusy_dataset);
+		my $mean = get_mean_hash(\%cpubusy_samples);
+		push(@cpu_busy, {
+			get_label('uid_label')         => create_uid('hostname_label'),
+			get_label('description_label') => $description,
+			get_label('role_label')        => $role,
+			get_label('hostname_label')    => $hostname,
+			get_label('value_label')       => $mean,
+			get_label('timeseries_label')  => \%cpubusy_samples
+		});
 	}
 }
 if ( @cpu_busy ) {
@@ -132,14 +126,12 @@ if ($fio_results_scalar == 0) {
 	die "$script: Failed to read valid JSON from $fio_results_path!\n";
 }
 my %fio_results = %$fio_results_scalar;
-my $job_num = 1;
-my $num_jobs = 1;
 
 # There are two areas to get benchmark parameters for fio:
-# -global options: these are the options usually populated in the top of a fio-job file,
-#  or given on cmdline
-# -per-job options: there are the options usually populated in the per-job section
-#  of a fio-job file
+#  - global options:  these are the options usually populated in the top of a
+#    fio-job file, or given on command line;
+#  - per-job options:  there are the options usually populated in the per-job
+#    section of a fio-job file.
 
 for my $param (keys (%{ $fio_results{"global options"} })) {
 	if (not $param =~/^write_\w+_log$/) {
@@ -161,12 +153,12 @@ if ($fio_results{"jobs"}) {
 	$jobs_stats = \$fio_results{"jobs"}; # when not using --clients
 }
 
-# The remaining benchmark parameters, if any, come from the fio-job-specific options.
-# The values for these parameters are concatenated with commas into a single value and assigned
-# to a single benchmark parameter.  For example, "rw=read,read" for 2 jobs.
-my $total_jobs=0;
+# The remaining benchmark parameters, if any, come from the fio-job-specific
+# options.  The values for these parameters are concatenated with commas into
+# a single value and assigned to a single benchmark parameter.  For example,
+# "rw=read,read" for 2 jobs.
 if (defined $jobs_stats) {
-	# first, we build a set of all per-job options we can find across all jobs
+	# First, we build a set of all per-job options we can find across all jobs
 	my %all_job_params;
 	for my $job (@{ $$jobs_stats }) {
 		if (defined $$job{"job options"}) {
@@ -175,8 +167,8 @@ if (defined $jobs_stats) {
 			}
 		}
 	}
-	# now we can search all jobs for all params, and if some are not present, insert ",," in our
-	# ordered list of per-job parameters
+	# Now we can search all jobs for all params, and if some are not present,
+	# insert ",," in our ordered list of per-job parameters.
 	for my $job (@{ $$jobs_stats }) {
 		if (defined $$job{"job options"}) {
 			for my $job_param (keys %all_job_params) {
@@ -208,7 +200,7 @@ push(@benchmark, \%benchmark_params);
 my $nr_log_files=0;
 my $clients_dh;
 opendir($clients_dh, "$dir/clients") || die "$script: could not open directory $dir/clients: $!\n";
-my $client_hostname_dir; 
+my $client_hostname_dir;
 my @client_hostname_dirs = grep(!/^\./, (sort readdir($clients_dh)));
 closedir $clients_dh;
 foreach $client_hostname_dir (@client_hostname_dirs) {
@@ -220,101 +212,91 @@ foreach $client_hostname_dir (@client_hostname_dirs) {
 	closedir $client_dh;
 	foreach $log_file (@client_log_files) {
 		# for each result file, build this:
-		# # {
-		# # "hostname": "perf104", <-where this workload was running
-		# # "role": "client", <-where this information came from: workload client or server
-		# # "samples" : {1407890808: 7.75, 1407890809: 7.77}  <-time series data from workload output
-		# # "value" : "7.76" <-the average of the time series data
-		# # },
+		#   {
+		#     "hostname": "perf104",  <-where this workload was running
+		#     "role": "client",  <-where this information came from: workload client or server
+		#     "samples" : {1407890808: 7.75, 1407890809: 7.77}  <-time series data from workload output
+		#     "value" : "7.76"  <-the average of the time series data
+		#   },
 		if ( $log_file =~ /^fio_(iops|lat|slat|clat)\.(\d+)\.log$/) {
 			my $log_type = $1;
 			my $job_id = $2;
-			my $date_base = 1471365291000;
 			my $role = "client";
-			my $average;
-			my @samples;
+			my %samples;
 			my $description_label;
 			my $this_metric;
-                        if ($log_type eq "iops") {
-                        	$description_label = "Number of I/O operations sent by client for a period of 1 second";
-                                $this_metric = \@iops_sec;
-                        } elsif ($log_type eq "lat") {
-                        	$description_label = "Average total latency per I/O operation";
-                                $this_metric = \@lat;
-                        } elsif ($log_type eq "clat") {
-                        	$description_label = "Average completion latency per I/O operation";
-                                $this_metric = \@clat;
-                        } elsif ($log_type eq "slat") {
-                        	$description_label = "Average submission latency per I/O operation";
-                                $this_metric = \@slat;
-                        }
+			if ($log_type eq "iops") {
+				$description_label = "Number of I/O operations sent by client for a period of 1 second";
+				$this_metric = \@iops_sec;
+			} elsif ($log_type eq "lat") {
+				$description_label = "Average total latency per I/O operation";
+				$this_metric = \@lat;
+			} elsif ($log_type eq "clat") {
+				$description_label = "Average completion latency per I/O operation";
+				$this_metric = \@clat;
+			} elsif ($log_type eq "slat") {
+				$description_label = "Average submission latency per I/O operation";
+				$this_metric = \@slat;
+			}
+			my $date_label = get_label('date_label');
 			open(IN_FILE, "$dir/clients/$client_hostname_dir/$log_file") || die "$script: could not open file $dir/clients/$client_hostname_dir/$log_file $!\n";
 			while (<IN_FILE>) {
 				$line = "$_";
 				chomp($line);
 				if ( $line =~  /(\d+),\s+(\d+),\s+(\d+),\s+(\d+)/ ) {
-					#my $timestamp_ms = $1 + $date_base;
 					my $timestamp_ms = $1;
 					my $value = $2;
 					my $rwtype = $3;
-					my %sample;
-					my $index = value_exists(get_label('date_label'), $timestamp_ms, \@samples);
-					if ($index == -1) {
-					    %sample = ( get_label('date_label') => int $timestamp_ms,
-							'data' => { $rwtype => { 'values' => [ int $value ] } },
-							'type' => $log_type );
-					    push(@samples, \%sample);
+					if (exists($samples{$timestamp_ms})) {
+						# Behold, autovivification!
+                        push(@{$samples{$timestamp_ms}{'data'}{$rwtype}{'values'}}, int $value);
 					} else {
-					    if (exists($samples[$index]{'data'}{$rwtype})) {
-						push(@{$samples[$index]{'data'}{$rwtype}{'values'}}, int $value);
-					    } else {
-						$samples[$index]{'data'}{$rwtype} = { 'values' => [ int $value ] };
-					    }
+						$samples{$timestamp_ms} = {
+							$date_label => int $timestamp_ms,
+							'data' => { $rwtype => { 'values' => [ int $value ] } },
+							'type' => $log_type
+						};
 					}
 				}
 			}
-			for (my $i=0; $i < scalar @samples; $i++) {
-			    $samples[$i]{get_label('value_label')} = 0;
+			close(IN_FILE);
+			my $value_label = get_label('value_label');
+			foreach my $i (keys %samples) {
+				my $sample = $samples{$i};
+				$sample->{$value_label} = 0;
 
-			    foreach my $key (keys %{$samples[$i]{'data'}}) {
-				$samples[$i]{'data'}{$key}{'mean'} = 0;
-
-				if (scalar @{$samples[$i]{'data'}{$key}{'values'}} > 1) {
-				    printf "[WARNING] %s: timestamp %s for rwtype %d found multiple times, values [%s] will be averaged\n", $log_file, $samples[$i]{get_label('date_label')}, $key, join(', ', @{$samples[$i]{'data'}{$key}{'values'}});
+				foreach my $key (keys %{$sample->{'data'}}) {
+				    my $sample_data = $sample->{'data'}{$key};
+					if (scalar @{$sample_data->{'values'}} > 1) {
+						printf STDERR "[WARNING] %s/%s: timestamp %s for rwtype %d found multiple times, values [%s] will be averaged\n",
+							$client_hostname_dir, $log_file, $sample->{$date_label}, $key,
+							join(', ', @{$sample_data->{'values'}});
+					}
+					$sample->{$value_label} += mean(@{$sample_data->{'values'}});
 				}
 
-				for (my $x=0; $x < scalar @{$samples[$i]{'data'}{$key}{'values'}}; $x++) {
-				    $samples[$i]{'data'}{$key}{'mean'} += $samples[$i]{'data'}{$key}{'values'}[$x];
+				if ($sample->{'type'} =~ /lat$/) {
+					$sample->{$value_label} /= scalar keys %{$sample->{'data'}};
 				}
 
-				$samples[$i]{'data'}{$key}{'mean'} /= scalar @{$samples[$i]{'data'}{$key}{'values'}};
-
-				$samples[$i]{get_label('value_label')} += $samples[$i]{'data'}{$key}{'mean'};
-			    }
-
-			    if ($samples[$i]{'type'} =~ /lat$/) {
-				$samples[$i]{get_label('value_label')} /= scalar(keys(%{$samples[$i]{'data'}}));
-			    }
-
-			    delete $samples[$i]{'type'};
-			    delete $samples[$i]{'data'};
+				delete $sample->{'type'};
+				delete $sample->{'data'};
 			}
 			$nr_log_files++;
-			close(IN_FILE);
-			if ( (@samples) ) {
-				trim_series(\@samples, $series_trim, $series_trim);
-				my %this_dataset;
-				my $mean = get_mean(\@samples);
-				%this_dataset = ( 	get_label('role_label') => $role, get_label('client_hostname_label') => $client_hostname_dir . "-" . $job_id,
-							get_label('value_label') => $mean, get_label('timeseries_label') => \@samples,
-							get_label('uid_label') => create_uid('client_hostname_label')  );
-				$this_dataset{get_label('description_label')} = $description_label;
-				push(@$this_metric, \%this_dataset);
+			if ( scalar %samples ) {
+				push(@$this_metric, {
+					get_label('role_label')            => $role,
+					get_label('client_hostname_label') => $client_hostname_dir . "-" . $job_id,
+					get_label('value_label')           => get_mean_hash(\%samples),
+					get_label('timeseries_label')      => \%samples,
+					get_label('uid_label')             => create_uid('client_hostname_label'),
+					get_label('description_label')     => $description_label
+				});
 			}
 		}
 	}
 	if ($nr_log_files == 0) {
-		print "$script: could not find any result files to process, exiting\n";
+		print STDERR "$script: could not find any result files to process, exiting\n";
 		exit;
 	}
 }
@@ -349,20 +331,27 @@ if ( %parameters ) {
 
 calc_aggregate_metrics(\%workload);
 calc_efficiency_metrics(\%workload);
-		
-# pbench graphing uses a specific hash heirarchy, where the dimensions of the hash are:
+
+# Pbench graphing uses a specific hash heirarchy, where the dimensions of the hash are:
+#
 # {html-file}{html-graph}{graph-series}{timeseries-data}
-# for example, an html page which has all of the iops_sec metrics graphed may look like:
-# %throuhgput{'uperf-throughput'}{'iops-per-second'}{client:host1-to-server-host2}{$timestamp_ms}
-#                                                 {client:host1-to-server-host3}{$timestamp_ms}
-# if we wanted another graph for transactions per second graped in a different graph, but on the same html page, we would add:
-# %throuhgput{'uperf-throughput'}{'transper-second'}{client:host1-to-server-host2}{$timestamp_ms}
+#
+# For example, an html page which has all of the iops_sec metrics graphed may look like:
+#
+# %throughput{'uperf-throughput'}{'iops-per-second'}{client:host1-to-server-host2}{$timestamp_ms}
 #                                                   {client:host1-to-server-host3}{$timestamp_ms}
 #
-# So, for fio, we need to take parts of the data in %workload and transform it in to a new hash
-# The %workload hash has much more information about the workload than needed for graphing, 
-# and the timestamp data is stored in a different way.  So, we just need to do a minor 
-# conversion, provided by BenchPostprocess.pm
+# If we wanted another graph for transactions per second graped in a different
+# graph, but on the same html page, we would add:
+#
+# %throughput{'uperf-throughput'}{'transper-second'}{client:host1-to-server-host2}{$timestamp_ms}
+#                                                   {client:host1-to-server-host3}{$timestamp_ms}
+#
+# So, for fio, we need to take parts of the data in %workload and transform it
+# into a new hash.  The %workload hash has much more information about the
+# workload than needed for graphing, and the timestamp data is stored in a
+# different way.  So, we just need to do a minor conversion, provided by
+# BenchPostprocess.pm
 
 my %graph;
 create_graph_hash(\%graph, \%workload);
@@ -370,10 +359,11 @@ my %graph_threshold;
 my %graph_type;
 gen_data(\%graph, \%graph_type, \%graph_threshold, $dir, 1);
 
+convert_samples_hash_to_array(\%workload);
+
 # write to JSON format file
 my $json_file = $dir . "/result.json";
-my $json_text   = to_json( \%workload, { ascii => 1, pretty => 1, canonical => 1 } );
+my $json_text = to_json( \%workload, { ascii => 1, pretty => 1, canonical => 1 } );
 open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
 print JSON $json_text;
 close(JSON);
-
