@@ -102,13 +102,14 @@ if [[ ! -d "${target_dir}" ]]; then
     exit 1
 fi
 
-controller_dir="$(basename -- "${target_dir}")"
+controller_dir=$(basename -- "${target_dir}")
+full_result_dir=$(realpath -e "${result_dir}")
+full_target_dir=$(realpath -e "${target_dir}")
 
 # We can now start building the target tarball
 
 # Move into pbench run collection directory
-full_result_dir=$(realpath -e ${result_dir})
-pushd $(dirname full_result_dir) > /dev/null 2>&1
+cd $(dirname ${full_result_dir}) > /dev/null
 if [[ ${?} -ne 0 ]]; then
     exit 1
 fi
@@ -177,7 +178,7 @@ printf -- "%s" "$result_size" | pbench-add-metalog-option ${mdlog} run raw_size
 ts=$(timestamp)
 printf -- "%s" "$ts" | pbench-add-metalog-option ${mdlog} pbench tar-ball-creation-timestamp
 
-tarball="${target_dir}/${pbench_run_name}.tar.xz"
+tarball="${full_target_dir}/${pbench_run_name}.tar.xz"
 if [[ "${xz_single_threaded}" == "1" ]]; then
     tar_cmd="tar --create --force-local -xz \"${pbench_run_name}\""
 else
@@ -191,10 +192,10 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-tarballmd5="${tarball}.md5.check"
+tarballmd5="$(basename "${tarball}.md5.check")"
 # We need to calculate the md5 sum in the temp directory
 # in order to get the filename right.
-pushd $(dirname ${tarball}) > /dev/null 2>&1
+cd $(dirname ${tarball}) > /dev/null
 md5sum "$(basename ${tarball})" > "${tarballmd5}"
 if [[ $? -ne 0 ]]; then
     error_log "ERROR: md5sum failed for ${tarball}, skipping"
