@@ -4,7 +4,7 @@ an import statement of the same is required here.
 """
 from pbench.server.database.models.active_tokens import ActiveTokens  # noqa F401
 from pbench.server.database.models.users import User  # noqa F401
-from pbench.server.database.models.tracker import Dataset, Metadata  # noqa F401
+from pbench.server.database.models.datasets import Dataset, Metadata  # noqa F401
 from pbench.server.database.models.template import Template  # noqa F401
 
 from pbench.server.database.database import Database

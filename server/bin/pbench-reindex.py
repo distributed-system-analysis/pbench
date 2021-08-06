@@ -24,7 +24,7 @@ from argparse import ArgumentParser
 
 import pbench.server
 from pbench import BadConfig
-from pbench.server.database.models.tracker import (
+from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
     DatasetError,

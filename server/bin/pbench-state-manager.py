@@ -20,7 +20,7 @@ from pbench import BadConfig
 from pbench.common.logger import get_pbench_logger
 from pbench.server import PbenchServerConfig
 from pbench.server.database import init_db
-from pbench.server.database.models.tracker import Dataset, States
+from pbench.server.database.models.datasets import Dataset, States
 
 
 _NAME_ = "pbench-state-manager"

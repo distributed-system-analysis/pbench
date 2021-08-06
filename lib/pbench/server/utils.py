@@ -2,7 +2,7 @@ import os
 import sys
 import shutil
 
-from pbench.server.database.models.tracker import Dataset, States, DatasetNotFound
+from pbench.server.database.models.datasets import Dataset, States, DatasetNotFound
 
 
 def rename_tb_link(tb, dest, logger):

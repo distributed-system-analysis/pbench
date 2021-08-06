@@ -16,7 +16,7 @@ from pbench.common.exceptions import (
     TemplateError,
 )
 from pbench.server import tstos
-from pbench.server.database.models.tracker import (
+from pbench.server.database.models.datasets import (
     Dataset,
     MetadataNotFound,
     States,

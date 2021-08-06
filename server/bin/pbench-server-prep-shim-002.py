@@ -23,7 +23,7 @@ from pbench.common.utils import md5sum
 from pbench.server import PbenchServerConfig
 from pbench.server.report import Report
 from pbench.server.utils import quarantine
-from pbench.server.database.models.tracker import Dataset, States, DatasetError
+from pbench.server.database.models.datasets import Dataset, States, DatasetError
 from pbench.server.database import init_db
 
 

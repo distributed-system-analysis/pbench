@@ -11,7 +11,7 @@ from flask_restful import Resource, abort
 
 from pbench.common.utils import validate_hostname
 from pbench.server.api.auth import Auth
-from pbench.server.database.models.tracker import Dataset, DatasetDuplicate, States
+from pbench.server.database.models.datasets import Dataset, DatasetDuplicate, States
 from pbench.server.utils import filesize_bytes
 
 

@@ -16,7 +16,7 @@ from pbench.server import PbenchServerConfig
 from pbench.server.report import Report
 from pbench.server.s3backup import S3Config, Status, NoSuchKey
 from pbench.server.utils import rename_tb_link, quarantine
-from pbench.server.database.models.tracker import (
+from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
     DatasetError,

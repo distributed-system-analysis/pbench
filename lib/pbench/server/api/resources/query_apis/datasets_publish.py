@@ -15,7 +15,7 @@ from pbench.server.api.resources.query_apis import (
     Parameter,
     ParamType,
 )
-from pbench.server.database.models.tracker import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.users import User
 
 
