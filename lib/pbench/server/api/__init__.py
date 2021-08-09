@@ -23,6 +23,7 @@ from pbench.server.database.database import Database
 from pbench.server.api.resources.query_apis.controllers_list import ControllersList
 from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
 from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
+from pbench.server.api.resources.query_apis.index_mappings import IndexMappings
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.auth import Auth
@@ -70,6 +71,11 @@ def register_endpoints(api, app, config):
         ControllersList,
         f"{base_uri}/controllers/list",
         resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        IndexMappings,
+        f"{base_uri}/index/mappings/<string:index_name>",
+        resource_class_args=(logger,),
     )
     api.add_resource(
         MonthIndices,
