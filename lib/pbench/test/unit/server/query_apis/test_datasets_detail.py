@@ -14,8 +14,9 @@ class TestDatasetsDetail(Commons):
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self):
+    def _setup(self, client):
         super()._setup(
+            cls_obj=DatasetsDetail(client.config, client.logger),
             pbench_endpoint="/datasets/detail",
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
@@ -24,20 +25,7 @@ class TestDatasetsDetail(Commons):
                 "start": "2020-08",
                 "end": "2020-10",
             },
-            bad_date_payload={
-                "user": "drb",
-                "name": "footest",
-                "start": "2020-12",
-                "end": "2020-19",
-            },
-            error_payload={"name": "foobar", "start": "2020-08", "end": "2020-08"},
-            empty_response_payload={
-                "hits": {
-                    "total": {"value": 0, "relation": "eq"},
-                    "max_score": None,
-                    "hits": [],
-                },
-            },
+            empty_es_response_payload=Commons.empty_es_response_payload,
         )
 
     @pytest.mark.parametrize(
@@ -62,13 +50,6 @@ class TestDatasetsDetail(Commons):
         however, Pbench will silently ignore any additional keys that are
         specified.
        """
-        self.required_keys = [
-            key
-            for key, parameter in DatasetsDetail(
-                client.config, client.logger
-            ).schema.parameters.items()
-            if parameter.required
-        ]
         self.missing_keys(client, server_config, keys, user_ok, pbench_token)
 
     @pytest.mark.parametrize(
@@ -257,7 +238,7 @@ class TestDatasetsDetail(Commons):
             index,
             expected_status,
             headers=build_auth_header["header"],
-            json=self.empty_response_payload,
+            json=self.empty_es_response_payload,
         )
         assert response.status_code == expected_status
         if response.status_code == HTTPStatus.BAD_REQUEST:

@@ -86,8 +86,9 @@ class TestDatasetsPublish(Commons):
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self):
+    def _setup(self, client):
         super()._setup(
+            cls_obj=DatasetsPublish(client.config, client.logger),
             pbench_endpoint="/datasets/publish",
             elastic_endpoint="/_bulk?refresh=true",
             payload={"controller": "node", "name": "drb", "access": "public"},
@@ -114,13 +115,6 @@ class TestDatasetsPublish(Commons):
         however Pbench will silently ignore any additional keys that are
         specified.
         """
-        self.required_keys = [
-            key
-            for key, parameter in DatasetsPublish(
-                client.config, client.logger
-            ).schema.parameters.items()
-            if parameter.required
-        ]
         self.missing_keys(client, server_config, keys, user_ok, pbench_token)
 
     @pytest.mark.parametrize(

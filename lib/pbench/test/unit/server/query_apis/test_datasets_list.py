@@ -14,8 +14,9 @@ class TestDatasetsList(Commons):
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self):
+    def _setup(self, client):
         super()._setup(
+            cls_obj=DatasetsList(client.config, client.logger),
             pbench_endpoint="/datasets/list",
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
@@ -23,17 +24,6 @@ class TestDatasetsList(Commons):
                 "controller": "cpntroller.name",
                 "start": "2020-08",
                 "end": "2020-10",
-            },
-            bad_date_payload={
-                "user": "drb",
-                "controller": "dbutenho.csb",
-                "start": "2020-12",
-                "end": "2020-19",
-            },
-            error_payload={
-                "controller": "foobar",
-                "start": "2020-08",
-                "end": "2020-08",
             },
         )
 
@@ -59,13 +49,6 @@ class TestDatasetsList(Commons):
         however, Pbench will silently ignore any additional keys that are
         specified.
        """
-        self.required_keys = [
-            key
-            for key, parameter in DatasetsList(
-                client.config, client.logger
-            ).schema.parameters.items()
-            if parameter.required
-        ]
         self.missing_keys(client, server_config, keys, user_ok, pbench_token)
 
     @pytest.mark.parametrize(

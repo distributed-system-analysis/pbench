@@ -14,23 +14,13 @@ class TestControllersList(Commons):
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self):
+    def _setup(self, client):
         super()._setup(
+            cls_obj=ControllersList(client.config, client.logger),
             pbench_endpoint="/controllers/list",
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={"user": "drb", "start": "2020-08", "end": "2020-10"},
-            bad_date_payload={"user": "drb", "start": "2020-12", "end": "2020-19"},
-            error_payload={"start": "2020-08", "end": "2020-08"},
-            empty_response_payload={
-                "took": 1,
-                "timed_out": False,
-                "_shards": {"total": 1, "successful": 1, "skipped": 0, "failed": 0},
-                "hits": {
-                    "total": {"value": 0, "relation": "eq"},
-                    "max_score": None,
-                    "hits": [],
-                },
-            },
+            empty_es_response_payload=Commons.empty_es_response_payload,
         )
 
     @pytest.mark.parametrize(
@@ -54,13 +44,6 @@ class TestControllersList(Commons):
         however, Pbench will silently ignore any additional keys that are
         specified.
        """
-        self.required_keys = [
-            key
-            for key, parameter in ControllersList(
-                client.config, client.logger
-            ).schema.parameters.items()
-            if parameter.required
-        ]
         self.missing_keys(client, server_config, keys, user_ok, pbench_token)
 
     @pytest.mark.parametrize(
