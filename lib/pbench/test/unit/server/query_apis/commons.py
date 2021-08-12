@@ -132,7 +132,7 @@ class Commons:
 
         Note that Pbench will silently ignore any additional keys that are
         specified but not required.
-       """
+        """
 
         def missing_key_helper(keys):
             response = client.post(
