@@ -95,29 +95,6 @@ class TestDatasetsPublish(Commons):
         )
 
     @pytest.mark.parametrize(
-        "keys",
-        (
-            {"controller": "x"},
-            {"name": "y"},
-            {"controller": "foobar", "access": "public"},
-            {"access": "public"},
-            {"controller": "foo", "access": "private", "whatkey": None},
-            {"controller": "one", "name": "mine", "notakey": "none"},
-            {"name": "y", "access": "private"},
-            {"notakey": None},
-        ),
-    )
-    def test_missing_keys(self, client, server_config, keys, user_ok, pbench_token):
-        """
-        Test behavior when JSON payload does not contain all required keys.
-
-        Note that "user", "controller", "name", and "access" are all required;
-        however Pbench will silently ignore any additional keys that are
-        specified.
-        """
-        self.missing_keys(client, server_config, keys, user_ok, pbench_token)
-
-    @pytest.mark.parametrize(
         "owner", ("drb", "test"),
     )
     def test_query(

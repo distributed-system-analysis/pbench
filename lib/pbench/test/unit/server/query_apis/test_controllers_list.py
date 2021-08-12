@@ -20,31 +20,8 @@ class TestControllersList(Commons):
             pbench_endpoint="/controllers/list",
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={"user": "drb", "start": "2020-08", "end": "2020-10"},
-            empty_es_response_payload=Commons.empty_es_response_payload,
+            empty_es_response_payload=Commons.EMPTY_ES_RESPONSE_PAYLOAD,
         )
-
-    @pytest.mark.parametrize(
-        "keys",
-        (
-            {"user": "x"},
-            {"start": "2020"},
-            {"end": "2020"},
-            {"user": "x", "start": "2020"},
-            {"user": "x", "end": "2020"},
-            {"some_additional_key": "test"},
-        ),
-    )
-    def test_missing_keys(
-        self, client, server_config, keys, find_template, user_ok, pbench_token
-    ):
-        """
-        Test behavior when JSON payload does not contain all required keys.
-
-        Note that "start", and "end" are required whereas "user" is not mandatory;
-        however, Pbench will silently ignore any additional keys that are
-        specified.
-       """
-        self.missing_keys(client, server_config, keys, user_ok, pbench_token)
 
     @pytest.mark.parametrize(
         "user", ("drb", "badwolf", "no_user"),
@@ -112,7 +89,9 @@ class TestControllersList(Commons):
             },
         }
 
-        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        index = self.build_index(
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
+        )
 
         # Determine whether we should expect the request to succeed, or to
         # fail with a permission error. We always authenticate with the

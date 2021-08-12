@@ -1,3 +1,4 @@
+import itertools
 import pytest
 import requests
 
@@ -17,7 +18,7 @@ class Commons:
     """
 
     # Declare the common empty search response payload that subclass can use.
-    empty_es_response_payload = {
+    EMPTY_ES_RESPONSE_PAYLOAD = {
         "took": 1,
         "timed_out": False,
         "_shards": {"total": 1, "successful": 1, "skipped": 0, "failed": 0},
@@ -59,6 +60,18 @@ class Commons:
             index += f"{idx}{d},"
         return index
 
+    def date_range(self, start: AnyStr, end: AnyStr) -> list:
+        """
+        Builds list of range of dates between start and end
+        It expects the date to look like YYYY-MM
+        """
+        y, m_start = int(start[:4]), int(start[5:])
+        y, m_end = int(end[:4]), int(end[5:])
+        date_range = []
+        for month in range(m_start, m_end + 1):
+            date_range.append(f"{y}-{month:02}")
+        return date_range
+
     def test_non_accessible_user_data(self, client, server_config, pbench_token):
         """
         Test behavior when Authorization header does not have access to other user's data
@@ -66,7 +79,7 @@ class Commons:
         # The pbench_token fixture logs in as user "drb"
         # Trying to access the data belong to the user "pp"
         if "user" not in self.cls_obj.schema.parameters.keys():
-            pytest.skip("skipping non accessible user data test")
+            pytest.skip("skipping " + self.test_non_accessible_user_data.__name__)
         self.payload["user"] = "pp"
         response = client.post(
             server_config.rest_uri + self.pbench_endpoint,
@@ -85,7 +98,9 @@ class Commons:
         Test behavior when expired Authorization header provided
         """
         if "user" not in self.cls_obj.schema.parameters.keys():
-            pytest.skip("skipping accessing user data with invalid token test")
+            pytest.skip(
+                "skipping " + self.test_accessing_user_data_with_invalid_token.__name__
+            )
         # valid token logout
         response = client.post(
             server_config.rest_uri + "/logout",
@@ -111,43 +126,72 @@ class Commons:
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid request payload"
 
-    def missing_keys(self, client, server_config, keys, user_ok, pbench_token):
+    def test_missing_keys(self, client, server_config, user_ok, pbench_token):
         """
         Test behavior when JSON payload does not contain all required keys.
 
         Note that Pbench will silently ignore any additional keys that are
         specified but not required.
        """
+
+        def missing_key_helper(keys):
+            response = client.post(
+                server_config.rest_uri + self.pbench_endpoint,
+                headers={"Authorization": "Bearer " + pbench_token},
+                json=keys,
+            )
+            assert response.status_code == HTTPStatus.BAD_REQUEST
+            missing = [k for k in required_keys if k not in keys]
+            assert (
+                response.json.get("message")
+                == f"Missing required parameters: {','.join(missing)}"
+            )
+
+        parameter_items = self.cls_obj.schema.parameters.items()
+
         required_keys = [
             key
             for key, parameter in self.cls_obj.schema.parameters.items()
             if parameter.required
         ]
-        response = client.post(
-            server_config.rest_uri + self.pbench_endpoint,
-            headers={"Authorization": "Bearer " + pbench_token},
-            json=keys,
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        missing = [k for k in required_keys if k not in keys]
-        assert (
-            response.json.get("message")
-            == f"Missing required parameters: {','.join(missing)}"
-        )
+
+        all_combinations = []
+        for r in range(1, len(parameter_items) + 1):
+            combinations_object = list(itertools.combinations(parameter_items, r))
+            for item in combinations_object:
+                tmp_req_keys = []
+                for element in item:
+                    if element[1].required:
+                        tmp_req_keys.append(element[0])
+                if not sorted(tmp_req_keys) == sorted(required_keys):
+                    all_combinations.append(item)
+
+        for items in all_combinations:
+            keys = {}
+            for item in items:
+                if item[1].type == ParamType.ACCESS:
+                    keys[item[0]] = "public"
+                elif item[1].type == ParamType.DATE:
+                    keys[item[0]] = "2020"
+                else:
+                    keys[item[0]] = "foobar"
+
+            missing_key_helper(keys)
+
+        # Test for random non-existent key
+        missing_key_helper({"notakey": None})
 
     def test_bad_dates(self, client, server_config, user_ok, pbench_token):
         """
         Test behavior when a bad date string is given
         """
         parameter_types = [
-            parameter.type
-            for _, parameter in self.cls_obj.schema.parameters.items()
-            if parameter.required
+            parameter.type for _, parameter in self.cls_obj.schema.parameters.items()
         ]
-        if ParamType.DATE not in parameter_types or not all(
-            k in self.payload for k in ("start", "end")
+        if ParamType.DATE not in parameter_types or any(
+            k not in self.payload for k in ("start", "end")
         ):
-            pytest.skip("skipping the bad date test")
+            pytest.skip("skipping " + self.test_bad_dates.__name__)
 
         # Modify start and end time in the payload to make it look invalid
         self.payload["start"] = "2020-12"
@@ -178,12 +222,14 @@ class Commons:
         fixture.
         """
         if not self.empty_es_response_payload or not self.elastic_endpoint:
-            pytest.skip("skipping the empty query test")
+            pytest.skip("skipping " + self.test_empty_query.__name__)
         expected_status = HTTPStatus.OK
         if build_auth_header["header_param"] != "valid":
             expected_status = HTTPStatus.FORBIDDEN
 
-        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        index = self.build_index(
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
+        )
         response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
@@ -230,12 +276,14 @@ class Commons:
         Check that an exception in calling Elasticsearch is reported correctly.
         """
         if not self.elastic_endpoint:
-            pytest.skip("skipping the http exception test")
+            pytest.skip("skipping " + self.test_http_exception.__name__)
 
         # Make the start and end time in payload the same to result in an exception
         self.payload["end"] = self.payload["start"]
 
-        index = self.build_index(server_config, ("2020-08",))
+        index = self.build_index(
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
+        )
         query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
@@ -255,12 +303,11 @@ class Commons:
         response.raise_for_status() and Pbench handlers.
         """
         if not self.elastic_endpoint:
-            pytest.skip("skipping the http error test")
+            pytest.skip("skipping " + self.test_http_error.__name__)
 
-        # Make the start and end time in payload the same to result in an error
-        self.payload["end"] = self.payload["start"]
-
-        index = self.build_index(server_config, ("2020-08",))
+        index = self.build_index(
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
+        )
         query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,

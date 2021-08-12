@@ -25,32 +25,8 @@ class TestDatasetsDetail(Commons):
                 "start": "2020-08",
                 "end": "2020-10",
             },
-            empty_es_response_payload=Commons.empty_es_response_payload,
+            empty_es_response_payload=Commons.EMPTY_ES_RESPONSE_PAYLOAD,
         )
-
-    @pytest.mark.parametrize(
-        "keys",
-        (
-            {"user": "x"},
-            {"name": "y"},
-            {"start": "2020"},
-            {"end": "2020"},
-            {"user": "x", "start": "2020"},
-            {"user": "x", "end": "2020"},
-            {"user": "x", "name": "y", "start": "2021"},
-            {"some_additional_key": "test"},
-        ),
-    )
-    def test_missing_keys(self, client, server_config, keys, user_ok, pbench_token):
-        """
-        Test behavior when JSON payload does not contain
-        all required keys.
-
-        Note that "name", "start", and "end" are required whereas "user" is not mandatory;
-        however, Pbench will silently ignore any additional keys that are
-        specified.
-       """
-        self.missing_keys(client, server_config, keys, user_ok, pbench_token)
 
     @pytest.mark.parametrize(
         "user", ("drb", "badwolf", "no_user"),
@@ -141,7 +117,9 @@ class TestDatasetsDetail(Commons):
             },
         }
 
-        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        index = self.build_index(
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
+        )
 
         expected_status = HTTPStatus.OK
 
@@ -230,7 +208,9 @@ class TestDatasetsDetail(Commons):
         if build_auth_header["header_param"] != "valid":
             expected_status = HTTPStatus.FORBIDDEN
 
-        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        index = self.build_index(
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
+        )
         response = query_api(
             "/datasets/detail",
             "/_search?ignore_unavailable=true",
