@@ -2,8 +2,7 @@ import itertools
 import pytest
 import requests
 
-from dateutil import parser as date_parser
-from dateutil import rrule
+from dateutil import parser as date_parser, rrule
 from http import HTTPStatus
 from typing import AnyStr, Type
 
@@ -153,15 +152,12 @@ class Commons:
         parameter_items = self.cls_obj.schema.parameters.items()
 
         required_keys = [
-            key
-            for key, parameter in self.cls_obj.schema.parameters.items()
-            if parameter.required
+            key for key, parameter in parameter_items if parameter.required
         ]
 
         all_combinations = []
         for r in range(1, len(parameter_items) + 1):
-            combinations_object = list(itertools.combinations(parameter_items, r))
-            for item in combinations_object:
+            for item in itertools.combinations(parameter_items, r):
                 tmp_req_keys = [key for key, parameter in item if parameter.required]
                 if tmp_req_keys != required_keys:
                     all_combinations.append(item)
@@ -187,14 +183,14 @@ class Commons:
         """
         Test behavior when a bad date string is given
         """
-        if all(
-            p.type != ParamType.DATE for _, p in self.cls_obj.schema.parameters.items()
-        ) or any(k not in self.payload for k in ("start", "end")):
+        skip = True
+        for key, p in self.cls_obj.schema.parameters.items():
+            # Modify date/time key in the payload to make it look invalid
+            if p.type == ParamType.DATE and key in self.payload:
+                self.payload[key] = "2020-19"
+                skip = False
+        if skip:
             pytest.skip("skipping " + self.test_bad_dates.__name__)
-
-        # Modify start and end time in the payload to make it look invalid
-        self.payload["start"] = "2020-12"
-        self.payload["end"] = "2020-19"
         response = client.post(
             server_config.rest_uri + self.pbench_endpoint,
             headers={"Authorization": "Bearer " + pbench_token},
