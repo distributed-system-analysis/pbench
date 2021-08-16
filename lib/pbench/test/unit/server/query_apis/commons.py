@@ -2,6 +2,8 @@ import itertools
 import pytest
 import requests
 
+from dateutil import parser as date_parser
+from dateutil import rrule
 from http import HTTPStatus
 from typing import AnyStr, Type
 
@@ -65,11 +67,12 @@ class Commons:
         Builds list of range of dates between start and end
         It expects the date to look like YYYY-MM
         """
-        y, m_start = int(start[:4]), int(start[5:])
-        y, m_end = int(end[:4]), int(end[5:])
         date_range = []
-        for month in range(m_start, m_end + 1):
-            date_range.append(f"{y}-{month:02}")
+        start_date = date_parser.parse(start)
+        end_date = date_parser.parse(end)
+        assert start_date <= end_date
+        for m in rrule.rrule(rrule.MONTHLY, dtstart=start_date, until=end_date):
+            date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range
 
     def test_non_accessible_user_data(self, client, server_config, pbench_token):
@@ -159,38 +162,34 @@ class Commons:
         for r in range(1, len(parameter_items) + 1):
             combinations_object = list(itertools.combinations(parameter_items, r))
             for item in combinations_object:
-                tmp_req_keys = []
-                for element in item:
-                    if element[1].required:
-                        tmp_req_keys.append(element[0])
-                if not sorted(tmp_req_keys) == sorted(required_keys):
+                tmp_req_keys = [key for key, parameter in item if parameter.required]
+                if tmp_req_keys != required_keys:
                     all_combinations.append(item)
 
         for items in all_combinations:
             keys = {}
-            for item in items:
-                if item[1].type == ParamType.ACCESS:
-                    keys[item[0]] = "public"
-                elif item[1].type == ParamType.DATE:
-                    keys[item[0]] = "2020"
+            for key, parameter in items:
+                if parameter.type == ParamType.ACCESS:
+                    keys[key] = "public"
+                elif parameter.type == ParamType.DATE:
+                    keys[key] = "2020"
                 else:
-                    keys[item[0]] = "foobar"
+                    keys[key] = "foobar"
 
             missing_key_helper(keys)
 
-        # Test for random non-existent key
-        missing_key_helper({"notakey": None})
+        # Test in case all of the required keys are missing and some
+        # random non-existent key is present in the payload
+        if required_keys:
+            missing_key_helper({"notakey": None})
 
     def test_bad_dates(self, client, server_config, user_ok, pbench_token):
         """
         Test behavior when a bad date string is given
         """
-        parameter_types = [
-            parameter.type for _, parameter in self.cls_obj.schema.parameters.items()
-        ]
-        if ParamType.DATE not in parameter_types or any(
-            k not in self.payload for k in ("start", "end")
-        ):
+        if all(
+            p.type != ParamType.DATE for _, p in self.cls_obj.schema.parameters.items()
+        ) or any(k not in self.payload for k in ("start", "end")):
             pytest.skip("skipping " + self.test_bad_dates.__name__)
 
         # Modify start and end time in the payload to make it look invalid

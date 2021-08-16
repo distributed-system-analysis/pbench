@@ -25,7 +25,7 @@ class TestDatasetsDetail(Commons):
                 "start": "2020-08",
                 "end": "2020-10",
             },
-            empty_es_response_payload=Commons.EMPTY_ES_RESPONSE_PAYLOAD,
+            empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 
     @pytest.mark.parametrize(
