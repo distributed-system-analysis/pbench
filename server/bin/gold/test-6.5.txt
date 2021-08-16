@@ -225,6 +225,6 @@ drwxrwxr-x          - tmp
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-test|foo|fio__2016-08-18_15:47:09|UNPACKED| ARCHIVED = (4) True
-test|foo|pbench-user-benchmark__2016-08-24_21:32:01|UNPACKED| ARCHIVED = (4) True
+test|foo|fio__2016-08-18_15:47:09|UNPACKED| ARCHIVED = true
+test|foo|pbench-user-benchmark__2016-08-24_21:32:01|UNPACKED| ARCHIVED = true
 --- SqliteDB Datasets

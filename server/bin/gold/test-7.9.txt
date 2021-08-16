@@ -9936,5 +9936,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-freddie|dhcp31-144|pbench-user-benchmark__2017-04-21_20:38:16|INDEXED| INDEX_MAP = (138423) {"pbench-unittests.v6.run-data.2017-04": ["e67f9a770c94850a06db9c4bbe7f1ff9"], "
+freddie|dhcp31-144|pbench-user-benchmark__2017-04-21_20:38:16|INDEXED| INDEX_MAP = {"pbench-unittests.v6.run-data.2017-04": ["e67f9a770c94850a06db9c4bbe7f1ff9"], "pbench-unittests.v6.run-toc.2017-04": ["a840091364921c9d70756a7355d3f57c", "d0c6035fcccbda31d30e353229d29072", "1c3346ab941eddfb1b2a991cf22af127", "66bef871f9e9560d254e2bc9b2c1d5b7", "12c227cb992d73161c2ca9cac6688029", "7e33b5c693b19f746c40fff8576d5914", "cf4cee24603cd52eb80d8ab5a2648fe5", "cb78dfb81f7880a0231ef9f8efccc265", "ec418f48bf4d71b7b6f7548dca0f858b", "91df82972dedee1dd07f5a5715643f7f", "5f9eff7654429b57966aa1acbba6ffcf", "adfedd4f979b9ba84ddbc1048f9d2954", "b7d2c1a25805df26326e0a67151b34fd", "b4534a5b74f0212ba4bf6cde8c3b3522", "66d4561b81771acc78bb45c211b9ca32", "eefd776e9cb9e34540c4aa64c0eeb799", "632737d7c7fbbc1d33e9e1c067f89b7f", "6afdb0c0fda07a32dc4eae28b8924f77", "94cdc8b9e3cdbbdfc83fa3dd05e8083c", "54cef826cb5c160d621c66a3481d01f7", "614b526e467db84af38731d59a576b93", "3d64fbcffa330309f7cb6a2b5e2b4127", "bc7271843ca636262dabae92abd7915e"]}
 --- SqliteDB Datasets

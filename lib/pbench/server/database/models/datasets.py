@@ -5,15 +5,15 @@ from pathlib import Path
 from typing import Any, Tuple
 
 from sqlalchemy import (
+    event,
     Column,
-    Integer,
-    String,
-    Text,
     DateTime,
     Enum,
     ForeignKey,
+    Integer,
+    JSON,
+    String,
     UniqueConstraint,
-    event,
 )
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -671,6 +671,28 @@ class Metadata(Database.Base):
 
     __tablename__ = "dataset_metadata"
 
+    # +++ Standard Metadata keys:
+    # Lowercase keys are for client use, while uppercase keys are reserved for
+    # internal use.
+
+    # DELETION timestamp for dataset based on user settings and system
+    # settings at time the dataset is created.
+    #
+    # {"DELETION": "2021-12-25"}
+    DELETION = "deletion"
+
+    # SEEN boolean flag to indicate that a user has acknowledged the new
+    # dataset.
+    #
+    # {"SEEN": True}
+    SEEN = "seen"
+
+    # SAVED boolean flag to indicate that a user has accepted the new dataset
+    # for further curation.
+    #
+    # {"SAVED": True}
+    SAVED = "saved"
+
     # REINDEX boolean flag to indicate when a dataset should be re-indexed
     #
     # {"REINDEX": True}
@@ -684,20 +706,35 @@ class Metadata(Database.Base):
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.
     #
-    # {"TARBALL_PATH": "/srv/pbench/archive/fs-version-001/ctrl/example__2021.05.21T07.15.27.tar.xz"}
+    # {
+    #   "TARBALL_PATH": "/srv/pbench/archive/fs-version-001/"
+    #       "ctrl/example__2021.05.21T07.15.27.tar.xz"
+    # }
     TARBALL_PATH = "TARBALL_PATH"
 
-    # INDEX_MAP a two-level dict recording the MD5 document IDs for each
-    # Elasticsearch index containing documents for this dataset.
+    # INDEX_MAP a dict recording the set of MD5 document IDs for each
+    # Elasticsearch index that contains documents for this dataset.
     #
-    # {"drb.v6.run-data.2021-07": ["MD5"], "drb.v6.run-toc.2021-07": ["MD5-1", "MD5-2"]}
+    # {
+    #   "drb.v6.run-data.2021-07": ["MD5"],
+    #   "drb.v6.run-toc.2021-07": ["MD5-1", "MD5-2"]
+    # }
     INDEX_MAP = "INDEX_MAP"
 
-    METADATA_KEYS = [REINDEX, ARCHIVED, TARBALL_PATH, INDEX_MAP]
+    # --- Standard Metadata keys
+
+    # Metadata keys that are accessible to clients
+    USER_METADATA = [DELETION, SAVED, SEEN]
+
+    # Metadata keys that are for internal use only
+    INTERNAL_METADATA = [REINDEX, ARCHIVED, TARBALL_PATH, INDEX_MAP]
+
+    # All supported Metadata keys
+    METADATA_KEYS = USER_METADATA + INTERNAL_METADATA
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=False, nullable=False, index=True)
-    value = Column(Text, unique=False, nullable=True)
+    value = Column(JSON, unique=False, nullable=True)
     dataset_ref = Column(
         Integer, ForeignKey("datasets.id", ondelete="CASCADE"), nullable=False
     )

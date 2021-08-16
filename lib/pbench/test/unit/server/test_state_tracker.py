@@ -201,7 +201,7 @@ class TestStateTracker:
         # See if we can create a metadata row
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
         assert ds.metadatas == []
-        m = Metadata.create(key=Metadata.REINDEX, value="TRUE", dataset=ds)
+        m = Metadata.create(key=Metadata.REINDEX, value=True, dataset=ds)
         assert m is not None
         assert ds.metadatas == [m]
 

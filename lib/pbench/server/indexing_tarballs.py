@@ -1,7 +1,6 @@
 """Initialising Indexing class"""
 
 import glob
-import json
 import os
 import signal
 import tempfile
@@ -462,15 +461,15 @@ class Index:
                                             meta = Metadata.get(
                                                 dataset, Metadata.INDEX_MAP
                                             )
-                                            map = json.loads(meta.value)
+                                            map = meta.value
                                             map.update(ptb.index_map)
-                                            meta.value = json.dumps(map)
+                                            meta.value = map
                                             meta.update()
                                         except MetadataNotFound:
                                             Metadata.create(
                                                 dataset=dataset,
                                                 key=Metadata.INDEX_MAP,
-                                                value=json.dumps(ptb.index_map),
+                                                value=ptb.index_map,
                                             )
                                         except Exception as e:
                                             idxctx.logger.exception(

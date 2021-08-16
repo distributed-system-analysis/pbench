@@ -21,6 +21,12 @@ class DatasetsList(ElasticBase):
                 Parameter("controller", ParamType.STRING, required=True),
                 Parameter("start", ParamType.DATE, required=True),
                 Parameter("end", ParamType.DATE, required=True),
+                Parameter(
+                    "metadata",
+                    ParamType.LIST,
+                    element_type=ParamType.KEYWORD,
+                    keywords=ElasticBase.METADATA,
+                ),
             ),
         )
 
@@ -35,7 +41,8 @@ class DatasetsList(ElasticBase):
             "access": "private",
             "controller": "controller-name",
             "start": "start-time",
-            "end": "end-time"
+            "end": "end-time",
+            "metadata": ["seen", "saved"]
         }
 
         json_data: JSON dictionary of type-normalized key-value pairs
@@ -51,12 +58,21 @@ class DatasetsList(ElasticBase):
             "start" and "end" are time strings representing a set of
                 Elasticsearch run document indices in which the dataset will be
                 found.
-        context: Context passed from preprocess method: not used here.
+
+            "metadata" specifies the set of Dataset metadata properties the
+                caller needs to see. (If not specified, no metadata will be
+                returned.)
+
+        context: Context passed from preprocess method: used to propagate the
+            requested set of metadata to the postprocess method.
         """
         user = json_data.get("user")
         controller = json_data.get("controller")
         start = json_data.get("start")
         end = json_data.get("end")
+
+        # Copy client's metadata request to CONTEXT for postprocessor
+        context["metadata"] = json_data.get("metadata")
 
         self.logger.info(
             "Discover datasets for user {}, prefix {}: ({}: {} - {})",
@@ -103,7 +119,10 @@ class DatasetsList(ElasticBase):
     def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         """
         Returns a list of run documents including the name, the associated
-        controller, start and end timestamps:
+        controller, start and end timestamps. The Elasticsearch information can
+        be enriched with Dataset DB metadata based on the "metadata" JSON
+        parameter values, if specified.
+
         [
             {
                 "key": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
@@ -111,7 +130,11 @@ class DatasetsList(ElasticBase):
                 "run.name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
                 "run.controller": "dhcp31-187.example.com,
                 "run.start": "2020-04-29T12:49:13.560620",
-                "run.end": "2020-04-29T13:30:04.918704"
+                "run.end": "2020-04-29T13:30:04.918704",
+                "serverMetadata": {
+                    "deletion": "2021-11-05",
+                    "access": "private"
+                }
             }
         ]
         """
@@ -148,7 +171,14 @@ class DatasetsList(ElasticBase):
                     d["@metadata.controller_dir"] = meta["controller_dir"]
                 if "satellite" in meta:
                     d["@metadata.satellite"] = meta["satellite"]
+
+            m = self._get_metadata(run["controller"], run["name"], context["metadata"])
+            if m:
+                d["serverMetadata"] = m
+
             datasets.append(d)
+
+        self.logger.info("GOT THIS: {}", repr(datasets))
         result = {controller: datasets}
 
         # construct response object

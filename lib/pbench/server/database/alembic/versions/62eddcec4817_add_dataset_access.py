@@ -31,7 +31,7 @@ def upgrade():
     op.execute("UPDATE datasets SET access = 'private'")
     op.alter_column("datasets", "access", nullable=False)
     op.alter_column(
-        "dataset_metadata", "value", type_=sa.Text, existing_type=sa.String(2048)
+        "dataset_metadata", "value", type_=sa.JSON, existing_type=sa.String(2048)
     )
 
 
@@ -41,5 +41,5 @@ def downgrade():
     """
     op.drop_column("datasets", "access")
     op.alter_column(
-        "dataset_metadata", "value", type_=sa.String(2048), existing_type=sa.Text
+        "dataset_metadata", "value", type_=sa.String(2048), existing_type=sa.JSON
     )

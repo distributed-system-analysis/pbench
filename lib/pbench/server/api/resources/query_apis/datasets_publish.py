@@ -1,4 +1,3 @@
-import json
 from http import HTTPStatus
 from logging import Logger
 
@@ -124,7 +123,7 @@ class DatasetsPublish(ElasticBase):
             self.prefix,
         )
 
-        map = json.loads(Metadata.get(dataset=dataset, key=Metadata.INDEX_MAP).value)
+        map = Metadata.get(dataset=dataset, key=Metadata.INDEX_MAP).value
 
         # Construct an "NDJSON" document for a bulk update of all Elasticsearch
         # documents associated with the Dataset.
