@@ -183,24 +183,20 @@ class Commons:
         """
         Test behavior when a bad date string is given
         """
-        skip = True
         for key, p in self.cls_obj.schema.parameters.items():
             # Modify date/time key in the payload to make it look invalid
             if p.type == ParamType.DATE and key in self.payload:
                 self.payload[key] = "2020-19"
-                skip = False
-        if skip:
-            pytest.skip("skipping " + self.test_bad_dates.__name__)
-        response = client.post(
-            server_config.rest_uri + self.pbench_endpoint,
-            headers={"Authorization": "Bearer " + pbench_token},
-            json=self.payload,
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert (
-            response.json.get("message")
-            == "Value '2020-19' (str) cannot be parsed as a date/time string"
-        )
+                response = client.post(
+                    server_config.rest_uri + self.pbench_endpoint,
+                    headers={"Authorization": "Bearer " + pbench_token},
+                    json=self.payload,
+                )
+                assert response.status_code == HTTPStatus.BAD_REQUEST
+                assert (
+                    response.json.get("message")
+                    == "Value '2020-19' (str) cannot be parsed as a date/time string"
+                )
 
     def test_empty_query(
         self,
