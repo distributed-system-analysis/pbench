@@ -186,6 +186,7 @@ class Commons:
         for key, p in self.cls_obj.schema.parameters.items():
             # Modify date/time key in the payload to make it look invalid
             if p.type == ParamType.DATE and key in self.payload:
+                original_date_value = self.payload[key]
                 self.payload[key] = "2020-19"
                 response = client.post(
                     server_config.rest_uri + self.pbench_endpoint,
@@ -197,6 +198,7 @@ class Commons:
                     response.json.get("message")
                     == "Value '2020-19' (str) cannot be parsed as a date/time string"
                 )
+                self.payload[key] = original_date_value
 
     def test_empty_query(
         self,
