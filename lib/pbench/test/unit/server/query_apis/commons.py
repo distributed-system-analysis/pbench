@@ -269,9 +269,6 @@ class Commons:
         if not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_http_exception.__name__)
 
-        # Make the start and end time in payload the same to result in an exception
-        self.payload["end"] = self.payload["start"]
-
         index = self.build_index(
             server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
