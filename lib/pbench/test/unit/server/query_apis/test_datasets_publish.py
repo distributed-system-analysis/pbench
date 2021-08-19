@@ -2,8 +2,10 @@ import json
 import pytest
 import requests
 from http import HTTPStatus
+from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.users import User
+from pbench.test.unit.server.query_apis.commons import Commons
 
 
 @pytest.fixture()
@@ -74,7 +76,7 @@ def get_document_map(monkeypatch, attach_dataset):
         yield map
 
 
-class TestDatasetsPublish:
+class TestDatasetsPublish(Commons):
     """
     Unit testing for DatasetsPublish class.
 
@@ -83,37 +85,13 @@ class TestDatasetsPublish:
     constructor and `post` service.
     """
 
-    @pytest.mark.parametrize(
-        "keys",
-        (
-            {"controller": "x"},
-            {"name": "y"},
-            {"controller": "foobar", "access": "public"},
-            {"access": "public"},
-            {"controller": "foo", "access": "private", "whatkey": None},
-            {"controller": "one", "name": "mine", "notakey": "none"},
-            {"name": "y", "access": "private"},
-            {"notakey": None},
-        ),
-    )
-    def test_missing_keys(self, client, server_config, keys, user_ok, pbench_token):
-        """
-        Test behavior when JSON payload does not contain all required keys.
-
-        Note that "user", "controller", "name", and "access" are all required;
-        however Pbench will silently ignore any additional keys that are
-        specified.
-        """
-        response = client.post(
-            f"{server_config.rest_uri}/datasets/publish",
-            headers={"Authorization": "Bearer " + pbench_token},
-            json=keys,
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        missing = [k for k in ("controller", "name", "access") if k not in keys]
-        assert (
-            response.json.get("message")
-            == f"Missing required parameters: {','.join(missing)}"
+    @pytest.fixture(autouse=True)
+    def _setup(self, client):
+        super()._setup(
+            cls_obj=DatasetsPublish(client.config, client.logger),
+            pbench_endpoint="/datasets/publish",
+            elastic_endpoint="/_bulk?refresh=true",
+            payload={"controller": "node", "name": "drb", "access": "public"},
         )
 
     @pytest.mark.parametrize(
@@ -135,11 +113,7 @@ class TestDatasetsPublish:
         as the "name" key below. The authenticated caller is always "drb", so
         we expect access to the "test" dataset to fail with a permission error.
         """
-        payload = {
-            "controller": "node",
-            "name": owner,
-            "access": "public",
-        }
+        self.payload["name"] = owner
         map = json.loads(get_document_map.value)
         items = []
 
@@ -172,9 +146,9 @@ class TestDatasetsPublish:
             expected_status = HTTPStatus.FORBIDDEN
 
         response = query_api(
-            "/datasets/publish",
-            "/_bulk?refresh=true",
-            payload,
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
             "",
             expected_status,
             json=response_payload,
@@ -193,12 +167,6 @@ class TestDatasetsPublish:
         """
         Check the handling of a query that doesn't completely succeed.
         """
-        payload = {
-            "controller": "node",
-            "name": "drb",
-            "access": "public",
-        }
-
         items = []
         first = True
         map = json.loads(get_document_map.value)
@@ -238,9 +206,9 @@ class TestDatasetsPublish:
         }
 
         response = query_api(
-            "/datasets/publish",
-            "/_bulk?refresh=true",
-            payload,
+            self.pbench_endpoint,
+            self.elastic_endpoint,
+            self.payload,
             "",
             HTTPStatus.INTERNAL_SERVER_ERROR,
             json=response_payload,
@@ -288,15 +256,10 @@ class TestDatasetsPublish:
         """
         Check that an exception in calling Elasticsearch is reported correctly.
         """
-        payload = {
-            "controller": "node",
-            "name": "drb",
-            "access": "public",
-        }
         query_api(
             "/datasets/publish",
             "/_bulk?refresh=true",
-            payload,
+            self.payload,
             "",
             exceptions["status"],
             body=exceptions["exception"],
@@ -318,15 +281,10 @@ class TestDatasetsPublish:
         Check that an Elasticsearch error is reported correctly through the
         response.raise_for_status() and Pbench handlers.
         """
-        payload = {
-            "controller": "node",
-            "name": "drb",
-            "access": "public",
-        }
         query_api(
             "/datasets/publish",
             "/_bulk?refresh=true",
-            payload,
+            self.payload,
             "",
             HTTPStatus.BAD_GATEWAY,
             status=errors,

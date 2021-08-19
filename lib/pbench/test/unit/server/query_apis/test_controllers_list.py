@@ -1,9 +1,10 @@
 import pytest
-import requests
 from http import HTTPStatus
+from pbench.server.api.resources.query_apis.controllers_list import ControllersList
+from pbench.test.unit.server.query_apis.commons import Commons
 
 
-class TestControllersList:
+class TestControllersList(Commons):
     """
     Unit testing for resources/ControllersList class.
 
@@ -12,111 +13,14 @@ class TestControllersList:
     constructor and `post` service.
     """
 
-    def build_index(self, server_config, dates):
-        """
-        Build the index list for query
-
-        Args:
-            dates (iterable): list of date strings
-        """
-        idx = server_config.get("Indexing", "index_prefix") + ".v6.run-data."
-        index = "/"
-        for d in dates:
-            index += f"{idx}{d},"
-        return index
-
-    def test_non_accessible_user_data(self, client, server_config, pbench_token):
-        """
-        Test behavior when Authorization header does not have access to other user's data
-        """
-        # The pbench_token fixture logs in as user "drb"
-        # Trying to access the data belong to the user "pp"
-        response = client.post(
-            f"{server_config.rest_uri}/controllers/list",
-            headers={"Authorization": "Bearer " + pbench_token},
-            json={"user": "pp", "start": "2020-08", "end": "2020-10"},
-        )
-        assert response.status_code == HTTPStatus.FORBIDDEN
-
-    @pytest.mark.parametrize(
-        "user", ("drb", "pp"),
-    )
-    def test_accessing_user_data_with_invalid_token(
-        self, client, server_config, pbench_token, user
-    ):
-        """
-        Test behavior when Authorization header does not have access to other user's data
-        """
-        # valid token logout
-        response = client.post(
-            f"{server_config.rest_uri}/logout",
-            headers=dict(Authorization="Bearer " + pbench_token),
-        )
-        assert response.status_code == HTTPStatus.OK
-        response = client.post(
-            f"{server_config.rest_uri}/controllers/list",
-            headers={"Authorization": "Bearer " + pbench_token},
-            json={"user": user, "start": "2020-08", "end": "2020-10"},
-        )
-        assert response.status_code == HTTPStatus.FORBIDDEN
-
-    def test_missing_json_object(self, client, server_config, pbench_token):
-        """
-        Test behavior when no JSON payload is given
-        """
-        response = client.post(
-            f"{server_config.rest_uri}/controllers/list",
-            headers={"Authorization": "Bearer " + pbench_token},
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json.get("message") == "Invalid request payload"
-
-    @pytest.mark.parametrize(
-        "keys",
-        (
-            {"user": "x"},
-            {"start": "2020"},
-            {"end": "2020"},
-            {"user": "x", "start": "2020"},
-            {"user": "x", "end": "2020"},
-            {"some_additional_key": "test"},
-        ),
-    )
-    def test_missing_keys(
-        self, client, server_config, keys, find_template, user_ok, pbench_token
-    ):
-        """
-        Test behavior when JSON payload does not contain all required keys.
-
-        Note that "start", and "end" are required whereas "user" is not mandatory;
-        however, Pbench will silently ignore any additional keys that are
-        specified.
-        """
-        response = client.post(
-            f"{server_config.rest_uri}/controllers/list",
-            headers={"Authorization": "Bearer " + pbench_token},
-            json=keys,
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        missing = [k for k in ("start", "end") if k not in keys]
-        assert (
-            response.json.get("message")
-            == f"Missing required parameters: {','.join(missing)}"
-        )
-
-    def test_bad_dates(self, client, server_config, user_ok, pbench_token):
-        """
-        Test behavior when a bad date string is given
-        """
-        response = client.post(
-            f"{server_config.rest_uri}/controllers/list",
-            headers={"Authorization": "Bearer " + pbench_token},
-            json={"user": "drb", "start": "2020-12", "end": "2020-19"},
-        )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert (
-            response.json.get("message")
-            == "Value '2020-19' (str) cannot be parsed as a date/time string"
+    @pytest.fixture(autouse=True)
+    def _setup(self, client):
+        super()._setup(
+            cls_obj=ControllersList(client.config, client.logger),
+            pbench_endpoint="/controllers/list",
+            elastic_endpoint="/_search?ignore_unavailable=true",
+            payload={"user": "drb", "start": "2020-08", "end": "2020-10"},
+            empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 
     @pytest.mark.parametrize(
@@ -138,7 +42,7 @@ class TestControllersList:
         The test will run once with each parameter supplied from the local parameterization,
         and, for each of those, three times with different values of the build_auth_header fixture.
         """
-        json = {
+        payload = {
             "user": user,
             "access": "private",
             "start": "2020-08",
@@ -146,9 +50,9 @@ class TestControllersList:
         }
         # "no_user" means omitting the "user" parameter entirely.
         if user == "no_user":
-            json.pop("user", None)
+            payload.pop("user", None)
         if user == "no_user" or user is None:
-            json["access"] = "public"
+            payload["access"] = "public"
 
         response_payload = {
             "took": 1,
@@ -185,7 +89,9 @@ class TestControllersList:
             },
         }
 
-        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        index = self.build_index(
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
+        )
 
         # Determine whether we should expect the request to succeed, or to
         # fail with a permission error. We always authenticate with the
@@ -204,7 +110,7 @@ class TestControllersList:
         response = query_api(
             "/controllers/list",
             "/_search?ignore_unavailable=true",
-            json,
+            payload,
             index,
             expected_status,
             headers=build_auth_header["header"],
@@ -226,112 +132,3 @@ class TestControllersList:
             assert res_json[1]["results"] == 1
             assert res_json[1]["last_modified_value"] == 1.6
             assert res_json[1]["last_modified_string"] == "2020-09-26T20:19:15.810Z"
-
-    def test_empty_query(
-        self,
-        client,
-        server_config,
-        query_api,
-        user_ok,
-        find_template,
-        build_auth_header,
-        pbench_token,
-    ):
-        """
-        Check proper handling of a query resulting in no Elasticsearch matches.
-        The test will run thrice with different values of the build_auth_header
-        fixture.
-        """
-        json = {
-            "user": "drb",
-            "start": "2020-08",
-            "end": "2020-10",
-        }
-        response_payload = {
-            "took": 1,
-            "timed_out": False,
-            "_shards": {"total": 1, "successful": 1, "skipped": 0, "failed": 0},
-            "hits": {
-                "total": {"value": 0, "relation": "eq"},
-                "max_score": None,
-                "hits": [],
-            },
-        }
-
-        expected_status = HTTPStatus.OK
-        if build_auth_header["header_param"] != "valid":
-            expected_status = HTTPStatus.FORBIDDEN
-
-        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
-        response = query_api(
-            "/controllers/list",
-            "/_search?ignore_unavailable=true",
-            json,
-            index,
-            expected_status,
-            headers=build_auth_header["header"],
-            status=HTTPStatus.OK,
-            json=response_payload,
-        )
-        assert response.status_code == expected_status
-        if response.status_code == HTTPStatus.OK:
-            assert response.json == []
-
-    @pytest.mark.parametrize(
-        "exceptions",
-        (
-            {
-                "exception": requests.exceptions.ConnectionError(),
-                "status": HTTPStatus.BAD_GATEWAY,
-            },
-            {
-                "exception": requests.exceptions.Timeout(),
-                "status": HTTPStatus.GATEWAY_TIMEOUT,
-            },
-            {
-                "exception": requests.exceptions.InvalidURL(),
-                "status": HTTPStatus.INTERNAL_SERVER_ERROR,
-            },
-            {"exception": Exception(), "status": HTTPStatus.INTERNAL_SERVER_ERROR},
-            {"exception": ValueError(), "status": HTTPStatus.INTERNAL_SERVER_ERROR},
-        ),
-    )
-    def test_http_exception(
-        self, server_config, query_api, exceptions, user_ok, find_template
-    ):
-        """
-        Check that an exception in calling Elasticsearch is reported correctly.
-        """
-        json = {
-            "start": "2020-08",
-            "end": "2020-08",
-        }
-        index = self.build_index(server_config, ("2020-08",))
-        query_api(
-            "/controllers/list",
-            "/_search?ignore_unavailable=true",
-            json,
-            index,
-            exceptions["status"],
-            body=exceptions["exception"],
-        )
-
-    @pytest.mark.parametrize("errors", (400, 500, 409))
-    def test_http_error(self, server_config, query_api, errors, user_ok, find_template):
-        """
-        Check that an Elasticsearch error is reported correctly through the
-        response.raise_for_status() and Pbench handlers.
-        """
-        json = {
-            "start": "2020-08",
-            "end": "2020-08",
-        }
-        index = self.build_index(server_config, ("2020-08",))
-        query_api(
-            "/controllers/list",
-            "/_search?ignore_unavailable=true",
-            json,
-            index,
-            HTTPStatus.BAD_GATEWAY,
-            status=errors,
-        )
