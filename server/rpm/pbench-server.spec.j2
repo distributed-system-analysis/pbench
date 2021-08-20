@@ -59,7 +59,7 @@ mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
 %post
 # Install python dependencies
-pip3 --no-cache-dir install --prefix=/%{installdir} -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log
+pip3 --no-cache-dir install -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log
 
 # install node.js modules under /%{installdir}
 cd /%{installdir}
