@@ -322,7 +322,7 @@ hostname-fqdn = agent.example.com
 hostname-ip-address = 172.0.0.1 127.0.0.1
 hostname-nis = hostname[mock]: Local domain name not set
 hostname-short = agent
-ssh_opts = -o StrictHostKeyChecking=no
+ssh_opts = -o BatchMode=yes -o StrictHostKeyChecking=no
 
 [run]
 controller = testhost.example.com
@@ -639,7 +639,7 @@ scrape_configs:
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
 /var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n pbench-sysstat
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no remote-a.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-a.example.com yes
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no remote-b.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-b.example.com yes
-/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no remote-c.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-c.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-a.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-a.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-b.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-b.example.com yes
+/var/tmp/pbench-test-utils/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no remote-c.example.com /var/tmp/pbench-test-utils/opt/pbench-agent/util-scripts/tool-meister/pbench-tool-meister-remote localhost 17001 tm-lite-remote-c.example.com yes
 --- test-execution.log file contents

@@ -89,13 +89,13 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-start --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-tool-meister-stop --sysinfo=default default
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/rpm --query --queryformat=%{EVR}\n fio
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.1.1 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.1.1 firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.1.1 if [ -L /dev/sda0 ]; then dev=/dev/; fi; test -b /dev/sda0
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.1.1 if [ -L /dev/sda1 ]; then dev=/dev/; fi; test -b /dev/sda1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.1.1 killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.1.1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-16_1900.01.01T00.00.00/1-rw-42KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no 192.168.1.1 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-16_1900.01.01T00.00.00/1-rw-42KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.1.1 /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.1.1 firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.1.1 if [ -L /dev/sda0 ]; then dev=/dev/; fi; test -b /dev/sda0
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.1.1 if [ -L /dev/sda1 ]; then dev=/dev/; fi; test -b /dev/sda1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.1.1 killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.1.1 mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-16_1900.01.01T00.00.00/1-rw-42KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no 192.168.1.1 pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-16_1900.01.01T00.00.00/1-rw-42KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done 192.168.1.1 8765
 --- test-execution.log file contents
 +++ fio_test-16_1900.01.01T00.00.00/metadata.log file contents
