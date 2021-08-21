@@ -25,7 +25,7 @@ class ResultsPush(BaseCommand):
         return 0
 
 
-@click.command("pbench-results-push")
+@click.command(name="pbench-results-push")
 @common_options
 @click.option(
     "--token",
