@@ -22,8 +22,8 @@ class MoveResults(BaseCommand):
     interface.
 
     This command is responsible for finding all the existing pbench data
-    collection on the local host (controller), package them up as a tar ball,
-    and send to the remote pbench server.
+    directories on the local host (controller), package each of them up as a
+    tar ball and sending it to the remote pbench server.
     """
 
     def __init__(self, context: CliContext):
