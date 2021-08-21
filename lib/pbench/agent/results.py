@@ -26,14 +26,16 @@ class MakeResultTb:
         marker present.
         """
 
-        pass
+        def __init__(self):
+            super().__init__(".copied marker present in result directory")
 
     class BenchmarkRunning(RuntimeError):
         """Specific run time error raised when a result directory has a .running
         marker present.
         """
 
-        pass
+        def __init__(self):
+            super().__init__(".running marker present in result directory")
 
     def __init__(
         self,
