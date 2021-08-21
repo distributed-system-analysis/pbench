@@ -88,6 +88,25 @@ def gen_list(backup):
                     yield tb_dt, c_entry.name, tb
 
 
+def escape_quotes(string):
+    """Escape single and double quotes in a string suitable for use in a shell
+    command.
+
+    Returns the string with the quotes escaped.
+    """
+    return re.sub("(['\"])", r"\\\1", string)
+
+
+def report_tb(*args, **kwargs):
+    """Report on the current state of tar balls processed.
+    """
+    fmt = (
+        "\nFile {combined:d} of {cnt:d} ({restored:d} restored,"
+        " {existing:d} existing, so far), {state}: {tb}\n"
+    )
+    print(fmt.format(**kwargs), flush=True)
+
+
 def main(options):
     if not options.cfg_name:
         print(
@@ -103,23 +122,39 @@ def main(options):
         print(f"{_NAME_}: {e}", file=sys.stderr)
         return 2
 
-    archive = config.ARCHIVE
-    archive_p = Path(archive).resolve(strict=True)
+    try:
+        archive_p = Path(config.ARCHIVE).resolve(strict=True)
+    except Exception as e:
+        print(
+            f"{_NAME_}: ERROR: The configured ARCHIVE directory,"
+            f" {config.ARCHIVE}, does not exist: {e}",
+            file=sys.stderr,
+        )
+        return 2
 
     if not archive_p.is_dir():
         print(
-            f"The configured ARCHIVE directory, {archive}, is not a valid directory",
+            f"{_NAME_}: ERROR: The configured ARCHIVE directory, {archive_p},"
+            " is not a valid directory",
             file=sys.stderr,
         )
         return 2
 
     backup = config.conf.get("pbench-server", "pbench-backup-dir")
-    backup_p = Path(backup).resolve(strict=True)
+    try:
+        backup_p = Path(backup).resolve(strict=True)
+    except Exception as e:
+        print(
+            f"{_NAME_}: ERROR: The configured pbench-backup-dir directory,"
+            f" {backup}, does not exist: {e}",
+            file=sys.stderr,
+        )
+        return 2
 
     if not backup_p.is_dir():
         print(
-            "The configured pbench-backup-dir directory, {backup}, is not a"
-            " valid directory",
+            f"{_NAME_}: ERROR: The configured pbench-backup-dir directory,"
+            f" {backup}, is not a valid directory",
             file=sys.stderr,
         )
         return 2
@@ -154,19 +189,13 @@ def main(options):
 
             if a_tb.exists():
                 tbs_existing += 1
-                exists_fmt = (
-                    "\nFile {:d} of {:d} ({:d} restored,"
-                    " {:d} existing, so far), exists: {}\n"
-                )
-                print(
-                    exists_fmt.format(
-                        tbs_restored + tbs_existing,
-                        tbs_cnt,
-                        tbs_restored,
-                        tbs_existing,
-                        a_tb,
-                    ),
-                    flush=True,
+                report_tb(
+                    state="exists",
+                    combined=tbs_restored + tbs_existing,
+                    restored=tbs_restored,
+                    existing=tbs_existing,
+                    cnt=tbs_cnt,
+                    tb=a_tb,
                 )
                 continue
 
@@ -183,9 +212,7 @@ def main(options):
                 ctrl_created[ctrl] = True
 
             # Copy tar ball to archive tree, along with its .md5 ...
-            cp_cmd = f"cp -a {tb} {tb}.md5 {ctrl_p}/".replace('"', '\\"').replace(
-                "'", "\\'"
-            )
+            cp_cmd = escape_quotes(f"cp -a {tb} {tb}.md5 {ctrl_p}/")
             print(f"\n{cp_cmd}", flush=True)
             if not options.dry_run:
                 cp = subprocess.run(cp_cmd, shell=True, stderr=subprocess.STDOUT)
@@ -196,16 +223,14 @@ def main(options):
                     )
                     return 1
             # ... and run md5sum check against it
-            md5sum_cmd = f"md5sum --check {a_tb}.md5".replace('"', '\\"').replace(
-                "'", "\\'"
-            )
+            md5sum_cmd = escape_quotes(f"md5sum --check {a_tb}.md5")
             print(md5sum_cmd, flush=True)
             if not options.dry_run:
                 # NOTE: we have to set the current working directory for the
                 # md5sum --check command to the controller directory since the
                 # contents of the .md5 file uses a relative file reference.
                 cp = subprocess.run(
-                    md5sum_cmd, shell=True, stderr=subprocess.STDOUT, cwd=str(ctrl_p)
+                    md5sum_cmd, shell=True, stderr=subprocess.STDOUT, cwd=ctrl_p
                 )
                 if cp.returncode != 0:
                     print(
@@ -234,19 +259,13 @@ def main(options):
 
             tbs_restored += 1
 
-            restored_fmt = (
-                "\nFile {:d} of {:d} ({:d} restored,"
-                " {:d} existing, so far), restored: {}\n"
-            )
-            print(
-                restored_fmt.format(
-                    tbs_restored + tbs_existing,
-                    tbs_cnt,
-                    tbs_restored,
-                    tbs_existing,
-                    a_tb,
-                ),
-                flush=True,
+            report_tb(
+                state="restored",
+                combined=tbs_restored + tbs_existing,
+                restored=tbs_restored,
+                existing=tbs_existing,
+                cnt=tbs_cnt,
+                tb=a_tb,
             )
         except Exception as exc:
             print(
