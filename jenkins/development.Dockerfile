@@ -79,6 +79,7 @@ RUN \
         python3-mock \
         python3-pip \
         python3-psutil \
+        python3-psycopg2 \
         python3-pytest \
         python3-pytest-cov \
         python3-pytest-helpers-namespace \
