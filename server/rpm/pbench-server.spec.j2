@@ -45,6 +45,10 @@ The pbench server scripts.
 
 %build
 
+%pre
+getent group pbench > /dev/null || groupadd pbench
+getent passwd pbench > /dev/null || useradd -g pbench -d /home/pbench -c "Pbench user" pbench
+
 %install
 rm -rf %{buildroot}
 
@@ -58,8 +62,11 @@ cp -a ./web-server/* %{buildroot}/%{installdir}/%{static}
 mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
 %post
-# Install python dependencies
-pip3 --no-cache-dir install -r /%{installdir}/requirements.txt > /%{installdir}/pip3-install.log
+# Install python dependencies for pbench user
+(su pbench -c "pip3 --no-cache-dir install --user -r /%{installdir}/requirements.txt") > /%{installdir}/pip3-install.log
+
+# Add install directory into the pbench user default PYTHONPATH
+su pbench -c "echo /%{installdir}/lib > \$(python3 -m site --user-site)/pbench.pth"
 
 # install node.js modules under /%{installdir}
 cd /%{installdir}
