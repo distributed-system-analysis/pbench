@@ -217,7 +217,7 @@ class Commons:
         if not self.empty_es_response_payload or not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_empty_query.__name__)
         expected_status = HTTPStatus.OK
-        if build_auth_header["header_param"] != "valid":
+        if build_auth_header["header_param"] not in ["valid", "valid_admin"]:
             expected_status = HTTPStatus.FORBIDDEN
 
         index = self.build_index(

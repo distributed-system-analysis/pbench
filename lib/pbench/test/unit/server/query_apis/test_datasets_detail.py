@@ -134,6 +134,8 @@ class TestDatasetsDetail(Commons):
             or build_auth_header["header_param"] == "valid"
         ) and user != "badwolf":
             expected_status = HTTPStatus.OK
+        elif user == "drb" and build_auth_header["header_param"] == "valid_admin":
+            expected_status = HTTPStatus.OK
         else:
             expected_status = HTTPStatus.FORBIDDEN
 
@@ -205,7 +207,7 @@ class TestDatasetsDetail(Commons):
         fixture.
         """
         expected_status = HTTPStatus.BAD_REQUEST
-        if build_auth_header["header_param"] != "valid":
+        if build_auth_header["header_param"] not in ["valid", "valid_admin"]:
             expected_status = HTTPStatus.FORBIDDEN
 
         index = self.build_index(

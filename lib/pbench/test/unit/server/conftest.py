@@ -165,6 +165,20 @@ def create_user() -> User:
 
 
 @pytest.fixture
+def create_admin_user() -> User:
+    user = User(
+        email="test_admin@example.com",
+        password="12345",
+        username="test_admin",
+        first_name="Admin",
+        last_name="Account",
+        role="ADMIN",
+    )
+    user.add()
+    return user
+
+
+@pytest.fixture
 def user_ok(monkeypatch, create_user):
     """
     Override the Auth.validate_user method to pass without checking the
@@ -402,6 +416,16 @@ def find_template(monkeypatch, fake_mtime):
 
 
 @pytest.fixture
+def pbench_admin_token(client, server_config, create_admin_user):
+    # Login admin user to get valid pbench token
+    response = login_user(client, server_config, "test_admin", "12345")
+    assert response.status_code == HTTPStatus.OK
+    data = response.json
+    assert data["auth_token"]
+    return data["auth_token"]
+
+
+@pytest.fixture
 def pbench_token(client, server_config):
     # First create a user
     response = register_user(
@@ -423,11 +447,16 @@ def pbench_token(client, server_config):
     return data["auth_token"]
 
 
-@pytest.fixture(params=("valid", "invalid", "empty"))
-def build_auth_header(request, server_config, pbench_token, client):
-    header = (
-        {} if request.param == "empty" else {"Authorization": "Bearer " + pbench_token}
-    )
+@pytest.fixture(params=("valid", "invalid", "empty", "valid_admin"))
+def build_auth_header(request, server_config, pbench_token, pbench_admin_token, client):
+    if request.param == "valid_admin":
+        header = {"Authorization": "Bearer " + pbench_admin_token}
+    else:
+        header = (
+            {}
+            if request.param == "empty"
+            else {"Authorization": "Bearer " + pbench_token}
+        )
 
     if request.param == "invalid":
         # Create an invalid token by logging the user out

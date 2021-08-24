@@ -25,7 +25,7 @@ class Database:
             return None
 
     @staticmethod
-    def init_db(server_config, logger):
+    def init_db(server_config, logger, expire_on_commit=True):
         # Attach the logger to the base class for models to find
         if logger and not hasattr(Database.Base, "logger"):
             Database.Base.logger = logger
@@ -38,6 +38,11 @@ class Database:
         engine = create_engine(Database.get_engine_uri(server_config, logger))
         Database.Base.metadata.create_all(bind=engine)
         Database.db_session = scoped_session(
-            sessionmaker(bind=engine, autocommit=False, autoflush=False)
+            sessionmaker(
+                bind=engine,
+                autocommit=False,
+                autoflush=False,
+                expire_on_commit=expire_on_commit,
+            )
         )
         Database.Base.query = Database.db_session.query_property()
