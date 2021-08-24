@@ -6,28 +6,7 @@ from http import HTTPStatus
 from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.database import Database
-
-
-def register_user(
-    client, server_config, email, username, password, firstname, lastname
-):
-    return client.post(
-        f"{server_config.rest_uri}/register",
-        json={
-            "email": email,
-            "password": password,
-            "username": username,
-            "first_name": firstname,
-            "last_name": lastname,
-        },
-    )
-
-
-def login_user(client, server_config, username, password):
-    return client.post(
-        f"{server_config.rest_uri}/login",
-        json={"username": username, "password": password},
-    )
+from pbench.test.unit.server.conftest import register_user, login_user, admin_username
 
 
 class TestUserAuthentication:
@@ -462,7 +441,7 @@ class TestUserAuthentication:
             assert response.json["message"] == "Not authorized to access user username1"
 
     @staticmethod
-    def test_admin_access(client, server_config, create_admin_user):
+    def test_admin_access(client, server_config, pbench_admin_token):
         with client:
             resp_register = register_user(
                 client,
@@ -475,38 +454,28 @@ class TestUserAuthentication:
             )
             assert resp_register.status_code == HTTPStatus.CREATED
 
-            # admin user login
-            resp_login = login_user(client, server_config, "test_admin", "12345")
-            data_login = resp_login.json
-            assert data_login["auth_token"]
-
             # Update user with admin credentials
             response = client.put(
                 f"{server_config.rest_uri}/user/username",
                 json={"first_name": "newname"},
-                headers=dict(Authorization="Bearer " + data_login["auth_token"]),
+                headers=dict(Authorization="Bearer " + pbench_admin_token),
             )
             assert response.status_code == HTTPStatus.OK
 
             # Delete user with admin credentials
             response = client.delete(
                 f"{server_config.rest_uri}/user/username",
-                headers=dict(Authorization="Bearer " + data_login["auth_token"]),
+                headers=dict(Authorization="Bearer " + pbench_admin_token),
             )
             assert response.status_code == HTTPStatus.OK
 
     @staticmethod
-    def test_admin_delete(client, server_config, create_admin_user):
-        # admin user login
-        resp_login = login_user(client, server_config, "test_admin", "12345")
-        data_login = resp_login.json
-        assert data_login["auth_token"]
-
+    def test_admin_delete(client, server_config, pbench_admin_token):
         # Delete admin user with admin credentials
         # We should not be able to delete an admin user
         response = client.delete(
-            f"{server_config.rest_uri}/user/test_admin",
-            headers=dict(Authorization="Bearer " + data_login["auth_token"]),
+            f"{server_config.rest_uri}/user/{admin_username}",
+            headers=dict(Authorization="Bearer " + pbench_admin_token),
         )
         assert response.status_code == HTTPStatus.FORBIDDEN
         assert response.json["message"] == "Not authorized to delete user"

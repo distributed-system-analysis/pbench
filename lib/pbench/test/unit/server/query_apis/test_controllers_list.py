@@ -1,6 +1,7 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.controllers_list import ControllersList
+from pbench.test.unit.server.conftest import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -98,10 +99,9 @@ class TestControllersList(Commons):
         # don't expect success for an "invalid" authentication, for a different
         # user, or for an invalid username.
         if (
-            user == "no_user" or build_auth_header["header_param"] == "valid"
+            user == "no_user"
+            or build_auth_header["header_param"].value in HeaderTypes.valid_headers()
         ) and user != "badwolf":
-            expected_status = HTTPStatus.OK
-        elif user == "drb" and build_auth_header["header_param"] == "valid_admin":
             expected_status = HTTPStatus.OK
         else:
             expected_status = HTTPStatus.FORBIDDEN

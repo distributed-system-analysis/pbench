@@ -4,12 +4,12 @@ import os
 import pytest
 import shutil
 import tempfile
+from enum import Enum
 from pathlib import Path
 from posix import stat_result
 from stat import ST_MTIME
 
 from pbench.server.api import create_app, get_server_config
-from pbench.test.unit.server.test_user_auth import login_user, register_user
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.template import Template
@@ -49,6 +49,10 @@ index_prefix = unit-test
 path = %(install-dir)s/lib/config
 files = pbench-server-default.cfg
 """
+
+admin_username = "test_admin"
+admin_email = "test_admin@example.com"
+generic_password = "12345"
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -151,11 +155,55 @@ def db_session(server_config):
     Database.db_session.remove()
 
 
+def register_user(
+    client, server_config, email, username, password, firstname, lastname
+):
+    """
+    Helper function to register a user using register API
+    """
+    return client.post(
+        f"{server_config.rest_uri}/register",
+        json={
+            "email": email,
+            "password": password,
+            "username": username,
+            "first_name": firstname,
+            "last_name": lastname,
+        },
+    )
+
+
+def login_user(client, server_config, username, password):
+    """
+    Helper function to generate a user authentication token
+    """
+    return client.post(
+        f"{server_config.rest_uri}/login",
+        json={"username": username, "password": password},
+    )
+
+
+def db_expunge():
+    """
+    Remove/Detach the expired SQLALchemy ORM instance from the current session.
+
+    Note: For our unit tests since we depend on real db operation we need to expunge any expired orm instances,
+    otherwise it may couase some unexpected behavior with multiple db_sessions in play.
+
+    From sqlalchemy docs: A detached instance is an instance which corresponds, or previously corresponded,
+    to a record in the database, but is not currently in any session. The detached object will contain a
+    database identity marker, however because it is not associated with a session it is unknown whether or
+    not this database identity actually exists in a target database.
+    """
+    Database.db_session.expunge_all()
+
+
 @pytest.fixture()
 def create_user() -> User:
+    db_expunge()
     user = User(
         email="test@example.com",
-        password="12345",
+        password=generic_password,
         username="test",
         first_name="Test",
         last_name="Account",
@@ -166,10 +214,11 @@ def create_user() -> User:
 
 @pytest.fixture
 def create_admin_user() -> User:
+    db_expunge()
     user = User(
-        email="test_admin@example.com",
-        password="12345",
-        username="test_admin",
+        email=admin_email,
+        password=generic_password,
+        username=admin_username,
         first_name="Admin",
         last_name="Account",
         role="ADMIN",
@@ -418,7 +467,7 @@ def find_template(monkeypatch, fake_mtime):
 @pytest.fixture
 def pbench_admin_token(client, server_config, create_admin_user):
     # Login admin user to get valid pbench token
-    response = login_user(client, server_config, "test_admin", "12345")
+    response = login_user(client, server_config, admin_username, generic_password)
     assert response.status_code == HTTPStatus.OK
     data = response.json
     assert data["auth_token"]
@@ -427,6 +476,7 @@ def pbench_admin_token(client, server_config, create_admin_user):
 
 @pytest.fixture
 def pbench_token(client, server_config):
+    db_expunge()
     # First create a user
     response = register_user(
         client,
@@ -435,35 +485,46 @@ def pbench_token(client, server_config):
         firstname="firstname",
         lastname="lastName",
         email="user@domain.com",
-        password="12345",
+        password=generic_password,
     )
     assert response.status_code == HTTPStatus.CREATED
 
     # Login user to get valid pbench token
-    response = login_user(client, server_config, "drb", "12345")
+    response = login_user(client, server_config, "drb", generic_password)
     assert response.status_code == HTTPStatus.OK
     data = response.json
     assert data["auth_token"]
     return data["auth_token"]
 
 
-@pytest.fixture(params=("valid", "invalid", "empty", "valid_admin"))
-def build_auth_header(request, server_config, pbench_token, pbench_admin_token, client):
-    if request.param == "valid_admin":
-        header = {"Authorization": "Bearer " + pbench_admin_token}
-    else:
-        header = (
-            {}
-            if request.param == "empty"
-            else {"Authorization": "Bearer " + pbench_token}
-        )
+class HeaderTypes(Enum):
+    VALID = 1
+    VALID_ADMIN = 2
+    INVALID = 3
+    EMPTY = 4
 
-    if request.param == "invalid":
+    @staticmethod
+    def valid_headers():
+        return [HeaderTypes.VALID.value, HeaderTypes.VALID_ADMIN.value]
+
+
+@pytest.fixture(params=(header for header in HeaderTypes))
+def build_auth_header(request, server_config, pbench_token, pbench_admin_token, client):
+    if request.param == HeaderTypes.VALID_ADMIN:
+        header = {"Authorization": "Bearer " + pbench_admin_token}
+
+    elif request.param == HeaderTypes.VALID:
+        header = {"Authorization": "Bearer " + pbench_token}
+
+    elif request.param == HeaderTypes.INVALID:
         # Create an invalid token by logging the user out
         response = client.post(
             f"{server_config.rest_uri}/logout",
             headers=dict(Authorization="Bearer " + pbench_token),
         )
         assert response.status_code == HTTPStatus.OK
+        header = {"Authorization": "Bearer " + pbench_token}
 
+    else:
+        header = {}
     return {"header": header, "header_param": request.param}
