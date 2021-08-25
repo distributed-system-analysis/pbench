@@ -101,11 +101,9 @@ class TestDatasetsList(Commons):
         # user, or for an invalid username.
         if (
             user == "no_user"
-            or build_auth_header["header_param"].value in HeaderTypes.valid_headers()
+            or build_auth_header["header_param"] in HeaderTypes.valid_headers()
         ) and user not in ["badwolf", "notauser"]:
             expected_status = HTTPStatus.OK
-        # elif user == "drb" and build_auth_header["header_param"] == "valid_admin":
-        #     expected_status = HTTPStatus.OK
         else:
             expected_status = HTTPStatus.FORBIDDEN
 

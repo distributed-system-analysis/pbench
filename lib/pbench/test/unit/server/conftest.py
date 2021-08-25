@@ -4,7 +4,7 @@ import os
 import pytest
 import shutil
 import tempfile
-from enum import Enum
+from enum import IntEnum
 from pathlib import Path
 from posix import stat_result
 from stat import ST_MTIME
@@ -183,24 +183,8 @@ def login_user(client, server_config, username, password):
     )
 
 
-def db_expunge():
-    """
-    Remove/Detach the expired SQLALchemy ORM instance from the current session.
-
-    Note: For our unit tests since we depend on real db operation we need to expunge any expired orm instances,
-    otherwise it may couase some unexpected behavior with multiple db_sessions in play.
-
-    From sqlalchemy docs: A detached instance is an instance which corresponds, or previously corresponded,
-    to a record in the database, but is not currently in any session. The detached object will contain a
-    database identity marker, however because it is not associated with a session it is unknown whether or
-    not this database identity actually exists in a target database.
-    """
-    Database.db_session.expunge_all()
-
-
 @pytest.fixture()
 def create_user() -> User:
-    db_expunge()
     user = User(
         email="test@example.com",
         password=generic_password,
@@ -214,7 +198,6 @@ def create_user() -> User:
 
 @pytest.fixture
 def create_admin_user() -> User:
-    db_expunge()
     user = User(
         email=admin_email,
         password=generic_password,
@@ -476,7 +459,6 @@ def pbench_admin_token(client, server_config, create_admin_user):
 
 @pytest.fixture
 def pbench_token(client, server_config):
-    db_expunge()
     # First create a user
     response = register_user(
         client,
@@ -497,7 +479,7 @@ def pbench_token(client, server_config):
     return data["auth_token"]
 
 
-class HeaderTypes(Enum):
+class HeaderTypes(IntEnum):
     VALID = 1
     VALID_ADMIN = 2
     INVALID = 3
@@ -505,7 +487,7 @@ class HeaderTypes(Enum):
 
     @staticmethod
     def valid_headers():
-        return [HeaderTypes.VALID.value, HeaderTypes.VALID_ADMIN.value]
+        return [HeaderTypes.VALID, HeaderTypes.VALID_ADMIN]
 
 
 @pytest.fixture(params=(header for header in HeaderTypes))
@@ -525,6 +507,9 @@ def build_auth_header(request, server_config, pbench_token, pbench_admin_token, 
         assert response.status_code == HTTPStatus.OK
         header = {"Authorization": "Bearer " + pbench_token}
 
-    else:
+    elif request.param == HeaderTypes.EMPTY:
         header = {}
+
+    else:
+        assert False, f"Unexpected request.param value:  {request.param}"
     return {"header": header, "header_param": request.param}

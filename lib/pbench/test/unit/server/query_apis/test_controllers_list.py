@@ -100,7 +100,7 @@ class TestControllersList(Commons):
         # user, or for an invalid username.
         if (
             user == "no_user"
-            or build_auth_header["header_param"].value in HeaderTypes.valid_headers()
+            or build_auth_header["header_param"] in HeaderTypes.valid_headers()
         ) and user != "badwolf":
             expected_status = HTTPStatus.OK
         else:
