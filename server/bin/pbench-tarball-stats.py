@@ -4,7 +4,8 @@
 """Pbench Tar Ball Stats
 
 Scan through the ARCHIVE hierarchy for tar balls and report statistics from the
-tar ball names and their controller names.
+tar ball names and their controller names.  See the Jinja2 report template for
+what is included.
 """
 
 import collections
@@ -16,6 +17,8 @@ import sys
 from argparse import ArgumentParser, Namespace
 from datetime import datetime
 
+import jinja2
+
 import pbench
 
 
@@ -26,6 +29,7 @@ tb_pat = re.compile(
 )
 
 TarBallInfo = collections.namedtuple("TarBallInfo", ["ctrl", "tb", "dt", "stat"])
+TarBallStats = collections.namedtuple("TarBallStats", ["ctrls", "count", "size"])
 
 
 def gen_tar_balls(archive: str) -> TarBallInfo:
@@ -81,34 +85,83 @@ def gen_tar_balls(archive: str) -> TarBallInfo:
 
 def get_sat_name(ctrl: str):
     """Return the satellite name from the controller directory string, where
-    "-INT-" is returned if there isn't one.
+    "main" is returned if there isn't one.
     """
     parts = ctrl.split("::", 1)
-    return "-INT-" if len(parts) == 1 else parts[0]
+    return "main" if len(parts) == 1 else parts[0]
 
 
-def report_by_bucket(buckets: dict):
-    """Print reports for the provided dictionary of buckets, where the name of
-    the bucket is the key, and each bucket is a list of TarBallInfo objects.
+def transform_buckets(buckets: dict):
+    """Transform a given bucket to calculate the % tar balls by the origin
+    server.
     """
+    new_buckets = {}
     for bucket_name, bucket_list in sorted(buckets.items()):
         satellites = collections.Counter()
         count = len(bucket_list)
-        print(f"{bucket_name}: {count:7n}", end="")
         for item in bucket_list:
             satellites[get_sat_name(item.ctrl)] += 1
+        sats_pct = {}
         for name, total in sorted(satellites.items()):
             pct = (total / count) * 100.0
-            print(f" ({name} {pct:0.02f}%)", end="")
-        print("")
+            sats_pct[name] = pct
+        new_buckets[bucket_name] = dict(count=count, sats_pct=sats_pct)
+    return new_buckets
 
 
-def stringify_name_total_pairs(kv: dict) -> str:
-    """String-ify a dictionary `name`: `total` pairs, returning a comma
-    separated string of the values.
-    """
-    pairs = [f"{name} {total:n}" for name, total in sorted(kv.items())]
-    return ", ".join(pairs)
+# Jinja2 template for the report.  The following variables are required:
+#
+#   time_sec      - How long (in seconds) it took to find all the tar balls
+#   good          - named tuple
+#     .count      - # of good tar balls
+#     .size       - size (in bytes) of all good tar balls combined
+#     .ctrls      - dictionary of controller names mapped to counts of tar
+#                   balls from a given origin server
+#   server_origin - dictionary of pbench servers (main and satellites) names
+#                   mapped to counts of tar balls that originated there
+#   bad           - named tuple
+#     .count      - # of bad tar balls
+#     .size       - size (in bytes) of all bad tar balls combined
+#     .ctrls      - dictionary of controllers with bad tar balls
+#   by_year       - dictionary mapping counts of tar balls for each given
+#                   year generated, with mappings per satellite server
+#   by_month      - dictionary mapping counts of tar balls for each given
+#                   month generated, with mappings per satellite server
+#
+report_tmpl = """Summary Statistics for Tar Balls (external data only):
+
+    Took {{ "{:0.2f}".format(time_sec) }} seconds to find all tar balls.
+
+    Good Tar Balls:
+        {{ "{:18n}".format(good.count) }} count
+        {{ "{:18n}".format(good.size) }} size (bytes)
+
+        By Server Origin:
+        {% for name, value in server_origin.items() %}
+        {{ "{:18n}".format(value) }} {% if name == "main" %}{{ name }} pbench server{% else %}"{{ name }}" pbench satellite server{% endif +%}
+        {% endfor %}
+
+        Controller Counts:
+        {{ "{:18n}".format(good.ctrls.keys()|length) }} controllers
+        {% for name, value in satellites.items() %}
+        {{ "{:18n}".format(value) }} {% if name == "main" %}{{ name }} pbench server{% else %}"{{ name }}" pbench satellite server{% endif +%}
+        {% endfor %}
+
+    Bad Tar Balls:
+        {{ "{:18n}".format(bad.ctrls.keys()|length) }} controllers
+        {{ "{:18n}".format(bad.count) }} count
+        {{ "{:18n}".format(bad.size) }} size (bytes)
+
+
+Tar Ball Counts broken down by Year and Month, with satellite percentages:
+
+Year/Month   Total Count{% for name in server_origin.keys()|sort %}   {{ "% {0:>4s}".format(name) }}{% endfor +%}
+{% for name,value in by_year.items() %}
+{{ "{0:<10s}".format(name) }}   {{ "{:11d}".format(value.count) }}{% for name in server_origin.keys()|sort %}   {{ "{:4.2f}%".format(value.sats_pct[name]) }}{% endfor +%}
+{% endfor %}
+{% for name,value in by_month.items() %}
+{{ "{0:<10s}".format(name) }}   {{ "{:11d}".format(value.count) }}{% for name in server_origin.keys()|sort %}   {{ "{:4.2f}%".format(value.sats_pct[name]) }}{% endfor +%}
+{% endfor %}"""
 
 
 def main(options: Namespace) -> int:
@@ -149,13 +202,13 @@ def main(options: Namespace) -> int:
         )
         return 2
 
+    invalid = collections.defaultdict(list)
     invalid_cnt = 0
     invalid_size = 0
-    invalid = collections.defaultdict(list)
 
+    good = collections.defaultdict(list)
     good_cnt = 0
     good_size = 0
-    good = collections.defaultdict(list)
 
     by_year = collections.defaultdict(list)
     by_month = collections.defaultdict(list)
@@ -176,36 +229,30 @@ def main(options: Namespace) -> int:
             good_size += tb_rec.stat.st_size
             satellites_tb[get_sat_name(tb_rec.ctrl)] += 1
             year = tb_rec.dt.year
-            by_year[year].append(tb_rec)
+            by_year[str(year)].append(tb_rec)
             month = tb_rec.dt.month
             ym = f"{year:4d}-{month:02d}"
             by_month[ym].append(tb_rec)
 
-    time_sec = pbench._time() - start
-
-    print(f"Took {time_sec:0.2f} seconds")
-
-    print(f"{len(invalid.keys()):18n} controllers with bad tar balls")
-    print(f"{invalid_cnt:18n} bad tar balls, total count")
-    print(f"{invalid_size:18n} bad tar balls, total size")
-
-    print(f"{len(good.keys()):18n} controllers with good tar balls", end="")
+    satellites_ctrl = collections.Counter()
     if good:
-        satellites_ctrl = collections.Counter()
         for good_ctrl in good.keys():
             satellites_ctrl[get_sat_name(good_ctrl)] += 1
-        print(f" ({stringify_name_total_pairs(satellites_ctrl)})")
-    else:
-        print("")
-    print(f"{good_cnt:18n} good tar balls, total count", end="")
-    if good:
-        print(f" ({stringify_name_total_pairs(satellites_tb)})")
-    else:
-        print("")
-    print(f"{good_size:18n} good tar balls, total size")
 
-    report_by_bucket(by_year)
-    report_by_bucket(by_month)
+    time_sec = pbench._time() - start
+
+    tmpl = jinja2.Template(report_tmpl, trim_blocks=True, lstrip_blocks=True)
+    print(
+        tmpl.render(
+            time_sec=time_sec,
+            good=TarBallStats(count=good_cnt, size=good_size, ctrls=good),
+            bad=TarBallStats(count=invalid_cnt, size=invalid_size, ctrls=invalid),
+            server_origin=satellites_tb,
+            satellites=satellites_ctrl,
+            by_year=transform_buckets(by_year),
+            by_month=transform_buckets(by_month),
+        )
+    )
 
     return 0
 

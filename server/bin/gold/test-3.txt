@@ -197,13 +197,29 @@ len(actions) = 1
 pbench-satellite-cleanup: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench-satellite/public_html/results
 --- Finished pbench-satellite-cleanup (status=1)
 +++ Running pbench-tarball-stats
-Took 0.00 seconds
-                 0 controllers with bad tar balls
-                 0 bad tar balls, total count
-                 0 bad tar balls, total size
-                 0 controllers with good tar balls
-                 0 good tar balls, total count
-                 0 good tar balls, total size
+Summary Statistics for Tar Balls (external data only):
+
+    Took 0.00 seconds to find all tar balls.
+
+    Good Tar Balls:
+                         0 count
+                         0 size (bytes)
+
+        By Server Origin:
+
+        Controller Counts:
+                         0 controllers
+
+    Bad Tar Balls:
+                         0 controllers
+                         0 count
+                         0 size (bytes)
+
+
+Tar Ball Counts broken down by Year and Month, with satellite percentages:
+
+Year/Month   Total Count
+
 --- Finished pbench-tarball-stats (status=0)
 +++ Running unit test audit
 pbench-audit-server: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench/public_html/results
