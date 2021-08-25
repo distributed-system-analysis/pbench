@@ -91,7 +91,8 @@ fi
 if [[ "${PIPELINE}" == "re-unpack" ]]; then
     # The link source for re-unpacking.
     linksrc=TO-RE-UNPACK
-    # When re-unpacking, the default destination is enough.
+    # There is no destination state for re-unpacked tar balls since this is
+    # outside of the normal state transition chain.
     linkdestlist=""
 else
     # The link source for normal flow of unpacking.

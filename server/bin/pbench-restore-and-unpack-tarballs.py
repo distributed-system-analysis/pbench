@@ -48,6 +48,11 @@ md5_suffix_len = len(".md5")
 tb_pat_r = r"\S+_(\d\d\d\d)[._-](\d\d)[._-](\d\d)[T_](\d\d)[._:](\d\d)[._:](\d\d)\.tar\.xz\.md5"
 tb_pat = re.compile(tb_pat_r)
 
+report_tb_fmt = (
+    "\nFile {combined:d} of {cnt:d} ({restored:d} restored,"
+    " {existing:d} existing, so far), {state}: {tb}\n"
+)
+
 
 def gen_list(backup):
     """Traverse the given BACKUP hierarchy looking for all tar balls that have
@@ -97,16 +102,6 @@ def escape_quotes(string):
     return re.sub("(['\"])", r"\\\1", string)
 
 
-def report_tb(*args, **kwargs):
-    """Report on the current state of tar balls processed.
-    """
-    fmt = (
-        "\nFile {combined:d} of {cnt:d} ({restored:d} restored,"
-        " {existing:d} existing, so far), {state}: {tb}\n"
-    )
-    print(fmt.format(**kwargs), flush=True)
-
-
 def main(options):
     if not options.cfg_name:
         print(
@@ -126,8 +121,8 @@ def main(options):
         archive_p = Path(config.ARCHIVE).resolve(strict=True)
     except Exception as e:
         print(
-            f"{_NAME_}: ERROR: The configured ARCHIVE directory,"
-            f" {config.ARCHIVE}, does not exist: {e}",
+            f"{_NAME_}: ERROR: could not resolve configured ARCHIVE directory,"
+            f" {config.ARCHIVE}: {e}",
             file=sys.stderr,
         )
         return 2
@@ -145,8 +140,8 @@ def main(options):
         backup_p = Path(backup).resolve(strict=True)
     except Exception as e:
         print(
-            f"{_NAME_}: ERROR: The configured pbench-backup-dir directory,"
-            f" {backup}, does not exist: {e}",
+            f"{_NAME_}: ERROR: could not resolve the configured"
+            f" pbench-backup-dir directory, {backup}: {e}",
             file=sys.stderr,
         )
         return 2
@@ -189,13 +184,16 @@ def main(options):
 
             if a_tb.exists():
                 tbs_existing += 1
-                report_tb(
-                    state="exists",
-                    combined=tbs_restored + tbs_existing,
-                    restored=tbs_restored,
-                    existing=tbs_existing,
-                    cnt=tbs_cnt,
-                    tb=a_tb,
+                print(
+                    report_tb_fmt.format(
+                        state="exists",
+                        combined=tbs_restored + tbs_existing,
+                        restored=tbs_restored,
+                        existing=tbs_existing,
+                        cnt=tbs_cnt,
+                        tb=a_tb,
+                    ),
+                    flush=True,
                 )
                 continue
 
@@ -259,13 +257,16 @@ def main(options):
 
             tbs_restored += 1
 
-            report_tb(
-                state="restored",
-                combined=tbs_restored + tbs_existing,
-                restored=tbs_restored,
-                existing=tbs_existing,
-                cnt=tbs_cnt,
-                tb=a_tb,
+            print(
+                report_tb_fmt.format(
+                    state="restored",
+                    combined=tbs_restored + tbs_existing,
+                    restored=tbs_restored,
+                    existing=tbs_existing,
+                    cnt=tbs_cnt,
+                    tb=a_tb,
+                ),
+                flush=True,
             )
         except Exception as exc:
             print(
