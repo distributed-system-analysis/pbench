@@ -100,20 +100,20 @@ function _run_allscripts {
     # section in the unit test's pbench-server.cfg file - keep them
     # synchronized.
     _run pbench-sync-satellite satellite-one
-    # These next five are related and would flow in this order
+    # These next five are related and would flow in this order.
     _run pbench-dispatch
     _run pbench-unpack-tarballs small
     _run pbench-copy-sosreports
     _run pbench-index
     _run pbench-index --tool-data
-    # This next set are independent, running periodically to accomplish
-    # their specific tasks.
+    # These next five run periodically to accomplish specific tasks outside
+    # the normal transition pipeline.
     _run pbench-unpack-tarballs none re-unpack
     _run pbench-clean-up-dangling-results-links
     _run pbench-cull-unpacked-tarballs
     _run pbench-backup-tarballs
     _run pbench-verify-backup-tarballs
-    # Invoke pbench-satellite-cleanup in the context of the satellite
+    # Invoke pbench-satellite-cleanup in the context of the satellite.
     PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} _PBENCH_SERVER_CONFIG=${SATCONFIG} _run pbench-satellite-cleanup
 }
 
