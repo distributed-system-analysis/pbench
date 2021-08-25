@@ -46,7 +46,7 @@ def gen_tar_balls(archive: str) -> TarBallInfo:
 
     If we find a file in a controller directory that does not match the
     expected tar ball file name pattern, and is not a tar ball .md5 file,
-    we STILL generated a tuple for that file but with None for the datetime
+    we STILL generate a tuple for that file but with None for the datetime
     of that tuple.
     """
     with os.scandir(archive) as archive_scan:
@@ -134,6 +134,7 @@ report_tmpl = """Summary Statistics for Tar Balls (external data only):
 
     Good Tar Balls:
         {{ "{:18n}".format(good.count) }} count
+        {% if good.count > 0 %}
         {{ "{:18n}".format(good.size) }} size (bytes)
 
         By Server Origin:
@@ -146,12 +147,16 @@ report_tmpl = """Summary Statistics for Tar Balls (external data only):
         {% for name, value in satellites.items() %}
         {{ "{:18n}".format(value) }} {% if name == "main" %}{{ name }} pbench server{% else %}"{{ name }}" pbench satellite server{% endif +%}
         {% endfor %}
+        {% endif %}
 
+    {% if bad.count > 0 %}
     Bad Tar Balls:
         {{ "{:18n}".format(bad.ctrls.keys()|length) }} controllers
         {{ "{:18n}".format(bad.count) }} count
         {{ "{:18n}".format(bad.size) }} size (bytes)
 
+    {% endif %}
+{% if server_origin.keys()|length > 0 %}
 
 Tar Ball Counts broken down by Year and Month, with satellite percentages:
 
@@ -161,7 +166,8 @@ Year/Month   Total Count{% for name in server_origin.keys()|sort %}   {{ "% {0:>
 {% endfor %}
 {% for name,value in by_month.items() %}
 {{ "{0:<10s}".format(name) }}   {{ "{:11d}".format(value.count) }}{% for name in server_origin.keys()|sort %}   {{ "{:4.2f}%".format(value.sats_pct[name]) }}{% endfor +%}
-{% endfor %}"""
+{% endfor %}
+{% endif %}"""
 
 
 def main(options: Namespace) -> int:

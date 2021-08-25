@@ -364,11 +364,6 @@ Summary Statistics for Tar Balls (external data only):
                          3 main pbench server
                          3 "ONE" pbench satellite server
 
-    Bad Tar Balls:
-                         0 controllers
-                         0 count
-                         0 size (bytes)
-
 
 Tar Ball Counts broken down by Year and Month, with satellite percentages:
 

@@ -201,22 +201,7 @@ Summary Statistics for Tar Balls (external data only):
 
     Good Tar Balls:
                          0 count
-                         0 size (bytes)
 
-        By Server Origin:
-
-        Controller Counts:
-                         0 controllers
-
-    Bad Tar Balls:
-                         0 controllers
-                         0 count
-                         0 size (bytes)
-
-
-Tar Ball Counts broken down by Year and Month, with satellite percentages:
-
-Year/Month   Total Count
 
 --- Finished pbench-tarball-stats (status=0)
 +++ Running unit test audit
