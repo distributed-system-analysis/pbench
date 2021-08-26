@@ -23,6 +23,10 @@ JSONARRAY = List[JSONVALUE]
 JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
 JSON = JSONVALUE
 
+# A type defined to allow the preprocess subclass method to provide shared
+# context with the assemble and postprocess methods.
+CONTEXT = Dict[str, Any]
+
 
 class UnauthorizedAccess(Exception):
     """
@@ -147,6 +151,7 @@ def convert_date(value: str) -> datetime:
 
     Args:
         value: String representation of date/time
+        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -171,6 +176,7 @@ def convert_username(value: Union[str, None]) -> Union[str, None]:
 
     Args:
         value: external user representation
+        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -193,10 +199,11 @@ def convert_username(value: Union[str, None]) -> Union[str, None]:
 
 def convert_json(value: JSON) -> JSON:
     """
-    Validate a parameter of JSON type.
+    Process a parameter of JSON type.
 
     Args:
         value: JSON dict
+        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized

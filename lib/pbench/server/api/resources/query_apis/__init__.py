@@ -3,6 +3,7 @@ from http import HTTPStatus
 from logging import Logger
 from typing import Any, Callable, Dict
 from urllib.parse import urljoin
+from flask.wrappers import Response
 
 import requests
 from dateutil import rrule
