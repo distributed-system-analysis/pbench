@@ -3,15 +3,15 @@ from flask import jsonify
 from logging import Logger
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources.query_apis import (
+from pbench.server.api.resources import (
     CONTEXT,
-    ElasticBase,
     JSON,
     Schema,
     Parameter,
     ParamType,
     PostprocessError,
 )
+from pbench.server.api.resources.query_apis import ElasticBase
 
 
 class DatasetsDetail(ElasticBase):

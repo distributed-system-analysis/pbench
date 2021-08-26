@@ -4,13 +4,13 @@ from typing import Callable
 
 from pbench.server.api.auth import Auth, UnknownUser
 from pbench.server.database.models.users import User
-from pbench.server.api.resources.query_apis import (
-    ParamType,
+from pbench.server.api.resources import (
     ConversionError,
     InvalidRequestPayload,
     MissingParameters,
-    Parameter,
     Schema,
+    Parameter,
+    ParamType,
 )
 
 
