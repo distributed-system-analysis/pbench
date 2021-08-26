@@ -196,6 +196,16 @@ len(actions) = 1
 +++ Running pbench-satellite-cleanup
 pbench-satellite-cleanup: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench-satellite/public_html/results
 --- Finished pbench-satellite-cleanup (status=1)
++++ Running pbench-tarball-stats
+Summary Statistics for Tar Balls (external data only):
+
+    Took 0.00 seconds to find all tar balls.
+
+    Good Tar Balls:
+                         0 count
+
+
+--- Finished pbench-tarball-stats (status=0)
 +++ Running unit test audit
 pbench-audit-server: Bad RESULTS=/var/tmp/pbench-test-server/test-3/pbench/public_html/results
 --- Finished unit test audit (status=1)

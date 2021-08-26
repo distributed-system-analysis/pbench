@@ -115,6 +115,7 @@ function _run_allscripts {
     _run pbench-verify-backup-tarballs
     # Invoke pbench-satellite-cleanup in the context of the satellite.
     PATH=${_testopt_sat}/unittest-scripts:${_testopt_sat}/bin:${_orig_PATH} _PBENCH_SERVER_CONFIG=${SATCONFIG} _run pbench-satellite-cleanup
+    _run pbench-tarball-stats
 }
 
 function _local_find {

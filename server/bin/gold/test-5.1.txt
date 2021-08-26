@@ -276,6 +276,16 @@ len(actions) = 1
 --- Finished pbench-verify-backup-tarballs (status=0)
 +++ Running pbench-satellite-cleanup
 --- Finished pbench-satellite-cleanup (status=0)
++++ Running pbench-tarball-stats
+Summary Statistics for Tar Balls (external data only):
+
+    Took 0.00 seconds to find all tar balls.
+
+    Good Tar Balls:
+                         0 count
+
+
+--- Finished pbench-tarball-stats (status=0)
 +++ Running unit test audit
 Template:  pbench-unittests.v3.server-reports
 Index:  pbench-unittests.v3.server-reports.1970-01 1

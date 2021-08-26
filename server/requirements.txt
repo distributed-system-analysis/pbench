@@ -1,2 +1,3 @@
 boto3
 elasticsearch1
+jinja2>=3.0
