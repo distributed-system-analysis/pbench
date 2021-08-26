@@ -8,9 +8,9 @@ from pbench.server.api.resources import (
     ConversionError,
     InvalidRequestPayload,
     MissingParameters,
-    Schema,
     Parameter,
     ParamType,
+    Schema,
 )
 
 

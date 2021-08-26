@@ -4,15 +4,14 @@ from logging import Logger
 from flask import jsonify
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources.query_apis import (
-    CONTEXT,
-    ElasticBase,
+from pbench.server.api.resources import (
     JSON,
     Parameter,
     ParamType,
     PostprocessError,
     Schema,
 )
+from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 
 
 class IndexSearch(ElasticBase):
