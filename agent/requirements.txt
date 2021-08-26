@@ -1,7 +1,7 @@
 ansible
 bottle
 cffi
-click
+click>=8.0
 jinja2
 python-daemon
 python-pidfile
