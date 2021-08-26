@@ -23,10 +23,6 @@ JSONARRAY = List[JSONVALUE]
 JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
 JSON = JSONVALUE
 
-# A type defined to allow the preprocess subclass method to provide shared
-# context with the assemble and postprocess methods.
-CONTEXT = Dict[str, Any]
-
 
 class UnauthorizedAccess(Exception):
     """
