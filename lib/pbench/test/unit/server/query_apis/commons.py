@@ -7,7 +7,8 @@ from dateutil.relativedelta import relativedelta
 from http import HTTPStatus
 from typing import AnyStr, Type
 
-from pbench.server.api.resources.query_apis import ElasticBase, JSON, ParamType
+from pbench.server.api.resources import JSON, ParamType
+from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 

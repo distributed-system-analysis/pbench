@@ -23,10 +23,6 @@ JSONARRAY = List[JSONVALUE]
 JSONOBJECT = Dict[JSONSTRING, JSONVALUE]
 JSON = JSONVALUE
 
-# A type defined to allow the preprocess subclass method to provide shared
-# context with the assemble and postprocess methods.
-CONTEXT = Dict[str, Any]
-
 
 class UnauthorizedAccess(Exception):
     """
@@ -357,15 +353,10 @@ class Parameter:
 
 class Schema:
     """
-    Define the client input schema for a server query that's based on
-    Elasticsearch.
+    Define the client input schema for a server query.
 
     This provides methods to help validate a JSON client request payload as
     well as centralizing some type conversions.
-
-    This (and supporting classes above) are part of this module because they're
-    currently used only by the ElasticBase class. If they're found later to
-    have wider use they can be split out into a separate module.
     """
 
     def __init__(self, *parameters: Parameter):
@@ -428,21 +419,16 @@ class API_OPERATION(Enum):
 
 class ApiBase(Resource):
     """
-    A base class for Elasticsearch queries that allows subclasses to provide
-    custom pre- and post- processing.
+    A base class for Pbench queries that provides common parameter handling
+    behavior for specialized subclasses.
 
     This class extends the Flask Resource class in order to connect the post
     and get methods to Flask's URI routing algorithms. It implements a common
-    JSON client payload intake and validation, along with the mechanism for
-    calling Elasticsearch and processing errors.
+    JSON client payload intake and validation.
 
-    Hooks are defined for subclasses extending this class to "preprocess"
-    the query, to "assemble" the Elasticsearch request payload from Pbench
-    server data and the client's JSON payload, and to "postprocess" a
-    successful response payload from Elasticsearch.
-
-    Note that "preprocess" can provide context that's passed to the assemble
-    and postprocess methods.
+    Hooks are defined for subclasses extending this class to handle GET, POST,
+    PUT, and DELETE HTTP operations by overriding the abstract _get, _post,
+    _put, and _delete methods.
     """
 
     def __init__(
@@ -466,9 +452,10 @@ class ApiBase(Resource):
                     )
             role: specify the API role, defaulting to READ
 
-        NOTE: each class currently only supports one HTTP method, so we can
-        describe only one set of parameters. If we ever need to change this,
-        we can add a level and describe distinct parameters for each method.
+        NOTE: each class currently only supports a single schema across POST
+        and PUT operations. GET (and DELETE?) are assumed not to have/need a
+        request payload. If we ever need to change this, we can add a level
+        and describe a distinct Schema for each HTTP method.
         """
         super().__init__()
         self.logger = logger
@@ -571,12 +558,16 @@ class ApiBase(Resource):
                     message="INTERNAL ERROR IN VALIDATION",
                 )
 
-            # TODO: Is this specific to ElasticBase???
-            # Maybe a _validation_hook() method?? Or simply deferred to _call()?
-
             # Automatically authorize the operation only if the API schema has the
-            # "user" key; otherwise we assume that authorization is unnecessary, or
-            # that the API-specific subclass will take care of that in preprocess.
+            # "user" key of type USERNAME; otherwise we assume that authorization
+            # is unnecessary, or that the API-specific subclass will take care of
+            # that in preprocess.
+
+            # TODO: This should really be more flexible. (A) we should confirm
+            # that we're choosing a USERNAME type instead of blindly targeting
+            # "user" parameter name; (B) we should allow some other USERNAME
+            # typed parameter. I'm deliberately not making these changes in
+            # order to minimize the scope of this refactoring.
             if "user" in self.schema:
                 user = json_data.get("user")  # original username, not user ID
                 access = new_data.get("access")  # normalized access policy
@@ -660,41 +651,27 @@ class ApiBase(Resource):
     @Auth.token_auth.login_required(optional=True)
     def get(self):
         """
-        Handle a GET operation on the Resource
+        Handle an authenticated GET operation on the Resource
         """
         return self._dispatch(self._get, request)
 
     @Auth.token_auth.login_required(optional=True)
     def post(self):
         """
-        Handle a Pbench server POST operation that will involve a call to the
-        server's configured Elasticsearch instance. The assembly and
-        post-processing of the Elasticsearch query are handled by the
-        subclasses through the assemble() and postprocess() methods;
-        we do basic parameter validation and conversions here.
-
-        Each subclass provides a schema for allowed JSON parameters: this
-        code processes each JSON parameter in the dict to perform type
-        validation/conversion where necessary. Missing "required" parameters
-        and any parameter with a null value are rejected. Parameters that
-        are not in the class schema are ignored but logged.
-
-        If the request does not contain the user field, it will be interpreted
-        as a public dataset query. [TODO: See issue #2370 for more context on
-        plans for "user" vs "access" in queries.]
+        Handle an authenticated POST operation on the Resource
         """
         return self._dispatch(self._post, request)
 
     @Auth.token_auth.login_required(optional=True)
     def put(self):
         """
-        Handle a PUT operation on the Resource
+        Handle an authenticated PUT operation on the Resource
         """
         return self._dispatch(self._put, request)
 
     @Auth.token_auth.login_required(optional=True)
     def delete(self):
         """
-        Handle a DELETE operation on the Resource
+        Handle an authenticated DELETE operation on the Resource
         """
         return self._dispatch(self._delete, request)
