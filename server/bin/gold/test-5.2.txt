@@ -367,9 +367,9 @@ Summary Statistics for Tar Balls (external data only):
 
 Tar Ball Counts broken down by Year and Month, with satellite percentages:
 
-Year/Month   Total Count   % main   %  ONE
-1970                   8   62.50%   37.50%
-1970-01                8   62.50%   37.50%
+Year/Month   Total Count   %  main   %   ONE
+1970                   8    62.50%    37.50%
+1970-01                8    62.50%    37.50%
 
 --- Finished pbench-tarball-stats (status=0)
 +++ Running unit test audit
