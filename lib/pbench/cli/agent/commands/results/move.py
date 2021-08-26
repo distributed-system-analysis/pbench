@@ -109,7 +109,7 @@ class MoveResults(BaseCommand):
                         msg = "Error uploading file"
                     else:
                         msg = "Unexpected error occurred copying tar ball remotely"
-                    self.logger.error(f"{msg}, '%s', %s", result_tb_name, exc)
+                    self.logger.error("%s, '%s', %s", msg, result_tb_name, exc)
                     failures += 1
                     # We don't know why this operation failed; regardless,
                     # trying to copy another tar ball remotely does not have
