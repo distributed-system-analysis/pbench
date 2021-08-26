@@ -28,6 +28,7 @@ from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPubl
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
 from pbench.server.api.resources.query_apis.index_search import IndexSearch
 from pbench.server.api.auth import Auth
+from pbench.server.api.resources.datasets_metadata import DatasetsMetadata
 from pbench.server.api.resources.users_api import (
     RegisterUser,
     Login,
@@ -97,6 +98,11 @@ def register_endpoints(api, app, config):
     api.add_resource(
         DatasetsPublish,
         f"{base_uri}/datasets/publish",
+        resource_class_args=(config, logger),
+    )
+    api.add_resource(
+        DatasetsMetadata,
+        f"{base_uri}/datasets/metadata",
         resource_class_args=(config, logger),
     )
     api.add_resource(
