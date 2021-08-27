@@ -1,6 +1,7 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.index_search import IndexSearch
+from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -127,9 +128,7 @@ class TestIndexSearch(Commons):
         # field is to be omitted altogether, or if we have a valid
         # token, then the request should succeed.
         if (
-            not user
-            or user == "no_user"
-            or build_auth_header["header_param"] == "valid"
+            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
         ) and user != "badwolf":
             expected_status = HTTPStatus.OK
         else:

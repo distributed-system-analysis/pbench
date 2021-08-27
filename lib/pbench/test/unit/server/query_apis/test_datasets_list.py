@@ -100,8 +100,7 @@ class TestDatasetsList(Commons):
         # don't expect success for an "invalid" authentication, for a different
         # user, or for an invalid username.
         if (
-            user == "no_user"
-            or build_auth_header["header_param"] in HeaderTypes.valid_headers()
+            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
         ) and user not in ["badwolf", "notauser"]:
             expected_status = HTTPStatus.OK
         else:

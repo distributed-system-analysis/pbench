@@ -4,7 +4,6 @@ import os
 import pytest
 import shutil
 import tempfile
-from enum import IntEnum
 from pathlib import Path
 from posix import stat_result
 from stat import ST_MTIME
@@ -14,6 +13,7 @@ from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
+from pbench.test.unit.server.headertypes import HeaderTypes
 
 server_cfg_tmpl = """[DEFAULT]
 install-dir = {TMP}/opt/pbench-server
@@ -479,18 +479,7 @@ def pbench_token(client, server_config):
     return data["auth_token"]
 
 
-class HeaderTypes(IntEnum):
-    VALID = 1
-    VALID_ADMIN = 2
-    INVALID = 3
-    EMPTY = 4
-
-    @staticmethod
-    def valid_headers():
-        return [HeaderTypes.VALID, HeaderTypes.VALID_ADMIN]
-
-
-@pytest.fixture(params=(header for header in HeaderTypes))
+@pytest.fixture(params=[header for header in HeaderTypes])
 def build_auth_header(request, server_config, pbench_token, pbench_admin_token, client):
     if request.param == HeaderTypes.VALID_ADMIN:
         header = {"Authorization": "Bearer " + pbench_admin_token}

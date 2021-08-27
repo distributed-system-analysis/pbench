@@ -4,7 +4,7 @@ import requests
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.database.models.datasets import Dataset, Metadata
-from pbench.test.unit.server.conftest import HeaderTypes
+from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -75,7 +75,7 @@ class TestDatasetsPublish(Commons):
     """
 
     @pytest.fixture(autouse=True)
-    def _setup(self, client, server_config):
+    def _setup(self, client):
         super()._setup(
             cls_obj=DatasetsPublish(client.config, client.logger),
             pbench_endpoint="/datasets/publish",
