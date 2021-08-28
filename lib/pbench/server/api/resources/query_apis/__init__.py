@@ -3,11 +3,11 @@ from http import HTTPStatus
 from logging import Logger
 from typing import Any, Callable, Dict
 from urllib.parse import urljoin
-from flask.wrappers import Response
 
 import requests
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
+from flask.wrappers import Response
 from flask_restful import abort
 
 from pbench.server import PbenchServerConfig

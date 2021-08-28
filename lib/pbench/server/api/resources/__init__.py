@@ -4,11 +4,11 @@ from enum import Enum
 from http import HTTPStatus
 from logging import Logger
 from typing import Any, AnyStr, Callable, Dict, List, Union
-from flask.wrappers import Request, Response
 
 from dateutil import parser as date_parser
 from flask import request
 from flask_restful import Resource, abort
+from flask.wrappers import Request, Response
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import Dataset
@@ -55,8 +55,8 @@ class UnverifiedUser(SchemaError):
     """
 
     def __init__(self, username: str):
-        self.username = username
         super().__init__(status=HTTPStatus.UNAUTHORIZED)
+        self.username = username
 
     def __str__(self):
         return f"{self.username} can not be verified"
@@ -144,7 +144,6 @@ def convert_date(value: str) -> datetime:
 
     Args:
         value: String representation of date/time
-        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -158,7 +157,7 @@ def convert_date(value: str) -> datetime:
         raise ConversionError(value, "date/time string", type(value).__name__)
 
 
-def convert_username(value: str) -> str:
+def convert_username(value: Union[str, None]) -> Union[str, None]:
     """
     Convert the external string representation of a username by validating that
     the specified username exists, and returns the desired internal
@@ -170,7 +169,6 @@ def convert_username(value: str) -> str:
 
     Args:
         value: external user representation
-        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -197,7 +195,6 @@ def convert_json(value: JSON) -> JSON:
 
     Args:
         value: JSON dict
-        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -207,7 +204,7 @@ def convert_json(value: JSON) -> JSON:
     """
     try:
         if json.loads(json.dumps(value)) != value:
-            raise TypeError
+            raise TypeError(f"value {value!r} is not valid JSON")
     except Exception:
         raise ConversionError(value, "JSON", type(value).__name__) from None
     return value
@@ -220,7 +217,6 @@ def convert_string(value: str) -> str:
 
     Args:
         value: parameter value
-        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -237,10 +233,13 @@ def convert_list(value: list) -> list:
     """
     Verify that the parameter value is a list (e.g.,
     not a JSON dict, or an int), and return it.
+
     Args:
         value: REST API request parameter value
+
     Raises:
         ConversionError: input can't be converted
+
     Returns:
         the input value
     """
@@ -259,7 +258,6 @@ def convert_access(value: str) -> str:
 
     Args:
         value: parameter value
-        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -281,11 +279,6 @@ class ParamType(Enum):
 
     The common code can perform conversions on the required parameters with
     known types.
-
-    NOTE: In theory, `ACCESS` could be retired in favor of a `KEYWORD`; however
-    the plan is that `ACCESS` will evolve to support groups rather than just
-    the current "public" and "private" keywords (it would become more like the
-    `USER` lookup validator), so it makes sense to keep them separate.
     """
 
     ACCESS = ("Access", convert_access)
@@ -325,7 +318,6 @@ class Parameter:
         Args:
             name: Parameter name
             type: Parameter type
-            keywords: List of keywords for ParmType.KEYWORD
             required: whether the parameter is required (default to False)
         """
         self.name = name
@@ -335,7 +327,8 @@ class Parameter:
     def invalid(self, json: JSON) -> bool:
         """
         Check whether the value of this parameter in the JSON document
-        is invalid.
+        is invalid. A required parameter value must be non-null; a
+        parameter that's not required may be absent or null.
 
         Args:
             json: The client JSON document being validated.
@@ -344,7 +337,7 @@ class Parameter:
             True if the specified value is unacceptable
         """
         if self.name in json:
-            return json[self.name] is None
+            return json[self.name] is None and self.required
         else:
             return self.required
 
@@ -363,7 +356,6 @@ class Parameter:
     def __str__(self) -> str:
         return (
             f"Parameter<{self.name}:{self.type}"
-            f"{',' + str(self.keywords) if self.type == ParamType.KEYWORD else ''}"
             f"{',required' if self.required else ''}>"
         )
 
