@@ -9,6 +9,7 @@ from dateutil import parser as date_parser
 from flask import request
 from flask.wrappers import Request, Response
 from flask_restful import Resource, abort
+from flask.wrappers import Request, Response
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import Dataset
@@ -147,7 +148,6 @@ def convert_date(value: str) -> datetime:
 
     Args:
         value: String representation of date/time
-        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -172,7 +172,6 @@ def convert_username(value: Union[str, None]) -> Union[str, None]:
 
     Args:
         value: external user representation
-        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -199,7 +198,6 @@ def convert_json(value: JSON) -> JSON:
 
     Args:
         value: JSON dict
-        parameter: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
