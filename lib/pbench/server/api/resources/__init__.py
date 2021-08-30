@@ -319,8 +319,7 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
         for v in parameter.keywords:
             if v.casefold() == value.casefold():
                 return v
-        else:
-            raise KeywordError(parameter, "keyword", [value])
+        raise KeywordError(parameter, "keyword", [value])
     raise ConversionError(value, str(parameter.keywords), str.__name__)
 
 
