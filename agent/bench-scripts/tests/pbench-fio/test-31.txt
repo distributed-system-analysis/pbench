@@ -84,16 +84,16 @@ fio job complete
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-postprocess-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-start-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/pbench-stop-tools --group=default --dir=/var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeA /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeA firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeA killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeA mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeA pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeB /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeB firewall-cmd --add-port=8765/tcp >/dev/null
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeB killall fio >/dev/null 2>&1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeB mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
-/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o StrictHostKeyChecking=no nodeB pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeA pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB /var/tmp/pbench-test-bench/opt/pbench-agent/bench-scripts/pbench-fio --install
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB firewall-cmd --add-port=8765/tcp >/dev/null
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB killall fio >/dev/null 2>&1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB mkdir -p /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1
+/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/ssh -o BatchMode=yes -o StrictHostKeyChecking=no nodeB pushd /var/tmp/pbench-test-bench/pbench-agent/fio_test-31_1900.01.01T00.00.00/1-read-4KiB/sample1 >/dev/null; screen -dmS fio-server bash -c ''/var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/bm' --server 2>&1 >client-result.txt'
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done nodeA 8765
 /var/tmp/pbench-test-bench/opt/pbench-agent/unittest-scripts/timeout --kill-after=1 60 bash -c until printf "" 2>>/dev/null >>/dev/tcp/$0/$1; do sleep 1; done nodeB 8765
 --- test-execution.log file contents
