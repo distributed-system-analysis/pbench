@@ -46,11 +46,6 @@ class ElasticBase(ApiBase):
     and postprocess methods.
     """
 
-    # We treat the current "access category" of the dataset as user-accessible
-    # metadata for the purposes of these APIs even though it's represented as
-    # a column on the Dataset model.
-    METADATA = Metadata.USER_METADATA + ["access", "owner"]
-
     def __init__(
         self,
         config: PbenchServerConfig,

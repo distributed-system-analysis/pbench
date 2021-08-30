@@ -10,6 +10,8 @@ from pbench.server.api.resources import (
     API_OPERATION,
     ConversionError,
     InvalidRequestPayload,
+    KeywordError,
+    ListElementError,
     MissingParameters,
     Parameter,
     ParamType,
@@ -82,14 +84,13 @@ class TestParamType:
     @pytest.mark.parametrize(
         "test",
         (
-            (ParamType.STRING, "x", "x"),
-            (ParamType.JSON, {"key": "value"}, {"key": "value"}),
-            (ParamType.DATE, "2021-06-29", dateutil.parser.parse("2021-06-29")),
-            (ParamType.USER, "drb", "1"),
-            (ParamType.ACCESS, "PRIVATE", "private"),
-            (ParamType.LIST, ["drb"], ["drb"]),
-            (ParamType.LIST, [], []),
-            (ParamType.LIST, ["test1", "test2"], ["test1", "test2"]),
+            (ParamType.STRING, None, "x", "x"),
+            (ParamType.JSON, None, {"key": "value"}, {"key": "value"}),
+            (ParamType.DATE, None, "2021-06-29", dateutil.parser.parse("2021-06-29")),
+            (ParamType.USER, None, "drb", "1"),
+            (ParamType.ACCESS, None, "PRIVATE", "private"),
+            (ParamType.JSON, ["key"], {"key": "value"}, {"key": "value"}),
+            (ParamType.KEYWORD, ["Llave"], "llave", "Llave"),
         ),
     )
     def test_successful_conversions(self, client, test, monkeypatch):
@@ -97,7 +98,8 @@ class TestParamType:
         Test successful parameter conversion / normalization.
 
         NOTE that we can't test KEYWORD here without a Parameter to define the
-        set of keywords; we'll test that separately.
+        set of keywords, or LIST without the element type; we'll test those
+        separately.
         """
 
         def ok(auth: Auth, username: str) -> User:
@@ -113,8 +115,9 @@ class TestParamType:
 
         monkeypatch.setattr(Auth, "verify_user", ok)
 
-        ptype, value, expected = test
-        result = ptype.convert(value, None)
+        ptype, kwd, value, expected = test
+        param = Parameter("test", ptype, keywords=kwd)
+        result = ptype.convert(value, param)
         assert result == expected
 
     @pytest.mark.parametrize(
@@ -127,10 +130,8 @@ class TestParamType:
             (ParamType.DATE, 1),  # not a string representing a date
             (ParamType.USER, "drb"),  # we haven't established a "drb" user
             (ParamType.USER, False),  # not a user string
-            (ParamType.ACCESS, "foobar"),  # ACCESS is "public" or "private"
+            (ParamType.ACCESS, ["foobar"]),  # ACCESS is "public" or "private"
             (ParamType.ACCESS, 0),  # ACCESS must be a string
-            (ParamType.LIST, "foobar"),  # Not a list
-            (ParamType.LIST, 0),  # Not a list
         ),
     )
     def test_failed_conversions(self, test, monkeypatch):
@@ -147,8 +148,9 @@ class TestParamType:
         monkeypatch.setattr(Auth, "verify_user", not_ok)
 
         ptype, value = test
+        param = Parameter("test", ptype)
         with pytest.raises(ConversionError) as exc:
-            ptype.convert(value, None)
+            ptype.convert(value, param)
         assert str(exc).find(str(value))
 
 
@@ -161,26 +163,40 @@ class TestParameter:
         """
         Test the Parameter class constructor with various parameters.
         """
+        v = Parameter("test", ParamType.LIST, element_type=ParamType.KEYWORD)
+        assert not v.required
+        assert v.name == "test"
+        assert v.type is ParamType.LIST
+        assert v.element_type is ParamType.KEYWORD
+        assert v.keywords is None
+
         w = Parameter("test", ParamType.KEYWORD, keywords=["a", "b", "c"])
         assert not w.required
         assert w.name == "test"
-        assert w.type == ParamType.KEYWORD
+        assert w.type is ParamType.KEYWORD
+        assert w.element_type is None
         assert w.keywords == ["a", "b", "c"]
 
         x = Parameter("test", ParamType.STRING)
         assert not x.required
         assert x.name == "test"
         assert x.type is ParamType.STRING
+        assert x.keywords is None
+        assert x.element_type is None
 
         y = Parameter("foo", ParamType.JSON, required=True)
         assert y.required
         assert y.name == "foo"
         assert y.type is ParamType.JSON
+        assert y.keywords is None
+        assert y.element_type is None
 
         z = Parameter("foo", ParamType.JSON, required=False)
         assert not z.required
         assert z.name == "foo"
         assert z.type is ParamType.JSON
+        assert z.keywords is None
+        assert z.element_type is None
 
     @pytest.mark.parametrize(
         "test",
@@ -232,14 +248,13 @@ class TestParameter:
     @pytest.mark.parametrize(
         "test",
         (
-            {"data": "I'm not sure"},
-            {"data": "yes!"},
-            {"data": "ebyam"},
+            {"data": 1},
+            {"data": {"json": "is not OK"}},
             {"data": ["Yes"]},
             {"data": False},
         ),
     )
-    def test_invalid_keyword(self, test):
+    def test_invalid_keyword_type(self, test):
         """
         Test parameter normalization for invalid keyword parameter values.
         """
@@ -247,6 +262,19 @@ class TestParameter:
         with pytest.raises(ConversionError) as exc:
             x.normalize(test.get("data"))
         assert str(exc).find(str(test.get("data"))) > 0
+
+    @pytest.mark.parametrize(
+        "test", ({"data": "I'm not sure"}, {"data": "yes!"}, {"data": "ebyam"},),
+    )
+    def test_invalid_keyword(self, test):
+        """
+        Test parameter normalization for invalid keyword parameter values.
+        """
+        x = Parameter("data", ParamType.KEYWORD, keywords=["Yes", "No"], required=False)
+        with pytest.raises(KeywordError) as exc:
+            x.normalize(test.get("data"))
+        assert exc.value.parameter == x
+        assert exc.value.unrecognized == [test.get("data")]
 
     @pytest.mark.parametrize(
         "test",
@@ -272,20 +300,27 @@ class TestParameter:
     @pytest.mark.parametrize(
         "test",
         (
-            (ParamType.STRING, None, {"data": [False, 1]}),
-            (ParamType.KEYWORD, ["Yes", "No"], {"data": ["maybe", "nO"]}),
-            (ParamType.ACCESS, None, {"data": ["publish", "PRIVATE"]}),
+            (ParamType.STRING, None, [False, 1]),
+            (ParamType.KEYWORD, ["Yes", "No"], ["maybe", "nO"]),
+            (ParamType.ACCESS, None, ["publish", "PRIVATE"]),
+            (ParamType.STRING, None, 1),
+            (ParamType.STRING, None, "not-a-list"),
+            (ParamType.STRING, None, {"dict": "is-not-a-list-either"}),
         ),
     )
     def test_invalid_list(self, test):
         """
         Test parameter normalization for a list parameter.
         """
-        type, keys, json = test
-        x = Parameter("data", ParamType.LIST, keywords=keys, element_type=type)
-        with pytest.raises(ConversionError) as exc:
-            x.normalize(json.get("data"))
-        assert str(exc).find(str(json.get("data"))) > 0
+        listtype, keys, value = test
+        x = Parameter("data", ParamType.LIST, keywords=keys, element_type=listtype)
+        with pytest.raises(SchemaError) as exc:
+            x.normalize(value)
+        if type(value) is list:
+            assert exc.type is ListElementError
+            assert exc.value.parameter == x
+        else:
+            assert exc.type is ConversionError
 
 
 class TestSchema:

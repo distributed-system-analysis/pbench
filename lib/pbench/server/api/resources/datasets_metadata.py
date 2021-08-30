@@ -1,42 +1,76 @@
+from flask.json import jsonify
+from logging import Logger
+
 from http import HTTPStatus
-import jwt
-from flask import request, jsonify, make_response
-from flask_restful import Resource, abort
-from flask_bcrypt import check_password_hash
-from email_validator import EmailNotValidError
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from pbench.server.database.models.users import User
-from pbench.server.database.models.active_tokens import ActiveTokens
-from pbench.server.api.auth import Auth
-from pbench.server.api.resources.query_apis import (
-    ElasticBase,
+
+from flask.wrappers import Request, Response
+from flask_restful import abort
+
+from pbench.server import PbenchServerConfig
+from pbench.server.api.resources import (
+    ApiBase,
+    API_OPERATION,
+    JSON,
     Parameter,
     ParamType,
     Schema,
 )
+from pbench.server.database.models.datasets import (
+    Dataset,
+    DatasetError,
+    DatasetNotFound,
+    Metadata,
+    MetadataError,
+)
 
 
-class DatasetsMetadata(Resource):
+class DatasetsMetadata(ApiBase):
     """
-    API to set Dataset metadata.
+    API class to retrieve and mutate Dataset metadata.
     """
 
-    def __init__(self, config, logger):
-        self.server_config = config
-        self.logger = logger
-        self.schema = Schema(
-            Parameter("controller", ParamType.STRING, required=True),
-            Parameter("name", ParamType.STRING, required=True),
-            Parameter(
-                "metadata",
-                ParamType.LIST,
-                element_type=ParamType.KEYWORD,
-                keywords=ElasticBase.METADATA,
+    def __init__(self, config: PbenchServerConfig, logger: Logger):
+        super().__init__(
+            config,
+            logger,
+            Schema(
+                Parameter("controller", ParamType.STRING, required=True),
+                Parameter("name", ParamType.STRING, required=True),
+                Parameter(
+                    "metadata",
+                    ParamType.JSON,
+                    keywords=Metadata.USER_UPDATEABLE_METADATA,
+                    required=True,
+                ),
             ),
+            role=API_OPERATION.UPDATE,
         )
 
-    @Auth.token_auth.login_required()
-    def put(self):
+    def _get(self, _, request: Request) -> Response:
+        """
+        Get the values of client-accessible dataset metadata keys.
+
+        NOTE: This does not rely on a JSON payload to identify the dataset and
+        desired metadata keys. While in theory there's no restriction on
+        passing a request payload to GET, the venerable (obsolete) Javascript
+        requests package doesn't support it, and Elasticsearch allows POST as
+        well as GET for queries because many clients can't support a payload on
+        GET. In this case, we're going to experiment with an alternative, using
+        query parameters.
+
+        GET /api/v1/datasets/metadata?controller=ctrl&name=dname&metadata=SEEN&metadata=SAVED
+        """
+        controller = request.args.get("controller")
+        name = request.args.get("name")
+        keys = request.args.getlist("metadata")
+        self.logger.info("GET metadata {} for {}", name, keys)
+        try:
+            metadata = self._get_metadata(controller, name, keys)
+        except DatasetNotFound:
+            abort(HTTPStatus.BAD_REQUEST, message=f"Dataset {name} not found")
+        return jsonify(metadata)
+
+    def _put(self, json_data: JSON, _) -> Response:
         """
         Set or modify the values of client-accessible dataset metadata keys.
 
@@ -55,204 +89,23 @@ class DatasetsMetadata(Resource):
 
         Some metadata accessible via GET /api/v1/datasets/metadata (or from
         /api/v1/datasets/list and /api/v1/datasets/detail) is not modifiable by
-        the client, and cannot be specified here, including DELETED, OWNER, and
-        ACCESS.
+        the client, and will result in an error if specified here, including
+        DELETED, OWNER, and ACCESS.
         """
-        # get the post data
-        user_data = request.get_json()
-        if not user_data:
-            self.logger.warning("Invalid json object: {}", request.url)
-            abort(HTTPStatus.BAD_REQUEST, message="Invalid json object in request")
-
-        username = user_data.get("username")
-        if not username:
-            self.logger.warning("Missing username field")
-            abort(HTTPStatus.BAD_REQUEST, message="Missing username field")
-        username = username.lower()
-        if User.is_admin_username(username):
-            self.logger.warning("User tried to register with admin username")
+        try:
+            self.logger.info("PUT with {}", repr(json_data))
+            dataset = Dataset.attach(
+                controller=json_data["controller"], name=json_data["name"]
+            )
+        except DatasetError as e:
+            self.logger.warning("Dataset {} not found: {}", json_data["name"], str(e))
             abort(
-                HTTPStatus.BAD_REQUEST, message="Please choose another username",
+                HTTPStatus.BAD_REQUEST, message=f"Dataset {json_data['name']} not found"
             )
-
-        # check if provided username already exists
-        try:
-            user = User.query(username=user_data.get("username"))
-        except Exception:
-            self.logger.exception("Exception while querying username")
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-        if user:
-            self.logger.warning(
-                "A user tried to re-register. Username: {}", user.username
-            )
-            abort(HTTPStatus.FORBIDDEN, message="Provided username is already in use.")
-
-        password = user_data.get("password")
-        if not password:
-            self.logger.warning("Missing password field")
-            abort(HTTPStatus.BAD_REQUEST, message="Missing password field")
-
-        email_id = user_data.get("email")
-        if not email_id:
-            self.logger.warning("Missing email field")
-            abort(HTTPStatus.BAD_REQUEST, message="Missing email field")
-        # check if provided email already exists
-        try:
-            user = User.query(email=email_id)
-        except Exception:
-            self.logger.exception("Exception while querying user email")
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-        if user:
-            self.logger.warning("A user tried to re-register. Email: {}", user.email)
-            abort(HTTPStatus.FORBIDDEN, message="Provided email is already in use")
-
-        first_name = user_data.get("first_name")
-        if not first_name:
-            self.logger.warning("Missing first_name field")
-            abort(HTTPStatus.BAD_REQUEST, message="Missing first_name field")
-
-        last_name = user_data.get("last_name")
-        if not last_name:
-            self.logger.warning("Missing last_name field")
-            abort(HTTPStatus.BAD_REQUEST, message="Missing last_name field")
-
-        try:
-            user = User(
-                username=username,
-                password=password,
-                first_name=first_name,
-                last_name=last_name,
-                email=email_id,
-            )
-
-            # insert the user
-            user.add()
-            self.logger.info(
-                "New user registered, username: {}, email: {}", username, email_id
-            )
-            return "", HTTPStatus.CREATED
-        except EmailNotValidError:
-            self.logger.warning("Invalid email {}", email_id)
-            abort(HTTPStatus.BAD_REQUEST, message=f"Invalid email: {email_id}")
-        except Exception:
-            self.logger.exception("Exception while registering a user")
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-
-
-class Login(Resource):
-    """
-    Pbench API for User Login or generating an auth token
-    """
-
-    def __init__(self, config, logger, auth):
-        self.server_config = config
-        self.logger = logger
-        self.auth = auth
-        self.token_expire_duration = self.server_config.get(
-            "pbench-server", "token_expiration_duration"
-        )
-
-    def post(self):
-        """
-        Post request for logging in user.
-        The user is allowed to re-login multiple times and each time a new valid auth token will be provided
-
-        This requires a JSON data with required user metadata fields
-        {
-            "username": "username",
-            "password": "password",
-        }
-
-        Required headers include
-
-            Content-Type:   application/json
-            Accept:         application/json
-
-        :return: JSON Payload
-            Success: 200,
-                    response_object = {
-                        "auth_token": "<authorization_token>"
-                        "username": <username>
-                    }
-            Failure: <status_Code>,
-                    response_object = {
-                        "message": "failure message"
-                    }
-        """
-        # get the post data
-        post_data = request.get_json()
-        if not post_data:
-            self.logger.warning("Invalid json object: {}", request.url)
-            abort(HTTPStatus.BAD_REQUEST, message="Invalid json object in request")
-
-        username = post_data.get("username")
-        if not username:
-            self.logger.warning("Username not provided during the login process")
-            abort(HTTPStatus.BAD_REQUEST, message="Please provide a valid username")
-
-        password = post_data.get("password")
-        if not password:
-            self.logger.warning("Password not provided during the login process")
-            abort(HTTPStatus.BAD_REQUEST, message="Please provide a valid password")
-
-        try:
-            # fetch the user data
-            user = User.query(username=username)
-        except Exception:
-            self.logger.exception("Exception occurred during user login")
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-
-        if not user:
-            self.logger.warning(
-                "No user found in the db for Username: {} while login", username
-            )
-            abort(HTTPStatus.UNAUTHORIZED, message="Bad login")
-
-        # Validate the password
-        if not check_password_hash(user.password, password):
-            self.logger.warning("Wrong password for user: {} during login", username)
-            abort(HTTPStatus.UNAUTHORIZED, message="Bad login")
-
-        try:
-            auth_token = self.auth.encode_auth_token(
-                self.token_expire_duration, user.id
-            )
-        except (
-            jwt.InvalidIssuer,
-            jwt.InvalidIssuedAtError,
-            jwt.InvalidAlgorithmError,
-            jwt.PyJWTError,
-        ):
-            self.logger.exception(
-                "Could not encode the JWT auth token for user: {} while login", username
-            )
-            abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR",
-            )
-
-        # Add the new auth token to the database for later access
-        try:
-            token = ActiveTokens(token=auth_token)
-            # TODO: Decide on the auth token limit per user
-            user.update(auth_tokens=token)
-
-            self.logger.info("New auth token registered for user {}", user.email)
-        except IntegrityError:
-            self.logger.warning(
-                "Duplicate auth token got created, user might have tried to re-login immediately"
-            )
-            abort(HTTPStatus.CONFLICT, message="Login collision; please wait and retry")
-        except SQLAlchemyError as e:
-            self.logger.error(
-                "SQLAlchemy Exception while logging in a user {}", type(e)
-            )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-        except Exception:
-            self.logger.exception("Exception while logging in a user")
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-
-        response_object = {
-            "auth_token": auth_token,
-            "username": username,
-        }
-        return make_response(jsonify(response_object), HTTPStatus.OK)
+        metadata = json_data["metadata"]
+        for k, v in metadata.items():
+            try:
+                Metadata.set(dataset, k, v)
+            except MetadataError as e:
+                self.logger.warning("Unable to update {} key {}: {}", k, v, str(e))
+                raise

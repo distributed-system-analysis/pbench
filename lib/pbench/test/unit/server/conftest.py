@@ -1,6 +1,7 @@
 import datetime
 from http import HTTPStatus
 import os
+from pbench.server.api.resources import JSON
 import pytest
 import shutil
 import tempfile
@@ -11,7 +12,12 @@ from stat import ST_MTIME
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import (
+    Dataset,
+    DatasetNotFound,
+    Metadata,
+    MetadataNotFound,
+)
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 from pbench.test.unit.server.headertypes import HeaderTypes
@@ -266,6 +272,77 @@ def fake_mtime(monkeypatch):
 
     with monkeypatch.context() as m:
         m.setattr(Path, "stat", fake_stat)
+        yield
+
+
+@pytest.fixture()
+def attach_dataset(monkeypatch, pbench_token, create_user):
+    """
+    Mock a Dataset attach call to return an object. We mock the Dataset.attach
+    method to avoid DB access here, however the user authentication mechanism
+    is not yet mocked so we have to look up User data.
+
+    Args:
+        monkeypatch: patching fixture
+        pbench_token: create a "drb" user for testing
+        create_user: create a "test" user
+    """
+    datasets = {}
+    drb = User.query(username="drb")  # Created by pbench_token fixture
+    test = User.query(username="test")  # Created by create_user fixture
+    datasets["drb"] = Dataset(
+        owner=drb,
+        owner_id=drb.id,
+        controller="node",
+        name="drb",
+        access="private",
+        id=1,
+    )
+    datasets["test"] = Dataset(
+        owner=test,
+        owner_id=test.id,
+        controller="node",
+        name="test",
+        access="private",
+        id=2,
+    )
+
+    def attach_dataset(controller: str, name: str) -> Dataset:
+        if name in datasets:
+            return datasets[name]
+        raise DatasetNotFound(controller, name)
+
+    with monkeypatch.context() as m:
+        m.setattr(Dataset, "attach", attach_dataset)
+        yield datasets
+
+
+@pytest.fixture()
+def provide_metadata(monkeypatch, attach_dataset):
+    metadata = {}
+    for d in attach_dataset:
+        metadata[d] = {
+            "saved": False,
+            "seen": True,
+            "user": {"contact": "me@example.com"},
+        }
+
+    def get_metadata(dataset: str, key: str) -> JSON:
+        if dataset.name in attach_dataset:
+            m = metadata[dataset.name]
+            if key in m:
+                return Metadata(
+                    dataset=attach_dataset[dataset.name], key=key, value=m[key]
+                )
+            raise MetadataNotFound
+
+    def update_metadata(self: Metadata):
+        m = metadata[self.dataset.name]
+        m[self.key] = self.value
+
+    with monkeypatch.context() as m:
+        m.setattr(Metadata, "get", get_metadata)
+        m.setattr(Metadata, "update", update_metadata)
         yield
 
 

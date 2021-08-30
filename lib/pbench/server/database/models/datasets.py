@@ -188,15 +188,15 @@ class MetadataNotFound(MetadataError):
 
 class MetadataKeyError(DatasetError):
     """
-    MetadataKeyError A base class for metadata key errors in the context of
-                Metadata errors that have no associated Dataset.  It is never
-                raised directly, but may be used in "except" clauses.
+    A base class for metadata key errors in the context of Metadata errors
+    that have no associated Dataset. It is never raised directly, but may
+    be used in "except" clauses.
     """
 
 
 class MetadataMissingParameter(MetadataKeyError):
     """
-    MetadataMissingParameter A Metadata required parameter was not specified.
+    A Metadata required parameter was not specified.
     """
 
     def __init__(self, what: str):
@@ -208,7 +208,7 @@ class MetadataMissingParameter(MetadataKeyError):
 
 class MetadataBadKey(MetadataKeyError):
     """
-    MetadataBadKey An unsupported metadata key was specified.
+    An unsupported metadata key was specified.
 
     The error text will identify the metadata key that was specified.
     """
@@ -218,6 +218,22 @@ class MetadataBadKey(MetadataKeyError):
 
     def __str__(self) -> str:
         return f"Metadata key {self.key} is not supported"
+
+
+class MetadataProtectedKey(MetadataKeyError):
+    """
+    An metadata key was specified that cannot be modified in the current
+    context. (Usually an internally reserved key that was referenced in
+    an external client API.)
+
+    The error text will identify the metadata key that was specified.
+    """
+
+    def __init__(self, key: str):
+        self.key = key
+
+    def __str__(self) -> str:
+        return f"Metadata key {self.key} cannot be modified by client"
 
 
 class MetadataMissingKeyValue(MetadataKeyError):
@@ -693,6 +709,12 @@ class Metadata(Database.Base):
     # {"SAVED": True}
     SAVED = "saved"
 
+    # USER is arbitrary data saved on behalf of the owning user, generally
+    # a JSON document.
+    #
+    # {"USER": {"cloud": "AWS", "mood": "CLOUDY"}}
+    USER = "user"
+
     # REINDEX boolean flag to indicate when a dataset should be re-indexed
     #
     # {"REINDEX": True}
@@ -723,8 +745,11 @@ class Metadata(Database.Base):
 
     # --- Standard Metadata keys
 
+    # Metadata keys that clients can update
+    USER_UPDATEABLE_METADATA = [SAVED, SEEN, USER]
+
     # Metadata keys that are accessible to clients
-    USER_METADATA = [DELETION, SAVED, SEEN]
+    USER_METADATA = USER_UPDATEABLE_METADATA + [DELETION]
 
     # Metadata keys that are for internal use only
     INTERNAL_METADATA = [REINDEX, ARCHIVED, TARBALL_PATH, INDEX_MAP]
@@ -741,7 +766,8 @@ class Metadata(Database.Base):
 
     @validates("key")
     def validate_key(self, key: str, value: Any) -> Any:
-        """Validate that the value provided for the Metadata key argument is an
+        """
+        Validate that the value provided for the Metadata key argument is an
         allowed name.
         """
         if value not in Metadata.METADATA_KEYS:
@@ -750,6 +776,15 @@ class Metadata(Database.Base):
 
     @staticmethod
     def create(**kwargs) -> "Metadata":
+        """
+        Create a new Metadata object. This will fail if the key already exists
+        for the referenced Dataset.
+
+        Args:
+            dataset: Associated Dataset
+            key: Metadata key
+            value: Metadata value
+        """
         if "dataset" not in kwargs:
             raise MetadataMissingParameter("dataset")
         dataset = kwargs.get("dataset")
@@ -766,6 +801,25 @@ class Metadata(Database.Base):
             return None
         else:
             return meta
+
+    @staticmethod
+    def set(dataset: Dataset, key: str, value: Any) -> "Metadata":
+        """
+        Update an existing Metadata object, or update an existing Metadata
+        object.
+
+        Args:
+            dataset: Associated Dataset
+            key: Metadata key
+            value: Metadata value
+        """
+        try:
+            meta = Metadata.get(dataset, key)
+            meta.value = value
+            meta.update()
+        except MetadataNotFound:
+            meta = Metadata.create(dataset=dataset, key=key, value=value)
+        return meta
 
     @staticmethod
     def get(dataset: Dataset, key: str) -> "Metadata":

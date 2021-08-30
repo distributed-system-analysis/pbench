@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 
 
-class TestEnpointConfig:
+class TestEndpointConfig:
     """
     Unit testing for EndpointConfig class.
 

@@ -28,7 +28,12 @@ class IndexSearch(ElasticBase):
                 Parameter("start", ParamType.DATE, required=True),
                 Parameter("end", ParamType.DATE, required=True),
                 Parameter("search_term", ParamType.STRING, required=False),
-                Parameter("fields", ParamType.LIST, required=False),
+                Parameter(
+                    "fields",
+                    ParamType.LIST,
+                    element_type=ParamType.STRING,
+                    required=False,
+                ),
             ),
         )
 
