@@ -124,16 +124,21 @@ class TestParameter:
     @pytest.mark.parametrize(
         "test",
         (
-            ({"data": "yes"}, False),
-            ({"data": None}, True),
-            ({"foo": "yes"}, False),
-            ({"foo": None}, False),
+            {"data": "yes"},
+            {"data": None},
+            {"foo": "yes"},
+            {"foo": None},
         ),
     )
     def test_invalid_optional(self, test):
+        """
+        An optional parameter is either present or not: either is OK, and the
+        value None is acceptable. (In other words, the "invalid" test isn't
+        meaningful for required=False parameters, and should always succeed.)
+        """
         x = Parameter("data", ParamType.STRING, required=False)
-        json, expected = test
-        assert x.invalid(json) is expected
+        json = test
+        assert x.invalid(json) is False
 
 
 class TestSchema:
