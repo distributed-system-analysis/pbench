@@ -122,13 +122,7 @@ class TestParameter:
         assert x.invalid(json) is expected
 
     @pytest.mark.parametrize(
-        "test",
-        (
-            {"data": "yes"},
-            {"data": None},
-            {"foo": "yes"},
-            {"foo": None},
-        ),
+        "test", ({"data": "yes"}, {"data": None}, {"foo": "yes"}, {"foo": None},),
     )
     def test_invalid_optional(self, test):
         """
