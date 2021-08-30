@@ -4,12 +4,12 @@ import requests
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.database.models.datasets import Dataset, Metadata
-from pbench.server.database.models.users import User
+from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
 @pytest.fixture()
-def attach_dataset(monkeypatch, pbench_token, create_user):
+def attach_dataset(pbench_token, create_user):
     """
     Mock a Dataset attach call to return an object. We mock the Dataset.attach
     method to avoid DB access here, however the user authentication mechanism
@@ -21,31 +21,20 @@ def attach_dataset(monkeypatch, pbench_token, create_user):
         create_user: create a "test" user
     """
     datasets = {}
-    drb = User.query(username="drb")  # Created by pbench_token fixture
-    test = User.query(username="test")  # Created by create_user fixture
     datasets["drb"] = Dataset(
-        owner=drb,
-        owner_id=drb.id,
+        owner="drb",  # Created by pbench_token fixture
         controller="node",
         name="drb",
         access="private",
-        id=1,
     )
+    datasets["drb"].add()
     datasets["test"] = Dataset(
-        owner=test,
-        owner_id=test.id,
+        owner="test",  # Created by create_user fixture
         controller="node",
         name="test",
         access="private",
-        id=2,
     )
-
-    def attach_dataset(controller: str, name: str) -> Dataset:
-        return datasets[name]
-
-    with monkeypatch.context() as m:
-        m.setattr(Dataset, "attach", attach_dataset)
-        yield
+    datasets["test"].add()
 
 
 @pytest.fixture()
@@ -140,7 +129,9 @@ class TestDatasetsPublish(Commons):
             "items": items,
         }
 
-        if build_auth_header["header_param"] == "valid" and owner == "drb":
+        if (
+            build_auth_header["header_param"] == HeaderTypes.VALID and owner == "drb"
+        ) or build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN:
             expected_status = HTTPStatus.OK
         else:
             expected_status = HTTPStatus.FORBIDDEN

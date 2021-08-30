@@ -1,6 +1,7 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
+from pbench.test.unit.server.conftest import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -99,9 +100,7 @@ class TestDatasetsList(Commons):
         # don't expect success for an "invalid" authentication, for a different
         # user, or for an invalid username.
         if (
-            not user
-            or user == "no_user"
-            or build_auth_header["header_param"] == "valid"
+            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
         ) and user not in ["badwolf", "notauser"]:
             expected_status = HTTPStatus.OK
         else:

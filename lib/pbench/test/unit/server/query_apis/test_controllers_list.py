@@ -1,6 +1,7 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.controllers_list import ControllersList
+from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -40,7 +41,7 @@ class TestControllersList(Commons):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
         The test will run once with each parameter supplied from the local parameterization,
-        and, for each of those, three times with different values of the build_auth_header fixture.
+        and, for each of those, multiple times with different values of the build_auth_header fixture.
         """
         payload = {
             "user": user,
@@ -51,7 +52,6 @@ class TestControllersList(Commons):
         # "no_user" means omitting the "user" parameter entirely.
         if user == "no_user":
             payload.pop("user", None)
-        if user == "no_user" or user is None:
             payload["access"] = "public"
 
         response_payload = {
@@ -99,9 +99,7 @@ class TestControllersList(Commons):
         # don't expect success for an "invalid" authentication, for a different
         # user, or for an invalid username.
         if (
-            not user
-            or user == "no_user"
-            or build_auth_header["header_param"] == "valid"
+            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
         ) and user != "badwolf":
             expected_status = HTTPStatus.OK
         else:

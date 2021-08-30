@@ -9,11 +9,11 @@ from posix import stat_result
 from stat import ST_MTIME
 
 from pbench.server.api import create_app, get_server_config
-from pbench.test.unit.server.test_user_auth import login_user, register_user
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
+from pbench.test.unit.server.headertypes import HeaderTypes
 
 server_cfg_tmpl = """[DEFAULT]
 install-dir = {TMP}/opt/pbench-server
@@ -49,6 +49,10 @@ index_prefix = unit-test
 path = %(install-dir)s/lib/config
 files = pbench-server-default.cfg
 """
+
+admin_username = "test_admin"
+admin_email = "test_admin@example.com"
+generic_password = "12345"
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -151,14 +155,56 @@ def db_session(server_config):
     Database.db_session.remove()
 
 
+def register_user(
+    client, server_config, email, username, password, firstname, lastname
+):
+    """
+    Helper function to register a user using register API
+    """
+    return client.post(
+        f"{server_config.rest_uri}/register",
+        json={
+            "email": email,
+            "password": password,
+            "username": username,
+            "first_name": firstname,
+            "last_name": lastname,
+        },
+    )
+
+
+def login_user(client, server_config, username, password):
+    """
+    Helper function to generate a user authentication token
+    """
+    return client.post(
+        f"{server_config.rest_uri}/login",
+        json={"username": username, "password": password},
+    )
+
+
 @pytest.fixture()
 def create_user() -> User:
     user = User(
         email="test@example.com",
-        password="12345",
+        password=generic_password,
         username="test",
         first_name="Test",
         last_name="Account",
+    )
+    user.add()
+    return user
+
+
+@pytest.fixture
+def create_admin_user() -> User:
+    user = User(
+        email=admin_email,
+        password=generic_password,
+        username=admin_username,
+        first_name="Admin",
+        last_name="Account",
+        role="ADMIN",
     )
     user.add()
     return user
@@ -402,6 +448,16 @@ def find_template(monkeypatch, fake_mtime):
 
 
 @pytest.fixture
+def pbench_admin_token(client, server_config, create_admin_user):
+    # Login admin user to get valid pbench token
+    response = login_user(client, server_config, admin_username, generic_password)
+    assert response.status_code == HTTPStatus.OK
+    data = response.json
+    assert data["auth_token"]
+    return data["auth_token"]
+
+
+@pytest.fixture
 def pbench_token(client, server_config):
     # First create a user
     response = register_user(
@@ -411,30 +467,38 @@ def pbench_token(client, server_config):
         firstname="firstname",
         lastname="lastName",
         email="user@domain.com",
-        password="12345",
+        password=generic_password,
     )
     assert response.status_code == HTTPStatus.CREATED
 
     # Login user to get valid pbench token
-    response = login_user(client, server_config, "drb", "12345")
+    response = login_user(client, server_config, "drb", generic_password)
     assert response.status_code == HTTPStatus.OK
     data = response.json
     assert data["auth_token"]
     return data["auth_token"]
 
 
-@pytest.fixture(params=("valid", "invalid", "empty"))
-def build_auth_header(request, server_config, pbench_token, client):
-    header = (
-        {} if request.param == "empty" else {"Authorization": "Bearer " + pbench_token}
-    )
+@pytest.fixture(params=[header for header in HeaderTypes])
+def build_auth_header(request, server_config, pbench_token, pbench_admin_token, client):
+    if request.param == HeaderTypes.VALID_ADMIN:
+        header = {"Authorization": "Bearer " + pbench_admin_token}
 
-    if request.param == "invalid":
+    elif request.param == HeaderTypes.VALID:
+        header = {"Authorization": "Bearer " + pbench_token}
+
+    elif request.param == HeaderTypes.INVALID:
         # Create an invalid token by logging the user out
         response = client.post(
             f"{server_config.rest_uri}/logout",
             headers=dict(Authorization="Bearer " + pbench_token),
         )
         assert response.status_code == HTTPStatus.OK
+        header = {"Authorization": "Bearer " + pbench_token}
 
+    elif request.param == HeaderTypes.EMPTY:
+        header = {}
+
+    else:
+        assert False, f"Unexpected request.param value:  {request.param}"
     return {"header": header, "header_param": request.param}
