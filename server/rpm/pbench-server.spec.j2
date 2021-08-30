@@ -65,7 +65,9 @@ mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 # Install python dependencies for pbench user
 (su pbench -c "pip3 --no-cache-dir install --user -r /%{installdir}/requirements.txt") > /%{installdir}/pip3-install.log
 
-# Add install directory into the pbench user default PYTHONPATH
+# Create a `pbench.pth` file under the `pbench` account site library: the
+# `site` package will automatically add directories referenced in `*.pth`
+# files to the default `sys.path` when Python starts.
 su pbench -c "echo /%{installdir}/lib > \$(python3 -m site --user-site)/pbench.pth"
 
 # install node.js modules under /%{installdir}
