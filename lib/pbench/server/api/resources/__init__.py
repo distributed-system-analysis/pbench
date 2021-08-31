@@ -12,7 +12,11 @@ from flask.wrappers import Request, Response
 from flask_restful import Resource, abort
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
-from pbench.server.database.models.datasets import Dataset, Metadata, MetadataKeyError
+from pbench.server.database.models.datasets import (
+    Dataset,
+    Metadata,
+    MetadataNotFound,
+)
 from pbench.server.database.models.users import User
 
 # A type defined to conform to the semantic definition of a JSON structure
@@ -315,12 +319,12 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
     Returns:
         the input value
     """
-    if type(value) is str:
-        for v in parameter.keywords:
-            if v.casefold() == value.casefold():
-                return v
-        raise KeywordError(parameter, "keyword", [value])
-    raise ConversionError(value, str(parameter.keywords), str.__name__)
+    if type(value) is not str:
+        raise ConversionError(value, str(parameter.keywords), str.__name__)
+    for v in parameter.keywords:
+        if v.casefold() == value.casefold():
+            return v
+    raise KeywordError(parameter, "keyword", [value])
 
 
 def convert_list(value: List[Any], parameter: "Parameter") -> str:
@@ -423,6 +427,7 @@ class Parameter:
         self,
         name: str,
         type: ParamType,
+        *,  # Following are keyword-only
         keywords: List[str] = None,
         element_type: ParamType = None,
         required: bool = False,
@@ -677,30 +682,27 @@ class ApiBase(Resource):
             JSON block containing key: value for each of the requested keys
             for which the dataset has Metadata.
         """
-        if requested_items:
-            dataset: Dataset = Dataset.attach(controller=controller, name=name)
-            metadata = {}
-            for i in requested_items:
-                self.logger.info("Metadata item {} on dataset {}", i, dataset)
-                if i in Metadata.USER_METADATA:
-                    try:
-                        m = Metadata.get(dataset=dataset, key=i)
-                        self.logger.info("{} M {} = '{}'", dataset, i, m.value)
-                    except MetadataKeyError:
-                        pass
-                    else:
-                        metadata[i] = m.value
-                elif i == "access":
-                    metadata[i] = dataset.access
-                elif i == "owner":
-                    metadata[i] = dataset.owner.username
-                else:
-                    self.logger.warning("Unexpected metadata keyword {}", i)
-                    raise KeyError(i)
+        if not requested_items:
+            return {}
 
-            return metadata
-        else:
-            return None
+        dataset: Dataset = Dataset.attach(controller=controller, name=name)
+        metadata = {}
+        for i in requested_items:
+            if i in Metadata.USER_METADATA:
+                try:
+                    m = Metadata.get(dataset=dataset, key=i)
+                except MetadataNotFound:
+                    pass
+                else:
+                    metadata[i] = m.value
+            elif i == "access":
+                metadata[i] = dataset.access
+            elif i == "owner":
+                metadata[i] = dataset.owner.username
+            else:
+                raise KeyError(i)
+
+        return metadata
 
     def _dispatch(self, method: Callable, request: Request) -> Response:
         """
@@ -719,25 +721,6 @@ class ApiBase(Resource):
             payload and HTTP status.
         """
         json_data = request.get_json(silent=True)
-        if self.schema and method != self._get:
-            try:
-                new_data = self.schema.validate(json_data)
-            except UnverifiedUser as e:
-                self.logger.warning("{}", str(e))
-                abort(HTTPStatus.FORBIDDEN, message=str(e))
-            except SchemaError as e:
-                self.logger.warning(
-                    "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
-                )
-                abort(HTTPStatus.BAD_REQUEST, message=str(e))
-            except Exception as e:
-                self.logger.exception(
-                    "POST unexpected {}: {}", e.__class__.__name__, str(e)
-                )
-                abort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    message="INTERNAL ERROR IN VALIDATION",
-                )
 
         # We don't accept or process a request payload for GET, or if no
         # parameter schema is defined

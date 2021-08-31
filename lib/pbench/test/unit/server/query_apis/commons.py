@@ -72,6 +72,8 @@ class Commons:
         date_range = []
         start_date = date_parser.parse(start)
         end_date = date_parser.parse(end)
+        first_month = start_date.replace(day=1)
+        last_month = end_date + relativedelta(day=31)
         assert start_date <= end_date
         first_month = start_date.replace(day=1)
         last_month = end_date + relativedelta(day=31)

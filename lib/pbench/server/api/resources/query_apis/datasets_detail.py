@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from flask import jsonify
+from flask_restful import abort
 from logging import Logger
 
 from pbench.server import PbenchServerConfig
@@ -11,6 +12,7 @@ from pbench.server.api.resources import (
     PostprocessError,
 )
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
+from pbench.server.database.models.datasets import DatasetNotFound
 
 
 class DatasetsDetail(ElasticBase):
@@ -159,9 +161,16 @@ class DatasetsDetail(ElasticBase):
             "hostTools": src["host_tools_info"],
         }
 
-        m = self._get_metadata(
-            src["run"]["controller"], src["run"]["name"], context["metadata"]
-        )
+        try:
+            m = self._get_metadata(
+                src["run"]["controller"], src["run"]["name"], context["metadata"]
+            )
+        except DatasetNotFound:
+            abort(
+                HTTPStatus.BAD_REQUEST,
+                message=f"Dataset {src['run']['name']} not found",
+            )
+
         if m:
             result["serverMetadata"] = m
 

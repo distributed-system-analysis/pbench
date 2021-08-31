@@ -1,9 +1,12 @@
+from http import HTTPStatus
 from flask import jsonify
+from flask_restful import abort
 from logging import Logger
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import JSON, Schema, Parameter, ParamType
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
+from pbench.server.database.models.datasets import DatasetNotFound
 
 
 class DatasetsList(ElasticBase):
@@ -123,20 +126,21 @@ class DatasetsList(ElasticBase):
         be enriched with Dataset DB metadata based on the "metadata" JSON
         parameter values, if specified.
 
-        [
-            {
-                "key": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
-                "startUnixTimestamp": 1588178953561,
-                "run.name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
-                "run.controller": "dhcp31-187.example.com,
-                "run.start": "2020-04-29T12:49:13.560620",
-                "run.end": "2020-04-29T13:30:04.918704",
-                "serverMetadata": {
-                    "deletion": "2021-11-05",
-                    "access": "private"
+        {
+            "dhcp31-187.example.com": [
+                {
+                    "startUnixTimestamp": 1588178953561,
+                    "run.name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
+                    "run.controller": "dhcp31-187.example.com",
+                    "run.start": "2020-04-29T12:49:13.560620",
+                    "run.end": "2020-04-29T13:30:04.918704",
+                    "serverMetadata": {
+                        "deletion": "2021-11-05",
+                        "access": "private"
+                    }
                 }
-            }
-        ]
+            ]
+        }
         """
         datasets = []
         hits = es_json["hits"]["hits"]
@@ -153,6 +157,7 @@ class DatasetsList(ElasticBase):
                     controller,
                     run["controller"],
                 )
+
             d = {
                 "result": run["name"],
                 "controller": run["controller"],
@@ -172,13 +177,21 @@ class DatasetsList(ElasticBase):
                 if "satellite" in meta:
                     d["@metadata.satellite"] = meta["satellite"]
 
-            m = self._get_metadata(run["controller"], run["name"], context["metadata"])
+            try:
+                m = self._get_metadata(
+                    run["controller"], run["name"], context["metadata"]
+                )
+            except DatasetNotFound:
+                abort(
+                    HTTPStatus.BAD_REQUEST,
+                    message=f"Dataset {src['run']['name']} not found",
+                )
+
             if m:
                 d["serverMetadata"] = m
 
             datasets.append(d)
 
-        self.logger.info("GOT THIS: {}", repr(datasets))
         result = {controller: datasets}
 
         # construct response object

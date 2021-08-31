@@ -229,30 +229,18 @@ class TestParameter:
         assert not x.invalid(json)
 
     @pytest.mark.parametrize(
-        "test",
-        (
-            ({"data": "yes"}, "Yes"),
-            ({"data": "NO"}, "No"),
-            ({"data": "MaYbE"}, "MAYBE"),
-            ({"data": "Maybe"}, "MAYBE"),
-        ),
+        "test", (("yes", "Yes"), ("NO", "No"), ("MaYbE", "MAYBE"), ("Maybe", "MAYBE"))
     )
     def test_keyword_normalization(self, test):
         """
         Test parameter normalization for a keyword parameter.
         """
         x = Parameter("data", ParamType.KEYWORD, keywords=["Yes", "No", "MAYBE"])
-        json, expected = test
-        assert x.normalize(json.get("data")) == expected
+        input, expected = test
+        assert x.normalize(input) == expected
 
     @pytest.mark.parametrize(
-        "test",
-        (
-            {"data": 1},
-            {"data": {"json": "is not OK"}},
-            {"data": ["Yes"]},
-            {"data": False},
-        ),
+        "test", (1, {"json": "is not OK"}, ["Yes"], False),
     )
     def test_invalid_keyword_type(self, test):
         """
@@ -260,11 +248,11 @@ class TestParameter:
         """
         x = Parameter("data", ParamType.KEYWORD, keywords=["Yes", "No"], required=False)
         with pytest.raises(ConversionError) as exc:
-            x.normalize(test.get("data"))
-        assert str(exc).find(str(test.get("data"))) > 0
+            x.normalize(test)
+        assert str(exc).find(str(test)) > 0
 
     @pytest.mark.parametrize(
-        "test", ({"data": "I'm not sure"}, {"data": "yes!"}, {"data": "ebyam"},),
+        "test", ("I'm not sure", "yes!", "ebyam"),
     )
     def test_invalid_keyword(self, test):
         """
@@ -272,37 +260,32 @@ class TestParameter:
         """
         x = Parameter("data", ParamType.KEYWORD, keywords=["Yes", "No"], required=False)
         with pytest.raises(KeywordError) as exc:
-            x.normalize(test.get("data"))
+            x.normalize(test)
         assert exc.value.parameter == x
-        assert exc.value.unrecognized == [test.get("data")]
+        assert exc.value.unrecognized == [test]
 
     @pytest.mark.parametrize(
         "test",
         (
-            (ParamType.STRING, None, {"data": ["yes", "no"]}, ["yes", "no"]),
-            (ParamType.KEYWORD, ["Yes", "No"], {"data": ["YeS", "nO"]}, ["Yes", "No"]),
-            (
-                ParamType.ACCESS,
-                None,
-                {"data": ["Public", "PRIVATE"]},
-                ["public", "private"],
-            ),
+            (ParamType.STRING, None, ["yes", "no"], ["yes", "no"]),
+            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["Yes", "No"]),
+            (ParamType.ACCESS, None, ["Public", "PRIVATE"], ["public", "private"]),
         ),
     )
     def test_list_normalization(self, test):
         """
         Test parameter normalization for a list parameter.
         """
-        type, keys, json, expected = test
+        type, keys, value, expected = test
         x = Parameter("data", ParamType.LIST, keywords=keys, element_type=type)
-        assert x.normalize(json.get("data")) == expected
+        assert x.normalize(value) == expected
 
     @pytest.mark.parametrize(
         "test",
         (
             (ParamType.STRING, None, [False, 1]),
             (ParamType.KEYWORD, ["Yes", "No"], ["maybe", "nO"]),
-            (ParamType.ACCESS, None, ["publish", "PRIVATE"]),
+            (ParamType.ACCESS, None, ["sauron", "PRIVATE"]),
             (ParamType.STRING, None, 1),
             (ParamType.STRING, None, "not-a-list"),
             (ParamType.STRING, None, {"dict": "is-not-a-list-either"}),
