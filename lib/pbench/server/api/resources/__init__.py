@@ -9,7 +9,6 @@ from dateutil import parser as date_parser
 from flask import request
 from flask.wrappers import Request, Response
 from flask_restful import Resource, abort
-from flask.wrappers import Request, Response
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import Dataset
