@@ -1,6 +1,9 @@
+alembic>=1.6.4
+aniso8601>=9.0.1
 boto3
+click
 python-dateutil
-elasticsearch
+elasticsearch==7.13.1
 email-validator
 flask
 flask-bcrypt
@@ -14,7 +17,7 @@ gunicorn
 humanize
 pyesbulk>=2.0.1
 PyJwt
-psycopg2-binary
+psycopg2
 requests
-sqlalchemy
-sqlalchemy_utils
+sqlalchemy>=1.4.23
+sqlalchemy_utils>=0.37.6
