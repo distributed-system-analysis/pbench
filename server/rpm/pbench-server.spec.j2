@@ -62,12 +62,28 @@ cp -a ./web-server/* %{buildroot}/%{installdir}/%{static}
 mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
 %post
-# Install python dependencies for pbench user
+# Install python dependencies as pbench user into user's site-packages
 (su pbench -c "pip3 --no-cache-dir install --user -r /%{installdir}/requirements.txt") > /%{installdir}/pip3-install.log
 
-# Create a `pbench.pth` file under the `pbench` account site library: the
-# `site` package will automatically add directories referenced in `*.pth`
-# files to the default `sys.path` when Python starts.
+# The `site` package is Python magic; it runs automatically when Python starts,
+# and builds `sys.path`.
+#
+# For our purposes, this includes looking in the per-user site library and
+# adding the site-packages paths plus adding directories captured in *.pth
+# files it finds in the "user site" directory.
+#
+# The following line captures our install path `/${installdir}/lib` in our own
+# pbench.pth file for `site` to find when the pbench user runs Python.
+#
+# That `pbench.pth` file needs to be in the right place, and the command
+# 'python3 -m site --user-site` gives us the proper location. The `su pbench`
+# ensures that this is run as "pbench" and therefore gives us the proper
+# path where `pbench.pth` will be found, without making arbitrary assumptions
+# about `site` package behavior.
+#
+# Now, when the pbench user runs Python, without any PYTHONPATH environment
+# variable, the normal Python startup will include both the pbench user's
+# site-library paths, and /opt/pbench-server/lib.
 su pbench -c "echo /%{installdir}/lib > \$(python3 -m site --user-site)/pbench.pth"
 
 # install node.js modules under /%{installdir}
