@@ -3,6 +3,7 @@ import pytest
 import requests
 
 from dateutil import parser as date_parser, rrule
+from dateutil.relativedelta import relativedelta
 from http import HTTPStatus
 from typing import AnyStr, Type
 
@@ -71,7 +72,9 @@ class Commons:
         start_date = date_parser.parse(start)
         end_date = date_parser.parse(end)
         assert start_date <= end_date
-        for m in rrule.rrule(rrule.MONTHLY, dtstart=start_date, until=end_date):
+        first_month = start_date.replace(day=1)
+        last_month = end_date + relativedelta(day=31)
+        for m in rrule.rrule(rrule.MONTHLY, dtstart=first_month, until=last_month):
             date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range
 
