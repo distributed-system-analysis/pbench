@@ -7,8 +7,8 @@ from typing import Any, AnyStr, Callable, Dict, List, Union
 
 from dateutil import parser as date_parser
 from flask import request
-from flask_restful import Resource, abort
 from flask.wrappers import Request, Response
+from flask_restful import Resource, abort
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import Dataset
@@ -204,7 +204,7 @@ def convert_json(value: JSON) -> JSON:
     """
     try:
         if json.loads(json.dumps(value)) != value:
-            raise TypeError(f"value {value!r} is not valid JSON")
+            raise TypeError(f"value is not valid JSON: {value!r}")
     except Exception:
         raise ConversionError(value, "JSON", type(value).__name__) from None
     return value
@@ -336,10 +336,7 @@ class Parameter:
         Returns:
             True if the specified value is unacceptable
         """
-        if self.name in json:
-            return json[self.name] is None and self.required
-        else:
-            return self.required
+        return self.required and (self.name not in json or json[self.name] is None)
 
     def normalize(self, data: JSONVALUE):
         """
@@ -536,9 +533,11 @@ class ApiBase(Resource):
 
     def _dispatch(self, method: Callable, request: Request) -> Response:
         """
-        This is a common front end for HTTP operations, which will validate and
-        normalize the request JSON document if there's a class schema and the
-        operation isn't GET (which doesn't support a request payload).
+        This is a common front end for HTTP operations.
+
+        If the class has a parameter schema, and the HTTP operation is not GET
+        (which doesn't accept a request payload), we'll validate and normalize
+        the request payload here before calling the subclass helper method.
 
         Args:
             method: A reference to the implementation method
@@ -549,45 +548,52 @@ class ApiBase(Resource):
             payload and HTTP status.
         """
         json_data = request.get_json(silent=True)
-        if self.schema and method != self._get:
-            try:
-                new_data = self.schema.validate(json_data)
-            except UnverifiedUser as e:
-                self.logger.warning("{}", str(e))
-                abort(HTTPStatus.FORBIDDEN, message=str(e))
-            except SchemaError as e:
-                self.logger.warning(
-                    "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
-                )
-                abort(HTTPStatus.BAD_REQUEST, message=str(e))
-            except Exception as e:
-                self.logger.exception("POST unexpected {}: {}", e.__class__.__name__, e)
-                abort(
-                    HTTPStatus.INTERNAL_SERVER_ERROR,
-                    message="INTERNAL ERROR IN VALIDATION",
-                )
 
-            # Automatically authorize the operation only if the API schema has the
-            # "user" key of type USERNAME; otherwise we assume that authorization
-            # is unnecessary, or that the API-specific subclass will take care of
-            # that in preprocess.
-
-            # TODO: This should really be more flexible. (A) we should confirm
-            # that we're choosing a USERNAME type instead of blindly targeting
-            # "user" parameter name; (B) we should allow some other USERNAME
-            # typed parameter. I'm deliberately not making these changes in
-            # order to minimize the scope of this refactoring.
-            if "user" in self.schema:
-                user = json_data.get("user")  # original username, not user ID
-                access = new_data.get("access")  # normalized access policy
-                try:
-                    self._check_authorization(user, access)
-                except UnauthorizedAccess as e:
-                    self.logger.warning("{}", e)
-                    abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
-            return method(new_data, request)
-        else:
+        # We don't accept or process a request payload for GET, or if no
+        # parameter schema is defined
+        if not self.schema or method == self._get:
             return method(json_data, request)
+
+        try:
+            new_data = self.schema.validate(json_data)
+        except UnverifiedUser as e:
+            self.logger.warning("{}", str(e))
+            abort(HTTPStatus.FORBIDDEN, message=str(e))
+        except SchemaError as e:
+            self.logger.warning(
+                "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
+            )
+            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+        except Exception as e:
+            self.logger.exception(
+                "Unexpected validation exception in {}: {}",
+                e.__class__.__name__,
+                str(e),
+            )
+            abort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                message="INTERNAL ERROR IN VALIDATION",
+            )
+
+        # Automatically authorize the operation only if the API schema has the
+        # "user" key of type USERNAME; otherwise we assume that authorization
+        # is unnecessary, or that the API-specific subclass will take care of
+        # that in preprocess.
+
+        # TODO: This should really be more flexible. (A) we should confirm
+        # that we're choosing a USERNAME type instead of blindly targeting
+        # "user" parameter name; (B) we should allow some other USERNAME
+        # typed parameter. I'm deliberately not making these changes in
+        # order to minimize the scope of this refactoring.
+        if "user" in self.schema:
+            user = json_data.get("user")  # original username, not user ID
+            access = new_data.get("access")  # normalized access policy
+            try:
+                self._check_authorization(user, access)
+            except UnauthorizedAccess as e:
+                self.logger.warning("{}", e)
+                abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
+        return method(new_data, request)
 
     def _get(self, json_data: JSON, request: Request) -> Response:
         """
