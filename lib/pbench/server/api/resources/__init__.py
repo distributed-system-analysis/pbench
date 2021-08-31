@@ -375,6 +375,25 @@ def convert_list(value: List[Any], parameter: "Parameter") -> List[Any]:
     return retlist
 
 
+def convert_dict(value: Dict[Any, Any], parameter: "Parameter") -> Dict[Any, Any]:
+    """
+    Verify that the parameter value is a dict
+
+    Args:
+        value: parameter value
+        parameter: The Parameter definition
+
+    Raises:
+        ConversionError: input can't be validated or normalized
+
+    Returns:
+        A validated dict
+    """
+    if type(value) is not dict:
+        raise ConversionError(value, f"Dict of {parameter.name}")
+    return value
+
+
 def convert_access(value: str, parameter: "Parameter") -> str:
     """
     Verify that the parameter value is a case-insensitive access scope keyword:
@@ -417,6 +436,7 @@ class ParamType(Enum):
     JSON = ("Json", convert_json)
     KEYWORD = ("Keyword", convert_keyword)
     LIST = ("List", convert_list)
+    DICT = ("Dict", convert_dict)
     STRING = ("String", convert_string)
     USER = ("User", convert_username)
 
