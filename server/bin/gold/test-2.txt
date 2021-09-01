@@ -169,7 +169,7 @@ len(actions) = 1
 pbench-satellite-cleanup: Bad INCOMING=/var/tmp/pbench-test-server/test-2/pbench-satellite/public_html/incoming
 --- Finished pbench-satellite-cleanup (status=1)
 +++ Running pbench-tarball-stats
-Summary Statistics for Tar Balls (external data only):
+Summary Statistics for Tar Balls on 1970-01-01 (external data only):
 
     Took 0.00 seconds to find all tar balls.
 
