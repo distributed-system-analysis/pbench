@@ -127,6 +127,13 @@ class TestUpload:
 
     def test_malformed_authorization_header(self, client, caplog, server_config):
         response = client.put(
+            self.gen_uri(server_config), headers={"Authorization": "malformed"},
+        )
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        self.verify_logs(caplog)
+
+    def test_malformed_authorization_token(self, client, caplog, server_config):
+        response = client.put(
             self.gen_uri(server_config),
             headers={"Authorization": "Bearer " + "malformed"},
         )

@@ -79,6 +79,14 @@ class Commons:
             date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range
 
+    def test_malformed_authorization_header(self, client, server_config):
+        response = client.post(
+            server_config.rest_uri + self.pbench_endpoint,
+            headers={"Authorization": "malformed"},
+            json=self.payload,
+        )
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
+
     def test_non_accessible_user_data(self, client, server_config, pbench_token):
         """
         Test behavior when Authorization header does not have access to other user's data
