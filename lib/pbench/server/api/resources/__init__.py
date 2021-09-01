@@ -193,7 +193,7 @@ def convert_username(value: Union[str, None]) -> Union[str, None]:
 
 def convert_json(value: JSON) -> JSON:
     """
-    Process a parameter of JSON type.
+    Validate a parameter of JSON type.
 
     Args:
         value: JSON dict
