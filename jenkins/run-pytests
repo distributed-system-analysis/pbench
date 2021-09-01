@@ -10,7 +10,6 @@ black --check .
 black_sts=${?}
 if [[ ${black_sts} -ne 0 ]]; then
     printf -- "FAILED: black --check .\n" >&2
-    (( errors++ ))
 fi
 
 printf -- "\nflake8 --verbose ...\n"
@@ -18,7 +17,6 @@ flake8 --verbose .
 flake_sts=${?}
 if [[ ${flake_sts} -ne 0 ]]; then
     printf -- "FAILED: flake8 --verbose .\n" >&2
-    (( errors++ ))
 fi
 printf -- "\n"
 
