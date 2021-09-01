@@ -37,7 +37,7 @@ class UnauthorizedAccess(Exception):
         self.access = access
 
     def __str__(self) -> str:
-        return f"User {self.user} is not authorized to {self.operation} a resource owned by {self.owner} with {self.access} access"
+        return f"{'User ' + self.user.username if self.user else 'Unauthenticated client'} is not authorized to {self.operation.name} a resource owned by {self.owner} with {self.access} access"
 
 
 class SchemaError(TypeError):
@@ -47,6 +47,9 @@ class SchemaError(TypeError):
 
     def __init__(self, status: int = HTTPStatus.BAD_REQUEST):
         self.http_status = status
+
+    def __str__(self) -> str:
+        return "Generic schema error"
 
 
 class UnverifiedUser(SchemaError):
@@ -59,7 +62,7 @@ class UnverifiedUser(SchemaError):
         self.username = username
 
     def __str__(self):
-        return f"{self.username} can not be verified"
+        return f"User {self.username} can not be verified"
 
 
 class InvalidRequestPayload(SchemaError):
@@ -135,7 +138,7 @@ class PostprocessError(Exception):
         self.data = data
 
     def __str__(self) -> str:
-        return f"Postprocessing error returning {self.status}: '{str(self.message)} [{self.data}]'"
+        return f"Postprocessing error returning {self.status}: '{str(self.message)}' [{self.data}]"
 
 
 def convert_date(value: str) -> datetime:
@@ -159,9 +162,8 @@ def convert_date(value: str) -> datetime:
 
 def convert_username(value: Union[str, None]) -> Union[str, None]:
     """
-    Convert the external string representation of a username by validating that
-    the specified username exists, and returns the desired internal
-    representation of that user.
+    Validate that the user object referenced by the username string exists, and
+    return the internal representation of that user.
 
     The internal representation is the user row ID as a string. If the external
     value is None, (which means the API's user parameter is nullable), we
@@ -191,7 +193,7 @@ def convert_username(value: Union[str, None]) -> Union[str, None]:
 
 def convert_json(value: JSON) -> JSON:
     """
-    Process a parameter of JSON type.
+    Validate a parameter of JSON type.
 
     Args:
         value: JSON dict
@@ -231,8 +233,8 @@ def convert_string(value: str) -> str:
 
 def convert_list(value: list) -> list:
     """
-    Verify that the parameter value is a list (e.g.,
-    not a JSON dict, or an int), and return it.
+    Verify that the parameter value is a list (e.g., not a JSON dict, or an
+    int), and return it.
 
     Args:
         value: REST API request parameter value
@@ -250,8 +252,8 @@ def convert_list(value: list) -> list:
 
 def convert_access(value: str) -> str:
     """
-    Verify that the parameter value is an access scope. Currently this means
-    either "public" or "private".
+    Verify that the parameter value is a case-insensitive access scope keyword:
+    either "public" or "private". Return the normalized lowercase form.
 
     NOTE: This is not implemented as an ENUM because it's expected that we'll
     extend this to support some form of group reference in the future.

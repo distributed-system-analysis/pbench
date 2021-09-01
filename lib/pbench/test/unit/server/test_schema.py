@@ -1,3 +1,4 @@
+from http import HTTPStatus
 import dateutil
 import pytest
 from typing import Callable
@@ -5,13 +6,60 @@ from typing import Callable
 from pbench.server.api.auth import Auth, UnknownUser
 from pbench.server.database.models.users import User
 from pbench.server.api.resources import (
+    API_OPERATION,
     ConversionError,
     InvalidRequestPayload,
     MissingParameters,
     Parameter,
     ParamType,
+    PostprocessError,
     Schema,
+    SchemaError,
+    UnauthorizedAccess,
+    UnsupportedAccessMode,
+    UnverifiedUser,
 )
+
+
+class TestExceptions:
+    """
+    Test exception stringification
+    """
+
+    def test_exceptions(self, create_user):
+        e = UnauthorizedAccess(create_user, API_OPERATION.READ, "you", "public")
+        assert (
+            str(e)
+            == "User test is not authorized to READ a resource owned by you with public access"
+        )
+        assert e.user == create_user
+        e = UnauthorizedAccess(None, API_OPERATION.UPDATE, "me", "private")
+        assert (
+            str(e)
+            == "Unauthenticated client is not authorized to UPDATE a resource owned by me with private access"
+        )
+        s = SchemaError()
+        assert str(s) == "Generic schema error"
+        u = UnverifiedUser("you")
+        assert str(u) == "User you can not be verified"
+        i = InvalidRequestPayload()
+        assert str(i) == "Invalid request payload"
+        u = UnsupportedAccessMode("him", "private")
+        assert str(u) == "Unsupported mode him:private"
+        m = MissingParameters(["a", "b"])
+        assert str(m) == "Missing required parameters: a,b"
+        c = ConversionError({}, "str", "dict")
+        assert str(c) == "Value {} (dict) cannot be parsed as a str"
+        assert c.value == {}
+        p = PostprocessError(HTTPStatus.OK, "all's well", {"param": "none"})
+        assert (
+            str(p)
+            == "Postprocessing error returning 200: 'all's well' [{'param': 'none'}]"
+        )
+        assert p.data == {"param": "none"}
+        p = PostprocessError(HTTPStatus.BAD_REQUEST, "really bad", None)
+        assert str(p) == "Postprocessing error returning 400: 'really bad' [None]"
+        assert p.status == HTTPStatus.BAD_REQUEST
 
 
 class TestParamType:
@@ -132,7 +180,7 @@ class TestParameter:
         """
         x = Parameter("data", ParamType.STRING, required=False)
         json = test
-        assert x.invalid(json) is False
+        assert not x.invalid(json)
 
 
 class TestSchema:

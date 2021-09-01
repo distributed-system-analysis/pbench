@@ -209,8 +209,8 @@ class TestDatasetsPublish(Commons):
         message = response_doc["message"]
         assert message == (
             "DatasetsPublish: the query postprocessor was unable to complete: "
-            "Postprocessing error returning 500: '1 of 4 Elasticsearch document UPDATE operations failed "
-            "[{'document_missing_exception': 1, 'ok': 3}]'"
+            "Postprocessing error returning 500: '1 of 4 Elasticsearch document UPDATE operations failed' "
+            "[{'document_missing_exception': 1, 'ok': 3}]"
         )
         summary = response_doc["data"]
         assert summary == {"ok": 3, "document_missing_exception": 1}

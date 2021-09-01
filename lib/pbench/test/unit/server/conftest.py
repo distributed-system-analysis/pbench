@@ -184,7 +184,7 @@ def login_user(client, server_config, username, password):
 
 
 @pytest.fixture()
-def create_user() -> User:
+def create_user(client) -> User:
     user = User(
         email="test@example.com",
         password=generic_password,
@@ -197,7 +197,7 @@ def create_user() -> User:
 
 
 @pytest.fixture
-def create_admin_user() -> User:
+def create_admin_user(client) -> User:
     user = User(
         email=admin_email,
         password=generic_password,
