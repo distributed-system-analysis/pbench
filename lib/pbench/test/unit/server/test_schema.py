@@ -55,7 +55,7 @@ class TestExceptions:
         p = PostprocessError(HTTPStatus.OK, "all's well", {"param": "none"})
         assert (
             str(p)
-            == "Postprocessing error returning 200: 'all's well' [{'param': 'none'}]"
+            == "Postprocessing error returning 200: \"all's well\" [{'param': 'none'}]"
         )
         assert p.data == {"param": "none"}
         p = PostprocessError(HTTPStatus.BAD_REQUEST, "really bad", None)

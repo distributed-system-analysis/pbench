@@ -138,7 +138,7 @@ class PostprocessError(Exception):
         self.data = data
 
     def __str__(self) -> str:
-        return f"Postprocessing error returning {self.status}: '{str(self.message)}' [{self.data}]"
+        return f"Postprocessing error returning {self.status}: {self.message!r} [{self.data}]"
 
 
 def convert_date(value: str) -> datetime:
