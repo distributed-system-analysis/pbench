@@ -79,10 +79,15 @@ class Commons:
             date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range
 
-    def test_malformed_authorization_header(self, client, server_config):
+    @pytest.mark.parametrize(
+        "malformed_token", ("malformed", "Bearer token"),
+    )
+    def test_malformed_authorization_header(
+        self, client, server_config, malformed_token
+    ):
         response = client.post(
             server_config.rest_uri + self.pbench_endpoint,
-            headers={"Authorization": "malformed"},
+            headers={"Authorization": malformed_token},
             json=self.payload,
         )
         assert response.status_code == HTTPStatus.FORBIDDEN
