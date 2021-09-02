@@ -24,7 +24,7 @@ if [[ ${flake_sts} -ne 0 ]]; then
 fi
 printf -- "\n"
 
-pytest {posargs} ./server/lib/pbench/test/unit
+pytest ./server/lib/pbench/test/unit
 pytest_sts=${?}
 if [[ ${pytest_sts} -ne 0 ]]; then
     printf -- "FAILED: pytest ...\n" >&2
