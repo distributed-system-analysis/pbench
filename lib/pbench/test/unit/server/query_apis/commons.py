@@ -72,6 +72,7 @@ class Commons:
         date_range = []
         start_date = date_parser.parse(start)
         end_date = date_parser.parse(end)
+        assert start_date <= end_date
         first_month = start_date.replace(day=1)
         last_month = end_date + relativedelta(day=31)
         assert start_date <= end_date
@@ -163,7 +164,7 @@ class Commons:
                 json=keys,
             )
             assert response.status_code == HTTPStatus.BAD_REQUEST
-            missing = [k for k in required_keys if k not in keys]
+            missing = sorted(set(required_keys) - set(keys))
             assert (
                 response.json.get("message")
                 == f"Missing required parameters: {','.join(missing)}"

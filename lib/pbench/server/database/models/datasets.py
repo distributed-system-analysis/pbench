@@ -222,7 +222,7 @@ class MetadataBadKey(MetadataKeyError):
 
 class MetadataProtectedKey(MetadataKeyError):
     """
-    An metadata key was specified that cannot be modified in the current
+    A metadata key was specified that cannot be modified in the current
     context. (Usually an internally reserved key that was referenced in
     an external client API.)
 

@@ -284,7 +284,7 @@ def attach_dataset(pbench_token, create_user):
 
 
 @pytest.fixture()
-def provide_metadata(monkeypatch, attach_dataset):
+def provide_metadata(attach_dataset):
     drb = Dataset.attach(controller="node", name="drb")
     test = Dataset.attach(controller="node", name="test")
     Metadata.create(dataset=drb, key=Metadata.SAVED, value=False)

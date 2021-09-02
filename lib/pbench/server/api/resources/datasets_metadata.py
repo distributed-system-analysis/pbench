@@ -1,8 +1,7 @@
-from flask.json import jsonify
+from http import HTTPStatus
 from logging import Logger
 
-from http import HTTPStatus
-
+from flask.json import jsonify
 from flask.wrappers import Request, Response
 from flask_restful import abort
 
@@ -10,6 +9,8 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     ApiBase,
     API_OPERATION,
+    SchemaError,
+    convert_list,
     JSON,
     Parameter,
     ParamType,
@@ -62,12 +63,30 @@ class DatasetsMetadata(ApiBase):
         """
         controller = request.args.get("controller")
         name = request.args.get("name")
-        keys = request.args.getlist("metadata")
-        self.logger.info("GET metadata {} for {}", name, keys)
+
+        # Normalize and validate the metadata keys we got via the HTTP query
+        # string. These don't go through JSON schema validation, so we have
+        # to do it here.
+        try:
+            keys = convert_list(
+                request.args.getlist("metadata"),
+                Parameter(
+                    "metadata",
+                    ParamType.LIST,
+                    element_type=ParamType.KEYWORD,
+                    keywords=self.METADATA,
+                ),
+            )
+        except SchemaError as e:
+            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+
+        self.logger.info("GET metadata {} for {}", keys, name)
         try:
             metadata = self._get_metadata(controller, name, keys)
         except DatasetNotFound:
-            abort(HTTPStatus.BAD_REQUEST, message=f"Dataset {name} not found")
+            abort(
+                HTTPStatus.BAD_REQUEST, message=f"Dataset {controller}>{name} not found"
+            )
         return jsonify(metadata)
 
     def _put(self, json_data: JSON, _) -> Response:
@@ -89,8 +108,8 @@ class DatasetsMetadata(ApiBase):
 
         Some metadata accessible via GET /api/v1/datasets/metadata (or from
         /api/v1/datasets/list and /api/v1/datasets/detail) is not modifiable by
-        the client, and will result in an error if specified here, including
-        DELETED, OWNER, and ACCESS.
+        the client, including DELETED, OWNER, and ACCESS. The schema validation
+        for PUT will fail if any of these keywords are specified.
         """
         try:
             self.logger.info("PUT with {}", repr(json_data))
@@ -100,12 +119,19 @@ class DatasetsMetadata(ApiBase):
         except DatasetError as e:
             self.logger.warning("Dataset {} not found: {}", json_data["name"], str(e))
             abort(
-                HTTPStatus.BAD_REQUEST, message=f"Dataset {json_data['name']} not found"
+                HTTPStatus.BAD_REQUEST,
+                message=f"Dataset {json_data['controller']}>{json_data['name']} not found",
             )
         metadata = json_data["metadata"]
+        failures = []
         for k, v in metadata.items():
             try:
                 Metadata.set(dataset, k, v)
             except MetadataError as e:
-                self.logger.warning("Unable to update {} key {}: {}", k, v, str(e))
-                raise
+                self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))
+                failures.append(k)
+        if failures:
+            abort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                message=f"Unable to update metadata keys {','.join(failures)}",
+            )

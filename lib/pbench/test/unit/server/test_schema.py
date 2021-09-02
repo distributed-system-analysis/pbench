@@ -5,7 +5,6 @@ import dateutil
 import pytest
 
 from pbench.server.api.auth import Auth, UnknownUser
-from pbench.server.database.models.users import User
 from pbench.server.api.resources import (
     API_OPERATION,
     ConversionError,
@@ -22,6 +21,7 @@ from pbench.server.api.resources import (
     UnsupportedAccessMode,
     UnverifiedUser,
 )
+from pbench.server.database.models.users import User
 
 
 class TestExceptions:
@@ -97,8 +97,7 @@ class TestParamType:
         """
         Test successful parameter conversion / normalization.
 
-        NOTE that we can't test KEYWORD here without a Parameter to define the
-        set of keywords, or LIST without the element type; we'll test those
+        NOTE that we can't test LIST without the element type; we'll test that
         separately.
         """
 
@@ -138,8 +137,8 @@ class TestParamType:
         """
         Test unsuccessful parameter conversion / normalization.
 
-        NOTE that we can't test KEYWORD here without a Parameter to define the
-        set of keywords; we'll test that separately.
+        NOTE that we can't test LIST without the element type; we'll test that
+        separately.
         """
 
         def not_ok(auth: Auth, username: str) -> User:
@@ -151,7 +150,7 @@ class TestParamType:
         param = Parameter("test", ptype)
         with pytest.raises(ConversionError) as exc:
             ptype.convert(value, param)
-        assert str(exc).find(str(value))
+        assert str(value) in str(exc)
 
 
 class TestParameter:
@@ -181,22 +180,22 @@ class TestParameter:
         assert not x.required
         assert x.name == "test"
         assert x.type is ParamType.STRING
-        assert x.keywords is None
         assert x.element_type is None
+        assert x.keywords is None
 
         y = Parameter("foo", ParamType.JSON, required=True)
         assert y.required
         assert y.name == "foo"
         assert y.type is ParamType.JSON
-        assert y.keywords is None
         assert y.element_type is None
+        assert y.keywords is None
 
         z = Parameter("foo", ParamType.JSON, required=False)
         assert not z.required
         assert z.name == "foo"
         assert z.type is ParamType.JSON
-        assert z.keywords is None
         assert z.element_type is None
+        assert z.keywords is None
 
     @pytest.mark.parametrize(
         "test",
@@ -229,13 +228,25 @@ class TestParameter:
         assert not x.invalid(json)
 
     @pytest.mark.parametrize(
-        "test", (("yes", "Yes"), ("NO", "No"), ("MaYbE", "MAYBE"), ("Maybe", "MAYBE"))
+        "test",
+        (
+            ("yes", "yes"),
+            ("YES", "yes"),
+            ("yES", "yes"),
+            ("no", "No"),
+            ("No", "No"),
+            ("NO", "No"),
+            ("maybe", "MAYBE"),
+            ("MaYbE", "MAYBE"),
+            ("Maybe", "MAYBE"),
+            ("MAYBE", "MAYBE"),
+        ),
     )
     def test_keyword_normalization(self, test):
         """
         Test parameter normalization for a keyword parameter.
         """
-        x = Parameter("data", ParamType.KEYWORD, keywords=["Yes", "No", "MAYBE"])
+        x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "No", "MAYBE"])
         input, expected = test
         assert x.normalize(input) == expected
 
@@ -249,7 +260,7 @@ class TestParameter:
         x = Parameter("data", ParamType.KEYWORD, keywords=["Yes", "No"], required=False)
         with pytest.raises(ConversionError) as exc:
             x.normalize(test)
-        assert str(exc).find(str(test)) > 0
+        assert str(test) in str(exc)
 
     @pytest.mark.parametrize(
         "test", ("I'm not sure", "yes!", "ebyam"),

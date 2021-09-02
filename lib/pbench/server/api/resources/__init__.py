@@ -10,6 +10,7 @@ from dateutil import parser as date_parser
 from flask import request
 from flask.wrappers import Request, Response
 from flask_restful import Resource, abort
+
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
@@ -102,7 +103,7 @@ class MissingParameters(SchemaError):
 
     def __init__(self, keys: List[AnyStr]):
         super().__init__()
-        self.keys = keys
+        self.keys = sorted(keys)
 
     def __str__(self):
         return f"Missing required parameters: {','.join(self.keys)}"
@@ -149,18 +150,18 @@ class KeywordError(SchemaError):
 
         Args:
             parameter: The Parameter defining the keywords
-            expected_type: The expected type (keyword, JSON)
+            expected_type: The expected type ("keyword", "JSON")
             unrecognized: The unrecognized keywords
             keywords: If specified, overrides default keywords from parameter
         """
         super().__init__()
         self.parameter = parameter
         self.expected_type = expected_type
-        self.unrecognized = unrecognized
-        self.keywords = keywords if keywords else parameter.keywords
+        self.unrecognized = sorted(unrecognized)
+        self.keywords = sorted(keywords if keywords else parameter.keywords)
 
     def __str__(self):
-        return f"Unrecognized keywords {','.join(self.unrecognized)} given for parameter {self.parameter.name}; allowed keywords are {','.join(self.keywords)}"
+        return f"Unrecognized {self.expected_type} {','.join(self.unrecognized)} given for parameter {self.parameter.name}; allowed keywords are {','.join(self.keywords)}"
 
 
 class ListElementError(SchemaError):
@@ -271,12 +272,9 @@ def convert_json(value: JSON, parameter: "Parameter") -> JSON:
     try:
         if json.loads(json.dumps(value)) == value:
             if parameter.keywords:
-                bad = []
-                for key in value.keys():
-                    if key not in parameter.keywords:
-                        bad.append(key)
+                bad = set(value.keys()) - set(parameter.keywords)
                 if bad:
-                    raise KeywordError(parameter, "JSON", bad)
+                    raise KeywordError(parameter, "JSON keys", bad)
             return value
     except JSONDecodeError:
         pass
@@ -320,14 +318,14 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
         the input value
     """
     if type(value) is not str:
-        raise ConversionError(value, str(parameter.keywords), str.__name__)
+        raise ConversionError(value, str.__name__, type(value).__name__)
     for v in parameter.keywords:
         if v.casefold() == value.casefold():
             return v
     raise KeywordError(parameter, "keyword", [value])
 
 
-def convert_list(value: List[Any], parameter: "Parameter") -> str:
+def convert_list(value: List[Any], parameter: "Parameter") -> List[Any]:
     """
     Verify that the parameter value is a list and that each element
     of the list is a valid instance of the referenced element type.
@@ -343,9 +341,7 @@ def convert_list(value: List[Any], parameter: "Parameter") -> str:
         A new list with normalized elements
     """
     if type(value) is not list:
-        raise ConversionError(
-            str(value), f"List of {parameter.name}", type(value).__name__
-        )
+        raise ConversionError(value, f"List of {parameter.name}", type(value).__name__)
     etype: "ParamType" = parameter.element_type
     retlist = []
     errlist = []
@@ -382,7 +378,7 @@ def convert_access(value: str, parameter: "Parameter") -> str:
     v = value.lower()
     if v not in Dataset.ACCESS_KEYWORDS:
         raise KeywordError(
-            parameter, "access", [value], keywords=Dataset.ACCESS_KEYWORDS
+            parameter, "access keyword", [value], keywords=Dataset.ACCESS_KEYWORDS
         )
     return v
 
@@ -527,6 +523,9 @@ class Schema:
 
     def __contains__(self, key):
         return key in self.parameters
+
+    def __getitem__(self, key):
+        return self.parameters[key]
 
     def __str__(self) -> str:
         return f"Schema<{self.parameters}>"
@@ -679,8 +678,8 @@ class ApiBase(Resource):
             requested_items: List of metadata key names
 
         Returns:
-            JSON block containing key: value for each of the requested keys
-            for which the dataset has Metadata.
+            JSON object (Python dict) containing a key-value pair for each
+            requested metadata key present on the dataset.
         """
         if not requested_items:
             return {}
@@ -750,15 +749,9 @@ class ApiBase(Resource):
 
         # Automatically authorize the operation only if the API schema has the
         # "user" key of type USERNAME; otherwise we assume that authorization
-        # is unnecessary, or that the API-specific subclass will take care of
+        # is unnecessary or that the API-specific subclass will take care of
         # that in preprocess.
-
-        # TODO: This should really be more flexible. (A) we should confirm
-        # that we're choosing a USERNAME type instead of blindly targeting
-        # "user" parameter name; (B) we should allow some other USERNAME
-        # typed parameter. I'm deliberately not making these changes in
-        # order to minimize the scope of this refactoring.
-        if "user" in self.schema:
+        if "user" in self.schema and self.schema["user"].type is ParamType.USER:
             user = json_data.get("user")  # original username, not user ID
             access = new_data.get("access")  # normalized access policy
             try:

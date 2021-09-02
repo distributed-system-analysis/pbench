@@ -121,9 +121,9 @@ class DatasetsList(ElasticBase):
 
     def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         """
-        Returns a list of run documents including the name, the associated
-        controller, start and end timestamps. The Elasticsearch information can
-        be enriched with Dataset DB metadata based on the "metadata" JSON
+        Returns a list of run document summaries for the requested controller
+        and user within the specified time range. The Elasticsearch information
+        can be enriched with Dataset DB metadata based on the "metadata" JSON
         parameter values, if specified.
 
         {

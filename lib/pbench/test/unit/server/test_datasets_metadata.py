@@ -16,19 +16,21 @@ class TestDatasetsMetadata:
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json == {"message": "Dataset foobar not found"}
+        assert response.json == {"message": "Dataset node>foobar not found"}
 
     def test_get_bad_keys(self, client, server_config, attach_dataset):
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",
             query_string={
                 "controller": "node",
-                "name": "foobar",
+                "name": "drb",
                 "metadata": ["xyzzy", "plugh", "owner", "access"],
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json == {"message": "Dataset foobar not found"}
+        assert response.json == {
+            "message": "Unrecognized list values ['xyzzy', 'plugh'] given for parameter metadata; expected saved,seen,user,deletion,access,owner"
+        }
 
     def test_get(self, client, server_config, provide_metadata):
         response = client.get(
@@ -62,7 +64,9 @@ class TestDatasetsMetadata:
         Note that Pbench will silently ignore any additional keys that are
         specified but not required.
 
-        TODO: This is mostly copied from commons.py
+        TODO: This is mostly copied from commons.py; ideally these would be
+        refactored into a common "superclass" analagous to ApiBase as Commons
+        is to ElasticBase.
         """
         classobject = DatasetsMetadata(client.config, client.logger)
 
@@ -71,7 +75,7 @@ class TestDatasetsMetadata:
                 f"{server_config.rest_uri}/datasets/metadata", json=keys,
             )
             assert response.status_code == HTTPStatus.BAD_REQUEST
-            missing = [k for k in required_keys if k not in keys]
+            missing = sorted(set(required_keys) - set(keys))
             assert (
                 response.json.get("message")
                 == f"Missing required parameters: {','.join(missing)}"
@@ -121,7 +125,7 @@ class TestDatasetsMetadata:
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json == {"message": "Dataset foobar not found"}
+        assert response.json == {"message": "Dataset node>foobar not found"}
 
     def test_put_bad_keys(self, client, server_config, attach_dataset):
         response = client.put(
@@ -134,7 +138,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized keywords what,xyzzy given for parameter metadata; allowed keywords are saved,seen,user"
+            "message": "Unrecognized JSON keys what,xyzzy given for parameter metadata; allowed keywords are saved,seen,user"
         }
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
@@ -148,7 +152,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized keywords access given for parameter metadata; allowed keywords are saved,seen,user"
+            "message": "Unrecognized JSON keys access given for parameter metadata; allowed keywords are saved,seen,user"
         }
 
     def test_put(self, client, server_config, provide_metadata):

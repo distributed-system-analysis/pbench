@@ -226,7 +226,7 @@ class TestDatasetsList(Commons):
         assert response.status_code == HTTPStatus.OK
         res_json = response.json
         assert isinstance(res_json, dict)
-        assert len(res_json.keys()) == 1
+        assert len(res_json) == 1
         data = res_json["node"]
         assert isinstance(data, list)
         assert len(data) == 2
