@@ -125,17 +125,14 @@ class TestUpload:
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         self.verify_logs(caplog)
 
-    def test_malformed_authorization_header(self, client, caplog, server_config):
+    @pytest.mark.parametrize(
+        "malformed_token", ("malformed", "bear token" "Bearer malformed"),
+    )
+    def test_malformed_authorization_header(
+        self, client, caplog, server_config, malformed_token
+    ):
         response = client.put(
-            self.gen_uri(server_config), headers={"Authorization": "malformed"},
-        )
-        assert response.status_code == HTTPStatus.UNAUTHORIZED
-        self.verify_logs(caplog)
-
-    def test_malformed_authorization_token(self, client, caplog, server_config):
-        response = client.put(
-            self.gen_uri(server_config),
-            headers={"Authorization": "Bearer " + "malformed"},
+            self.gen_uri(server_config), headers={"Authorization": malformed_token},
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
         self.verify_logs(caplog)

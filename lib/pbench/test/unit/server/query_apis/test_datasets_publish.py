@@ -84,7 +84,7 @@ class TestDatasetsPublish(Commons):
         )
 
     @pytest.mark.parametrize(
-        "malformed_token", ("malformed", "Bearer token"),
+        "malformed_token", ("malformed", "bear token" "Bearer malformed"),
     )
     def test_malformed_authorization_header(
         self, client, server_config, malformed_token, attach_dataset
