@@ -85,7 +85,7 @@ class Commons:
             headers={"Authorization": "malformed"},
             json=self.payload,
         )
-        assert response.status_code == HTTPStatus.UNAUTHORIZED
+        assert response.status_code == HTTPStatus.FORBIDDEN
 
     def test_non_accessible_user_data(self, client, server_config, pbench_token):
         """

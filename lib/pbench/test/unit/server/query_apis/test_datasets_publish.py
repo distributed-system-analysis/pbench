@@ -83,6 +83,11 @@ class TestDatasetsPublish(Commons):
             payload={"controller": "node", "name": "drb", "access": "public"},
         )
 
+    def test_malformed_authorization_header(
+        self, client, server_config, attach_dataset
+    ):
+        super().test_malformed_authorization_header(client, server_config)
+
     @pytest.mark.parametrize(
         "owner", ("drb", "test"),
     )
