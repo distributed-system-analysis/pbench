@@ -161,7 +161,7 @@ def transform_buckets(buckets: dict, sat_names: list, now: datetime, kind: str):
 #
 # Each partial year, month, and week are marked with a capital 'P' to indicate
 # it as such, where "partial" is determined by considering the date the report
-# was create.
+# was created.
 #
 report_tmpl = """Summary Statistics for Tar Balls on {{ now.strftime("%Y-%m-%d") }} (external data only):
 
