@@ -1,7 +1,8 @@
 from http import HTTPStatus
+from typing import Callable
+
 import dateutil
 import pytest
-from typing import Callable
 
 from pbench.server.api.auth import Auth, UnknownUser
 from pbench.server.database.models.users import User
