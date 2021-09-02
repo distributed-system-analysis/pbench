@@ -7,6 +7,30 @@ source $(dirname "${0}")/python-setup.sh
 
 typeset -i errors=0
 
+printf -- "black --check ...\n"
+black --check .
+black_sts=${?}
+if [[ ${black_sts} -ne 0 ]]; then
+    printf -- "FAILED: black --check .\n" >&2
+    (( errors++ ))
+fi
+
+printf -- "\nflake8 --verbose ...\n"
+flake8 --verbose .
+flake_sts=${?}
+if [[ ${flake_sts} -ne 0 ]]; then
+    printf -- "FAILED: flake8 --verbose .\n" >&2
+    (( errors++ ))
+fi
+printf -- "\n"
+
+pytest {posargs} ./server/lib/pbench/test/unit
+pytest_sts=${?}
+if [[ ${pytest_sts} -ne 0 ]]; then
+    printf -- "FAILED: pytest ...\n" >&2
+    (( errors++ ))
+fi
+
 export PBENCH_UNITTEST_SERVER_MODE=parallel
 
 # List of environments to run.
