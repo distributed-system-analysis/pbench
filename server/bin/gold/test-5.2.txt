@@ -353,7 +353,7 @@ Summary Statistics for Tar Balls on 1970-01-01 (external data only):
 
     Good Tar Balls:
                          8 count
-                     1,764 size (bytes)
+                    1.8 kB size
 
         By Server Origin:
                          5 main pbench server

@@ -170,7 +170,7 @@ report_tmpl = """Summary Statistics for Tar Balls on {{ now.strftime("%Y-%m-%d")
     Good Tar Balls:
         {{ "{:18n}".format(good.count) }} count
         {% if good.count > 0 %}
-        {{ "{:18n}".format(good.size) }} size (bytes)
+        {{ "{:>18s}".format(good.size|humanize_naturalsize) }} size
 
         By Server Origin:
         {% for name, value in server_origin.items() %}
@@ -188,7 +188,7 @@ report_tmpl = """Summary Statistics for Tar Balls on {{ now.strftime("%Y-%m-%d")
     Bad Tar Balls:
         {{ "{:18n}".format(bad.ctrls.keys()|length) }} controllers
         {{ "{:18n}".format(bad.count) }} count
-        {{ "{:18n}".format(bad.size) }} size (bytes)
+        {{ "{:>18s}".format(bad.size|humanize_naturalsize) }} size
 
     {% endif %}
 {% if server_origin.keys()|length > 0 %}
@@ -294,7 +294,12 @@ def main(options: Namespace) -> int:
 
     time_sec = pbench._time() - start
 
-    tmpl = jinja2.Template(report_tmpl, trim_blocks=True, lstrip_blocks=True)
+    env = jinja2.Environment(
+        extensions=["jinja2_humanize_extension.HumanizeExtension"],
+        trim_blocks=True,
+        lstrip_blocks=True,
+    )
+    tmpl = env.from_string(report_tmpl)
     print(
         tmpl.render(
             now=now,
