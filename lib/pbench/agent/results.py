@@ -1,8 +1,9 @@
+import collections
 import datetime
-import errno
 import os
-import tarfile
+import subprocess
 import urllib.parse
+from distutils.spawn import find_executable
 from logging import Logger
 from pathlib import Path
 
@@ -14,48 +15,86 @@ from pbench.common.exceptions import BadMDLogFormat
 from pbench.common.utils import md5sum, validate_hostname
 
 
-class FileUploadError(Exception):
-    """Raised when the uploading of file to server has failed"""
-
-    pass
+TarballRecord = collections.namedtuple("TarballRecord", ["name", "length", "md5"])
 
 
 class MakeResultTb:
-    """MakeResultTb - Creates the result tar file.
+    """Interfaces for creating a result tar ball."""
 
-        TODO:  This is latent code -- it is currently unused and largely
-               untested, intended to support the future implementation of
-               a tool to replace pbench-make-result-tb.
-    """
+    class AlreadyCopied(RuntimeError):
+        """Specific run time error raised when a result directory has a .copied
+        marker present.
+        """
+
+        def __init__(self):
+            super().__init__(".copied marker present in result directory")
+
+    class BenchmarkRunning(RuntimeError):
+        """Specific run time error raised when a result directory has a .running
+        marker present.
+        """
+
+        def __init__(self):
+            super().__init__(".running marker present in result directory")
 
     def __init__(
         self,
         result_dir: str,
         target_dir: str,
+        controller: str,
         config: PbenchAgentConfig,
         logger: Logger,
     ):
-        """__init__ - Initializes the required attributes
+        """Initializes the required attributes for making a tar ball
 
-            Args:
-                result_dir -- directory where tb file is collected.
-                target_dir -- directory where tar file needs to be moved.
-                config -- PbenchAgent config object
-                logger -- logger objects helps logging important details
+        Args:
+            result_dir -- results directory from which a tar ball will be
+                          constructed
+            target_dir -- target directory where the tar ball should be placed
+            controller -- the name of the controller to be associated with the
+                          tar ball
+            config -- PbenchAgent config object
+            logger -- logger object to use when emitting log entries during
+                      operation
+
+        Raises:
+            AlreadyCopied       if we find a "*.copied" marker for the result
+                                directory.
+            BenchmarkRunning    if we find a "*/.running" marker in the result
+                                directory.
+            FileNotFoundError   if either the result or target directories do
+                                not exist
+            NotADirectoryError  if either the result or target directories are
+                                not actual directories
+            RuntimeError        if it cannot find the 'tar' command on the PATH
+            ValueError          if the given controller is not a valid host
+                                name
         """
         assert (
             config and logger
         ), f"config, '{config!r}', and/or logger, '{logger!r}', not provided"
-        self.result_dir = self.check_result_target_dir(result_dir, "Result")
-        self.target_dir = self.check_result_target_dir(target_dir, "Target")
+        self.tar_path = find_executable("tar")
+        if self.tar_path is None:
+            raise RuntimeError("External 'tar' executable not found")
+        self.xz_path = find_executable("xz")
+        if self.xz_path is None:
+            raise RuntimeError("External 'xz' executable not found")
+        self.result_dir = self._check_result_target_dir(result_dir, "Result")
+        self.target_dir = self._check_result_target_dir(target_dir, "Target")
         self.config = config
         self.logger = logger
+        if validate_hostname(controller) != 0:
+            raise ValueError(f"Controller {controller!r} is not a valid host name")
+        self.controller = controller
+        if (self.result_dir.parent / f"{self.result_dir.name}.copied").exists():
+            raise self.AlreadyCopied()
+        running = self.result_dir / ".running"
+        if running.exists():
+            raise self.BenchmarkRunning()
 
     @staticmethod
-    def check_result_target_dir(dir_path: str, name: str) -> Path:
-        """check_result_target_dir - confirms the availability and
-                integrity of the specified directory.
-        """
+    def _check_result_target_dir(dir_path: str, name: str) -> Path:
+        """Confirms the specified directory after resolving all symlinks."""
         if not dir_path:
             raise FileNotFoundError(f"{name} directory not provided")
         else:
@@ -72,23 +111,46 @@ class MakeResultTb:
                     )
         return path
 
-    def make_result_tb(self) -> str:
-        """make_result_tb - make the result tarball.
+    def _unlink_tarball(self, tarball: Path, msg: str) -> str:
+        """Helper function for silently unlinking a tar ball, extending a given
+        "message" string if an error is encountered while performing the
+        unlink.
 
-            Returns
-                -- tarball path
+        Returns a message string.
         """
-        if os.path.exists(f"{self.result_dir}.copied"):
-            raise Exception(f"Already copied {str(self.result_dir)}")
-
-        pbench_run_name = self.result_dir.name
-        if os.path.exists(f"{self.result_dir}/.running"):
-            raise RuntimeError(
-                f"The benchmark is still running in {pbench_run_name} - skipping; "
-                f"if that is not true, rmdir {pbench_run_name}/.running, "
-                "and try again",
+        try:
+            tarball.unlink()
+        except FileNotFoundError:
+            pass
+        except Exception as unlink_exc:
+            msg = (
+                f"{msg}; also encountered an error while removing failed tar"
+                f" ball, {tarball}: '{unlink_exc}'"
             )
+        return msg
 
+    def make_result_tb(self, single_threaded: bool = False) -> TarballRecord:
+        """Make the result tar ball from result directory.
+
+        The metadata.log file in the result directory is double checked to be
+        sure it is valid, and then the "run.raw_size" and the
+        "pbench.tar-ball-creation-timestamp" fields are added.
+
+        The tar ball is created, verified, and the MD5 sum value is generated.
+
+        Returns a named tuple consisting of the Path object of the created tar
+        ball, its length, and its MD5 checksum value.
+
+        Raises
+          - FileNotFoundError  if the result directory does not have a
+                               metadata.log file
+          - BadMDLogFormat     if the metadata.log file has a pbench.name field
+                               value which does not match the result directory
+                               name.
+          - RuntimeError       if any problems are encountered while creating
+                               or verifying the created tar ball
+        """
+        pbench_run_name = self.result_dir.name
         mdlog_name = self.result_dir / "metadata.log"
         mdlog = MetadataLog()
         try:
@@ -105,12 +167,27 @@ class MakeResultTb:
         if res_name != pbench_run_name:
             raise BadMDLogFormat(
                 f"The run in directory {self.config.pbench_run / pbench_run_name}"
-                f" has an unexpected metadata name, '{res_name}' - skipping"
+                f" has an unexpected metadata name, '{res_name}'"
             )
+
+        mdlog.set("pbench", "hostname_f", os.environ.get("_pbench_full_hostname", ""))
+        mdlog.set("pbench", "hostname_s", os.environ.get("_pbench_hostname", ""))
+        mdlog.set("pbench", "hostname_ip", os.environ.get("_pbench_hostname_ip", ""))
+
+        md_run = mdlog["run"]
+        md_controller = md_run.get("controller", "")
+        if md_controller != self.controller:
+            # The controller name in the metadata.log file does not match the
+            # controller directory being used in the target directory.  So
+            # save the current controller as "controller_orig", and save the
+            # controller directory as the new controller name.
+            if md_controller:
+                mdlog.set("run", "controller_orig", md_controller)
+            mdlog.set("run", "controller", self.controller)
 
         result_size = sum(f.stat().st_size for f in self.result_dir.rglob("*"))
         self.logger.debug(
-            "Preparing to tar up {} bytes of data from {}",
+            "Preparing to tar up %d bytes of data from %s",
             result_size,
             self.result_dir,
         )
@@ -123,60 +200,134 @@ class MakeResultTb:
             mdlog.write(fp)
 
         tarball = self.target_dir / f"{pbench_run_name}.tar.xz"
+        e_file = self.target_dir / f"{pbench_run_name}.tar.err"
+        args = [self.tar_path, "--create", "--force-local"]
+        if single_threaded:
+            args.append("--xz")
+        args.append(pbench_run_name)
         try:
-            with tarfile.open(tarball, mode="x:xz") as tar:
-                for f in self.result_dir.rglob("*"):
-                    tar.add(os.path.realpath(f))
-        except tarfile.TarError:
-            self.logger.error(
-                "Tar ball creation failed for {}, skipping", self.result_dir
-            )
-            try:
-                tarball.unlink()
-            except Exception as exc:
-                if not isinstance(exc, OSError) or exc.errno != errno.ENOENT:
-                    raise RuntimeError(
-                        f"Error removing failed tarball, '{tarball}', {exc}"
+            # Invoke tar directly for efficiency.
+            with tarball.open("w") as ofp, e_file.open("w") as efp:
+                if single_threaded:
+                    xz_proc = None
+                else:
+                    xz_proc = subprocess.Popen(
+                        [self.xz_path, "-T0"],
+                        cwd=str(self.target_dir),
+                        stdin=subprocess.PIPE,
+                        stdout=ofp,
+                        stderr=efp,
                     )
+                tar_proc = subprocess.Popen(
+                    args,
+                    cwd=str(self.result_dir.parent),
+                    stdin=None,
+                    stdout=xz_proc.stdin if xz_proc else ofp,
+                    stderr=efp,
+                )
+                tar_proc.wait()
+                if xz_proc:
+                    # Now that the `tar` command has exited, we close the
+                    # `stdin` of the `xz` command to shut it down.
+                    xz_proc.stdin.close()
+                    xz_proc.wait()
+        except Exception as exc:
+            msg = self._unlink_tarball(
+                tarball, f"Tar ball creation failed for {self.result_dir}, {exc}"
+            )
+            raise RuntimeError(msg)
+        else:
+            if tar_proc.returncode == 0:
+                if xz_proc is not None and xz_proc.returncode != 0:
+                    msg = self._unlink_tarball(
+                        tarball,
+                        f"Failed to create tar ball; 'xz' return code: {xz_proc.returncode:d}",
+                    )
+                    raise RuntimeError(msg)
+                else:
+                    try:
+                        e_file.unlink()
+                    except FileNotFoundError:
+                        pass
+                    except Exception as unlink_exc:
+                        self.logger.warning(
+                            "Failed to remove 'tar' stderr file, %s: '%s'",
+                            e_file,
+                            unlink_exc,
+                        )
+            else:
+                # We explicitly ignore the return code from the optional 'xz' process.
+                msg = self._unlink_tarball(
+                    tarball,
+                    f"Failed to create tar ball; 'tar' return code: {tar_proc.returncode:d}",
+                )
+                raise RuntimeError(msg)
+        try:
+            (tar_len, tar_md5) = md5sum(tarball)
+        except Exception:
+            msg = self._unlink_tarball(
+                tarball,
+                f"Failed to verify and generate MD5 for created tar ball, '{tarball}'",
+            )
+            raise RuntimeError(msg)
 
-        # The contract with the caller is to just return the full path to the
-        # created tarball.
-        return str(tarball)
+        return TarballRecord(name=tarball, length=tar_len, md5=tar_md5)
 
 
 class CopyResultTb:
-    """CopyResultTb - Use the server's HTTP PUT method to upload a tarball
+    """Interfaces for copying result tar balls remotely using the server's HTTP
+    PUT method for uploads.
     """
 
+    class FileUploadError(Exception):
+        """Raised when the uploading of file to server has failed"""
+
+        pass
+
     def __init__(
-        self, controller: str, tarball: str, config: PbenchAgentConfig, logger: Logger
+        self,
+        controller: str,
+        tarball: str,
+        tarball_len: int,
+        tarball_md5: str,
+        config: PbenchAgentConfig,
+        logger: Logger,
     ):
-        """CopyResultTb contructor - raises FileNotFoundError if the given
-        tar ball does not exist, and a ValueError if the given controller is
-        not a valid hostname.
+        """Constructor for object representing tar ball to be copied remotely.
+
+        Raises
+            ValueError          if the given controller is not a valid hostname
+            FileNotFoundError   if the given tar ball does not exist
         """
         if validate_hostname(controller) != 0:
             raise ValueError(f"Controller {controller!r} is not a valid host name")
         self.controller = controller
         self.tarball = Path(tarball)
         if not self.tarball.exists():
-            raise FileNotFoundError(f"Tarball '{self.tarball}' does not exist")
+            raise FileNotFoundError(f"Tar ball '{self.tarball}' does not exist")
+        self.tarball_len = tarball_len
+        self.tarball_md5 = tarball_md5
         server_rest_url = config.get("results", "server_rest_url")
         tbname = urllib.parse.quote(self.tarball.name)
         self.upload_url = f"{server_rest_url}/upload/{tbname}"
         self.logger = logger
 
     def copy_result_tb(self, token: str) -> None:
-        """copy_result_tb - copies tb from agent to configured server upload URL
+        """Copies the tar ball from the agent to the configured server using upload
+        API.
 
-            Args
-                token -- a token which establishes that the caller is
-                    authorized to make the PUT request on behalf of a
-                    specific user.
+        Args
+            token -- a token which establishes that the caller is
+                authorized to make the PUT request on behalf of a
+                specific user.
+
+        Raises
+            RuntimeError     if a connection to the server fails
+            FileUploadError  if the tar ball failed to upload properly
+
         """
-        content_length, content_md5 = md5sum(str(self.tarball))
         headers = {
-            "Content-MD5": content_md5,
+            "Content-MD5": self.tarball_md5,
             "Authorization": f"Bearer {token}",
             "controller": self.controller,
         }
@@ -200,10 +351,10 @@ class CopyResultTb:
                 assert (
                     "Content-Length" in request.headers
                 ), "Upload request unexpectedly missing a `Content-Length` header"
-                assert request.headers["Content-Length"] == str(content_length), (
+                assert request.headers["Content-Length"] == str(self.tarball_len), (
                     "Upload request `Content-Length` header contains {} -- "
                     "expected {}".format(
-                        request.headers["Content-Length"], content_length
+                        request.headers["Content-Length"], self.tarball_len
                     )
                 )
 
@@ -213,9 +364,10 @@ class CopyResultTb:
             except requests.exceptions.ConnectionError:
                 raise RuntimeError(f"Cannot connect to '{self.upload_url}'")
             except Exception as exc:
-                raise FileUploadError(
-                    "There was something wrong with file upload request:  "
-                    f"file: '{self.tarball}', URL: '{self.upload_url}', ({exc})"
+                raise self.FileUploadError(
+                    "There was something wrong with file upload request: "
+                    f"file: '{self.tarball}', URL: '{self.upload_url}';"
+                    f" error: '{exc}'"
                 )
         assert (
             response.ok
