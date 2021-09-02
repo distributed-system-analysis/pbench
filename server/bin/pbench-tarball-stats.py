@@ -194,21 +194,21 @@ report_tmpl = """Summary Statistics for Tar Balls on {{ now.strftime("%Y-%m-%d")
 {% if server_origin.keys()|length > 0 %}
 Tar Ball Counts broken down by weeks for most recent 2 months (with satellite percentages):
 
-Week Ending  Total Count{% for name in server_origin.keys()|sort %}   {{ "% {0:>5s}".format(name) }}{% endfor +%}
+Week Ending  Total Count{% for name in server_origin.keys()|sort %}   {{ "{0:>7s}".format(name) }}{% endfor +%}
 {% for name,value in by_week.items()|sort(reverse=True) %}
 {{ "{0:<10s}".format(name) }} {% if value.partial %}P{% else %} {% endif +%} {{ "{:11n}".format(value.count) }}{% for name in server_origin.keys()|sort %}   {{ "{:6.2f}%".format(value.sats_pct[name]) }}{% endfor +%}
 {% endfor %}
 
 Tar Ball Counts broken down by Year (with satellite percentages):
 
-Year         Total Count{% for name in server_origin.keys()|sort %}   {{ "% {0:>5s}".format(name) }}{% endfor +%}
+Year         Total Count{% for name in server_origin.keys()|sort %}   {{ "{0:>7s}".format(name) }}{% endfor +%}
 {% for name,value in by_year.items()|sort(reverse=True) %}
 {{ "{0:<10s}".format(name) }} {% if value.partial %}P{% else %} {% endif +%} {{ "{:11n}".format(value.count) }}{% for name in server_origin.keys()|sort %}   {{ "{:6.2f}%".format(value.sats_pct[name]) }}{% endfor +%}
 {% endfor %}
 
 Tar Ball Counts broken down by Month (with satellite percentages):
 
-Month        Total Count{% for name in server_origin.keys()|sort %}   {{ "% {0:>5s}".format(name) }}{% endfor +%}
+Month        Total Count{% for name in server_origin.keys()|sort %}   {{ "{0:>7s}".format(name) }}{% endfor +%}
 {% for name,value in by_month.items()|sort(reverse=True) %}
 {{ "{0:<10s}".format(name) }} {% if value.partial %}P{% else %} {% endif +%} {{ "{:11n}".format(value.count) }}{% for name in server_origin.keys()|sort %}   {{ "{:6.2f}%".format(value.sats_pct[name]) }}{% endfor +%}
 {% endfor %}

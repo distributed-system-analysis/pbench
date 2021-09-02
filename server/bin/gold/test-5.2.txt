@@ -366,17 +366,17 @@ Summary Statistics for Tar Balls on 1970-01-01 (external data only):
 
 Tar Ball Counts broken down by weeks for most recent 2 months (with satellite percentages):
 
-Week Ending  Total Count   %  main   %   ONE
+Week Ending  Total Count      main       ONE
 1970-01-04 P           8    62.50%    37.50%
 
 Tar Ball Counts broken down by Year (with satellite percentages):
 
-Year         Total Count   %  main   %   ONE
+Year         Total Count      main       ONE
 1970       P           8    62.50%    37.50%
 
 Tar Ball Counts broken down by Month (with satellite percentages):
 
-Month        Total Count   %  main   %   ONE
+Month        Total Count      main       ONE
 1970-01    P           8    62.50%    37.50%
 
 --- Finished pbench-tarball-stats (status=0)
