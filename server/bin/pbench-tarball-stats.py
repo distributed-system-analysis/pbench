@@ -99,7 +99,7 @@ def week_end(dt: datetime) -> str:
     object.
     """
     week_end = dt - timedelta(days=dt.isoweekday()) + _sevendays
-    return week_end.strftime("%Y-%m-%d")
+    return f"{week_end:%Y-%m-%d}"
 
 
 def transform_buckets(buckets: dict, sat_names: list, now: datetime, kind: str):
@@ -107,9 +107,9 @@ def transform_buckets(buckets: dict, sat_names: list, now: datetime, kind: str):
     server.
     """
     if kind == "y":
-        now_s = now.strftime("%Y")
+        now_s = f"{now:%Y}"
     elif kind == "m":
-        now_s = now.strftime("%Y-%m")
+        now_s = f"{now:%Y-%m}"
     else:
         assert kind == "w", f"error unexpected kind value, {kind!r}"
         now_s = week_end(now)
@@ -154,14 +154,14 @@ def transform_buckets(buckets: dict, sat_names: list, now: datetime, kind: str):
 #   by_year       - dictionary mapping counts of tar balls for each given
 #                   year generated, with mappings per satellite server
 #   by_month      - same as by_year, just "by month"
-#   by_week       - list of dictionares of weekly mappings, similar to by_year
+#   by_week       - list of dictionaries of weekly mappings, similar to by_year
 #                   and by_month but with data for the weeks of the most recent
 #                   two months, where we use the ISO week definition which
 #                   starts on a Monday and ends on a Sunday.
 #
-# Each partial year, month, and week are marked an asterisk to indicate it as
-# such, where "partial" is determined by considering the date the report was
-# executed.
+# Each partial year, month, and week are marked with a capital 'P' to indicate
+# it as such, where "partial" is determined by considering the date the report
+# was create.
 #
 report_tmpl = """Summary Statistics for Tar Balls on {{ now.strftime("%Y-%m-%d") }} (external data only):
 
