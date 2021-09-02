@@ -1,4 +1,3 @@
-ansible
 bottle
 cffi
 click>=8.0
