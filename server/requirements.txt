@@ -1,7 +1,7 @@
 alembic>=1.6.4
 aniso8601>=9.0.1
 boto3
-click
+click>=8.0
 python-dateutil
 elasticsearch==7.13.1
 email-validator
