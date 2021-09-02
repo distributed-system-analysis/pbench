@@ -225,7 +225,7 @@ def convert_date(value: str, _) -> datetime:
         raise ConversionError(value, "date/time string", type(value).__name__)
 
 
-def convert_username(value: Union[str, None]) -> Union[str, None]:
+def convert_username(value: Union[str, None], _) -> Union[str, None]:
     """
     Validate that the user object referenced by the username string exists, and
     return the internal representation of that user.
@@ -236,6 +236,7 @@ def convert_username(value: Union[str, None]) -> Union[str, None]:
 
     Args:
         value: external user representation
+        _: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -262,6 +263,7 @@ def convert_json(value: JSON, parameter: "Parameter") -> JSON:
 
     Args:
         value: JSON dict
+        parameter: Supplies list of allowed JSON keys
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -332,7 +334,7 @@ def convert_list(value: List[Any], parameter: "Parameter") -> List[Any]:
 
     Args:
         value: parameter value
-        parameter: The Parameter definition
+        parameter: The Parameter definition (provides list element type)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -365,7 +367,8 @@ def convert_access(value: str, parameter: "Parameter") -> str:
 
     Args:
         value: parameter value
-        _: The Parameter definition (not used)
+        parameter: The Parameter definition (in this case supplies only
+            parameter name for errors)
 
     Raises:
         ConversionError: input can't be validated or normalized

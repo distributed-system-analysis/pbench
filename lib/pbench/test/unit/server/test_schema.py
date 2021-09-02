@@ -42,7 +42,7 @@ class TestExceptions:
             == "Unauthenticated client is not authorized to UPDATE a resource owned by me with private access"
         )
         s = SchemaError()
-        assert str(s) == "Generic schema error"
+        assert str(s) == "Generic schema validation error"
         u = UnverifiedUser("you")
         assert str(u) == "User you can not be verified"
         i = InvalidRequestPayload()
