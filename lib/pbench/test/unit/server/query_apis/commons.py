@@ -75,9 +75,6 @@ class Commons:
         assert start_date <= end_date
         first_month = start_date.replace(day=1)
         last_month = end_date + relativedelta(day=31)
-        assert start_date <= end_date
-        first_month = start_date.replace(day=1)
-        last_month = end_date + relativedelta(day=31)
         for m in rrule.rrule(rrule.MONTHLY, dtstart=first_month, until=last_month):
             date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range

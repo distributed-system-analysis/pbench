@@ -9,12 +9,12 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     ApiBase,
     API_OPERATION,
-    SchemaError,
     convert_list,
     JSON,
     Parameter,
     ParamType,
     Schema,
+    SchemaError,
 )
 from pbench.server.database.models.datasets import (
     Dataset,
@@ -29,6 +29,13 @@ class DatasetsMetadata(ApiBase):
     """
     API class to retrieve and mutate Dataset metadata.
     """
+
+    GET_KEYWORDS = Parameter(
+        "metadata",
+        ParamType.LIST,
+        element_type=ParamType.KEYWORD,
+        keywords=ApiBase.METADATA,
+    )
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
@@ -68,15 +75,7 @@ class DatasetsMetadata(ApiBase):
         # string. These don't go through JSON schema validation, so we have
         # to do it here.
         try:
-            keys = convert_list(
-                request.args.getlist("metadata"),
-                Parameter(
-                    "metadata",
-                    ParamType.LIST,
-                    element_type=ParamType.KEYWORD,
-                    keywords=self.METADATA,
-                ),
-            )
+            keys = convert_list(request.args.getlist("metadata"), self.GET_KEYWORDS)
         except SchemaError as e:
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
 
@@ -108,8 +107,8 @@ class DatasetsMetadata(ApiBase):
 
         Some metadata accessible via GET /api/v1/datasets/metadata (or from
         /api/v1/datasets/list and /api/v1/datasets/detail) is not modifiable by
-        the client, including DELETED, OWNER, and ACCESS. The schema validation
-        for PUT will fail if any of these keywords are specified.
+        the client. The schema validation for PUT will fail if any of these
+        keywords are specified.
         """
         try:
             self.logger.info("PUT with {}", repr(json_data))
@@ -117,7 +116,12 @@ class DatasetsMetadata(ApiBase):
                 controller=json_data["controller"], name=json_data["name"]
             )
         except DatasetError as e:
-            self.logger.warning("Dataset {} not found: {}", json_data["name"], str(e))
+            self.logger.warning(
+                "Dataset {}>{} not found: {}",
+                json_data["controller"],
+                json_data["name"],
+                str(e),
+            )
             abort(
                 HTTPStatus.BAD_REQUEST,
                 message=f"Dataset {json_data['controller']}>{json_data['name']} not found",

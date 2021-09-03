@@ -114,22 +114,20 @@ class ConversionError(SchemaError):
     Used to report an invalid parameter type
     """
 
-    def __init__(self, value: Any, expected_type: str, actual_type: str):
+    def __init__(self, value: Any, expected_type: str):
         """
         Construct a ConversionError exception
 
         Args:
             value: The value we tried to convert
             expected_type: The expected type
-            actual_type: The actual type
         """
         super().__init__()
         self.value = value
         self.expected_type = expected_type
-        self.actual_type = actual_type
 
     def __str__(self):
-        return f"Value {self.value!r} ({self.actual_type}) cannot be parsed as a {self.expected_type}"
+        return f"Value {self.value!r} ({type(self.value).__name__}) cannot be parsed as a {self.expected_type}"
 
 
 class KeywordError(SchemaError):
@@ -179,7 +177,7 @@ class ListElementError(SchemaError):
         """
         super().__init__()
         self.parameter = parameter
-        self.bad = bad
+        self.bad = sorted(bad)
 
     def __str__(self):
         expected = (
@@ -222,7 +220,7 @@ def convert_date(value: str, _) -> datetime:
     try:
         return date_parser.parse(value)
     except Exception:
-        raise ConversionError(value, "date/time string", type(value).__name__)
+        raise ConversionError(value, "date/time string")
 
 
 def convert_username(value: Union[str, None], _) -> Union[str, None]:
@@ -247,11 +245,11 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     if value is None:
         return None
     if not isinstance(value, str):
-        raise ConversionError(value, str.__name__, type(value).__name__)
+        raise ConversionError(value, str.__name__)
     try:
         user = Auth().verify_user(value)
     except Exception:
-        raise ConversionError(value, "username", type(value).__name__)
+        raise ConversionError(value, "username")
     if not user:
         raise UnverifiedUser(value)
     return str(user.id)
@@ -280,7 +278,7 @@ def convert_json(value: JSON, parameter: "Parameter") -> JSON:
             return value
     except JSONDecodeError:
         pass
-    raise ConversionError(value, "JSON", type(value).__name__)
+    raise ConversionError(value, "JSON")
 
 
 def convert_string(value: str, _) -> str:
@@ -299,7 +297,7 @@ def convert_string(value: str, _) -> str:
         the input value
     """
     if type(value) is not str:
-        raise ConversionError(value, str.__name__, type(value).__name__)
+        raise ConversionError(value, str.__name__)
     return value
 
 
@@ -320,7 +318,7 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
         the input value
     """
     if type(value) is not str:
-        raise ConversionError(value, str.__name__, type(value).__name__)
+        raise ConversionError(value, str.__name__)
     for v in parameter.keywords:
         if v.casefold() == value.casefold():
             return v
@@ -343,7 +341,7 @@ def convert_list(value: List[Any], parameter: "Parameter") -> List[Any]:
         A new list with normalized elements
     """
     if type(value) is not list:
-        raise ConversionError(value, f"List of {parameter.name}", type(value).__name__)
+        raise ConversionError(value, f"List of {parameter.name}")
     etype: "ParamType" = parameter.element_type
     retlist = []
     errlist = []
@@ -377,7 +375,7 @@ def convert_access(value: str, parameter: "Parameter") -> str:
         the validated access string
     """
     if type(value) is not str:
-        raise ConversionError(value, str.__name__, type(value).__name__)
+        raise ConversionError(value, str.__name__)
     v = value.lower()
     if v not in Dataset.ACCESS_KEYWORDS:
         raise KeywordError(
@@ -694,7 +692,7 @@ class ApiBase(Resource):
                 try:
                     m = Metadata.get(dataset=dataset, key=i)
                 except MetadataNotFound:
-                    pass
+                    metadata[i] = None
                 else:
                     metadata[i] = m.value
             elif i == "access":

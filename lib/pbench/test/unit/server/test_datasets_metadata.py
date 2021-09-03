@@ -29,7 +29,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized list values ['xyzzy', 'plugh'] given for parameter metadata; expected saved,seen,user,deletion,access,owner"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected saved,seen,user,deletion,access,owner"
         }
 
     def test_get(self, client, server_config, provide_metadata):

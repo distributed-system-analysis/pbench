@@ -51,7 +51,7 @@ class TestExceptions:
         assert str(u) == "Unsupported mode him:private"
         m = MissingParameters(["a", "b"])
         assert str(m) == "Missing required parameters: a,b"
-        c = ConversionError({}, "str", "dict")
+        c = ConversionError({}, "str")
         assert str(c) == "Value {} (dict) cannot be parsed as a str"
         assert c.value == {}
         p = PostprocessError(HTTPStatus.OK, "all's well", {"param": "none"})

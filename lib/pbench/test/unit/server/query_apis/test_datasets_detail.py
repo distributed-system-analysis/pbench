@@ -292,8 +292,7 @@ class TestDatasetsDetail(Commons):
         res_json = response.json
 
         # NOTE: we asked for "seen" and "deleted" metadata, but the "deleted"
-        # key wasn't created, so we verify that only "seen" is present in the
-        # response.
+        # key wasn't created, so we verify that it's reported as None.
         expected = {
             "hostTools": [
                 {
@@ -331,7 +330,7 @@ class TestDatasetsDetail(Commons):
                 "toc-prefix": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
                 "toolsgroup": "default",
             },
-            "serverMetadata": {"seen": True},
+            "serverMetadata": {"seen": True, "deletion": None},
         }
         assert expected == res_json
 
