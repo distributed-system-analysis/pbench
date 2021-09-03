@@ -347,13 +347,13 @@ len(actions) = 1
 +++ Running pbench-satellite-cleanup
 --- Finished pbench-satellite-cleanup (status=0)
 +++ Running pbench-tarball-stats
-Summary Statistics for Tar Balls (external data only):
+Summary Statistics for Tar Balls on 1970-01-01 (external data only):
 
     Took 0.00 seconds to find all tar balls.
 
     Good Tar Balls:
                          8 count
-                     1,764 size (bytes)
+                    1.8 kB size
 
         By Server Origin:
                          5 main pbench server
@@ -364,12 +364,20 @@ Summary Statistics for Tar Balls (external data only):
                          3 main pbench server
                          3 "ONE" pbench satellite server
 
+Tar Ball Counts broken down by weeks for most recent 2 months (with satellite percentages):
 
-Tar Ball Counts broken down by Year and Month, with satellite percentages:
+Week Ending  Total Count      main       ONE
+1970-01-04 P           8    62.50%    37.50%
 
-Year/Month   Total Count   % main   %  ONE
-1970                   8   62.50%   37.50%
-1970-01                8   62.50%   37.50%
+Tar Ball Counts broken down by Year (with satellite percentages):
+
+Year         Total Count      main       ONE
+1970       P           8    62.50%    37.50%
+
+Tar Ball Counts broken down by Month (with satellite percentages):
+
+Month        Total Count      main       ONE
+1970-01    P           8    62.50%    37.50%
 
 --- Finished pbench-tarball-stats (status=0)
 +++ Running unit test audit
