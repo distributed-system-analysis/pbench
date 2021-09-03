@@ -503,21 +503,12 @@ def attach_dataset(pbench_token, create_user):
         pbench_token: create a "drb" user for testing
         create_user: create a "test" user
     """
-    datasets = {}
-    datasets["drb"] = Dataset(
-        owner="drb",  # Created by pbench_token fixture
-        controller="node",
-        name="drb",
-        access="private",
-    )
-    datasets["drb"].add()
-    datasets["test"] = Dataset(
-        owner="test",  # Created by create_user fixture
-        controller="node",
-        name="test",
-        access="private",
-    )
-    datasets["test"].add()
+    Dataset(
+        owner="drb", controller="node", name="drb", access="private"
+    ).add()  # Created by pbench_token fixture
+    Dataset(
+        owner="test", controller="node", name="test", access="private"
+    ).add()  # Created by create_user fixture
 
 
 @pytest.fixture(params=[header for header in HeaderTypes])
