@@ -2,7 +2,8 @@ from flask import jsonify
 from logging import Logger
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase, JSON, Schema
+from pbench.server.api.resources import JSON, Schema
+from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 from pbench.server.database.models.template import Template
 
 
