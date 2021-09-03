@@ -11,6 +11,7 @@ from stat import ST_MTIME
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
+from pbench.server.database.models.datasets import Dataset
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 from pbench.test.unit.server.headertypes import HeaderTypes
@@ -489,6 +490,34 @@ def pbench_token(client, server_config):
     data = response.json
     assert data["auth_token"]
     return data["auth_token"]
+
+
+@pytest.fixture()
+def attach_dataset(pbench_token, create_user):
+    """
+    Mock a Dataset attach call to return an object. We mock the Dataset.attach
+    method to avoid DB access here, however the user authentication mechanism
+    is not yet mocked so we have to look up User data.
+
+    Args:
+        pbench_token: create a "drb" user for testing
+        create_user: create a "test" user
+    """
+    datasets = {}
+    datasets["drb"] = Dataset(
+        owner="drb",  # Created by pbench_token fixture
+        controller="node",
+        name="drb",
+        access="private",
+    )
+    datasets["drb"].add()
+    datasets["test"] = Dataset(
+        owner="test",  # Created by create_user fixture
+        controller="node",
+        name="test",
+        access="private",
+    )
+    datasets["test"].add()
 
 
 @pytest.fixture(params=[header for header in HeaderTypes])

@@ -83,7 +83,7 @@ class Commons:
         "malformed_token", ("malformed", "bear token" "Bearer malformed"),
     )
     def test_malformed_authorization_header(
-        self, client, server_config, malformed_token
+        self, client, server_config, malformed_token, attach_dataset
     ):
         response = client.post(
             server_config.rest_uri + self.pbench_endpoint,
