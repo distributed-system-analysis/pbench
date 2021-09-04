@@ -9,35 +9,6 @@ from pbench.test.unit.server.query_apis.commons import Commons
 
 
 @pytest.fixture()
-def attach_dataset(pbench_token, create_user):
-    """
-    Mock a Dataset attach call to return an object. We mock the Dataset.attach
-    method to avoid DB access here, however the user authentication mechanism
-    is not yet mocked so we have to look up User data.
-
-    Args:
-        monkeypatch: patching fixture
-        pbench_token: create a "drb" user for testing
-        create_user: create a "test" user
-    """
-    datasets = {}
-    datasets["drb"] = Dataset(
-        owner="drb",  # Created by pbench_token fixture
-        controller="node",
-        name="drb",
-        access="private",
-    )
-    datasets["drb"].add()
-    datasets["test"] = Dataset(
-        owner="test",  # Created by create_user fixture
-        controller="node",
-        name="test",
-        access="private",
-    )
-    datasets["test"].add()
-
-
-@pytest.fixture()
 def get_document_map(monkeypatch, attach_dataset):
     """
     Mock a Metadata get call to return an Elasticsearch document index

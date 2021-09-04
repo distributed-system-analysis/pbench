@@ -79,6 +79,19 @@ class Commons:
             date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range
 
+    @pytest.mark.parametrize(
+        "malformed_token", ("malformed", "bear token" "Bearer malformed"),
+    )
+    def test_malformed_authorization_header(
+        self, client, server_config, malformed_token, attach_dataset
+    ):
+        response = client.post(
+            server_config.rest_uri + self.pbench_endpoint,
+            headers={"Authorization": malformed_token},
+            json=self.payload,
+        )
+        assert response.status_code == HTTPStatus.FORBIDDEN
+
     def test_non_accessible_user_data(self, client, server_config, pbench_token):
         """
         Test behavior when Authorization header does not have access to other user's data
