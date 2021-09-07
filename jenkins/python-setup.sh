@@ -1,7 +1,7 @@
 _prefix="${1}"
 
 if [[ -z "${_prefix}" ]]; then
-    printf -- "Missing prefix argument!" >&2
+    printf -- "Missing prefix argument!\n" >&2
     exit 1
 fi
 
