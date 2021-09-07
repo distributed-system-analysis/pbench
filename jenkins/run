@@ -66,7 +66,6 @@ find . -name __pycache__ -exec rm -r {} \; > /dev/null 2>&1
 podman run -it --userns=keep-id --pull=always \
     --volume ${_tmp}:/tmp:z \
     --volume ${_var_tmp}:/var/tmp:z \
-    --volume ${_dev_log}:/dev/log:z \
     --volume $(pwd):/home/pbench:z -w /home/pbench \
     --env-host --ulimit nofile=65536:65536 \
     --rm ${IMAGE_REPO}/pbench-devel:${_branch_name} /bin/bash -c "${*}"
