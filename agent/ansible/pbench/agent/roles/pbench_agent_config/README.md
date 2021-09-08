@@ -14,8 +14,8 @@ Role Variables
 These variables are *NOT* defined by default. They *have* to be
 defined in the user's inventory file:
 
--pbench_config_url: the location where the config file is to be fetched from
--pbench_key_url: the location where the key file is to be fetched from
+- pbench_config_url: the location where the config file is to be fetched from
+- pbench_key_url: the location where the key file is to be fetched from
 
 These are the variables that are defined by default and do not
 generally need to be modified:
