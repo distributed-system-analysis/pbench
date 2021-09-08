@@ -42,7 +42,7 @@ srpm: spec patches tarball
 spec: rpm-dirs ${prog}.spec.j2
 	if [ -e ./seqno ] ;then expr ${seqno} + 1 > ./seqno ;fi
 	jinja2 ${prog}.spec.j2 -D version=${VERSION} -D gdist=g${sha1} -D seqno=${seqno} > ${RPMSPEC}/${prog}.spec
-	rpmlint ${RPMSPEC}/${prog}.spec
+	rpmlint --file ${PBENCHTOP}/utils/rpmlint ${RPMSPEC}/${prog}.spec
 
 .PHONY: patches
 patches: rpm-dirs
@@ -53,7 +53,7 @@ tarball: rpm-dirs submodules ${subcomps}
 	echo "${sha1}" > ${TBDIR}/${component}/SHA1
 	echo "${seqno}" > ${TBDIR}/${component}/SEQNO
 	tar zcf ${RPMSRC}/${prog}-${VERSION}.tar.gz -C ${TMPDIR} ${prog}-${VERSION}
-	rm -rf ${TMPDIR}
+	rm -rf ${TMPDIR}/*
 
 .PHONY: rpm-dirs
 rpm-dirs:

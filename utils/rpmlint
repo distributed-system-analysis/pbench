@@ -1,0 +1,3 @@
+addFilter("setup-not-quiet")
+addFilter("invalid-url Source0")
+addFilter("macro-in-comment")
