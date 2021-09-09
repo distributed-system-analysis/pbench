@@ -123,7 +123,7 @@ class DatasetsPublish(ElasticBase):
             self.prefix,
         )
 
-        map = Metadata.get(dataset=dataset, key=Metadata.INDEX_MAP).value
+        map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
 
         # Construct an "NDJSON" document for a bulk update of all Elasticsearch
         # documents associated with the Dataset.

@@ -158,7 +158,7 @@ class TestDatasetsList(Commons):
             "controller": "node",
             "start": "2020-08",
             "end": "2020-10",
-            "metadata": ["seen", "saved", "user"],
+            "metadata": ["dashboard.seen", "dashboard.saved", "user.contact"],
         }
         response_payload = {
             "took": 6,
@@ -240,9 +240,9 @@ class TestDatasetsList(Commons):
                 "end": "2020-04-29T13:30:04.918704",
                 "id": "12fb1e952fd826727810868c9327254f",
                 "serverMetadata": {
-                    "seen": True,
-                    "saved": False,
-                    "user": {"contact": "me@example.com"},
+                    "dashboard.seen": True,
+                    "dashboard.saved": False,
+                    "user.contact": "me@example.com",
                 },
             },
             {
@@ -254,9 +254,9 @@ class TestDatasetsList(Commons):
                 "end": "2020-04-29T13:30:04.918704",
                 "id": "12fb1e952fd826727810868c9327254f",
                 "serverMetadata": {
-                    "seen": False,
-                    "saved": False,
-                    "user": {"contact": "you@example.com"},
+                    "dashboard.seen": False,
+                    "dashboard.saved": False,
+                    "user.contact": "you@example.com",
                 },
             },
         ]

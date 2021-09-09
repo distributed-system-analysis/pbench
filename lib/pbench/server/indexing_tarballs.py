@@ -17,7 +17,6 @@ from pbench.common.exceptions import (
 from pbench.server import tstos
 from pbench.server.database.models.datasets import (
     Dataset,
-    MetadataNotFound,
     States,
     Metadata,
     DatasetError,
@@ -440,9 +439,9 @@ class Index:
                                         else States.QUARANTINED
                                     )
 
-                                    # In case this was a re-index, remove the
+                                    # In case this was a re-index, clear the
                                     # REINDEX tag.
-                                    Metadata.remove(dataset, Metadata.REINDEX)
+                                    Metadata.setvalue(dataset, Metadata.REINDEX, False)
 
                                     # Because we're on the `finally` path, we
                                     # can get here without a PbenchTarBall
@@ -458,18 +457,15 @@ class Index:
                                         # accomplish this by overwriting each
                                         # duplicate index key separately.
                                         try:
-                                            meta = Metadata.get(
+                                            map = Metadata.getvalue(
                                                 dataset, Metadata.INDEX_MAP
                                             )
-                                            map = meta.value
-                                            map.update(ptb.index_map)
-                                            meta.value = map
-                                            meta.update()
-                                        except MetadataNotFound:
-                                            Metadata.create(
-                                                dataset=dataset,
-                                                key=Metadata.INDEX_MAP,
-                                                value=ptb.index_map,
+                                            if map:
+                                                map.update(ptb.index_map)
+                                            else:
+                                                map = ptb.index_map
+                                            Metadata.setvalue(
+                                                dataset, Metadata.INDEX_MAP, map
                                             )
                                         except Exception as e:
                                             idxctx.logger.exception(

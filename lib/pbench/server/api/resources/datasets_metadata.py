@@ -130,7 +130,7 @@ class DatasetsMetadata(ApiBase):
         failures = []
         for k, v in metadata.items():
             try:
-                Metadata.set(dataset, k, v)
+                Metadata.setvalue(dataset, k, v)
             except MetadataError as e:
                 self.logger.warning("Unable to update key {} = {!r}: {}", k, v, str(e))
                 failures.append(k)

@@ -90,7 +90,7 @@ class TestParamType:
             (ParamType.USER, None, "drb", "1"),
             (ParamType.ACCESS, None, "PRIVATE", "private"),
             (ParamType.JSON, ["key"], {"key": "value"}, {"key": "value"}),
-            (ParamType.KEYWORD, ["Llave"], "llave", "Llave"),
+            (ParamType.KEYWORD, ["Llave"], "llave", "llave"),
         ),
     )
     def test_successful_conversions(self, client, test, monkeypatch):
@@ -231,22 +231,40 @@ class TestParameter:
         "test",
         (
             ("yes", "yes"),
+            ("no", "no"),
+            ("me.you", "me.you"),
+            ("me.You.him", "me.you.him"),
+            ("ME.US.HER.THEM", "me.us.her.them"),
+        ),
+    )
+    def test_keyword_namespace(self, test):
+        """
+        Test parameter normalization for a keyword parameter.
+        """
+        x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "no", "me."])
+        input, expected = test
+        assert x.normalize(input) == expected
+
+    @pytest.mark.parametrize(
+        "test",
+        (
+            ("yes", "yes"),
             ("YES", "yes"),
             ("yES", "yes"),
-            ("no", "No"),
-            ("No", "No"),
-            ("NO", "No"),
-            ("maybe", "MAYBE"),
-            ("MaYbE", "MAYBE"),
-            ("Maybe", "MAYBE"),
-            ("MAYBE", "MAYBE"),
+            ("no", "no"),
+            ("No", "no"),
+            ("NO", "no"),
+            ("maybe", "maybe"),
+            ("MaYbE", "maybe"),
+            ("Maybe", "maybe"),
+            ("MAYBE", "maybe"),
         ),
     )
     def test_keyword_normalization(self, test):
         """
         Test parameter normalization for a keyword parameter.
         """
-        x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "No", "MAYBE"])
+        x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "no", "maybe"])
         input, expected = test
         assert x.normalize(input) == expected
 
@@ -263,7 +281,7 @@ class TestParameter:
         assert str(test) in str(exc)
 
     @pytest.mark.parametrize(
-        "test", ("I'm not sure", "yes!", "ebyam"),
+        "test", ("I'm not sure", "yes!", "ebyam", "yes.foo", "yes."),
     )
     def test_invalid_keyword(self, test):
         """
@@ -279,7 +297,7 @@ class TestParameter:
         "test",
         (
             (ParamType.STRING, None, ["yes", "no"], ["yes", "no"]),
-            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["Yes", "No"]),
+            (ParamType.KEYWORD, ["Yes", "No"], ["YeS", "nO"], ["yes", "no"]),
             (ParamType.ACCESS, None, ["Public", "PRIVATE"], ["public", "private"]),
         ),
     )

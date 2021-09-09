@@ -430,7 +430,7 @@ def backup_data(lb_obj, s3_obj, config, logger):
             pass
 
         if dataset:
-            Metadata.create(dataset=dataset, key=Metadata.ARCHIVED, value=True)
+            Metadata.setvalue(dataset=dataset, key=Metadata.ARCHIVED, value=True)
         logger.debug("End backup of {}.", tar)
 
     return Results(

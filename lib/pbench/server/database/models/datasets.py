@@ -2,7 +2,7 @@ import datetime
 import enum
 import os
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 from sqlalchemy import (
     event,
@@ -687,6 +687,11 @@ class Metadata(Database.Base):
 
     __tablename__ = "dataset_metadata"
 
+    # "Native" keys are the value of the PostgreSQL "key" column in the SQL
+    # table. We support hierarchical nested keys of the form "server.indexed",
+    # but the first element of any nested key path must be one of these:
+    NATIVE_KEYS = ["dashboard", "server", "user"]
+
     # +++ Standard Metadata keys:
     # Lowercase keys are for client use, while uppercase keys are reserved for
     # internal use.
@@ -694,54 +699,66 @@ class Metadata(Database.Base):
     # DELETION timestamp for dataset based on user settings and system
     # settings at time the dataset is created.
     #
-    # {"DELETION": "2021-12-25"}
-    DELETION = "deletion"
+    # {"server.deletion": "2021-12-25"}
+    DELETION = "server.deletion"
 
     # SEEN boolean flag to indicate that a user has acknowledged the new
     # dataset.
     #
-    # {"SEEN": True}
-    SEEN = "seen"
+    # {"dashboard.seen": True}
+    SEEN = "dashboard.seen"
 
     # SAVED boolean flag to indicate that a user has accepted the new dataset
     # for further curation.
     #
-    # {"SAVED": True}
-    SAVED = "saved"
+    # {"dashboard.saved": True}
+    SAVED = "dashboard.saved"
 
     # USER is arbitrary data saved on behalf of the owning user, generally
     # a JSON document.
     #
-    # {"USER": {"cloud": "AWS", "mood": "CLOUDY"}}
-    USER = "user"
+    # Note that the hierarchical key management in the getvalue and setvalue
+    # static methods (used consistently by the API layer) allow client code
+    # to interact with these either as a complete JSON document ("user") or
+    # as a full dotted key path ("user.contact.name.first") or at any JSON
+    # layer between.
+    #
+    # API keyword validation uses the trailing "." here to indicate that only
+    # the first element of the path should be validated, allowing the client
+    # a completely uninterpreted namespace below that.
+    #
+    # {"user.cloud": "AWS", "user.mood": "CLOUDY"}}
+    USER = "user."
 
     # REINDEX boolean flag to indicate when a dataset should be re-indexed
     #
-    # {"REINDEX": True}
-    REINDEX = "REINDEX"
+    # {"server.reindex": True}
+    REINDEX = "server.reindex"
 
     # ARCHIVED boolean flag to indicate when a tarball has been archived
     #
-    # {"ARCHIVED": True}
-    ARCHIVED = "ARCHIVED"
+    # {"server.archived": True}
+    ARCHIVED = "server.archived"
 
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.
     #
     # {
-    #   "TARBALL_PATH": "/srv/pbench/archive/fs-version-001/"
+    #   "server.tarball-path": "/srv/pbench/archive/fs-version-001/"
     #       "ctrl/example__2021.05.21T07.15.27.tar.xz"
     # }
-    TARBALL_PATH = "TARBALL_PATH"
+    TARBALL_PATH = "server.tarball-path"
 
     # INDEX_MAP a dict recording the set of MD5 document IDs for each
     # Elasticsearch index that contains documents for this dataset.
     #
     # {
-    #   "drb.v6.run-data.2021-07": ["MD5"],
-    #   "drb.v6.run-toc.2021-07": ["MD5-1", "MD5-2"]
+    #    "server.index-map": {
+    #      "drb.v6.run-data.2021-07": ["MD5"],
+    #      "drb.v6.run-toc.2021-07": ["MD5-1", "MD5-2"]
+    #    }
     # }
-    INDEX_MAP = "INDEX_MAP"
+    INDEX_MAP = "server.index-map"
 
     # --- Standard Metadata keys
 
@@ -770,15 +787,20 @@ class Metadata(Database.Base):
         Validate that the value provided for the Metadata key argument is an
         allowed name.
         """
-        if value not in Metadata.METADATA_KEYS:
+        v = value.lower()
+        if v not in Metadata.NATIVE_KEYS:
             raise MetadataBadKey(value)
-        return value
+        return v
 
     @staticmethod
     def create(**kwargs) -> "Metadata":
         """
         Create a new Metadata object. This will fail if the key already exists
         for the referenced Dataset.
+
+        NOTE: use this only for raw first-level Metadata keys, not dotted
+        paths like "dashboard.seen", which will fail key validation. Instead,
+        use the higher-level `set` helper.
 
         Args:
             dataset: Associated Dataset
@@ -803,26 +825,115 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
-    def set(dataset: Dataset, key: str, value: Any) -> "Metadata":
+    def is_metadata(key: str, valid: List[str]) -> bool:
         """
-        Update an existing Metadata object, or update an existing Metadata
-        object.
+        Determine whether 'key' is a valid Metadata primary key using the list
+        specified in 'valid'. If the specified key is in the list, then it's
+        valid. If the key is a dotted path and the first element plus a
+        trailing "." is in the list, then this is an open key namespace where
+        any subsequent path is acceptable: e.g., "user." allows "user", or
+        "user.contact", "user.contact.name", etc.
+
+        Args:
+            key: metadata key path
+            valid: list of acceptable key paths
+
+        Returns:
+            True if the path is valid, or False
+        """
+        return key.lower() in valid or key.lower().split(".")[0] + "." in valid
+
+    @staticmethod
+    def getvalue(dataset: Dataset, key: str) -> JSON:
+        """
+        Returns the value of the specified key, which may be a dotted
+        hierarchical path (e.g., "server.deleted").
+
+        The specific value of the dotted key path is returned, not the
+        top level Metadata object. (Note that this can always be found
+        using Metadata.get(dataset, key)).
+
+        E.g., for "user.contact.name" with the dataset's Metadata value for the
+        "user" key as {"contact": {"name": "Dave", "email": "d@example.com"}},
+        this would return "Dave".
+
+        Args:
+            dataset: associated dataset
+            key: hierarchical key path to fetch
+
+        Returns:
+            Value of the key path
+        """
+        keys = key.lower().split(".")
+        try:
+            meta = Metadata.get(dataset, keys.pop(0))
+            value = meta.value
+            for i in keys:
+                if i not in value:
+                    return None
+                value = value[i]
+        except MetadataNotFound:
+            value = None
+        return value
+
+    @staticmethod
+    def setvalue(dataset: Dataset, key: str, value: Any) -> "Metadata":
+        """
+        Create or modify an existing metadata value. This method supports
+        hierarchical dotted paths like "dashboard.seen" and should be used in
+        most contexts where client-visible metadata paths are used.
 
         Args:
             dataset: Associated Dataset
-            key: Metadata key
-            value: Metadata value
+            key: Lookup key (inluding hierarchical dotted paths)
+            value: Value to be assigned to the specified key
+
+        Returns:
+            A Metadata object representing the new database row with the
+            properly assigned value.
         """
+        keys = key.lower().split(".")
+        native_key = keys.pop(0)
+        found = True
         try:
-            meta = Metadata.get(dataset, key)
-            meta.value = value
-            meta.update()
+            meta = Metadata.get(dataset, native_key)
+            meta_value = meta.value.copy()
         except MetadataNotFound:
-            meta = Metadata.create(dataset=dataset, key=key, value=value)
+            found = False
+            meta_value = {}
+        if not keys:
+            meta_value = value
+        else:
+            hierarchy = meta_value
+            for i in range(len(keys) - 1):
+                inner_key = keys[i]
+                if inner_key not in hierarchy:
+                    hierarchy[inner_key] = {}
+                hierarchy = hierarchy[inner_key]
+            hierarchy[keys[-1]] = value
+        if found:
+            meta.value = meta_value
+            meta.update()
+        else:
+            meta = Metadata.create(dataset=dataset, key=native_key, value=meta_value)
         return meta
 
     @staticmethod
     def get(dataset: Dataset, key: str) -> "Metadata":
+        """
+        Fetch a Metadata (row) from the database by key name.
+
+        Args:
+            dataset: Associated Dataset
+            key: Lookup key (root native SQL row key)
+
+        Raises:
+            MetadataSqlError: SQL error in retrieval
+            MetadataNotFound: No value exists for specified key
+
+        Returns:
+            The Metadata model object
+        """
         try:
             meta = (
                 Database.db_session.query(Metadata)
@@ -849,6 +960,7 @@ class Metadata(Database.Base):
         Raises:
             DatasetSqlError: Something went wrong
         """
+        key = key.lower().split(".")[0]
         try:
             Database.db_session.query(Metadata).filter_by(
                 dataset=dataset, key=key
@@ -863,7 +975,7 @@ class Metadata(Database.Base):
 
     def add(self, dataset: Dataset):
         """
-        add Add the Metadata object to the dataset
+        Add the Metadata object to the dataset
         """
         if type(dataset) is not Dataset:
             raise DatasetBadParameterType(dataset, Dataset)

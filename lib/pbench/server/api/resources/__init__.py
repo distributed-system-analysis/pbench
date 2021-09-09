@@ -16,6 +16,7 @@ from pbench.server.api.auth import Auth
 from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
+    MetadataBadKey,
     MetadataNotFound,
 )
 from pbench.server.database.models.users import User
@@ -272,7 +273,13 @@ def convert_json(value: JSON, parameter: "Parameter") -> JSON:
     try:
         if json.loads(json.dumps(value)) == value:
             if parameter.keywords:
-                bad = set(value.keys()) - set(parameter.keywords)
+                bad = []
+                for k in value.keys():
+                    if (
+                        k not in parameter.keywords
+                        and f"{k.split('.')[0]}." not in parameter.keywords
+                    ):
+                        bad.append(k)
                 if bad:
                     raise KeywordError(parameter, "JSON keys", bad)
             return value
@@ -304,8 +311,13 @@ def convert_string(value: str, _) -> str:
 def convert_keyword(value: str, parameter: "Parameter") -> str:
     """
     Verify that the parameter value is a string and a member of the
-    `valid` list. The match is case-blind and will return the case
-    used in the `valid` list.
+    `valid` list. The match is case-blind and will return the case-folded
+    version of the input keyword.
+
+    Keyword matching recognizes leading substring matches where the defined
+    keyword ends with a "." character. These are taken as secondary namespaces
+    controlled by the caller: e.g., a keyword of "user." will match input of
+    "user.contact" and "user.cloud.name".
 
     Args:
         value: parameter value
@@ -319,9 +331,9 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
     """
     if type(value) is not str:
         raise ConversionError(value, str.__name__)
-    for v in parameter.keywords:
-        if v.casefold() == value.casefold():
-            return v
+    input = value.lower()
+    if input in parameter.keywords or f"{input.split('.')[0]}." in parameter.keywords:
+        return input
     raise KeywordError(parameter, "keyword", [value])
 
 
@@ -442,7 +454,7 @@ class Parameter:
         """
         self.name = name
         self.type = type
-        self.keywords = keywords
+        self.keywords = [k.lower() for k in keywords] if keywords else None
         self.element_type = element_type
         self.required = required
 
@@ -688,19 +700,17 @@ class ApiBase(Resource):
         dataset: Dataset = Dataset.attach(controller=controller, name=name)
         metadata = {}
         for i in requested_items:
-            if i in Metadata.USER_METADATA:
-                try:
-                    m = Metadata.get(dataset=dataset, key=i)
-                except MetadataNotFound:
-                    metadata[i] = None
-                else:
-                    metadata[i] = m.value
-            elif i == "access":
+            if i == "access":
                 metadata[i] = dataset.access
             elif i == "owner":
                 metadata[i] = dataset.owner.username
+            elif Metadata.is_metadata(i, Metadata.USER_METADATA):
+                try:
+                    metadata[i] = Metadata.getvalue(dataset=dataset, key=i)
+                except MetadataNotFound:
+                    metadata[i] = None
             else:
-                raise KeyError(i)
+                raise MetadataBadKey(i)
 
         return metadata
 

@@ -210,7 +210,7 @@ class TestDatasetsDetail(Commons):
             "name": "drb",
             "start": "2020-08",
             "end": "2020-10",
-            "metadata": ["seen", "deletion"],
+            "metadata": ["dashboard.seen", "server.deletion"],
         }
 
         response_payload = {
@@ -330,7 +330,7 @@ class TestDatasetsDetail(Commons):
                 "toc-prefix": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
                 "toolsgroup": "default",
             },
-            "serverMetadata": {"seen": True, "deletion": None},
+            "serverMetadata": {"dashboard.seen": True, "server.deletion": None},
         }
         assert expected == res_json
 

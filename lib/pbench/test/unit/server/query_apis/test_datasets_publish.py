@@ -17,19 +17,17 @@ def get_document_map(monkeypatch, attach_dataset):
         monkeypatch: patching fixture
         attach_dataset:  create a mock Dataset object
     """
-    map = Metadata(
-        key=Metadata.INDEX_MAP,
-        value={
-            "run-data.2021-06": ["a suitably long MD5", "another long MD5"],
-            "run-toc.2021-06": ["another long MD5", "one more long MD5"],
-        },
-    )
+    map = {
+        "run-data.2021-06": ["a suitably long MD5", "another long MD5"],
+        "run-toc.2021-06": ["another long MD5", "one more long MD5"],
+    }
 
     def get_document_map(dataset: Dataset, key: str) -> Metadata:
+        assert key == Metadata.INDEX_MAP
         return map
 
     with monkeypatch.context() as m:
-        m.setattr(Metadata, "get", get_document_map)
+        m.setattr(Metadata, "getvalue", get_document_map)
         yield map
 
 
@@ -71,7 +69,7 @@ class TestDatasetsPublish(Commons):
         we expect access to the "test" dataset to fail with a permission error.
         """
         self.payload["name"] = owner
-        map = get_document_map.value
+        map = get_document_map
         items = []
 
         for index in map:
@@ -128,7 +126,7 @@ class TestDatasetsPublish(Commons):
         """
         items = []
         first = True
-        map = get_document_map.value
+        map = get_document_map
         for index in map:
             for docid in map[index]:
                 item = {

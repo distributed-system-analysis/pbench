@@ -12,7 +12,7 @@ class TestDatasetsMetadata:
             query_string={
                 "controller": "node",
                 "name": "foobar",
-                "metadata": ["seen", "saved"],
+                "metadata": ["dashboard.seen", "dashboard.saved"],
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -29,22 +29,44 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected saved,seen,user,deletion,access,owner"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected dashboard.saved,dashboard.seen,user.,server.deletion,access,owner"
         }
 
-    def test_get(self, client, server_config, provide_metadata):
+    def test_get1(self, client, server_config, provide_metadata):
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",
             query_string={
                 "controller": "node",
                 "name": "drb",
-                "metadata": ["seen", "saved", "access", "user"],
+                "metadata": [
+                    "dashboard.seen",
+                    "dashboard.saved",
+                    "access",
+                    "user.contact",
+                ],
             },
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json == {
-            "saved": False,
-            "seen": True,
+            "dashboard.saved": False,
+            "dashboard.seen": True,
+            "access": "private",
+            "user.contact": "me@example.com",
+        }
+
+    def test_get2(self, client, server_config, provide_metadata):
+        response = client.get(
+            f"{server_config.rest_uri}/datasets/metadata",
+            query_string={
+                "controller": "node",
+                "name": "drb",
+                "metadata": ["dashboard.seen", "dashboard.saved", "access", "user"],
+            },
+        )
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {
+            "dashboard.saved": False,
+            "dashboard.seen": True,
             "access": "private",
             "user": {"contact": "me@example.com"},
         }
@@ -121,7 +143,7 @@ class TestDatasetsMetadata:
             json={
                 "controller": "node",
                 "name": "foobar",
-                "metadata": {"seen": True, "saved": False},
+                "metadata": {"dashboard.seen": True, "dashboard.saved": False},
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
@@ -133,12 +155,16 @@ class TestDatasetsMetadata:
             json={
                 "controller": "node",
                 "name": "drb",
-                "metadata": {"xyzzy": "private", "what": "sup", "saved": True},
+                "metadata": {
+                    "xyzzy": "private",
+                    "what": "sup",
+                    "dashboard.saved": True,
+                },
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON keys what,xyzzy given for parameter metadata; allowed keywords are saved,seen,user"
+            "message": "Unrecognized JSON keys what,xyzzy given for parameter metadata; allowed keywords are dashboard.saved,dashboard.seen,user."
         }
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
@@ -152,7 +178,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON keys access given for parameter metadata; allowed keywords are saved,seen,user"
+            "message": "Unrecognized JSON keys access given for parameter metadata; allowed keywords are dashboard.saved,dashboard.seen,user."
         }
 
     def test_put(self, client, server_config, provide_metadata):
@@ -161,7 +187,11 @@ class TestDatasetsMetadata:
             json={
                 "controller": "node",
                 "name": "drb",
-                "metadata": {"seen": False, "saved": True, "user": {"xyzzy": "plugh"}},
+                "metadata": {
+                    "dashboard.seen": False,
+                    "dashboard.saved": True,
+                    "user.xyzzy": "plugh",
+                },
             },
         )
         assert response.status_code == HTTPStatus.OK
@@ -170,13 +200,38 @@ class TestDatasetsMetadata:
             query_string={
                 "controller": "node",
                 "name": "drb",
-                "metadata": ["seen", "saved", "access", "user"],
+                "metadata": ["dashboard.seen", "dashboard.saved", "access", "user"],
             },
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json == {
-            "saved": True,
-            "seen": False,
+            "dashboard.saved": True,
+            "dashboard.seen": False,
             "access": "private",
-            "user": {"xyzzy": "plugh"},
+            "user": {"contact": "me@example.com", "xyzzy": "plugh"},
+        }
+        assert response.status_code == HTTPStatus.OK
+
+        # Try a second GET, returning "user" fields separately:
+        response = client.get(
+            f"{server_config.rest_uri}/datasets/metadata",
+            query_string={
+                "controller": "node",
+                "name": "drb",
+                "metadata": [
+                    "dashboard.seen",
+                    "dashboard.saved",
+                    "access",
+                    "user.contact",
+                    "user.xyzzy",
+                ],
+            },
+        )
+        assert response.status_code == HTTPStatus.OK
+        assert response.json == {
+            "dashboard.saved": True,
+            "dashboard.seen": False,
+            "access": "private",
+            "user.contact": "me@example.com",
+            "user.xyzzy": "plugh",
         }
