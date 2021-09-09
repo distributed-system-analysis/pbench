@@ -518,25 +518,6 @@ def pbench_token(client, server_config):
     return data["auth_token"]
 
 
-@pytest.fixture()
-def attach_dataset(pbench_token, create_user):
-    """
-    Mock a Dataset attach call to return an object. We mock the Dataset.attach
-    method to avoid DB access here, however the user authentication mechanism
-    is not yet mocked so we have to look up User data.
-
-    Args:
-        pbench_token: create a "drb" user for testing
-        create_user: create a "test" user
-    """
-    Dataset(
-        owner="drb", controller="node", name="drb", access="private"
-    ).add()  # Created by pbench_token fixture
-    Dataset(
-        owner="test", controller="node", name="test", access="private"
-    ).add()  # Created by create_user fixture
-
-
 @pytest.fixture(params=[header for header in HeaderTypes])
 def build_auth_header(request, server_config, pbench_token, pbench_admin_token, client):
     if request.param == HeaderTypes.VALID_ADMIN:
