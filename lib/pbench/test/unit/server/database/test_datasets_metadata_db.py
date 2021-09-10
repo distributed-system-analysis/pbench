@@ -116,6 +116,7 @@ class TestMetadataNamespace:
             Metadata.getvalue(ds, "user..foo")
         assert exc.type == MetadataBadKey
         assert exc.value.key == "user..foo"
+        assert str(exc.value) == "Metadata key 'user..foo' is not supported"
 
     def test_set_bad_syntax(self, db_session, create_user):
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
@@ -123,6 +124,7 @@ class TestMetadataNamespace:
             Metadata.setvalue(ds, "user.foo.", "irrelevant")
         assert exc.type == MetadataBadKey
         assert exc.value.key == "user.foo."
+        assert str(exc.value) == "Metadata key 'user.foo.' is not supported"
 
     def test_get_novalue(self, db_session, create_user):
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
@@ -137,6 +139,7 @@ class TestMetadataNamespace:
         assert exc.type == MetadataBadStructure
         assert exc.value.key == "user.value.email"
         assert exc.value.element == "email"
+        assert str(exc.value) == "No element key 'email' for 'user.value.email' in test(1)|frodo|fio"
 
     def test_set_bad_path(self, db_session, create_user):
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
@@ -146,6 +149,7 @@ class TestMetadataNamespace:
         assert exc.type == MetadataBadStructure
         assert exc.value.key == "user.value.email"
         assert exc.value.element == "email"
+        assert str(exc.value) == "No element key 'email' for 'user.value.email' in test(1)|frodo|fio"
 
     def test_get_outer_path(self, db_session, create_user):
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")

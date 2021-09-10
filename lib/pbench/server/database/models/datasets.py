@@ -199,7 +199,7 @@ class MetadataBadStructure(MetadataError):
         self.element = element
 
     def __str__(self) -> str:
-        return f"No element key {self.key} for {self.path} in {self.dataset}"
+        return f"No element key {self.element!r} for {self.key!r} in {self.dataset}"
 
 
 class MetadataKeyError(DatasetError):
@@ -233,7 +233,7 @@ class MetadataBadKey(MetadataKeyError):
         self.key = key
 
     def __str__(self) -> str:
-        return f"Metadata key {self.key} is not supported"
+        return f"Metadata key {self.key!r} is not supported"
 
 
 class MetadataProtectedKey(MetadataKeyError):
