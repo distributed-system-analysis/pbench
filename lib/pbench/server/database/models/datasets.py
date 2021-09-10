@@ -335,6 +335,13 @@ class Dataset(Database.Base):
         # because they're terminal states that cannot be exited.
     }
 
+    # "Virtual" metadata key paths to access Dataset column data
+    ACCESS = "dataset.access"
+    OWNER = "dataset.owner"
+
+    # Acceptable values of the "access" column
+    #
+    # TODO: This may be expanded in the future to support groups
     PUBLIC_ACCESS = "public"
     PRIVATE_ACCESS = "private"
     ACCESS_KEYWORDS = [PUBLIC_ACCESS, PRIVATE_ACCESS]
@@ -365,13 +372,10 @@ class Dataset(Database.Base):
 
     # Require that the combination of controller and name is unique.
     #
-    # FIXME: I would prefer to check owner+controller+name, although
-    # in practice the chances of controller+name collision are small.
-    # This is necessary because our current filesystem-based server
-    # components cannot infer ownership except by referencing
-    # this database using filesystem-based tags (controller, name).
-    # In the future when we change the server components to operate
-    # entirely by database and messages, we can improve this.
+    # NOTE: some existing server code depends on "name" alone being unique,
+    # although it's not entirely clear that any code enforces this except
+    # within a controller directory. (Although as a real dataset tarball is
+    # timestamped, the chances of duplication are small.)
     __table_args__ = (UniqueConstraint("controller", "name"), {})
 
     @validates("state")
@@ -693,8 +697,40 @@ class Metadata(Database.Base):
     NATIVE_KEYS = ["dashboard", "server", "user"]
 
     # +++ Standard Metadata keys:
-    # Lowercase keys are for client use, while uppercase keys are reserved for
-    # internal use.
+    #
+    # Metadata accessible through the API comes from both the parent Dataset
+    # object and from JSON documents associated with multiple Metadata keys
+    # attached to that Dataset.
+    #
+    # "Virtual" metadata keys representing Dataset column values have no prefix
+    # and use the column name: "access", "owner";
+    #
+    # Metadata keys reserved for internal modification within the server are in
+    # the "server" namespace, and are strictly controlled by keyword path:
+    # e.g., "server.deleted", "server.archived";
+    #
+    # Metadata keys intended for use by the dashboard client are in the
+    # "dashboard" namespace, and are also strictly controlled by keyword path:
+    # e.g., "dashboard.seen", "dashboard.saved". While these can be modified by
+    # any API client, the separate namespace provides some protection against
+    # accidental modifications that might break dashboard semantics. Adding a
+    # key to this namespace requires server modifications to define the new
+    # keyword.
+    #
+    # Metadata keys within the "user" namespace are reserved for general client
+    # use, although by convention a second-level key-space should be used to
+    # provide some isolation. This is an "open" namespace, meaning that any API
+    # client can define new keywords such as "user.contact" or "user.me.you"
+    # and JSON subdocuments are available at any level. For example, if we've
+    # set "user.contact.email" and "user.postman.test" then retrieving "user"
+    # will return a JSON document like
+    #     {"contact": {"email": "value"}, "postman": {"test": "value"}}
+    # and retrieving "user.contact" would return
+    #     {"email": "value"}
+    #
+    # The following class constants define the set of currently available
+    # metadata keys, where the open "user" namespace is represented by the
+    # special syntax "user.*".
 
     # DELETION timestamp for dataset based on user settings and system
     # settings at time the dataset is created.
@@ -714,8 +750,8 @@ class Metadata(Database.Base):
     # {"dashboard.saved": True}
     SAVED = "dashboard.saved"
 
-    # USER is arbitrary data saved on behalf of the owning user, generally
-    # a JSON document.
+    # USER is arbitrary data saved on behalf of the owning user, as a JSON
+    # document.
     #
     # Note that the hierarchical key management in the getvalue and setvalue
     # static methods (used consistently by the API layer) allow client code
@@ -723,12 +759,12 @@ class Metadata(Database.Base):
     # as a full dotted key path ("user.contact.name.first") or at any JSON
     # layer between.
     #
-    # API keyword validation uses the trailing "." here to indicate that only
+    # API keyword validation uses the trailing ".*" here to indicate that only
     # the first element of the path should be validated, allowing the client
     # a completely uninterpreted namespace below that.
     #
     # {"user.cloud": "AWS", "user.mood": "CLOUDY"}}
-    USER = "user."
+    USER = "user.*"
 
     # REINDEX boolean flag to indicate when a dataset should be re-indexed
     #
@@ -782,13 +818,18 @@ class Metadata(Database.Base):
     )
 
     @validates("key")
-    def validate_key(self, key: str, value: Any) -> Any:
+    def validate_key(self, _, value: Any) -> str:
         """
-        Validate that the value provided for the Metadata key argument is an
-        allowed name.
+        SQLAlchemy validator to check the specified value of a model object
+        attribute (column).
+
+        Args:
+            _: Name of the model attribute (always "key" because of the
+                decorator parameter, so we ignore it)
+            value: Specified value for the "key" attribute
         """
         v = value.lower()
-        if v not in Metadata.NATIVE_KEYS:
+        if type(v) is not str or v not in Metadata.NATIVE_KEYS:
             raise MetadataBadKey(value)
         return v
 
@@ -825,13 +866,13 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
-    def is_metadata(key: str, valid: List[str]) -> bool:
+    def is_key_path(key: str, valid: List[str]) -> bool:
         """
-        Determine whether 'key' is a valid Metadata primary key using the list
+        Determine whether 'key' is a valid Metadata key path using the list
         specified in 'valid'. If the specified key is in the list, then it's
         valid. If the key is a dotted path and the first element plus a
-        trailing "." is in the list, then this is an open key namespace where
-        any subsequent path is acceptable: e.g., "user." allows "user", or
+        trailing ".*" is in the list, then this is an open key namespace where
+        any subsequent path is acceptable: e.g., "user.*" allows "user", or
         "user.contact", "user.contact.name", etc.
 
         Args:
@@ -841,7 +882,16 @@ class Metadata(Database.Base):
         Returns:
             True if the path is valid, or False
         """
-        return key.lower() in valid or key.lower().split(".")[0] + "." in valid
+        k = key.lower()
+        # Check for exact match
+        if k in valid:
+            return True
+        path = k.split(".")
+        # Disallow ".." and trailing "."
+        if "" in path:
+            return False
+        # Check for open namespace match
+        return path[0] + ".*" in valid
 
     @staticmethod
     def getvalue(dataset: Dataset, key: str) -> JSON:
@@ -865,8 +915,9 @@ class Metadata(Database.Base):
             Value of the key path
         """
         keys = key.lower().split(".")
+        native_key = keys.pop(0)
         try:
-            meta = Metadata.get(dataset, keys.pop(0))
+            meta = Metadata.get(dataset, native_key)
             value = meta.value
             for i in keys:
                 if i not in value:
@@ -960,7 +1011,6 @@ class Metadata(Database.Base):
         Raises:
             DatasetSqlError: Something went wrong
         """
-        key = key.lower().split(".")[0]
         try:
             Database.db_session.query(Metadata).filter_by(
                 dataset=dataset, key=key

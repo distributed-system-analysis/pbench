@@ -17,6 +17,7 @@ from pbench.common.exceptions import (
 from pbench.server import tstos
 from pbench.server.database.models.datasets import (
     Dataset,
+    JSON,
     States,
     Metadata,
     DatasetError,
@@ -457,13 +458,15 @@ class Index:
                                         # accomplish this by overwriting each
                                         # duplicate index key separately.
                                         try:
-                                            map = Metadata.getvalue(
+                                            map: JSON = Metadata.getvalue(
                                                 dataset, Metadata.INDEX_MAP
                                             )
+                                            assert type(ptb.index_map) is dict
                                             if map:
+                                                assert type(map) is dict
                                                 map.update(ptb.index_map)
                                             else:
-                                                map = ptb.index_map
+                                                map: JSON = ptb.index_map
                                             Metadata.setvalue(
                                                 dataset, Metadata.INDEX_MAP, map
                                             )

@@ -24,12 +24,12 @@ class TestDatasetsMetadata:
             query_string={
                 "controller": "node",
                 "name": "drb",
-                "metadata": ["xyzzy", "plugh", "owner", "access"],
+                "metadata": ["xyzzy", "plugh", "dataset.owner", "dataset.access"],
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected dashboard.saved,dashboard.seen,user.,server.deletion,access,owner"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.saved', 'dashboard.seen', 'user.*', 'server.deletion', 'dataset.access', 'dataset.owner']"
         }
 
     def test_get1(self, client, server_config, provide_metadata):
@@ -41,7 +41,7 @@ class TestDatasetsMetadata:
                 "metadata": [
                     "dashboard.seen",
                     "dashboard.saved",
-                    "access",
+                    "dataset.access",
                     "user.contact",
                 ],
             },
@@ -50,7 +50,7 @@ class TestDatasetsMetadata:
         assert response.json == {
             "dashboard.saved": False,
             "dashboard.seen": True,
-            "access": "private",
+            "dataset.access": "private",
             "user.contact": "me@example.com",
         }
 
@@ -60,14 +60,19 @@ class TestDatasetsMetadata:
             query_string={
                 "controller": "node",
                 "name": "drb",
-                "metadata": ["dashboard.seen", "dashboard.saved", "access", "user"],
+                "metadata": [
+                    "dashboard.seen",
+                    "dashboard.saved",
+                    "dataset.access",
+                    "user",
+                ],
             },
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json == {
             "dashboard.saved": False,
             "dashboard.seen": True,
-            "access": "private",
+            "dataset.access": "private",
             "user": {"contact": "me@example.com"},
         }
 
@@ -164,7 +169,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON keys what,xyzzy given for parameter metadata; allowed keywords are dashboard.saved,dashboard.seen,user."
+            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed keywords are ['dashboard.saved', 'dashboard.seen', 'user.*']"
         }
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
@@ -173,12 +178,12 @@ class TestDatasetsMetadata:
             json={
                 "controller": "node",
                 "name": "drb",
-                "metadata": {"access": "private"},
+                "metadata": {"dataset.access": "private"},
             },
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON keys access given for parameter metadata; allowed keywords are dashboard.saved,dashboard.seen,user."
+            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed keywords are ['dashboard.saved', 'dashboard.seen', 'user.*']"
         }
 
     def test_put(self, client, server_config, provide_metadata):
@@ -200,14 +205,19 @@ class TestDatasetsMetadata:
             query_string={
                 "controller": "node",
                 "name": "drb",
-                "metadata": ["dashboard.seen", "dashboard.saved", "access", "user"],
+                "metadata": [
+                    "dashboard.seen",
+                    "dashboard.saved",
+                    "dataset.access",
+                    "user",
+                ],
             },
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json == {
             "dashboard.saved": True,
             "dashboard.seen": False,
-            "access": "private",
+            "dataset.access": "private",
             "user": {"contact": "me@example.com", "xyzzy": "plugh"},
         }
         assert response.status_code == HTTPStatus.OK
@@ -221,7 +231,7 @@ class TestDatasetsMetadata:
                 "metadata": [
                     "dashboard.seen",
                     "dashboard.saved",
-                    "access",
+                    "dataset.access",
                     "user.contact",
                     "user.xyzzy",
                 ],
@@ -231,7 +241,7 @@ class TestDatasetsMetadata:
         assert response.json == {
             "dashboard.saved": True,
             "dashboard.seen": False,
-            "access": "private",
+            "dataset.access": "private",
             "user.contact": "me@example.com",
             "user.xyzzy": "plugh",
         }

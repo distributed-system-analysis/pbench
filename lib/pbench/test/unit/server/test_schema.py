@@ -231,7 +231,7 @@ class TestParameter:
         "test",
         (
             ("yes", "yes"),
-            ("no", "no"),
+            ("Yes", "yes"),
             ("me.you", "me.you"),
             ("me.You.him", "me.you.him"),
             ("ME.US.HER.THEM", "me.us.her.them"),
@@ -241,7 +241,7 @@ class TestParameter:
         """
         Test parameter normalization for a keyword parameter.
         """
-        x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "no", "me."])
+        x = Parameter("data", ParamType.KEYWORD, keywords=["yes", "me.*"])
         input, expected = test
         assert x.normalize(input) == expected
 
@@ -314,6 +314,9 @@ class TestParameter:
         (
             (ParamType.STRING, None, [False, 1]),
             (ParamType.KEYWORD, ["Yes", "No"], ["maybe", "nO"]),
+            (ParamType.KEYWORD, ["me.*"], ["me."]),
+            (ParamType.KEYWORD, ["me.*"], ["me..foo"]),
+            (ParamType.KEYWORD, ["me.*"], ["me.foo."]),
             (ParamType.ACCESS, None, ["sauron", "PRIVATE"]),
             (ParamType.STRING, None, 1),
             (ParamType.STRING, None, "not-a-list"),

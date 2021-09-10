@@ -305,8 +305,8 @@ class TestUpload:
         assert dataset.controller == self.controller
         assert dataset.name == filename[:-7]
         assert dataset.state == States.UPLOADED
-        assert not Metadata.getvalue(dataset, Metadata.SEEN)
-        assert not Metadata.getvalue(dataset, Metadata.SAVED)
+        assert Metadata.getvalue(dataset, Metadata.SEEN) is False
+        assert Metadata.getvalue(dataset, Metadata.SAVED) is False
         assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-01"
 
         for record in caplog.records:

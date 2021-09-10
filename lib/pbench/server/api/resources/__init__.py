@@ -160,7 +160,7 @@ class KeywordError(SchemaError):
         self.keywords = sorted(keywords if keywords else parameter.keywords)
 
     def __str__(self):
-        return f"Unrecognized {self.expected_type} {','.join(self.unrecognized)} given for parameter {self.parameter.name}; allowed keywords are {','.join(self.keywords)}"
+        return f"Unrecognized {self.expected_type} {self.unrecognized!r} given for parameter {self.parameter.name}; allowed keywords are {self.keywords!r}"
 
 
 class ListElementError(SchemaError):
@@ -182,11 +182,11 @@ class ListElementError(SchemaError):
 
     def __str__(self):
         expected = (
-            ",".join(self.parameter.keywords)
+            repr(self.parameter.keywords)
             if self.parameter.keywords
             else self.parameter.element_type.friendly
         )
-        return f"Unrecognized list values {self.bad!r} given for parameter {self.parameter.name}; expected {expected}"
+        return f"Unrecognized list value{'s' if len(self.bad) > 1 else ''} {self.bad!r} given for parameter {self.parameter.name}; expected {expected}"
 
 
 class PostprocessError(Exception):
@@ -275,13 +275,12 @@ def convert_json(value: JSON, parameter: "Parameter") -> JSON:
             if parameter.keywords:
                 bad = []
                 for k in value.keys():
-                    if (
-                        k not in parameter.keywords
-                        and f"{k.split('.')[0]}." not in parameter.keywords
-                    ):
+                    if not Metadata.is_key_path(k, parameter.keywords):
                         bad.append(k)
                 if bad:
-                    raise KeywordError(parameter, "JSON keys", bad)
+                    raise KeywordError(
+                        parameter, f"JSON key{'s' if len(bad) > 1 else ''}", bad
+                    )
             return value
     except JSONDecodeError:
         pass
@@ -311,13 +310,13 @@ def convert_string(value: str, _) -> str:
 def convert_keyword(value: str, parameter: "Parameter") -> str:
     """
     Verify that the parameter value is a string and a member of the
-    `valid` list. The match is case-blind and will return the case-folded
+    `valid` list. The match is case-blind and will return the lowercased
     version of the input keyword.
 
-    Keyword matching recognizes leading substring matches where the defined
-    keyword ends with a "." character. These are taken as secondary namespaces
-    controlled by the caller: e.g., a keyword of "user." will match input of
-    "user.contact" and "user.cloud.name".
+    Keyword matching recognizes a special sort of keyword that roots a
+    user-defined "open" secondary namespaces controlled by the caller, signaled
+    by the ".*" suffix on the keyword: e.g., a keyword of "user.*" will match
+    input of "user", "user.contact" and "user.cloud.name".
 
     Args:
         value: parameter value
@@ -332,7 +331,7 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
     if type(value) is not str:
         raise ConversionError(value, str.__name__)
     input = value.lower()
-    if input in parameter.keywords or f"{input.split('.')[0]}." in parameter.keywords:
+    if Metadata.is_key_path(input, parameter.keywords):
         return input
     raise KeywordError(parameter, "keyword", [value])
 
@@ -579,7 +578,7 @@ class ApiBase(Resource):
     # We treat the current "access category" of the dataset as user-accessible
     # metadata for the purposes of these APIs even though it's represented as
     # a column on the Dataset model.
-    METADATA = Metadata.USER_METADATA + ["access", "owner"]
+    METADATA = Metadata.USER_METADATA + [Dataset.ACCESS, Dataset.OWNER]
 
     def __init__(
         self,
@@ -700,11 +699,11 @@ class ApiBase(Resource):
         dataset: Dataset = Dataset.attach(controller=controller, name=name)
         metadata = {}
         for i in requested_items:
-            if i == "access":
+            if i == Dataset.ACCESS:
                 metadata[i] = dataset.access
-            elif i == "owner":
+            elif i == Dataset.OWNER:
                 metadata[i] = dataset.owner.username
-            elif Metadata.is_metadata(i, Metadata.USER_METADATA):
+            elif Metadata.is_key_path(i, Metadata.USER_METADATA):
                 try:
                     metadata[i] = Metadata.getvalue(dataset=dataset, key=i)
                 except MetadataNotFound:
