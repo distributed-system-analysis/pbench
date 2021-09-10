@@ -12,7 +12,7 @@ from pbench.server.api.resources import (
     PostprocessError,
 )
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
-from pbench.server.database.models.datasets import DatasetNotFound
+from pbench.server.database.models.datasets import DatasetNotFound, MetadataError
 
 
 class DatasetsDetail(ElasticBase):
@@ -170,6 +170,8 @@ class DatasetsDetail(ElasticBase):
                 HTTPStatus.BAD_REQUEST,
                 message=f"Dataset {src['run']['name']} not found",
             )
+        except MetadataError as e:
+            abort(HTTPStatus.BAD_REQUEST, message=str(e))
 
         if m:
             result["serverMetadata"] = m

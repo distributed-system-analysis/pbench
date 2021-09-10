@@ -86,6 +86,9 @@ class DatasetsMetadata(ApiBase):
             abort(
                 HTTPStatus.BAD_REQUEST, message=f"Dataset {controller}>{name} not found"
             )
+        except MetadataError as e:
+            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+
         return jsonify(metadata)
 
     def _put(self, json_data: JSON, _) -> Response:
@@ -126,6 +129,7 @@ class DatasetsMetadata(ApiBase):
                 HTTPStatus.BAD_REQUEST,
                 message=f"Dataset {json_data['controller']}>{json_data['name']} not found",
             )
+
         metadata = json_data["metadata"]
         failures = []
         for k, v in metadata.items():

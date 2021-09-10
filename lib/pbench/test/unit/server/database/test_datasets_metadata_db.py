@@ -3,6 +3,7 @@ from pbench.server.database.models.datasets import (
     Dataset,
     Metadata,
     DatasetBadParameterType,
+    MetadataBadStructure,
     MetadataNotFound,
     MetadataBadKey,
     MetadataMissingKeyValue,
@@ -106,3 +107,64 @@ class TestMetadata:
 
         Metadata.remove(ds, "user")
         assert ds.metadatas == []
+
+
+class TestMetadataNamespace:
+    def test_get_bad_syntax(self, db_session, create_user):
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        with pytest.raises(MetadataBadKey) as exc:
+            Metadata.getvalue(ds, "user..foo")
+        assert exc.type == MetadataBadKey
+        assert exc.value.key == "user..foo"
+
+    def test_set_bad_syntax(self, db_session, create_user):
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        with pytest.raises(MetadataBadKey) as exc:
+            Metadata.setvalue(ds, "user.foo.", "irrelevant")
+        assert exc.type == MetadataBadKey
+        assert exc.value.key == "user.foo."
+
+    def test_get_novalue(self, db_session, create_user):
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        assert Metadata.getvalue(ds, "user.email") is None
+        assert Metadata.getvalue(ds, "user") is None
+
+    def test_get_bad_path(self, db_session, create_user):
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        Metadata.setvalue(ds, "user.value", "hello")
+        with pytest.raises(MetadataBadStructure) as exc:
+            Metadata.getvalue(ds, "user.value.email")
+        assert exc.type == MetadataBadStructure
+        assert exc.value.key == "user.value.email"
+        assert exc.value.element == "email"
+
+    def test_set_bad_path(self, db_session, create_user):
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        Metadata.setvalue(ds, "user.value", "hello")
+        with pytest.raises(MetadataBadStructure) as exc:
+            Metadata.setvalue(ds, "user.value.email", "me@example.com")
+        assert exc.type == MetadataBadStructure
+        assert exc.value.key == "user.value.email"
+        assert exc.value.element == "email"
+
+    def test_get_outer_path(self, db_session, create_user):
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        Metadata.setvalue(ds, "user.value.hello.english", "hello")
+        Metadata.setvalue(ds, "user.value.hello.espanol", "hola")
+        assert Metadata.getvalue(ds, "user.value") == {
+            "hello": {"english": "hello", "espanol": "hola"}
+        }
+
+    def test_get_inner_path(self, db_session, create_user):
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        Metadata.setvalue(
+            ds,
+            "user.contact",
+            {"email": "me@example.com", "name": {"first": "My", "last": "Name"}},
+        )
+        assert Metadata.getvalue(ds, "user.contact.email") == "me@example.com"
+        assert Metadata.getvalue(ds, "user.contact.name.first") == "My"
+        assert Metadata.getvalue(ds, "user.contact.name") == {
+            "first": "My",
+            "last": "Name",
+        }

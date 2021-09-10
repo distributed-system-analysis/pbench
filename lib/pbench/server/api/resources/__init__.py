@@ -314,7 +314,7 @@ def convert_keyword(value: str, parameter: "Parameter") -> str:
     version of the input keyword.
 
     Keyword matching recognizes a special sort of keyword that roots a
-    user-defined "open" secondary namespaces controlled by the caller, signaled
+    user-defined "open" secondary namespace controlled by the caller, signaled
     by the ".*" suffix on the keyword: e.g., a keyword of "user.*" will match
     input of "user", "user.contact" and "user.cloud.name".
 

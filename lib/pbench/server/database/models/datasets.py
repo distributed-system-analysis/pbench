@@ -1,3 +1,4 @@
+import copy
 import datetime
 import enum
 import os
@@ -24,9 +25,8 @@ from pbench.server.database.models.users import User
 
 class DatasetError(Exception):
     """
-    DatasetError This is a base class for errors reported by the
-                Dataset class. It is never raised directly, but
-                may be used in "except" clauses.
+    This is a base class for errors reported by the Dataset class. It is never
+    raised directly, but may be used in "except" clauses.
     """
 
     pass
@@ -34,7 +34,7 @@ class DatasetError(Exception):
 
 class DatasetSqlError(DatasetError):
     """
-    DatasetSqlError SQLAlchemy errors reported through Dataset operations.
+    SQLAlchemy errors reported through Dataset operations.
 
     The exception will identify the controller and name of the target dataset,
     along with the operation being attempted; the __cause__ will specify the
@@ -52,7 +52,7 @@ class DatasetSqlError(DatasetError):
 
 class DatasetDuplicate(DatasetError):
     """
-    DatasetDuplicate Attempt to create a Dataset that already exists.
+    Attempt to create a Dataset that already exists.
     """
 
     def __init__(self, controller: str, name: str):
@@ -65,7 +65,7 @@ class DatasetDuplicate(DatasetError):
 
 class DatasetNotFound(DatasetError):
     """
-    DatasetNotFound Attempt to attach to a Dataset that doesn't exist.
+    Attempt to attach to a Dataset that doesn't exist.
     """
 
     def __init__(self, controller: str, name: str):
@@ -78,8 +78,7 @@ class DatasetNotFound(DatasetError):
 
 class DatasetBadParameterType(DatasetError):
     """
-    DatasetBadParameterType A parameter of the wrong type was passed to a
-                method in the Dataset module.
+    A parameter of the wrong type was passed to a method in the Dataset module.
 
     The error text will identify the actual value and type, and the expected
     type.
@@ -97,9 +96,8 @@ class DatasetBadParameterType(DatasetError):
 
 class DatasetTransitionError(DatasetError):
     """
-    DatasetTransitionError A base class for errors reporting disallowed
-                dataset state transitions. It is never raised directly, but
-                may be used in "except" clauses.
+    A base class for errors reporting disallowed dataset state transitions. It
+    is never raised directly, but may be used in "except" clauses.
     """
 
     pass
@@ -107,8 +105,8 @@ class DatasetTransitionError(DatasetError):
 
 class DatasetTerminalStateViolation(DatasetTransitionError):
     """
-    DatasetTerminalStateViolation An attempt was made to change the state of
-                a dataset currently in a terminal state.
+    An attempt was made to change the state of a dataset currently in a
+    terminal state.
 
     The error text will identify the dataset by controller and name, and both
     the current and requested new states.
@@ -124,8 +122,8 @@ class DatasetTerminalStateViolation(DatasetTransitionError):
 
 class DatasetBadStateTransition(DatasetTransitionError):
     """
-    DatasetTransitionError An attempt was made to advance a dataset to a new
-                state that's not reachable from the current state.
+    An attempt was made to advance a dataset to a new state that's not
+    reachable from the current state.
 
     The error text will identify the dataset by controller and name, and both
     the current and requested new states.
@@ -141,8 +139,8 @@ class DatasetBadStateTransition(DatasetTransitionError):
 
 class MetadataError(DatasetError):
     """
-    MetadataError A base class for errors reported by the Metadata class. It
-                is never raised directly, but may be used in "except" clauses.
+    A base class for errors reported by the Metadata class. It is never raised
+    directly, but may be used in "except" clauses.
     """
 
     def __init__(self, dataset: "Dataset", key: str):
@@ -155,7 +153,7 @@ class MetadataError(DatasetError):
 
 class MetadataSqlError(MetadataError):
     """
-    MetadataSqlError SQLAlchemy errors reported through Metadata operations.
+    SQLAlchemy errors reported through Metadata operations.
 
     The exception will identify the dataset and the metadata key, along with
     the operation being attempted; the __cause__ will specify the original
@@ -172,8 +170,7 @@ class MetadataSqlError(MetadataError):
 
 class MetadataNotFound(MetadataError):
     """
-    MetadataNotFound An attempt to `get` or remove a Metadata key that isn't
-                present.
+    An attempt to `get` or remove a Metadata key that isn't present.
 
     The error text will identify the dataset and metadata key that was
     specified.
@@ -184,6 +181,25 @@ class MetadataNotFound(MetadataError):
 
     def __str__(self) -> str:
         return f"No metadata {self.key} for {self.dataset}"
+
+
+class MetadataBadStructure(MetadataError):
+    """
+    A call to `getvalue` or `setvalue` found a level in the JSON document where
+    the caller's key expected a nested JSON object but the type at that level
+    is something else. For example, when `user.contact.email` finds that
+    `user.contact` is a string, it's impossible to look up the `email` field.
+
+    The error text will identify the key path and the expected key element that
+    is missing.
+    """
+
+    def __init__(self, dataset: "Dataset", path: str, element: str):
+        super().__init__(dataset, path)
+        self.element = element
+
+    def __str__(self) -> str:
+        return f"No element key {self.key} for {self.path} in {self.dataset}"
 
 
 class MetadataKeyError(DatasetError):
@@ -238,7 +254,7 @@ class MetadataProtectedKey(MetadataKeyError):
 
 class MetadataMissingKeyValue(MetadataKeyError):
     """
-    MetadataMissingKeyValue A value must be specified for the metadata key.
+    A value must be specified for the metadata key.
 
     The error text will identify the metadata key that was specified.
     """
@@ -252,8 +268,7 @@ class MetadataMissingKeyValue(MetadataKeyError):
 
 class MetadataDuplicateKey(MetadataError):
     """
-    MetadataDuplicateKey An attempt to add a Metadata key that already exists
-                on the dataset.
+    An attempt to add a Metadata key that already exists on the dataset.
 
     The error text will identify the dataset and metadata key that was
     specified.
@@ -702,8 +717,9 @@ class Metadata(Database.Base):
     # object and from JSON documents associated with multiple Metadata keys
     # attached to that Dataset.
     #
-    # "Virtual" metadata keys representing Dataset column values have no prefix
-    # and use the column name: "access", "owner";
+    # Metadata keys representing Dataset column values are in a virtual
+    # "dataset" namespace and use the column name: "dataset.access",
+    # "dataset.owner";
     #
     # Metadata keys reserved for internal modification within the server are in
     # the "server" namespace, and are strictly controlled by keyword path:
@@ -828,10 +844,11 @@ class Metadata(Database.Base):
                 decorator parameter, so we ignore it)
             value: Specified value for the "key" attribute
         """
-        v = value.lower()
-        if type(v) is not str or v not in Metadata.NATIVE_KEYS:
-            raise MetadataBadKey(value)
-        return v
+        if type(value) is str:
+            v = value.lower()
+            if v in Metadata.NATIVE_KEYS:
+                return v
+        raise MetadataBadKey(value)
 
     @staticmethod
     def create(**kwargs) -> "Metadata":
@@ -879,6 +896,9 @@ class Metadata(Database.Base):
             key: metadata key path
             valid: list of acceptable key paths
 
+        Raises:
+            MetadataBadKey: invalid namespace path syntax
+
         Returns:
             True if the path is valid, or False
         """
@@ -899,9 +919,9 @@ class Metadata(Database.Base):
         Returns the value of the specified key, which may be a dotted
         hierarchical path (e.g., "server.deleted").
 
-        The specific value of the dotted key path is returned, not the
-        top level Metadata object. (Note that this can always be found
-        using Metadata.get(dataset, key)).
+        The specific value of the dotted key path is returned, not the top
+        level Metadata object. (Note that this can always be found using
+        Metadata.get(dataset, key)).
 
         E.g., for "user.contact.name" with the dataset's Metadata value for the
         "user" key as {"contact": {"name": "Dave", "email": "d@example.com"}},
@@ -915,16 +935,23 @@ class Metadata(Database.Base):
             Value of the key path
         """
         keys = key.lower().split(".")
+        if "" in keys:
+            raise MetadataBadKey(key)
         native_key = keys.pop(0)
         try:
             meta = Metadata.get(dataset, native_key)
-            value = meta.value
-            for i in keys:
-                if i not in value:
-                    return None
-                value = value[i]
         except MetadataNotFound:
-            value = None
+            return None
+        value = meta.value
+        for i in keys:
+            # if we have a nested key, and the `value` at this level isn't
+            # a dictionary, then the `getvalue` path is inconsistent with
+            # the stored data; let the caller know with an exception.
+            if type(value) is not dict:
+                raise MetadataBadStructure(dataset, key, i)
+            if i not in value:
+                return None
+            value = value[i]
         return value
 
     @staticmethod
@@ -944,24 +971,38 @@ class Metadata(Database.Base):
             properly assigned value.
         """
         keys = key.lower().split(".")
+        if "" in keys:
+            raise MetadataBadKey(key)
         native_key = keys.pop(0)
         found = True
         try:
             meta = Metadata.get(dataset, native_key)
-            meta_value = meta.value.copy()
+
+            # SQLAlchemy determines whether to perform an `update` based on the
+            # Python object reference. We make a copy here to ensure that it
+            # sees we've made a change.
+            meta_value = copy.deepcopy(meta.value)
         except MetadataNotFound:
             found = False
             meta_value = {}
         if not keys:
             meta_value = value
         else:
+            last_key = keys[-1]
             hierarchy = meta_value
             for i in range(len(keys) - 1):
                 inner_key = keys[i]
+                # if we have a nested key, and the `value` at this level isn't
+                # a dictionary, then the `setvalue` path is inconsistent with
+                # the stored data; let the caller know with an exception.
+                if type(hierarchy) is not dict:
+                    raise MetadataBadStructure(dataset, key, i)
                 if inner_key not in hierarchy:
                     hierarchy[inner_key] = {}
                 hierarchy = hierarchy[inner_key]
-            hierarchy[keys[-1]] = value
+            if type(hierarchy) is not dict:
+                raise MetadataBadStructure(dataset, key, last_key)
+            hierarchy[last_key] = value
         if found:
             meta.value = meta_value
             meta.update()
