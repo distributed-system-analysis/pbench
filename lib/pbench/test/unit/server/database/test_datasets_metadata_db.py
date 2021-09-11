@@ -139,7 +139,10 @@ class TestMetadataNamespace:
         assert exc.type == MetadataBadStructure
         assert exc.value.key == "user.value.email"
         assert exc.value.element == "email"
-        assert str(exc.value) == "No element key 'email' for 'user.value.email' in test(1)|frodo|fio"
+        assert (
+            str(exc.value)
+            == "No element key 'email' for 'user.value.email' in test(1)|frodo|fio"
+        )
 
     def test_set_bad_path(self, db_session, create_user):
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
@@ -149,7 +152,10 @@ class TestMetadataNamespace:
         assert exc.type == MetadataBadStructure
         assert exc.value.key == "user.value.email"
         assert exc.value.element == "email"
-        assert str(exc.value) == "No element key 'email' for 'user.value.email' in test(1)|frodo|fio"
+        assert (
+            str(exc.value)
+            == "No element key 'email' for 'user.value.email' in test(1)|frodo|fio"
+        )
 
     def test_get_outer_path(self, db_session, create_user):
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
