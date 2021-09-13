@@ -24,6 +24,5 @@ while read -r _pdir; do
     fi
 done <<< "$(ls -1d ${_prefix}/lib*/python3.*/site-packages 2> /dev/null)
 $(head -n 1 ${_prefix}/lib*/python3.*/site-packages/pbench.egg-link 2> /dev/null)"
-export PYTHONPATH
 
-python3 setup.py develop --prefix="${_prefix}"
+export PYTHONPATH
