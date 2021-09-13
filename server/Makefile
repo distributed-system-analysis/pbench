@@ -50,6 +50,7 @@ binlinks = \
 	pbench-satellite-cleanup\
 	pbench-satellite-state-change\
 	pbench-server-prep-shim-002\
+	pbench-server-put-shim\
 	pbench-sync-package-tarballs\
 	pbench-sync-satellite\
 	pbench-unpack-tarballs\
