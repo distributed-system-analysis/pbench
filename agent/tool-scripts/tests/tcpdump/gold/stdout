@@ -1,3 +1,4 @@
+tcpdump: tcpdump is installed
 tcpdump: running "/var/tmp/pbench-test-tool-scripts/opt/pbench-agent/tool-scripts/datalog/tcpdump-datalog 42 en42"
 tcpdump: stopping
 tcpdump: no post-processing available following stop

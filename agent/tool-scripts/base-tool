@@ -152,6 +152,7 @@ sysfs)
 systemtap)
 	script=""
 	longoptions="${longoptions},script:"
+	tool_package_name="systemtap-client"
 	;;
 tcpdump)
 	interface=""
@@ -576,10 +577,10 @@ rc=0
 case "${mode}" in
 install)
 	function check_required_rpm {
-		_tpn="${1}"
-		_tpv="${2}"
-		_installed_rpm="$(require-rpm "${_tpn}" "${_tpv}")"
-		rc=${?}
+		local _tpn="${1}"
+		local _tpv="${2}"
+		local _installed_rpm="$(require-rpm "${_tpn}" "${_tpv}")"
+		local rc=${?}
 		if [[ ${rc} != 0 ]]; then
 			if [[ ! -z "${_tpv}" ]]; then
 				_tpv="-${_tpv}"
@@ -590,39 +591,33 @@ install)
 		fi
 		return ${rc}
 	}
-	case "${tool}" in
-	bpftrace|haproxy-ocp|iostat|kvmtrace|mpstat|oc|perf|pidstat|prometheus-metrics|sar|turbostat)
-		check_required_rpm ${tool_package_name} ${tool_package_ver}
-		rc=${?}
-		;;
-	pprof)
+	if [[ ! -z "${tool_package_name}" ]]; then
 		check_required_rpm ${tool_package_name} ${tool_package_ver}
 		rc=${?}
 		if [[ ${rc} == 0 ]]; then
-			# For pprof, we also need ansible installed.
-			check_required_rpm "ansible"
-			rc=${?}
+			case "${tool}" in
+			pprof)
+				# We also need ansible installed.
+				check_required_rpm "ansible"
+				rc=${?}
+				;;
+			systemtap)
+				# We need a number of systemtap and kernel packages for the
+				# systemtap tool to actually work.
+				check_required_rpm "systemtap-devel"
+				rc=${?}
+				if [[ ${rc} == 0 ]]; then
+					check_required_rpm "kernel-devel" "$(uname -r)"
+					rc=${?}
+				fi
+				if [[ ${rc} == 0 ]]; then
+					check_required_rpm "kernel-debuginfo" "$(uname -r)"
+					rc=${?}
+				fi
+				;;
+			esac
 		fi
-		;;
-	systemtap)
-		# We need a number of systemtap and kernel packages for the
-		# systemtap tool to actually work.
-		check_required_rpm "systemtap-client"
-		rc=${?}
-		if [[ ${rc} == 0 ]]; then
-			check_required_rpm "systemtap-devel"
-			rc=${?}
-		fi
-		if [[ ${rc} == 0 ]]; then
-			check_required_rpm "kernel-devel" "$(uname -r)"
-			rc=${?}
-		fi
-		if [[ ${rc} == 0 ]]; then
-			check_required_rpm "kernel-debuginfo" "$(uname -r)"
-			rc=${?}
-		fi
-		;;
-	esac
+	fi
 	;;
 start)
 	case "${tool}" in
