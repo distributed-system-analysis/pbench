@@ -12,7 +12,8 @@ install-dir = /opt/pbench-server
 pbench-top-dir = /srv/pbench
 # Backup dir may be remote NFS mounted
 pbench-backup-dir = /mnt/pbench.archive.backup
-roles = pbench-maintenance, pbench-results, pbench-backup
+# Add role for sync'ing with satellites
+roles = pbench-maintenance, pbench-prep, pbench-results, pbench-backup, pbench-sync-satellites
 # pbench-server rest api variables
 bind_port = 8001
 rest_version = 1
