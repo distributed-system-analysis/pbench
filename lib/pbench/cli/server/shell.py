@@ -2,13 +2,11 @@
 from logging import Logger
 import os
 from pathlib import Path
-from posix import environ
 import site
 import subprocess
 import sys
 
 from configparser import NoOptionError, NoSectionError
-from distutils.spawn import find_executable
 from sqlalchemy_utils import create_database, database_exists
 
 from pbench.common.exceptions import BadConfig, ConfigFileNotSpecified
@@ -26,16 +24,20 @@ def app():
     return create_app(server_config)
 
 
-def find_the_unicorn(logger : Logger) -> str:
+def find_the_unicorn(logger: Logger) -> str:
     local = Path(site.getuserbase()) / "bin"
     if (local / "gunicorn").exists():
         # Use a `pip install --user` version of gunicorn
         os.environ["PATH"] = str(local) + ":" + os.environ["PATH"]
-        logger.info("Found a local unicorn: augmenting server PATH to {}", os.environ["PATH"])
+        logger.info(
+            "Found a local unicorn: augmenting server PATH to {}", os.environ["PATH"]
+        )
 
 
 def main():
-    os.environ["_PBENCH_SERVER_CONFIG"] = "/opt/pbench-server/lib/config/pbench-server.cfg"
+    os.environ[
+        "_PBENCH_SERVER_CONFIG"
+    ] = "/opt/pbench-server/lib/config/pbench-server.cfg"
     try:
         server_config = get_server_config()
     except (ConfigFileNotSpecified, BadConfig) as e:
