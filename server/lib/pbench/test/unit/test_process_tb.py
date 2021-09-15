@@ -25,17 +25,17 @@ class TestProcessTb:
 
     receive_dir = "/srv/pbench/pbench-results-receive-dir"
 
-    def test_token(self, test_logger):
+    def test_token(self, logger):
         expected_error_msg = (
             "No value for config option put-token in section pbench-server"
         )
         mappings = {"pbench-server": {"put-token": ""}}
         with pytest.raises(ValueError) as e:
-            ProcessTb(MockConfig(mappings), test_logger)
+            ProcessTb(MockConfig(mappings), logger)
 
         assert expected_error_msg in str(e)
 
-    def test_get_receive_dir_failed(self, monkeypatch, test_logger):
+    def test_get_receive_dir_failed(self, monkeypatch, logger):
         def mock_is_dir(self) -> bool:
             assert False, f"Unexpected call to mocked Path.is_dir()"
 
@@ -48,11 +48,11 @@ class TestProcessTb:
         }
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         with pytest.raises(ValueError) as e:
-            ProcessTb(MockConfig(mappings), test_logger)
+            ProcessTb(MockConfig(mappings), logger)
 
         assert expected_error_msg in str(e)
 
-    def test_get_receive_dir_value_failed(self, test_logger):
+    def test_get_receive_dir_value_failed(self, logger):
         wrong_dir = "/srv/wrong-directory"
         expected_error_msg = (
             f"Failed: '{wrong_dir}-002' does not exist, or is not a directory"
@@ -64,11 +64,11 @@ class TestProcessTb:
             }
         }
         with pytest.raises(NotADirectoryError) as e:
-            ProcessTb(MockConfig(mappings), test_logger)
+            ProcessTb(MockConfig(mappings), logger)
 
         assert expected_error_msg in str(e)
 
-    def test_process_tb_file_not_found_error(self, monkeypatch, caplog, test_logger):
+    def test_process_tb_file_not_found_error(self, monkeypatch, caplog, logger):
         """checks normal processing when tar ball is not present"""
         receive_path = Path(TestProcessTb.receive_dir + "-002")
         bad_tarball = "bad_log.tar.xz"
@@ -99,13 +99,13 @@ class TestProcessTb:
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         monkeypatch.setattr(Path, "glob", mock_glob)
         monkeypatch.setattr(ProcessTb, "_results_push", mock_results_push)
-        ptb = ProcessTb(MockConfig(mappings), test_logger)
+        ptb = ProcessTb(MockConfig(mappings), logger)
         res = ptb.process_tb()
 
         assert res == expected_result
         assert expected_error_msg in caplog.text
 
-    def test_process_tb_connection_error(self, monkeypatch, caplog, test_logger):
+    def test_process_tb_connection_error(self, monkeypatch, caplog, logger):
         """checks normal processing when Connection Error is faced"""
         receive_path = Path(TestProcessTb.receive_dir + "-002")
         tarball = "log.tar.xz"
@@ -138,13 +138,13 @@ class TestProcessTb:
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         monkeypatch.setattr(Path, "glob", mock_glob)
         monkeypatch.setattr(ProcessTb, "_results_push", mock_results_push)
-        ptb = ProcessTb(MockConfig(mappings), test_logger)
+        ptb = ProcessTb(MockConfig(mappings), logger)
         res = ptb.process_tb()
 
         assert res == expected_result
         assert expected_error_msg in caplog.text
 
-    def test_process_tb(self, monkeypatch, test_logger):
+    def test_process_tb(self, monkeypatch, logger):
         """verify processing of tar balls without any failure"""
         receive_path = Path(TestProcessTb.receive_dir + "-002")
         tarball = "log.tar.xz"
@@ -183,12 +183,12 @@ class TestProcessTb:
         monkeypatch.setattr(Path, "glob", mock_glob)
         monkeypatch.setattr(ProcessTb, "_results_push", mock_results_push)
         monkeypatch.setattr(os, "remove", mock_remove)
-        ptb = ProcessTb(MockConfig(mappings), test_logger)
+        ptb = ProcessTb(MockConfig(mappings), logger)
         res = ptb.process_tb()
 
         assert res == expected_result
 
-    def test_process_tb_zero(self, monkeypatch, test_logger):
+    def test_process_tb_zero(self, monkeypatch, logger):
         """verify processing if there are no TBs without any failure"""
         receive_path = Path(TestProcessTb.receive_dir + "-002")
 
@@ -213,12 +213,12 @@ class TestProcessTb:
         monkeypatch.setattr(Path, "is_dir", mock_is_dir)
         monkeypatch.setattr(Path, "glob", mock_glob)
         monkeypatch.setattr(ProcessTb, "_results_push", mock_results_push)
-        ptb = ProcessTb(MockConfig(mappings), test_logger)
+        ptb = ProcessTb(MockConfig(mappings), logger)
         res = ptb.process_tb()
 
         assert res == expected_result
 
-    def test_multiple_process_tb(self, monkeypatch, caplog, test_logger):
+    def test_multiple_process_tb(self, monkeypatch, caplog, logger):
         """verify tar balls processing at the time of Failure as well as success"""
         receive_path = Path(TestProcessTb.receive_dir + "-002")
         tarball = "log.tar.xz"
@@ -262,8 +262,8 @@ class TestProcessTb:
         monkeypatch.setattr(Path, "glob", mock_glob)
         monkeypatch.setattr(ProcessTb, "_results_push", mock_results_push)
         monkeypatch.setattr(os, "remove", mock_remove)
-        caplog.set_level(logging.ERROR, logger=test_logger.name)
-        ptb = ProcessTb(MockConfig(mappings), test_logger)
+        caplog.set_level(logging.ERROR, logger=logger.name)
+        ptb = ProcessTb(MockConfig(mappings), logger)
         res = ptb.process_tb()
 
         assert res == expected_result
