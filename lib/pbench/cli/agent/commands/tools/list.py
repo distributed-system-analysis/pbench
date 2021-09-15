@@ -15,6 +15,7 @@ from pbench.cli.agent.commands.tools.base import ToolCommand
 from pbench.cli.agent.options import common_options
 from pbench.agent.tool_group import BadToolGroup
 
+
 class ListTools(ToolCommand):
     """ List registered Tools """
 
@@ -61,6 +62,9 @@ class ListTools(ToolCommand):
                     continue
 
                 for path in tg_dir.iterdir():
+                    # skip files like __label__ and __trigger__
+                    if not path.is_dir():
+                        continue
                     # Check to see if the tool is in any of the hosts.
                     if self.context.name in self.tools(path):
                         group_list.append(group)
