@@ -40,7 +40,7 @@ class ListTools(ToolCommand):
                     for path in self.gen_tools_group_dir(group).glob("*/**"):
                         if self.context.with_option:
                             host_tools[group][path.name] = [
-                                p.read_text() for p in self.tools(path)
+                                (p, (path / p).read_text()) for p in self.tools(path)
                             ]
                         else:
                             host_tools[group][path.name] = [p for p in self.tools(path)]
