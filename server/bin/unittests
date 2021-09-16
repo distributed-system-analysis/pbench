@@ -6,8 +6,10 @@ umask 0002
 
 # Don't allow an external _PBENCH_SERVER_CONFIG environment variable to affect the operation
 # of the unit tests since the unit tests themselves use pbench-config which looks
-# for that envinronment variable as input.
+# for that envinronment variable as input.  Also, remove the _PBENCH_AGENT_CONFIG environment
+# variable as well, because the pthread-config command will use that if it is defined.
 unset _PBENCH_SERVER_CONFIG
+unset _PBENCH_AGENT_CONFIG
 
 # Ensure we always use the same locale for the unit tests.
 export LANG=C.UTF-8
