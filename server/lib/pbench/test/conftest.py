@@ -24,7 +24,7 @@ def setup(request, pytestconfig):
 
 
 @pytest.fixture
-def test_logger(pytestconfig):
+def logger(pytestconfig):
     tmp = Path(pytestconfig.cache.get("TMP", None))
     logger = logging.getLogger("testing")
     handler = logging.FileHandler(tmp / "test.log")
