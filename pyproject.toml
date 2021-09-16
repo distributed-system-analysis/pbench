@@ -14,6 +14,7 @@ fio-histo-log-pctiles.py
 | profile-builder.py
 | agent/stockpile
 | .git
+| .local
 | .venv
 )
 '''

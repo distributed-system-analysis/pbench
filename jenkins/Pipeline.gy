@@ -1,10 +1,17 @@
 pipeline {
     agent { label 'pbench' }
+    environment {
+        COV_REPORT_LOC="${WORKSPACE_TMP}/${BUILD_NUMBER}/cov/cov.xml"
+        EXTRA_PODMAN_SWITCHES='--user=root'
+        NO_COLORS=0
+        PY_COLORS=0
+        TERM='dumb'
+    }
     stages {
         stage('Linting & Unit Tests') {
             steps {
                 echo 'Linting, pytest-based unit tests, and legacy unit tests'
-                sh 'jenkins/run jenkins/tox -r --current-env -e jenkins-pytests,jenkins-unittests'
+                sh 'jenkins/run "source jenkins/python-setup.sh; jenkins/run-pytests; jenkins/run-unittests"'
             }
         }
     }
@@ -14,7 +21,7 @@ pipeline {
             // report file to be a relative-to-WORKSPACE-only file. So we
             // have to hack the separate report file into the local workspace
             // with a symlink.
-            sh 'ln -s ${WORKSPACE_TMP}/${BUILD_NUMBER}/tmp/pbench/cov/cov.xml ${WORKSPACE}/cov.xml'
+            sh 'ln -s ${COV_REPORT_LOC} ${WORKSPACE}/cov.xml'
             step([$class: 'CoberturaPublisher',
                 autoUpdateHealth: false,
                 autoUpdateStability: false,
