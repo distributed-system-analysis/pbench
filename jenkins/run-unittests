@@ -1,9 +1,12 @@
 #!/bin/bash
 
+# This script runs the legacy unit tests for the Agent and the Server.
+#
+# NOTE:  Before invoking this script, the various bits of Python setup should
+#        have been performed, e.g., via `source jenkins/python-setup.sh`.
+
 prog="$(basename "${0}")"
 progdir="$(realpath -e $(dirname "${0}")/..)"
-
-source $(dirname "${0}")/python-setup.sh
 
 export PBENCH_UNITTEST_SERVER_MODE=parallel
 

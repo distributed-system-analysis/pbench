@@ -1,9 +1,13 @@
 #!/bin/bash
 
+# This script runs the PyTest-based unit tests for the Agent and the Server.
+# It also runs Black and Flake8.
+#
+# NOTE:  Before invoking this script, the various bits of Python setup should
+#        have been performed, e.g., via `source jenkins/python-setup.sh`.
+
 prog="$(basename "${0}")"
 progdir="$(realpath -e $(dirname "${0}")/..)"
-
-source $(dirname "${0}")/python-setup.sh
 
 printf -- "black --check ...\n"
 black --check .
@@ -19,7 +23,7 @@ if [[ ${flake_sts} -ne 0 ]]; then
 fi
 printf -- "\n"
 pytest --cov --cov-append \
-    --cov-report xml:/tmp/${USER}/cov/cov.xml \
+    --cov-report xml:${COV_REPORT_LOC:-/tmp/${USER}/cov/cov.xml} \
     ./lib/pbench/test/unit/common \
     ./lib/pbench/test/unit/agent \
     ./lib/pbench/test/unit/server \
