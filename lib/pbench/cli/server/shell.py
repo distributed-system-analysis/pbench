@@ -1,5 +1,8 @@
 #!/bin/env python3
-
+from logging import Logger
+import os
+from pathlib import Path
+import site
 import subprocess
 import sys
 
@@ -21,19 +24,34 @@ def app():
     return create_app(server_config)
 
 
+def find_the_unicorn(logger: Logger) -> str:
+    local = Path(site.getuserbase()) / "bin"
+    if (local / "gunicorn").exists():
+        # Use a `pip install --user` version of gunicorn
+        os.environ["PATH"] = str(local) + ":" + os.environ["PATH"]
+        logger.info(
+            "Found a local unicorn: augmenting server PATH to {}", os.environ["PATH"]
+        )
+
+
 def main():
+    os.environ[
+        "_PBENCH_SERVER_CONFIG"
+    ] = "/opt/pbench-server/lib/config/pbench-server.cfg"
     try:
         server_config = get_server_config()
     except (ConfigFileNotSpecified, BadConfig) as e:
         print(e)
         sys.exit(1)
     logger = get_pbench_logger(__name__, server_config)
+    find_the_unicorn(logger)
     try:
         host = str(server_config.get("pbench-server", "bind_host"))
         port = str(server_config.get("pbench-server", "bind_port"))
         db = str(server_config.get("Postgres", "db_uri"))
         workers = str(server_config.get("pbench-server", "workers"))
         worker_timeout = str(server_config.get("pbench-server", "worker_timeout"))
+        logger.info("Pbench server using database {}", db)
 
         # Multiple gunicorn workers will attempt to connect to the DB; rather
         # than attempt to synchronize them, detect a missing DB (from the
