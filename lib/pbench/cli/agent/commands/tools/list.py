@@ -9,7 +9,7 @@ group, or list which groups contain a specific tool
 import sys
 
 import click
-
+113
 from pbench.agent.tool_group import BadToolGroup
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
@@ -109,7 +109,7 @@ def _group_option(f):
 
     def callback(ctxt, param, value):
         clictxt = ctxt.ensure_object(CliContext)
-        try:g
+        try:
             clictxt.group = value.split()
         except Exception:
             clictxt.group = []

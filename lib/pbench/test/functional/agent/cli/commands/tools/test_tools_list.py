@@ -2,14 +2,15 @@ import pytest
 
 group_err = b"Tool group does not exist: "
 tool_err = b"Tool does not exist in any group: "
-usage_msg = b"Usage: pbench-list-tools [OPTIONS]"
+usage_msg = b"Usage: pbench-list-tools [OPTIONS]\n\nOptions:\n  -C, --config PATH  Path to a pbench-agent configuration file (defaults to\n                     the '_PBENCH_AGENT_CONFIG' environment variable, if\n                     defined)  [required]\n  -n, --name TEXT    list the tool groups in which <tool-name> is used.\n  -g, --group TEXT   list the tools used in this <group-name>\n  -o, --with-option  list the options with each tool\n  --help             Show this message and exit.\n"
 
 
 class Test_list_tool_no_tools_registered:
     def test_help(self):
         command = ["pbench-list-tools", "--help"]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert b"Usage: pbench-list-tools [OPTIONS]" in out
+        assert usage_msg ==  out
+        assert b"" == err
         assert exitcode == 0
 
     def test_no_args(self, agent_config):
@@ -91,7 +92,7 @@ class Test_list_tool_tools_registered:
     def test_help(self, tool, agent_config):
         command = ["pbench-list-tools", "--help"]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert usage_msg in out
+        assert usage_msg == out
         assert b"" == err
         assert exitcode == 0
 
