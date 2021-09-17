@@ -199,7 +199,7 @@ class MetadataBadStructure(MetadataError):
         self.element = element
 
     def __str__(self) -> str:
-        return f"No element key {self.element!r} for {self.key!r} in {self.dataset}"
+        return f"Key {self.element!r} value for {self.key!r} in {self.dataset} is not a JSON object"
 
 
 class MetadataKeyError(DatasetError):
@@ -726,17 +726,16 @@ class Metadata(Database.Base):
     # e.g., "server.deleted", "server.archived";
     #
     # Metadata keys intended for use by the dashboard client are in the
-    # "dashboard" namespace, and are also strictly controlled by keyword path:
-    # e.g., "dashboard.seen", "dashboard.saved". While these can be modified by
-    # any API client, the separate namespace provides some protection against
-    # accidental modifications that might break dashboard semantics. Adding a
-    # key to this namespace requires server modifications to define the new
-    # keyword.
+    # "dashboard" namespace. While these can be modified by any API client, the
+    # separate namespace provides some protection against accidental
+    # modifications that might break dashboard semantics. This is an "open"
+    # namespace, allowing the dashboard to define and manage any keys it needs
+    # within the "dashboard.*" hierarchy.
     #
     # Metadata keys within the "user" namespace are reserved for general client
     # use, although by convention a second-level key-space should be used to
-    # provide some isolation. This is an "open" namespace, meaning that any API
-    # client can define new keywords such as "user.contact" or "user.me.you"
+    # provide some isolation. This is an "open" namespace, allowing any API
+    # client to define new keywords such as "user.contact" or "user.me.you"
     # and JSON subdocuments are available at any level. For example, if we've
     # set "user.contact.email" and "user.postman.test" then retrieving "user"
     # will return a JSON document like
@@ -745,8 +744,8 @@ class Metadata(Database.Base):
     #     {"email": "value"}
     #
     # The following class constants define the set of currently available
-    # metadata keys, where the open "user" namespace is represented by the
-    # special syntax "user.*".
+    # metadata keys, where the "open" namespaces are represented by the
+    # syntax "user.*".
 
     # DELETION timestamp for dataset based on user settings and system
     # settings at time the dataset is created.
@@ -754,17 +753,13 @@ class Metadata(Database.Base):
     # {"server.deletion": "2021-12-25"}
     DELETION = "server.deletion"
 
-    # SEEN boolean flag to indicate that a user has acknowledged the new
-    # dataset.
+    # DASHBOARD is arbitrary data saved on behalf of the dashboard client; the
+    # reserved namespace differs from "user" only in that reserving a primary
+    # key for the "well known" dashboard client offers some protection against
+    # key name collisions.
     #
     # {"dashboard.seen": True}
-    SEEN = "dashboard.seen"
-
-    # SAVED boolean flag to indicate that a user has accepted the new dataset
-    # for further curation.
-    #
-    # {"dashboard.saved": True}
-    SAVED = "dashboard.saved"
+    DASHBOARD = "dashboard.*"
 
     # USER is arbitrary data saved on behalf of the owning user, as a JSON
     # document.
@@ -815,7 +810,7 @@ class Metadata(Database.Base):
     # --- Standard Metadata keys
 
     # Metadata keys that clients can update
-    USER_UPDATEABLE_METADATA = [SAVED, SEEN, USER]
+    USER_UPDATEABLE_METADATA = [DASHBOARD, USER]
 
     # Metadata keys that are accessible to clients
     USER_METADATA = USER_UPDATEABLE_METADATA + [DELETION]
@@ -896,9 +891,6 @@ class Metadata(Database.Base):
             key: metadata key path
             valid: list of acceptable key paths
 
-        Raises:
-            MetadataBadKey: invalid namespace path syntax
-
         Returns:
             True if the path is valid, or False
         """
@@ -920,12 +912,14 @@ class Metadata(Database.Base):
         hierarchical path (e.g., "server.deleted").
 
         The specific value of the dotted key path is returned, not the top
-        level Metadata object. (Note that this can always be found using
-        Metadata.get(dataset, key)).
+        level Metadata object. The full JSON value of a top level key can be
+        acquired directly using `Metadata.get(dataset, key)`
 
         E.g., for "user.contact.name" with the dataset's Metadata value for the
         "user" key as {"contact": {"name": "Dave", "email": "d@example.com"}},
-        this would return "Dave".
+        this would return "Dave", whereas Metadata.get(dataset, "user") would
+        return the entire user key JSON, such as
+        {"user" {"contact": {"name": "Dave", "email": "d@example.com}}}
 
         Args:
             dataset: associated dataset
@@ -943,15 +937,17 @@ class Metadata(Database.Base):
         except MetadataNotFound:
             return None
         value = meta.value
+        name = native_key
         for i in keys:
-            # if we have a nested key, and the `value` at this level isn't
+            # If we have a nested key, and the `value` at this level isn't
             # a dictionary, then the `getvalue` path is inconsistent with
             # the stored data; let the caller know with an exception.
             if type(value) is not dict:
-                raise MetadataBadStructure(dataset, key, i)
+                raise MetadataBadStructure(dataset, key, name)
             if i not in value:
                 return None
             value = value[i]
+            name = i
         return value
 
     @staticmethod
@@ -960,6 +956,10 @@ class Metadata(Database.Base):
         Create or modify an existing metadata value. This method supports
         hierarchical dotted paths like "dashboard.seen" and should be used in
         most contexts where client-visible metadata paths are used.
+
+        This will create a nested JSON (Python dict) structure as necessary
+        as it descends the hierarchy. For example, if you assign "a.b.c" with
+        an initial value of "{}", you'll end up with {"a": {"b": {"c": value}}}
 
         Args:
             dataset: Associated Dataset
@@ -985,24 +985,30 @@ class Metadata(Database.Base):
         except MetadataNotFound:
             found = False
             meta_value = {}
+
         if not keys:
             meta_value = value
         else:
-            last_key = keys[-1]
-            hierarchy = meta_value
-            for i in range(len(keys) - 1):
-                inner_key = keys[i]
-                # if we have a nested key, and the `value` at this level isn't
+            walker = meta_value
+            name = native_key
+            for i in range(len(keys)):
+                # If we have a nested key, and the `value` at this level isn't
                 # a dictionary, then the `setvalue` path is inconsistent with
                 # the stored data; let the caller know with an exception.
-                if type(hierarchy) is not dict:
-                    raise MetadataBadStructure(dataset, key, i)
-                if inner_key not in hierarchy:
-                    hierarchy[inner_key] = {}
-                hierarchy = hierarchy[inner_key]
-            if type(hierarchy) is not dict:
-                raise MetadataBadStructure(dataset, key, last_key)
-            hierarchy[last_key] = value
+                if type(walker) is not dict:
+                    raise MetadataBadStructure(dataset, key, name)
+                inner_key = keys[i]
+
+                # If we've reached the final key, assign the value in this
+                # dict; otherwise continue descending.
+                if i == len(keys) - 1:
+                    walker[inner_key] = value
+                else:
+                    if inner_key not in walker:
+                        walker[inner_key] = {}
+                    walker = walker[inner_key]
+                    name = inner_key
+
         if found:
             meta.value = meta_value
             meta.update()

@@ -133,28 +133,28 @@ class TestMetadataNamespace:
 
     def test_get_bad_path(self, db_session, create_user):
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
-        Metadata.setvalue(ds, "user.value", "hello")
+        Metadata.setvalue(ds, "user.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
-            Metadata.getvalue(ds, "user.value.email")
+            Metadata.getvalue(ds, "user.contact.email")
         assert exc.type == MetadataBadStructure
-        assert exc.value.key == "user.value.email"
-        assert exc.value.element == "email"
+        assert exc.value.key == "user.contact.email"
+        assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "No element key 'email' for 'user.value.email' in test(1)|frodo|fio"
+            == "Key 'contact' value for 'user.contact.email' in test(1)|frodo|fio is not a JSON object"
         )
 
     def test_set_bad_path(self, db_session, create_user):
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
-        Metadata.setvalue(ds, "user.value", "hello")
+        Metadata.setvalue(ds, "user.contact", "hello")
         with pytest.raises(MetadataBadStructure) as exc:
-            Metadata.setvalue(ds, "user.value.email", "me@example.com")
+            Metadata.setvalue(ds, "user.contact.email", "me@example.com")
         assert exc.type == MetadataBadStructure
-        assert exc.value.key == "user.value.email"
-        assert exc.value.element == "email"
+        assert exc.value.key == "user.contact.email"
+        assert exc.value.element == "contact"
         assert (
             str(exc.value)
-            == "No element key 'email' for 'user.value.email' in test(1)|frodo|fio"
+            == "Key 'contact' value for 'user.contact.email' in test(1)|frodo|fio is not a JSON object"
         )
 
     def test_get_outer_path(self, db_session, create_user):

@@ -66,7 +66,7 @@ class DatasetsMetadata(ApiBase):
         GET. In this case, we're going to experiment with an alternative, using
         query parameters.
 
-        GET /api/v1/datasets/metadata?controller=ctrl&name=dname&metadata=SEEN&metadata=SAVED
+        GET /api/v1/datasets/metadata?controller=ctrl&name=dname&metadata=dashboard.seen&metadata=server.deletion
         """
         controller = request.args.get("controller")
         name = request.args.get("name")
@@ -100,8 +100,8 @@ class DatasetsMetadata(ApiBase):
             "controller": "ctrlname",
             "name": "datasetname",
             "metadata": [
-                "SEEN": True,
-                "USER": {
+                "dashboard.seen": True,
+                "user": {
                     "cloud": "AWS",
                     "contact": "john.carter@mars.org"
                 }

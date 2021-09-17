@@ -330,7 +330,7 @@ class TestDatasetsDetail(Commons):
                 "toc-prefix": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
                 "toolsgroup": "default",
             },
-            "serverMetadata": {"dashboard.seen": True, "server.deletion": None},
+            "serverMetadata": {"dashboard.seen": None, "server.deletion": "2022-12-25"},
         }
         assert expected == res_json
 

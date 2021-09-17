@@ -131,8 +131,9 @@ class DatasetsDetail(ElasticBase):
                     },
                 ],
                 "serverMetadata": {
-                    "seen": True,
-                    "saved": False
+                    "server.deletion": "2222-02-22",
+                    "dashboard.saved": False,
+                    "dataset.access": "public"
                 }
             }
         ]

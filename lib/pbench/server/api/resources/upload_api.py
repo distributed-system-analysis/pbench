@@ -305,16 +305,6 @@ class Upload(Resource):
         try:
             dataset.advance(States.UPLOADED)
 
-            # NOTE: Metadata.SAVED and Metadata.SEEN are on the `dashboard` key
-            # while Metadata.DELETION is on `server`. We could still combine
-            # these two as `Metadata.create(dataset=dataset, key="dashboard",
-            # value={"saved": False, "seen": False})` and save a few DB
-            # operations. However, using separate `setvalue` operations has the
-            # advantage of not requiring any assumptions about the organization
-            # of the attributes, which is more maintainable.
-            Metadata.setvalue(dataset=dataset, key=Metadata.SAVED, value=False)
-            Metadata.setvalue(dataset=dataset, key=Metadata.SEEN, value=False)
-
             # TODO: Implement per-user override of default (requires PR #2049)
             try:
                 retention_days = int(

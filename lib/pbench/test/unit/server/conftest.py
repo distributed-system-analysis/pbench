@@ -287,12 +287,10 @@ def attach_dataset(pbench_token, create_user):
 def provide_metadata(attach_dataset):
     drb = Dataset.attach(controller="node", name="drb")
     test = Dataset.attach(controller="node", name="test")
-    Metadata.setvalue(dataset=drb, key=Metadata.SAVED, value=False)
-    Metadata.setvalue(dataset=drb, key=Metadata.SEEN, value=True)
     Metadata.setvalue(dataset=drb, key="user.contact", value="me@example.com")
-    Metadata.setvalue(dataset=test, key=Metadata.SAVED, value=False)
-    Metadata.setvalue(dataset=test, key=Metadata.SEEN, value=False)
+    Metadata.setvalue(dataset=drb, key=Metadata.DELETION, value="2022-12-25")
     Metadata.setvalue(dataset=test, key="user.contact", value="you@example.com")
+    Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
 
 
 @pytest.fixture()

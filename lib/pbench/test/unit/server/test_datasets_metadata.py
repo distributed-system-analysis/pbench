@@ -29,7 +29,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.saved', 'dashboard.seen', 'user.*', 'server.deletion', 'dataset.access', 'dataset.owner']"
+            "message": "Unrecognized list values ['plugh', 'xyzzy'] given for parameter metadata; expected ['dashboard.*', 'user.*', 'server.deletion', 'dataset.access', 'dataset.owner']"
         }
 
     def test_get1(self, client, server_config, provide_metadata):
@@ -40,7 +40,7 @@ class TestDatasetsMetadata:
                 "name": "drb",
                 "metadata": [
                     "dashboard.seen",
-                    "dashboard.saved",
+                    "server.deletion",
                     "dataset.access",
                     "user.contact",
                 ],
@@ -48,8 +48,8 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json == {
-            "dashboard.saved": False,
-            "dashboard.seen": True,
+            "dashboard.seen": None,
+            "server.deletion": "2022-12-25",
             "dataset.access": "private",
             "user.contact": "me@example.com",
         }
@@ -62,7 +62,7 @@ class TestDatasetsMetadata:
                 "name": "drb",
                 "metadata": [
                     "dashboard.seen",
-                    "dashboard.saved",
+                    "server.deletion",
                     "dataset.access",
                     "user",
                 ],
@@ -70,8 +70,8 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.OK
         assert response.json == {
-            "dashboard.saved": False,
-            "dashboard.seen": True,
+            "dashboard.seen": None,
+            "server.deletion": "2022-12-25",
             "dataset.access": "private",
             "user": {"contact": "me@example.com"},
         }
@@ -169,7 +169,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed keywords are ['dashboard.saved', 'dashboard.seen', 'user.*']"
+            "message": "Unrecognized JSON keys ['what', 'xyzzy'] given for parameter metadata; allowed keywords are ['dashboard.*', 'user.*']"
         }
 
     def test_put_reserved_metadata(self, client, server_config, attach_dataset):
@@ -183,7 +183,7 @@ class TestDatasetsMetadata:
         )
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json == {
-            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed keywords are ['dashboard.saved', 'dashboard.seen', 'user.*']"
+            "message": "Unrecognized JSON key ['dataset.access'] given for parameter metadata; allowed keywords are ['dashboard.*', 'user.*']"
         }
 
     def test_put(self, client, server_config, provide_metadata):
