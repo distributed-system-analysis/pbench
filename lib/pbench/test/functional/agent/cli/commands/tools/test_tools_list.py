@@ -82,11 +82,11 @@ class Test_list_tool_tools_registered:
         p = pbench_run / "tools-v1-default" / "testhost.example.com"
         p.mkdir(parents=True)
         for tool in ["perf", "mpstat"]:
-            ( p / tool).touch()
+            (p / tool).touch()
         p = pbench_run / "tools-v1-default" / "testhost2.example.com"
         p.mkdir(parents=True)
         for tool in ["iostat", "sar"]:
-            ( p / tool).touch()
+            (p / tool).touch()
 
     def test_help(self, tool, agent_config):
         command = ["pbench-list-tools", "--help"]
@@ -179,7 +179,6 @@ class Test_list_tool_tools_registered_with_options:
                 tool = p / "perf"
                 tool.write_text("--record-opts='-a --freq=100'")
 
-
     @pytest.fixture
     def tools_on_multiple_hosts(self, pbench_run):
         for group in ["default", "test"]:
@@ -196,7 +195,6 @@ class Test_list_tool_tools_registered_with_options:
                 else:
                     tool = p / "perf"
                     tool.write_text("--record-opts='-a --freq=100'")
-
 
     def test_existing_group_options(self, tool, agent_config):
         command = ["pbench-list-tools", "--group", "default", "--with-option"]
@@ -226,7 +224,10 @@ class Test_list_tool_tools_registered_with_options:
             "--with-option",
         ]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert b"tool name: mpstat\ngroup: default, host: testhost.example.com, options: --interval=300\n" == out
+        assert (
+            b"tool name: mpstat\ngroup: default, host: testhost.example.com, options: --interval=300\n"
+            == out
+        )
         assert b"" == err
         assert exitcode == 0
 
@@ -246,6 +247,7 @@ class Test_list_tool_tools_registered_with_options:
         out, err, exitcode = pytest.helpers.capture(command)
 
         import sys
+
         print(out, file=sys.stderr)
         # This is the 0.69.9 output with hostname mods
         assert (
@@ -254,4 +256,3 @@ class Test_list_tool_tools_registered_with_options:
         )
         assert b"" == err
         assert exitcode == 0
-

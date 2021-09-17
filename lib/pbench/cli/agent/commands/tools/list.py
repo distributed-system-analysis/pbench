@@ -55,7 +55,8 @@ class ListTools(ToolCommand):
                         if self.context.with_option:
                             with_option = True
                             host_tools[group][host] = [
-                                (p, (path / p).read_text().rstrip("\n")) for p in self.tools(path)
+                                (p, (path / p).read_text().rstrip("\n"))
+                                for p in self.tools(path)
                             ]
                         else:
                             host_tools[group][host] = [p for p in self.tools(path)]
@@ -87,19 +88,21 @@ class ListTools(ToolCommand):
                         group_list.append(group)
                         if self.context.with_option:
                             with_option = True
-                            options[group] = (host, (path / tool).read_text().rstrip("\n"))
+                            options[group] = (
+                                host,
+                                (path / tool).read_text().rstrip("\n"),
+                            )
 
             if group_list:
                 if with_option:
                     print("tool name: %s" % (tool))
                     for group, rest in options.items():
                         host, options = rest
-                        print("group: %s, host: %s, options: %s" % (group, host, options))
+                        print(
+                            "group: %s, host: %s, options: %s" % (group, host, options)
+                        )
                 else:
-                    print(
-                        "tool name: %s groups: %s"
-                        % (tool, ", ".join(group_list))
-                    )
+                    print("tool name: %s groups: %s" % (tool, ", ".join(group_list)))
             else:
                 # name does not exist in any group
                 self.logger.error("Tool does not exist in any group: %s", tool)
