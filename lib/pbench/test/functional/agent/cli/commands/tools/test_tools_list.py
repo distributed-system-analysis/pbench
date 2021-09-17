@@ -9,7 +9,7 @@ class Test_list_tool_no_tools_registered:
     def test_help(self):
         command = ["pbench-list-tools", "--help"]
         out, err, exitcode = pytest.helpers.capture(command)
-        assert usage_msg ==  out
+        assert usage_msg == out
         assert b"" == err
         assert exitcode == 0
 

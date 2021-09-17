@@ -9,6 +9,7 @@ group, or list which groups contain a specific tool
 import sys
 
 import click
+
 113
 from pbench.agent.tool_group import BadToolGroup
 from pbench.cli.agent import CliContext, pass_cli_context
@@ -137,9 +138,7 @@ def _name_option(f):
         "--name",
         expose_value=False,
         callback=callback,
-        help=(
-            "list the tool groups in which <tool-name> is used.\n"
-         ),
+        help=("list the tool groups in which <tool-name> is used.\n"),
     )(f)
 
 
