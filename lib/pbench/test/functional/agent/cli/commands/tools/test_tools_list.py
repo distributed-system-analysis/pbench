@@ -153,9 +153,9 @@ class Test_list_tool_tools_registered:
     def test_multiple_hosts(self, tools_on_multiple_hosts, agent_config):
         command = ["pbench-list-tools"]
         out, err, exitcode = pytest.helpers.capture(command)
- 
+
         assert (
-            b"default: testhost2.example.com: iostat,sar\ndefault: testhost.example.com: mpstat,perf\n"
+            b"default: testhost.example.com: mpstat,perf\ndefault: testhost2.example.com: iostat,sar\n"
             == out
         )
         assert b"" == err
@@ -184,12 +184,19 @@ class Test_list_tool_tools_registered_with_options:
     def tools_on_multiple_hosts(self, pbench_run):
         for group in ["default", "test"]:
             for host in ["th1.example.com", "th2.example.com"]:
-                p = pbench_run / f"tools-v1-{group}" / host 
+                p = pbench_run / f"tools-v1-{group}" / host
                 p.mkdir(parents=True)
                 tool = p / "iostat"
                 tool.write_text("--interval=30")
                 tool = p / "mpstat"
                 tool.write_text("--interval=300")
+                if host == "th1.example.com":
+                    tool = p / "sar"
+                    tool.write_text("--interval=10")
+                else:
+                    tool = p / "perf"
+                    tool.write_text("--record-opts='-a --freq=100'")
+
 
     def test_existing_group_options(self, tool, agent_config):
         command = ["pbench-list-tools", "--group", "default", "--with-option"]
@@ -238,9 +245,11 @@ class Test_list_tool_tools_registered_with_options:
         command = ["pbench-list-tools", "--with-option"]
         out, err, exitcode = pytest.helpers.capture(command)
 
+        import sys
+        print(out, file=sys.stderr)
         # This is the 0.69.9 output with hostname mods
         assert (
-            b"default: th2.example.com: iostat --interval=30,mpstat --interval=300\ndefault: th1.example.com: iostat --interval=30,mpstat --interval=300\ntest: th2.example.com: iostat --interval=30,mpstat --interval=300\ntest: th1.example.com: iostat --interval=30,mpstat --interval=300\n"
+            b"default: th1.example.com: iostat --interval=30,mpstat --interval=300,sar --interval=10\ndefault: th2.example.com: iostat --interval=30,mpstat --interval=300,perf --record-opts='-a --freq=100'\ntest: th1.example.com: iostat --interval=30,mpstat --interval=300,sar --interval=10\ntest: th2.example.com: iostat --interval=30,mpstat --interval=300,perf --record-opts='-a --freq=100'\n"
             == out
         )
         assert b"" == err

@@ -24,8 +24,9 @@ class ListTools(ToolCommand):
 
     @staticmethod
     def print_results(toolinfo, with_options):
-        for group, rest in toolinfo.items():
-            for host, tools in rest.items():
+        for group in sorted(toolinfo.keys()):
+            for host in sorted(toolinfo[group].keys()):
+                tools = toolinfo[group][host]
                 if not with_options:
                     s = ",".join(tools)
                 else:
