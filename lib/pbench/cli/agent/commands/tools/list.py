@@ -109,7 +109,7 @@ def _group_option(f):
 
     def callback(ctxt, param, value):
         clictxt = ctxt.ensure_object(CliContext)
-        try:
+        try:g
             clictxt.group = value.split()
         except Exception:
             clictxt.group = []
@@ -139,8 +139,7 @@ def _name_option(f):
         callback=callback,
         help=(
             "list the tool groups in which <tool-name> is used.\n"
-            "Not allowed with the --group option"
-        ),
+         ),
     )(f)
 
 
