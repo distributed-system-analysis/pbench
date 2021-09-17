@@ -23,7 +23,7 @@ class ListTools(ToolCommand):
         super(ListTools, self).__init__(context)
 
     @staticmethod
-    def print_results(toolinfo, with_options):
+    def print_results(toolinfo: dict, with_options: bool):
         for group in sorted(toolinfo.keys()):
             for host in sorted(toolinfo[group].keys()):
                 tools = toolinfo[group][host]
