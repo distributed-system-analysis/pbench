@@ -28,10 +28,10 @@ class ListTools(ToolCommand):
             for host in sorted(toolinfo[group].keys()):
                 tools = toolinfo[group][host]
                 if not with_options:
-                    s = ",".join(tools)
+                    s = ", ".join(tools)
                 else:
-                    s = ",".join(map(lambda x: " ".join(x), tools))
-                print("%s: %s: %s" % (group, host, s))
+                    s = ", ".join(map(lambda x: " ".join(x), tools))
+                print(f"{group}: {host}: {s}")
 
     def execute(self):
         if not self.pbench_run.exists():
@@ -44,7 +44,6 @@ class ListTools(ToolCommand):
         else:
             groups = self.groups
 
-        with_option = False
         if not self.context.name:
             host_tools = {}
             for group in groups:
@@ -53,7 +52,6 @@ class ListTools(ToolCommand):
                     for path in self.gen_tools_group_dir(group).glob("*/**"):
                         host = path.name
                         if self.context.with_option:
-                            with_option = True
                             host_tools[group][host] = [
                                 (p, (path / p).read_text().rstrip("\n"))
                                 for p in self.tools(path)
@@ -64,7 +62,7 @@ class ListTools(ToolCommand):
                     self.logger.error("Tool group does not exist: %s", group)
                     return 1
             if host_tools:
-                self.print_results(host_tools, with_option)
+                self.print_results(host_tools, self.context.with_option)
         else:
             # List the groups which include this tool
             group_list = []
@@ -87,22 +85,19 @@ class ListTools(ToolCommand):
                     if tool in self.tools(path):
                         group_list.append(group)
                         if self.context.with_option:
-                            with_option = True
                             options[group] = (
                                 host,
                                 (path / tool).read_text().rstrip("\n"),
                             )
 
             if group_list:
-                if with_option:
-                    print("tool name: %s" % (tool))
-                    for group, rest in options.items():
+                if self.context.with_option:
+                    print(f"tool name: {tool}")
+                    for group, rest in sorted(options.items()):
                         host, options = rest
-                        print(
-                            "group: %s, host: %s, options: %s" % (group, host, options)
-                        )
+                        print(f"group: {group}, host: {host}, options: {options}")
                 else:
-                    print("tool name: %s groups: %s" % (tool, ", ".join(group_list)))
+                    print(f"tool name: {tool} groups: {', '.join(sorted(group_list))}")
             else:
                 # name does not exist in any group
                 self.logger.error("Tool does not exist in any group: %s", tool)

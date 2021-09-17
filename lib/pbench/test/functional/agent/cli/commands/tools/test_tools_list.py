@@ -16,7 +16,7 @@ class Test_list_tool_no_tools_registered:
         command = ["pbench-list-tools"]
         out, err, exitcode = pytest.helpers.capture(command)
         assert b"" == out
-        assert b"" == out
+        assert b"" == err
         assert exitcode == 0
 
     def test_name(self, agent_config):
@@ -99,6 +99,7 @@ class Test_list_tool_tools_registered:
         command = ["pbench-list-tools"]
         out, err, exitcode = pytest.helpers.capture(command)
         assert b"default: testhost.example.com: perf\n" == out
+        assert b"" == err
         assert exitcode == 0
 
     def test_group_existing(self, tool, agent_config):
@@ -155,7 +156,7 @@ class Test_list_tool_tools_registered:
         out, err, exitcode = pytest.helpers.capture(command)
 
         assert (
-            b"default: testhost.example.com: mpstat,perf\ndefault: testhost2.example.com: iostat,sar\n"
+            b"default: testhost.example.com: mpstat, perf\ndefault: testhost2.example.com: iostat, sar\n"
             == out
         )
         assert b"" == err
@@ -201,7 +202,7 @@ class Test_list_tool_tools_registered_with_options:
         out, err, exitcode = pytest.helpers.capture(command)
         # This is (apart from the hostname) the 0.69.9 output.
         assert (
-            b"default: testhost.example.com: iostat --interval=30,mpstat --interval=300,sar --interval=10\n"
+            b"default: testhost.example.com: iostat --interval=30, mpstat --interval=300, sar --interval=10\n"
             == out
         )
         assert b"" == err
@@ -236,7 +237,7 @@ class Test_list_tool_tools_registered_with_options:
         out, err, exitcode = pytest.helpers.capture(command)
         # This is the 0.69.9 output with hostname mods
         assert (
-            b"default: testhost.example.com: iostat --interval=30,mpstat --interval=300,sar --interval=10\ntest: testhost.example.com: iostat --interval=30,mpstat --interval=300,perf --record-opts='-a --freq=100'\n"
+            b"default: testhost.example.com: iostat --interval=30, mpstat --interval=300, sar --interval=10\ntest: testhost.example.com: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'\n"
             == out
         )
         assert b"" == err
@@ -246,12 +247,9 @@ class Test_list_tool_tools_registered_with_options:
         command = ["pbench-list-tools", "--with-option"]
         out, err, exitcode = pytest.helpers.capture(command)
 
-        import sys
-
-        print(out, file=sys.stderr)
         # This is the 0.69.9 output with hostname mods
         assert (
-            b"default: th1.example.com: iostat --interval=30,mpstat --interval=300,sar --interval=10\ndefault: th2.example.com: iostat --interval=30,mpstat --interval=300,perf --record-opts='-a --freq=100'\ntest: th1.example.com: iostat --interval=30,mpstat --interval=300,sar --interval=10\ntest: th2.example.com: iostat --interval=30,mpstat --interval=300,perf --record-opts='-a --freq=100'\n"
+            b"default: th1.example.com: iostat --interval=30, mpstat --interval=300, sar --interval=10\ndefault: th2.example.com: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'\ntest: th1.example.com: iostat --interval=30, mpstat --interval=300, sar --interval=10\ntest: th2.example.com: iostat --interval=30, mpstat --interval=300, perf --record-opts='-a --freq=100'\n"
             == out
         )
         assert b"" == err
