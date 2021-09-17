@@ -172,7 +172,13 @@ class Test_list_tool_tools_registered_with_options:
             tool.write_text("--interval=30")
             tool = p / "mpstat"
             tool.write_text("--interval=300")
-        return
+            if group == "default":
+                tool = p / "sar"
+                tool.write_text("--interval=10")
+            else:
+                tool = p / "perf"
+                tool.write_text("--record-opts='-a --freq=100'")
+
 
     @pytest.fixture
     def tools_on_multiple_hosts(self, pbench_run):
@@ -190,7 +196,7 @@ class Test_list_tool_tools_registered_with_options:
         out, err, exitcode = pytest.helpers.capture(command)
         # This is (apart from the hostname) the 0.69.9 output.
         assert (
-            b"default: testhost.example.com: iostat --interval=30,mpstat --interval=300\n"
+            b"default: testhost.example.com: iostat --interval=30,mpstat --interval=300,sar --interval=10\n"
             == out
         )
         assert b"" == err
@@ -222,7 +228,7 @@ class Test_list_tool_tools_registered_with_options:
         out, err, exitcode = pytest.helpers.capture(command)
         # This is the 0.69.9 output with hostname mods
         assert (
-            b"default: testhost.example.com: iostat --interval=30,mpstat --interval=300\ntest: testhost.example.com: iostat --interval=30,mpstat --interval=300\n"
+            b"default: testhost.example.com: iostat --interval=30,mpstat --interval=300,sar --interval=10\ntest: testhost.example.com: iostat --interval=30,mpstat --interval=300,perf --record-opts='-a --freq=100'\n"
             == out
         )
         assert b"" == err

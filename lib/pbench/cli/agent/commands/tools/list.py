@@ -23,14 +23,6 @@ class ListTools(ToolCommand):
         super(ListTools, self).__init__(context)
 
     @staticmethod
-    def chomp(s):
-        if len(s) == 0:
-            return s
-        if s[-1] == '\n':
-            return s[0:-1]
-        return s
-
-    @staticmethod
     def print_results(toolinfo, with_options):
         for group, rest in toolinfo.items():
             for host, tools in rest.items():
@@ -62,7 +54,7 @@ class ListTools(ToolCommand):
                         if self.context.with_option:
                             with_option = True
                             host_tools[group][host] = [
-                                (p, self.chomp((path / p).read_text())) for p in self.tools(path)
+                                (p, (path / p).read_text().rstrip("\n")) for p in self.tools(path)
                             ]
                         else:
                             host_tools[group][host] = [p for p in self.tools(path)]
@@ -83,21 +75,18 @@ class ListTools(ToolCommand):
                     self.logger.error("Tool group does not exist: %s", group)
                     return 1
 
-                if not tg_dir.exists():
-                    self.logger.error("bad or missing tool group %s", group)
-                    continue
-
                 for path in tg_dir.iterdir():
-                    host = path.name
                     # skip files like __label__ and __trigger__
                     if not path.is_dir():
                         continue
+
+                    host = path.name
                     # Check to see if the tool is in any of the hosts.
                     if tool in self.tools(path):
                         group_list.append(group)
                         if self.context.with_option:
                             with_option = True
-                            options[group] = (host, self.chomp((path / tool).read_text()))
+                            options[group] = (host, (path / tool).read_text().rstrip("\n"))
 
             if group_list:
                 if with_option:
