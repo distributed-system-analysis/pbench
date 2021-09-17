@@ -10,10 +10,10 @@ import sys
 
 import click
 
+from pbench.agent.tool_group import BadToolGroup
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
 from pbench.cli.agent.options import common_options
-from pbench.agent.tool_group import BadToolGroup
 
 
 class ListTools(ToolCommand):
@@ -21,6 +21,24 @@ class ListTools(ToolCommand):
 
     def __init__(self, context):
         super(ListTools, self).__init__(context)
+
+    @staticmethod
+    def chomp(s):
+        if len(s) == 0:
+            return s
+        if s[-1] == '\n':
+            return s[0:-1]
+        return s
+
+    @staticmethod
+    def print_results(toolinfo, with_options):
+        for group, rest in toolinfo.items():
+            for host, tools in rest.items():
+                if not with_options:
+                    s = ",".join(tools)
+                else:
+                    s = ",".join(map(lambda x: " ".join(x), tools))
+                print("%s: %s: %s" % (group, host, s))
 
     def execute(self):
         if not self.pbench_run.exists():
@@ -33,46 +51,69 @@ class ListTools(ToolCommand):
         else:
             groups = self.groups
 
+        with_option = False
         if not self.context.name:
             host_tools = {}
             for group in groups:
                 host_tools[group] = {}
                 try:
                     for path in self.gen_tools_group_dir(group).glob("*/**"):
+                        host = path.name
                         if self.context.with_option:
-                            host_tools[group][path.name] = [
-                                (p, (path / p).read_text()) for p in self.tools(path)
+                            with_option = True
+                            host_tools[group][host] = [
+                                (p, self.chomp((path / p).read_text())) for p in self.tools(path)
                             ]
                         else:
-                            host_tools[group][path.name] = [p for p in self.tools(path)]
+                            host_tools[group][host] = [p for p in self.tools(path)]
                 except BadToolGroup:
-                    self.logger.error("Bad tool group: %s", group)
+                    self.logger.error("Tool group does not exist: %s", group)
                     return 1
             if host_tools:
-                for k, v in host_tools.items():
-                    for h, t in v.items():
-                        print("%s: %s %s" % (k, h, t))
+                self.print_results(host_tools, with_option)
         else:
             # List the groups which include this tool
             group_list = []
+            tool = self.context.name
+            options = {}
             for group in groups:
-                tg_dir = self.gen_tools_group_dir(group)
+                try:
+                    tg_dir = self.gen_tools_group_dir(group)
+                except BadToolGroup:
+                    self.logger.error("Tool group does not exist: %s", group)
+                    return 1
+
                 if not tg_dir.exists():
                     self.logger.error("bad or missing tool group %s", group)
                     continue
 
                 for path in tg_dir.iterdir():
+                    host = path.name
                     # skip files like __label__ and __trigger__
                     if not path.is_dir():
                         continue
                     # Check to see if the tool is in any of the hosts.
-                    if self.context.name in self.tools(path):
+                    if tool in self.tools(path):
                         group_list.append(group)
+                        if self.context.with_option:
+                            with_option = True
+                            options[group] = (host, self.chomp((path / tool).read_text()))
+
             if group_list:
-                print(
-                    "tool name: %s groups: %s"
-                    % (self.context.name, ", ".join(group_list))
-                )
+                if with_option:
+                    print("tool name: %s" % (tool))
+                    for group, rest in options.items():
+                        host, options = rest
+                        print("group: %s, host: %s, options: %s" % (group, host, options))
+                else:
+                    print(
+                        "tool name: %s groups: %s"
+                        % (tool, ", ".join(group_list))
+                    )
+            else:
+                # name does not exist in any group
+                self.logger.error("Tool does not exist in any group: %s", tool)
+                return 1
 
 
 def _group_option(f):
