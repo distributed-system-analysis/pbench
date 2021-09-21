@@ -184,7 +184,7 @@ class DatasetsList(ElasticBase):
             except DatasetNotFound:
                 abort(
                     HTTPStatus.BAD_REQUEST,
-                    message=f"Dataset {src['run']['name']} not found",
+                    message=f"Dataset {run['controller']}>{run['name']} not found",
                 )
             except MetadataError as e:
                 abort(HTTPStatus.BAD_REQUEST, message=str(e))

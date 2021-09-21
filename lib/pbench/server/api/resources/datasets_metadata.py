@@ -112,25 +112,29 @@ class DatasetsMetadata(ApiBase):
         /api/v1/datasets/list and /api/v1/datasets/detail) is not modifiable by
         the client. The schema validation for PUT will fail if any of these
         keywords are specified.
+
+        Returns the new metadata referenced in the top-level "metadata" list:
+        e.g., for the above query,
+
+        [
+            "dashboard.seen": True,
+            "user": {"cloud": "AWS", "contact": "json.carter@mars.org}
+        ]
         """
+        controller = json_data["controller"]
+        name = json_data["name"]
+        metadata = json_data["metadata"]
+
         try:
             self.logger.info("PUT with {}", repr(json_data))
-            dataset = Dataset.attach(
-                controller=json_data["controller"], name=json_data["name"]
-            )
+            dataset = Dataset.attach(controller=controller, name=name)
         except DatasetError as e:
-            self.logger.warning(
-                "Dataset {}>{} not found: {}",
-                json_data["controller"],
-                json_data["name"],
-                str(e),
-            )
+            self.logger.warning("Dataset {}>{} not found: {}", controller, name, str(e))
             abort(
                 HTTPStatus.BAD_REQUEST,
                 message=f"Dataset {json_data['controller']}>{json_data['name']} not found",
             )
 
-        metadata = json_data["metadata"]
         failures = []
         for k, v in metadata.items():
             try:
@@ -143,3 +147,5 @@ class DatasetsMetadata(ApiBase):
                 HTTPStatus.INTERNAL_SERVER_ERROR,
                 message=f"Unable to update metadata keys {','.join(failures)}",
             )
+        results = self._get_metadata(controller, name, list(metadata.keys()))
+        return jsonify(results)

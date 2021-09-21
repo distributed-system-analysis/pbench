@@ -957,9 +957,10 @@ class Metadata(Database.Base):
         hierarchical dotted paths like "dashboard.seen" and should be used in
         most contexts where client-visible metadata paths are used.
 
-        This will create a nested JSON (Python dict) structure as necessary
-        as it descends the hierarchy. For example, if you assign "a.b.c" with
-        an initial value of "{}", you'll end up with {"a": {"b": {"c": value}}}
+        This will create a nested JSON structure (represented as a Python dict)
+        as necessary as it descends the hierarchy. For example, if you assign
+        "a.b.c" with an initial value of "{}", you'll end up with
+        {"a": {"b": {"c": value}}}
 
         Args:
             dataset: Associated Dataset

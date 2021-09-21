@@ -200,6 +200,11 @@ class TestDatasetsMetadata:
             },
         )
         assert response.status_code == HTTPStatus.OK
+        assert response.json == {
+            "dashboard.saved": True,
+            "dashboard.seen": False,
+            "user.xyzzy": "plugh",
+        }
         response = client.get(
             f"{server_config.rest_uri}/datasets/metadata",
             query_string={
@@ -220,7 +225,6 @@ class TestDatasetsMetadata:
             "dataset.access": "private",
             "user": {"contact": "me@example.com", "xyzzy": "plugh"},
         }
-        assert response.status_code == HTTPStatus.OK
 
         # Try a second GET, returning "user" fields separately:
         response = client.get(
