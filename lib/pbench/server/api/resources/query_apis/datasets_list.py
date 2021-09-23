@@ -105,14 +105,9 @@ class DatasetsList(ElasticBase):
                         ]
                     },
                     "sort": {"run.end": {"order": "desc"}},
-                    "query": {
-                        "bool": {
-                            "filter": [
-                                {"term": self._get_user_term(json_data)},
-                                {"term": {"run.controller": controller}},
-                            ]
-                        }
-                    },
+                    "query": self._get_user_query(
+                        json_data, [{"term": {"run.controller": controller}}]
+                    ),
                     "size": 5000,
                 },
                 "params": {"ignore_unavailable": "true"},
@@ -143,6 +138,9 @@ class DatasetsList(ElasticBase):
         }
         """
         datasets = []
+        if context.get("NODATA"):
+            return jsonify({})
+
         hits = es_json["hits"]["hits"]
         self.logger.info("{} controllers found", len(hits))
         controller = None

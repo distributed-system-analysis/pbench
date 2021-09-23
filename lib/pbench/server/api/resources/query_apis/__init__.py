@@ -2,7 +2,7 @@ from collections import Counter, defaultdict
 from datetime import datetime
 from http import HTTPStatus
 from logging import Logger
-from typing import Any, Callable, Dict, Iterator
+from typing import Any, Callable, Dict, Iterator, List
 from urllib.parse import urljoin
 
 from dateutil import rrule
@@ -13,6 +13,7 @@ from flask_restful import abort
 import requests
 
 from pbench.server import PbenchServerConfig
+from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     API_OPERATION,
     ApiBase,
@@ -21,7 +22,6 @@ from pbench.server.api.resources import (
     Schema,
     SchemaError,
     UnauthorizedAccess,
-    UnsupportedAccessMode,
 )
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.server.database.models.template import Template
@@ -44,6 +44,24 @@ class MissingBulkSchemaParameters(SchemaError):
 
     def __str__(self) -> str:
         return f"API {self.subclass_name} is missing schema parameters controller and/or name"
+
+
+class NoSelectedDatasets(Exception):
+    """
+    Raised by the query builder when the input terms mean that no Elasticsearch
+    data could be selected without violating security rules. Most cases are
+    handled up-front by schema validation and authorization; edge cases raise
+    this exception to trigger logic in the subclass postprocess() method that
+    generates an appropriate empty response (e.g., [] or {}).
+    """
+
+    def __init__(self, user: str, access: str):
+        self.user = user
+        self.access = access
+
+    def __str__(self) -> str:
+        user = f"user {self.user!r}" if self.user else "unauthorized client"
+        return f"Query from {user} for access {self.access!r} cannot produce results"
 
 
 class ElasticBase(ApiBase):
@@ -95,45 +113,210 @@ class ElasticBase(ApiBase):
         port = config.get("elasticsearch", "port")
         self.es_url = f"http://{host}:{port}"
 
-    def _get_user_term(self, json: JSON) -> Dict[str, str]:
+    def _get_user_query(self, parameters: JSON, terms: List[JSON]) -> JSON:
         """
-        Generate the user term for an Elasticsearch document query. If the
-        specified "user" parameter is not None, search for documents with that
-        value as the authorized owner. If the "user" parameter is absent or
-        None, and the "access" parameter is "public", search for all published
-        documents.
+        Generate the "query" node for an Elasticsearch document query.
 
-        TODO: Currently this code supports either all published data, or all
-        data owned by a specified user. More work in query construction must
-        be completed to support additional combinations. I plan to support
-        additional flexibility in a separate PR based on issue #2370.
+        In most cases this just adds a "term" within the "query"/"filter" node.
+        Several queries use an "and" term including user and access, which
+        generates two new "term" nodes. The most complicated is a query which
+        doesn't include user or access for an authorized user, which must
+        return all datasets "owned by the user or with access public".
+
+        Note that if a "user" JSON parameter is specified, the common
+        infrastructure has already checked that there's an authentication token
+        and that the token represents a user with access to that specified
+        user's data. This method is concerned only with constructing a proper
+        Elasticsearch query to represent the authenticated restrictions.
+
+        Specific cases for user and access values:
+
+            {}: defaulting both user and access
+                All private + public regardless of owner
+
+                ADMIN: all datasets
+                AUTHORIZED: all owner:mine OR access:public
+                UNAUTHORIZED: all access:public
+
+            {"user": "drb"}: defaulting access
+                All datasets owned by "drb"
+
+                ADMIN: all owner:drb
+                AUTHORIZED as drb: all owner:drb
+                UNAUTHORIZED (or non-drb): all owner:drb AND access:public
+
+            {"user": "drb, "access": "private"}: private drb
+                All datasets owned by "drb" with "private" access
+
+                ADMIN: all owner:drb AND access:private
+                AUTHORIZED as drb: all owner:drb AND access:private
+                UNAUTHORIZED (or non-drb): NO DATA
+
+            {"user": "drb", "access": "public"}: public drb
+                All datasets owned by "drb" with "public" access
+
+                ADMIN: all owner:drb AND access:public
+                AUTHORIZED as drb: all owner:drb AND access:public
+                UNAUTHORIZED (or non-drb): all owner:drb AND access:public
+
+                TODO: Need to decide if this is a security issue. Do we want to
+                hide the existence of other users here? E.g., should the
+                UNAUTHORIZED case return NO DATA? And if so, should there be a
+                difference between UNAUTHORIZED and AUTHORIZED for some other
+                user? (And, NOTE, specifying a "user" parameter, either without
+                authentication or with non-ADMIN authentication where the user
+                parameter doesn't match the specified "user" parameter, will
+                result in an UnverifiedUser exception during schema validation,
+                so we won't reach this point. That is, changes must be made if
+                we want to ALLOW these requests.)
+
+            {"access": "private"}: all private data
+                All datasets with "private" access regardless of user
+
+                ADMIN: all access:private
+                AUTHORIZED: all owner:"me" AND access:private
+                UNAUTHORIZED: NO DATA
+
+            {"access": "public"}: all public data
+                All datasets with "public" access
+
+                ADMIN: all access:public
+                AUTHORIZED: all access:public
+                UNAUTHORIZED: all access:public
+
+        The "or" structure for the AUTHORIZED case of {} is the most
+        complicated query: this requires a nested must/should structure with the
+        constant_score option and defines the interface style of this method,
+        which accepts query "term" nodes from the subclass to be fit into a
+        "query" node rather than simply patching new "term" nodes into an
+        existing "query" node. This structure translates to "must have" both
+        the basic subclass query "term" nodes AND either (the username "term"
+        node OR the access "term" node). E.g.,
+
+        "query": {
+            "constant_score": {  # Disable scoring
+                "filter": {
+                    "bool": {  # Enter outer boolean scope
+                        "must": [ # Combine subquery terms with authorization
+                            {
+                                "bool": {  # Nested authorization OR (should)
+                                    "should": [
+                                        {
+                                            "term": {
+                                                "authorization.owner": "5"
+                                            }
+                                        },
+                                        {
+                                            "term": {
+                                                "authorization.access": "public"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {   # The subclass term becomes a second AND term (must)
+                                "range": {
+                                    "@timestamp": {
+                                    "gte": "2021-09-01",
+                                    "lte": "2021-10-28"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
 
         Args:
             JSON query parameters containing keys:
-                "user": Pbench internal username if present and not None
-                "access": Access category, "public" or "private"; defaults
-                    to "private" if "user" is specified, and "public" if
-                    user is not specified. (NOTE: other combinations are
-                    not currently supported.)
+                "user": Pbench internal username if present and not None; if
+                    omitted, doesn't restrict search on user.
+                "access": Access category, "public" or "private"; defaults to
+                    don't-care
+            terms: A list of JSON nodes describing the Elasticsearch "terms"
+                that must be matched for the query. These will be inserted
+                within a "must" list for the generated query.
 
         Raises:
-            UnsupportedAccessMode: This is a temporary situation due to the
-            current query limitations. When the full semantics are complete
-            there will be no "illegal" constraint combinations but only
-            combinations that yield no data (e.g, "private" data for another
-            user).
+            NoSelectedDatasets: This is raised when there is no possible output
+                from a query (e.g., private data queries from an unauthorized
+                client). There's no point in generating a query or calling
+                Elasticsearch (which would require an impossible combination
+                of terms resulting in no output but no errors). The _call()
+                method will handle this by calling postprocess() with an empty
+                query response that must trigger the subclass to act as if
+                there were no hits or aggregations.
 
         Returns:
-            An assembled Elasticsearch query term
+            An assembled Elasticsearch "query" mode that includes the necessary
+            user/access terms.
         """
-        user = json.get("user")
-        if user:
-            term = {"authorization.owner": user}
-        elif json.get("access") == Dataset.PRIVATE_ACCESS:
-            raise UnsupportedAccessMode(user, Dataset.PRIVATE_ACCESS)
+        user = parameters.get("user")
+        access = parameters.get("access")
+        authorized_user: User = Auth.token_auth.current_user()
+        is_admin = authorized_user.is_admin() if authorized_user else False
+        query = {}
+        must = [t for t in terms]  # Create a new list, which we'll modify
+
+        if access is None and user is None:
+            # {}
+            if is_admin:
+                # ADMIN needs no authorization search terms: all is permitted,
+                # so we need only the subclass query terms.
+                query["bool"] = {"filter": must}
+            else:
+                if not authorized_user:
+                    # An unauthorized client sees all public data
+                    must.append({"term": {"authorization.access": "public"}})
+                    query["bool"] = {"filter": must}
+                else:
+                    # An authorized user can see their own private data plus
+                    # public data ("OR" relationship)
+                    must.append(
+                        {
+                            "bool": {
+                                "should": [
+                                    {
+                                        "term": {
+                                            "authorization.owner": str(
+                                                authorized_user.id
+                                            )
+                                        }
+                                    },
+                                    {"term": {"authorization.access": "public"}},
+                                ]
+                            }
+                        }
+                    )
+                    query["constant_score"] = {"filter": {"bool": {"must": must}}}
+        elif access is None:
+            # {"user": "xxx"}
+            must.append({"term": {"authorization.owner": user}})
+            query["bool"] = {"filter": must}
+        elif user is None:
+            # {"access": "xxx"}
+            if access == Dataset.PUBLIC_ACCESS:
+                must.append({"term": {"authorization.access": Dataset.PUBLIC_ACCESS}})
+            else:
+                if not authorized_user:
+                    # An unauthorized user can never view access:private data,
+                    # but schema validation wasn't able to detect this so we
+                    # raise our special exception to skip the query.
+                    raise NoSelectedDatasets(user, access)
+                must.append({"term": {"authorization.access": Dataset.PRIVATE_ACCESS}})
+                if not is_admin:
+                    # A non-admin user can only see their own private data
+                    must.append(
+                        {"term": {"authorization.owner": str(authorized_user.id)}}
+                    )
+            query["bool"] = {"filter": must}
         else:
-            term = {"authorization.access": Dataset.PUBLIC_ACCESS}
-        return term
+            # {"access": "xxx", "user": "xxx"}
+            must.append({"term": {"authorization.access": access}})
+            must.append({"term": {"authorization.owner": user}})
+            query["bool"] = {"filter": must}
+        return query
 
     def _gen_month_range(self, index: str, start: datetime, end: datetime) -> str:
         """
@@ -276,18 +459,29 @@ class ElasticBase(ApiBase):
             es_request = self.assemble(json_data, context)
             path = es_request.get("path")
             url = urljoin(self.es_url, path)
-            self.logger.debug("ASSEMBLE returned URL {}", url)
+            self.logger.info(
+                "ASSEMBLE returned URL {!r}, {!r}", url, es_request.get("json")
+            )
+        except NoSelectedDatasets as e:
+            # The query builder reports that no datasets can be found; skip
+            # the Elasticsearch query and tell postprocess to build an empty
+            # client response as appropriate.
+            self.logger.info("{} query builder reports no matches: {}", klasname, e)
+            context["NODATA"] = True
         except Exception as e:
             self.logger.exception("{} assembly failed: {}", klasname, e)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
-            # perform the Elasticsearch query
-            es_response = method(url, **es_request["kwargs"])
-            self.logger.debug(
-                "ES query response {}:{}", es_response.reason, es_response.status_code
-            )
-            es_response.raise_for_status()
+            if not context.get("NODATA", False):
+                # perform the Elasticsearch query
+                es_response = method(url, **es_request["kwargs"])
+                self.logger.debug(
+                    "ES query response {}:{}",
+                    es_response.reason,
+                    es_response.status_code,
+                )
+                es_response.raise_for_status()
         except requests.exceptions.HTTPError as e:
             self.logger.exception(
                 "{} HTTP error {} from Elasticsearch request: {}",

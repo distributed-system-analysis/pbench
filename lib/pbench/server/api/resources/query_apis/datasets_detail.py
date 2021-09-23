@@ -93,14 +93,9 @@ class DatasetsDetail(ElasticBase):
             "kwargs": {
                 "params": {"ignore_unavailable": "true"},
                 "json": {
-                    "query": {
-                        "bool": {
-                            "filter": [
-                                {"term": {"run.name": name}},
-                                {"term": self._get_user_term(json_data)},
-                            ]
-                        }
-                    },
+                    "query": self._get_user_query(
+                        json_data, [{"term": {"run.name": name}}]
+                    ),
                     "sort": "_index",
                 },
             },
@@ -138,6 +133,9 @@ class DatasetsDetail(ElasticBase):
             }
         ]
         """
+        if context.get("NODATA"):
+            return jsonify({})
+
         hits = es_json["hits"]["hits"]
 
         # NOTE: we're expecting just one. We're matching by just the

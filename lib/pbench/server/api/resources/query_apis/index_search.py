@@ -99,19 +99,17 @@ class IndexSearch(ElasticBase):
             "path": f"/{uri_fragment}/_search",
             "kwargs": {
                 "json": {
-                    "query": {
-                        "bool": {
-                            "filter": [
-                                {"term": self._get_user_term(json_data)},
-                                {
-                                    "range": {
-                                        "@timestamp": {"gte": start_arg, "lte": end_arg}
-                                    }
-                                },
-                                {"query_string": {"query": f"*{search_term}*"}},
-                            ]
-                        }
-                    },
+                    "query": self._get_user_query(
+                        json_data,
+                        [
+                            {
+                                "range": {
+                                    "@timestamp": {"gte": start_arg, "lte": end_arg}
+                                }
+                            },
+                            {"query_string": {"query": f"*{search_term}*"}},
+                        ],
+                    ),
                     "sort": [{"@timestamp": {"order": "desc"}}],
                     "_source": {"include": selected_fields},
                 },
@@ -139,6 +137,9 @@ class IndexSearch(ElasticBase):
             },
         ]
         """
+        if context.get("NODATA"):
+            return jsonify([])
+
         # If there are no matches for the user, query, and time range,
         # return the empty list rather than failing.
         try:
