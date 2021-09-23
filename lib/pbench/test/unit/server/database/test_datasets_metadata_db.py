@@ -126,6 +126,14 @@ class TestMetadataNamespace:
         assert exc.value.key == "user.foo."
         assert str(exc.value) == "Metadata key 'user.foo.' is not supported"
 
+    def test_set_bad_characters(self, db_session, create_user):
+        ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
+        with pytest.raises(MetadataBadKey) as exc:
+            Metadata.setvalue(ds, "user.*!foo", "irrelevant")
+        assert exc.type == MetadataBadKey
+        assert exc.value.key == "user.*!foo"
+        assert str(exc.value) == "Metadata key 'user.*!foo' is not supported"
+
     def test_get_novalue(self, db_session, create_user):
         ds = Dataset.create(owner=create_user.username, controller="frodo", name="fio")
         assert Metadata.getvalue(ds, "user.email") is None

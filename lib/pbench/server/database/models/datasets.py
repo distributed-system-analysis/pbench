@@ -2,6 +2,7 @@ import copy
 import datetime
 import enum
 import os
+import re
 from pathlib import Path
 from typing import Any, List, Tuple
 
@@ -821,6 +822,9 @@ class Metadata(Database.Base):
     # All supported Metadata keys
     METADATA_KEYS = USER_METADATA + INTERNAL_METADATA
 
+    # The entire string must be ".", letters, digits, underscore, and dash
+    _valid_key_charset = re.compile(r"^[a-z0-9_.-]+\Z")
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=False, nullable=False, index=True)
     value = Column(JSON, unique=False, nullable=True)
@@ -895,6 +899,8 @@ class Metadata(Database.Base):
             True if the path is valid, or False
         """
         k = key.lower()
+        if not re.match(Metadata._valid_key_charset, k):
+            return False
         # Check for exact match
         if k in valid:
             return True
@@ -928,9 +934,9 @@ class Metadata(Database.Base):
         Returns:
             Value of the key path
         """
-        keys = key.lower().split(".")
-        if "" in keys:
+        if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
             raise MetadataBadKey(key)
+        keys = key.lower().split(".")
         native_key = keys.pop(0)
         try:
             meta = Metadata.get(dataset, native_key)
@@ -971,9 +977,9 @@ class Metadata(Database.Base):
             A Metadata object representing the new database row with the
             properly assigned value.
         """
-        keys = key.lower().split(".")
-        if "" in keys:
+        if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
             raise MetadataBadKey(key)
+        keys = key.lower().split(".")
         native_key = keys.pop(0)
         found = True
         try:

@@ -9,7 +9,6 @@ from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     ApiBase,
     API_OPERATION,
-    convert_list,
     JSON,
     Parameter,
     ParamType,
@@ -30,11 +29,15 @@ class DatasetsMetadata(ApiBase):
     API class to retrieve and mutate Dataset metadata.
     """
 
-    GET_KEYWORDS = Parameter(
-        "metadata",
-        ParamType.LIST,
-        element_type=ParamType.KEYWORD,
-        keywords=ApiBase.METADATA,
+    GET_SCHEMA = Schema(
+        Parameter("controller", ParamType.STRING, required=True),
+        Parameter("name", ParamType.STRING, required=True),
+        Parameter(
+            "metadata",
+            ParamType.LIST,
+            element_type=ParamType.KEYWORD,
+            keywords=ApiBase.METADATA,
+        ),
     )
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
@@ -68,18 +71,29 @@ class DatasetsMetadata(ApiBase):
 
         GET /api/v1/datasets/metadata?controller=ctrl&name=dname&metadata=dashboard.seen&metadata=server.deletion
         """
-        controller = request.args.get("controller")
-        name = request.args.get("name")
+
+        # We missed automatic schema validation due to the lack of a JSON body;
+        # construct an equivalent JSON body now so we can run it through the
+        # validator.
+        json = {
+            "controller": request.args.get("controller"),
+            "name": request.args.get("name"),
+            "metadata": request.args.getlist("metadata"),
+        }
 
         # Normalize and validate the metadata keys we got via the HTTP query
         # string. These don't go through JSON schema validation, so we have
         # to do it here.
         try:
-            keys = convert_list(request.args.getlist("metadata"), self.GET_KEYWORDS)
+            new_json = self.GET_SCHEMA.validate(json)
         except SchemaError as e:
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
 
-        self.logger.info("GET metadata {} for {}", keys, name)
+        controller = new_json.get("controller")
+        name = new_json.get("name")
+        keys = new_json.get("metadata")
+
+        self.logger.info("GET metadata {} for {}>{}", keys, controller, name)
         try:
             metadata = self._get_metadata(controller, name, keys)
         except DatasetNotFound:
