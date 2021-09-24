@@ -822,8 +822,12 @@ class Metadata(Database.Base):
     # All supported Metadata keys
     METADATA_KEYS = USER_METADATA + INTERNAL_METADATA
 
-    # The entire string must be ".", letters, digits, underscore, and dash
-    _valid_key_charset = re.compile(r"^[a-z0-9_.-]+\Z")
+    # NOTE: the ECMA JSON specification allows JSON "names" (keys) to be any
+    # string, though most implementations and schemas enforce or recommend
+    # stricter syntax. Pbench restricts dataset metadata open namespace keys to
+    # lowercase letters, numbers, underscore, and hyphen, with keys separated
+    # by a period.
+    _valid_key_charset = re.compile(r"[a-z0-9_.-]+")
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=False, nullable=False, index=True)
@@ -899,8 +903,6 @@ class Metadata(Database.Base):
             True if the path is valid, or False
         """
         k = key.lower()
-        if not re.match(Metadata._valid_key_charset, k):
-            return False
         # Check for exact match
         if k in valid:
             return True
@@ -909,7 +911,10 @@ class Metadata(Database.Base):
         if "" in path:
             return False
         # Check for open namespace match
-        return path[0] + ".*" in valid
+        if not path[0] + ".*" in valid:
+            return False
+        # Check that all open namespace keys are valid symbols
+        return bool(re.fullmatch(Metadata._valid_key_charset, k))
 
     @staticmethod
     def getvalue(dataset: Dataset, key: str) -> JSON:
