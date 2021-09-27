@@ -53,9 +53,7 @@ class TestQueryBuilder:
             m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
             yield
 
-    def test_user_and_access(
-        self, elasticbase, server_config, current_user_drb, user_ok
-    ):
+    def test_user_and_access(self, elasticbase, server_config, current_user_drb):
         """
         Test the query builder when both user and access are specified. This is
         a simple path; the builder assumes that there is an authenticated user
@@ -75,7 +73,7 @@ class TestQueryBuilder:
             }
         }
 
-    def test_user(self, elasticbase, server_config, current_user_drb, user_ok):
+    def test_user(self, elasticbase, server_config, current_user_drb):
         """
         Test the query builder when only a user is specified. We expect the
         query builder to add the user term. Note that in the real server we
@@ -95,9 +93,7 @@ class TestQueryBuilder:
             }
         }
 
-    def test_access_noauth_private(
-        self, elasticbase, server_config, current_user_none, user_ok
-    ):
+    def test_access_noauth_private(self, elasticbase, server_config, current_user_none):
         """
         Test the query builder when "private" access is specified by an
         unauthenticated client. This is expected to throw an exception, which
@@ -115,9 +111,7 @@ class TestQueryBuilder:
             == "Query from unauthorized client for access 'private' cannot produce results"
         )
 
-    def test_access_noauth_public(
-        self, elasticbase, server_config, current_user_none, user_ok
-    ):
+    def test_access_noauth_public(self, elasticbase, server_config, current_user_none):
         """
         Test the query builder when "public" access is specified by an
         unauthenticated client. This should build a query that will return all
@@ -135,9 +129,7 @@ class TestQueryBuilder:
             }
         }
 
-    def test_access_user_private(
-        self, elasticbase, server_config, current_user_drb, user_ok
-    ):
+    def test_access_user_private(self, elasticbase, server_config, current_user_drb):
         """
         Test the query builder when "private" access is specified by an
         authenticated non-admin client. This should build a query that will
@@ -156,9 +148,7 @@ class TestQueryBuilder:
             }
         }
 
-    def test_access_admin_private(
-        self, elasticbase, server_config, current_user_admin, user_ok
-    ):
+    def test_access_admin_private(self, elasticbase, server_config, current_user_admin):
         """
         Test the query builder when "private" access is specified by an
         authenticated admin client. This should build a query that will
@@ -176,7 +166,7 @@ class TestQueryBuilder:
             }
         }
 
-    def test_neither_auth(self, elasticbase, server_config, current_user_drb, user_ok):
+    def test_neither_auth(self, elasticbase, server_config, current_user_drb):
         """
         Test the query builder for {} when the client is authorized with a
         non-admin account. This is the most complicated query, translating to
@@ -206,9 +196,7 @@ class TestQueryBuilder:
             }
         }
 
-    def test_neither_noauth(
-        self, elasticbase, server_config, current_user_none, user_ok
-    ):
+    def test_neither_noauth(self, elasticbase, server_config, current_user_none):
         """
         Test the query builder for {} when the client is not authorized. This
         should be treated the same as {"access": "public"} as only public
@@ -226,9 +214,7 @@ class TestQueryBuilder:
             }
         }
 
-    def test_neither_admin(
-        self, elasticbase, server_config, current_user_admin, user_ok
-    ):
+    def test_neither_admin(self, elasticbase, server_config, current_user_admin):
         """
         Test the query builder for {} when the client is authenticated as an
         ADMIN user. This is actually the simplest query, because all datasets

@@ -33,14 +33,7 @@ class TestDatasetsDetail(Commons):
         "user", ("drb", "badwolf", "no_user"),
     )
     def test_query(
-        self,
-        client,
-        server_config,
-        query_api,
-        user_ok,
-        find_template,
-        build_auth_header,
-        user,
+        self, client, server_config, query_api, find_template, build_auth_header, user,
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
@@ -335,13 +328,7 @@ class TestDatasetsDetail(Commons):
         assert expected == res_json
 
     def test_empty_query(
-        self,
-        client,
-        server_config,
-        query_api,
-        user_ok,
-        find_template,
-        build_auth_header,
+        self, client, server_config, query_api, find_template, build_auth_header,
     ):
         """
         Check the handling of a query that doesn't return any data.
@@ -368,9 +355,7 @@ class TestDatasetsDetail(Commons):
         if response.status_code == HTTPStatus.BAD_REQUEST:
             assert response.json["message"].find("dataset has gone missing") != -1
 
-    def test_nonunique_query(
-        self, client, server_config, query_api, user_ok, find_template
-    ):
+    def test_nonunique_query(self, client, server_config, query_api, find_template):
         """
         Check the handling of a query that returns too much data.
         """

@@ -169,7 +169,7 @@ class Commons:
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid request payload"
 
-    def test_missing_keys(self, client, server_config, user_ok, pbench_token):
+    def test_missing_keys(self, client, server_config, pbench_token):
         """
         Test behavior when JSON payload does not contain all required keys.
 
@@ -220,7 +220,7 @@ class Commons:
         if required_keys:
             missing_key_helper({"notakey": None})
 
-    def test_bad_dates(self, client, server_config, user_ok, pbench_token):
+    def test_bad_dates(self, client, server_config, pbench_token):
         """
         Test behavior when a bad date string is given
         """
@@ -242,13 +242,7 @@ class Commons:
                 self.payload[key] = original_date_value
 
     def test_empty_query(
-        self,
-        client,
-        server_config,
-        query_api,
-        user_ok,
-        find_template,
-        build_auth_header,
+        self, client, server_config, query_api, find_template, build_auth_header,
     ):
         """
         Check proper handling of a query resulting in no Elasticsearch matches.

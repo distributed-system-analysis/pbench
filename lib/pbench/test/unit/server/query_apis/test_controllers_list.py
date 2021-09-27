@@ -32,7 +32,6 @@ class TestControllersList(Commons):
         client,
         server_config,
         query_api,
-        user_ok,
         find_template,
         build_auth_header,
         user,

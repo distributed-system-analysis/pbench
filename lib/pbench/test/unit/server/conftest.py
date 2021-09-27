@@ -10,7 +10,6 @@ from posix import stat_result
 from stat import ST_MTIME
 
 from pbench.server.api import create_app, get_server_config
-from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
@@ -222,19 +221,6 @@ def create_admin_user(client) -> User:
     )
     user.add()
     return user
-
-
-@pytest.fixture
-def user_ok(monkeypatch, create_user):
-    """
-    Override the Auth.validate_user method to pass without checking the
-    database.
-    """
-
-    def ok(user: str) -> str:
-        return str(create_user.id)
-
-    monkeypatch.setattr(Auth, "validate_user", ok)
 
 
 @pytest.fixture()

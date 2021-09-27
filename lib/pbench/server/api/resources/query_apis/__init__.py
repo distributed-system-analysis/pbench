@@ -257,8 +257,7 @@ class ElasticBase(ApiBase):
         authorized_user: User = Auth.token_auth.current_user()
         is_admin = authorized_user.is_admin() if authorized_user else False
         query = {}
-        must = [t for t in terms]  # Create a new list, which we'll modify
-
+        must = terms.copy()  # Create a new list, which we'll modify
         if access is None and user is None:
             # {}
             if is_admin:

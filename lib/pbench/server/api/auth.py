@@ -1,25 +1,15 @@
 import datetime
+
 import jwt
 import os
+from typing import Union
 
-from http import HTTPStatus
 from flask import abort, request
 from flask_httpauth import HTTPTokenAuth
+from http import HTTPStatus
 
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
-
-
-class UnknownUser(Exception):
-    """
-    UnknownUser Attempt to validate a user that doesn't exist.
-    """
-
-    def __init__(self, username: str):
-        self.username = username
-
-    def __str__(self):
-        return f"No such user {self.username}"
 
 
 class Auth:
@@ -29,33 +19,6 @@ class Auth:
     def set_logger(logger):
         # Logger gets set at the time of auth module initialization
         Auth.logger = logger
-
-    @staticmethod
-    def validate_user(name: str) -> str:
-        """
-        Encapsulate a query to reject "username" values that don't correspond to
-        a registered user. A valid username is translated to the internal
-        representation for Elasticsearch indexing, which is the stringified
-        user ID number.
-
-        Args:
-            name: The username field of a registered user
-
-        Raises:
-            ValueError: The username doesn't correspond to a registered user
-            TypeError: Some other error occurred looking for the user
-
-        Returns:
-            The user's ID value (as a string)
-        """
-        try:
-            user = User.query(username=name)
-        except Exception:
-            User.logger.exception("Unexpected exception from query for user {}", name)
-            raise
-        if not user:
-            raise UnknownUser(name)
-        return str(user.id)
 
     def encode_auth_token(self, token_expire_duration, user_id):
         """
@@ -79,7 +42,8 @@ class Auth:
         except Exception as e:
             Auth.logger.exception(f"{__name__}: ERROR: {e.__traceback__}")
 
-    def verify_user(self, target_username: str) -> User:
+    @staticmethod
+    def verify_user(target_username: str) -> Union[User, None]:
         """
         Check whether the requested target user is the owner of the authorization
         token provided to the API.
@@ -91,13 +55,12 @@ class Auth:
         username provided.
         """
         current_user = Auth.token_auth.current_user()
-        if not current_user:
-            return None
-        if current_user.username == target_username:
-            return current_user
-        if current_user.is_admin():
-            target_user = User.query(username=target_username)
-            return target_user
+        if current_user:
+            if current_user.username == target_username:
+                return current_user
+            if current_user.is_admin():
+                target_user = User.query(username=target_username)
+                return target_user
         return None
 
     def get_auth_token(self, logger):

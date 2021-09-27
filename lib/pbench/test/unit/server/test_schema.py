@@ -44,7 +44,7 @@ class TestExceptions:
         s = SchemaError()
         assert str(s) == "Generic schema validation error"
         u = UnverifiedUser("you")
-        assert str(u) == "User you can not be verified"
+        assert str(u) == "Caller is unable to verify username you"
         i = InvalidRequestPayload()
         assert str(i) == "Invalid request payload"
         u = UnsupportedAccessMode("him", "private")
@@ -127,7 +127,6 @@ class TestParamType:
             (ParamType.DATE, "2021-06-45"),  # few months have 45 days
             (ParamType.DATE, "notadate"),  # not valid date string
             (ParamType.DATE, 1),  # not a string representing a date
-            (ParamType.USER, "drb"),  # we haven't established a "drb" user
             (ParamType.USER, False),  # not a user string
             (ParamType.ACCESS, ["foobar"]),  # ACCESS is "public" or "private"
             (ParamType.ACCESS, 0),  # ACCESS must be a string
@@ -151,6 +150,20 @@ class TestParamType:
         with pytest.raises(ConversionError) as exc:
             ptype.convert(value, param)
         assert str(value) in str(exc)
+
+    def test_unverified_username(self, monkeypatch):
+        """
+        Show that a username which is a string, but isn't found in the user
+        database, results in raising UnverifiedUser rather than ConversionError
+        """
+
+        def not_ok(username: str) -> User:
+            return None
+
+        monkeypatch.setattr(Auth, "verify_user", not_ok)
+        with pytest.raises(UnverifiedUser) as exc:
+            ParamType.USER.convert("abc")
+        assert exc.value.username == "abc"
 
 
 class TestParameter:

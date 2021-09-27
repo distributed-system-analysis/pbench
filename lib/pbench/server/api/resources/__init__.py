@@ -61,7 +61,9 @@ class SchemaError(TypeError):
 
 class UnverifiedUser(SchemaError):
     """
-    Unverified attempt to access other user data.
+    Attempt to reference a user's data without appropriate
+    access. (This avoids revealing whether the username
+    exists, or is simply not accessible to the caller.)
     """
 
     def __init__(self, username: str):
@@ -69,7 +71,7 @@ class UnverifiedUser(SchemaError):
         self.username = username
 
     def __str__(self):
-        return f"User {self.username} can not be verified"
+        return f"Caller is unable to verify username {self.username}"
 
 
 class InvalidRequestPayload(SchemaError):
@@ -239,6 +241,7 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
 
     Raises:
         ConversionError: input can't be validated or normalized
+        UnverifiedUser: the username cannot be validated
 
     Returns:
         internal username representation or None
@@ -611,17 +614,18 @@ class ApiBase(Resource):
         self.schema = schema
         self.role = role
 
-    def _check_authorization(self, user: str, access: str):
+    def _check_authorization(self, user: Union[str, None], access: Union[str, None]):
         """
         Check whether an API call is able to access data, based on the API's
         authorization header, the requested user, the requested access
         policy, and the API's role.
 
-        If "user" is None, then the request is unauthenticated. READ operations
-        may be allowed, UPDATE and DELETE operations will not be allowed.
+        If there is no current authenticated API user, only READ operations on
+        public data will be allowed.
 
-        If "access" is None, READ will assume we're looking for access only to
-        public datasets.
+        If the specified "user" context of the operation is None, we default to
+        the authenticated caller, if any; Pbench query operations will do the
+        same.
 
         for API_OPERATION.READ:
 
@@ -649,7 +653,6 @@ class ApiBase(Resource):
                 access.
         """
         authorized_user: User = Auth.token_auth.current_user()
-        authorized = True
         self.logger.debug(
             "Authorizing {} access for {} to user {} with access {}",
             self.role,
@@ -657,6 +660,15 @@ class ApiBase(Resource):
             user,
             access,
         )
+
+        # Default user to the authenticated user, if not specified
+        if authorized_user and not user:
+            user = authorized_user.username
+        authorized = True
+
+        # READ access to public data is always allowed; if we're looking at
+        # private data, or non-READ access (create, update, delete) then we
+        # need more checks.
         if self.role != API_OPERATION.READ or access == Dataset.PRIVATE_ACCESS:
             if authorized_user is None:
                 self.logger.warning(
