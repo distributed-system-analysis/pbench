@@ -56,12 +56,18 @@ class NoSelectedDatasets(Exception):
     """
 
     def __init__(self, user: str, access: str):
+        """
+
+        Args:
+            user: The referenced username
+            access: The referenced access type
+        """
         self.user = user
         self.access = access
 
     def __str__(self) -> str:
         user = f"user {self.user!r}" if self.user else "unauthorized client"
-        return f"Query from {user} for access {self.access!r} cannot produce results"
+        return f"Restricted query for {user} data with {self.access!r} access"
 
 
 class ElasticBase(ApiBase):
@@ -115,19 +121,13 @@ class ElasticBase(ApiBase):
 
     def _get_user_query(self, parameters: JSON, terms: List[JSON]) -> JSON:
         """
-        Generate the "query" node for an Elasticsearch document query.
+        Generate the "query" parameter for an Elasticsearch _search request
+        payload.
 
-        In most cases this just adds a "term" within the "query"/"filter" node.
-        Several queries use an "and" term including user and access, which
-        generates two new "term" nodes. The most complicated is a query which
-        doesn't include user or access for an authorized user, which must
-        return all datasets "owned by the user or with access public".
-
-        Note that if a "user" JSON parameter is specified, the common
-        infrastructure has already checked that there's an authentication token
-        and that the token represents a user with access to that specified
-        user's data. This method is concerned only with constructing a proper
-        Elasticsearch query to represent the authenticated restrictions.
+        This method is not responsible for enforcing authorization checks;
+        that's done by the `ApiBase._check_authorization()` method. This method
+        is concerned with generating a query to restrict the results to the set
+        matching the user and access values.
 
         Specific cases for user and access values:
 
@@ -159,16 +159,16 @@ class ElasticBase(ApiBase):
                 AUTHORIZED as drb: all owner:drb AND access:public
                 UNAUTHORIZED (or non-drb): all owner:drb AND access:public
 
-                TODO: Need to decide if this is a security issue. Do we want to
-                hide the existence of other users here? E.g., should the
-                UNAUTHORIZED case return NO DATA? And if so, should there be a
-                difference between UNAUTHORIZED and AUTHORIZED for some other
-                user? (And, NOTE, specifying a "user" parameter, either without
-                authentication or with non-ADMIN authentication where the user
-                parameter doesn't match the specified "user" parameter, will
-                result in an UnverifiedUser exception during schema validation,
-                so we won't reach this point. That is, changes must be made if
-                we want to ALLOW these requests.)
+                TODO: Right now, the combination of ParmType.USER schema
+                validation and `ApiBase._check_authorization()` will cause
+                unauthenticated queries that reference a username, and
+                authenticated non-ADMIN queries that reference a different
+                username, to fail with a FORBIDDEN (403) error before we get
+                here. If we want these queries to be able to reference public
+                data by username, those methods will need to be changed. (And,
+                in particular, does a query for public data from a username
+                that doesn't exist successfully return an empty set of data, or
+                does it fail with a FORBIDDEN status?)
 
             {"access": "private"}: all private data
                 All datasets with "private" access regardless of user
@@ -230,13 +230,13 @@ class ElasticBase(ApiBase):
 
         Args:
             JSON query parameters containing keys:
-                "user": Pbench internal username if present and not None; if
-                    omitted, doesn't restrict search on user.
-                "access": Access category, "public" or "private"; defaults to
-                    don't-care
-            terms: A list of JSON nodes describing the Elasticsearch "terms"
-                that must be matched for the query. These will be inserted
-                within a "must" list for the generated query.
+                "user": Pbench username to restrict search to datasets owned by
+                    a specific user.
+                "access": Access category, "public" or "private" to restrict
+                    search to datasets with a specific access category.
+            terms: A list of JSON objects describing the Elasticsearch "terms"
+                that must be matched for the query. (These are assumed to be
+                AND clauses.)
 
         Raises:
             NoSelectedDatasets: This is raised when there is no possible output
@@ -255,67 +255,68 @@ class ElasticBase(ApiBase):
         user = parameters.get("user")
         access = parameters.get("access")
         authorized_user: User = Auth.token_auth.current_user()
+        authorized_id = str(authorized_user.id) if authorized_user else None
         is_admin = authorized_user.is_admin() if authorized_user else False
-        query = {}
-        must = terms.copy()  # Create a new list, which we'll modify
-        if access is None and user is None:
-            # {}
-            if is_admin:
-                # ADMIN needs no authorization search terms: all is permitted,
-                # so we need only the subclass query terms.
-                query["bool"] = {"filter": must}
-            else:
-                if not authorized_user:
-                    # An unauthorized client sees all public data
-                    must.append({"term": {"authorization.access": "public"}})
-                    query["bool"] = {"filter": must}
-                else:
-                    # An authorized user can see their own private data plus
-                    # public data ("OR" relationship)
-                    must.append(
-                        {
-                            "bool": {
-                                "should": [
-                                    {
-                                        "term": {
-                                            "authorization.owner": str(
-                                                authorized_user.id
-                                            )
-                                        }
-                                    },
-                                    {"term": {"authorization.access": "public"}},
-                                ]
-                            }
-                        }
-                    )
-                    query["constant_score"] = {"filter": {"bool": {"must": must}}}
-        elif access is None:
-            # {"user": "xxx"}
-            must.append({"term": {"authorization.owner": user}})
-            query["bool"] = {"filter": must}
-        elif user is None:
-            # {"access": "xxx"}
-            if access == Dataset.PUBLIC_ACCESS:
-                must.append({"term": {"authorization.access": Dataset.PUBLIC_ACCESS}})
-            else:
-                if not authorized_user:
-                    # An unauthorized user can never view access:private data,
-                    # but schema validation wasn't able to detect this so we
-                    # raise our special exception to skip the query.
-                    raise NoSelectedDatasets(user, access)
-                must.append({"term": {"authorization.access": Dataset.PRIVATE_ACCESS}})
-                if not is_admin:
-                    # A non-admin user can only see their own private data
-                    must.append(
-                        {"term": {"authorization.owner": str(authorized_user.id)}}
-                    )
-            query["bool"] = {"filter": must}
+
+        filter = terms.copy()
+        self.logger.debug(
+            "QUERY auth ID {}, user {!r}, access {!r}, admin {}",
+            authorized_id,
+            user,
+            access,
+            is_admin,
+        )
+
+        # If a user is specified, assume we'll be selecting for that user
+        if user:
+            filter.append({"term": {"authorization.owner": user}})
+
+        # IF we're looking at a user we're not authorized to see (either the
+        # call is unauthenticated, or authenticated as a non-ADMIN user trying
+        # to reference a different user), then we're only allowed to see PUBLIC
+        # data; private data requests aren't allowed.
+        #
+        # ELSE IF we're looking for a specific access category, add the query
+        # term.
+        #
+        # ELSE IF this is a {} query from a non-ADMIN user, add a "disjunction"
+        # (OR) covering all the user's own data plus all public data.
+        #
+        # ELSE this must be an admin user looking for data owned by a specific
+        # user (there's no access parameter, and possibly no user parameter),
+        # and we'll pass through the query either with the specified user
+        # constraint or with no constraint at all.
+        if not authorized_user or (user and user != authorized_id and not is_admin):
+            if access == Dataset.PRIVATE_ACCESS:
+                # An unauthorized user can never view access:private data
+                # FIX-ME: probably should detect and reject this in check
+                # authorization!
+                raise NoSelectedDatasets(user, access)
+            filter.append({"term": {"authorization.access": Dataset.PUBLIC_ACCESS}})
+            self.logger.debug("QUERY: not self public: {}", filter)
+        elif access:
+            filter.append({"term": {"authorization.access": access}})
+            if not user and not is_admin:
+                filter.append({"term": {"authorization.owner": authorized_id}})
+            self.logger.debug("QUERY: access: {}", filter)
+        elif not user and not is_admin:
+            filter.append(
+                {
+                    "dis_max": {
+                        "queries": [
+                            {"term": {"authorization.owner": authorized_id}},
+                            {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}},
+                        ]
+                    }
+                }
+            )
+            self.logger.debug("QUERY: {{}} default: {}", filter)
         else:
-            # {"access": "xxx", "user": "xxx"}
-            must.append({"term": {"authorization.access": access}})
-            must.append({"term": {"authorization.owner": user}})
-            query["bool"] = {"filter": must}
-        return query
+            # Either "user" was specified and is already added to the filter,
+            # or client is ADMIN and no access terms are required.
+            pass
+
+        return {"bool": {"filter": filter}}
 
     def _gen_month_range(self, index: str, start: datetime, end: datetime) -> str:
         """
@@ -472,7 +473,7 @@ class ElasticBase(ApiBase):
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
-            if not context.get("NODATA", False):
+            if not context.get("NODATA"):
                 # perform the Elasticsearch query
                 es_response = method(url, **es_request["kwargs"])
                 self.logger.debug(
@@ -481,6 +482,10 @@ class ElasticBase(ApiBase):
                     es_response.status_code,
                 )
                 es_response.raise_for_status()
+                json_response = es_response.json()
+            else:
+                json_response = {}
+
         except requests.exceptions.HTTPError as e:
             self.logger.exception(
                 "{} HTTP error {} from Elasticsearch request: {}",
@@ -523,7 +528,7 @@ class ElasticBase(ApiBase):
 
         try:
             # postprocess Elasticsearch response
-            return self.postprocess(es_response.json(), context)
+            return self.postprocess(json_response, context)
         except PostprocessError as e:
             msg = f"{klasname}: the query postprocessor was unable to complete: {e}"
             self.logger.warning("{}", msg)
@@ -538,7 +543,7 @@ class ElasticBase(ApiBase):
             self.logger.exception(
                 "{}: unexpected problem postprocessing Elasticsearch response {}: {}",
                 klasname,
-                es_response.json(),
+                json_response,
                 e,
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")

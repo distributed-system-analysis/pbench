@@ -12,19 +12,21 @@ class TestQueryBuilder:
 
     @pytest.fixture()
     def current_user_drb(self, monkeypatch):
+        drb = User(
+            email="email@example.com",
+            id=3,
+            username="drb",
+            first_name="Test",
+            last_name="Account",
+        )
+
         class FakeHTTPTokenAuth:
             def current_user(self) -> User:
-                return User(
-                    email="email@example.com",
-                    id=3,
-                    username="drb",
-                    first_name="Test",
-                    last_name="Account",
-                )
+                return drb
 
         with monkeypatch.context() as m:
             m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
-            yield
+            yield drb
 
     @pytest.fixture()
     def current_user_none(self, monkeypatch):
@@ -60,15 +62,16 @@ class TestQueryBuilder:
         and that user has access to the specified dataset owner. We just build
         both terms into the query.
         """
+        id = str(current_user_drb.id)
         query: JSON = elasticbase._get_user_query(
-            {"user": "drb", "access": "public"}, [{"term": {"icecream": "vanilla"}}]
+            {"user": id, "access": "public"}, [{"term": {"icecream": "vanilla"}}]
         )
         assert query == {
             "bool": {
                 "filter": [
                     {"term": {"icecream": "vanilla"}},
+                    {"term": {"authorization.owner": id}},
                     {"term": {"authorization.access": "public"}},
-                    {"term": {"authorization.owner": "drb"}},
                 ]
             }
         }
@@ -81,14 +84,15 @@ class TestQueryBuilder:
         can access datasets owned by the specified user, so it simply builds
         the query.
         """
+        id = str(current_user_drb.id)
         query: JSON = elasticbase._get_user_query(
-            {"user": "drb"}, [{"term": {"icecream": "vanilla"}}]
+            {"user": id}, [{"term": {"icecream": "vanilla"}}]
         )
         assert query == {
             "bool": {
                 "filter": [
                     {"term": {"icecream": "vanilla"}},
-                    {"term": {"authorization.owner": "drb"}},
+                    {"term": {"authorization.owner": id}},
                 ]
             }
         }
@@ -96,8 +100,7 @@ class TestQueryBuilder:
     def test_access_noauth_private(self, elasticbase, server_config, current_user_none):
         """
         Test the query builder when "private" access is specified by an
-        unauthenticated client. This is expected to throw an exception, which
-        will be treated as if Elasticsearch returned no hits.
+        unauthenticated client. This is expected to throw an exception.
         """
         with pytest.raises(NoSelectedDatasets) as excinfo:
             elasticbase._get_user_query(
@@ -108,7 +111,7 @@ class TestQueryBuilder:
         assert excinfo.value.access == "private"
         assert (
             str(excinfo.value)
-            == "Query from unauthorized client for access 'private' cannot produce results"
+            == "Restricted query for unauthorized client data with 'private' access"
         )
 
     def test_access_noauth_public(self, elasticbase, server_config, current_user_none):
@@ -135,6 +138,7 @@ class TestQueryBuilder:
         authenticated non-admin client. This should build a query that will
         return all private datasets owned by the authenticated user.
         """
+        id = str(current_user_drb.id)
         query: JSON = elasticbase._get_user_query(
             {"access": "private"}, [{"term": {"icecream": "vanilla"}}]
         )
@@ -143,7 +147,7 @@ class TestQueryBuilder:
                 "filter": [
                     {"term": {"icecream": "vanilla"}},
                     {"term": {"authorization.access": "private"}},
-                    {"term": {"authorization.owner": "3"}},
+                    {"term": {"authorization.owner": id}},
                 ]
             }
         }
@@ -173,26 +177,23 @@ class TestQueryBuilder:
         matching owner OR public access. (That is, all datasets owned by the
         authorized user plus all public datasets regardless of owner.)
         """
+        id = str(current_user_drb.id)
         query: JSON = elasticbase._get_user_query(
             {}, [{"term": {"icecream": "vanilla"}}]
         )
         assert query == {
-            "constant_score": {
-                "filter": {
-                    "bool": {
-                        "must": [
-                            {"term": {"icecream": "vanilla"}},
-                            {
-                                "bool": {
-                                    "should": [
-                                        {"term": {"authorization.owner": "3"}},
-                                        {"term": {"authorization.access": "public"}},
-                                    ]
-                                }
-                            },
-                        ]
-                    }
-                }
+            "bool": {
+                "filter": [
+                    {"term": {"icecream": "vanilla"}},
+                    {
+                        "dis_max": {
+                            "queries": [
+                                {"term": {"authorization.owner": id}},
+                                {"term": {"authorization.access": "public"}},
+                            ]
+                        }
+                    },
+                ]
             }
         }
 
