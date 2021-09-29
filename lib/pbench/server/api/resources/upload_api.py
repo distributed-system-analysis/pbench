@@ -309,7 +309,7 @@ class Upload(Resource):
             try:
                 retention_days = int(
                     self.config.get_conf(
-                        __name__, "pbench-server", "default-dataset-retention", 90
+                        __name__, "pbench-server", "default-dataset-retention-days", 90
                     )
                 )
             except Exception as e:
