@@ -30,7 +30,7 @@ def pbench_run(tmp_path):
 
 
 @pytest.fixture
-def agent_config(tmp_path, opt_pbench, pbench_cfg, pbench_run):
+def agent_config(monkeypatch, tmp_path, opt_pbench, pbench_cfg, pbench_run):
     shutil.copyfile("./agent/config/pbench-agent-default.cfg", pbench_cfg)
 
     config = configparser.ConfigParser()
@@ -39,3 +39,4 @@ def agent_config(tmp_path, opt_pbench, pbench_cfg, pbench_run):
     config["pbench-agent"]["pbench_run"] = str(pbench_run)
     with open(pbench_cfg, "w") as f:
         config.write(f)
+    monkeypatch.setenv("_PBENCH_AGENT_CONFIG", str(pbench_cfg))
