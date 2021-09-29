@@ -16,22 +16,12 @@ pbench-tool-meister-start: 5. starting tool data sink
 pbench-tool-meister-start: 6a. starting localhost tool meister
 pbench-tool-meister-start: 7. waiting for all successfully created Tool Meister processes to show up as subscribers
 pbench-tool-meister-start: 8. Initialize persistent tools
-pbench-tool-meister-start: channel pbench-agent-cli-to-client payload, '{"action": "init", "kind": "ds", "status": "success"}'
 pbench-tool-meister-start: channel pbench-agent-cli-to-client payload, '{"action": "startup", "kind": "ds", "status": "success"}'
 pbench-tool-meister-start: next pbench-agent-cli-to-client
-pbench-tool-meister-start: next pbench-agent-cli-to-client
-pbench-tool-meister-start: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "init", "kind": "ds", "status": "success"}'}
 pbench-tool-meister-start: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "startup", "kind": "ds", "status": "success"}'}
-pbench-tool-meister-start: publish init on chan pbench-agent-cli-from-client
-pbench-tool-meister-start: published pbench-agent-cli-from-client
-pbench-tool-meister-stop: channel pbench-agent-cli-to-client payload, '{"action": "end", "kind": "ds", "status": "success"}'
-pbench-tool-meister-stop: constructed Redis() object
-pbench-tool-meister-stop: constructing Redis() object
-pbench-tool-meister-stop: next pbench-agent-cli-to-client
-pbench-tool-meister-stop: payload from pbench-agent-cli-to-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-to-client', 'data': b'{"action": "end", "kind": "ds", "status": "success"}'}
-pbench-tool-meister-stop: publish end on chan pbench-agent-cli-from-client
-pbench-tool-meister-stop: publish terminate on chan pbench-agent-cli-from-client
-pbench-tool-meister-stop: published pbench-agent-cli-from-client
+pbench-tool-meister-start: publish state signal for state init with metadata: {'group': 'mygroup', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'args': None}
+pbench-tool-meister-stop: publish state signal for state end with metadata: {'group': 'mygroup', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'args': None}
+pbench-tool-meister-stop: publish state signal for state terminate with metadata: {'group': 'mygroup', 'directory': None, 'args': {'interrupt': False}}
 pbench-tool-meister-stop: waiting for tool-data-sink (#####) to exit
 --- Finished test-52 test-start-stop-tool-meister (status=0)
 +++ pbench tree state
@@ -147,41 +137,25 @@ DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-
 DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-tms payload, '{"hostdata": {"alias": "bond", "all-fqdns": "agent.example.com bond.example.com", "all-ip-addresses": "192.168.0.1 172.0.0.1 127.0.0.1", "domain": "example.com", "fqdn": "agent.example.com", "ip-address": "172.0.0.1 127.0.0.1", "nis": "hostname[mock]: Local domain name not set", "short": "agent"}, "hostname": "testhost.example.com", "installs": {"mpstat": [0, "mpstat: pbench-sysstat-12.0.3-1 is installed"], "perf": [0, "perf: perf is installed"]}, "kind": "tm", "label": "", "pid": NNNNN, "seqno": "", "sha1": "(unknown)", "version": "(unknown)"}'
 DEBUG pbench-tool-data-sink execute -- publish pbench-agent-cli-to-client
 DEBUG pbench-tool-data-sink execute -- published pbench-agent-cli-to-client
-DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-client
-DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-client', 'data': b'{"action": "init", "group": "mygroup", "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup", "args": null}'}
-DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-client payload, '{"action": "init", "group": "mygroup", "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup", "args": null}'
 DEBUG pbench-tool-data-sink _forward_tms -- publish pbench-agent-cli-to-tms
 DEBUG pbench-tool-data-sink _forward_tms -- published pbench-agent-cli-to-tms
-DEBUG pbench-tool-data-sink _forward_tms -- posted TM action message, {'action': 'init', 'group': 'mygroup', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'args': None}
+DEBUG pbench-tool-data-sink _forward_tms -- posted TM action message, {'group': 'mygroup', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'args': None, 'action': 'init'}
 DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-tms
 DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-tms', 'data': b'{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'}
 DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-tms payload, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
 DEBUG pbench-tool-data-sink execute_action -- No persistent tools to init
-DEBUG pbench-tool-data-sink _send_client_status -- publish pbench-agent-cli-to-client
-DEBUG pbench-tool-data-sink _send_client_status -- published pbench-agent-cli-to-client
-DEBUG pbench-tool-data-sink _send_client_status -- posted client status, 'success'
-DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-client
-DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-client', 'data': b'{"action": "end", "group": "mygroup", "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup", "args": null}'}
-DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-client payload, '{"action": "end", "group": "mygroup", "directory": "/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup", "args": null}'
 DEBUG pbench-tool-data-sink _forward_tms -- publish pbench-agent-cli-to-tms
 DEBUG pbench-tool-data-sink _forward_tms -- published pbench-agent-cli-to-tms
-DEBUG pbench-tool-data-sink _forward_tms -- posted TM action message, {'action': 'end', 'group': 'mygroup', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'args': None}
+DEBUG pbench-tool-data-sink _forward_tms -- posted TM action message, {'group': 'mygroup', 'directory': '/var/tmp/pbench-test-utils/pbench/mock-run/tools-mygroup', 'args': None, 'action': 'end'}
 DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-tms
 DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-tms', 'data': b'{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'}
 DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-tms payload, '{"hostname": "testhost.example.com", "kind": "tm", "status": "success"}'
-DEBUG pbench-tool-data-sink _send_client_status -- publish pbench-agent-cli-to-client
-DEBUG pbench-tool-data-sink _send_client_status -- published pbench-agent-cli-to-client
-DEBUG pbench-tool-data-sink _send_client_status -- posted client status, 'success'
-DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-client
-DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-client: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-client', 'data': b'{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'}
-DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-client payload, '{"action": "terminate", "args": {"interrupt": false}, "directory": null, "group": "mygroup"}'
 DEBUG pbench-tool-data-sink _forward_tms -- publish pbench-agent-cli-to-tms
 DEBUG pbench-tool-data-sink _forward_tms -- published pbench-agent-cli-to-tms
-DEBUG pbench-tool-data-sink _forward_tms -- posted TM action message, {'action': 'terminate', 'args': {'interrupt': False}, 'directory': None, 'group': 'mygroup'}
+DEBUG pbench-tool-data-sink _forward_tms -- posted TM action message, {'group': 'mygroup', 'directory': None, 'args': {'interrupt': False}, 'action': 'terminate'}
 DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-tms
 DEBUG pbench-tool-data-sink fetch_message -- payload from pbench-agent-cli-from-tms: {'type': 'message', 'pattern': None, 'channel': b'pbench-agent-cli-from-tms', 'data': b'{"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}'}
 DEBUG pbench-tool-data-sink fetch_message -- channel pbench-agent-cli-from-tms payload, '{"hostname": "testhost.example.com", "kind": "tm", "status": "terminated"}'
-DEBUG pbench-tool-data-sink fetch_message -- next pbench-agent-cli-from-client
 INFO pbench-tool-data-sink execute -- Tool Data Sink terminating
 DEBUG pbench-tool-data-sink __exit__ -- web server stop
 INFO pbench-tool-data-sink web_server_run -- Bottle web server exited

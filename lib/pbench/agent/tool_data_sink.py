@@ -31,10 +31,10 @@ from daemon import DaemonContext
 from jinja2 import Environment, FileSystemLoader
 import pidfile
 import redis
+import state_signals
 
 from pbench.agent.constants import (
     tm_allowed_actions,
-    tm_channel_suffix_from_client,
     tm_channel_suffix_from_tms,
     tm_channel_suffix_to_client,
     tm_channel_suffix_to_logging,
@@ -839,9 +839,7 @@ class ToolDataSink(Bottle):
         self._to_client_channel = (
             f"{self.params.channel_prefix}-{tm_channel_suffix_to_client}"
         )
-        self._from_client_channel = (
-            f"{self.params.channel_prefix}-{tm_channel_suffix_from_client}"
-        )
+
         self._lock = Lock()
         self._cv = Condition(lock=self._lock)
         self.web_server_thread = None
@@ -878,12 +876,9 @@ class ToolDataSink(Bottle):
             raise ToolDataSinkError(f"Failure to create WSGI server - {err_text!r}")
         self.logger.debug("web server 'run' thread started, processing payloads ...")
 
-        # Setup the two Redis channels to which the Tool Data Sink subscribes.
+        # Setup the Redis channel to which the Tool Data Sink subscribes.
         self._from_tms_chan = RedisChannelSubscriber(
             self.redis_server, self._from_tms_channel
-        )
-        self._from_client_chan = RedisChannelSubscriber(
-            self.redis_server, self._from_client_channel
         )
 
         # Setup the Redis channel use for logging by the Tool Meisters.
@@ -906,6 +901,12 @@ class ToolDataSink(Bottle):
                 "'tm_log_capture' thread started, processing Tool Meister logs ..."
             )
 
+        # Set up signal responder for state control
+        self.sig_resp = state_signals.SignalResponder(
+            redis_host=self.redis_host, redis_port=self.redis_port
+        )
+        self.sig_resp.lock_tag("from_pbench_client")
+
         # The ToolDataSink object itself is the object of the context manager.
         return self
 
@@ -914,7 +915,6 @@ class ToolDataSink(Bottle):
         WSGI server and Redis Server connection.
         """
         self._from_tms_chan.close()
-        self._from_client_chan.close()
 
         self.logger.debug("web server stop")
         try:
@@ -1243,24 +1243,21 @@ class ToolDataSink(Bottle):
 
         return tms
 
-    def _valid_data(self, data):
-        try:
-            action = data["action"]
-            group = data["group"]
-            directory = data["directory"]
-            args = data["args"]
-        except KeyError:
+    def _is_valid_data(self, action: str, data: Dict[str, Any]) -> False:
+        if len({"group", "directory", "args"}.intersection(data.keys())) != 3:
             self.logger.warning("unrecognized data payload in message, %r", data)
-            return None
+            return False
         else:
-            if action not in tm_allowed_actions:
-                self.logger.warning("unrecognized action in message, %r", data)
-                return None
-            elif group != self.params.tool_group:
-                self.logger.warning("unrecognized tool group in message, %r", data)
-                return None
-            else:
-                return action, directory, args
+            group = data["group"]
+
+        if action not in tm_allowed_actions:
+            self.logger.warning("unrecognized action in message, %r", data)
+            return False
+        elif group != self.tool_group:
+            self.logger.warning("unrecognized tool group in message, %r", data)
+            return False
+        else:
+            return True
 
     def execute(self):
         """execute - Driver for listening to client requests and taking action on
@@ -1295,13 +1292,30 @@ class ToolDataSink(Bottle):
                 )
             self.logger.debug("published %s", self._to_client_channel)
 
-            for data in self._from_client_chan.fetch_json(self.logger):
-                ret_val = self._valid_data(data)
-                if ret_val is None:
+            # Begin listening for client state signals, and react/respond
+            # accordingly upon signal receipt
+            for signal in self.sig_resp.listen():
+                client = signal.publisher_id
+                action = signal.event
+                if action == "shutdown":
+                    # This simply means that a SignalExporter/Client we
+                    # were listening to has shut down, no action needed
                     continue
-                action, directory, args = ret_val[0], ret_val[1], ret_val[2]
-                self.execute_action(action, directory, args, data)
-            self.logger.info("Tool Data Sink terminating")
+                if action == "initialization":
+                    self.sig_resp.srespond(signal)
+                    continue
+                if not signal.metadata:
+                    continue
+                if not self._is_valid_data(action, signal.metadata):
+                    self.logger.warning("Ignoring malformed signal")
+                    continue
+                data = signal.metadata
+                data["action"] = action
+                self.execute_action(client, data)
+                if action == "terminate":
+                    self.logger.info("Tool Data Sink terminating")
+                    self._send_client_status(client, action, "success")
+                    break
         except redis.ConnectionError:
             self.logger.warning(
                 "run closing down after losing connection to redis server"
@@ -1433,10 +1447,9 @@ class ToolDataSink(Bottle):
             ret_val = self._wait_for_tms()
         return ret_val
 
-    def execute_action(self, action, directory_str, args, data):
-        """execute_action - given an action, directory string, arguments, and
-        a data dictionary, execute the sequence of steps required for that
-        action.
+    def execute_action(self, client: str, data: Dict[str, Any]):
+        """execute_action - given a client and a data dictionary, execute the
+        sequence of steps required for a given action.
 
         The "watcher" thread has already validated the action field, we then
         validate the directory field.
@@ -1444,6 +1457,9 @@ class ToolDataSink(Bottle):
         Public method, returns None, raises no exceptions explicitly, called
         by the "watcher" thread.
         """
+        action = data["action"]
+        directory_str = data["directory"]
+        args = data["args"]
         if action == "terminate":
             # Recording the ending time first thing to avoid as much skew as
             # possible.
@@ -1496,7 +1512,6 @@ class ToolDataSink(Bottle):
                 with mdlog_name.open("w") as fp:
                     mdlog.write(fp)
 
-            self._from_client_chan.close()
             self._from_tms_chan.close()
             self._to_logging_chan.unsubscribe()
             return
@@ -1510,7 +1525,9 @@ class ToolDataSink(Bottle):
                 directory_str,
                 self.benchmark_run_dir,
             )
-            self._send_client_status(action, "directory not a sub-dir of run directory")
+            self._send_client_status(
+                client, action, "directory not a sub-dir of run directory"
+            )
             return
         except self.benchmark_run_dir.Exists:
             self.logger.error(
@@ -1518,7 +1535,7 @@ class ToolDataSink(Bottle):
                 action,
                 directory_str,
             )
-            self._send_client_status(action, "directory does not exist")
+            self._send_client_status(client, action, "directory does not exist")
             return
         else:
             assert local_dir is not None, f"Logic bomb!  local_dir = {local_dir!r}"
@@ -1635,9 +1652,9 @@ class ToolDataSink(Bottle):
             self.action = None
 
         msg = "success" if ret_val == 0 else "failure communicating with TMs"
-        self._send_client_status(action, msg)
+        self._send_client_status(client, action, msg)
 
-    def _send_client_status(self, action, status):
+    def _send_client_status(self, client: str, action: str, status: str) -> int:
         """_send_client_status - encapsulate sending back the status message to
         the client.
 
@@ -1650,26 +1667,9 @@ class ToolDataSink(Bottle):
         #     "action": "< name of action taken >",
         #     "status": "success|< a message to be displayed on error >"
         #   }
-        msg = dict(kind="ds", action=action, status=status)
-        self.logger.debug("publish %s", self._to_client_channel)
-        try:
-            num_present = self.redis_server.publish(
-                self._to_client_channel, json.dumps(msg, sort_keys=True)
-            )
-        except Exception:
-            self.logger.exception("Failed to publish client status message")
-            ret_val = 1
-        else:
-            self.logger.debug("published %s", self._to_client_channel)
-            if num_present != 1:
-                self.logger.error(
-                    "client status message received by %d subscribers", num_present
-                )
-                ret_val = 1
-            else:
-                self.logger.debug("posted client status, %r", status)
-                ret_val = 0
-        return ret_val
+
+        self.sig_resp.respond(client, action, int(status == "success"), status)
+        return int(status != "success")
 
     def put_document(self, data_ctx, hostname):
         """put_document - PUT callback method for Bottle web server end point

@@ -15,7 +15,6 @@ from pathlib import Path
 import sys
 import time
 
-from pbench.agent.constants import cli_tm_channel_prefix
 from pbench.agent.tool_group import BadToolGroup, ToolGroup
 from pbench.agent.tool_meister_client import Client
 from pbench.agent.utils import (
@@ -204,10 +203,9 @@ def start(_prog: str, cli_params: Namespace) -> int:
         return exc.return_code
 
     # The Redis server is always running on the local host with the CLI.
-    with Client(
+    with Client.create_with_redis(
         redis_host=redis_server.host,
         redis_port=redis_server.port,
-        channel_prefix=cli_tm_channel_prefix,
         logger=logger,
     ) as client:
         # First we end the persistent tools

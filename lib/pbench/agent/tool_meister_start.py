@@ -1270,11 +1270,8 @@ def start(_prog: str, cli_params: Namespace) -> int:
         # Setup a Client API object using our existing to_client_chan object to
         # drive the following client operations ("sysinfo" [optional] and "init"
         # [required]).
-        with Client(
-            redis_server=redis_client,
-            channel_prefix=cli_tm_channel_prefix,
-            to_client_chan=to_client_chan,
-            logger=logger,
+        with Client.create_with_redis(
+            redis_host=redis_server.host, redis_port=redis_server.port, logger=logger
         ) as client:
             if sysinfo:
                 sysinfo_path = benchmark_run_dir / "sysinfo" / "beg"
