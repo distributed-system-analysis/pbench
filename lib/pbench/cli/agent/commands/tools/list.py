@@ -13,6 +13,7 @@ import click
 from pbench.cli.agent import CliContext, pass_cli_context
 from pbench.cli.agent.commands.tools.base import ToolCommand
 from pbench.cli.agent.options import common_options
+from pbench.agent.tool_group import BadToolGroup
 
 
 class ListTools(ToolCommand):
@@ -36,13 +37,18 @@ class ListTools(ToolCommand):
             host_tools = {}
             for group in groups:
                 host_tools[group] = {}
-                for path in self.gen_tools_group_dir(group).glob("*/**"):
-                    if self.context.with_option:
-                        host_tools[group][path.name] = [
-                            p.read_text() for p in self.tools(path)
-                        ]
-                    else:
-                        host_tools[group][path.name] = [p for p in self.tools(path)]
+                try:
+                    for path in self.gen_tools_group_dir(group).glob("*/**"):
+                        if self.context.with_option:
+                            host_tools[group][path.name] = [
+                                (p, (path / p).read_text()) for p in self.tools(path)
+                            ]
+                        else:
+                            host_tools[group][path.name] = [p for p in self.tools(path)]
+                except BadToolGroup:
+                    self.logger.error("Bad tool group: %s", group)
+                    # 0.69.9 behavior
+                    return 0
             if host_tools:
                 for k, v in host_tools.items():
                     for h, t in v.items():
@@ -57,6 +63,9 @@ class ListTools(ToolCommand):
                     continue
 
                 for path in tg_dir.iterdir():
+                    # skip files like __label__ and __trigger__
+                    if not path.is_dir():
+                        continue
                     # Check to see if the tool is in any of the hosts.
                     if self.context.name in self.tools(path):
                         group_list.append(group)
