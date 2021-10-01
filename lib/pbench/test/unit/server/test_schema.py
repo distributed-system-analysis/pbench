@@ -112,7 +112,7 @@ class TestParamType:
             )
             return user
 
-        monkeypatch.setattr(Auth, "verify_user", ok)
+        monkeypatch.setattr(User, "query", ok)
 
         ptype, kwd, value, expected = test
         param = Parameter("test", ptype, keywords=kwd)
@@ -160,7 +160,7 @@ class TestParamType:
         def not_ok(username: str) -> User:
             return None
 
-        monkeypatch.setattr(Auth, "verify_user", not_ok)
+        monkeypatch.setattr(User, "query", not_ok)
         with pytest.raises(UnverifiedUser) as exc:
             ParamType.USER.convert("abc")
         assert exc.value.username == "abc"

@@ -22,6 +22,7 @@ class TestDatasetsList(Commons):
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
                 "user": "drb",
+                "access": "private",
                 "controller": "cpntroller.name",
                 "start": "2020-08",
                 "end": "2020-10",
@@ -46,12 +47,14 @@ class TestDatasetsList(Commons):
         """
         payload = {
             "user": user,
+            "access": "private",
             "controller": "dbutenho.csb",
             "start": "2020-08",
             "end": "2020-10",
         }
         if user == "no_user":
             payload.pop("user", None)
+            payload["access"] = "public"
         response_payload = {
             "took": 6,
             "timed_out": False,

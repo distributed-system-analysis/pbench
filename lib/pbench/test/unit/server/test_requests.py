@@ -119,7 +119,7 @@ class TestUpload:
     @staticmethod
     def verify_logs(caplog):
         for record in caplog.records:
-            assert record.levelname not in ("DEBUG", "ERROR", "CRITICAL")
+            assert record.levelname not in ("ERROR", "CRITICAL")
         assert caplog.records[-1].levelname == "WARNING"
 
     def test_missing_authorization_header(self, client, caplog, server_config):

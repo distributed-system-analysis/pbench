@@ -231,9 +231,7 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     Validate that the user object referenced by the username string exists, and
     return the internal representation of that user.
 
-    The internal representation is the user row ID as a string. If the external
-    value is None, (which means the API's user parameter is nullable), we
-    return None to indicate that instead of attempting to query the User DB.
+    The internal representation is the user row ID as a string.
 
     Args:
         value: external user representation

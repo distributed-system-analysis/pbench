@@ -93,6 +93,18 @@ class Commons:
     def test_malformed_authorization_header(
         self, client, server_config, malformed_token, attach_dataset
     ):
+        """
+        Test behavior when the Authorization header is present but is not a
+        proper Bearer schema.
+
+        TODO: This actually tests behavior with no client authentication, as
+        Flask-HTTPTokenAuth hides the validation failure because our query
+        APIs select "optional" authentication. If we fix the authentication
+        validation to give a 401 (not 403) on bad/missing authentication token,
+        we should make the call with user/access parameters that would
+        otherwise be allowed for an unauthenticated client (e.g., all public
+        data).
+        """
         response = client.post(
             server_config.rest_uri + self.pbench_endpoint,
             headers={"Authorization": malformed_token},
@@ -102,7 +114,8 @@ class Commons:
 
     def test_non_accessible_user_data(self, client, server_config, pbench_token):
         """
-        Test behavior when Authorization header does not have access to other user's data
+        Test behavior when authenticated user does not have access to the
+        requested data.
         """
         # The pbench_token fixture logs in as user "drb"
         # Trying to access the data belong to the user "pp"
@@ -123,7 +136,15 @@ class Commons:
         self, client, server_config, pbench_token, user
     ):
         """
-        Test behavior when expired Authorization header provided
+        Test behavior when expired authentication token is provided.
+
+        TODO: This actually tests behavior with no client authentication, as
+        Flask-HTTPTokenAuth hides the validation failure because our query
+        APIs select "optional" authentication. If we fix the authentication
+        validation to give a 401 (not 403) on bad/missing authentication token,
+        we should make the call with user/access parameters that would
+        otherwise be allowed for an unauthenticated client (e.g., all public
+        data).
         """
         if "user" not in self.cls_obj.schema.parameters.keys():
             pytest.skip(

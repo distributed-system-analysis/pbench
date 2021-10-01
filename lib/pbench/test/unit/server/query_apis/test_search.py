@@ -22,6 +22,7 @@ class TestIndexSearch(Commons):
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
                 "user": "drb",
+                "access": "private",
                 "start": "2020-08",
                 "end": "2020-10",
                 "search_term": "random_string",

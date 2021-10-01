@@ -22,6 +22,7 @@ class TestDatasetsDetail(Commons):
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={
                 "user": "drb",
+                "access": "private",
                 "name": "fio",
                 "start": "2020-08",
                 "end": "2020-10",
@@ -42,12 +43,18 @@ class TestDatasetsDetail(Commons):
         """
         payload = {
             "user": user,
+            "access": "private",
             "name": "fio_rhel8_kvm_perf43_preallocfull_nvme_run4_iothread_isolcpus_2020.04.29T12.49.13",
             "start": "2020-08",
             "end": "2020-10",
         }
+
+        # We expect "no_user" to succeed, looking for only public data. We
+        # normally remove the user parameter; for this case, we'll look for
+        # public data owned by a known user; which should succeed.
         if user == "no_user":
-            payload.pop("user", None)
+            payload["user"] = "drb"
+            payload["access"] = "public"
 
         response_payload = {
             "took": 112,
@@ -359,8 +366,9 @@ class TestDatasetsDetail(Commons):
         """
         Check the handling of a query that returns too much data.
         """
-        # We remove the user value so we can make an unauthorized query
+        # We look for public data so we can make an unauthorized query
         del self.payload["user"]
+        self.payload["access"] = "public"
         response_payload = {
             "hits": {
                 "total": {"value": 0, "relation": "eq"},
