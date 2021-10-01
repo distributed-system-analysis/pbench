@@ -858,7 +858,7 @@ gen_data(\%graph, \%graph_type, \%graph_threshold, $dir, 1);
 
 convert_samples_hash_to_array(\%workload);
 
-$json_text = to_json( \%workload, { ascii => 1, pretty => 1 } );
+$json_text = to_json( \%workload, { ascii => 1, pretty => 1, canonical => 1 } );
 open(JSON, ">$json_file") || die "$script: could not open file $json_file: $!\n";
 print JSON $json_text;
 close(JSON);
