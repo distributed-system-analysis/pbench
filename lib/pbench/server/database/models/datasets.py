@@ -911,7 +911,7 @@ class Metadata(Database.Base):
         if "" in path:
             return False
         # Check for open namespace match
-        if not path[0] + ".*" in valid:
+        if path[0] + ".*" not in valid:
             return False
         # Check that all open namespace keys are valid symbols
         return bool(re.fullmatch(Metadata._valid_key_charset, k))
@@ -975,7 +975,7 @@ class Metadata(Database.Base):
 
         Args:
             dataset: Associated Dataset
-            key: Lookup key (inluding hierarchical dotted paths)
+            key: Lookup key (including hierarchical dotted paths)
             value: Value to be assigned to the specified key
 
         Returns:
