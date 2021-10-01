@@ -9,7 +9,7 @@ Source0:        pbench-server-%{version}.tar.gz
 Buildarch:      noarch
 
 
-Requires: python3 python3-devel gcc
+Requires: python3 python3-devel
 
 # policycoreutils for semanage and restorecon - used in pbench-server-activate-create-results-dir
 Requires:       policycoreutils
@@ -22,6 +22,23 @@ Requires: python3-libselinux
 %endif
 
 Requires: npm
+
+Requires: python3-alembic python3-aniso8601 python3-boto3 python3-click
+Requires: python3-dateutil python3-elasticsearch python3-email-validator
+Requires: python3-flask python3-flask-cors python3-flask-httpauth
+Requires: python3-flask-migrate python3-flask-restful python3-flask-sqlalchemy
+# Requires: python3-flask-bcrypt flask-jwt-extended  # Not available
+Requires: python3-gunicorn python3-humanize python3-psycopg2 python3-requests
+# Requires: pyesbulk>=2.0.1 PyJwt  # Not available
+Requires: python3-sqlalchemy python3-sqlalchemy-utils
+
+# The following are indirect dependencies -- dependencies of dependencies that
+# we currently install via pip -- we require them here so that they will
+# already be satisfied during the pip install.  (certifi is required by
+# elasticsearch; bcrypt by flask-bcrypt; and greenlet by sqlalchemy.)  If/when
+# the packages requiring these are installed via RPM, these requirements should
+# no longer be necessary.
+Requires: python3-certifi python3-bcrypt python3-greenlet
 
 # installdir has to agree with the definition of install-dir in
 # pbench-server.cfg, but we can't go out and pluck it from there,
