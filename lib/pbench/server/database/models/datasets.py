@@ -970,8 +970,8 @@ class Metadata(Database.Base):
 
         This will create a nested JSON structure (represented as a Python dict)
         as necessary as it descends the hierarchy. For example, if you assign
-        "a.b.c" with an initial value of "{}", you'll end up with
-        {"a": {"b": {"c": value}}}
+        "a.b.c" a value of "bar", and then query "a", you'll get back
+        "a": {"b": {"c": "bar"}}}
 
         Args:
             dataset: Associated Dataset

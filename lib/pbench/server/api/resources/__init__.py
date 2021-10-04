@@ -447,7 +447,7 @@ class Parameter:
         Args:
             name: Parameter name
             type: Parameter type
-            keywords: List of keywords for ParmType.KEYWORD
+            keywords: List of keywords for ParamType.KEYWORD
             element_type: List element type if ParamType.LIST
             required: whether the parameter is required (defaults to False)
         """
