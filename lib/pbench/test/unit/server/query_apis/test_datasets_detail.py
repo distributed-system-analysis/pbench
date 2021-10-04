@@ -1,7 +1,6 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
-from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -53,7 +52,7 @@ class TestDatasetsDetail(Commons):
         # normally remove the user parameter; for this case, we'll look for
         # public data owned by a known user; which should succeed.
         if user == "no_user":
-            payload["user"] = "drb"
+            del payload["user"]
             payload["access"] = "public"
 
         response_payload = {
@@ -124,18 +123,9 @@ class TestDatasetsDetail(Commons):
 
         expected_status = HTTPStatus.OK
 
-        # Determine whether we should expect the request to succeed, or to
-        # fail with a permission error. We always authenticate with the
-        # user "drb" as fabricated by the build_auth_header fixure; we
-        # don't expect success for an "invalid" authentication, for a different
-        # user, or for an invalid username.
-        if (
-            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
-        ) and user != "badwolf":
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
-
+        expected_status = self.get_expected_status(
+            payload, build_auth_header["header_param"]
+        )
         response = query_api(
             "/datasets/detail",
             "/_search?ignore_unavailable=true",
@@ -342,10 +332,14 @@ class TestDatasetsDetail(Commons):
         The test will run thrice with different values of the build_auth_header
         fixture.
         """
-        expected_status = HTTPStatus.BAD_REQUEST
-        if not HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.FORBIDDEN
+        expected_status = self.get_expected_status(
+            self.payload, build_auth_header["header_param"]
+        )
 
+        # In this case, if we don't get a validation/permission error, expect
+        # to fail because of the unexpectedly empty Elasticsearch result.
+        if expected_status == HTTPStatus.OK:
+            expected_status = HTTPStatus.BAD_REQUEST
         index = self.build_index(
             server_config, self.date_range(self.payload["start"], self.payload["end"])
         )

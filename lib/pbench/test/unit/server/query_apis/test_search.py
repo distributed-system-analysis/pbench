@@ -1,7 +1,6 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.index_search import IndexSearch
-from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
@@ -118,16 +117,9 @@ class TestIndexSearch(Commons):
         index = self.build_index(
             server_config, self.date_range(payload["start"], payload["end"])
         )
-        # If we're not asking about a particular user, or if the user
-        # field is to be omitted altogether, or if we have a valid
-        # token, then the request should succeed.
-        if (
-            user == "no_user" or HeaderTypes.is_valid(build_auth_header["header_param"])
-        ) and user != "badwolf":
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
-
+        expected_status = self.get_expected_status(
+            payload, build_auth_header["header_param"]
+        )
         response = query_api(
             "/index/search",
             "/_search?ignore_unavailable=true",

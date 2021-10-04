@@ -10,6 +10,7 @@ from posix import stat_result
 from stat import ST_MTIME
 
 from pbench.server.api import create_app, get_server_config
+from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
 from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
@@ -587,3 +588,33 @@ def build_auth_header(request, server_config, pbench_token, pbench_admin_token, 
     else:
         assert False, f"Unexpected request.param value:  {request.param}"
     return {"header": header, "header_param": request.param}
+
+
+@pytest.fixture()
+def current_user_drb(monkeypatch):
+    drb = User(
+        email="email@example.com",
+        id=3,
+        username="drb",
+        first_name="Test",
+        last_name="Account",
+    )
+
+    class FakeHTTPTokenAuth:
+        def current_user(self) -> User:
+            return drb
+
+    with monkeypatch.context() as m:
+        m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
+        yield drb
+
+
+@pytest.fixture()
+def current_user_none(monkeypatch):
+    class FakeHTTPTokenAuth:
+        def current_user(self) -> User:
+            return None
+
+    with monkeypatch.context() as m:
+        m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
+        yield

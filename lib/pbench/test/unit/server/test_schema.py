@@ -93,23 +93,17 @@ class TestParamType:
             (ParamType.KEYWORD, ["Llave"], "llave", "llave"),
         ),
     )
-    def test_successful_conversions(self, client, test, monkeypatch):
-        """
-        Test successful parameter conversion / normalization.
+    def test_successful_conversions(self, client, test, monkeypatch, current_user_drb):
+        user = User(
+            id=1,
+            username="drb",
+            password="password",
+            first_name="first_name",
+            last_name="last_name",
+            email="test@test.com",
+        )
 
-        NOTE that we can't test LIST without the element type; we'll test that
-        separately.
-        """
-
-        def ok(auth: Auth, username: str) -> User:
-            user = User(
-                id=1,
-                username=username,
-                password="password",
-                first_name="first_name",
-                last_name="last_name",
-                email="test@test.com",
-            )
+        def ok(username: str) -> User:
             return user
 
         monkeypatch.setattr(User, "query", ok)
@@ -128,11 +122,12 @@ class TestParamType:
             (ParamType.DATE, "notadate"),  # not valid date string
             (ParamType.DATE, 1),  # not a string representing a date
             (ParamType.USER, False),  # not a user string
-            (ParamType.ACCESS, ["foobar"]),  # ACCESS is "public" or "private"
+            (ParamType.USER, "xyzzy"),  # not a defined username
+            (ParamType.ACCESS, "foobar"),  # ACCESS is "public" or "private"
             (ParamType.ACCESS, 0),  # ACCESS must be a string
         ),
     )
-    def test_failed_conversions(self, test, monkeypatch):
+    def test_failed_conversions(self, test, current_user_drb):
         """
         Test unsuccessful parameter conversion / normalization.
 
@@ -151,19 +146,27 @@ class TestParamType:
             ptype.convert(value, param)
         assert str(value) in str(exc)
 
-    def test_unverified_username(self, monkeypatch):
+    def test_unauthenticated_username(self, monkeypatch, current_user_none):
         """
-        Show that a username which is a string, but isn't found in the user
-        database, results in raising UnverifiedUser rather than ConversionError
+        Show that a valid username results in raising UnverifiedUser when the
+        client is unauthenticated even when the username exists.
         """
+        user = User(
+            id=1,
+            username="drb",
+            password="password",
+            first_name="first_name",
+            last_name="last_name",
+            email="test@test.com",
+        )
 
-        def not_ok(username: str) -> User:
-            return None
+        def ok(username: str) -> User:
+            return user
 
-        monkeypatch.setattr(User, "query", not_ok)
+        monkeypatch.setattr(User, "query", ok)
         with pytest.raises(UnverifiedUser) as exc:
-            ParamType.USER.convert("abc")
-        assert exc.value.username == "abc"
+            ParamType.USER.convert("drb")
+        assert exc.value.username == "drb"
 
 
 class TestParameter:

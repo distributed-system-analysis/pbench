@@ -87,6 +87,37 @@ class Commons:
             date_range.append(f"{m.year:04}-{m.month:02}")
         return date_range
 
+    def get_expected_status(self, payload: JSON, header: HeaderTypes) -> int:
+        """
+        Decode the various test cases we use, which are a combination of the
+        test case parametrization (for "user" parameter value) and the
+        parametrization of the `build_auth_header` fixture (for the API
+        authentication header);
+
+        1) If the "user" parameter is given and authentication is missing or
+           invalid, we expect UNAUTHORIZED (401) status;
+        2) If the "user" parameter is given and authenticated as a different
+           non-admin user with "access": "private", we expect FORBIDDEN (403)
+        3) If authenticated and a bad "user" parameter is given, we expect
+           BAD_REQUEST (400)
+
+        Otherwise, we expect success
+        """
+        has_user = "user" in payload
+        u = payload.get("user")
+        a = payload.get("access")
+        unauthorized = not HeaderTypes.is_valid(header)
+        is_admin = header == HeaderTypes.VALID_ADMIN
+        if has_user and unauthorized:
+            expected_status = HTTPStatus.UNAUTHORIZED
+        elif u == "badwolf":
+            expected_status = HTTPStatus.BAD_REQUEST
+        elif u != "drb" and a == "private" and not is_admin:
+            expected_status = HTTPStatus.FORBIDDEN
+        else:
+            expected_status = HTTPStatus.OK
+        return expected_status
+
     @pytest.mark.parametrize(
         "malformed_token", ("malformed", "bear token" "Bearer malformed"),
     )
@@ -110,24 +141,23 @@ class Commons:
             headers={"Authorization": malformed_token},
             json=self.payload,
         )
-        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
 
-    def test_non_accessible_user_data(self, client, server_config, pbench_token):
+    def test_bad_user_name(self, client, server_config, pbench_token):
         """
-        Test behavior when authenticated user does not have access to the
-        requested data.
+        Test behavior when authenticated user specifies a non-existent user.
         """
         # The pbench_token fixture logs in as user "drb"
         # Trying to access the data belong to the user "pp"
         if "user" not in self.cls_obj.schema.parameters.keys():
-            pytest.skip("skipping " + self.test_non_accessible_user_data.__name__)
+            pytest.skip("skipping " + self.test_bad_user_name.__name__)
         self.payload["user"] = "pp"
         response = client.post(
             server_config.rest_uri + self.pbench_endpoint,
             headers={"Authorization": "Bearer " + pbench_token},
             json=self.payload,
         )
-        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.status_code == HTTPStatus.BAD_REQUEST
 
     @pytest.mark.parametrize(
         "user", ("drb", "pp"),
@@ -162,7 +192,7 @@ class Commons:
             headers={"Authorization": "Bearer " + pbench_token},
             json=self.payload,
         )
-        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
 
     def test_missing_json_object(self, client, server_config, pbench_token):
         """
@@ -272,10 +302,9 @@ class Commons:
         """
         if not self.empty_es_response_payload or not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_empty_query.__name__)
-        expected_status = HTTPStatus.OK
-        if not HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.FORBIDDEN
-
+        expected_status = self.get_expected_status(
+            self.payload, build_auth_header["header_param"]
+        )
         index = self.build_index(
             server_config, self.date_range(self.payload["start"], self.payload["end"])
         )

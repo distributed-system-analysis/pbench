@@ -11,34 +11,6 @@ class TestQueryBuilder:
         return ElasticBase(client.config, client.logger, Schema())
 
     @pytest.fixture()
-    def current_user_drb(self, monkeypatch):
-        drb = User(
-            email="email@example.com",
-            id=3,
-            username="drb",
-            first_name="Test",
-            last_name="Account",
-        )
-
-        class FakeHTTPTokenAuth:
-            def current_user(self) -> User:
-                return drb
-
-        with monkeypatch.context() as m:
-            m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
-            yield drb
-
-    @pytest.fixture()
-    def current_user_none(self, monkeypatch):
-        class FakeHTTPTokenAuth:
-            def current_user(self) -> User:
-                return None
-
-        with monkeypatch.context() as m:
-            m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
-            yield
-
-    @pytest.fixture()
     def current_user_admin(self, monkeypatch):
         class FakeHTTPTokenAuth:
             def current_user(self) -> User:

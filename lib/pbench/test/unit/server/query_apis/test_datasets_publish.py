@@ -118,6 +118,8 @@ class TestDatasetsPublish:
             or HeaderTypes.is_valid(build_auth_header["header_param"])
         ) and owner != "badwolf":
             expected_status = HTTPStatus.OK
+        elif not HeaderTypes.is_valid(build_auth_header["header_param"]):
+            expected_status = HTTPStatus.UNAUTHORIZED
         else:
             expected_status = HTTPStatus.FORBIDDEN
 

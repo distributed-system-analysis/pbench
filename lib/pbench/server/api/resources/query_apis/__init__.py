@@ -446,7 +446,7 @@ class ElasticBase(ApiBase):
                 return "", HTTPStatus.NO_CONTENT
         except UnauthorizedAccess as e:
             self.logger.warning("{}", e)
-            abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
+            abort(e.status, message=str(e))
         except KeyError as e:
             self.logger.exception("{} problem in preprocess, missing {}", klasname, e)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")

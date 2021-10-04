@@ -37,11 +37,19 @@ class UnauthorizedAccess(Exception):
     resource.
     """
 
-    def __init__(self, user: str, operation: "API_OPERATION", owner: str, access: str):
+    def __init__(
+        self,
+        user: str,
+        operation: "API_OPERATION",
+        owner: str,
+        access: str,
+        status: int = HTTPStatus.FORBIDDEN,
+    ):
         self.user = user
         self.operation = operation
         self.owner = owner
         self.access = access
+        self.status = status
 
     def __str__(self) -> str:
         return f"{'User ' + self.user.username if self.user else 'Unauthenticated client'} is not authorized to {self.operation.name} a resource owned by {self.owner} with {self.access} access"
@@ -61,9 +69,12 @@ class SchemaError(TypeError):
 
 class UnverifiedUser(SchemaError):
     """
-    Attempt to reference a user's data without appropriate
-    access. (This avoids revealing whether the username
-    exists, or is simply not accessible to the caller.)
+    Attempt by an unauthenticated user to reference a username in a query. An
+    unauthenticated client does not have the right to look up any username.
+
+    HTTPStatus.UNAUTHORIZED tells the client that the operation might succeed
+    if the request is retried with authentication. (A UI might redirect to a
+    login page.)
     """
 
     def __init__(self, username: str):
@@ -231,6 +242,20 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     Validate that the user object referenced by the username string exists, and
     return the internal representation of that user.
 
+    We do not want an unauthenticated client to be able to distinguish between
+    invalid user" (ConversionError here) and "valid user I can't access" (some
+    sort of permission error later). Checking for a valid authentication token
+    here allows rejecting any "user" parameter reference by an unauthenticated
+    user.
+
+    An authenticated user *can* determine whether a username is valid, and will
+    be able to ask for another user's public data with {"user": "name",
+    "access": "public"} (or simply "{"user": "name"}, if the authenticated user
+    doesn't have rights to "name"'s private data). An authenticated user will
+    be given a validation error (BAD_REQUEST/400) if the specified username
+    isn't valid and a permission error (FORBIDDEN) if asking for another user's
+    private data (without ADMIN role).
+
     The internal representation is the user row ID as a string.
 
     Args:
@@ -239,10 +264,10 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
 
     Raises:
         ConversionError: input can't be validated or normalized
-        UnverifiedUser: the username cannot be validated
+        UnverifiedUser: unauthenticated client can't validate a username
 
     Returns:
-        internal username representation or None
+        internal username representation
     """
     if value is None:
         return None
@@ -662,7 +687,7 @@ class ApiBase(Resource):
         # Default user to the authenticated user, if not specified
         if authorized_user and not user:
             user = authorized_user.username
-        authorized = True
+        status = HTTPStatus.OK
 
         # READ access to public data is always allowed; if we're looking at
         # private data, or non-READ access (create, update, delete) then we
@@ -672,7 +697,7 @@ class ApiBase(Resource):
                 self.logger.warning(
                     "Attempt to {} user {} data without login", self.role, user
                 )
-                authorized = False
+                status = HTTPStatus.UNAUTHORIZED
             elif user != authorized_user.username and not authorized_user.is_admin():
                 self.logger.warning(
                     "Unauthorized attempt by {} to {} user {} data",
@@ -680,9 +705,9 @@ class ApiBase(Resource):
                     self.role,
                     user,
                 )
-                authorized = False
-        if not authorized:
-            raise UnauthorizedAccess(authorized_user, self.role, user, access)
+                status = HTTPStatus.FORBIDDEN
+        if status != HTTPStatus.OK:
+            raise UnauthorizedAccess(authorized_user, self.role, user, access, status)
 
     def _get_metadata(
         self, controller: str, name: str, requested_items: List[str]
@@ -760,7 +785,7 @@ class ApiBase(Resource):
             new_data = self.schema.validate(json_data)
         except UnverifiedUser as e:
             self.logger.warning("{}", str(e))
-            abort(HTTPStatus.FORBIDDEN, message=str(e))
+            abort(e.http_status, message=str(e))
         except SchemaError as e:
             self.logger.warning(
                 "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
@@ -788,7 +813,7 @@ class ApiBase(Resource):
                 self._check_authorization(user, access)
             except UnauthorizedAccess as e:
                 self.logger.warning("{}", e)
-                abort(HTTPStatus.FORBIDDEN, message="Not Authorized")
+                abort(e.status, message=str(e))
         return method(new_data, request)
 
     def _get(self, json_data: JSON, request: Request) -> Response:
