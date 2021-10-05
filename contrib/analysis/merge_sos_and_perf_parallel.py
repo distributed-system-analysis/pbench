@@ -154,21 +154,33 @@ def extract_pbench_runs(filename, results, result_to_run, incoming_url, pool):
             # counts
 
             if valid_run and "sosreports" in source["_source"]:
-                result_list.append(
-                    pool.apply_async(
-                        extract_run_metadata,
-                        args=(results, result_to_run, source["_source"], incoming_url,),
+                if pool:
+                    result_list.append(
+                        pool.apply_async(
+                            extract_run_metadata,
+                            args=(
+                                results,
+                                result_to_run,
+                                source["_source"],
+                                incoming_url,
+                            ),
+                        )
                     )
-                )
-                # result_list.append(extract_run_metadata(results, result_to_run, source['_source'], incoming_url))
+                else:
+                    pbench.update(
+                        extract_run_metadata(
+                            results, result_to_run, source["_source"], incoming_url
+                        )
+                    )
 
-        pool.close()  # no more parallel work to submit
-        pool.join()  # wait for the worker processes to terminate
+        if pool:
+            pool.close()  # no more parallel work to submit
+            pool.join()  # wait for the worker processes to terminate
 
-        for res in result_list:
-            record = res.get()
-            if record:
-                pbench.update(record)
+            for res in result_list:
+                record = res.get()
+                if record:
+                    pbench.update(record)
 
     print("total pbench run records: " + str(total_recs))
     print("records with controller_dir: " + str(controller_dir))
@@ -239,9 +251,8 @@ def extract_clients(results_meta, incoming_url):
     )
 
     # check if the page is accessible
-    r = requests.head(url, allow_redirects=True)
-    if r.status_code == 200:  # successful
-        response = requests.get(url)
+    response = requests.get(url, allow_redirects=True)
+    if response.status_code == 200:  # successful
         soup = BeautifulSoup(response.content, "html.parser")
         tbl = soup.find("table")
         df = pd.read_html(str(tbl))[0]
@@ -271,25 +282,24 @@ def extract_fio_result(results_meta, incoming_url):
     )
 
     # check if the page is accessible
-    r = requests.head(url, allow_redirects=True)
-    if r.status_code == 200:  # successful
-        page = requests.get(url)
+    response = requests.get(url, allow_redirects=True)
+    if response.status_code == 200:  # successful
         try:
-            response = page.json()
+            document = response.json()
         except ValueError:
             print("Response content is not valid JSON")
             print(url)
-            print(page.content)
+            print(response.content)
             return [[], []]
 
-        if "disk_util" in response.keys():
+        if "disk_util" in document.keys():
             disknames = [
-                disk["name"] for disk in response["disk_util"] if "name" in disk.keys()
+                disk["name"] for disk in document["disk_util"] if "name" in disk.keys()
             ]
-        if "client_stats" in response.keys():
+        if "client_stats" in document.keys():
             hostnames = [
                 host["hostname"]
-                for host in response["client_stats"]
+                for host in document["client_stats"]
                 if "hostname" in host.keys()
             ]
             hostnames = list(set(hostnames))
@@ -303,17 +313,40 @@ def extract_fio_result(results_meta, incoming_url):
 
 
 def main(args):
-    concurrency = int(args[1])  # Number of CPUs to use (where 0 = n CPUs)
-    url_prefix = args[2]  # URL prefix to fetch unpacked data
-    dirname = args[3]  # indexed pbench results data
-    filename = args[4]  # indexed pbench runs data
+    # Number of CPUs to use (where 0 = n CPUs)
+    concurrency = int(args[1])
 
+    # URL prefix to fetch unpacked data
+    url_prefix = args[2]
     incoming_url = f"{url_prefix}/incoming/"
+
+    # Directory containing the pbench result data pulled from Elasticsearch.
+    # Collect the pbench results data for fio from 2020-06 and 2021-06 from
+    # the Elasticsearch instance in the directory "pbench_results_data" using
+    # the following command (it gives us the performance results as well as
+    # the workload parameters, change the dates and size fields accordingly):
+    #
+    # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.result-data.2020-06-*/pbench-result-data-sample/_search?q=run.script:fio&size=63988&pretty=true' > pbench_results_2020_06.json
+    #
+    # Provide the directory containing all those files as the 3rd argument.
+    dirname = args[3]
+
+    # File name containing all the pbench run data.
+    # Collect the pbench run data for fio from 2020 and 2021 from
+    # Elasticsearch in the directory "pbench_run_data" using the following
+    # command (it gives us information about mapping between runs and
+    # sosreports that have associated performance results; be sure to figure
+    # out the size parameter first):
+    #
+    # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.run.202*/pbench-run/_search?q=run.script:fio&size=13060&pretty=true' > pbench_run_data_fio.json
+    #
+    # Provide the generated file name as the 4th argument.
+    filename = args[4]
 
     # We create the multiprocessing pool first to avoid forking a sub-process
     # with lots of memory allocated.
     ncpus = multiprocessing.cpu_count() - 1 if concurrency == 0 else concurrency
-    pool = multiprocessing.Pool(ncpus)
+    pool = multiprocessing.Pool(ncpus) if ncpus != 1 else None
 
     scan_start = time.time()
 
