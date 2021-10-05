@@ -26,6 +26,7 @@ def extract_pbench_results(dirname):
             continue
         if not filename.startswith("pbench_result_data_fio_"):
             continue
+        print(f"Processing {filename}...", flush=True)
         with open(dirname + "/" + filename) as f:  # releases the handler itself
             data = json.load(f)
             for source in data["hits"]["hits"]:
@@ -36,35 +37,44 @@ def extract_pbench_results(dirname):
                     mean = mean + 1
                     assert source["_id"] not in results.keys(), "Result id repeated"
                     index = source["_source"]
-                    results[source["_id"]] = {
-                        "run.id": index["run"]["id"],
-                        # 'run.controller' : index['run']['controller'],
-                        "run.name": index["run"]["name"],
-                        "iteration.name": index["iteration"]["name"],
-                        "benchmark.bs": index["benchmark"]["bs"],
-                        "benchmark.direct": index["benchmark"]["direct"],
-                        "benchmark.ioengine": index["benchmark"]["ioengine"],
-                        "benchmark.max_stddevpct": index["benchmark"]["max_stddevpct"],
-                        "benchmark.primary_metric": index["benchmark"][
-                            "primary_metric"
-                        ],
-                        "benchmark.ramp_time": index["benchmark"]["ramp_time"],
-                        "benchmark.runtime": index["benchmark"]["runtime"],
-                        "benchmark.rw": ", ".join(
-                            set((index["benchmark"]["rw"].split(",")))
-                        ),
-                        "benchmark.sync": index["benchmark"]["sync"],
-                        "benchmark.time_based": index["benchmark"]["time_based"],
-                        "sample.name": index["sample"]["name"],
-                        "sample.client_hostname": index["sample"]["client_hostname"],
-                        "sample.measurement_type": index["sample"]["measurement_type"],
-                        "sample.measurement_title": index["sample"][
-                            "measurement_title"
-                        ],
-                        "sample.mean": index["sample"]["mean"],
-                        "sample.stddev": index["sample"]["stddev"],
-                        "sample.stddevpct": index["sample"]["stddevpct"],
-                    }
+                    try:
+                        results[source["_id"]] = {
+                            "run.id": index["run"]["id"],
+                            # 'run.controller' : index['run']['controller'],
+                            "run.name": index["run"]["name"],
+                            "iteration.name": index["iteration"]["name"],
+                            "benchmark.bs": index["benchmark"]["bs"],
+                            "benchmark.direct": index["benchmark"]["direct"],
+                            "benchmark.ioengine": index["benchmark"]["ioengine"],
+                            "benchmark.max_stddevpct": index["benchmark"][
+                                "max_stddevpct"
+                            ],
+                            "benchmark.primary_metric": index["benchmark"][
+                                "primary_metric"
+                            ],
+                            "benchmark.rw": ", ".join(
+                                set((index["benchmark"]["rw"].split(",")))
+                            ),
+                            "sample.name": index["sample"]["name"],
+                            "sample.client_hostname": index["sample"][
+                                "client_hostname"
+                            ],
+                            "sample.measurement_type": index["sample"][
+                                "measurement_type"
+                            ],
+                            "sample.measurement_title": index["sample"][
+                                "measurement_title"
+                            ],
+                            "sample.mean": index["sample"]["mean"],
+                            "sample.stddev": index["sample"]["stddev"],
+                            "sample.stddevpct": index["sample"]["stddevpct"],
+                        }
+                    except KeyError as exc:
+                        print(
+                            f"ERROR - {filename}, {exc}, {json.dumps(index)}",
+                            file=sys.stderr,
+                        )
+                        continue
 
                     # optional workload parameters
                     if "filename" not in index["benchmark"]:
@@ -91,6 +101,30 @@ def extract_pbench_results(dirname):
                         results[source["_id"]]["benchmark.numjobs"] = ", ".join(
                             set((index["benchmark"]["numjobs"].split(",")))
                         )
+                    try:
+                        results[source["_id"]]["benchmark.ramp_time"] = index[
+                            "benchmark"
+                        ]["ramp_time"]
+                    except KeyError:
+                        results[source["_id"]]["benchmark.ramp_time"] = "none"
+                    try:
+                        results[source["_id"]]["benchmark.runtime"] = index[
+                            "benchmark"
+                        ]["runtime"]
+                    except KeyError:
+                        results[source["_id"]]["benchmark.runtime"] = "none"
+                    try:
+                        results[source["_id"]]["benchmark.sync"] = index["benchmark"][
+                            "sync"
+                        ]
+                    except KeyError:
+                        results[source["_id"]]["benchmark.sync"] = "none"
+                    try:
+                        results[source["_id"]]["benchmark.time_based"] = index[
+                            "benchmark"
+                        ]["time_based"]
+                    except KeyError:
+                        results[source["_id"]]["benchmark.time_based"] = "none"
 
                     result_to_run[source["_id"]] = index["run"]["id"]
 
@@ -121,12 +155,16 @@ def extract_pbench_runs(dirname, results, result_to_run, incoming_url, pool):
     # tells if runs has associated result data
     valid_run = False
 
+    # Significantly speeds up valid run check below
+    expected_run_ids = set(result_to_run.values())
+
     for filename in os.listdir(dirname):
         if not filename.endswith(".json"):  # code
             continue
         if not filename.startswith("pbench_run_data_fio_"):
             continue
-        with open(filename) as f:  # releases the handler itself
+        print(f"Processing {filename}...", flush=True)
+        with open(dirname + "/" + filename) as f:  # releases the handler itself
             data = json.load(f)
             for source in data["hits"]["hits"]:
 
@@ -145,9 +183,12 @@ def extract_pbench_runs(dirname, results, result_to_run, incoming_url, pool):
                     )
                     continue
 
-                if source["_source"]["@metadata"]["md5"] not in result_to_run.values():
+                if source["_source"]["@metadata"]["md5"] not in expected_run_ids:
                     run_wo_res = run_wo_res + 1
-                    print(f"run without results: {source['_source']['run']['name']}")
+                    print(
+                        f"*** run without results: {source['_source']['run']['name']}"
+                    )
+                    valid_run = False
                 else:
                     valid_run = True
 
@@ -198,14 +239,17 @@ def extract_pbench_runs(dirname, results, result_to_run, incoming_url, pool):
 # extract controller directory and sosreports'
 # names associated with each pbench run
 def extract_run_metadata(results, result_to_run, run_record, incoming_url):
+    # print (f"Entered run metadata: {run_record['run']['name']}")
 
     temp = dict()
     clientnames_set = False  # since clientnames are common to all iterations
     current_sample_name = (
         None  # since disknames and hostnames are common to all samples
     )
+    session = requests.Session()
+    ua = session.headers["User-Agent"]
+    session.headers.update({"User-Agent": f"{ua} -- merge_sos_and_perf_parallel"})
 
-    # print ("Entered run metadata")
     for id in result_to_run:
         if result_to_run[id] == run_record["@metadata"]["md5"]:
             results[id]["controller_dir"] = run_record["@metadata"]["controller_dir"]
@@ -220,7 +264,9 @@ def extract_run_metadata(results, result_to_run, run_record, incoming_url):
             # add host and disk names in the data here
             if current_sample_name != results[id]["sample.name"]:
                 # print ("Before fio")
-                disknames, hostnames = extract_fio_result(results[id], incoming_url)
+                disknames, hostnames = extract_fio_result(
+                    results[id], incoming_url, session
+                )
                 current_sample_name = results[id]["sample.name"]
             results[id]["disknames"] = disknames
             results[id]["hostnames"] = hostnames
@@ -228,7 +274,7 @@ def extract_run_metadata(results, result_to_run, run_record, incoming_url):
             # add client names here
             if not clientnames_set:
                 # print ("Before clients")
-                clientnames = extract_clients(results[id], incoming_url)
+                clientnames = extract_clients(results[id], incoming_url, session)
                 clientnames_set = True
             results[id]["clientnames"] = clientnames
 
@@ -238,8 +284,7 @@ def extract_run_metadata(results, result_to_run, run_record, incoming_url):
 
 
 # extract list of clients from the URL
-def extract_clients(results_meta, incoming_url):
-    names = dict()
+def extract_clients(results_meta, incoming_url, session):
     url = (
         incoming_url
         + results_meta["controller_dir"]
@@ -253,23 +298,21 @@ def extract_clients(results_meta, incoming_url):
     )
 
     # check if the page is accessible
-    response = requests.get(url, allow_redirects=True)
-    if response.status_code == 200:  # successful
-        soup = BeautifulSoup(response.content, "html.parser")
-        tbl = soup.find("table")
-        df = pd.read_html(str(tbl))[0]
-        df = df[(~df["Name"].isnull()) & (df["Name"] != "Parent Directory")]
-        clientnames = df["Name"].to_list()
+    response = session.get(url, allow_redirects=True)
+    if response.status_code != 200:  # successful
+        return []
 
-    if "clientnames" not in locals():
-        clientnames = []
+    soup = BeautifulSoup(response.content, "html.parser")
+    tbl = soup.find("table")
+    df = pd.read_html(str(tbl))[0]
+    df = df[(~df["Name"].isnull()) & (df["Name"] != "Parent Directory")]
+    clientnames = df["Name"].to_list()
 
     return clientnames
 
 
 # extract host and disk names from fio-result.txt
-def extract_fio_result(results_meta, incoming_url):
-    names = dict()
+def extract_fio_result(results_meta, incoming_url, session):
     url = (
         incoming_url
         + results_meta["controller_dir"]
@@ -284,31 +327,36 @@ def extract_fio_result(results_meta, incoming_url):
     )
 
     # check if the page is accessible
-    response = requests.get(url, allow_redirects=True)
-    if response.status_code == 200:  # successful
-        try:
-            document = response.json()
-        except ValueError:
-            print("Response content is not valid JSON")
-            print(url)
-            print(response.content)
-            return [[], []]
+    response = session.get(url, allow_redirects=True)
+    if response.status_code != 200:  # successful
+        return [[], []]
 
-        if "disk_util" in document.keys():
-            disknames = [
-                disk["name"] for disk in document["disk_util"] if "name" in disk.keys()
-            ]
-        if "client_stats" in document.keys():
-            hostnames = [
-                host["hostname"]
-                for host in document["client_stats"]
-                if "hostname" in host.keys()
-            ]
-            hostnames = list(set(hostnames))
+    try:
+        document = response.json()
+    except ValueError:
+        print("Response content is not valid JSON")
+        print(url)
+        print(response.content)
+        return [[], []]
 
-    if "disknames" not in locals():
+    if "disk_util" in document.keys():
+        disknames = [
+            disk["name"] for disk in document["disk_util"] if "name" in disk.keys()
+        ]
+    else:
         disknames = []
-    if "hostnames" not in locals():
+
+    if "client_stats" in document.keys():
+        hostnames = list(
+            set(
+                [
+                    host["hostname"]
+                    for host in document["client_stats"]
+                    if "hostname" in host.keys()
+                ]
+            )
+        )
+    else:
         hostnames = []
 
     return [disknames, hostnames]
