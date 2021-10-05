@@ -250,6 +250,21 @@ def extract_run_metadata(results, result_to_run, run_record, incoming_url):
     ua = session.headers["User-Agent"]
     session.headers.update({"User-Agent": f"{ua} -- merge_sos_and_perf_parallel"})
 
+    # FIXME - we are going to update each result that has the run record's MD5
+    # for its ID.
+    #
+    # 1. We should build table of run IDs mapped to a list of result IDs to
+    # speed this up
+    #
+    # 2. We should only process the "run_record" sosreports once first, and
+    # then add that result to each result record
+    #
+    # 3. Both the fio and the client calculations should be done once for each
+    # sample, so no need to track clientnames_set
+    #
+    # 4. The current sample name CAN BE the same name between iterations, so
+    # we need to gather them all, calculate the list of individual iteration/sample
+    # names, and then fetch the values for those, and assign to records
     for id in result_to_run:
         if result_to_run[id] == run_record["@metadata"]["md5"]:
             results[id]["controller_dir"] = run_record["@metadata"]["controller_dir"]
