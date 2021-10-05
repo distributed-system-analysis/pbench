@@ -21,83 +21,78 @@ def extract_pbench_results(dirname):
 
     results = dict()
     result_to_run = dict()  # maps result id to run id
-    for file in os.listdir(dirname):
-        if file.endswith(".py"):  # code
+    for filename in os.listdir(dirname):
+        if not filename.endswith(".json"):  # code
             continue
-        else:
-            with open(dirname + "/" + file) as f:  # releases the handler itself
-                data = json.load(f)
-                for source in data["hits"]["hits"]:
+        if not filename.startswith("pbench_result_data_fio_"):
+            continue
+        with open(dirname + "/" + filename) as f:  # releases the handler itself
+            data = json.load(f)
+            for source in data["hits"]["hits"]:
 
-                    # counts
-                    total_recs = total_recs + 1
-                    if "mean" in source["_source"]["sample"]:
-                        mean = mean + 1
-                        assert source["_id"] not in results.keys(), "Result id repeated"
-                        index = source["_source"]
-                        results[source["_id"]] = {
-                            "run.id": index["run"]["id"],
-                            # 'run.controller' : index['run']['controller'],
-                            "run.name": index["run"]["name"],
-                            "iteration.name": index["iteration"]["name"],
-                            "benchmark.bs": index["benchmark"]["bs"],
-                            "benchmark.direct": index["benchmark"]["direct"],
-                            "benchmark.ioengine": index["benchmark"]["ioengine"],
-                            "benchmark.max_stddevpct": index["benchmark"][
-                                "max_stddevpct"
-                            ],
-                            "benchmark.primary_metric": index["benchmark"][
-                                "primary_metric"
-                            ],
-                            "benchmark.ramp_time": index["benchmark"]["ramp_time"],
-                            "benchmark.runtime": index["benchmark"]["runtime"],
-                            "benchmark.rw": ", ".join(
-                                set((index["benchmark"]["rw"].split(",")))
-                            ),
-                            "benchmark.sync": index["benchmark"]["sync"],
-                            "benchmark.time_based": index["benchmark"]["time_based"],
-                            "sample.name": index["sample"]["name"],
-                            "sample.client_hostname": index["sample"][
-                                "client_hostname"
-                            ],
-                            "sample.measurement_type": index["sample"][
-                                "measurement_type"
-                            ],
-                            "sample.measurement_title": index["sample"][
-                                "measurement_title"
-                            ],
-                            "sample.mean": index["sample"]["mean"],
-                            "sample.stddev": index["sample"]["stddev"],
-                            "sample.stddevpct": index["sample"]["stddevpct"],
-                        }
+                # counts
+                total_recs = total_recs + 1
+                if "mean" in source["_source"]["sample"]:
+                    mean = mean + 1
+                    assert source["_id"] not in results.keys(), "Result id repeated"
+                    index = source["_source"]
+                    results[source["_id"]] = {
+                        "run.id": index["run"]["id"],
+                        # 'run.controller' : index['run']['controller'],
+                        "run.name": index["run"]["name"],
+                        "iteration.name": index["iteration"]["name"],
+                        "benchmark.bs": index["benchmark"]["bs"],
+                        "benchmark.direct": index["benchmark"]["direct"],
+                        "benchmark.ioengine": index["benchmark"]["ioengine"],
+                        "benchmark.max_stddevpct": index["benchmark"]["max_stddevpct"],
+                        "benchmark.primary_metric": index["benchmark"][
+                            "primary_metric"
+                        ],
+                        "benchmark.ramp_time": index["benchmark"]["ramp_time"],
+                        "benchmark.runtime": index["benchmark"]["runtime"],
+                        "benchmark.rw": ", ".join(
+                            set((index["benchmark"]["rw"].split(",")))
+                        ),
+                        "benchmark.sync": index["benchmark"]["sync"],
+                        "benchmark.time_based": index["benchmark"]["time_based"],
+                        "sample.name": index["sample"]["name"],
+                        "sample.client_hostname": index["sample"]["client_hostname"],
+                        "sample.measurement_type": index["sample"]["measurement_type"],
+                        "sample.measurement_title": index["sample"][
+                            "measurement_title"
+                        ],
+                        "sample.mean": index["sample"]["mean"],
+                        "sample.stddev": index["sample"]["stddev"],
+                        "sample.stddevpct": index["sample"]["stddevpct"],
+                    }
 
-                        # optional workload parameters
-                        if "filename" not in index["benchmark"]:
-                            results[source["_id"]]["benchmark.filename"] = "/tmp/fio"
-                        else:
-                            results[source["_id"]]["benchmark.filename"] = ", ".join(
-                                set((index["benchmark"]["filename"].split(",")))
-                            )
-                        if "iodepth" not in index["benchmark"]:
-                            results[source["_id"]]["benchmark.iodepth"] = "32"
-                        else:
-                            results[source["_id"]]["benchmark.iodepth"] = index[
-                                "benchmark"
-                            ]["iodepth"]
-                        if "size" not in index["benchmark"]:
-                            results[source["_id"]]["benchmark.size"] = "4096M"
-                        else:
-                            results[source["_id"]]["benchmark.size"] = ", ".join(
-                                set((index["benchmark"]["size"].split(",")))
-                            )
-                        if "numjobs" not in index["benchmark"]:
-                            results[source["_id"]]["benchmark.numjobs"] = "1"
-                        else:
-                            results[source["_id"]]["benchmark.numjobs"] = ", ".join(
-                                set((index["benchmark"]["numjobs"].split(",")))
-                            )
+                    # optional workload parameters
+                    if "filename" not in index["benchmark"]:
+                        results[source["_id"]]["benchmark.filename"] = "/tmp/fio"
+                    else:
+                        results[source["_id"]]["benchmark.filename"] = ", ".join(
+                            set((index["benchmark"]["filename"].split(",")))
+                        )
+                    if "iodepth" not in index["benchmark"]:
+                        results[source["_id"]]["benchmark.iodepth"] = "32"
+                    else:
+                        results[source["_id"]]["benchmark.iodepth"] = index[
+                            "benchmark"
+                        ]["iodepth"]
+                    if "size" not in index["benchmark"]:
+                        results[source["_id"]]["benchmark.size"] = "4096M"
+                    else:
+                        results[source["_id"]]["benchmark.size"] = ", ".join(
+                            set((index["benchmark"]["size"].split(",")))
+                        )
+                    if "numjobs" not in index["benchmark"]:
+                        results[source["_id"]]["benchmark.numjobs"] = "1"
+                    else:
+                        results[source["_id"]]["benchmark.numjobs"] = ", ".join(
+                            set((index["benchmark"]["numjobs"].split(",")))
+                        )
 
-                        result_to_run[source["_id"]] = index["run"]["id"]
+                    result_to_run[source["_id"]] = index["run"]["id"]
 
     print("total pbench result records: " + str(total_recs))
     print("records with mean available: " + str(mean))
@@ -108,7 +103,7 @@ def extract_pbench_results(dirname):
 # extract controller directory and sosreports'
 # names associated with each pbench run and
 # merge it with the result data
-def extract_pbench_runs(filename, results, result_to_run, incoming_url, pool):
+def extract_pbench_runs(dirname, results, result_to_run, incoming_url, pool):
     # counts
     total_recs = 0
     controller_dir = 0
@@ -126,61 +121,68 @@ def extract_pbench_runs(filename, results, result_to_run, incoming_url, pool):
     # tells if runs has associated result data
     valid_run = False
 
-    with open(filename) as f:  # releases the handler itself
-        data = json.load(f)
-        for source in data["hits"]["hits"]:
+    for filename in os.listdir(dirname):
+        if not filename.endswith(".json"):  # code
+            continue
+        if not filename.startswith("pbench_run_data_fio_"):
+            continue
+        with open(filename) as f:  # releases the handler itself
+            data = json.load(f)
+            for source in data["hits"]["hits"]:
 
-            # counts
-            total_recs = total_recs + 1
-            if "controller_dir" in source["_source"]["@metadata"]:
-                controller_dir = controller_dir + 1
-                if source["_source"]["@metadata"]["controller_dir"].startswith("EC2::"):
-                    cloud = cloud + 1
-            else:
-                print(
-                    "pbench run with no controller_dir: "
-                    + source["_source"]["@metadata"]["md5"]
-                )
-                continue
-
-            if source["_source"]["@metadata"]["md5"] not in result_to_run.values():
-                run_wo_res = run_wo_res + 1
-                print(f"run without results: {source['_source']['run']['name']}")
-            else:
-                valid_run = True
-
-            if "sosreports" in source["_source"]:
-                sos = sos + 1
-            # counts
-
-            if valid_run and "sosreports" in source["_source"]:
-                if pool:
-                    result_list.append(
-                        pool.apply_async(
-                            extract_run_metadata,
-                            args=(
-                                results,
-                                result_to_run,
-                                source["_source"],
-                                incoming_url,
-                            ),
-                        )
-                    )
+                # counts
+                total_recs = total_recs + 1
+                if "controller_dir" in source["_source"]["@metadata"]:
+                    controller_dir = controller_dir + 1
+                    if source["_source"]["@metadata"]["controller_dir"].startswith(
+                        "EC2::"
+                    ):
+                        cloud = cloud + 1
                 else:
-                    pbench.update(
-                        extract_run_metadata(
-                            results, result_to_run, source["_source"], incoming_url
-                        )
+                    print(
+                        "pbench run with no controller_dir: "
+                        + source["_source"]["@metadata"]["md5"]
                     )
+                    continue
 
-        if pool:
-            pool.close()  # no more parallel work to submit
-            pool.join()  # wait for the worker processes to terminate
+                if source["_source"]["@metadata"]["md5"] not in result_to_run.values():
+                    run_wo_res = run_wo_res + 1
+                    print(f"run without results: {source['_source']['run']['name']}")
+                else:
+                    valid_run = True
 
-            for res in result_list:
-                record = res.get()
-                if record:
-                    pbench.update(record)
+                if "sosreports" in source["_source"]:
+                    sos = sos + 1
+                # counts
+
+                if valid_run and "sosreports" in source["_source"]:
+                    if pool:
+                        result_list.append(
+                            pool.apply_async(
+                                extract_run_metadata,
+                                args=(
+                                    results,
+                                    result_to_run,
+                                    source["_source"],
+                                    incoming_url,
+                                ),
+                            )
+                        )
+                    else:
+                        pbench.update(
+                            extract_run_metadata(
+                                results, result_to_run, source["_source"], incoming_url
+                            )
+                        )
+
+            if pool:
+                pool.close()  # no more parallel work to submit
+                pool.join()  # wait for the worker processes to terminate
+
+                for res in result_list:
+                    record = res.get()
+                    if record:
+                        pbench.update(record)
 
     print("total pbench run records: " + str(total_recs))
     print("records with controller_dir: " + str(controller_dir))
@@ -320,28 +322,20 @@ def main(args):
     url_prefix = args[2]
     incoming_url = f"{url_prefix}/incoming/"
 
-    # Directory containing the pbench result data pulled from Elasticsearch.
-    # Collect the pbench results data for fio from 2020-06 and 2021-06 from
-    # the Elasticsearch instance in the directory "pbench_results_data" using
-    # the following command (it gives us the performance results as well as
-    # the workload parameters, change the dates and size fields accordingly):
+    # Directory containing the pbench run and result data pulled from
+    # Elasticsearch.
     #
-    # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.result-data.2020-06-*/pbench-result-data-sample/_search?q=run.script:fio&size=63988&pretty=true' > pbench_results_2020_06.json
+    # Collect both the pbench run data and result data for fio from 2020-06
+    # (example month index name) from the Elasticsearch instance in the
+    # directory argument using the following commands (they gives us the
+    # performance results as well as the workload parameters, change the
+    # dates and size fields accordingly):
+    #
+    # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.result-data.2020-06-*/pbench-result-data-sample/_search?q=run.script:fio&size=63988&pretty=true' > pbench_result_data_fio_2020-06.json
+    # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.run.2020-06/pbench-run/_search?q=run.script:fio&size=13060&pretty=true' > pbench_run_data_fio_2020-06.json
     #
     # Provide the directory containing all those files as the 3rd argument.
     dirname = args[3]
-
-    # File name containing all the pbench run data.
-    # Collect the pbench run data for fio from 2020 and 2021 from
-    # Elasticsearch in the directory "pbench_run_data" using the following
-    # command (it gives us information about mapping between runs and
-    # sosreports that have associated performance results; be sure to figure
-    # out the size parameter first):
-    #
-    # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.run.202*/pbench-run/_search?q=run.script:fio&size=13060&pretty=true' > pbench_run_data_fio.json
-    #
-    # Provide the generated file name as the 4th argument.
-    filename = args[4]
 
     # We create the multiprocessing pool first to avoid forking a sub-process
     # with lots of memory allocated.
@@ -352,7 +346,7 @@ def main(args):
 
     results, result_to_run = extract_pbench_results(dirname)
     pbench_fio = extract_pbench_runs(
-        filename, results, result_to_run, incoming_url, pool
+        dirname, results, result_to_run, incoming_url, pool
     )
 
     with open("sosreport_fio.txt", "w") as log:
