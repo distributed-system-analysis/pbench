@@ -63,7 +63,7 @@ mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
 %post
 # Install python dependencies as pbench user into user's site-packages
-(su pbench -c "pip3 --no-cache-dir install --user -r /%{installdir}/requirements.txt") > /%{installdir}/pip3-install.log
+(su pbench -c "pip3 --no-cache-dir install --user --no-warn-script-location -r /%{installdir}/requirements.txt") > /%{installdir}/pip3-install.log
 
 # The `site` package is Python magic; it runs automatically when Python starts,
 # and builds `sys.path`.
@@ -89,6 +89,7 @@ su pbench -c "echo /%{installdir}/lib > \$(python3 -m site --user-site)/pbench.p
 # install node.js modules under /%{installdir}
 cd /%{installdir}
 rm -rf node_modules
+echo 'package-lock=false' >> .npmrc
 npm install
 
 # this only handles v0.3
@@ -112,6 +113,16 @@ chown -R pbench.pbench /%{installdir}
 
 %preun
 
+rm -rf \
+    "$(python3 -m site --user-site)/pbench.pth"       \
+    /%{installdir}/node_modules                       \
+    /%{installdir}/.npmrc                             \
+    /%{installdir}/package-lock.json                  \
+    /%{installdir}/pip3-install.log                   \
+    /%{installdir}/%{static}/js/v0.3/d3.min.js        \
+    /%{installdir}/%{static}/js/v0.3/d3-queue.min.js  \
+    /%{installdir}/%{static}/js/v0.3/saveSvgAsPng.js
+
 %postun
 # if uninstalling, rather than updating, remove everything
 if [ $1 -eq 0 ] ;then
@@ -119,7 +130,6 @@ if [ $1 -eq 0 ] ;then
     if [ -f $crontab ] ;then
         crontab -u pbench -r
     fi
-    rm -rf /%{installdir}
 fi
 
 %posttrans
@@ -127,24 +137,14 @@ fi
 %files
 
 %defattr(644, pbench, pbench, 755)
-/%{installdir}/VERSION
-/%{installdir}/SEQNO
-/%{installdir}/SHA1
-/%{installdir}/package.json
-/%{installdir}/requirements.txt
-
-# pbench-base.sh %attr overrides previous /bin %attr
+/%{installdir}
 %attr(755, pbench, pbench) /%{installdir}/bin
 %attr(644, pbench, pbench) /%{installdir}/bin/pbench-base.sh
-
-# service script %attr overrides %defattr on later /lib
 %attr(755, pbench, pbench) /%{installdir}/lib/systemd/pbench-server.service
-/%{installdir}/lib
-/%{installdir}/%{static}
 
-%doc
-/%{installdir}/lib/pbench/server/s3backup/README
-/%{installdir}/lib/pbench/common/AUTHORS.log_formatter
-/%{installdir}/lib/pbench/common/LICENSE.log_formatter
-/%{installdir}/%{static}/css/v0.3/LICENSE.TXT
-/%{installdir}/%{static}/js/v0.3/LICENSE.TXT
+%doc /%{installdir}/lib/pbench/server/s3backup/README
+%doc /%{installdir}/lib/pbench/common/AUTHORS.log_formatter
+%doc /%{installdir}/lib/pbench/common/LICENSE.log_formatter
+
+%license /%{installdir}/%{static}/css/v0.3/LICENSE.TXT
+%license /%{installdir}/%{static}/js/v0.3/LICENSE.TXT

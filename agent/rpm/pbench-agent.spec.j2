@@ -81,7 +81,7 @@ if pip3 show configtools > /dev/null 2>&1 ;then pip3 uninstall -y configtools ;f
 # to install the latest Python3 modules, which we need. So we have to fetch
 # our own copy of `pip3`, as described at:
 #   https://pip.pypa.io/en/latest/installing/#installing-with-get-pip-py 
-# We then install it separately from the existing verion and set `PATH` and
+# We then install it separately from the existing version and set `PATH` and
 # `PYTHONPATH` so that we use this updated version when we install our module
 # dependencies below.
 curl -X GET -o /%{installdir}/get-pip.py https://bootstrap.pypa.io/get-pip.py > /%{installdir}/pip3-update.log 2>&1
