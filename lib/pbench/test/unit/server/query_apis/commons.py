@@ -161,7 +161,7 @@ class Commons:
                 json=keys,
             )
             assert response.status_code == HTTPStatus.BAD_REQUEST
-            missing = [k for k in required_keys if k not in keys]
+            missing = sorted(set(required_keys) - set(keys))
             assert (
                 response.json.get("message")
                 == f"Missing required parameters: {','.join(missing)}"

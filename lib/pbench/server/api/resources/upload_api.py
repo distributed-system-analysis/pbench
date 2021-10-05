@@ -1,3 +1,4 @@
+import datetime
 import errno
 import hashlib
 import os
@@ -11,7 +12,12 @@ from flask_restful import Resource, abort
 
 from pbench.common.utils import validate_hostname
 from pbench.server.api.auth import Auth
-from pbench.server.database.models.datasets import Dataset, DatasetDuplicate, States
+from pbench.server.database.models.datasets import (
+    Dataset,
+    DatasetDuplicate,
+    States,
+    Metadata,
+)
 from pbench.server.utils import filesize_bytes
 
 
@@ -298,6 +304,22 @@ class Upload(Resource):
 
         try:
             dataset.advance(States.UPLOADED)
+
+            # TODO: Implement per-user override of default (requires PR #2049)
+            try:
+                retention_days = int(
+                    self.config.get_conf(
+                        __name__, "pbench-server", "default-dataset-retention-days", 90
+                    )
+                )
+            except Exception as e:
+                self.logger.error("Unable to get integer retention days: {}", str(e))
+                raise
+            retention = datetime.timedelta(days=retention_days)
+            deletion = datetime.datetime.now() + retention
+            Metadata.setvalue(
+                dataset=dataset, key=Metadata.DELETION, value=f"{deletion:%Y-%m-%d}"
+            )
         except Exception as exc:
             self.logger.error("Unable to finalize {}, '{}'", dataset, exc)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")

@@ -220,6 +220,6 @@ drwxrwxr-x          - tmp
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-fake|foo|get_object_exception|UNPACKED| ARCHIVED = (4) True
-test|foo|fio__2016-08-18_15:47:09|UNPACKED| ARCHIVED = (4) True
+fake|foo|get_object_exception|UNPACKED| server = {"archived": true}
+test|foo|fio__2016-08-18_15:47:09|UNPACKED| server = {"archived": true}
 --- SqliteDB Datasets

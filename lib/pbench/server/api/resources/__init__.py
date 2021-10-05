@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 from enum import Enum
 from http import HTTPStatus
+from json.decoder import JSONDecodeError
 from logging import Logger
 from typing import Any, AnyStr, Callable, Dict, List, Union
 
@@ -9,9 +10,15 @@ from dateutil import parser as date_parser
 from flask import request
 from flask.wrappers import Request, Response
 from flask_restful import Resource, abort
+
 from pbench.server import PbenchServerConfig
 from pbench.server.api.auth import Auth
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import (
+    Dataset,
+    Metadata,
+    MetadataBadKey,
+    MetadataNotFound,
+)
 from pbench.server.database.models.users import User
 
 # A type defined to conform to the semantic definition of a JSON structure
@@ -49,7 +56,7 @@ class SchemaError(TypeError):
         self.http_status = status
 
     def __str__(self) -> str:
-        return "Generic schema error"
+        return "Generic schema validation error"
 
 
 class UnverifiedUser(SchemaError):
@@ -97,7 +104,7 @@ class MissingParameters(SchemaError):
 
     def __init__(self, keys: List[AnyStr]):
         super().__init__()
-        self.keys = keys
+        self.keys = sorted(keys)
 
     def __str__(self):
         return f"Missing required parameters: {','.join(self.keys)}"
@@ -105,25 +112,81 @@ class MissingParameters(SchemaError):
 
 class ConversionError(SchemaError):
     """
-    ConversionError Used to report an invalid parameter type
+    Used to report an invalid parameter type
     """
 
-    def __init__(self, value: Any, expected_type: str, actual_type: str):
+    def __init__(self, value: Any, expected_type: str):
         """
         Construct a ConversionError exception
 
         Args:
             value: The value we tried to convert
             expected_type: The expected type
-            actual_type: The actual type
         """
         super().__init__()
         self.value = value
         self.expected_type = expected_type
-        self.actual_type = actual_type
 
     def __str__(self):
-        return f"Value {self.value!r} ({self.actual_type}) cannot be parsed as a {self.expected_type}"
+        return f"Value {self.value!r} ({type(self.value).__name__}) cannot be parsed as a {self.expected_type}"
+
+
+class KeywordError(SchemaError):
+    """
+    Used to report an unrecognized keyword value.
+    """
+
+    def __init__(
+        self,
+        parameter: "Parameter",
+        expected_type: str,
+        unrecognized: List[str],
+        *,
+        keywords: List[str] = [],
+    ):
+        """
+        Construct a KeywordError exception
+
+        Args:
+            parameter: The Parameter defining the keywords
+            expected_type: The expected type ("keyword", "JSON")
+            unrecognized: The unrecognized keywords
+            keywords: If specified, overrides default keywords from parameter
+        """
+        super().__init__()
+        self.parameter = parameter
+        self.expected_type = expected_type
+        self.unrecognized = sorted(unrecognized)
+        self.keywords = sorted(keywords if keywords else parameter.keywords)
+
+    def __str__(self):
+        return f"Unrecognized {self.expected_type} {self.unrecognized!r} given for parameter {self.parameter.name}; allowed keywords are {self.keywords!r}"
+
+
+class ListElementError(SchemaError):
+    """
+    Used to report an unrecognized list element value.
+    """
+
+    def __init__(self, parameter: "Parameter", bad: List[str]):
+        """
+        Construct a ListElementError exception
+
+        Args:
+            parameter: The Parameter defining the list
+            bad: The unrecognized elements
+        """
+        super().__init__()
+        self.parameter = parameter
+        self.bad = sorted(bad)
+
+    def __str__(self):
+        expected = (
+            repr(self.parameter.keywords)
+            if self.parameter.keywords
+            else self.parameter.element_type.friendly
+        )
+        return f"Unrecognized list value{'s' if len(self.bad) > 1 else ''} {self.bad!r} given for parameter {self.parameter.name}; expected {expected}"
 
 
 class PostprocessError(Exception):
@@ -141,12 +204,13 @@ class PostprocessError(Exception):
         return f"Postprocessing error returning {self.status}: {self.message!r} [{self.data}]"
 
 
-def convert_date(value: str) -> datetime:
+def convert_date(value: str, _) -> datetime:
     """
     Convert a date/time string to a datetime.datetime object.
 
     Args:
         value: String representation of date/time
+        _: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -157,10 +221,10 @@ def convert_date(value: str) -> datetime:
     try:
         return date_parser.parse(value)
     except Exception:
-        raise ConversionError(value, "date/time string", type(value).__name__)
+        raise ConversionError(value, "date/time string")
 
 
-def convert_username(value: Union[str, None]) -> Union[str, None]:
+def convert_username(value: Union[str, None], _) -> Union[str, None]:
     """
     Validate that the user object referenced by the username string exists, and
     return the internal representation of that user.
@@ -171,6 +235,7 @@ def convert_username(value: Union[str, None]) -> Union[str, None]:
 
     Args:
         value: external user representation
+        _: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -181,22 +246,23 @@ def convert_username(value: Union[str, None]) -> Union[str, None]:
     if value is None:
         return None
     if not isinstance(value, str):
-        raise ConversionError(value, str.__name__, type(value).__name__)
+        raise ConversionError(value, str.__name__)
     try:
         user = Auth().verify_user(value)
     except Exception:
-        raise ConversionError(value, "username", type(value).__name__)
+        raise ConversionError(value, "username")
     if not user:
         raise UnverifiedUser(value)
     return str(user.id)
 
 
-def convert_json(value: JSON) -> JSON:
+def convert_json(value: JSON, parameter: "Parameter") -> JSON:
     """
     Validate a parameter of JSON type.
 
     Args:
         value: JSON dict
+        parameter: Supplies list of allowed JSON keys
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -205,20 +271,30 @@ def convert_json(value: JSON) -> JSON:
         The JSON dict
     """
     try:
-        if json.loads(json.dumps(value)) != value:
-            raise TypeError(f"value is not valid JSON: {value!r}")
-    except Exception:
-        raise ConversionError(value, "JSON", type(value).__name__) from None
-    return value
+        if json.loads(json.dumps(value)) == value:
+            if parameter.keywords:
+                bad = []
+                for k in value.keys():
+                    if not Metadata.is_key_path(k, parameter.keywords):
+                        bad.append(k)
+                if bad:
+                    raise KeywordError(
+                        parameter, f"JSON key{'s' if len(bad) > 1 else ''}", bad
+                    )
+            return value
+    except JSONDecodeError:
+        pass
+    raise ConversionError(value, "JSON")
 
 
-def convert_string(value: str) -> str:
+def convert_string(value: str, _) -> str:
     """
     Verify that the parameter value is a string (e.g., not a JSON dict, or an
     int), and return it.
 
     Args:
         value: parameter value
+        _: The Parameter definition (not used)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -227,30 +303,70 @@ def convert_string(value: str) -> str:
         the input value
     """
     if type(value) is not str:
-        raise ConversionError(value, str.__name__, type(value).__name__)
+        raise ConversionError(value, str.__name__)
     return value
 
 
-def convert_list(value: list) -> list:
+def convert_keyword(value: str, parameter: "Parameter") -> str:
     """
-    Verify that the parameter value is a list (e.g., not a JSON dict, or an
-    int), and return it.
+    Verify that the parameter value is a string and a member of the
+    `valid` list. The match is case-blind and will return the lowercased
+    version of the input keyword.
+
+    Keyword matching recognizes a special sort of keyword that roots a
+    user-defined "open" secondary namespace controlled by the caller, signaled
+    by the ".*" suffix on the keyword: e.g., a keyword of "user.*" will match
+    input of "user", "user.contact" and "user.cloud.name".
 
     Args:
-        value: REST API request parameter value
+        value: parameter value
+        parameter: The Parameter definition (provides valid keywords)
 
     Raises:
-        ConversionError: input can't be converted
+        ConversionError: input can't be validated or normalized
 
     Returns:
         the input value
     """
+    if type(value) is not str:
+        raise ConversionError(value, str.__name__)
+    input = value.lower()
+    if Metadata.is_key_path(input, parameter.keywords):
+        return input
+    raise KeywordError(parameter, "keyword", [value])
+
+
+def convert_list(value: List[Any], parameter: "Parameter") -> List[Any]:
+    """
+    Verify that the parameter value is a list and that each element
+    of the list is a valid instance of the referenced element type.
+
+    Args:
+        value: parameter value
+        parameter: The Parameter definition (provides list element type)
+
+    Raises:
+        ConversionError: input can't be validated or normalized
+
+    Returns:
+        A new list with normalized elements
+    """
     if type(value) is not list:
-        raise ConversionError(value, list.__name__, type(value).__name__)
-    return value
+        raise ConversionError(value, f"List of {parameter.name}")
+    etype: "ParamType" = parameter.element_type
+    retlist = []
+    errlist = []
+    for v in value:
+        try:
+            retlist.append(etype.convert(v, parameter))
+        except SchemaError:
+            errlist.append(v)
+    if errlist:
+        raise ListElementError(parameter, errlist)
+    return retlist
 
 
-def convert_access(value: str) -> str:
+def convert_access(value: str, parameter: "Parameter") -> str:
     """
     Verify that the parameter value is a case-insensitive access scope keyword:
     either "public" or "private". Return the normalized lowercase form.
@@ -260,6 +376,8 @@ def convert_access(value: str) -> str:
 
     Args:
         value: parameter value
+        parameter: The Parameter definition (in this case supplies only
+            parameter name for errors)
 
     Raises:
         ConversionError: input can't be validated or normalized
@@ -268,10 +386,12 @@ def convert_access(value: str) -> str:
         the validated access string
     """
     if type(value) is not str:
-        raise ConversionError(value, str.__name__, type(value).__name__)
+        raise ConversionError(value, str.__name__)
     v = value.lower()
     if v not in Dataset.ACCESS_KEYWORDS:
-        raise ConversionError(value, "access", type(value).__name__)
+        raise KeywordError(
+            parameter, "access keyword", [value], keywords=Dataset.ACCESS_KEYWORDS
+        )
     return v
 
 
@@ -286,6 +406,7 @@ class ParamType(Enum):
     ACCESS = ("Access", convert_access)
     DATE = ("Date", convert_date)
     JSON = ("Json", convert_json)
+    KEYWORD = ("Keyword", convert_keyword)
     LIST = ("List", convert_list)
     STRING = ("String", convert_string)
     USER = ("User", convert_username)
@@ -311,7 +432,13 @@ class Parameter:
     """
 
     def __init__(
-        self, name: AnyStr, type: ParamType, required: bool = False,
+        self,
+        name: str,
+        type: ParamType,
+        *,  # Following are keyword-only
+        keywords: List[str] = None,
+        element_type: ParamType = None,
+        required: bool = False,
     ):
         """
         Initialize a Parameter object describing a JSON parameter with its type
@@ -320,10 +447,14 @@ class Parameter:
         Args:
             name: Parameter name
             type: Parameter type
-            required: whether the parameter is required (default to False)
+            keywords: List of keywords for ParamType.KEYWORD
+            element_type: List element type if ParamType.LIST
+            required: whether the parameter is required (defaults to False)
         """
         self.name = name
         self.type = type
+        self.keywords = [k.lower() for k in keywords] if keywords else None
+        self.element_type = element_type
         self.required = required
 
     def invalid(self, json: JSON) -> bool:
@@ -350,11 +481,13 @@ class Parameter:
         Returns:
             Normalized format
         """
-        return self.type.convert(data)
+        return self.type.convert(data, self)
 
     def __str__(self) -> str:
         return (
             f"Parameter<{self.name}:{self.type}"
+            f"{',' + str(self.keywords) if self.type == ParamType.KEYWORD else ''}"
+            f"{',' + str(self.element_type) if self.type == ParamType.LIST else ''}"
             f"{',required' if self.required else ''}>"
         )
 
@@ -403,6 +536,9 @@ class Schema:
     def __contains__(self, key):
         return key in self.parameters
 
+    def __getitem__(self, key):
+        return self.parameters[key]
+
     def __str__(self) -> str:
         return f"Schema<{self.parameters}>"
 
@@ -438,6 +574,11 @@ class ApiBase(Resource):
     PUT, and DELETE HTTP operations by overriding the abstract _get, _post,
     _put, and _delete methods.
     """
+
+    # We treat the current "access category" of the dataset as user-accessible
+    # metadata for the purposes of these APIs even though it's represented as
+    # a column on the Dataset model.
+    METADATA = Metadata.USER_METADATA + [Dataset.ACCESS, Dataset.OWNER]
 
     def __init__(
         self,
@@ -533,6 +674,45 @@ class ApiBase(Resource):
         if not authorized:
             raise UnauthorizedAccess(authorized_user, self.role, user, access)
 
+    def _get_metadata(
+        self, controller: str, name: str, requested_items: List[str]
+    ) -> JSON:
+        """
+        Get requested metadata about a specific Dataset and return a JSON
+        fragment that can be added to other data about the Dataset.
+
+        This supports strict Metadata key/value items associated with the
+        Dataset as well as selected columns from the Dataset model.
+
+        Args:
+            controller: Dataset controller name
+            name: Dataset run name
+            requested_items: List of metadata key names
+
+        Returns:
+            JSON object (Python dict) containing a key-value pair for each
+            requested metadata key present on the dataset.
+        """
+        if not requested_items:
+            return {}
+
+        dataset: Dataset = Dataset.attach(controller=controller, name=name)
+        metadata = {}
+        for i in requested_items:
+            if i == Dataset.ACCESS:
+                metadata[i] = dataset.access
+            elif i == Dataset.OWNER:
+                metadata[i] = dataset.owner.username
+            elif Metadata.is_key_path(i, Metadata.USER_METADATA):
+                try:
+                    metadata[i] = Metadata.getvalue(dataset=dataset, key=i)
+                except MetadataNotFound:
+                    metadata[i] = None
+            else:
+                raise MetadataBadKey(i)
+
+        return metadata
+
     def _dispatch(self, method: Callable, request: Request) -> Response:
         """
         This is a common front end for HTTP operations.
@@ -579,15 +759,9 @@ class ApiBase(Resource):
 
         # Automatically authorize the operation only if the API schema has the
         # "user" key of type USERNAME; otherwise we assume that authorization
-        # is unnecessary, or that the API-specific subclass will take care of
+        # is unnecessary or that the API-specific subclass will take care of
         # that in preprocess.
-
-        # TODO: This should really be more flexible. (A) we should confirm
-        # that we're choosing a USERNAME type instead of blindly targeting
-        # "user" parameter name; (B) we should allow some other USERNAME
-        # typed parameter. I'm deliberately not making these changes in
-        # order to minimize the scope of this refactoring.
-        if "user" in self.schema:
+        if "user" in self.schema and self.schema["user"].type is ParamType.USER:
             user = json_data.get("user")  # original username, not user ID
             access = new_data.get("access")  # normalized access policy
             try:

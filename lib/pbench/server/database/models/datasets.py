@@ -1,19 +1,21 @@
+import copy
 import datetime
 import enum
 import os
+import re
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 
 from sqlalchemy import (
+    event,
     Column,
-    Integer,
-    String,
-    Text,
     DateTime,
     Enum,
     ForeignKey,
+    Integer,
+    JSON,
+    String,
     UniqueConstraint,
-    event,
 )
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -24,9 +26,8 @@ from pbench.server.database.models.users import User
 
 class DatasetError(Exception):
     """
-    DatasetError This is a base class for errors reported by the
-                Dataset class. It is never raised directly, but
-                may be used in "except" clauses.
+    This is a base class for errors reported by the Dataset class. It is never
+    raised directly, but may be used in "except" clauses.
     """
 
     pass
@@ -34,7 +35,7 @@ class DatasetError(Exception):
 
 class DatasetSqlError(DatasetError):
     """
-    DatasetSqlError SQLAlchemy errors reported through Dataset operations.
+    SQLAlchemy errors reported through Dataset operations.
 
     The exception will identify the controller and name of the target dataset,
     along with the operation being attempted; the __cause__ will specify the
@@ -52,7 +53,7 @@ class DatasetSqlError(DatasetError):
 
 class DatasetDuplicate(DatasetError):
     """
-    DatasetDuplicate Attempt to create a Dataset that already exists.
+    Attempt to create a Dataset that already exists.
     """
 
     def __init__(self, controller: str, name: str):
@@ -65,7 +66,7 @@ class DatasetDuplicate(DatasetError):
 
 class DatasetNotFound(DatasetError):
     """
-    DatasetNotFound Attempt to attach to a Dataset that doesn't exist.
+    Attempt to attach to a Dataset that doesn't exist.
     """
 
     def __init__(self, controller: str, name: str):
@@ -78,8 +79,7 @@ class DatasetNotFound(DatasetError):
 
 class DatasetBadParameterType(DatasetError):
     """
-    DatasetBadParameterType A parameter of the wrong type was passed to a
-                method in the Dataset module.
+    A parameter of the wrong type was passed to a method in the Dataset module.
 
     The error text will identify the actual value and type, and the expected
     type.
@@ -97,9 +97,8 @@ class DatasetBadParameterType(DatasetError):
 
 class DatasetTransitionError(DatasetError):
     """
-    DatasetTransitionError A base class for errors reporting disallowed
-                dataset state transitions. It is never raised directly, but
-                may be used in "except" clauses.
+    A base class for errors reporting disallowed dataset state transitions. It
+    is never raised directly, but may be used in "except" clauses.
     """
 
     pass
@@ -107,8 +106,8 @@ class DatasetTransitionError(DatasetError):
 
 class DatasetTerminalStateViolation(DatasetTransitionError):
     """
-    DatasetTerminalStateViolation An attempt was made to change the state of
-                a dataset currently in a terminal state.
+    An attempt was made to change the state of a dataset currently in a
+    terminal state.
 
     The error text will identify the dataset by controller and name, and both
     the current and requested new states.
@@ -124,8 +123,8 @@ class DatasetTerminalStateViolation(DatasetTransitionError):
 
 class DatasetBadStateTransition(DatasetTransitionError):
     """
-    DatasetTransitionError An attempt was made to advance a dataset to a new
-                state that's not reachable from the current state.
+    An attempt was made to advance a dataset to a new state that's not
+    reachable from the current state.
 
     The error text will identify the dataset by controller and name, and both
     the current and requested new states.
@@ -141,8 +140,8 @@ class DatasetBadStateTransition(DatasetTransitionError):
 
 class MetadataError(DatasetError):
     """
-    MetadataError A base class for errors reported by the Metadata class. It
-                is never raised directly, but may be used in "except" clauses.
+    A base class for errors reported by the Metadata class. It is never raised
+    directly, but may be used in "except" clauses.
     """
 
     def __init__(self, dataset: "Dataset", key: str):
@@ -155,7 +154,7 @@ class MetadataError(DatasetError):
 
 class MetadataSqlError(MetadataError):
     """
-    MetadataSqlError SQLAlchemy errors reported through Metadata operations.
+    SQLAlchemy errors reported through Metadata operations.
 
     The exception will identify the dataset and the metadata key, along with
     the operation being attempted; the __cause__ will specify the original
@@ -172,8 +171,7 @@ class MetadataSqlError(MetadataError):
 
 class MetadataNotFound(MetadataError):
     """
-    MetadataNotFound An attempt to `get` or remove a Metadata key that isn't
-                present.
+    An attempt to `get` or remove a Metadata key that isn't present.
 
     The error text will identify the dataset and metadata key that was
     specified.
@@ -186,17 +184,36 @@ class MetadataNotFound(MetadataError):
         return f"No metadata {self.key} for {self.dataset}"
 
 
+class MetadataBadStructure(MetadataError):
+    """
+    A call to `getvalue` or `setvalue` found a level in the JSON document where
+    the caller's key expected a nested JSON object but the type at that level
+    is something else. For example, when `user.contact.email` finds that
+    `user.contact` is a string, it's impossible to look up the `email` field.
+
+    The error text will identify the key path and the expected key element that
+    is missing.
+    """
+
+    def __init__(self, dataset: "Dataset", path: str, element: str):
+        super().__init__(dataset, path)
+        self.element = element
+
+    def __str__(self) -> str:
+        return f"Key {self.element!r} value for {self.key!r} in {self.dataset} is not a JSON object"
+
+
 class MetadataKeyError(DatasetError):
     """
-    MetadataKeyError A base class for metadata key errors in the context of
-                Metadata errors that have no associated Dataset.  It is never
-                raised directly, but may be used in "except" clauses.
+    A base class for metadata key errors in the context of Metadata errors
+    that have no associated Dataset. It is never raised directly, but may
+    be used in "except" clauses.
     """
 
 
 class MetadataMissingParameter(MetadataKeyError):
     """
-    MetadataMissingParameter A Metadata required parameter was not specified.
+    A Metadata required parameter was not specified.
     """
 
     def __init__(self, what: str):
@@ -208,7 +225,7 @@ class MetadataMissingParameter(MetadataKeyError):
 
 class MetadataBadKey(MetadataKeyError):
     """
-    MetadataBadKey An unsupported metadata key was specified.
+    An unsupported metadata key was specified.
 
     The error text will identify the metadata key that was specified.
     """
@@ -217,12 +234,28 @@ class MetadataBadKey(MetadataKeyError):
         self.key = key
 
     def __str__(self) -> str:
-        return f"Metadata key {self.key} is not supported"
+        return f"Metadata key {self.key!r} is not supported"
+
+
+class MetadataProtectedKey(MetadataKeyError):
+    """
+    A metadata key was specified that cannot be modified in the current
+    context. (Usually an internally reserved key that was referenced in
+    an external client API.)
+
+    The error text will identify the metadata key that was specified.
+    """
+
+    def __init__(self, key: str):
+        self.key = key
+
+    def __str__(self) -> str:
+        return f"Metadata key {self.key} cannot be modified by client"
 
 
 class MetadataMissingKeyValue(MetadataKeyError):
     """
-    MetadataMissingKeyValue A value must be specified for the metadata key.
+    A value must be specified for the metadata key.
 
     The error text will identify the metadata key that was specified.
     """
@@ -236,8 +269,7 @@ class MetadataMissingKeyValue(MetadataKeyError):
 
 class MetadataDuplicateKey(MetadataError):
     """
-    MetadataDuplicateKey An attempt to add a Metadata key that already exists
-                on the dataset.
+    An attempt to add a Metadata key that already exists on the dataset.
 
     The error text will identify the dataset and metadata key that was
     specified.
@@ -319,6 +351,13 @@ class Dataset(Database.Base):
         # because they're terminal states that cannot be exited.
     }
 
+    # "Virtual" metadata key paths to access Dataset column data
+    ACCESS = "dataset.access"
+    OWNER = "dataset.owner"
+
+    # Acceptable values of the "access" column
+    #
+    # TODO: This may be expanded in the future to support groups
     PUBLIC_ACCESS = "public"
     PRIVATE_ACCESS = "private"
     ACCESS_KEYWORDS = [PUBLIC_ACCESS, PRIVATE_ACCESS]
@@ -349,13 +388,10 @@ class Dataset(Database.Base):
 
     # Require that the combination of controller and name is unique.
     #
-    # FIXME: I would prefer to check owner+controller+name, although
-    # in practice the chances of controller+name collision are small.
-    # This is necessary because our current filesystem-based server
-    # components cannot infer ownership except by referencing
-    # this database using filesystem-based tags (controller, name).
-    # In the future when we change the server components to operate
-    # entirely by database and messages, we can improve this.
+    # NOTE: some existing server code depends on "name" alone being unique,
+    # although it's not entirely clear that any code enforces this except
+    # within a controller directory. (Although as a real dataset tarball is
+    # timestamped, the chances of duplication are small.)
     __table_args__ = (UniqueConstraint("controller", "name"), {})
 
     @validates("state")
@@ -671,48 +707,167 @@ class Metadata(Database.Base):
 
     __tablename__ = "dataset_metadata"
 
+    # "Native" keys are the value of the PostgreSQL "key" column in the SQL
+    # table. We support hierarchical nested keys of the form "server.indexed",
+    # but the first element of any nested key path must be one of these:
+    NATIVE_KEYS = ["dashboard", "server", "user"]
+
+    # +++ Standard Metadata keys:
+    #
+    # Metadata accessible through the API comes from both the parent Dataset
+    # object and from JSON documents associated with multiple Metadata keys
+    # attached to that Dataset.
+    #
+    # Metadata keys representing Dataset column values are in a virtual
+    # "dataset" namespace and use the column name: "dataset.access",
+    # "dataset.owner";
+    #
+    # Metadata keys reserved for internal modification within the server are in
+    # the "server" namespace, and are strictly controlled by keyword path:
+    # e.g., "server.deleted", "server.archived";
+    #
+    # Metadata keys intended for use by the dashboard client are in the
+    # "dashboard" namespace. While these can be modified by any API client, the
+    # separate namespace provides some protection against accidental
+    # modifications that might break dashboard semantics. This is an "open"
+    # namespace, allowing the dashboard to define and manage any keys it needs
+    # within the "dashboard.*" hierarchy.
+    #
+    # Metadata keys within the "user" namespace are reserved for general client
+    # use, although by convention a second-level key-space should be used to
+    # provide some isolation. This is an "open" namespace, allowing any API
+    # client to define new keywords such as "user.contact" or "user.me.you"
+    # and JSON subdocuments are available at any level. For example, if we've
+    # set "user.contact.email" and "user.postman.test" then retrieving "user"
+    # will return a JSON document like
+    #     {"contact": {"email": "value"}, "postman": {"test": "value"}}
+    # and retrieving "user.contact" would return
+    #     {"email": "value"}
+    #
+    # The following class constants define the set of currently available
+    # metadata keys, where the "open" namespaces are represented by the
+    # syntax "user.*".
+
+    # DELETION timestamp for dataset based on user settings and system
+    # settings at time the dataset is created.
+    #
+    # {"server.deletion": "2021-12-25"}
+    DELETION = "server.deletion"
+
+    # DASHBOARD is arbitrary data saved on behalf of the dashboard client; the
+    # reserved namespace differs from "user" only in that reserving a primary
+    # key for the "well known" dashboard client offers some protection against
+    # key name collisions.
+    #
+    # {"dashboard.seen": True}
+    DASHBOARD = "dashboard.*"
+
+    # USER is arbitrary data saved on behalf of the owning user, as a JSON
+    # document.
+    #
+    # Note that the hierarchical key management in the getvalue and setvalue
+    # static methods (used consistently by the API layer) allow client code
+    # to interact with these either as a complete JSON document ("user") or
+    # as a full dotted key path ("user.contact.name.first") or at any JSON
+    # layer between.
+    #
+    # API keyword validation uses the trailing ".*" here to indicate that only
+    # the first element of the path should be validated, allowing the client
+    # a completely uninterpreted namespace below that.
+    #
+    # {"user.cloud": "AWS", "user.mood": "CLOUDY"}}
+    USER = "user.*"
+
     # REINDEX boolean flag to indicate when a dataset should be re-indexed
     #
-    # {"REINDEX": True}
-    REINDEX = "REINDEX"
+    # {"server.reindex": True}
+    REINDEX = "server.reindex"
 
     # ARCHIVED boolean flag to indicate when a tarball has been archived
     #
-    # {"ARCHIVED": True}
-    ARCHIVED = "ARCHIVED"
+    # {"server.archived": True}
+    ARCHIVED = "server.archived"
 
     # TARBALL_PATH access path of the dataset tarball. (E.g., we could use this
     # to record an S3 object store key.) NOT YET USED.
     #
-    # {"TARBALL_PATH": "/srv/pbench/archive/fs-version-001/ctrl/example__2021.05.21T07.15.27.tar.xz"}
-    TARBALL_PATH = "TARBALL_PATH"
+    # {
+    #   "server.tarball-path": "/srv/pbench/archive/fs-version-001/"
+    #       "ctrl/example__2021.05.21T07.15.27.tar.xz"
+    # }
+    TARBALL_PATH = "server.tarball-path"
 
-    # INDEX_MAP a two-level dict recording the MD5 document IDs for each
-    # Elasticsearch index containing documents for this dataset.
+    # INDEX_MAP a dict recording the set of MD5 document IDs for each
+    # Elasticsearch index that contains documents for this dataset.
     #
-    # {"drb.v6.run-data.2021-07": ["MD5"], "drb.v6.run-toc.2021-07": ["MD5-1", "MD5-2"]}
-    INDEX_MAP = "INDEX_MAP"
+    # {
+    #    "server.index-map": {
+    #      "drb.v6.run-data.2021-07": ["MD5"],
+    #      "drb.v6.run-toc.2021-07": ["MD5-1", "MD5-2"]
+    #    }
+    # }
+    INDEX_MAP = "server.index-map"
 
-    METADATA_KEYS = [REINDEX, ARCHIVED, TARBALL_PATH, INDEX_MAP]
+    # --- Standard Metadata keys
+
+    # Metadata keys that clients can update
+    USER_UPDATEABLE_METADATA = [DASHBOARD, USER]
+
+    # Metadata keys that are accessible to clients
+    USER_METADATA = USER_UPDATEABLE_METADATA + [DELETION]
+
+    # Metadata keys that are for internal use only
+    INTERNAL_METADATA = [REINDEX, ARCHIVED, TARBALL_PATH, INDEX_MAP]
+
+    # All supported Metadata keys
+    METADATA_KEYS = USER_METADATA + INTERNAL_METADATA
+
+    # NOTE: the ECMA JSON specification allows JSON "names" (keys) to be any
+    # string, though most implementations and schemas enforce or recommend
+    # stricter syntax. Pbench restricts dataset metadata open namespace keys to
+    # lowercase letters, numbers, underscore, and hyphen, with keys separated
+    # by a period.
+    _valid_key_charset = re.compile(r"[a-z0-9_.-]+")
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(255), unique=False, nullable=False, index=True)
-    value = Column(Text, unique=False, nullable=True)
+    value = Column(JSON, unique=False, nullable=True)
     dataset_ref = Column(
         Integer, ForeignKey("datasets.id", ondelete="CASCADE"), nullable=False
     )
 
     @validates("key")
-    def validate_key(self, key: str, value: Any) -> Any:
-        """Validate that the value provided for the Metadata key argument is an
-        allowed name.
+    def validate_key(self, _, value: Any) -> str:
         """
-        if value not in Metadata.METADATA_KEYS:
-            raise MetadataBadKey(value)
-        return value
+        SQLAlchemy validator to check the specified value of a model object
+        attribute (column).
+
+        Args:
+            _: Name of the model attribute (always "key" because of the
+                decorator parameter, so we ignore it)
+            value: Specified value for the "key" attribute
+        """
+        if type(value) is str:
+            v = value.lower()
+            if v in Metadata.NATIVE_KEYS:
+                return v
+        raise MetadataBadKey(value)
 
     @staticmethod
     def create(**kwargs) -> "Metadata":
+        """
+        Create a new Metadata object. This will fail if the key already exists
+        for the referenced Dataset.
+
+        NOTE: use this only for raw first-level Metadata keys, not dotted
+        paths like "dashboard.seen", which will fail key validation. Instead,
+        use the higher-level `set` helper.
+
+        Args:
+            dataset: Associated Dataset
+            key: Metadata key
+            value: Metadata value
+        """
         if "dataset" not in kwargs:
             raise MetadataMissingParameter("dataset")
         dataset = kwargs.get("dataset")
@@ -731,7 +886,164 @@ class Metadata(Database.Base):
             return meta
 
     @staticmethod
+    def is_key_path(key: str, valid: List[str]) -> bool:
+        """
+        Determine whether 'key' is a valid Metadata key path using the list
+        specified in 'valid'. If the specified key is in the list, then it's
+        valid. If the key is a dotted path and the first element plus a
+        trailing ".*" is in the list, then this is an open key namespace where
+        any subsequent path is acceptable: e.g., "user.*" allows "user", or
+        "user.contact", "user.contact.name", etc.
+
+        Args:
+            key: metadata key path
+            valid: list of acceptable key paths
+
+        Returns:
+            True if the path is valid, or False
+        """
+        k = key.lower()
+        # Check for exact match
+        if k in valid:
+            return True
+        path = k.split(".")
+        # Disallow ".." and trailing "."
+        if "" in path:
+            return False
+        # Check for open namespace match
+        if path[0] + ".*" not in valid:
+            return False
+        # Check that all open namespace keys are valid symbols
+        return bool(re.fullmatch(Metadata._valid_key_charset, k))
+
+    @staticmethod
+    def getvalue(dataset: Dataset, key: str) -> JSON:
+        """
+        Returns the value of the specified key, which may be a dotted
+        hierarchical path (e.g., "server.deleted").
+
+        The specific value of the dotted key path is returned, not the top
+        level Metadata object. The full JSON value of a top level key can be
+        acquired directly using `Metadata.get(dataset, key)`
+
+        E.g., for "user.contact.name" with the dataset's Metadata value for the
+        "user" key as {"contact": {"name": "Dave", "email": "d@example.com"}},
+        this would return "Dave", whereas Metadata.get(dataset, "user") would
+        return the entire user key JSON, such as
+        {"user" {"contact": {"name": "Dave", "email": "d@example.com}}}
+
+        Args:
+            dataset: associated dataset
+            key: hierarchical key path to fetch
+
+        Returns:
+            Value of the key path
+        """
+        if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
+            raise MetadataBadKey(key)
+        keys = key.lower().split(".")
+        native_key = keys.pop(0)
+        try:
+            meta = Metadata.get(dataset, native_key)
+        except MetadataNotFound:
+            return None
+        value = meta.value
+        name = native_key
+        for i in keys:
+            # If we have a nested key, and the `value` at this level isn't
+            # a dictionary, then the `getvalue` path is inconsistent with
+            # the stored data; let the caller know with an exception.
+            if type(value) is not dict:
+                raise MetadataBadStructure(dataset, key, name)
+            if i not in value:
+                return None
+            value = value[i]
+            name = i
+        return value
+
+    @staticmethod
+    def setvalue(dataset: Dataset, key: str, value: Any) -> "Metadata":
+        """
+        Create or modify an existing metadata value. This method supports
+        hierarchical dotted paths like "dashboard.seen" and should be used in
+        most contexts where client-visible metadata paths are used.
+
+        This will create a nested JSON structure (represented as a Python dict)
+        as necessary as it descends the hierarchy. For example, if you assign
+        "a.b.c" a value of "bar", and then query "a", you'll get back
+        "a": {"b": {"c": "bar"}}}
+
+        Args:
+            dataset: Associated Dataset
+            key: Lookup key (including hierarchical dotted paths)
+            value: Value to be assigned to the specified key
+
+        Returns:
+            A Metadata object representing the new database row with the
+            properly assigned value.
+        """
+        if not Metadata.is_key_path(key, Metadata.METADATA_KEYS):
+            raise MetadataBadKey(key)
+        keys = key.lower().split(".")
+        native_key = keys.pop(0)
+        found = True
+        try:
+            meta = Metadata.get(dataset, native_key)
+
+            # SQLAlchemy determines whether to perform an `update` based on the
+            # Python object reference. We make a copy here to ensure that it
+            # sees we've made a change.
+            meta_value = copy.deepcopy(meta.value)
+        except MetadataNotFound:
+            found = False
+            meta_value = {}
+
+        if not keys:
+            meta_value = value
+        else:
+            walker = meta_value
+            name = native_key
+            for i in range(len(keys)):
+                # If we have a nested key, and the `value` at this level isn't
+                # a dictionary, then the `setvalue` path is inconsistent with
+                # the stored data; let the caller know with an exception.
+                if type(walker) is not dict:
+                    raise MetadataBadStructure(dataset, key, name)
+                inner_key = keys[i]
+
+                # If we've reached the final key, assign the value in this
+                # dict; otherwise continue descending.
+                if i == len(keys) - 1:
+                    walker[inner_key] = value
+                else:
+                    if inner_key not in walker:
+                        walker[inner_key] = {}
+                    walker = walker[inner_key]
+                    name = inner_key
+
+        if found:
+            meta.value = meta_value
+            meta.update()
+        else:
+            meta = Metadata.create(dataset=dataset, key=native_key, value=meta_value)
+        return meta
+
+    @staticmethod
     def get(dataset: Dataset, key: str) -> "Metadata":
+        """
+        Fetch a Metadata (row) from the database by key name.
+
+        Args:
+            dataset: Associated Dataset
+            key: Lookup key (root native SQL row key)
+
+        Raises:
+            MetadataSqlError: SQL error in retrieval
+            MetadataNotFound: No value exists for specified key
+
+        Returns:
+            The Metadata model object
+        """
         try:
             meta = (
                 Database.db_session.query(Metadata)
@@ -772,7 +1084,7 @@ class Metadata(Database.Base):
 
     def add(self, dataset: Dataset):
         """
-        add Add the Metadata object to the dataset
+        Add the Metadata object to the dataset
         """
         if type(dataset) is not Dataset:
             raise DatasetBadParameterType(dataset, Dataset)

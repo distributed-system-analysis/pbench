@@ -1,7 +1,7 @@
 from urllib.parse import urljoin
 
 
-class TestEnpointConfig:
+class TestEndpointConfig:
     """
     Unit testing for EndpointConfig class.
 
@@ -57,6 +57,7 @@ class TestEnpointConfig:
                 "controllers_months": f"{uri}/controllers/months",
                 "datasets_list": f"{uri}/datasets/list",
                 "datasets_detail": f"{uri}/datasets/detail",
+                "datasets_metadata": f"{uri}/datasets/metadata",
                 "datasets_publish": f"{uri}/datasets/publish",
                 "register": f"{uri}/register",
                 "login": f"{uri}/login",

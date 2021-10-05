@@ -625,5 +625,5 @@ run-1970-01-01T00:00:42-UTC: Processed 1 tarballs
 ---- pbench-satellite-local/logs
 --- pbench log file contents
 +++ SqliteDB Datasets
-test|alphaville|test_7.7_2015.09.21T15.31.08|INDEXED| INDEX_MAP = (263) {"pbench-unittests.v6.run-data.2015-09": ["dc3de0dfdf2d2b0720b80cf20190563a"], "
+test|alphaville|test_7.7_2015.09.21T15.31.08|INDEXED| server = {"reindex": false, "index-map": {"pbench-unittests.v6.run-data.2015-09": ["dc3de0dfdf2d2b0720b80cf20190563a"], "pbench-unittests.v6.run-toc.2015-09": ["2a8be880865396e60a381303ef92a39f", "7db2fe481198ea4a32d786036ec29f4c", "3d71867f5e1df7132542093dca1fee6c", "d882a748d984847ed991f92eab32a42a"]}}
 --- SqliteDB Datasets

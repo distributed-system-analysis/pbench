@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from pbench.server.database.models.datasets import Dataset, States
+from freezegun import freeze_time
+
+from pbench.server.database.models.datasets import Dataset, States, Metadata
 from pbench.test.unit.server.test_user_auth import login_user, register_user
 
 
@@ -281,7 +283,7 @@ class TestUpload:
         md5.update(file_contents)
         datafile.write_bytes(file_contents)
 
-        with datafile.open("rb") as data_fp:
+        with datafile.open("rb") as data_fp, freeze_time("1970-01-01"):
             response = client.put(
                 self.gen_uri(server_config, filename),
                 data=data_fp,
@@ -303,6 +305,8 @@ class TestUpload:
         assert dataset.controller == self.controller
         assert dataset.name == filename[:-7]
         assert dataset.state == States.UPLOADED
+        assert Metadata.getvalue(dataset, "dashboard") is None
+        assert Metadata.getvalue(dataset, Metadata.DELETION) == "1972-01-01"
 
         for record in caplog.records:
-            assert record.levelname == "INFO"
+            assert record.levelname in ["DEBUG", "INFO"]

@@ -11,7 +11,7 @@ from stat import ST_MTIME
 from pbench.server.api import create_app, get_server_config
 from pbench.server.api.auth import Auth
 from pbench.server.database.database import Database
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 from pbench.test.unit.server.headertypes import HeaderTypes
@@ -270,6 +270,30 @@ def fake_mtime(monkeypatch):
 
 
 @pytest.fixture()
+def attach_dataset(pbench_token, create_user):
+    """
+    Create test Datasets for the authorized user ("drb") and for another user
+    ("test")
+
+    Args:
+        pbench_token: create a "drb" user and authorize it
+        create_user: create a "test" user
+    """
+    Dataset(owner="drb", controller="node", name="drb", access="private").add()
+    Dataset(owner="test", controller="node", name="test", access="private").add()
+
+
+@pytest.fixture()
+def provide_metadata(attach_dataset):
+    drb = Dataset.attach(controller="node", name="drb")
+    test = Dataset.attach(controller="node", name="test")
+    Metadata.setvalue(dataset=drb, key="user.contact", value="me@example.com")
+    Metadata.setvalue(dataset=drb, key=Metadata.DELETION, value="2022-12-25")
+    Metadata.setvalue(dataset=test, key="user.contact", value="you@example.com")
+    Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
+
+
+@pytest.fixture()
 def find_template(monkeypatch, fake_mtime):
     """
     Mock a Template class find call to return an object without requiring a DB
@@ -490,25 +514,6 @@ def pbench_token(client, server_config):
     data = response.json
     assert data["auth_token"]
     return data["auth_token"]
-
-
-@pytest.fixture()
-def attach_dataset(pbench_token, create_user):
-    """
-    Mock a Dataset attach call to return an object. We mock the Dataset.attach
-    method to avoid DB access here, however the user authentication mechanism
-    is not yet mocked so we have to look up User data.
-
-    Args:
-        pbench_token: create a "drb" user for testing
-        create_user: create a "test" user
-    """
-    Dataset(
-        owner="drb", controller="node", name="drb", access="private"
-    ).add()  # Created by pbench_token fixture
-    Dataset(
-        owner="test", controller="node", name="test", access="private"
-    ).add()  # Created by create_user fixture
 
 
 @pytest.fixture(params=[header for header in HeaderTypes])
