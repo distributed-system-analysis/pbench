@@ -1,0 +1,18 @@
+To collect pbench-fio data, use script.sh. 
+
+The script requires four parameters.
+
+es_host: Elasticsearch hostname
+es_port: Elasticsearch port
+url_prefix: Pbench server URL
+sos_host: Server where the sosreports are stored
+
+The order is given below.
+
+./script.sh <es_host> <es_port> <url_prefix> <sos_host>
+
+Example
+
+./script.sh elasticsearch.example.com 8000 http://pbench.example.com sos.example.com
+
+Please see the contents of script.sh for a description of its behavior.
