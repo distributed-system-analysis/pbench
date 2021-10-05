@@ -33,7 +33,7 @@ class TestDatasetsDetail(Commons):
         "user", ("drb", "badwolf", "no_user"),
     )
     def test_query(
-        self, client, server_config, query_api, find_template, build_auth_header, user,
+        self, client, server_config, query_api, find_template, build_auth_header, user
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the response body.
@@ -184,7 +184,6 @@ class TestDatasetsDetail(Commons):
         client,
         server_config,
         query_api,
-        user_ok,
         find_template,
         provide_metadata,
         pbench_token,

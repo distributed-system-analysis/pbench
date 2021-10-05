@@ -126,7 +126,6 @@ class TestDatasetsList(Commons):
         client,
         server_config,
         query_api,
-        user_ok,
         find_template,
         provide_metadata,
         pbench_token,

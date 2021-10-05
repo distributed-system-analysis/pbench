@@ -269,17 +269,17 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     Returns:
         internal username representation
     """
-    if value is None:
-        return None
-    if not isinstance(value, str):
-        raise ConversionError(value, str.__name__)
-    try:
-        user = Auth().verify_user(value)
-    except Exception:
-        raise ConversionError(value, "username")
-    if not user:
-        raise UnverifiedUser(value)
-    return str(user.id)
+    if isinstance(value, str):
+        if not Auth.token_auth.current_user():
+            raise UnverifiedUser(value)
+        try:
+            user = User.query(username=value)
+        except Exception:
+            pass
+        else:
+            if user:
+                return str(user.id)
+    raise ConversionError(value, "username")
 
 
 def convert_json(value: JSON, parameter: "Parameter") -> JSON:

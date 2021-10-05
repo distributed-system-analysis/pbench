@@ -4,7 +4,6 @@ from typing import Callable
 import dateutil
 import pytest
 
-from pbench.server.api.auth import Auth, UnknownUser
 from pbench.server.api.resources import (
     API_OPERATION,
     ConversionError,
@@ -123,7 +122,7 @@ class TestParamType:
             (ParamType.DATE, 1),  # not a string representing a date
             (ParamType.USER, False),  # not a user string
             (ParamType.USER, "xyzzy"),  # not a defined username
-            (ParamType.ACCESS, "foobar"),  # ACCESS is "public" or "private"
+            (ParamType.ACCESS, ["foobar"]),  # ACCESS is "public" or "private"
             (ParamType.ACCESS, 0),  # ACCESS must be a string
         ),
     )
@@ -134,12 +133,6 @@ class TestParamType:
         NOTE that we can't test LIST without the element type; we'll test that
         separately.
         """
-
-        def not_ok(auth: Auth, username: str) -> User:
-            raise UnknownUser()
-
-        monkeypatch.setattr(Auth, "verify_user", not_ok)
-
         ptype, value = test
         param = Parameter("test", ptype)
         with pytest.raises(ConversionError) as exc:
@@ -165,7 +158,7 @@ class TestParamType:
 
         monkeypatch.setattr(User, "query", ok)
         with pytest.raises(UnverifiedUser) as exc:
-            ParamType.USER.convert("drb")
+            ParamType.USER.convert("drb", None)
         assert exc.value.username == "drb"
 
 
