@@ -26,6 +26,7 @@ class TestDatasetsDetail(Commons):
                 "start": "2020-08",
                 "end": "2020-10",
             },
+            index_prefix="run-data",
             empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 

@@ -42,6 +42,8 @@ class Commons:
         bad_date_payload: JSON = None,
         error_payload: JSON = None,
         empty_es_response_payload: JSON = None,
+        index_prefix: AnyStr = None,
+        index_version: int = 6,  # defaults to version 6 unless specified
     ):
         self.cls_obj = cls_obj
         self.pbench_endpoint = pbench_endpoint
@@ -50,6 +52,8 @@ class Commons:
         self.bad_date_payload = bad_date_payload
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
+        self.index_prefix = index_prefix
+        self.index_version = index_version
 
     def build_index(self, server_config, dates):
         """
@@ -58,7 +62,11 @@ class Commons:
         Args:
             dates (iterable): list of date strings
         """
-        idx = server_config.get("Indexing", "index_prefix") + ".v6.run-data."
+        idx = "{}.v{}.{}.".format(
+            server_config.get("Indexing", "index_prefix"),
+            self.index_version,
+            self.index_prefix,
+        )
         index = "/"
         for d in dates:
             index += f"{idx}{d},"
@@ -226,6 +234,7 @@ class Commons:
         user_ok,
         find_template,
         build_auth_header,
+        attach_dataset,
     ):
         """
         Check proper handling of a query resulting in no Elasticsearch matches.
@@ -282,6 +291,7 @@ class Commons:
         user_ok,
         find_template,
         pbench_token,
+        attach_dataset,
     ):
         """
         Check that an exception in calling Elasticsearch is reported correctly.
@@ -304,7 +314,14 @@ class Commons:
 
     @pytest.mark.parametrize("errors", (400, 500, 409))
     def test_http_error(
-        self, server_config, query_api, user_ok, find_template, pbench_token, errors
+        self,
+        server_config,
+        query_api,
+        user_ok,
+        find_template,
+        pbench_token,
+        attach_dataset,
+        errors,
     ):
         """
         Check that an Elasticsearch error is reported correctly through the

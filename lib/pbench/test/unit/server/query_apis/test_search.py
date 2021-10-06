@@ -26,6 +26,7 @@ class TestIndexSearch(Commons):
                 "end": "2020-10",
                 "search_term": "random_string",
             },
+            index_prefix="run-data",
             empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 

@@ -26,6 +26,7 @@ class TestDatasetsList(Commons):
                 "start": "2020-08",
                 "end": "2020-10",
             },
+            index_prefix="run-data",
         )
 
     @pytest.mark.parametrize(

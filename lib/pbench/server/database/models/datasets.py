@@ -596,6 +596,13 @@ class Dataset(Database.Base):
             dataset.advance(state)
         return dataset
 
+    @staticmethod
+    def query(**kwargs) -> "Dataset":
+        """
+        Query dataset object based on a given column name of the run document
+        """
+        return Database.db_session.query(Dataset).filter_by(**kwargs).first()
+
     def __str__(self) -> str:
         """
         __str__ Return a string representation of the dataset
