@@ -308,18 +308,11 @@ def extract_run_metadata(
     clientnames = None
 
     # since disknames and hostnames are common to all samples
-    current_sample_name = None
+    current_iter_name = None
 
     # since sosreports are common to all results per run
     sosreports = None
 
-    # FIXME
-    #
-    # 3. The fio calculations should be done once for each sample 
-    #
-    # 4. The current sample name CAN BE the same name between iterations, so
-    # we need to gather them all, calculate the list of individual iteration/sample
-    # names, and then fetch the values for those, and assign to records
     for result_id in run_to_results[run_record["@metadata"]["md5"]]:
         result = results[result_id]
         result["run_index"] = run_index
@@ -336,10 +329,11 @@ def extract_run_metadata(
         result["sosreports"] = sosreports
 
         # add host and disk names in the data here
-        if current_sample_name != result["sample.name"]:
+        iter_name = result["iteration.name"]
+        if current_iter_name != iter_name:
             # print ("Before fio")
             disknames, hostnames = extract_fio_result(result, incoming_url, session)
-            current_sample_name = result["sample.name"]
+            current_iter_name = iter_name 
         result["disknames"] = disknames
         result["hostnames"] = hostnames
 
