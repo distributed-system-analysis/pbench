@@ -310,10 +310,10 @@ def extract_run_metadata(
     # since disknames and hostnames are common to all samples
     current_sample_name = None
 
+    # since sosreports are common to all results per run
+    sosreports = None
+
     # FIXME
-    #
-    # 2. We should only process the "run_record" sosreports once first, and
-    # then add that result to each result record
     #
     # 3. The fio calculations should be done once for each sample 
     #
@@ -324,13 +324,16 @@ def extract_run_metadata(
         result = results[result_id]
         result["run_index"] = run_index
         result["controller_dir"] = run_record["@metadata"]["controller_dir"]
-        result["sosreports"] = dict()
-        for sosreport in run_record["sosreports"]:
-            result["sosreports"][os.path.split(sosreport["name"])[1]] = {
-                "hostname-s": sosreport["hostname-s"],
-                "hostname-f": sosreport["hostname-f"],
-                "time": sosreport["name"].split("/")[2],
-            }
+
+        if sosreports is None:
+            sosreports = dict()
+            for sosreport in run_record["sosreports"]:
+                sosreports[os.path.split(sosreport["name"])[1]] = {
+                    "hostname-s": sosreport["hostname-s"],
+                    "hostname-f": sosreport["hostname-f"],
+                    "time": sosreport["name"].split("/")[2],
+                }
+        result["sosreports"] = sosreports
 
         # add host and disk names in the data here
         if current_sample_name != result["sample.name"]:
