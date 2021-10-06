@@ -310,14 +310,12 @@ def extract_run_metadata(
     # since disknames and hostnames are common to all samples
     current_sample_name = None
 
-    # FIXME - we are going to update each result that has the run record's MD5
-    # for its ID.
+    # FIXME
     #
     # 2. We should only process the "run_record" sosreports once first, and
     # then add that result to each result record
     #
-    # 3. Both the fio and the client calculations should be done once for each
-    # sample, so no need to track clientnames_set
+    # 3. The fio calculations should be done once for each sample 
     #
     # 4. The current sample name CAN BE the same name between iterations, so
     # we need to gather them all, calculate the list of individual iteration/sample
