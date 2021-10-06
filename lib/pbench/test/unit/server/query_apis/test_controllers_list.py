@@ -46,13 +46,21 @@ class TestControllersList(Commons):
         The test will run once with each parameter supplied from the local parameterization,
         and, for each of those, multiple times with different values of the build_auth_header fixture.
         """
+
+        # By default, ask for all "private" data for the "user" parameter; we
+        # expect success when "user" matches our authentication token user
+        # (drb) or when the authentication token is an administrator. These
+        # cases are injected via the `build_auth_header` fixture.
         payload = {
             "user": user,
             "access": "private",
             "start": "2020-08",
             "end": "2020-10",
         }
-        # "no_user" means omitting the "user" parameter entirely.
+
+        # "no_user" means omitting the "user" parameter entirely, which means
+        # asking for data for all users. We add "access": "public" so that
+        # we can expect success regardless of the authenticated user.
         if user == "no_user":
             payload.pop("user", None)
             payload["access"] = "public"

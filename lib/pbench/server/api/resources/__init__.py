@@ -202,21 +202,6 @@ class ListElementError(SchemaError):
         return f"Unrecognized list value{'s' if len(self.bad) > 1 else ''} {self.bad!r} given for parameter {self.parameter.name}; expected {expected}"
 
 
-class PostprocessError(Exception):
-    """
-    Used by subclasses to report an error during postprocessing of the
-    Elasticsearch response document.
-    """
-
-    def __init__(self, status: int, message: str, data: JSON = None):
-        self.status = status
-        self.message = message
-        self.data = data
-
-    def __str__(self) -> str:
-        return f"Postprocessing error returning {self.status}: {self.message!r} [{self.data}]"
-
-
 def convert_date(value: str, _) -> datetime:
     """
     Convert a date/time string to a datetime.datetime object.

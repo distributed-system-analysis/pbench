@@ -134,7 +134,10 @@ class Commons:
         validation to give a 401 (not 403) on bad/missing authentication token,
         we should make the call with user/access parameters that would
         otherwise be allowed for an unauthenticated client (e.g., all public
-        data).
+        data) to distinguish the intent of this case from the path we're
+        actually hitting now, which appears to fail as expected but actually
+        fails because we're asking for {"access": "private"} data, which is not
+        allowed for an unauthenticated client call.
         """
         response = client.post(
             server_config.rest_uri + self.pbench_endpoint,
@@ -170,11 +173,12 @@ class Commons:
 
         TODO: This actually tests behavior with no client authentication, as
         Flask-HTTPTokenAuth hides the validation failure because our query
-        APIs select "optional" authentication. If we fix the authentication
-        validation to give a 401 (not 403) on bad/missing authentication token,
-        we should make the call with user/access parameters that would
-        otherwise be allowed for an unauthenticated client (e.g., all public
-        data).
+        APIs select "optional" authentication. We expect UNAUTHORIZED (401)
+        because we are requesting {"access": "private", "user": xxx} on an
+        unauthenticated client connection; because we do not allow an
+        unauthenticated client to determine whether a "user" is valid or not,
+        either form will fail with "authorization required", which a UI may
+        redirect to a login page.
         """
         if "user" not in self.cls_obj.schema.parameters.keys():
             pytest.skip(

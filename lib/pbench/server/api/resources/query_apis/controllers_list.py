@@ -3,14 +3,12 @@ from flask import jsonify
 from logging import Logger
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import (
-    JSON,
-    Schema,
-    Parameter,
-    ParamType,
+from pbench.server.api.resources import JSON, Schema, Parameter, ParamType
+from pbench.server.api.resources.query_apis import (
+    CONTEXT,
+    ElasticBase,
     PostprocessError,
 )
-from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 
 
 class ControllersList(ElasticBase):

@@ -1,7 +1,9 @@
-from pbench.server.api.resources import Schema
+from http import HTTPStatus
 import pytest
+
+from pbench.server.api.resources import Schema
 from pbench.server.api.auth import Auth
-from pbench.server.api.resources.query_apis import ElasticBase, JSON, NoSelectedDatasets
+from pbench.server.api.resources.query_apis import AssemblyError, ElasticBase, JSON
 from pbench.server.database.models.users import User
 
 
@@ -12,20 +14,22 @@ class TestQueryBuilder:
 
     @pytest.fixture()
     def current_user_admin(self, monkeypatch):
+        admin_user = User(
+            email="email@example.com",
+            id=6,
+            username="admin",
+            first_name="Test",
+            last_name="Admin",
+            role="admin",
+        )
+
         class FakeHTTPTokenAuth:
             def current_user(self) -> User:
-                return User(
-                    email="email@example.com",
-                    id=6,
-                    username="admin",
-                    first_name="Test",
-                    last_name="Admin",
-                    role="admin",
-                )
+                return admin_user
 
         with monkeypatch.context() as m:
             m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
-            yield
+            yield admin_user
 
     def test_user_and_access(self, elasticbase, server_config, current_user_drb):
         """
@@ -58,12 +62,35 @@ class TestQueryBuilder:
         """
         id = str(current_user_drb.id)
         query: JSON = elasticbase._get_user_query(
-            {"user": id}, [{"term": {"icecream": "vanilla"}}]
+            {"user": id}, [{"term": {"icecream": "chocolate"}}]
         )
         assert query == {
             "bool": {
                 "filter": [
-                    {"term": {"icecream": "vanilla"}},
+                    {"term": {"icecream": "chocolate"}},
+                    {"term": {"authorization.owner": id}},
+                ]
+            }
+        }
+
+    def test_user_admin(self, elasticbase, server_config, current_user_admin):
+        """
+        Test the query builder when only a user is specified with administrator
+        authentication. We expect the query builder to add the user term.
+
+        This is the same code path as `test_user`, above, and doesn't add any
+        coverage, but "feels" distinct.
+        """
+        # Invent a user ID that's different from the generated admin user's ID;
+        # the value doesn't matter for this test.
+        id = str(current_user_admin.id + 1)
+        query: JSON = elasticbase._get_user_query(
+            {"user": id}, [{"term": {"icecream": "keylime"}}]
+        )
+        assert query == {
+            "bool": {
+                "filter": [
+                    {"term": {"icecream": "keylime"}},
                     {"term": {"authorization.owner": id}},
                 ]
             }
@@ -72,18 +99,20 @@ class TestQueryBuilder:
     def test_access_noauth_private(self, elasticbase, server_config, current_user_none):
         """
         Test the query builder when "private" access is specified by an
-        unauthenticated client. This is expected to throw an exception.
+        unauthenticated client. This is an "impossible" case as authorization
+        checks will stop the request and return UNAUTHORIZED before we get
+        here. We cover the code path anyway, looking for the AssemblyError
+        exception.
         """
-        with pytest.raises(NoSelectedDatasets) as excinfo:
+        with pytest.raises(AssemblyError) as excinfo:
             elasticbase._get_user_query(
                 {"access": "private"}, [{"term": {"icecream": "vanilla"}}]
             )
-        assert excinfo.type == NoSelectedDatasets
-        assert excinfo.value.user is None
-        assert excinfo.value.access == "private"
+        assert excinfo.type == AssemblyError
+        assert excinfo.value.status == HTTPStatus.INTERNAL_SERVER_ERROR
         assert (
             str(excinfo.value)
-            == "Restricted query for unauthorized client data with 'private' access"
+            == 'Assembly error returning 500: "Internal error: can\'t generate query for user None, access private"'
         )
 
     def test_access_noauth_public(self, elasticbase, server_config, current_user_none):

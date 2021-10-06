@@ -8,10 +8,13 @@ from pbench.server.api.resources import (
     JSON,
     Parameter,
     ParamType,
-    PostprocessError,
     Schema,
 )
-from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
+from pbench.server.api.resources.query_apis import (
+    CONTEXT,
+    ElasticBase,
+    PostprocessError,
+)
 
 
 class IndexSearch(ElasticBase):

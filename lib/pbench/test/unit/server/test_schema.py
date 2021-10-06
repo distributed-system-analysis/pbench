@@ -13,13 +13,13 @@ from pbench.server.api.resources import (
     MissingParameters,
     Parameter,
     ParamType,
-    PostprocessError,
     Schema,
     SchemaError,
     UnauthorizedAccess,
     UnsupportedAccessMode,
     UnverifiedUser,
 )
+from pbench.server.api.resources.query_apis import AssemblyError, PostprocessError
 from pbench.server.database.models.users import User
 
 
@@ -53,6 +53,10 @@ class TestExceptions:
         c = ConversionError({}, "str")
         assert str(c) == "Value {} (dict) cannot be parsed as a str"
         assert c.value == {}
+        p = AssemblyError("all's well")
+        assert str(p) == 'Assembly error returning 500: "all\'s well"'
+        p = AssemblyError("all's well-ish", status=HTTPStatus.BAD_REQUEST)
+        assert str(p) == 'Assembly error returning 400: "all\'s well-ish"'
         p = PostprocessError(HTTPStatus.OK, "all's well", {"param": "none"})
         assert (
             str(p)

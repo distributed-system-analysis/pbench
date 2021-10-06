@@ -18,7 +18,6 @@ from pbench.server.api.resources import (
     API_OPERATION,
     ApiBase,
     JSON,
-    PostprocessError,
     Schema,
     SchemaError,
     UnauthorizedAccess,
@@ -46,28 +45,33 @@ class MissingBulkSchemaParameters(SchemaError):
         return f"API {self.subclass_name} is missing schema parameters controller and/or name"
 
 
-class NoSelectedDatasets(Exception):
+class AssemblyError(Exception):
     """
-    Raised by the query builder when the input terms mean that no Elasticsearch
-    data could be selected without violating security rules. Most cases are
-    handled up-front by schema validation and authorization; edge cases raise
-    this exception to trigger logic in the subclass postprocess() method that
-    generates an appropriate empty response (e.g., [] or {}).
+    Used by subclasses to report an error during assembly of the
+    Elasticsearch request document.
     """
 
-    def __init__(self, user: str, access: str):
-        """
-
-        Args:
-            user: The referenced username
-            access: The referenced access type
-        """
-        self.user = user
-        self.access = access
+    def __init__(self, message: str, status: int = HTTPStatus.INTERNAL_SERVER_ERROR):
+        self.status = status
+        self.message = message
 
     def __str__(self) -> str:
-        user = f"user {self.user!r}" if self.user else "unauthorized client"
-        return f"Restricted query for {user} data with {self.access!r} access"
+        return f"Assembly error returning {self.status}: {self.message!r}"
+
+
+class PostprocessError(Exception):
+    """
+    Used by subclasses to report an error during postprocessing of the
+    Elasticsearch response document.
+    """
+
+    def __init__(self, status: int, message: str, data: JSON = None):
+        self.status = status
+        self.message = message
+        self.data = data
+
+    def __str__(self) -> str:
+        return f"Postprocessing error returning {self.status}: {self.message!r} [{self.data}]"
 
 
 class ElasticBase(ApiBase):
@@ -124,10 +128,10 @@ class ElasticBase(ApiBase):
         Generate the "query" parameter for an Elasticsearch _search request
         payload.
 
-        This method is not responsible for enforcing authorization checks;
-        that's done by the `ApiBase._check_authorization()` method. This method
-        is concerned with generating a query to restrict the results to the set
-        matching the user and access values.
+        NOTE: This method is not responsible for authorization checks; that's
+        done by the `ApiBase._check_authorization()` method. This method is
+        only concerned with generating a query to restrict the results to the
+        set matching authorized user and access values.
 
         Specific cases for user and access values:
 
@@ -150,7 +154,7 @@ class ElasticBase(ApiBase):
 
                 ADMIN: all owner:drb AND access:private
                 AUTHORIZED as drb: all owner:drb AND access:private
-                UNAUTHORIZED (or non-drb): NO DATA
+                UNAUTHORIZED (or non-drb): Not handled (permission error)
 
             {"user": "drb", "access": "public"}: public drb
                 All datasets owned by "drb" with "public" access
@@ -159,23 +163,12 @@ class ElasticBase(ApiBase):
                 AUTHORIZED as drb: all owner:drb AND access:public
                 UNAUTHORIZED (or non-drb): all owner:drb AND access:public
 
-                TODO: Right now, the combination of ParmType.USER schema
-                validation and `ApiBase._check_authorization()` will cause
-                unauthenticated queries that reference a username, and
-                authenticated non-ADMIN queries that reference a different
-                username, to fail with a FORBIDDEN (403) error before we get
-                here. If we want these queries to be able to reference public
-                data by username, those methods will need to be changed. (And,
-                in particular, does a query for public data from a username
-                that doesn't exist successfully return an empty set of data, or
-                does it fail with a FORBIDDEN status?)
-
             {"access": "private"}: all private data
                 All datasets with "private" access regardless of user
 
                 ADMIN: all access:private
                 AUTHORIZED: all owner:"me" AND access:private
-                UNAUTHORIZED: NO DATA
+                UNAUTHORIZED: Not handled (permission error)
 
             {"access": "public"}: all public data
                 All datasets with "public" access
@@ -183,50 +176,6 @@ class ElasticBase(ApiBase):
                 ADMIN: all access:public
                 AUTHORIZED: all access:public
                 UNAUTHORIZED: all access:public
-
-        The "or" structure for the AUTHORIZED case of {} is the most
-        complicated query: this requires a nested must/should structure with the
-        constant_score option and defines the interface style of this method,
-        which accepts query "term" nodes from the subclass to be fit into a
-        "query" node rather than simply patching new "term" nodes into an
-        existing "query" node. This structure translates to "must have" both
-        the basic subclass query "term" nodes AND either (the username "term"
-        node OR the access "term" node). E.g.,
-
-        "query": {
-            "constant_score": {  # Disable scoring
-                "filter": {
-                    "bool": {  # Enter outer boolean scope
-                        "must": [ # Combine subquery terms with authorization
-                            {
-                                "bool": {  # Nested authorization OR (should)
-                                    "should": [
-                                        {
-                                            "term": {
-                                                "authorization.owner": "5"
-                                            }
-                                        },
-                                        {
-                                            "term": {
-                                                "authorization.access": "public"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            {   # The subclass term becomes a second AND term (must)
-                                "range": {
-                                    "@timestamp": {
-                                    "gte": "2021-09-01",
-                                    "lte": "2021-10-28"
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                }
-            }
-        },
 
         Args:
             JSON query parameters containing keys:
@@ -239,14 +188,9 @@ class ElasticBase(ApiBase):
                 AND clauses.)
 
         Raises:
-            NoSelectedDatasets: This is raised when there is no possible output
-                from a query (e.g., private data queries from an unauthorized
-                client). There's no point in generating a query or calling
-                Elasticsearch (which would require an impossible combination
-                of terms resulting in no output but no errors). The _call()
-                method will handle this by calling postprocess() with an empty
-                query response that must trigger the subclass to act as if
-                there were no hits or aggregations.
+            AssemblyError: Reports an unsupported access combination we expect
+                to be prohibited by upstream authorization checks. If such a
+                case reaches here, query assembly will be aborted.
 
         Returns:
             An assembled Elasticsearch "query" mode that includes the necessary
@@ -274,7 +218,9 @@ class ElasticBase(ApiBase):
         # IF we're looking at a user we're not authorized to see (either the
         # call is unauthenticated, or authenticated as a non-ADMIN user trying
         # to reference a different user), then we're only allowed to see PUBLIC
-        # data; private data requests aren't allowed.
+        # data; private data requests aren't allowed, and we expect these cases
+        # to fail with appropriate permission errors (401 or 403) before we
+        # reach this code.
         #
         # ELSE IF we're looking for a specific access category, add the query
         # term.
@@ -288,10 +234,9 @@ class ElasticBase(ApiBase):
         # constraint or with no constraint at all.
         if not authorized_user or (user and user != authorized_id and not is_admin):
             if access == Dataset.PRIVATE_ACCESS:
-                # An unauthorized user can never view access:private data
-                # FIX-ME: probably should detect and reject this in check
-                # authorization!
-                raise NoSelectedDatasets(user, access)
+                raise AssemblyError(
+                    f"Internal error: can't generate query for user {user}, access {access}"
+                )
             filter.append({"term": {"authorization.access": Dataset.PUBLIC_ACCESS}})
             self.logger.debug("QUERY: not self public: {}", filter)
         elif access:
@@ -462,30 +407,18 @@ class ElasticBase(ApiBase):
             self.logger.info(
                 "ASSEMBLE returned URL {!r}, {!r}", url, es_request.get("json")
             )
-        except NoSelectedDatasets as e:
-            # The query builder reports that no datasets can be found; skip
-            # the Elasticsearch query and tell postprocess to build an empty
-            # client response as appropriate.
-            self.logger.info("{} query builder reports no matches: {}", klasname, e)
-            context["NODATA"] = True
         except Exception as e:
             self.logger.exception("{} assembly failed: {}", klasname, e)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         try:
-            if not context.get("NODATA"):
-                # perform the Elasticsearch query
-                es_response = method(url, **es_request["kwargs"])
-                self.logger.debug(
-                    "ES query response {}:{}",
-                    es_response.reason,
-                    es_response.status_code,
-                )
-                es_response.raise_for_status()
-                json_response = es_response.json()
-            else:
-                json_response = {}
-
+            # perform the Elasticsearch query
+            es_response = method(url, **es_request["kwargs"])
+            self.logger.debug(
+                "ES query response {}:{}", es_response.reason, es_response.status_code,
+            )
+            es_response.raise_for_status()
+            json_response = es_response.json()
         except requests.exceptions.HTTPError as e:
             self.logger.exception(
                 "{} HTTP error {} from Elasticsearch request: {}",
