@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
+import json
+import multiprocessing
 import os
+import requests
 import sys
 import time
-import json
-import requests
-import pandas as pd
-from bs4 import BeautifulSoup
-import multiprocessing
+
+from elasticsearch1 import Elasticsearch
+from elasticsearch1.helpers import scan
 
 
 # extract pbench run metadata and workload
@@ -50,9 +51,9 @@ def extract_pbench_results(dirname, memprof):
             run = index["run"]
             run_ctrl = run["controller"]
             run_name = run["name"]
-            iter_name = (index["iteration"]["name"],)
+            iter_name = index["iteration"]["name"]
             sample = index["sample"]
-            sample_name = (sample["name"],)
+            sample_name = sample["name"]
             sample_m_type = sample["measurement_type"]
             sample_m_title = sample["measurement_title"]
             sample_m_idx = sample["measurement_idx"]
@@ -160,7 +161,15 @@ def extract_pbench_results(dirname, memprof):
 # names associated with each pbench run and
 # merge it with the result data
 def extract_pbench_runs(
-    dirname, results, result_to_run, run_to_results, incoming_url, pool, memprof
+    dirname,
+    es_host,
+    es_port,
+    results,
+    result_to_run,
+    run_to_results,
+    incoming_url,
+    pool,
+    memprof,
 ):
     if memprof:
         print(
@@ -184,6 +193,12 @@ def extract_pbench_runs(
 
     # tells if runs has associated result data
     valid_run = False
+
+    session = requests.Session()
+    ua = session.headers["User-Agent"]
+    session.headers.update({"User-Agent": f"{ua} -- merge_sos_and_perf_parallel"})
+
+    es = Elasticsearch([f"{es_host}:{es_port}"])
 
     for filename in os.listdir(dirname):
         if not filename.endswith(".json"):  # code
@@ -232,7 +247,10 @@ def extract_pbench_runs(
                                 result_to_run,
                                 run_to_results,
                                 source["_source"],
+                                source["_index"],
                                 incoming_url,
+                                session,
+                                es,
                             ),
                         )
                     )
@@ -243,7 +261,10 @@ def extract_pbench_runs(
                             result_to_run,
                             run_to_results,
                             source["_source"],
+                            source["_index"],
                             incoming_url,
+                            session,
+                            es,
                         )
                     )
 
@@ -270,21 +291,24 @@ def extract_pbench_runs(
 # extract controller directory and sosreports'
 # names associated with each pbench run
 def extract_run_metadata(
-    results, result_to_run, run_to_results, run_record, incoming_url
+    results,
+    result_to_run,
+    run_to_results,
+    run_record,
+    run_index,
+    incoming_url,
+    session,
+    es,
 ):
     # print (f"Entered run metadata: {run_record['run']['name']}")
 
     temp = dict()
 
     # since clientnames are common to all iterations
-    clientnames_set = False
+    clientnames = None
 
     # since disknames and hostnames are common to all samples
     current_sample_name = None
-
-    session = requests.Session()
-    ua = session.headers["User-Agent"]
-    session.headers.update({"User-Agent": f"{ua} -- merge_sos_and_perf_parallel"})
 
     # FIXME - we are going to update each result that has the run record's MD5
     # for its ID.
@@ -300,6 +324,7 @@ def extract_run_metadata(
     # names, and then fetch the values for those, and assign to records
     for result_id in run_to_results[run_record["@metadata"]["md5"]]:
         result = results[result_id]
+        result["run_index"] = run_index
         result["controller_dir"] = run_record["@metadata"]["controller_dir"]
         result["sosreports"] = dict()
         for sosreport in run_record["sosreports"]:
@@ -318,10 +343,9 @@ def extract_run_metadata(
         result["hostnames"] = hostnames
 
         # add client names here
-        if not clientnames_set:
+        if clientnames is None:
             # print ("Before clients")
-            clientnames = extract_clients(result, incoming_url, session)
-            clientnames_set = True
+            clientnames = extract_clients(result, es)
         result["clientnames"] = clientnames
 
         temp[result_id] = result
@@ -330,31 +354,33 @@ def extract_run_metadata(
 
 
 # extract list of clients from the URL
-def extract_clients(results_meta, incoming_url, session):
-    url = (
-        incoming_url
-        + results_meta["controller_dir"]
-        + "/"
-        + results_meta["run.name"]
-        + "/"
-        + results_meta["iteration.name"]
-        + "/"
-        + results_meta["sample.name"]
-        + "/clients/"
-    )
+def extract_clients(results_meta, es):
+    run_index = results_meta["run_index"]
+    parent_id = results_meta["run.id"]
+    iter_name = results_meta["iteration.name"]
+    sample_name = results_meta["sample.name"]
+    parent_dir_name = f"/{iter_name}/{sample_name}/clients"
+    query = {
+        "query": {
+            "query_string": {
+                "query": f'_parent:"{parent_id}"'
+                f' AND ancestor_path_elements:"{iter_name}"'
+                f' AND ancestor_path_elements:"{sample_name}"'
+                f" AND ancestor_path_elements:clients"
+            }
+        }
+    }
 
-    # check if the page is accessible
-    response = session.get(url, allow_redirects=True)
-    if response.status_code != 200:  # successful
-        return []
-
-    soup = BeautifulSoup(response.content, "html.parser")
-    tbl = soup.find("table")
-    df = pd.read_html(str(tbl))[0]
-    df = df[(~df["Name"].isnull()) & (df["Name"] != "Parent Directory")]
-    clientnames = df["Name"].to_list()
-
-    return clientnames
+    client_names_raw = []
+    for doc in scan(
+        es, query=query, index=run_index, doc_type="pbench-run-toc-entry", scroll="1m",
+    ):
+        src = doc["_source"]
+        assert (
+            src["parent"] == parent_dir_name
+        ), f"unexpected parent directory: {src['parent']} != {parent_dir_name} -- {doc!r}"
+        client_names_raw.append(src["name"])
+    return list(set(client_names_raw))
 
 
 # extract host and disk names from fio-result.txt
@@ -412,8 +438,11 @@ def main(args):
     # Number of CPUs to use (where 0 = n CPUs)
     concurrency = int(args[1])
 
+    es_host = args[2]
+    es_port = args[3]
+
     # URL prefix to fetch unpacked data
-    url_prefix = args[2]
+    url_prefix = args[4]
     incoming_url = f"{url_prefix}/incoming/"
 
     # Directory containing the pbench run and result data pulled from
@@ -428,12 +457,12 @@ def main(args):
     # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.result-data.2020-06-*/pbench-result-data-sample/_search?q=run.script:fio&size=63988&pretty=true' > pbench_result_data_fio_2020-06.json
     # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.run.2020-06/pbench-run/_search?q=run.script:fio&size=13060&pretty=true' > pbench_run_data_fio_2020-06.json
     #
-    # Provide the directory containing all those files as the 3rd argument.
-    dirname = args[3]
+    # Provide the directory containing all those files as the 5th argument.
+    dirname = args[5]
 
     # If requested, profile memory usage
     try:
-        profile_arg = int(args[4])
+        profile_arg = int(args[6])
     except (IndexError, ValueError):
         profile = False
     else:
@@ -455,7 +484,15 @@ def main(args):
 
     results, result_to_run, run_to_results = extract_pbench_results(dirname, memprof)
     pbench_fio = extract_pbench_runs(
-        dirname, results, result_to_run, run_to_results, incoming_url, pool, memprof
+        dirname,
+        es_host,
+        es_port,
+        results,
+        result_to_run,
+        run_to_results,
+        incoming_url,
+        pool,
+        memprof,
     )
 
     with open("sosreport_fio.txt", "w") as log:
