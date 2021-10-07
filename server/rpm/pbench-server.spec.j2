@@ -25,12 +25,27 @@ Requires: npm
 
 Requires: python3-alembic python3-aniso8601 python3-boto3 python3-click
 Requires: python3-dateutil python3-elasticsearch python3-email-validator
-Requires: python3-flask python3-flask-cors python3-flask-httpauth
+Requires: python3-flask python3-flask-cors
+
+# The following is available on recent Fedora versions, but not in RHEL8,
+# so we exclude it on RHEL8: we'll pick it up through `pip3 install'
+# as a Pypi package.
+%if 0%{?rhel} != 8
+Requires:  python3-flask-httpauth
+%endif
+
 Requires: python3-flask-migrate python3-flask-restful python3-flask-sqlalchemy
 # Requires: python3-flask-bcrypt flask-jwt-extended  # Not available
 Requires: python3-gunicorn python3-humanize python3-psycopg2 python3-requests
 # Requires: pyesbulk>=2.0.1 PyJwt  # Not available
-Requires: python3-sqlalchemy python3-sqlalchemy-utils
+Requires: python3-sqlalchemy
+
+# The following is available on recent Fedora versions, but not in RHEL8,
+# so we exclude it on RHEL8: we'll pick it up through `pip3 install'
+# as a Pypi package.
+%if 0%{?rhel} != 8
+Requires: python3-sqlalchemy-utils
+%endif
 
 # The following are indirect dependencies -- dependencies of dependencies that
 # we currently install via pip -- we require them here so that they will
@@ -80,7 +95,16 @@ mv %{buildroot}/%{installdir}/%{static}/package.json %{buildroot}/%{installdir}
 
 %post
 # Install python dependencies as pbench user into user's site-packages
-(su pbench -c "pip3 --no-cache-dir install --user --no-warn-script-location -r /%{installdir}/requirements.txt") > /%{installdir}/pip3-install.log
+
+# First, get an up-to-date pip3: the one installed through the python3 package
+# is not always capable of dealing with the options that we pass it below.
+# N.B. We redirect both stdout and stderr into the log here.
+python3 -m pip install --upgrade pip 2>&1 > /%{installdir}/pip3-install.log
+
+# The newly installed pip3 should be able to deal with the following.
+# N.B. We redirect both stdout and stderr into the log here but append the output to
+# the already existing file.
+(su pbench -c "pip3 --no-cache-dir install --user --no-warn-script-location -r /%{installdir}/requirements.txt" 2>&1) >> /%{installdir}/pip3-install.log
 
 # The `site` package is Python magic; it runs automatically when Python starts,
 # and builds `sys.path`.
