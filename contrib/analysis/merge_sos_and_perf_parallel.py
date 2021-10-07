@@ -527,19 +527,10 @@ def extract_fio_result(results_meta, incoming_url, session):
     return [disknames, hostnames]
 
 
-def load_results_gen(dirname, pbench_runs, stats):
-    """Load all the result data sample documents from files, yielding a stripped
-    down version of that document augmented with the associated pbench run
-    data.
+def load_results(dirname, queue):
+    """Load all the result data sample documents from files pushing them onto the
+    given queue individually.
     """
-    stats["total_recs"] = 0
-    stats["missing_mean"] = 0
-    stats["missing_runs"] = 0
-    stats["errors"] = 0
-    stats["mean"] = 0
-
-    results_seen = dict()
-
     for filename in os.listdir(dirname):
         if not filename.endswith(".json"):
             continue
@@ -552,131 +543,155 @@ def load_results_gen(dirname, pbench_runs, stats):
 
         print(f"Processing {filename}...", flush=True)
         for source in data["hits"]["hits"]:
-            result_id = source["_id"]
-            assert result_id not in results_seen, f"Result ID {result_id} repeated"
-            results_seen[result_id] = True
-
-            # counts
-            stats["total_recs"] += 1
-
-            try:
-                index = source["_source"]
-                run = index["run"]
-                run_id = run["id"]
-                run_name = run["name"]
-                iter_name = index["iteration"]["name"]
-                sample = index["sample"]
-                sample_name = sample["name"]
-                sample_m_type = sample["measurement_type"]
-                sample_m_title = sample["measurement_title"]
-                sample_m_idx = sample["measurement_idx"]
-            except KeyError as exc:
-                print(
-                    f"ERROR - {filename}, {exc}, {json.dumps(index)}", file=sys.stderr,
-                )
-                stats["errors"] += 1
-                continue
-
-            try:
-                pbench_run = pbench_runs[run_id]
-            except KeyError:
-                # print(
-                #    f"*** Result without a run: {run_ctrl}/{run_name}/{iter_name}"
-                #    f"/{sample_name}/{sample_m_type}/{sample_m_title}"
-                #    f"/{sample_m_idx}",
-                #    flush=True,
-                # )
-                stats["missing_runs"] += 1
-                continue
-
-            if "mean" not in sample:
-                # print(
-                #    f"No 'mean' in {run_ctrl}/{run_name}/{iter_name}"
-                #    f"/{sample_name}/{sample_m_type}/{sample_m_title}"
-                #    f"/{sample_m_idx}",
-                #    flush=True,
-                # )
-                stats["missing_mean"] += 1
-                continue
-
-            # The following field names are required
-            try:
-                benchmark = index["benchmark"]
-                result = {
-                    "run.id": run_id,
-                    "run.name": run_name,
-                    "iteration.name": iter_name,
-                    "benchmark.bs": benchmark["bs"],
-                    "benchmark.direct": benchmark["direct"],
-                    "benchmark.ioengine": benchmark["ioengine"],
-                    "benchmark.max_stddevpct": benchmark["max_stddevpct"],
-                    "benchmark.primary_metric": benchmark["primary_metric"],
-                    "benchmark.rw": ", ".join(set((benchmark["rw"].split(",")))),
-                    "sample.name": sample_name,
-                    "sample.client_hostname": sample["client_hostname"],
-                    "sample.measurement_type": sample_m_type,
-                    "sample.measurement_title": sample_m_title,
-                    "sample.measurement_idx": sample_m_idx,
-                    "sample.mean": sample["mean"],
-                    "sample.stddev": sample["stddev"],
-                    "sample.stddevpct": sample["stddevpct"],
-                }
-            except KeyError as exc:
-                print(
-                    f"ERROR - {filename}, {exc}, {json.dumps(index)}", file=sys.stderr,
-                )
-                stats["errors"] += 1
-                continue
-
-            stats["mean"] += 1
-
-            result["run_index"] = pbench_run["run_index"]
-            result["controller_dir"] = pbench_run["controller_dir"]
-            result["sosreports"] = pbench_run["sosreports"]
-
-            # optional workload parameters
-            try:
-                result["benchmark.filename"] = ", ".join(
-                    set((benchmark["filename"].split(",")))
-                )
-            except KeyError:
-                result["benchmark.filename"] = "/tmp/fio"
-            try:
-                result["benchmark.iodepth"] = benchmark["iodepth"]
-            except KeyError:
-                result["benchmark.iodepth"] = "32"
-            try:
-                result["benchmark.size"] = ", ".join(
-                    set((benchmark["size"].split(",")))
-                )
-            except KeyError:
-                result["benchmark.size"] = "4096M"
-            try:
-                result["benchmark.numjobs"] = ", ".join(
-                    set((benchmark["numjobs"].split(",")))
-                )
-            except KeyError:
-                result["benchmark.numjobs"] = "1"
-            try:
-                result["benchmark.ramp_time"] = benchmark["ramp_time"]
-            except KeyError:
-                result["benchmark.ramp_time"] = "none"
-            try:
-                result["benchmark.runtime"] = benchmark["runtime"]
-            except KeyError:
-                result["benchmark.runtime"] = "none"
-            try:
-                result["benchmark.sync"] = benchmark["sync"]
-            except KeyError:
-                result["benchmark.sync"] = "none"
-            try:
-                result["benchmark.time_based"] = benchmark["time_based"]
-            except KeyError:
-                result["benchmark.time_based"] = "none"
-
-            yield result
-
+            queue.put(source)
+    queue.put(None)
     return
+
+
+def load_results_gen(dirname, stats):
+    """Load all the result data sample documents from files, yielding each one
+    individually.
+    """
+    for filename in os.listdir(dirname):
+        if not filename.endswith(".json"):
+            continue
+        if not filename.startswith("pbench_result_data_fio_"):
+            continue
+
+        print(f"Loading {filename}...", flush=True)
+        with open(dirname + "/" + filename) as f:  # releases the handler itself
+            data = json.load(f)
+
+        print(f"Processing {filename}...", flush=True)
+        for source in data["hits"]["hits"]:
+            yield source
+    return
+
+
+def transform_result(source, pbench_runs, results_seen, stats):
+    """Transform the raw result data sample document to a stripped down version,
+    augmented with pbench run data.
+    """
+    result_id = source["_id"]
+    assert result_id not in results_seen, f"Result ID {result_id} repeated"
+    results_seen[result_id] = True
+
+    try:
+        index = source["_source"]
+        run = index["run"]
+        run_id = run["id"]
+        run_name = run["name"]
+        iter_name = index["iteration"]["name"]
+        sample = index["sample"]
+        sample_name = sample["name"]
+        sample_m_type = sample["measurement_type"]
+        sample_m_title = sample["measurement_title"]
+        sample_m_idx = sample["measurement_idx"]
+    except KeyError as exc:
+        print(
+            # f"ERROR - {filename}, {exc}, {json.dumps(index)}", file=sys.stderr,
+            f"ERROR - {exc}, {json.dumps(index)}",
+            file=sys.stderr,
+        )
+        stats["errors"] += 1
+        return None
+
+    try:
+        pbench_run = pbench_runs[run_id]
+    except KeyError:
+        # print(
+        #    f"*** Result without a run: {run_ctrl}/{run_name}/{iter_name}"
+        #    f"/{sample_name}/{sample_m_type}/{sample_m_title}"
+        #    f"/{sample_m_idx}",
+        #    flush=True,
+        # )
+        stats["missing_runs"] += 1
+        return None
+
+    if "mean" not in sample:
+        # print(
+        #    f"No 'mean' in {run_ctrl}/{run_name}/{iter_name}"
+        #    f"/{sample_name}/{sample_m_type}/{sample_m_title}"
+        #    f"/{sample_m_idx}",
+        #    flush=True,
+        # )
+        stats["missing_mean"] += 1
+        return None
+
+    # The following field names are required
+    try:
+        benchmark = index["benchmark"]
+        result = {
+            "run.id": run_id,
+            "run.name": run_name,
+            "iteration.name": iter_name,
+            "benchmark.bs": benchmark["bs"],
+            "benchmark.direct": benchmark["direct"],
+            "benchmark.ioengine": benchmark["ioengine"],
+            "benchmark.max_stddevpct": benchmark["max_stddevpct"],
+            "benchmark.primary_metric": benchmark["primary_metric"],
+            "benchmark.rw": ", ".join(set((benchmark["rw"].split(",")))),
+            "sample.name": sample_name,
+            "sample.client_hostname": sample["client_hostname"],
+            "sample.measurement_type": sample_m_type,
+            "sample.measurement_title": sample_m_title,
+            "sample.measurement_idx": sample_m_idx,
+            "sample.mean": sample["mean"],
+            "sample.stddev": sample["stddev"],
+            "sample.stddevpct": sample["stddevpct"],
+        }
+    except KeyError as exc:
+        print(
+            # f"ERROR - {filename}, {exc}, {json.dumps(index)}", file=sys.stderr,
+            f"ERROR - {exc}, {json.dumps(index)}",
+            file=sys.stderr,
+        )
+        stats["errors"] += 1
+        return None
+
+    stats["mean"] += 1
+
+    result["run_index"] = pbench_run["run_index"]
+    result["controller_dir"] = pbench_run["controller_dir"]
+    result["sosreports"] = pbench_run["sosreports"]
+
+    # optional workload parameters
+    try:
+        result["benchmark.filename"] = ", ".join(
+            set((benchmark["filename"].split(",")))
+        )
+    except KeyError:
+        result["benchmark.filename"] = "/tmp/fio"
+    try:
+        result["benchmark.iodepth"] = benchmark["iodepth"]
+    except KeyError:
+        result["benchmark.iodepth"] = "32"
+    try:
+        result["benchmark.size"] = ", ".join(set((benchmark["size"].split(","))))
+    except KeyError:
+        result["benchmark.size"] = "4096M"
+    try:
+        result["benchmark.numjobs"] = ", ".join(set((benchmark["numjobs"].split(","))))
+    except KeyError:
+        result["benchmark.numjobs"] = "1"
+    try:
+        result["benchmark.ramp_time"] = benchmark["ramp_time"]
+    except KeyError:
+        result["benchmark.ramp_time"] = "none"
+    try:
+        result["benchmark.runtime"] = benchmark["runtime"]
+    except KeyError:
+        result["benchmark.runtime"] = "none"
+    try:
+        result["benchmark.sync"] = benchmark["sync"]
+    except KeyError:
+        result["benchmark.sync"] = "none"
+    try:
+        result["benchmark.time_based"] = benchmark["time_based"]
+    except KeyError:
+        result["benchmark.time_based"] = "none"
+
+    return result
 
 
 def process_results(dirname, es_host, es_port, incoming_url, pool, pbench_runs, stats):
@@ -684,8 +699,42 @@ def process_results(dirname, es_host, es_port, incoming_url, pool, pbench_runs, 
     names, and host names.
 
     """
-    for result in load_results_gen(dirname, pbench_runs, stats):
+    stats["total_recs"] = 0
+    stats["missing_mean"] = 0
+    stats["missing_runs"] = 0
+    stats["errors"] = 0
+    stats["mean"] = 0
+
+    results_seen = dict()
+
+    for source in load_results_gen(dirname, pbench_runs, stats):
+        stats["total_recs"] += 1
+        result = transform_result(source, pbench_runs, results_seen, stats)
+        if result is None:
+            continue
         yield result
+
+
+def process_results_q(queue, es_host, es_port, incoming_url, pool, pbench_runs, stats):
+    """Intermediate generator for handling the fetching of the client names, disk
+    names, and host names.
+
+    """
+    stats["total_recs"] = 0
+    stats["missing_mean"] = 0
+    stats["missing_runs"] = 0
+    stats["errors"] = 0
+    stats["mean"] = 0
+
+    results_seen = dict()
+
+    source = queue.get()
+    while source is not None:
+        stats["total_recs"] += 1
+        result = transform_result(source, pbench_runs, results_seen, stats)
+        if result is not None:
+            yield result
+        source = queue.get()
 
 
 def main(args):
@@ -738,14 +787,19 @@ def main(args):
 
     pbench_runs = load_pbench_runs(dirname, memprof)
 
+    # Use a separate process for loading all the data from files.
+    queue = multiprocessing.Queue(1000)
+    reader = multiprocessing.Process(target=load_results, args=(dirname, queue,))
+    reader.start()
+
     result_cnt = 0
     stats = dict()
 
     with open("sosreport_fio.txt", "w") as log, open(
         "output_latest_fio.json", "w"
     ) as outfile:
-        for result in process_results(
-            dirname, es_host, es_port, incoming_url, pool, pbench_runs, stats
+        for result in process_results_q(
+            queue, es_host, es_port, incoming_url, pool, pbench_runs, stats
         ):
             result_cnt += 1
             for sos in result["sosreports"].keys():
@@ -754,6 +808,8 @@ def main(args):
 
     scan_end = time.time()
     duration = scan_end - scan_start
+
+    reader.join()
 
     print(f"final number of records: {result_cnt:n}", flush=True)
     print(json.dumps(stats, indent=4), flush=True)
