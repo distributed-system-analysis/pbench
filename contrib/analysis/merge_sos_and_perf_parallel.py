@@ -11,6 +11,103 @@ from elasticsearch1 import Elasticsearch
 from elasticsearch1.helpers import scan
 
 
+def load_pbench_runs(dirname, memprof):
+    """Load all the pbench run data, sub-setting to contain only the fields we
+    require.
+
+    We also ignore any pbench run without a `controller_dir` field or without
+    a `sosreports` field.
+
+    Returns a dictionary containing the processed pbench run documents, and a
+    few statistics about the processing.
+    """
+    if memprof:
+        print(
+            f"Memory profile before ingesting run data documents ... {memprof.heap()}",
+            flush=True,
+        )
+
+    total_recs = 0
+    total_missing_ctrl_dir = 0
+    total_missing_sos = 0
+    total_accepted = 0
+
+    pbench_runs = dict()
+
+    for filename in os.listdir(dirname):
+        if not filename.endswith(".json"):  # code
+            continue
+        if not filename.startswith("pbench_run_data_fio_"):
+            continue
+
+        print(f"Loading {filename}...", flush=True)
+        with open(dirname + "/" + filename) as f:  # releases the handler itself
+            data = json.load(f)
+
+        print(f"Processing {filename}...", flush=True)
+        recs = 0
+        missing_ctrl_dir = 0
+        missing_sos = 0
+        accepted = 0
+        for _source in data["hits"]["hits"]:
+            recs += 1
+
+            run = _source["_source"]
+            run_id = run["@metadata"]["md5"]
+            if "controller_dir" not in run["@metadata"]:
+                missing_ctrl_dir += 1
+                print(f"pbench run with no controller_dir: {run_id}")
+                continue
+
+            if "sosreports" not in run:
+                missing_sos += 1
+                continue
+
+            accepted += 1
+
+            run_index = _source["_index"]
+
+            sosreports = dict()
+            for sosreport in run["sosreports"]:
+                sosreports[os.path.split(sosreport["name"])[1]] = {
+                    "hostname-s": sosreport["hostname-s"],
+                    "hostname-f": sosreport["hostname-f"],
+                    "time": sosreport["name"].split("/")[2],
+                }
+
+            pbench_runs[run_id] = dict(
+                run_id=run_id,
+                run_index=run_index,
+                controller_dir=run["@metadata"]["controller_dir"],
+                sosreports=sosreports,
+            )
+        print(
+            f"Stats for {filename}: accepted {accepted:n} records of"
+            f" {recs:n}, missing 'controller_dir' field {missing_ctrl_dir:n},"
+            f" missing 'sosreports' field {missing_sos:n}",
+            flush=True,
+        )
+
+        total_recs += recs
+        total_accepted += accepted
+        total_missing_ctrl_dir += missing_ctrl_dir
+        total_missing_sos += missing_sos
+
+    print(
+        f"\nPbench Run Totals: accepted {total_accepted:n} records of {total_recs:n},"
+        f"\n\tmissing 'controller_dir' field: {total_missing_ctrl_dir:n}"
+        f"\n\tmissing 'sosreports' field: {total_missing_sos:n}",
+        flush=True,
+    )
+
+    if memprof:
+        print(
+            f"Memory profile after ingesting run data documents ... {memprof.heap()}",
+            flush=True,
+        )
+    return pbench_runs
+
+
 # extract pbench run metadata and workload
 # information from indexed pbench results data
 def extract_pbench_results(dirname, memprof):
@@ -333,7 +430,7 @@ def extract_run_metadata(
         if current_iter_name != iter_name:
             # print ("Before fio")
             disknames, hostnames = extract_fio_result(result, incoming_url, session)
-            current_iter_name = iter_name 
+            current_iter_name = iter_name
         result["disknames"] = disknames
         result["hostnames"] = hostnames
 
@@ -469,6 +566,9 @@ def main(args):
         memprof = hpy()
     else:
         memprof = None
+
+    load_pbench_runs(dirname, memprof)
+    return 0
 
     # We create the multiprocessing pool first to avoid forking a sub-process
     # with lots of memory allocated.
