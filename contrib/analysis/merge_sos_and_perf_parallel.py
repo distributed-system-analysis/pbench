@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import copy
 import json
 import multiprocessing
 import os
@@ -527,7 +528,7 @@ def extract_fio_result(results_meta, incoming_url, session):
     return [disknames, hostnames]
 
 
-def load_results(dirname, queue):
+def load_results_q(dirname, queue):
     """Load all the result data sample documents from files pushing them onto the
     given queue individually.
     """
@@ -548,7 +549,7 @@ def load_results(dirname, queue):
     return
 
 
-def load_results_gen(dirname, stats):
+def load_results_gen(dirname):
     """Load all the result data sample documents from files, yielding each one
     individually.
     """
@@ -564,7 +565,7 @@ def load_results_gen(dirname, stats):
 
         print(f"Processing {filename}...", flush=True)
         for source in data["hits"]["hits"]:
-            yield source
+            yield copy.deepcopy(source)
     return
 
 
@@ -707,7 +708,7 @@ def process_results(dirname, es_host, es_port, incoming_url, pool, pbench_runs, 
 
     results_seen = dict()
 
-    for source in load_results_gen(dirname, pbench_runs, stats):
+    for source in load_results_gen(dirname):
         stats["total_recs"] += 1
         result = transform_result(source, pbench_runs, results_seen, stats)
         if result is None:
@@ -741,11 +742,13 @@ def main(args):
     # Number of CPUs to use (where 0 = n CPUs)
     concurrency = int(args[1])
 
-    es_host = args[2]
-    es_port = args[3]
+    use_multi = int(args[2]) == 1
+
+    es_host = args[3]
+    es_port = args[4]
 
     # URL prefix to fetch unpacked data
-    url_prefix = args[4]
+    url_prefix = args[5]
     incoming_url = f"{url_prefix}/incoming/"
 
     # Directory containing the pbench run and result data pulled from
@@ -761,11 +764,11 @@ def main(args):
     # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.run.2020-06/pbench-run/_search?q=run.script:fio&size=13060&pretty=true' > pbench_run_data_fio_2020-06.json
     #
     # Provide the directory containing all those files as the 5th argument.
-    dirname = args[5]
+    dirname = args[6]
 
     # If requested, profile memory usage
     try:
-        profile_arg = int(args[6])
+        profile_arg = int(args[7])
     except (IndexError, ValueError):
         profile = False
     else:
@@ -788,9 +791,10 @@ def main(args):
     pbench_runs = load_pbench_runs(dirname, memprof)
 
     # Use a separate process for loading all the data from files.
-    queue = multiprocessing.Queue(1000)
-    reader = multiprocessing.Process(target=load_results, args=(dirname, queue,))
-    reader.start()
+    if use_multi:
+        queue = multiprocessing.Queue(1000)
+        reader = multiprocessing.Process(target=load_results_q, args=(dirname, queue,))
+        reader.start()
 
     result_cnt = 0
     stats = dict()
@@ -798,9 +802,15 @@ def main(args):
     with open("sosreport_fio.txt", "w") as log, open(
         "output_latest_fio.json", "w"
     ) as outfile:
-        for result in process_results_q(
-            queue, es_host, es_port, incoming_url, pool, pbench_runs, stats
-        ):
+        if use_multi:
+            generator = process_results_q(
+                queue, es_host, es_port, incoming_url, pool, pbench_runs, stats
+            )
+        else:
+            generator = process_results(
+                dirname, es_host, es_port, incoming_url, pool, pbench_runs, stats
+            )
+        for result in generator:
             result_cnt += 1
             for sos in result["sosreports"].keys():
                 log.write("{}\n".format(sos))
@@ -809,40 +819,12 @@ def main(args):
     scan_end = time.time()
     duration = scan_end - scan_start
 
-    reader.join()
+    if use_multi:
+        reader.join()
 
     print(f"final number of records: {result_cnt:n}", flush=True)
     print(json.dumps(stats, indent=4), flush=True)
     print(f"--- merging run and result data took {duration:0.2f} seconds", flush=True)
-
-    return 0
-
-    results, result_to_run, run_to_results = extract_pbench_results(dirname, memprof)
-    pbench_fio = extract_pbench_runs(
-        dirname,
-        es_host,
-        es_port,
-        results,
-        result_to_run,
-        run_to_results,
-        incoming_url,
-        pool,
-        memprof,
-    )
-
-    with open("sosreport_fio.txt", "w") as log:
-        for id in pbench_fio:
-            for sos in pbench_fio[id]["sosreports"].keys():
-                log.write("{}\n".format(sos))
-
-    print("final number of records: " + str(len(pbench_fio)))
-
-    with open("output_latest_fio.json", "w") as outfile:
-        json.dump(pbench_fio, outfile)
-
-    scan_end = time.time()
-    duration = scan_end - scan_start
-    print(f"--- merging run and result data took {duration:0.2f} seconds")
 
     return 0
 
