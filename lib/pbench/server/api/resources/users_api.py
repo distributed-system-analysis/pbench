@@ -1,14 +1,76 @@
 from http import HTTPStatus
 import jwt
-from flask import request, jsonify, make_response
+from flask import request, jsonify, make_response, app
 from flask_restful import Resource, abort
 from flask_bcrypt import check_password_hash
+from flask_mail import Mail, Message
 from email_validator import EmailNotValidError
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from typing import NamedTuple
 from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.api.auth import Auth
+
+
+class ForgotPassword(Resource):
+    def __init__(self, logger):
+        self.logger = logger
+        self.mail = Mail(app)
+
+    """
+        /forgot_password
+    """
+    def post(self):
+        """
+        Post request for initiating password recovery.
+        This requires a JSON data with required user fields
+        {
+            "email": "user@domain.com"
+        }
+
+        Required headers include
+
+            Content-Type:   application/json
+            Accept:         application/json
+
+        :return:
+            Success: 200 with password reset link sent to email
+            Failure: <status_Code>,
+                    response_object = {
+                        "message": "failure message"
+                    }
+        """
+        # get the post data
+        user_data = request.get_json()
+        if not user_data:
+            self.logger.warning("Invalid json object: {}", request.url)
+            abort(HTTPStatus.BAD_REQUEST, message="Invalid json object in request")
+
+        email = user_data.get("email")
+        if not email:
+            self.logger.warning("Missing email field")
+            abort(HTTPStatus.BAD_REQUEST, message="Missing email field")
+
+        # Check if email exists in the Db, else abort
+        try:
+            user = User.query(email=email)
+        except Exception:
+            self.logger.exception("Exception while querying email")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+
+        if not user:
+            self.logger.exception("No such user exists with the given email ID")
+            abort(HTTPStatus.BAD_REQUEST, message="No such user exists with the given email ID")
+
+        # generate email and send to the user
+        msg = Message(subject="Hello World!",
+                      sender=self.config.get("pbench-server", "email_username"),
+                      recipients=[email],
+                      body="Hello World"
+        )
+        self.mail.send(msg)
+
+        return "", HTTPStatus.OK
 
 
 class RegisterUser(Resource):
