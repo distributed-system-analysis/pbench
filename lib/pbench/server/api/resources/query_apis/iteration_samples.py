@@ -14,7 +14,7 @@ from pbench.server.api.resources import (
     PostprocessError,
 )
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.database.models.users import User
 from pbench.server.database.models.template import Template, TemplateNotFound
 
@@ -28,11 +28,7 @@ class IterationSamples(ElasticBase):
         super().__init__(
             config,
             logger,
-            Schema(
-                Parameter("start", ParamType.DATE, required=True),
-                Parameter("end", ParamType.DATE, required=True),
-                Parameter("run_id", ParamType.STRING, required=True),
-            ),
+            Schema(Parameter("run_id", ParamType.STRING, required=True),),
         )
 
     def preprocess(self, client_json: JSON) -> CONTEXT:
@@ -67,7 +63,7 @@ class IterationSamples(ElasticBase):
 
         # The dataset exists, and authenticated user has enough access so continue
         # the operation with the appropriate CONTEXT.
-        return {"dataset": dataset}
+        return {"dataset": dataset, "run_id": run_id}
 
 
 class IterationSampleRows(IterationSamples):
@@ -89,65 +85,64 @@ class IterationSampleRows(IterationSamples):
         """
         Construct a pbench search query for aggregating unique values for keyword fields in the
         'benchmark', 'sample', 'iterations' and other sub-documents of result-data-sample index document
-        that belong to the given run id within a specified date range.
+        that belong to the given run id.
         {
-            "start": "start-time",
-            "end": "end-time",
             "run_id": "run id string"
         }
         json_data: JSON dictionary of type-normalized parameters
-            "start" and "end" are string representation of datetime objects to search within.
             "run_id": String representation of run id
         """
-        start = json_data.get("start")
-        end = json_data.get("end")
-        run_id = json_data.get("run_id")
-
-        # We need to pass string dates as part of the Elasticsearch query; we
-        # use the unconverted strings passed by the caller rather than the
-        # adjusted and normalized datetime objects for this.
-        start_arg = f"{start:%Y-%m-%d}"
-        end_arg = f"{end:%Y-%m-%d}"
+        run_id = context.get("run_id")
+        dataset = context.get("dataset")
 
         self.logger.info(
-            "Return sample iteration rows for user {}, prefix {}: ({} - {}) for run id: {}",
+            "Return sample iteration rows for user {}, prefix {}: for run id: {}",
             Auth.token_auth.current_user().username,
             self.prefix,
-            start,
-            end,
             run_id,
         )
 
-        uri_fragment = self._gen_month_range("result-data-sample", start, end)
-        self.logger.info("fragment, {}", uri_fragment)
+        # Retrieve the ES indix that belongs to this run_id from the metadata table
+        try:
+            index_map = Metadata.getvalue(dataset=dataset, key="server.index-map")
+            for key, values in index_map.items():
+                if run_id in values:
+                    index = key
+                    self.logger.debug("Iteration samples index, {}", index)
+        except MetadataError as e:
+            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+
+        if index_map is None:
+            abort(
+                HTTPStatus.BAD_REQUEST, message=f"Dataset {controller}>{name} not found"
+            )
 
         try:
             template = Template.find("result-data-sample")
             mappings = template.mappings
-
-            # Get all the fields from result-data-sample index that are of type keyword
-            result = []
-            for property in mappings["properties"]:
-                if "properties" in mappings["properties"][property]:
-                    for sub_property in mappings["properties"][property]["properties"]:
-                        if (
-                            mappings["properties"][property]["properties"][
-                                sub_property
-                            ].get("type")
-                            == "keyword"
-                        ):
-                            result.append(f"{property}.{sub_property}")
-
-            # Special case: sample.measurement_title is of type `text` which is not available for aggregation.
-            # However, we have added a "keyword" overlay to allow it to be aggregated such as:
-            # "measurement_title": {"type": text", "fields": {"raw": {"type": "keyword"}}}
-            result.append("sample.measurement_title.raw")
-
         except TemplateNotFound:
             self.logger.exception(
                 "Document template {} not found in the database.", index_name
             )
             abort(HTTPStatus.NOT_FOUND, message="Mapping not found")
+
+        # Get all the fields from result-data-sample index that are of type keyword
+        result = []
+        for property in mappings["properties"]:
+            if "properties" in mappings["properties"][property]:
+                for sub_property in mappings["properties"][property]["properties"]:
+                    if (
+                        mappings["properties"][property]["properties"][
+                            sub_property
+                        ].get("type")
+                        == "keyword"
+                    ):
+                        result.append(f"{property}.{sub_property}")
+
+        # Special case: sample.measurement_title is of type `text` which is not available for aggregation.
+        # However, we have added a "keyword" overlay to allow it to be aggregated such as:
+        # "measurement_title": {"type": text", "fields": {"raw": {"type": "keyword"}}}
+        result.append("sample.measurement_title.raw")
 
         # Build ES aggregation query for number of rows aggregations
         aggs = {}
@@ -155,21 +150,12 @@ class IterationSampleRows(IterationSamples):
             aggs[key] = {"terms": {"field": key}}
 
         return {
-            "path": f"/{uri_fragment}/_search",
+            "path": f"/{index}/_search",
             "kwargs": {
                 "json": {
                     "size": 0,
                     "query": {
-                        "bool": {
-                            "filter": [
-                                {"match": {"run.id": f"{run_id}"}},
-                                {
-                                    "range": {
-                                        "@timestamp": {"gte": start_arg, "lte": end_arg}
-                                    }
-                                },
-                            ]
-                        }
+                        "bool": {"filter": [{"match": {"run.id": f"{run_id}"}},]}
                     },
                     "aggs": aggs,
                 },
@@ -259,10 +245,8 @@ class IterationSampleRows(IterationSamples):
         try:
             es_json_aggs = es_json["aggregations"]
             new_json = {}
-            for key in as_json_aggs:
-                new_json[key] = []
-                for aggs in es_json_aggs[key]["buckets"]:
-                    new_json[key].append(aggs["key"])
+            for key, agg in es_json_aggs.items():
+                new_json[key] = [bucket["key"] for bucket in agg["buckets"]]
             return jsonify(new_json)
         except KeyError as e:
             raise PostprocessError(

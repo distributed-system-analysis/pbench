@@ -91,7 +91,8 @@ class TestControllersList(Commons):
         }
 
         index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
+            server_config,
+            dates=self.date_range(self.payload["start"], self.payload["end"]),
         )
 
         # Determine whether we should expect the request to succeed, or to

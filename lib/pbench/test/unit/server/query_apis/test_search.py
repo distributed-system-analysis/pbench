@@ -123,7 +123,7 @@ class TestIndexSearch(Commons):
             },
         }
         index = self.build_index(
-            server_config, self.date_range(payload["start"], payload["end"])
+            server_config, dates=self.date_range(payload["start"], payload["end"])
         )
         # If we're not asking about a particular user, or if the user
         # field is to be omitted altogether, or if we have a valid

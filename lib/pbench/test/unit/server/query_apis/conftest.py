@@ -7,7 +7,7 @@ import responses
 
 @pytest.fixture
 @responses.activate
-def query_api(client, server_config):
+def query_api(client, server_config, provide_metadata):
     """
     Help controller queries that want to interact with a mocked
     Elasticsearch service.

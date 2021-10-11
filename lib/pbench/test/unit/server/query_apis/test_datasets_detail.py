@@ -120,7 +120,8 @@ class TestDatasetsDetail(Commons):
         }
 
         index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
+            server_config,
+            dates=self.date_range(self.payload["start"], self.payload["end"]),
         )
 
         expected_status = HTTPStatus.OK
@@ -277,7 +278,8 @@ class TestDatasetsDetail(Commons):
         }
 
         index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
+            server_config,
+            dates=self.date_range(self.payload["start"], self.payload["end"]),
         )
 
         response = query_api(
@@ -354,7 +356,8 @@ class TestDatasetsDetail(Commons):
             expected_status = HTTPStatus.FORBIDDEN
 
         index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
+            server_config,
+            dates=self.date_range(self.payload["start"], self.payload["end"]),
         )
         response = query_api(
             "/datasets/detail",
@@ -385,7 +388,7 @@ class TestDatasetsDetail(Commons):
             },
         }
 
-        index = self.build_index(server_config, ("2020-08", "2020-09", "2020-10"))
+        index = self.build_index(server_config, dates=("2020-08", "2020-09", "2020-10"))
         response = query_api(
             "/datasets/detail",
             "/_search?ignore_unavailable=true",

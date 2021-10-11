@@ -8,6 +8,7 @@ from http import HTTPStatus
 from typing import AnyStr, Type
 
 from pbench.server.api.resources import JSON, ParamType
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.api.resources.query_apis import ElasticBase
 from pbench.test.unit.server.headertypes import HeaderTypes
 
@@ -55,7 +56,7 @@ class Commons:
         self.index_prefix = index_prefix
         self.index_version = index_version
 
-    def build_index(self, server_config, dates):
+    def build_index(self, server_config=None, find_metadata=None, dates=[]):
         """
         Build the index list for query
 
@@ -67,10 +68,24 @@ class Commons:
             self.index_version,
             self.index_prefix,
         )
-        index = "/"
+        index = ""
         for d in dates:
             index += f"{idx}{d},"
-        return index
+        if not index:
+            drb = Dataset.attach(controller="node", name="drb")
+            index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
+            for key, values in index_map.items():
+                if self.payload["run_id"] in values:
+                    index = f"{key}"
+        return f"/{index}"
+
+    def build_index_from_metadata(self, find_metadata):
+        drb = Dataset.attach(controller="node", name="drb")
+        index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
+        for key, values in index_map.items():
+            if self.payload["run_id"] in values:
+                return "/" + key
+        return None
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:
         """
@@ -78,6 +93,8 @@ class Commons:
         It expects the date to look like YYYY-MM
         """
         date_range = []
+        if not start or not end:
+            return date_range
         start_date = date_parser.parse(start)
         end_date = date_parser.parse(end)
         assert start_date <= end_date
@@ -234,7 +251,6 @@ class Commons:
         user_ok,
         find_template,
         build_auth_header,
-        attach_dataset,
     ):
         """
         Check proper handling of a query resulting in no Elasticsearch matches.
@@ -248,7 +264,8 @@ class Commons:
             expected_status = HTTPStatus.FORBIDDEN
 
         index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
+            server_config,
+            dates=self.date_range(self.payload.get("start"), self.payload.get("end")),
         )
         response = query_api(
             self.pbench_endpoint,
@@ -291,7 +308,7 @@ class Commons:
         user_ok,
         find_template,
         pbench_token,
-        attach_dataset,
+        provide_metadata,
     ):
         """
         Check that an exception in calling Elasticsearch is reported correctly.
@@ -300,7 +317,9 @@ class Commons:
             pytest.skip("skipping " + self.test_http_exception.__name__)
 
         index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
+            server_config,
+            provide_metadata,
+            self.date_range(self.payload.get("start"), self.payload.get("end")),
         )
         query_api(
             self.pbench_endpoint,
@@ -320,7 +339,7 @@ class Commons:
         user_ok,
         find_template,
         pbench_token,
-        attach_dataset,
+        provide_metadata,
         errors,
     ):
         """
@@ -331,7 +350,9 @@ class Commons:
             pytest.skip("skipping " + self.test_http_error.__name__)
 
         index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
+            server_config,
+            provide_metadata,
+            self.date_range(self.payload.get("start"), self.payload.get("end")),
         )
         query_api(
             self.pbench_endpoint,

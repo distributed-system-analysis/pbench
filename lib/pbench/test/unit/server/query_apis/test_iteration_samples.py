@@ -20,11 +20,7 @@ class TestIterationSamplesRows(Commons):
             cls_obj=IterationSampleRows(client.config, client.logger),
             pbench_endpoint="/iterations/unique",
             elastic_endpoint="/_search",
-            payload={
-                "run_id": "random_md5_string1",
-                "start": "2020-08",
-                "end": "2020-10",
-            },
+            payload={"run_id": "random_md5_string1",},
             index_prefix="result-data-sample",
             index_version=5,
         )
@@ -35,9 +31,9 @@ class TestIterationSamplesRows(Commons):
         query_api,
         user_ok,
         pbench_token,
-        attach_dataset,
         build_auth_header,
         find_template,
+        provide_metadata,
     ):
         """
         Check the construction of Elasticsearch query URI and filtering of the
@@ -275,9 +271,7 @@ class TestIterationSamplesRows(Commons):
                 },
             },
         }
-        index = self.build_index(
-            server_config, self.date_range(self.payload["start"], self.payload["end"])
-        )
+        index = self.build_index_from_metadata(find_template)
 
         if HeaderTypes.is_valid(build_auth_header["header_param"]):
             expected_status = HTTPStatus.OK
