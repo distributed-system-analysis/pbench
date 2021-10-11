@@ -18,9 +18,9 @@ class TestIterationSamplesRows(Commons):
         pytest.scroll_count = 0
         super()._setup(
             cls_obj=IterationSampleRows(client.config, client.logger),
-            pbench_endpoint="/iterations/unique",
+            pbench_endpoint="/dataset/samples/namespace",
             elastic_endpoint="/_search",
-            payload={"run_id": "random_md5_string1",},
+            payload={"run_id": "random_md5_string1"},
             index_prefix="result-data-sample",
             index_version=5,
         )

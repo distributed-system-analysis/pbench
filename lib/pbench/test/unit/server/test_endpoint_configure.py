@@ -52,7 +52,7 @@ class TestEndpointConfig:
                 "endpoints": f"{uri}/endpoints",
                 "index_mappings": f"{uri}/index/mappings/",
                 "index_search": f"{uri}/index/search",
-                "iterations_unique": f"{uri}/iterations/unique",
+                "dataset_samples_namespace": f"{uri}/dataset/samples/namespace",
                 "graphql": f"{uri}/graphql",
                 "controllers_list": f"{uri}/controllers/list",
                 "controllers_months": f"{uri}/controllers/months",

@@ -14,7 +14,7 @@ from pbench.server.api.resources import (
     PostprocessError,
 )
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
-from pbench.server.database.models.datasets import Dataset, Metadata
+from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
 from pbench.server.database.models.users import User
 from pbench.server.database.models.template import Template, TemplateNotFound
 
@@ -114,7 +114,8 @@ class IterationSampleRows(IterationSamples):
 
         if index_map is None:
             abort(
-                HTTPStatus.BAD_REQUEST, message=f"Dataset {controller}>{name} not found"
+                HTTPStatus.BAD_REQUEST,
+                message=f"Dataset with run_id: {run_id} not found",
             )
 
         try:
@@ -122,7 +123,7 @@ class IterationSampleRows(IterationSamples):
             mappings = template.mappings
         except TemplateNotFound:
             self.logger.exception(
-                "Document template {} not found in the database.", index_name
+                "Document template 'result-data-sample' not found in the database."
             )
             abort(HTTPStatus.NOT_FOUND, message="Mapping not found")
 
@@ -154,9 +155,7 @@ class IterationSampleRows(IterationSamples):
             "kwargs": {
                 "json": {
                     "size": 0,
-                    "query": {
-                        "bool": {"filter": [{"match": {"run.id": f"{run_id}"}},]}
-                    },
+                    "query": {"bool": {"filter": [{"match": {"run.id": f"{run_id}"}}]}},
                     "aggs": aggs,
                 },
                 "params": {"ignore_unavailable": "true"},
@@ -250,6 +249,6 @@ class IterationSampleRows(IterationSamples):
             return jsonify(new_json)
         except KeyError as e:
             raise PostprocessError(
-                HTTPStatus.BAD_REQUEST,
+                HTTPStatus.INTERNAL_SERVER_ERROR,
                 f"Can't find Elasticsearch match data '{e}' in {es_json!r}",
             )

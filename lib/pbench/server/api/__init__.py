@@ -85,7 +85,7 @@ def register_endpoints(api, app, config):
     )
     api.add_resource(
         IterationSampleRows,
-        f"{base_uri}/iterations/unique",
+        f"{base_uri}/dataset/samples/namespace",
         resource_class_args=(config, logger),
     )
     api.add_resource(
