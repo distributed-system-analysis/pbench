@@ -67,14 +67,15 @@ class IterationSamples(ElasticBase):
         return {"dataset": dataset, "run_id": run_id}
 
 
-class IterationSampleRows(IterationSamples):
+class IterationSampleNamespaces(IterationSamples):
     """
-    Iteration samples API that returns only unique rows for each subdocument.
+    Iteration samples API that returns only unique namespaces for each
+    whitelisted result-data-sample subdocuments.
 
     This class inherits the common IterationSamples class and builds an
     aggregated query against a user supplied run id to compile the filter header
     which shows every unique field in the 'benchmark', 'sample', 'iterations'
-    and other subdocuments.
+    and 'run' subdocuments.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
@@ -89,9 +90,9 @@ class IterationSampleRows(IterationSamples):
                     recurse(f"{prefix}{p}.", m, result)
             elif mappings.get("type") == "keyword":
                 result.append(prefix[:-1])  # Remove the trailing dot, if any
-            elif mappings.get("type") == "text" and mappings.get("fields"):
-                for field in mappings.get("fields"):
-                    recurse(f"{prefix}{field}.", mappings.get("fields")[field], result)
+            elif mappings.get("type") == "text":
+                for f, v in mappings.get("fields", {}).items():
+                    recurse(f"{prefix}{f}.", v, result)
 
         recurse("", mappings, fields)
         return fields
@@ -99,7 +100,7 @@ class IterationSampleRows(IterationSamples):
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
         Construct a pbench search query for aggregating unique values for keyword
-        fields in the 'benchmark', 'sample', 'iterations' and other
+        fields in the 'benchmark', 'sample', 'iterations' and 'run'
         sub-documents of result-data-sample index document that belong to the
         given run id.
         {
@@ -112,7 +113,8 @@ class IterationSampleRows(IterationSamples):
         dataset = context.get("dataset")
 
         self.logger.info(
-            "Return sample iteration rows for user {}, prefix {}: for run id: {}",
+            "Return sample iteration namespaces for user {}, prefix {}: for "
+            "run id: {}",
             Auth.token_auth.current_user().username,
             self.prefix,
             run_id,
@@ -122,10 +124,10 @@ class IterationSampleRows(IterationSamples):
         # table
         try:
             index_map = Metadata.getvalue(dataset=dataset, key="server.index-map")
-            for key, values in index_map.items():
-                if run_id in values:
-                    index = key
-                    self.logger.debug(f"Iteration samples index, {index!r}")
+            index_keys = [key for key in index_map if "result-data-sample" in key]
+            assert len(index_keys) == 1
+            index = index_keys[0]
+            self.logger.debug(f"Iteration samples index, {index!r}")
         except MetadataError as e:
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
 
@@ -137,12 +139,15 @@ class IterationSampleRows(IterationSamples):
 
         try:
             template = Template.find("result-data-sample")
-            mappings = template.mappings
 
             # Only keep the whitelisted fields for aggregation
-            for key in mappings["properties"].copy():
-                if key not in IterationSamples.WHITELIST_AGGS_FIELDS:
-                    del mappings["properties"][key]
+            mappings = {
+                "properties": {
+                    key: value
+                    for key, value in template.mappings["properties"].items()
+                    if key in IterationSamples.WHITELIST_AGGS_FIELDS
+                }
+            }
         except TemplateNotFound:
             self.logger.exception(
                 "Document template 'result-data-sample' not found in the database."
@@ -162,7 +167,7 @@ class IterationSampleRows(IterationSamples):
             "kwargs": {
                 "json": {
                     "size": 0,
-                    "query": {"bool": {"filter": {"match": {"run.id": f"{run_id}"}}}},
+                    "query": {"bool": {"filter": {"match": {"run.id": run_id}}}},
                     "aggs": aggs,
                 },
                 "params": {"ignore_unavailable": "true"},
@@ -171,10 +176,10 @@ class IterationSampleRows(IterationSamples):
 
     def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         """
-        Returns a non-empty list of aggregated unique values for keyword fields
-        in the 'benchmark', 'sample', 'iterations' and 'run' subdocuments of
-        result-data-sample index. The output only contains fields that has at
-        least 1 unique value.
+        Returns a stringified JSON object containing keyword/value pairs where
+        each keyword is the dot-separated name of a (sub-)field in the results
+        and each value is a non-empty list of unique values which appear in
+        that field.
 
         Example:
             {

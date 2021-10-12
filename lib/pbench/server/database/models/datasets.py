@@ -574,7 +574,7 @@ class Dataset(Database.Base):
         Returns:
             Dataset: a dataset object in the desired state (if specified)
         """
-        # Make sure we have controller and name from path if they are part of kwargs
+        # Make sure we have controller and name from path
         controller, name = Dataset._render_path(path, controller, name)
         dataset = Dataset.query(controller=controller, name=name)
 
@@ -594,7 +594,7 @@ class Dataset(Database.Base):
             return Database.db_session.query(Dataset).filter_by(**kwargs).first()
         except SQLAlchemyError as e:
             Dataset.logger.warning("Error querying {}: {}", kwargs, str(e))
-            raise DatasetSqlError("querying", **kwargs) from e
+            raise DatasetSqlError("querying", **kwargs)
 
     def __str__(self) -> str:
         """
@@ -654,7 +654,7 @@ class Dataset(Database.Base):
         except Exception as e:
             self.logger.exception("Can't add {} to DB", str(self))
             Database.db_session.rollback()
-            raise DatasetSqlError("adding", self.controller, self.name) from e
+            raise DatasetSqlError("adding", controller=self.controller, name=self.name)
 
     def update(self):
         """
@@ -666,7 +666,9 @@ class Dataset(Database.Base):
         except Exception as e:
             self.logger.error("Can't update {} in DB", str(self))
             Database.db_session.rollback()
-            raise DatasetSqlError("updating", self.controller, self.name) from e
+            raise DatasetSqlError(
+                "updating", controller=self.controller, name=self.name
+            )
 
 
 @event.listens_for(Dataset, "init")

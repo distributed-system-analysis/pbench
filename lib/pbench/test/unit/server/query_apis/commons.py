@@ -8,8 +8,8 @@ from http import HTTPStatus
 from typing import AnyStr, Type
 
 from pbench.server.api.resources import JSON, ParamType
-from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.server.api.resources.query_apis import ElasticBase
+from pbench.server.database.models.datasets import Dataset, Metadata
 from pbench.test.unit.server.headertypes import HeaderTypes
 
 
@@ -43,6 +43,7 @@ class Commons:
         bad_date_payload: JSON = None,
         error_payload: JSON = None,
         empty_es_response_payload: JSON = None,
+        use_index_from_metadata: bool = False,
     ):
         self.cls_obj = cls_obj
         self.pbench_endpoint = pbench_endpoint
@@ -51,6 +52,7 @@ class Commons:
         self.bad_date_payload = bad_date_payload
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
+        self.use_index_from_metadata = use_index_from_metadata
 
     def build_index(self, server_config, dates):
         """
@@ -64,13 +66,12 @@ class Commons:
 
         return f"/{index}"
 
-    def build_index_from_metadata(self, provide_metadata):
+    def build_index_from_metadata(self):
         drb = Dataset.attach(controller="node", name="drb")
         index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
-        for key, values in index_map.items():
-            if self.payload["run_id"] in values:
-                return "/" + key
-        return None
+        index_keys = [key for key in index_map if "result-data-sample" in key]
+        assert len(index_keys) == 1
+        return "/" + index_keys[0]
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:
         """
@@ -299,13 +300,13 @@ class Commons:
         if not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_http_exception.__name__)
 
-        if self.payload.get("start") and self.payload.get("end"):
+        if not self.use_index_from_metadata:
             index = self.build_index(
                 server_config,
                 self.date_range(self.payload["start"], self.payload["end"]),
             )
         else:
-            index = self.build_index_from_metadata(provide_metadata)
+            index = self.build_index_from_metadata()
 
         query_api(
             self.pbench_endpoint,
@@ -335,13 +336,13 @@ class Commons:
         if not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_http_error.__name__)
 
-        if self.payload.get("start") and self.payload.get("end"):
+        if not self.use_index_from_metadata:
             index = self.build_index(
                 server_config,
                 self.date_range(self.payload["start"], self.payload["end"]),
             )
         else:
-            index = self.build_index_from_metadata(provide_metadata)
+            index = self.build_index_from_metadata()
 
         query_api(
             self.pbench_endpoint,

@@ -1,6 +1,8 @@
 import pytest
 from http import HTTPStatus
-from pbench.server.api.resources.query_apis.iteration_samples import IterationSampleRows
+from pbench.server.api.resources.query_apis.iteration_samples import (
+    IterationSampleNamespaces,
+)
 from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
@@ -16,10 +18,11 @@ class TestIterationSamplesRows(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=IterationSampleRows(client.config, client.logger),
+            cls_obj=IterationSampleNamespaces(client.config, client.logger),
             pbench_endpoint="/dataset/samples/namespace",
             elastic_endpoint="/_search",
             payload={"run_id": "random_md5_string1"},
+            use_index_from_metadata=True,
         )
 
     def test_query(
@@ -258,7 +261,7 @@ class TestIterationSamplesRows(Commons):
                 },
             },
         }
-        index = self.build_index_from_metadata(provide_metadata)
+        index = self.build_index_from_metadata()
 
         if HeaderTypes.is_valid(build_auth_header["header_param"]):
             expected_status = HTTPStatus.OK

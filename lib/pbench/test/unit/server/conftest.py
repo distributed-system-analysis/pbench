@@ -298,7 +298,10 @@ def provide_metadata(attach_dataset):
     Metadata.setvalue(
         dataset=drb,
         key="server.index-map",
-        value={"unit-test.v5.result-data-sample.2020-08": ["random_md5_string1"]},
+        value={
+            "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
+            "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
+        },
     )
     Metadata.setvalue(dataset=test, key="user.contact", value="you@example.com")
     Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
