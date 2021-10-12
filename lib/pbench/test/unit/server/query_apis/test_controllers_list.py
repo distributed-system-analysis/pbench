@@ -21,7 +21,6 @@ class TestControllersList(Commons):
             pbench_endpoint="/controllers/list",
             elastic_endpoint="/_search?ignore_unavailable=true",
             payload={"user": "drb", "start": "2020-08", "end": "2020-10"},
-            index_prefix="run-data",
             empty_es_response_payload=self.EMPTY_ES_RESPONSE_PAYLOAD,
         )
 
@@ -91,8 +90,7 @@ class TestControllersList(Commons):
         }
 
         index = self.build_index(
-            server_config,
-            dates=self.date_range(self.payload["start"], self.payload["end"]),
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
 
         # Determine whether we should expect the request to succeed, or to

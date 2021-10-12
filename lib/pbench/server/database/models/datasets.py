@@ -42,13 +42,12 @@ class DatasetSqlError(DatasetError):
     original SQLAlchemy exception.
     """
 
-    def __init__(self, operation: str, controller: str, name: str):
+    def __init__(self, operation: str, **kwargs):
         self.operation = operation
-        self.controller = controller
-        self.name = name
+        self.kwargs = kwargs
 
     def __str__(self) -> str:
-        return f"Error {self.operation} dataset {self.controller}|{self.name}"
+        return f"Error {self.operation} dataset {self.kwargs}"
 
 
 class DatasetDuplicate(DatasetError):
@@ -575,19 +574,9 @@ class Dataset(Database.Base):
         Returns:
             Dataset: a dataset object in the desired state (if specified)
         """
-        # Make sure we have controller and name from path
+        # Make sure we have controller and name from path if they are part of kwargs
         controller, name = Dataset._render_path(path, controller, name)
-        try:
-            dataset = (
-                Database.db_session.query(Dataset)
-                .filter_by(controller=controller, name=name)
-                .first()
-            )
-        except SQLAlchemyError as e:
-            Dataset.logger.warning(
-                "Error attaching {}>{}: {}", controller, name, str(e)
-            )
-            raise DatasetSqlError("attaching", controller, name) from e
+        dataset = Dataset.query(controller=controller, name=name)
 
         if dataset is None:
             Dataset.logger.warning("{}>{} not found", controller, name)
@@ -601,7 +590,11 @@ class Dataset(Database.Base):
         """
         Query dataset object based on a given column name of the run document
         """
-        return Database.db_session.query(Dataset).filter_by(**kwargs).first()
+        try:
+            return Database.db_session.query(Dataset).filter_by(**kwargs).first()
+        except SQLAlchemyError as e:
+            Dataset.logger.warning("Error querying {}: {}", kwargs, str(e))
+            raise DatasetSqlError("querying", **kwargs) from e
 
     def __str__(self) -> str:
         """

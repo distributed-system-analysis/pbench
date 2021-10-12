@@ -15,14 +15,11 @@ class TestIterationSamplesRows(Commons):
 
     @pytest.fixture(autouse=True)
     def _setup(self, client):
-        pytest.scroll_count = 0
         super()._setup(
             cls_obj=IterationSampleRows(client.config, client.logger),
             pbench_endpoint="/dataset/samples/namespace",
             elastic_endpoint="/_search",
             payload={"run_id": "random_md5_string1"},
-            index_prefix="result-data-sample",
-            index_version=5,
         )
 
     def test_query(
@@ -50,16 +47,6 @@ class TestIterationSamplesRows(Commons):
                 "hits": [],
             },
             "aggregations": {
-                "authorization.access": {
-                    "buckets": [],
-                    "doc_count_error_upper_bound": 0,
-                    "sum_other_doc_count": 0,
-                },
-                "authorization.owner": {
-                    "buckets": [],
-                    "doc_count_error_upper_bound": 0,
-                    "sum_other_doc_count": 0,
-                },
                 "benchmark.bs": {
                     "buckets": [],
                     "doc_count_error_upper_bound": 0,
@@ -271,7 +258,7 @@ class TestIterationSamplesRows(Commons):
                 },
             },
         }
-        index = self.build_index_from_metadata(find_template)
+        index = self.build_index_from_metadata(provide_metadata)
 
         if HeaderTypes.is_valid(build_auth_header["header_param"]):
             expected_status = HTTPStatus.OK
@@ -291,18 +278,9 @@ class TestIterationSamplesRows(Commons):
         if expected_status == HTTPStatus.OK:
             res_json = response.json
             expected_result = {
-                "authorization.access": [],
-                "authorization.owner": [],
-                "benchmark.bs": [],
-                "benchmark.clocksource": [],
-                "benchmark.iodepth": [],
-                "benchmark.ioengine": [],
                 "benchmark.name": ["uperf"],
-                "benchmark.numjobs": [],
                 "benchmark.primary_metric": ["Gb_sec"],
                 "benchmark.protocol": ["tcp"],
-                "benchmark.rate_tolerance_failure": [],
-                "benchmark.rw": [],
                 "benchmark.test_type": ["stream"],
                 "benchmark.uid": [
                     "benchmark_name:uperf-controller_host:dhcp31-171.perf.lab.eng.bos.redhat.com"
@@ -322,15 +300,10 @@ class TestIterationSamplesRows(Commons):
                 "run.id": ["f3a37c9891a78886639e3bc00e3c5c4e"],
                 "run.name": ["uperf_npalaska-dhcp31-171_2021.07.14T15.30.22"],
                 "run.script": ["uperf"],
-                "run.toolsgroup": [],
-                "sample.category": [],
                 "sample.client_hostname": ["127.0.0.1", "all"],
-                "sample.field": [],
-                "sample.group": [],
                 "sample.measurement_title.raw": ["Gb_sec"],
                 "sample.measurement_type": ["throughput"],
                 "sample.name": ["sample1", "sample2", "sample3", "sample4", "sample5"],
-                "sample.pgid": [],
                 "sample.server_hostname": ["127.0.0.1", "all"],
                 "sample.uid": [
                     "client_hostname:127.0.0.1-server_hostname:127.0.0.1-server_port:20010",

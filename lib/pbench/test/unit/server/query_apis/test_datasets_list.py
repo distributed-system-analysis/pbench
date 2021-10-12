@@ -26,7 +26,6 @@ class TestDatasetsList(Commons):
                 "start": "2020-08",
                 "end": "2020-10",
             },
-            index_prefix="run-data",
         )
 
     @pytest.mark.parametrize(
@@ -92,8 +91,7 @@ class TestDatasetsList(Commons):
         }
 
         index = self.build_index(
-            server_config,
-            dates=self.date_range(self.payload["start"], self.payload["end"]),
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
 
         # Determine whether we should expect the request to succeed, or to
@@ -213,8 +211,7 @@ class TestDatasetsList(Commons):
         }
 
         index = self.build_index(
-            server_config,
-            dates=self.date_range(self.payload["start"], self.payload["end"]),
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
 
         response = query_api(

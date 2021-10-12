@@ -24,6 +24,8 @@ class IterationSamples(ElasticBase):
     Create iteration samples aggregation based on a given run id.
     """
 
+    WHITELIST_AGGS_FIELDS = ["run", "sample", "iteration", "benchmark"]
+
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
             config,
@@ -34,9 +36,8 @@ class IterationSamples(ElasticBase):
     def preprocess(self, client_json: JSON) -> CONTEXT:
         """
         Query the Dataset associated with this run id, and determine whether the
-        authenticated user has READ access to this dataset. (Currently, this
-        means the authenticated user is the owner of the dataset, or has ADMIN
-        role.)
+        request is authorized for this dataset.
+
         If the user has authorization to read the dataset, return the Dataset
         object as CONTEXT so that the postprocess operation can proceed to get all
         the iteration aggregations.
@@ -46,13 +47,13 @@ class IterationSamples(ElasticBase):
         # Query the dataset using the given run id
         dataset = Dataset.query(md5=run_id)
         if not dataset:
-            self.logger.error("Dataset with Run ID {} not found", run_id)
+            self.logger.error(f"Dataset with Run ID {run_id!r} not found")
             abort(HTTPStatus.NOT_FOUND, message="Dataset not found")
 
         owner = User.query(id=dataset.owner_id)
         if not owner:
             self.logger.error(
-                "Dataset owner ID {} cannot be found in Users", dataset.owner_id
+                f"Dataset owner ID { dataset.owner_id!r} cannot be found in Users"
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Dataset owner not found")
 
@@ -68,24 +69,39 @@ class IterationSamples(ElasticBase):
 
 class IterationSampleRows(IterationSamples):
     """
-    Note: This is a first part of queryIterationSamples API that returns only unique rows
-    for each subdocument.
+    Iteration samples API that returns only unique rows for each subdocument.
 
-    This class inherits the common IterationSamples class and builds an aggregated query
-    against a user supplied run id to compile the filter header which shows every unique
-    field in the 'benchmark', 'sample', 'iterations' and other subdocuments.
+    This class inherits the common IterationSamples class and builds an
+    aggregated query against a user supplied run id to compile the filter header
+    which shows every unique field in the 'benchmark', 'sample', 'iterations'
+    and other subdocuments.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
-        super().__init__(
-            config, logger,
-        )
+        super().__init__(config, logger)
+
+    def get_keyword_fields(self, mappings):
+        fields = []
+
+        def recurse(prefix, mappings, result):
+            if "properties" in mappings:
+                for p, m in mappings["properties"].items():
+                    recurse(f"{prefix}{p}.", m, result)
+            elif mappings.get("type") == "keyword":
+                result.append(prefix[:-1])  # Remove the trailing dot, if any
+            elif mappings.get("type") == "text" and mappings.get("fields"):
+                for field in mappings.get("fields"):
+                    recurse(f"{prefix}{field}.", mappings.get("fields")[field], result)
+
+        recurse("", mappings, fields)
+        return fields
 
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
-        Construct a pbench search query for aggregating unique values for keyword fields in the
-        'benchmark', 'sample', 'iterations' and other sub-documents of result-data-sample index document
-        that belong to the given run id.
+        Construct a pbench search query for aggregating unique values for keyword
+        fields in the 'benchmark', 'sample', 'iterations' and other
+        sub-documents of result-data-sample index document that belong to the
+        given run id.
         {
             "run_id": "run id string"
         }
@@ -102,25 +118,31 @@ class IterationSampleRows(IterationSamples):
             run_id,
         )
 
-        # Retrieve the ES indix that belongs to this run_id from the metadata table
+        # Retrieve the ES index that belongs to this run_id from the metadata
+        # table
         try:
             index_map = Metadata.getvalue(dataset=dataset, key="server.index-map")
             for key, values in index_map.items():
                 if run_id in values:
                     index = key
-                    self.logger.debug("Iteration samples index, {}", index)
+                    self.logger.debug(f"Iteration samples index, {index!r}")
         except MetadataError as e:
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
 
-        if index_map is None:
+        if index is None:
             abort(
                 HTTPStatus.BAD_REQUEST,
-                message=f"Dataset with run_id: {run_id} not found",
+                message=f"Dataset with run_id: {run_id!r} not found",
             )
 
         try:
             template = Template.find("result-data-sample")
             mappings = template.mappings
+
+            # Only keep the whitelisted fields for aggregation
+            for key in mappings["properties"].copy():
+                if key not in IterationSamples.WHITELIST_AGGS_FIELDS:
+                    del mappings["properties"][key]
         except TemplateNotFound:
             self.logger.exception(
                 "Document template 'result-data-sample' not found in the database."
@@ -128,22 +150,7 @@ class IterationSampleRows(IterationSamples):
             abort(HTTPStatus.NOT_FOUND, message="Mapping not found")
 
         # Get all the fields from result-data-sample index that are of type keyword
-        result = []
-        for property in mappings["properties"]:
-            if "properties" in mappings["properties"][property]:
-                for sub_property in mappings["properties"][property]["properties"]:
-                    if (
-                        mappings["properties"][property]["properties"][
-                            sub_property
-                        ].get("type")
-                        == "keyword"
-                    ):
-                        result.append(f"{property}.{sub_property}")
-
-        # Special case: sample.measurement_title is of type `text` which is not available for aggregation.
-        # However, we have added a "keyword" overlay to allow it to be aggregated such as:
-        # "measurement_title": {"type": text", "fields": {"raw": {"type": "keyword"}}}
-        result.append("sample.measurement_title.raw")
+        result = self.get_keyword_fields(mappings)
 
         # Build ES aggregation query for number of rows aggregations
         aggs = {}
@@ -155,7 +162,7 @@ class IterationSampleRows(IterationSamples):
             "kwargs": {
                 "json": {
                     "size": 0,
-                    "query": {"bool": {"filter": [{"match": {"run.id": f"{run_id}"}}]}},
+                    "query": {"bool": {"filter": {"match": {"run.id": f"{run_id}"}}}},
                     "aggs": aggs,
                 },
                 "params": {"ignore_unavailable": "true"},
@@ -164,33 +171,17 @@ class IterationSampleRows(IterationSamples):
 
     def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         """
-        Returns a list of aggregated unique values for keyword fields in the
-        'benchmark', 'sample', 'iterations' and other subdocuments of result-data-sample index.
+        Returns a non-empty list of aggregated unique values for keyword fields
+        in the 'benchmark', 'sample', 'iterations' and 'run' subdocuments of
+        result-data-sample index. The output only contains fields that has at
+        least 1 unique value.
 
         Example:
             {
-               "authorization.access":[],
-               "authorization.owner":[],
-               "benchmark.bs":[],
-               "benchmark.clocksource":[],
-               "benchmark.duplicate_packet_failure_mode":[],
-               "benchmark.iodepth":[],
-               "benchmark.ioengine":[],
-               "benchmark.loss_granularity":[],
                "benchmark.name":["uperf"],
-               "benchmark.negative_packet_loss_mode":[],
-               "benchmark.numjobs":[],
                "benchmark.primary_metric":["Gb_sec"],
                "benchmark.protocol":["tcp"],
-               "benchmark.rate_tolerance_failure":[],
-               "benchmark.rw":[],
-               "benchmark.sync":[],
                "benchmark.test_type":["stream"],
-               "benchmark.traffic_direction":[],
-               "benchmark.traffic_generator":[],
-               "benchmark.trafficgen_uid":[],
-               "benchmark.trafficgen_uid_tmpl":[],
-               "benchmark.trial_mode":[],
                "benchmark.uid":[
                   "benchmark_name:uperf-controller_host:hostname.com"
                ],
@@ -209,15 +200,10 @@ class IterationSampleRows(IterationSamples):
                "run.id":["f3a37c9891a78886639e3bc00e3c5c4e"],
                "run.name":["uperf"],
                "run.script":["uperf"],
-               "run.toolsgroup":[],
-               "run.user":[],
-               "sample.category":[],
                "sample.client_hostname":[
                   "127.0.0.1",
                   "all"
                ],
-               "sample.field":[],
-               "sample.group":[],
                "sample.measurement_title.raw":["Gb_sec"],
                "sample.measurement_type":["throughput"],
                "sample.name":[
@@ -227,7 +213,6 @@ class IterationSampleRows(IterationSamples):
                   "sample4",
                   "sample5"
                ],
-               "sample.pgid":[],
                "sample.server_hostname":[
                   "127.0.0.1",
                   "all"
@@ -242,10 +227,11 @@ class IterationSampleRows(IterationSamples):
             }
         """
         try:
-            es_json_aggs = es_json["aggregations"]
-            new_json = {}
-            for key, agg in es_json_aggs.items():
-                new_json[key] = [bucket["key"] for bucket in agg["buckets"]]
+            new_json = {
+                key: [bucket["key"] for bucket in agg["buckets"]]
+                for key, agg in es_json["aggregations"].items()
+                if agg["buckets"]
+            }
             return jsonify(new_json)
         except KeyError as e:
             raise PostprocessError(

@@ -43,8 +43,6 @@ class Commons:
         bad_date_payload: JSON = None,
         error_payload: JSON = None,
         empty_es_response_payload: JSON = None,
-        index_prefix: AnyStr = None,
-        index_version: int = 6,  # defaults to version 6 unless specified
     ):
         self.cls_obj = cls_obj
         self.pbench_endpoint = pbench_endpoint
@@ -53,33 +51,20 @@ class Commons:
         self.bad_date_payload = bad_date_payload
         self.error_payload = error_payload
         self.empty_es_response_payload = empty_es_response_payload
-        self.index_prefix = index_prefix
-        self.index_version = index_version
 
-    def build_index(self, server_config=None, find_metadata=None, dates=[]):
+    def build_index(self, server_config, dates):
         """
         Build the index list for query
 
         Args:
             dates (iterable): list of date strings
         """
-        idx = "{}.v{}.{}.".format(
-            server_config.get("Indexing", "index_prefix"),
-            self.index_version,
-            self.index_prefix,
-        )
-        index = ""
-        for d in dates:
-            index += f"{idx}{d},"
-        if not index:
-            drb = Dataset.attach(controller="node", name="drb")
-            index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
-            for key, values in index_map.items():
-                if self.payload["run_id"] in values:
-                    index = f"{key}"
+        idx = server_config.get("Indexing", "index_prefix") + ".v6.run-data."
+        index = "".join([f"{idx}{d}," for d in dates])
+
         return f"/{index}"
 
-    def build_index_from_metadata(self, find_metadata):
+    def build_index_from_metadata(self, provide_metadata):
         drb = Dataset.attach(controller="node", name="drb")
         index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
         for key, values in index_map.items():
@@ -93,8 +78,6 @@ class Commons:
         It expects the date to look like YYYY-MM
         """
         date_range = []
-        if not start or not end:
-            return date_range
         start_date = date_parser.parse(start)
         end_date = date_parser.parse(end)
         assert start_date <= end_date
@@ -264,9 +247,9 @@ class Commons:
             expected_status = HTTPStatus.FORBIDDEN
 
         index = self.build_index(
-            server_config,
-            dates=self.date_range(self.payload.get("start"), self.payload.get("end")),
+            server_config, self.date_range(self.payload["start"], self.payload["end"])
         )
+
         response = query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
@@ -316,11 +299,14 @@ class Commons:
         if not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_http_exception.__name__)
 
-        index = self.build_index(
-            server_config,
-            provide_metadata,
-            self.date_range(self.payload.get("start"), self.payload.get("end")),
-        )
+        if self.payload.get("start") and self.payload.get("end"):
+            index = self.build_index(
+                server_config,
+                self.date_range(self.payload["start"], self.payload["end"]),
+            )
+        else:
+            index = self.build_index_from_metadata(provide_metadata)
+
         query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
@@ -349,11 +335,14 @@ class Commons:
         if not self.elastic_endpoint:
             pytest.skip("skipping " + self.test_http_error.__name__)
 
-        index = self.build_index(
-            server_config,
-            provide_metadata,
-            self.date_range(self.payload.get("start"), self.payload.get("end")),
-        )
+        if self.payload.get("start") and self.payload.get("end"):
+            index = self.build_index(
+                server_config,
+                self.date_range(self.payload["start"], self.payload["end"]),
+            )
+        else:
+            index = self.build_index_from_metadata(provide_metadata)
+
         query_api(
             self.pbench_endpoint,
             self.elastic_endpoint,
