@@ -25,7 +25,7 @@ from pbench.server.api.resources.query_apis.datasets_list import DatasetsList
 from pbench.server.api.resources.query_apis.datasets_detail import DatasetsDetail
 from pbench.server.api.resources.query_apis.index_mappings import IndexMappings
 from pbench.server.api.resources.query_apis.iteration_samples import (
-    IterationSampleNamespaces,
+    IterationSampleNamespace,
 )
 from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
 from pbench.server.api.resources.query_apis.month_indices import MonthIndices
@@ -86,7 +86,7 @@ def register_endpoints(api, app, config):
         IndexSearch, f"{base_uri}/index/search", resource_class_args=(config, logger),
     )
     api.add_resource(
-        IterationSampleNamespaces,
+        IterationSampleNamespace,
         f"{base_uri}/dataset/samples/namespace",
         resource_class_args=(config, logger),
     )

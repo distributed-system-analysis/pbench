@@ -5,7 +5,6 @@ from logging import Logger
 from flask_restful import abort
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.auth import Auth
 from pbench.server.api.resources import (
     JSON,
     Schema,
@@ -39,8 +38,8 @@ class IterationSamples(ElasticBase):
         request is authorized for this dataset.
 
         If the user has authorization to read the dataset, return the Dataset
-        object as CONTEXT so that the postprocess operation can proceed to get all
-        the iteration aggregations.
+        object as CONTEXT so that the postprocess operations can use it to
+        identify the index to be searched from document index metadata.
         """
         run_id = client_json.get("run_id")
 
@@ -67,21 +66,19 @@ class IterationSamples(ElasticBase):
         return {"dataset": dataset, "run_id": run_id}
 
 
-class IterationSampleNamespaces(IterationSamples):
+class IterationSampleNamespace(IterationSamples):
     """
-    Iteration samples API that returns only unique namespaces for each
-    whitelisted result-data-sample subdocuments.
+    Iteration samples API that returns namespaces for each whitelisted
+    result-data-sample subdocuments.
 
     This class inherits the common IterationSamples class and builds an
-    aggregated query against a user supplied run id to compile the filter header
-    which shows every unique field in the 'benchmark', 'sample', 'iterations'
-    and 'run' subdocuments.
+    aggregated term query filtered by user supplied run id.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(config, logger)
 
-    def get_keyword_fields(self, mappings):
+    def get_keyword_fields(self, mappings: dict) -> list:
         fields = []
 
         def recurse(prefix, mappings, result):
@@ -90,7 +87,7 @@ class IterationSampleNamespaces(IterationSamples):
                     recurse(f"{prefix}{p}.", m, result)
             elif mappings.get("type") == "keyword":
                 result.append(prefix[:-1])  # Remove the trailing dot, if any
-            elif mappings.get("type") == "text":
+            else:
                 for f, v in mappings.get("fields", {}).items():
                     recurse(f"{prefix}{f}.", v, result)
 
@@ -99,13 +96,15 @@ class IterationSampleNamespaces(IterationSamples):
 
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
-        Construct a pbench search query for aggregating unique values for keyword
-        fields in the 'benchmark', 'sample', 'iterations' and 'run'
+        Construct a pbench search query for aggregating a list of values for
+        keyword fields in the 'benchmark', 'sample', 'iterations' and 'run'
         sub-documents of result-data-sample index document that belong to the
         given run id.
+
         {
             "run_id": "run id string"
         }
+
         json_data: JSON dictionary of type-normalized parameters
             "run_id": String representation of run id
         """
@@ -113,9 +112,10 @@ class IterationSampleNamespaces(IterationSamples):
         dataset = context.get("dataset")
 
         self.logger.info(
-            "Return sample iteration namespaces for user {}, prefix {}: for "
-            "run id: {}",
-            Auth.token_auth.current_user().username,
+            "Return iteration sample namespace for dataset {}|{}, prefix {}: "
+            "for run id: {}",
+            dataset.controller,
+            dataset.name,
             self.prefix,
             run_id,
         )
@@ -125,11 +125,20 @@ class IterationSampleNamespaces(IterationSamples):
         try:
             index_map = Metadata.getvalue(dataset=dataset, key="server.index-map")
             index_keys = [key for key in index_map if "result-data-sample" in key]
-            assert len(index_keys) == 1
-            index = index_keys[0]
-            self.logger.debug(f"Iteration samples index, {index!r}")
         except MetadataError as e:
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
+
+        if not len(index_keys) == 1:
+            self.logger.error(
+                f"Found irregular result-data-sample indices for a dataset "
+                f"{dataset.controller!r}|{dataset.name!r}"
+            )
+            abort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                message="Encountered irregular index pattern",
+            )
+        index = index_keys[0]
+        self.logger.debug(f"Iteration samples index, {index!r}")
 
         if index is None:
             abort(
@@ -177,9 +186,9 @@ class IterationSampleNamespaces(IterationSamples):
     def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
         """
         Returns a stringified JSON object containing keyword/value pairs where
-        each keyword is the dot-separated name of a (sub-)field in the results
-        and each value is a non-empty list of unique values which appear in
-        that field.
+        each key is the fully qualified dot-separated name of a keyword
+        (sub-)field and each value is a non-empty list of Elasticsearch
+        bucket keys which appear in that field.
 
         Example:
             {

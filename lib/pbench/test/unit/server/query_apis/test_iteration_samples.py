@@ -1,13 +1,13 @@
 import pytest
 from http import HTTPStatus
 from pbench.server.api.resources.query_apis.iteration_samples import (
-    IterationSampleNamespaces,
+    IterationSampleNamespace,
 )
 from pbench.test.unit.server.headertypes import HeaderTypes
 from pbench.test.unit.server.query_apis.commons import Commons
 
 
-class TestIterationSamplesRows(Commons):
+class TestIterationSamplesNamespace(Commons):
     """
     Unit testing for IterationSamplesRows class.
     In a web service context, we access class functions mostly via the
@@ -18,7 +18,7 @@ class TestIterationSamplesRows(Commons):
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=IterationSampleNamespaces(client.config, client.logger),
+            cls_obj=IterationSampleNamespace(client.config, client.logger),
             pbench_endpoint="/dataset/samples/namespace",
             elastic_endpoint="/_search",
             payload={"run_id": "random_md5_string1"},

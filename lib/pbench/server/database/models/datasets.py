@@ -651,7 +651,7 @@ class Dataset(Database.Base):
                 "Duplicate dataset {}|{}", self.controller, self.name
             )
             raise DatasetDuplicate(self.controller, self.name) from e
-        except Exception as e:
+        except Exception:
             self.logger.exception("Can't add {} to DB", str(self))
             Database.db_session.rollback()
             raise DatasetSqlError("adding", controller=self.controller, name=self.name)
@@ -663,7 +663,7 @@ class Dataset(Database.Base):
         """
         try:
             Database.db_session.commit()
-        except Exception as e:
+        except Exception:
             self.logger.error("Can't update {} in DB", str(self))
             Database.db_session.rollback()
             raise DatasetSqlError(
