@@ -1,13 +1,12 @@
 from datetime import datetime
 from http import HTTPStatus
-from logging import Logger, error
+from logging import Logger
 from typing import Any, Callable, Dict, Iterator
 from urllib.parse import urljoin
 
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
 import elasticsearch
-from elasticsearch.helpers import streaming_bulk, BulkIndexError
 from flask.wrappers import Response
 from flask_restful import abort
 import requests
@@ -23,7 +22,7 @@ from pbench.server.api.resources import (
     UnsupportedAccessMode,
 )
 from pbench.server.database.models.template import Template
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.server.database.models.users import User
 
 # A type defined to allow the preprocess subclass method to provide shared
@@ -363,7 +362,8 @@ class ElasticBulkBase(ApiBase):
 
     This class extends the ApiBase class in order to connect the post
     and get methods to Flask's URI routing algorithms. It implements a common
-    mechanism for calling Elasticsearch and processing errors.
+    mechanism for calling the Elasticsearch package streaming_bulk helper, and
+    processing the response documents.
     """
 
     def __init__(
@@ -435,6 +435,9 @@ class ElasticBulkBase(ApiBase):
         """
         Perform the requested POST operation, and handle any exceptions.
 
+        NOTE: This is called by the ApiBase post() method through its dispatch
+        method, which provides parameter validation.
+
         Args:
             json_data: Type-normalized client JSON input
             _: Original incoming Request object (not used)
@@ -443,9 +446,14 @@ class ElasticBulkBase(ApiBase):
             Response to return to client
         """
         klasname = self.__class__.__name__
-        dataset = Dataset.attach(
-            controller=json_data["controller"], name=json_data["name"]
-        )
+
+        try:
+            dataset = Dataset.attach(
+                controller=json_data["controller"], name=json_data["name"]
+            )
+        except DatasetNotFound as e:
+            abort(HTTPStatus.NOT_FOUND, message=str(e))
+
         owner = User.query(id=dataset.owner_id)
         if not owner:
             self.logger.error(
@@ -453,46 +461,24 @@ class ElasticBulkBase(ApiBase):
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Dataset owner not found")
 
-        # For publish, we check authorization against the ownership of the
-        # dataset that was selected rather than having an explicit "user"
-        # JSON parameter. This will raise UnauthorizedAccess on failure.
-        self._check_authorization(owner.username, json_data["access"])
+        # For bulk Elasticsearch operations, we check authorization against the
+        # ownership of a designated dataset rather than having an explicit
+        # "user" JSON parameter. This will raise UnauthorizedAccess on failure.
+        try:
+            self._check_authorization(owner.username, json_data["access"])
+        except UnauthorizedAccess as e:
+            abort(HTTPStatus.FORBIDDEN, message=str(e))
 
         # Build an Elasticsearch instance to manage the bulk update
         elastic = elasticsearch.Elasticsearch([self.es_url])
 
         try:
-            # Pass the assemble() generator to the bulk helper
-            results = streaming_bulk(elastic, self.generate_documents(json_data, dataset), raise_on_error=False)
-        except BulkIndexError as e:
-            self.logger.exception("{} update failed: {}", klasname, e)
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
-        except elasticsearch.TransportError as e:
-            # Elasticsearch returned a status >= 400
-            self.logger.exception(
-                "{} HTTP error {} from Elasticsearch request",
-                klasname,
-                e
-            )
-            abort(
-                HTTPStatus.BAD_GATEWAY,
-                message=f"Elasticsearch query failure {e.error} ({e.status_code})",
-            )
-        except elasticsearch.ConnectionError as e:
-            self.logger.exception(
-                "{}: connection refused during the Elasticsearch request: {}", klasname, str(e.info)
-            )
-            abort(
-                HTTPStatus.BAD_GATEWAY,
-                message="Network problem, could not reach Elasticsearch",
-            )
-        except elasticsearch.UnsupportedProductError as e:
-            self.logger.exception(
-                "{}: Python elasticsearch package is not compatible with Elasticsearch server: {}", klasname, str(e)
-            )
-            abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Elasticsearch server version is incompatible",
+            # Pass the bulk command generator to the helper
+            results = elasticsearch.helpers.streaming_bulk(
+                elastic,
+                self.generate_documents(json_data, dataset),
+                raise_on_exception=False,
+                raise_on_error=False,
             )
         except Exception as e:
             self.logger.exception(
@@ -515,7 +501,7 @@ class ElasticBulkBase(ApiBase):
                 self.logger.debug(
                     "{} ({}: {}) for id {} in index {}",
                     u["status"],
-                    type,
+                    status,
                     e["reason"],
                     u["_id"],
                     u["_index"],
@@ -541,12 +527,9 @@ class ElasticBulkBase(ApiBase):
         # retrying on non-terminal errors, but this requires some cleanup
         # work on the pyesbulk side.
         if error_count > 0:
-            raise PostprocessError(
+            abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
-                (
-                    f"{error_count:d} of {count:d} "
-                    "Elasticsearch document UPDATE operations failed"
-                ),
+                message=f"{error_count:d} of {count:d} Elasticsearch document UPDATE operations failed",
                 data=report,
             )
 

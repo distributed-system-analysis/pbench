@@ -4,6 +4,7 @@ import os
 import pytest
 import shutil
 import tempfile
+import uuid
 from pathlib import Path
 from posix import stat_result
 from stat import ST_MTIME
@@ -291,6 +292,15 @@ def attach_dataset(pbench_token, create_user):
 
 @pytest.fixture()
 def provide_metadata(attach_dataset):
+    """
+    Create "real" metadata in the backing database, which will be accessible
+    via the un-mocked Metadata.getvalue() API.
+
+    TODO: We really want to move away from using a backing DB for unit tests;
+    see `get_document_map()` below for an alternative example. (But in many
+    contexts, using "half DB" and "half mock" will result in SQLAlchemy
+    confusion.)
+    """
     drb = Dataset.attach(controller="node", name="drb")
     test = Dataset.attach(controller="node", name="test")
     Metadata.setvalue(dataset=drb, key="user.contact", value="me@example.com")
@@ -305,6 +315,33 @@ def provide_metadata(attach_dataset):
     )
     Metadata.setvalue(dataset=test, key="user.contact", value="you@example.com")
     Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
+
+
+@pytest.fixture()
+def get_document_map(monkeypatch, attach_dataset):
+    """
+    Mock a Metadata get call to return an Elasticsearch document index
+    without requiring a DB query.
+
+    Args:
+        monkeypatch: patching fixture
+        attach_dataset:  create a mock Dataset object
+    """
+    map = {
+        "unit-test.v6.run-data.2021-06": [uuid.uuid4().hex],
+        "unit-test.v6.run-toc.2021-06": [uuid.uuid4().hex for i in range(10)],
+        "unit-test.v5.result-data-sample.2021-06": [
+            uuid.uuid4().hex for i in range(20)
+        ],
+    }
+
+    def get_document_map(dataset: Dataset, key: str) -> Metadata:
+        assert key == Metadata.INDEX_MAP
+        return map
+
+    with monkeypatch.context() as m:
+        m.setattr(Metadata, "getvalue", get_document_map)
+        yield map
 
 
 @pytest.fixture()

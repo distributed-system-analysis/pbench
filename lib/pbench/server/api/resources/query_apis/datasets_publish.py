@@ -7,7 +7,7 @@ from pbench.server.api.resources import (
     JSON,
     Schema,
     Parameter,
-    ParamType
+    ParamType,
 )
 from pbench.server.api.resources.query_apis import ElasticBulkBase
 from pbench.server.database.models.datasets import Dataset, Metadata
@@ -15,8 +15,15 @@ from pbench.server.database.models.datasets import Dataset, Metadata
 
 class DatasetsPublish(ElasticBulkBase):
     """
-    Change the "access" authorization of a Pbench dataset
+    Change the "access" authorization of a Pbench dataset by modifying the
+    "authorization": {"access": value} subdocument of each Elasticsearch
+    document associated with the specified dataset.
+
+    Note that this may amount to hundreds of thousands of documents across a
+    range of Elasticsearch indices, so we use the Elasticsearch streaming_bulk
+    helper to break down our request into chunks that Elasticsearch can handle.
     """
+
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
             config,
@@ -54,10 +61,7 @@ class DatasetsPublish(ElasticBulkBase):
         user = dataset.owner
 
         self.logger.info(
-            "Update access for dataset {} for user {} to {}",
-            name,
-            user,
-            access
+            "Update access for dataset {} for user {} to {}", name, user, access
         )
 
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
@@ -79,7 +83,7 @@ class DatasetsPublish(ElasticBulkBase):
                     "_op_type": "update",
                     "_index": index,
                     "_id": id,
-                    "doc": {"authorization": {"access": access}}
+                    "doc": {"authorization": {"access": access}},
                 }
 
     def complete(self, dataset: Dataset, json_data: JSON, error_count: int) -> None:
