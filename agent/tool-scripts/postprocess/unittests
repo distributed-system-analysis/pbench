@@ -2,6 +2,7 @@
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 export PERL_HASH_SEED=0
+let MAX_PERFTEST_SECONDS=300  # 5 minutes
 
 export _tdir=$(dirname $(readlink -f $0))
 cd $_tdir
@@ -56,6 +57,11 @@ function setup_test {
     cp -a samples/$1/ ${_testroot}/
 }
 
+# Returns the current time in seconds since the UNIX Epoch.
+function get_epoch_time {
+    date -u "+%s"
+}
+
 # Remove any file from the test directory that is the same as the
 # corresponding file in the sample directory (or is a symlink), and
 # then, bottom-up, remove any empty directories.
@@ -96,6 +102,23 @@ function evaluate_results {
     fi
 
     return $sts
+}
+
+# Evaluate the results of a performance test:  remove all extraneous files,
+# since we're not actually interested in correctness, per se (we presumably
+# have other tests which check that), and return a status which indicates
+# whether the performance of this test was acceptable.
+function evaluate_performance_results {
+    rm -rf ${_testroot}/$1/*
+
+    declare -i end_time=$(get_epoch_time)
+    if ((end_time - start_time > MAX_PERFTEST_SECONDS)); then
+        tee ${_testroot}/$1/result.txt \
+            <<< "Duration: $(((end_time - start_time))) seconds"
+        return 1
+    else
+        return 0
+    fi
 }
 
 function testit {
@@ -191,7 +214,9 @@ for i in $(ls -1 samples/) ; do
         fi
     fi
     setup_test $i
-    case $i in
+    t=${i#perf-}
+    declare -i start_time=$(get_epoch_time)
+    case $t in
         uperf-*)                       testuperf $i;;
         fio-*)                         testfio $i;;
         haproxy-ocp)                   testhaproxy_ocp $i;;
@@ -205,7 +230,13 @@ for i in $(ls -1 samples/) ; do
         *)                             testit $i ${i%-[0-9]};;
     esac
 
-    evaluate_results -c $i
+    # If the test name does not have the "perf-" prefix, then evaluate its
+    # results normally; otherwise, evaluate the run as performance test.
+    if [[ $i == $t ]]; then
+        evaluate_results -c $i
+    else
+        evaluate_performance_results $i
+    fi
     sts=$?
     if [[ $sts -eq 0 ]]; then
         echo "PASS - $i"
