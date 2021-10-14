@@ -8,6 +8,8 @@ import requests
 import sys
 import time
 
+from collections import OrderedDict
+
 from elasticsearch1 import Elasticsearch
 from elasticsearch1.helpers import scan
 
@@ -622,25 +624,26 @@ def transform_result(source, pbench_runs, results_seen, stats):
     # The following field names are required
     try:
         benchmark = index["benchmark"]
-        result = {
-            "run.id": run_id,
-            "run.name": run_name,
-            "iteration.name": iter_name,
-            "benchmark.bs": benchmark["bs"],
-            "benchmark.direct": benchmark["direct"],
-            "benchmark.ioengine": benchmark["ioengine"],
-            "benchmark.max_stddevpct": benchmark["max_stddevpct"],
-            "benchmark.primary_metric": benchmark["primary_metric"],
-            "benchmark.rw": ", ".join(set((benchmark["rw"].split(",")))),
-            "sample.name": sample_name,
-            "sample.client_hostname": sample["client_hostname"],
-            "sample.measurement_type": sample_m_type,
-            "sample.measurement_title": sample_m_title,
-            "sample.measurement_idx": sample_m_idx,
-            "sample.mean": sample["mean"],
-            "sample.stddev": sample["stddev"],
-            "sample.stddevpct": sample["stddevpct"],
-        }
+        result = OrderedDict()
+        result.update([
+            ("run.id", run_id),
+            ("iteration.name", iter_name),
+            ("sample.name", sample_name),
+            ("run.name", run_name),
+            ("benchmark.bs", benchmark["bs"]),
+            ("benchmark.direct", benchmark["direct"]),
+            ("benchmark.ioengine", benchmark["ioengine"]),
+            ("benchmark.max_stddevpct", benchmark["max_stddevpct"]),
+            ("benchmark.primary_metric", benchmark["primary_metric"]),
+            ("benchmark.rw", ", ".join(set((benchmark["rw"].split(","))))),
+            ("sample.client_hostname", sample["client_hostname"]),
+            ("sample.measurement_type", sample_m_type),
+            ("sample.measurement_title", sample_m_title),
+            ("sample.measurement_idx", sample_m_idx),
+            ("sample.mean", sample["mean"]),
+            ("sample.stddev", sample["stddev"]),
+            ("sample.stddevpct", sample["stddevpct"]),
+        ])
     except KeyError as exc:
         print(
             # f"ERROR - {filename}, {exc}, {json.dumps(index)}", file=sys.stderr,
@@ -814,7 +817,9 @@ def main(args):
             result_cnt += 1
             for sos in result["sosreports"].keys():
                 log.write("{}\n".format(sos))
-            json.dump(result, outfile)
+            outfile.write(json.dumps(result))
+            outfile.write("\n")
+            outfile.flush()
 
     scan_end = time.time()
     duration = scan_end - scan_start
