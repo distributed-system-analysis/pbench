@@ -9,7 +9,7 @@ from pbench.test.unit.server.query_apis.commons import Commons
 
 class TestIterationSamplesNamespace(Commons):
     """
-    Unit testing for IterationSamplesRows class.
+    Unit testing for IterationSamplesNamespace class.
     In a web service context, we access class functions mostly via the
     Flask test client rather than trying to directly invoke the class
     constructor and `post` service.

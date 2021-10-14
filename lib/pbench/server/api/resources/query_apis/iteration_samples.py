@@ -130,8 +130,8 @@ class IterationSampleNamespace(IterationSamples):
 
         if not len(index_keys) == 1:
             self.logger.error(
-                f"Found irregular result-data-sample indices for a dataset "
-                f"{dataset.controller!r}|{dataset.name!r}"
+                f"Found irregular result-data-sample indices {index_keys!r} "
+                f"for a dataset {dataset.controller!r}|{dataset.name!r}"
             )
             abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
