@@ -1,21 +1,22 @@
-from flask import jsonify
 from http import HTTPStatus
 from logging import Logger
+from typing import AnyStr, Dict, List
 
+from flask import Response, jsonify
 from flask_restful import abort
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
     JSON,
-    Schema,
     Parameter,
     ParamType,
     PostprocessError,
+    Schema,
 )
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
-from pbench.server.database.models.users import User
 from pbench.server.database.models.template import Template, TemplateNotFound
+from pbench.server.database.models.users import User
 
 
 class IterationSamples(ElasticBase):
@@ -68,8 +69,9 @@ class IterationSamples(ElasticBase):
 
 class IterationSampleNamespace(IterationSamples):
     """
-    Iteration samples API that returns namespaces for each whitelisted
-    result-data-sample subdocuments.
+    Iteration samples API that returns namespace for each whitelisted
+    result-data-sample subdocuments as well as lists of available values for
+    each name.
 
     This class inherits the common IterationSamples class and builds an
     aggregated term query filtered by user supplied run id.
@@ -78,10 +80,10 @@ class IterationSampleNamespace(IterationSamples):
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(config, logger)
 
-    def get_keyword_fields(self, mappings: dict) -> list:
+    def get_keyword_fields(self, mappings: Dict) -> List:
         fields = []
 
-        def recurse(prefix, mappings, result):
+        def recurse(prefix: AnyStr, mappings: JSON, result: List):
             if "properties" in mappings:
                 for p, m in mappings["properties"].items():
                     recurse(f"{prefix}{p}.", m, result)
@@ -97,8 +99,8 @@ class IterationSampleNamespace(IterationSamples):
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
         Construct a pbench search query for aggregating a list of values for
-        keyword fields in the 'benchmark', 'sample', 'iterations' and 'run'
-        sub-documents of result-data-sample index document that belong to the
+        keyword fields mentioned in the WHITELIST_AGGS_FIELDS sub-documents
+        of result-data-sample index document that belong to the
         given run id.
 
         {
@@ -112,8 +114,8 @@ class IterationSampleNamespace(IterationSamples):
         dataset = context.get("dataset")
 
         self.logger.info(
-            "Return iteration sample namespace for dataset {}|{}, prefix {}: "
-            "for run id: {}",
+            "Return iteration sample namespace for dataset {}|{}, prefix {}, "
+            "run id {}",
             dataset.controller,
             dataset.name,
             self.prefix,
@@ -128,7 +130,7 @@ class IterationSampleNamespace(IterationSamples):
         except MetadataError as e:
             abort(HTTPStatus.BAD_REQUEST, message=str(e))
 
-        if not len(index_keys) == 1:
+        if len(index_keys) != 1:
             self.logger.error(
                 f"Found irregular result-data-sample indices {index_keys!r} "
                 f"for a dataset {dataset.controller!r}|{dataset.name!r}"
@@ -140,28 +142,22 @@ class IterationSampleNamespace(IterationSamples):
         index = index_keys[0]
         self.logger.debug(f"Iteration samples index, {index!r}")
 
-        if index is None:
-            abort(
-                HTTPStatus.BAD_REQUEST,
-                message=f"Dataset with run_id: {run_id!r} not found",
-            )
-
         try:
             template = Template.find("result-data-sample")
-
-            # Only keep the whitelisted fields for aggregation
-            mappings = {
-                "properties": {
-                    key: value
-                    for key, value in template.mappings["properties"].items()
-                    if key in IterationSamples.WHITELIST_AGGS_FIELDS
-                }
-            }
         except TemplateNotFound:
             self.logger.exception(
                 "Document template 'result-data-sample' not found in the database."
             )
             abort(HTTPStatus.NOT_FOUND, message="Mapping not found")
+
+        # Only keep the whitelisted fields for aggregation
+        mappings = {
+            "properties": {
+                key: value
+                for key, value in template.mappings["properties"].items()
+                if key in IterationSamples.WHITELIST_AGGS_FIELDS
+            }
+        }
 
         # Get all the fields from result-data-sample index that are of type keyword
         result = self.get_keyword_fields(mappings)
@@ -183,12 +179,12 @@ class IterationSampleNamespace(IterationSamples):
             },
         }
 
-    def postprocess(self, es_json: JSON, context: CONTEXT) -> JSON:
+    def postprocess(self, es_json: JSON, context: CONTEXT) -> Response:
         """
         Returns a stringified JSON object containing keyword/value pairs where
         each key is the fully qualified dot-separated name of a keyword
-        (sub-)field and each value is a non-empty list of Elasticsearch
-        bucket keys which appear in that field.
+        (sub-)field (from result-data-sample documents) and corresponding value
+        is a non-empty list of values which appear in that field.
 
         Example:
             {
