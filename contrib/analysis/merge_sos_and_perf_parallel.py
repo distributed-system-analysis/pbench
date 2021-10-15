@@ -625,25 +625,27 @@ def transform_result(source, pbench_runs, results_seen, stats):
     try:
         benchmark = index["benchmark"]
         result = OrderedDict()
-        result.update([
-            ("run.id", run_id),
-            ("iteration.name", iter_name),
-            ("sample.name", sample_name),
-            ("run.name", run_name),
-            ("benchmark.bs", benchmark["bs"]),
-            ("benchmark.direct", benchmark["direct"]),
-            ("benchmark.ioengine", benchmark["ioengine"]),
-            ("benchmark.max_stddevpct", benchmark["max_stddevpct"]),
-            ("benchmark.primary_metric", benchmark["primary_metric"]),
-            ("benchmark.rw", ", ".join(set((benchmark["rw"].split(","))))),
-            ("sample.client_hostname", sample["client_hostname"]),
-            ("sample.measurement_type", sample_m_type),
-            ("sample.measurement_title", sample_m_title),
-            ("sample.measurement_idx", sample_m_idx),
-            ("sample.mean", sample["mean"]),
-            ("sample.stddev", sample["stddev"]),
-            ("sample.stddevpct", sample["stddevpct"]),
-        ])
+        result.update(
+            [
+                ("run.id", run_id),
+                ("iteration.name", iter_name),
+                ("sample.name", sample_name),
+                ("run.name", run_name),
+                ("benchmark.bs", benchmark["bs"]),
+                ("benchmark.direct", benchmark["direct"]),
+                ("benchmark.ioengine", benchmark["ioengine"]),
+                ("benchmark.max_stddevpct", benchmark["max_stddevpct"]),
+                ("benchmark.primary_metric", benchmark["primary_metric"]),
+                ("benchmark.rw", ", ".join(set((benchmark["rw"].split(","))))),
+                ("sample.client_hostname", sample["client_hostname"]),
+                ("sample.measurement_type", sample_m_type),
+                ("sample.measurement_title", sample_m_title),
+                ("sample.measurement_idx", sample_m_idx),
+                ("sample.mean", sample["mean"]),
+                ("sample.stddev", sample["stddev"]),
+                ("sample.stddevpct", sample["stddevpct"]),
+            ]
+        )
     except KeyError as exc:
         print(
             # f"ERROR - {filename}, {exc}, {json.dumps(index)}", file=sys.stderr,
