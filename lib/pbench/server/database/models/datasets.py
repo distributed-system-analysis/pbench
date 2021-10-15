@@ -42,13 +42,12 @@ class DatasetSqlError(DatasetError):
     original SQLAlchemy exception.
     """
 
-    def __init__(self, operation: str, controller: str, name: str):
+    def __init__(self, operation: str, **kwargs):
         self.operation = operation
-        self.controller = controller
-        self.name = name
+        self.kwargs = kwargs
 
     def __str__(self) -> str:
-        return f"Error {self.operation} dataset {self.controller}|{self.name}"
+        return f"Error {self.operation} dataset {self.kwargs}"
 
 
 class DatasetDuplicate(DatasetError):
@@ -577,17 +576,7 @@ class Dataset(Database.Base):
         """
         # Make sure we have controller and name from path
         controller, name = Dataset._render_path(path, controller, name)
-        try:
-            dataset = (
-                Database.db_session.query(Dataset)
-                .filter_by(controller=controller, name=name)
-                .first()
-            )
-        except SQLAlchemyError as e:
-            Dataset.logger.warning(
-                "Error attaching {}>{}: {}", controller, name, str(e)
-            )
-            raise DatasetSqlError("attaching", controller, name) from e
+        dataset = Dataset.query(controller=controller, name=name)
 
         if dataset is None:
             Dataset.logger.warning("{}>{} not found", controller, name)
@@ -595,6 +584,17 @@ class Dataset(Database.Base):
         elif state:
             dataset.advance(state)
         return dataset
+
+    @staticmethod
+    def query(**kwargs) -> "Dataset":
+        """
+        Query dataset object based on a given column name of the run document
+        """
+        try:
+            return Database.db_session.query(Dataset).filter_by(**kwargs).first()
+        except SQLAlchemyError as e:
+            Dataset.logger.warning("Error querying {}: {}", kwargs, str(e))
+            raise DatasetSqlError("querying", **kwargs)
 
     def __str__(self) -> str:
         """
@@ -651,10 +651,10 @@ class Dataset(Database.Base):
                 "Duplicate dataset {}|{}", self.controller, self.name
             )
             raise DatasetDuplicate(self.controller, self.name) from e
-        except Exception as e:
+        except Exception:
             self.logger.exception("Can't add {} to DB", str(self))
             Database.db_session.rollback()
-            raise DatasetSqlError("adding", self.controller, self.name) from e
+            raise DatasetSqlError("adding", controller=self.controller, name=self.name)
 
     def update(self):
         """
@@ -663,10 +663,12 @@ class Dataset(Database.Base):
         """
         try:
             Database.db_session.commit()
-        except Exception as e:
+        except Exception:
             self.logger.error("Can't update {} in DB", str(self))
             Database.db_session.rollback()
-            raise DatasetSqlError("updating", self.controller, self.name) from e
+            raise DatasetSqlError(
+                "updating", controller=self.controller, name=self.name
+            )
 
 
 @event.listens_for(Dataset, "init")

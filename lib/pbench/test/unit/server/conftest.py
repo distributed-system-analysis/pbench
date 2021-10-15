@@ -279,7 +279,13 @@ def attach_dataset(pbench_token, create_user):
         pbench_token: create a "drb" user and authorize it
         create_user: create a "test" user
     """
-    Dataset(owner="drb", controller="node", name="drb", access="private").add()
+    Dataset(
+        owner="drb",
+        controller="node",
+        name="drb",
+        access="private",
+        md5="random_md5_string1",
+    ).add()
     Dataset(owner="test", controller="node", name="test", access="private").add()
 
 
@@ -289,6 +295,14 @@ def provide_metadata(attach_dataset):
     test = Dataset.attach(controller="node", name="test")
     Metadata.setvalue(dataset=drb, key="user.contact", value="me@example.com")
     Metadata.setvalue(dataset=drb, key=Metadata.DELETION, value="2022-12-25")
+    Metadata.setvalue(
+        dataset=drb,
+        key="server.index-map",
+        value={
+            "unit-test.v6.run-data.2020-08": ["random_md5_string1"],
+            "unit-test.v5.result-data-sample.2020-08": ["random_document_uuid"],
+        },
+    )
     Metadata.setvalue(dataset=test, key="user.contact", value="you@example.com")
     Metadata.setvalue(dataset=test, key=Metadata.DELETION, value="2023-01-25")
 
@@ -427,14 +441,14 @@ def find_template(monkeypatch, fake_mtime):
                 },
                 version=5,
             )
-        elif name == "result":
+        elif name == "result-data-sample":
             return Template(
-                name="result",
-                idxname="result-data",
-                template_name="unit-test.v5.result-data",
+                name="result-data-sample",
+                idxname="result-data-sample",
+                template_name="unit-test.v5.result-data-sample",
                 file="run.json",
-                template_pattern="unit-test.v5.result-data.*",
-                index_template="unit-test.v5.result-data.{year}-{month}",
+                template_pattern="unit-test.v5.result-data-sample.*",
+                index_template="unit-test.v5.result-data-sample.{year}-{month}",
                 settings={"none": False},
                 mappings={
                     "_meta": {"version": "5"},
@@ -461,7 +475,10 @@ def find_template(monkeypatch, fake_mtime):
                                 "name": {"type": "keyword"},
                                 "measurement_type": {"type": "keyword"},
                                 "measurement_idx": {"type": "long"},
-                                "measurement_title": {"type": "text"},
+                                "measurement_title": {
+                                    "type": "text",
+                                    "fields": {"raw": {"type": "keyword"}},
+                                },
                                 "uid": {"type": "keyword"},
                             }
                         },
@@ -470,6 +487,14 @@ def find_template(monkeypatch, fake_mtime):
                                 "@idx": {"type": "long"},
                                 "read_or_write": {"type": "long"},
                                 "value": {"type": "double"},
+                            }
+                        },
+                        "benchmark": {
+                            "properties": {
+                                "name": {"type": "keyword"},
+                                "bs": {"type": "keyword"},
+                                "filename": {"type": "text"},
+                                "frame_size": {"type": "long"},
                             }
                         },
                     },

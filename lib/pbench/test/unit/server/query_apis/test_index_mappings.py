@@ -85,7 +85,9 @@ class TestIndexMappings:
         response body.
         """
         with client:
-            response = client.get(f"{server_config.rest_uri}/index/mappings/result")
+            response = client.get(
+                f"{server_config.rest_uri}/index/mappings/result-data-sample"
+            )
             assert response.status_code == HTTPStatus.OK
             res_json = response.json
             assert res_json == {
@@ -100,6 +102,7 @@ class TestIndexMappings:
                     "measurement_title",
                     "uid",
                 ],
+                "benchmark": ["name", "bs", "filename", "frame_size"],
             }
 
     def test_with_no_index_document(self, client, server_config):
