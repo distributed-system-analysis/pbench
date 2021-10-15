@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import copy
 import json
 import multiprocessing
 import os
@@ -7,8 +8,108 @@ import requests
 import sys
 import time
 
+from collections import OrderedDict
+
 from elasticsearch1 import Elasticsearch
 from elasticsearch1.helpers import scan
+
+
+def load_pbench_runs(dirname, memprof):
+    """Load all the pbench run data, sub-setting to contain only the fields we
+    require.
+
+    We also ignore any pbench run without a `controller_dir` field or without
+    a `sosreports` field.
+
+    A few statistics about the processing is printed to stdout.
+
+    Returns a dictionary containing the processed pbench run documents
+    """
+    if memprof:
+        print(
+            f"Memory profile before ingesting run data documents ... {memprof.heap()}",
+            flush=True,
+        )
+
+    total_recs = 0
+    total_missing_ctrl_dir = 0
+    total_missing_sos = 0
+    total_accepted = 0
+
+    pbench_runs = dict()
+
+    for filename in os.listdir(dirname):
+        if not filename.endswith(".json"):  # code
+            continue
+        if not filename.startswith("pbench_run_data_fio_"):
+            continue
+
+        print(f"Loading {filename}...", flush=True)
+        with open(dirname + "/" + filename) as f:  # releases the handler itself
+            data = json.load(f)
+
+        print(f"Processing {filename}...", flush=True)
+        recs = 0
+        missing_ctrl_dir = 0
+        missing_sos = 0
+        accepted = 0
+        for _source in data["hits"]["hits"]:
+            recs += 1
+
+            run = _source["_source"]
+            run_id = run["@metadata"]["md5"]
+            if "controller_dir" not in run["@metadata"]:
+                missing_ctrl_dir += 1
+                print(f"pbench run with no controller_dir: {run_id}")
+                continue
+
+            if "sosreports" not in run:
+                missing_sos += 1
+                continue
+
+            accepted += 1
+
+            run_index = _source["_index"]
+
+            sosreports = dict()
+            for sosreport in run["sosreports"]:
+                sosreports[os.path.split(sosreport["name"])[1]] = {
+                    "hostname-s": sosreport["hostname-s"],
+                    "hostname-f": sosreport["hostname-f"],
+                    "time": sosreport["name"].split("/")[2],
+                }
+
+            pbench_runs[run_id] = dict(
+                run_id=run_id,
+                run_index=run_index,
+                controller_dir=run["@metadata"]["controller_dir"],
+                sosreports=sosreports,
+            )
+        print(
+            f"Stats for {filename}: accepted {accepted:n} records of"
+            f" {recs:n}, missing 'controller_dir' field {missing_ctrl_dir:n},"
+            f" missing 'sosreports' field {missing_sos:n}",
+            flush=True,
+        )
+
+        total_recs += recs
+        total_accepted += accepted
+        total_missing_ctrl_dir += missing_ctrl_dir
+        total_missing_sos += missing_sos
+
+    print(
+        f"\nPbench Run Totals: accepted {total_accepted:n} records of {total_recs:n},"
+        f"\n\tmissing 'controller_dir' field: {total_missing_ctrl_dir:n}"
+        f"\n\tmissing 'sosreports' field: {total_missing_sos:n}",
+        flush=True,
+    )
+
+    if memprof:
+        print(
+            f"Memory profile after ingesting run data documents ... {memprof.heap()}",
+            flush=True,
+        )
+    return pbench_runs
 
 
 # extract pbench run metadata and workload
@@ -333,7 +434,7 @@ def extract_run_metadata(
         if current_iter_name != iter_name:
             # print ("Before fio")
             disknames, hostnames = extract_fio_result(result, incoming_url, session)
-            current_iter_name = iter_name 
+            current_iter_name = iter_name
         result["disknames"] = disknames
         result["hostnames"] = hostnames
 
@@ -429,15 +530,228 @@ def extract_fio_result(results_meta, incoming_url, session):
     return [disknames, hostnames]
 
 
+def load_results_q(dirname, queue):
+    """Load all the result data sample documents from files pushing them onto the
+    given queue individually.
+    """
+    for filename in os.listdir(dirname):
+        if not filename.endswith(".json"):
+            continue
+        if not filename.startswith("pbench_result_data_fio_"):
+            continue
+
+        print(f"Loading {filename}...", flush=True)
+        with open(dirname + "/" + filename) as f:  # releases the handler itself
+            data = json.load(f)
+
+        print(f"Processing {filename}...", flush=True)
+        for source in data["hits"]["hits"]:
+            queue.put(source)
+    queue.put(None)
+    return
+
+
+def load_results_gen(dirname):
+    """Load all the result data sample documents from files, yielding each one
+    individually.
+    """
+    for filename in os.listdir(dirname):
+        if not filename.endswith(".json"):
+            continue
+        if not filename.startswith("pbench_result_data_fio_"):
+            continue
+
+        print(f"Loading {filename}...", flush=True)
+        with open(dirname + "/" + filename) as f:  # releases the handler itself
+            data = json.load(f)
+
+        print(f"Processing {filename}...", flush=True)
+        for source in data["hits"]["hits"]:
+            yield copy.deepcopy(source)
+    return
+
+
+def transform_result(source, pbench_runs, results_seen, stats):
+    """Transform the raw result data sample document to a stripped down version,
+    augmented with pbench run data.
+    """
+    result_id = source["_id"]
+    assert result_id not in results_seen, f"Result ID {result_id} repeated"
+    results_seen[result_id] = True
+
+    try:
+        index = source["_source"]
+        run = index["run"]
+        run_id = run["id"]
+        run_name = run["name"]
+        iter_name = index["iteration"]["name"]
+        sample = index["sample"]
+        sample_name = sample["name"]
+        sample_m_type = sample["measurement_type"]
+        sample_m_title = sample["measurement_title"]
+        sample_m_idx = sample["measurement_idx"]
+    except KeyError as exc:
+        print(
+            # f"ERROR - {filename}, {exc}, {json.dumps(index)}", file=sys.stderr,
+            f"ERROR - {exc}, {json.dumps(index)}",
+            file=sys.stderr,
+        )
+        stats["errors"] += 1
+        return None
+
+    try:
+        pbench_run = pbench_runs[run_id]
+    except KeyError:
+        # print(
+        #    f"*** Result without a run: {run_ctrl}/{run_name}/{iter_name}"
+        #    f"/{sample_name}/{sample_m_type}/{sample_m_title}"
+        #    f"/{sample_m_idx}",
+        #    flush=True,
+        # )
+        stats["missing_runs"] += 1
+        return None
+
+    if "mean" not in sample:
+        # print(
+        #    f"No 'mean' in {run_ctrl}/{run_name}/{iter_name}"
+        #    f"/{sample_name}/{sample_m_type}/{sample_m_title}"
+        #    f"/{sample_m_idx}",
+        #    flush=True,
+        # )
+        stats["missing_mean"] += 1
+        return None
+
+    # The following field names are required
+    try:
+        benchmark = index["benchmark"]
+        result = OrderedDict()
+        result.update([
+            ("run.id", run_id),
+            ("iteration.name", iter_name),
+            ("sample.name", sample_name),
+            ("run.name", run_name),
+            ("benchmark.bs", benchmark["bs"]),
+            ("benchmark.direct", benchmark["direct"]),
+            ("benchmark.ioengine", benchmark["ioengine"]),
+            ("benchmark.max_stddevpct", benchmark["max_stddevpct"]),
+            ("benchmark.primary_metric", benchmark["primary_metric"]),
+            ("benchmark.rw", ", ".join(set((benchmark["rw"].split(","))))),
+            ("sample.client_hostname", sample["client_hostname"]),
+            ("sample.measurement_type", sample_m_type),
+            ("sample.measurement_title", sample_m_title),
+            ("sample.measurement_idx", sample_m_idx),
+            ("sample.mean", sample["mean"]),
+            ("sample.stddev", sample["stddev"]),
+            ("sample.stddevpct", sample["stddevpct"]),
+        ])
+    except KeyError as exc:
+        print(
+            # f"ERROR - {filename}, {exc}, {json.dumps(index)}", file=sys.stderr,
+            f"ERROR - {exc}, {json.dumps(index)}",
+            file=sys.stderr,
+        )
+        stats["errors"] += 1
+        return None
+
+    stats["mean"] += 1
+
+    result["run_index"] = pbench_run["run_index"]
+    result["controller_dir"] = pbench_run["controller_dir"]
+    result["sosreports"] = pbench_run["sosreports"]
+
+    # optional workload parameters
+    try:
+        result["benchmark.filename"] = ", ".join(
+            set((benchmark["filename"].split(",")))
+        )
+    except KeyError:
+        result["benchmark.filename"] = "/tmp/fio"
+    try:
+        result["benchmark.iodepth"] = benchmark["iodepth"]
+    except KeyError:
+        result["benchmark.iodepth"] = "32"
+    try:
+        result["benchmark.size"] = ", ".join(set((benchmark["size"].split(","))))
+    except KeyError:
+        result["benchmark.size"] = "4096M"
+    try:
+        result["benchmark.numjobs"] = ", ".join(set((benchmark["numjobs"].split(","))))
+    except KeyError:
+        result["benchmark.numjobs"] = "1"
+    try:
+        result["benchmark.ramp_time"] = benchmark["ramp_time"]
+    except KeyError:
+        result["benchmark.ramp_time"] = "none"
+    try:
+        result["benchmark.runtime"] = benchmark["runtime"]
+    except KeyError:
+        result["benchmark.runtime"] = "none"
+    try:
+        result["benchmark.sync"] = benchmark["sync"]
+    except KeyError:
+        result["benchmark.sync"] = "none"
+    try:
+        result["benchmark.time_based"] = benchmark["time_based"]
+    except KeyError:
+        result["benchmark.time_based"] = "none"
+
+    return result
+
+
+def process_results(dirname, es_host, es_port, incoming_url, pool, pbench_runs, stats):
+    """Intermediate generator for handling the fetching of the client names, disk
+    names, and host names.
+
+    """
+    stats["total_recs"] = 0
+    stats["missing_mean"] = 0
+    stats["missing_runs"] = 0
+    stats["errors"] = 0
+    stats["mean"] = 0
+
+    results_seen = dict()
+
+    for source in load_results_gen(dirname):
+        stats["total_recs"] += 1
+        result = transform_result(source, pbench_runs, results_seen, stats)
+        if result is None:
+            continue
+        yield result
+
+
+def process_results_q(queue, es_host, es_port, incoming_url, pool, pbench_runs, stats):
+    """Intermediate generator for handling the fetching of the client names, disk
+    names, and host names.
+
+    """
+    stats["total_recs"] = 0
+    stats["missing_mean"] = 0
+    stats["missing_runs"] = 0
+    stats["errors"] = 0
+    stats["mean"] = 0
+
+    results_seen = dict()
+
+    source = queue.get()
+    while source is not None:
+        stats["total_recs"] += 1
+        result = transform_result(source, pbench_runs, results_seen, stats)
+        if result is not None:
+            yield result
+        source = queue.get()
+
+
 def main(args):
     # Number of CPUs to use (where 0 = n CPUs)
     concurrency = int(args[1])
 
-    es_host = args[2]
-    es_port = args[3]
+    use_multi = int(args[2]) == 1
+
+    es_host = args[3]
+    es_port = args[4]
 
     # URL prefix to fetch unpacked data
-    url_prefix = args[4]
+    url_prefix = args[5]
     incoming_url = f"{url_prefix}/incoming/"
 
     # Directory containing the pbench run and result data pulled from
@@ -453,11 +767,11 @@ def main(args):
     # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.run.2020-06/pbench-run/_search?q=run.script:fio&size=13060&pretty=true' > pbench_run_data_fio_2020-06.json
     #
     # Provide the directory containing all those files as the 5th argument.
-    dirname = args[5]
+    dirname = args[6]
 
     # If requested, profile memory usage
     try:
-        profile_arg = int(args[6])
+        profile_arg = int(args[7])
     except (IndexError, ValueError):
         profile = False
     else:
@@ -477,34 +791,45 @@ def main(args):
 
     scan_start = time.time()
 
-    results, result_to_run, run_to_results = extract_pbench_results(dirname, memprof)
-    pbench_fio = extract_pbench_runs(
-        dirname,
-        es_host,
-        es_port,
-        results,
-        result_to_run,
-        run_to_results,
-        incoming_url,
-        pool,
-        memprof,
-    )
+    pbench_runs = load_pbench_runs(dirname, memprof)
 
-    with open("sosreport_fio.txt", "w") as log:
-        for id in pbench_fio:
-            for sos in pbench_fio[id]["sosreports"].keys():
+    # Use a separate process for loading all the data from files.
+    if use_multi:
+        queue = multiprocessing.Queue(1000)
+        reader = multiprocessing.Process(target=load_results_q, args=(dirname, queue,))
+        reader.start()
+
+    result_cnt = 0
+    stats = dict()
+
+    with open("sosreport_fio.txt", "w") as log, open(
+        "output_latest_fio.json", "w"
+    ) as outfile:
+        if use_multi:
+            generator = process_results_q(
+                queue, es_host, es_port, incoming_url, pool, pbench_runs, stats
+            )
+        else:
+            generator = process_results(
+                dirname, es_host, es_port, incoming_url, pool, pbench_runs, stats
+            )
+        for result in generator:
+            result_cnt += 1
+            for sos in result["sosreports"].keys():
                 log.write("{}\n".format(sos))
-
-    print("final number of records: " + str(len(pbench_fio)))
-
-    with open("output_latest_fio.json", "w") as outfile:
-        json.dump(pbench_fio, outfile)
-
-    # print(json.dumps(pbench_fio, indent = 4))
+            outfile.write(json.dumps(result))
+            outfile.write("\n")
+            outfile.flush()
 
     scan_end = time.time()
     duration = scan_end - scan_start
-    print(f"--- merging run and result data took {duration:0.2f} seconds")
+
+    if use_multi:
+        reader.join()
+
+    print(f"final number of records: {result_cnt:n}", flush=True)
+    print(json.dumps(stats, indent=4), flush=True)
+    print(f"--- merging run and result data took {duration:0.2f} seconds", flush=True)
 
     return 0
 
