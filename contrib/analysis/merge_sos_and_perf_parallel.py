@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import copy
 import json
 import multiprocessing
 import os
@@ -14,7 +13,64 @@ from elasticsearch1 import Elasticsearch
 from elasticsearch1.helpers import scan
 
 
-def load_pbench_runs(dirname, memprof):
+def _month_gen(start=None, end=None):
+    """Generate YYYY-MM stings from all the months, inclusively, between the
+    given start and end dates.
+
+    FIXME - We have this hard-coded for now.
+    """
+    for (
+        month
+    ) in "2020-09 2020-10 2020-11 2020-12 2021-01 2021-02 2021-03 2021-04 2021-05 2021-06 2021-07 2021-08 2021-09 2021-10".split(
+        " "
+    ):
+        yield month
+
+
+def result_index_gen(month_gen):
+    """Yield all the result index patterns for each month yielded from the given
+    generator.
+    """
+    for month in month_gen:
+        yield f"dsa-pbench.v4.result-data.{month}-*"
+
+
+def run_index_gen(month_gen):
+    """Yield all the run data index patterns for each month yielded from the given
+    generator.
+    """
+    for month in month_gen:
+        yield f"dsa-pbench.v4.run.{month}"
+
+
+def es_data_gen(es, index, doc_type):
+    """Yield documents where the `run.script` field is "fio" for the given index
+    and document type.
+    """
+    query = {"query": {"query_string": {"query": "run.script:fio"}}}
+
+    for doc in scan(es, query=query, index=index, doc_type=doc_type, scroll="1m",):
+        yield doc
+
+
+def pbench_runs_gen(es, month_gen):
+    """Yield all the pbench run documents using the given month generator.
+    """
+    for run_index in run_index_gen(month_gen):
+        for doc in es_data_gen(es, run_index, "pbench-run"):
+            yield doc
+
+
+def pbench_result_data_samples_gen(es, month_gen):
+    """Yield all the pbench result data sample documents using the given month
+    generator.
+    """
+    for result_index in result_index_gen(month_gen):
+        for doc in es_data_gen(es, result_index, "pbench-result-data-sample"):
+            yield doc
+
+
+def load_pbench_runs(es):
     """Load all the pbench run data, sub-setting to contain only the fields we
     require.
 
@@ -25,368 +81,54 @@ def load_pbench_runs(dirname, memprof):
 
     Returns a dictionary containing the processed pbench run documents
     """
-    if memprof:
-        print(
-            f"Memory profile before ingesting run data documents ... {memprof.heap()}",
-            flush=True,
-        )
-
-    total_recs = 0
-    total_missing_ctrl_dir = 0
-    total_missing_sos = 0
-    total_accepted = 0
-
     pbench_runs = dict()
 
-    for filename in os.listdir(dirname):
-        if not filename.endswith(".json"):  # code
+    recs = 0
+    missing_ctrl_dir = 0
+    missing_sos = 0
+    accepted = 0
+
+    for _source in pbench_runs_gen(es, _month_gen()):
+        recs += 1
+
+        run = _source["_source"]
+        run_id = run["@metadata"]["md5"]
+        if "controller_dir" not in run["@metadata"]:
+            missing_ctrl_dir += 1
+            print(f"pbench run with no controller_dir: {run_id}")
             continue
-        if not filename.startswith("pbench_run_data_fio_"):
+
+        if "sosreports" not in run:
+            missing_sos += 1
             continue
 
-        print(f"Loading {filename}...", flush=True)
-        with open(dirname + "/" + filename) as f:  # releases the handler itself
-            data = json.load(f)
+        accepted += 1
 
-        print(f"Processing {filename}...", flush=True)
-        recs = 0
-        missing_ctrl_dir = 0
-        missing_sos = 0
-        accepted = 0
-        for _source in data["hits"]["hits"]:
-            recs += 1
+        run_index = _source["_index"]
 
-            run = _source["_source"]
-            run_id = run["@metadata"]["md5"]
-            if "controller_dir" not in run["@metadata"]:
-                missing_ctrl_dir += 1
-                print(f"pbench run with no controller_dir: {run_id}")
-                continue
+        sosreports = dict()
+        for sosreport in run["sosreports"]:
+            sosreports[os.path.split(sosreport["name"])[1]] = {
+                "hostname-s": sosreport["hostname-s"],
+                "hostname-f": sosreport["hostname-f"],
+                "time": sosreport["name"].split("/")[2],
+            }
 
-            if "sosreports" not in run:
-                missing_sos += 1
-                continue
-
-            accepted += 1
-
-            run_index = _source["_index"]
-
-            sosreports = dict()
-            for sosreport in run["sosreports"]:
-                sosreports[os.path.split(sosreport["name"])[1]] = {
-                    "hostname-s": sosreport["hostname-s"],
-                    "hostname-f": sosreport["hostname-f"],
-                    "time": sosreport["name"].split("/")[2],
-                }
-
-            pbench_runs[run_id] = dict(
-                run_id=run_id,
-                run_index=run_index,
-                controller_dir=run["@metadata"]["controller_dir"],
-                sosreports=sosreports,
-            )
-        print(
-            f"Stats for {filename}: accepted {accepted:n} records of"
-            f" {recs:n}, missing 'controller_dir' field {missing_ctrl_dir:n},"
-            f" missing 'sosreports' field {missing_sos:n}",
-            flush=True,
+        pbench_runs[run_id] = dict(
+            run_id=run_id,
+            run_index=run_index,
+            controller_dir=run["@metadata"]["controller_dir"],
+            sosreports=sosreports,
         )
 
-        total_recs += recs
-        total_accepted += accepted
-        total_missing_ctrl_dir += missing_ctrl_dir
-        total_missing_sos += missing_sos
-
     print(
-        f"\nPbench Run Totals: accepted {total_accepted:n} records of {total_recs:n},"
-        f"\n\tmissing 'controller_dir' field: {total_missing_ctrl_dir:n}"
-        f"\n\tmissing 'sosreports' field: {total_missing_sos:n}",
+        f"Stats for pbench runs: accepted {accepted:n} records of"
+        f" {recs:n}, missing 'controller_dir' field {missing_ctrl_dir:n},"
+        f" missing 'sosreports' field {missing_sos:n}",
         flush=True,
     )
 
-    if memprof:
-        print(
-            f"Memory profile after ingesting run data documents ... {memprof.heap()}",
-            flush=True,
-        )
     return pbench_runs
-
-
-# extract pbench run metadata and workload
-# information from indexed pbench results data
-def extract_pbench_results(dirname, memprof):
-    # counts
-    total_recs = 0
-    mean = 0
-    # counts
-
-    if memprof:
-        print(f"Initial memory profile ... {memprof.heap()}", flush=True)
-
-    # The result sample documents by result ID
-    results = dict()
-    # Maps result ID to run ID
-    result_to_run = dict()
-    # Maps run ID to list of result IDs
-    run_to_results = dict()
-
-    for filename in os.listdir(dirname):
-        if not filename.endswith(".json"):  # code
-            continue
-        if not filename.startswith("pbench_result_data_fio_"):
-            continue
-
-        print(f"Loading {filename}...", flush=True)
-        with open(dirname + "/" + filename) as f:  # releases the handler itself
-            data = json.load(f)
-
-        print(f"Processing {filename}...", flush=True)
-        for source in data["hits"]["hits"]:
-            result_id = source["_id"]
-            assert result_id not in results.keys(), f"Result ID {result_id} repeated"
-
-            # counts
-            total_recs += 1
-
-            index = source["_source"]
-            run = index["run"]
-            run_ctrl = run["controller"]
-            run_name = run["name"]
-            iter_name = index["iteration"]["name"]
-            sample = index["sample"]
-            sample_name = sample["name"]
-            sample_m_type = sample["measurement_type"]
-            sample_m_title = sample["measurement_title"]
-            sample_m_idx = sample["measurement_idx"]
-
-            if "mean" not in sample:
-                print(
-                    f"No 'mean' in {run_ctrl}/{run_name}/{iter_name}"
-                    f"/{sample_name}/{sample_m_type}/{sample_m_title}"
-                    f"/{sample_m_idx}",
-                    flush=True,
-                )
-                continue
-
-            # The following field names are required
-            try:
-                benchmark = index["benchmark"]
-                run_id = run["id"]
-                result = {
-                    "run.id": run_id,
-                    "run.name": run_name,
-                    "iteration.name": iter_name,
-                    "benchmark.bs": benchmark["bs"],
-                    "benchmark.direct": benchmark["direct"],
-                    "benchmark.ioengine": benchmark["ioengine"],
-                    "benchmark.max_stddevpct": benchmark["max_stddevpct"],
-                    "benchmark.primary_metric": benchmark["primary_metric"],
-                    "benchmark.rw": ", ".join(set((benchmark["rw"].split(",")))),
-                    "sample.name": sample_name,
-                    "sample.client_hostname": sample["client_hostname"],
-                    "sample.measurement_type": sample_m_type,
-                    "sample.measurement_title": sample_m_title,
-                    "sample.measurement_idx": sample_m_idx,
-                    "sample.mean": sample["mean"],
-                    "sample.stddev": sample["stddev"],
-                    "sample.stddevpct": sample["stddevpct"],
-                }
-            except KeyError as exc:
-                print(
-                    f"ERROR - {filename}, {exc}, {json.dumps(index)}", file=sys.stderr,
-                )
-                continue
-
-            # Only count the mean if we have all the required fields.
-            mean += 1
-
-            # optional workload parameters
-            try:
-                result["benchmark.filename"] = ", ".join(
-                    set((benchmark["filename"].split(",")))
-                )
-            except KeyError:
-                result["benchmark.filename"] = "/tmp/fio"
-            try:
-                result["benchmark.iodepth"] = benchmark["iodepth"]
-            except KeyError:
-                result["benchmark.iodepth"] = "32"
-            try:
-                result["benchmark.size"] = ", ".join(
-                    set((benchmark["size"].split(",")))
-                )
-            except KeyError:
-                result["benchmark.size"] = "4096M"
-            try:
-                result["benchmark.numjobs"] = ", ".join(
-                    set((benchmark["numjobs"].split(",")))
-                )
-            except KeyError:
-                result["benchmark.numjobs"] = "1"
-            try:
-                result["benchmark.ramp_time"] = benchmark["ramp_time"]
-            except KeyError:
-                result["benchmark.ramp_time"] = "none"
-            try:
-                result["benchmark.runtime"] = benchmark["runtime"]
-            except KeyError:
-                result["benchmark.runtime"] = "none"
-            try:
-                result["benchmark.sync"] = benchmark["sync"]
-            except KeyError:
-                result["benchmark.sync"] = "none"
-            try:
-                result["benchmark.time_based"] = benchmark["time_based"]
-            except KeyError:
-                result["benchmark.time_based"] = "none"
-
-            results[result_id] = result
-            result_to_run[result_id] = run_id
-            if run_id not in run_to_results:
-                run_to_results[run_id] = []
-            run_to_results[run_id].append(result_id)
-
-    print("total pbench result records: " + str(total_recs))
-    print("records with mean available: " + str(mean))
-
-    if memprof:
-        print(
-            f"Memory profile after ingesting result data sample documents ... {memprof.heap()}",
-            flush=True,
-        )
-
-    return results, result_to_run, run_to_results
-
-
-# extract controller directory and sosreports'
-# names associated with each pbench run and
-# merge it with the result data
-def extract_pbench_runs(
-    dirname,
-    es_host,
-    es_port,
-    results,
-    result_to_run,
-    run_to_results,
-    incoming_url,
-    pool,
-    memprof,
-):
-    if memprof:
-        print(
-            f"Memory profile before ingesting run data documents ... {memprof.heap()}",
-            flush=True,
-        )
-
-    # counts
-    total_recs = 0
-    controller_dir = 0
-    sos = 0
-    run_wo_res = 0
-    cloud = 0
-    # counts
-
-    # to store results that have corresponding run data
-    pbench = dict()
-
-    # stores output for all the results with complete data
-    result_list = []
-
-    # tells if runs has associated result data
-    valid_run = False
-
-    session = requests.Session()
-    ua = session.headers["User-Agent"]
-    session.headers.update({"User-Agent": f"{ua} -- merge_sos_and_perf_parallel"})
-
-    es = Elasticsearch([f"{es_host}:{es_port}"])
-
-    for filename in os.listdir(dirname):
-        if not filename.endswith(".json"):  # code
-            continue
-        if not filename.startswith("pbench_run_data_fio_"):
-            continue
-
-        print(f"Loading {filename}...", flush=True)
-        with open(dirname + "/" + filename) as f:  # releases the handler itself
-            data = json.load(f)
-
-        print(f"Processing {filename}...", flush=True)
-        for source in data["hits"]["hits"]:
-
-            # counts
-            total_recs = total_recs + 1
-            if "controller_dir" in source["_source"]["@metadata"]:
-                controller_dir = controller_dir + 1
-                if source["_source"]["@metadata"]["controller_dir"].startswith("EC2::"):
-                    cloud = cloud + 1
-            else:
-                print(
-                    "pbench run with no controller_dir: "
-                    + source["_source"]["@metadata"]["md5"]
-                )
-                continue
-
-            if source["_source"]["@metadata"]["md5"] not in run_to_results:
-                run_wo_res = run_wo_res + 1
-                print(f"*** run without results: {source['_source']['run']['name']}")
-                valid_run = False
-            else:
-                valid_run = True
-
-            if "sosreports" in source["_source"]:
-                sos = sos + 1
-            # counts
-
-            if valid_run and "sosreports" in source["_source"]:
-                if pool:
-                    result_list.append(
-                        pool.apply_async(
-                            extract_run_metadata,
-                            args=(
-                                results,
-                                result_to_run,
-                                run_to_results,
-                                source["_source"],
-                                source["_index"],
-                                incoming_url,
-                                session,
-                                es,
-                            ),
-                        )
-                    )
-                else:
-                    pbench.update(
-                        extract_run_metadata(
-                            results,
-                            result_to_run,
-                            run_to_results,
-                            source["_source"],
-                            source["_index"],
-                            incoming_url,
-                            session,
-                            es,
-                        )
-                    )
-
-        if pool:
-            pool.close()  # no more parallel work to submit
-            pool.join()  # wait for the worker processes to terminate
-
-            for res in result_list:
-                record = res.get()
-                if record:
-                    pbench.update(record)
-
-    print("total pbench run records: " + str(total_recs))
-    print("records with controller_dir: " + str(controller_dir))
-    print("records with sosreports: " + str(sos))
-    print("runs without any pbench results: " + str(run_wo_res))
-    print("records with complete info: " + str(total_recs - run_wo_res))
-    print("cloud: " + str(cloud))
-    print("noncloud: " + str(controller_dir - cloud))
-
-    return pbench
 
 
 # extract controller directory and sosreports'
@@ -530,47 +272,6 @@ def extract_fio_result(results_meta, incoming_url, session):
     return [disknames, hostnames]
 
 
-def load_results_q(dirname, queue):
-    """Load all the result data sample documents from files pushing them onto the
-    given queue individually.
-    """
-    for filename in os.listdir(dirname):
-        if not filename.endswith(".json"):
-            continue
-        if not filename.startswith("pbench_result_data_fio_"):
-            continue
-
-        print(f"Loading {filename}...", flush=True)
-        with open(dirname + "/" + filename) as f:  # releases the handler itself
-            data = json.load(f)
-
-        print(f"Processing {filename}...", flush=True)
-        for source in data["hits"]["hits"]:
-            queue.put(source)
-    queue.put(None)
-    return
-
-
-def load_results_gen(dirname):
-    """Load all the result data sample documents from files, yielding each one
-    individually.
-    """
-    for filename in os.listdir(dirname):
-        if not filename.endswith(".json"):
-            continue
-        if not filename.startswith("pbench_result_data_fio_"):
-            continue
-
-        print(f"Loading {filename}...", flush=True)
-        with open(dirname + "/" + filename) as f:  # releases the handler itself
-            data = json.load(f)
-
-        print(f"Processing {filename}...", flush=True)
-        for source in data["hits"]["hits"]:
-            yield copy.deepcopy(source)
-    return
-
-
 def transform_result(source, pbench_runs, results_seen, stats):
     """Transform the raw result data sample document to a stripped down version,
     augmented with pbench run data.
@@ -700,7 +401,7 @@ def transform_result(source, pbench_runs, results_seen, stats):
     return result
 
 
-def process_results(dirname, es_host, es_port, incoming_url, pool, pbench_runs, stats):
+def process_results(es, incoming_url, pool, pbench_runs, stats):
     """Intermediate generator for handling the fetching of the client names, disk
     names, and host names.
 
@@ -713,67 +414,28 @@ def process_results(dirname, es_host, es_port, incoming_url, pool, pbench_runs, 
 
     results_seen = dict()
 
-    for source in load_results_gen(dirname):
+    for _source in pbench_result_data_samples_gen(es, _month_gen()):
         stats["total_recs"] += 1
-        result = transform_result(source, pbench_runs, results_seen, stats)
+        result = transform_result(_source, pbench_runs, results_seen, stats)
         if result is None:
             continue
         yield result
-
-
-def process_results_q(queue, es_host, es_port, incoming_url, pool, pbench_runs, stats):
-    """Intermediate generator for handling the fetching of the client names, disk
-    names, and host names.
-
-    """
-    stats["total_recs"] = 0
-    stats["missing_mean"] = 0
-    stats["missing_runs"] = 0
-    stats["errors"] = 0
-    stats["mean"] = 0
-
-    results_seen = dict()
-
-    source = queue.get()
-    while source is not None:
-        stats["total_recs"] += 1
-        result = transform_result(source, pbench_runs, results_seen, stats)
-        if result is not None:
-            yield result
-        source = queue.get()
 
 
 def main(args):
     # Number of CPUs to use (where 0 = n CPUs)
     concurrency = int(args[1])
 
-    use_multi = int(args[2]) == 1
-
-    es_host = args[3]
-    es_port = args[4]
+    es_host = args[2]
+    es_port = args[3]
 
     # URL prefix to fetch unpacked data
-    url_prefix = args[5]
+    url_prefix = args[4]
     incoming_url = f"{url_prefix}/incoming/"
-
-    # Directory containing the pbench run and result data pulled from
-    # Elasticsearch.
-    #
-    # Collect both the pbench run data and result data for fio from 2020-06
-    # (example month index name) from the Elasticsearch instance in the
-    # directory argument using the following commands (they gives us the
-    # performance results as well as the workload parameters, change the
-    # dates and size fields accordingly):
-    #
-    # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.result-data.2020-06-*/pbench-result-data-sample/_search?q=run.script:fio&size=63988&pretty=true' > pbench_result_data_fio_2020-06.json
-    # $ curl -XGET 'http://<es-host>:<es-port>/dsa-pbench.v4.run.2020-06/pbench-run/_search?q=run.script:fio&size=13060&pretty=true' > pbench_run_data_fio_2020-06.json
-    #
-    # Provide the directory containing all those files as the 5th argument.
-    dirname = args[6]
 
     # If requested, profile memory usage
     try:
-        profile_arg = int(args[7])
+        profile_arg = int(args[5])
     except (IndexError, ValueError):
         profile = False
     else:
@@ -791,30 +453,25 @@ def main(args):
     ncpus = multiprocessing.cpu_count() - 1 if concurrency == 0 else concurrency
     pool = multiprocessing.Pool(ncpus) if ncpus != 1 else None
 
+    if memprof:
+        print(f"Initial memory profile ... {memprof.heap()}", flush=True)
+
     scan_start = time.time()
 
-    pbench_runs = load_pbench_runs(dirname, memprof)
-
-    # Use a separate process for loading all the data from files.
-    if use_multi:
-        queue = multiprocessing.Queue(1000)
-        reader = multiprocessing.Process(target=load_results_q, args=(dirname, queue,))
-        reader.start()
+    es = Elasticsearch([f"{es_host}:{es_port}"])
+    pbench_runs = load_pbench_runs(es)
 
     result_cnt = 0
     stats = dict()
 
+    session = requests.Session()
+    ua = session.headers["User-Agent"]
+    session.headers.update({"User-Agent": f"{ua} -- merge_sos_and_perf_parallel"})
+
     with open("sosreport_fio.txt", "w") as log, open(
         "output_latest_fio.json", "w"
     ) as outfile:
-        if use_multi:
-            generator = process_results_q(
-                queue, es_host, es_port, incoming_url, pool, pbench_runs, stats
-            )
-        else:
-            generator = process_results(
-                dirname, es_host, es_port, incoming_url, pool, pbench_runs, stats
-            )
+        generator = process_results(es, incoming_url, pool, pbench_runs, stats)
         for result in generator:
             result_cnt += 1
             for sos in result["sosreports"].keys():
@@ -826,12 +483,14 @@ def main(args):
     scan_end = time.time()
     duration = scan_end - scan_start
 
-    if use_multi:
-        reader.join()
-
     print(f"final number of records: {result_cnt:n}", flush=True)
     print(json.dumps(stats, indent=4), flush=True)
     print(f"--- merging run and result data took {duration:0.2f} seconds", flush=True)
+
+    if memprof:
+        print(
+            f"Final memory profile ... {memprof.heap()}", flush=True,
+        )
 
     return 0
 
