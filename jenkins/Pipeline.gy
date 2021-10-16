@@ -1,7 +1,7 @@
 pipeline {
     agent { label 'pbench' }
     environment {
-        COV_REPORT_LOC="${WORKSPACE_TMP}/${BUILD_NUMBER}/cov/cov.xml"
+        COV_REPORT_LOC="cov.${BUILD_NUMBER}.xml"
         EXTRA_PODMAN_SWITCHES='--user=root'
         NO_COLORS=0
         PY_COLORS=0
@@ -17,15 +17,15 @@ pipeline {
     }
     post {
         success {
-            // Unfortunately, the Cobertura Publisher plugin considers the
-            // report file to be a relative-to-WORKSPACE-only file. So we
-            // have to hack the separate report file into the local workspace
-            // with a symlink.
-            sh 'ln -s ${COV_REPORT_LOC} ${WORKSPACE}/cov.xml'
+            // Note that jenkins/run-pytests is executed inside the container
+            // while the Cobertura plug-in is executed natively, so this poses
+            // a challenge in terms of finding the coverage report file; we
+            // finesse this by assuming that it will be in the current
+            // directory in both environments.
             step([$class: 'CoberturaPublisher',
                 autoUpdateHealth: false,
                 autoUpdateStability: false,
-                coberturaReportFile: 'cov.xml',
+                coberturaReportFile: "${COV_REPORT_LOC}",
                 failNoReports: false,
                 failUnhealthy: false,
                 failUnstable: false,
@@ -33,7 +33,7 @@ pipeline {
                 onlyStable: false,
                 sourceEncoding: 'ASCII',
                 zoomCoverageChart: false])
-            sh 'rm ${WORKSPACE}/cov.xml'
+            sh 'rm ${COV_REPORT_LOC}'
         }
     }
 }
