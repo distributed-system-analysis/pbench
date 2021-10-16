@@ -49,7 +49,7 @@ def es_data_gen(es, index, doc_type):
     """
     query = {"query": {"query_string": {"query": "run.script:fio"}}}
 
-    for doc in scan(es, query=query, index=index, doc_type=doc_type, scroll="1m",):
+    for doc in scan(es, query=query, index=index, doc_type=doc_type, scroll="1d",):
         yield doc
 
 
@@ -131,66 +131,6 @@ def load_pbench_runs(es):
     return pbench_runs
 
 
-# extract controller directory and sosreports'
-# names associated with each pbench run
-def extract_run_metadata(
-    results,
-    result_to_run,
-    run_to_results,
-    run_record,
-    run_index,
-    incoming_url,
-    session,
-    es,
-):
-    # print (f"Entered run metadata: {run_record['run']['name']}")
-
-    temp = dict()
-
-    # since clientnames are common to all iterations
-    clientnames = None
-
-    # since disknames and hostnames are common to all samples
-    current_iter_name = None
-
-    # since sosreports are common to all results per run
-    sosreports = None
-
-    for result_id in run_to_results[run_record["@metadata"]["md5"]]:
-        result = results[result_id]
-        result["run_index"] = run_index
-        result["controller_dir"] = run_record["@metadata"]["controller_dir"]
-
-        if sosreports is None:
-            sosreports = dict()
-            for sosreport in run_record["sosreports"]:
-                sosreports[os.path.split(sosreport["name"])[1]] = {
-                    "hostname-s": sosreport["hostname-s"],
-                    "hostname-f": sosreport["hostname-f"],
-                    "time": sosreport["name"].split("/")[2],
-                }
-        result["sosreports"] = sosreports
-
-        # add host and disk names in the data here
-        iter_name = result["iteration.name"]
-        if current_iter_name != iter_name:
-            # print ("Before fio")
-            disknames, hostnames = extract_fio_result(result, incoming_url, session)
-            current_iter_name = iter_name
-        result["disknames"] = disknames
-        result["hostnames"] = hostnames
-
-        # add client names here
-        if clientnames is None:
-            # print ("Before clients")
-            clientnames = extract_clients(result, es)
-        result["clientnames"] = clientnames
-
-        temp[result_id] = result
-
-    return temp
-
-
 # extract list of clients from the URL
 def extract_clients(results_meta, es):
     run_index = results_meta["run_index"]
@@ -214,10 +154,9 @@ def extract_clients(results_meta, es):
         es, query=query, index=run_index, doc_type="pbench-run-toc-entry", scroll="1m",
     ):
         src = doc["_source"]
-        assert (
-            src["parent"] == parent_dir_name
-        ), f"unexpected parent directory: {src['parent']} != {parent_dir_name} -- {doc!r}"
-        client_names_raw.append(src["name"])
+        if src["parent"] == parent_dir_name:
+            client_names_raw.append(src["name"])
+    # FIXME: if we have an empty list, do we still want to use those results?
     return list(set(client_names_raw))
 
 
@@ -239,37 +178,35 @@ def extract_fio_result(results_meta, incoming_url, session):
     # check if the page is accessible
     response = session.get(url, allow_redirects=True)
     if response.status_code != 200:  # successful
-        return [[], []]
+        # FIXME: are these results we still want?
+        return ([], [])
 
     try:
         document = response.json()
     except ValueError:
-        print("Response content is not valid JSON")
-        print(url)
-        print(response.content)
-        return [[], []]
+        # print("Response content is not valid JSON")
+        # print(url)
+        # print(response.content)
+        # FIXME: are these results we still want?
+        return ([], [])
 
-    if "disk_util" in document.keys():
-        disknames = [
-            disk["name"] for disk in document["disk_util"] if "name" in disk.keys()
-        ]
-    else:
+    try:
+        disk_util = document["disk_util"]
+    except KeyError:
         disknames = []
-
-    if "client_stats" in document.keys():
-        hostnames = list(
-            set(
-                [
-                    host["hostname"]
-                    for host in document["client_stats"]
-                    if "hostname" in host.keys()
-                ]
-            )
-        )
     else:
-        hostnames = []
+        disknames = [disk["name"] for disk in disk_util if "name" in disk]
 
-    return [disknames, hostnames]
+    try:
+        client_stats = document["client_stats"]
+    except KeyError:
+        hostnames = []
+    else:
+        hostnames = list(
+            set([host["hostname"] for host in client_stats if "hostname" in host])
+        )
+
+    return (disknames, hostnames)
 
 
 def transform_result(source, pbench_runs, results_seen, stats):
@@ -304,7 +241,7 @@ def transform_result(source, pbench_runs, results_seen, stats):
         pbench_run = pbench_runs[run_id]
     except KeyError:
         # print(
-        #    f"*** Result without a run: {run_ctrl}/{run_name}/{iter_name}"
+        #    f"*** Result without a run: {run_id}/{run_name}/{iter_name}"
         #    f"/{sample_name}/{sample_m_type}/{sample_m_title}"
         #    f"/{sample_m_idx}",
         #    flush=True,
@@ -313,6 +250,7 @@ def transform_result(source, pbench_runs, results_seen, stats):
         return None
 
     if "mean" not in sample:
+        # run_ctrl = pbench_run["controller_dir"]
         # print(
         #    f"No 'mean' in {run_ctrl}/{run_name}/{iter_name}"
         #    f"/{sample_name}/{sample_m_type}/{sample_m_title}"
@@ -401,7 +339,7 @@ def transform_result(source, pbench_runs, results_seen, stats):
     return result
 
 
-def process_results(es, incoming_url, pool, pbench_runs, stats):
+def process_results(es, session, incoming_url, pool, pbench_runs, stats):
     """Intermediate generator for handling the fetching of the client names, disk
     names, and host names.
 
@@ -413,12 +351,36 @@ def process_results(es, incoming_url, pool, pbench_runs, stats):
     stats["mean"] = 0
 
     results_seen = dict()
+    clientnames_map = dict()
+    diskhost_map = dict()
 
     for _source in pbench_result_data_samples_gen(es, _month_gen()):
         stats["total_recs"] += 1
         result = transform_result(_source, pbench_runs, results_seen, stats)
         if result is None:
             continue
+
+        # Add host and disk names in the data here
+        key = f'{result["run.id"]}/{result["iteration.name"]}'
+        try:
+            disknames, hostnames = diskhost_map[key]
+        except KeyError:
+            print(f"{key} / fio-result.txt", flush=True)
+            disknames, hostnames = extract_fio_result(result, incoming_url, session)
+            diskhost_map[key] = (disknames, hostnames)
+        result["disknames"] = disknames
+        result["hostnames"] = hostnames
+
+        # Add client names here
+        key = result["run.id"]
+        try:
+            clientnames = clientnames_map[key]
+        except KeyError:
+            print(f"{key} / client names", flush=True)
+            clientnames = extract_clients(result, es)
+            clientnames_map[key] = clientnames
+        result["clientnames"] = clientnames
+
         yield result
 
 
@@ -448,34 +410,36 @@ def main(args):
     else:
         memprof = None
 
+    if memprof:
+        print(f"Initial memory profile ... {memprof.heap()}", flush=True)
+
     # We create the multiprocessing pool first to avoid forking a sub-process
     # with lots of memory allocated.
     ncpus = multiprocessing.cpu_count() - 1 if concurrency == 0 else concurrency
     pool = multiprocessing.Pool(ncpus) if ncpus != 1 else None
 
-    if memprof:
-        print(f"Initial memory profile ... {memprof.heap()}", flush=True)
-
-    scan_start = time.time()
-
     es = Elasticsearch([f"{es_host}:{es_port}"])
-    pbench_runs = load_pbench_runs(es)
-
-    result_cnt = 0
-    stats = dict()
 
     session = requests.Session()
     ua = session.headers["User-Agent"]
     session.headers.update({"User-Agent": f"{ua} -- merge_sos_and_perf_parallel"})
 
+    scan_start = time.time()
+
+    pbench_runs = load_pbench_runs(es)
+
+    result_cnt = 0
+    stats = dict()
+
     with open("sosreport_fio.txt", "w") as log, open(
         "output_latest_fio.json", "w"
     ) as outfile:
-        generator = process_results(es, incoming_url, pool, pbench_runs, stats)
+        generator = process_results(es, session, incoming_url, pool, pbench_runs, stats)
         for result in generator:
             result_cnt += 1
             for sos in result["sosreports"].keys():
                 log.write("{}\n".format(sos))
+            log.flush()
             outfile.write(json.dumps(result))
             outfile.write("\n")
             outfile.flush()
