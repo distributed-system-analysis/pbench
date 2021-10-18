@@ -18,16 +18,31 @@ from pbench.server.api.resources import (
     JSON,
     PostprocessError,
     Schema,
+    SchemaError,
     UnauthorizedAccess,
     UnsupportedAccessMode,
 )
-from pbench.server.database.models.template import Template
 from pbench.server.database.models.datasets import Dataset, DatasetNotFound
+from pbench.server.database.models.template import Template
 from pbench.server.database.models.users import User
 
 # A type defined to allow the preprocess subclass method to provide shared
 # context with the assemble and postprocess methods.
 CONTEXT = Dict[str, Any]
+
+
+class MissingBulkSchemaParameters(SchemaError):
+    """
+    The subclass schema is missing the required "controller" or dataset "name"
+    parameters required to locate a Dataset.
+    """
+
+    def __init__(self, subclass_name: str):
+        super().__init__()
+        self.subclass_name = subclass_name
+
+    def __str__(self) -> str:
+        return f"ElasticBulkBase subclass {self.subclass_name} is missing required schema parameters"
 
 
 class ElasticBase(ApiBase):
@@ -377,59 +392,57 @@ class ElasticBulkBase(ApiBase):
         """
         Base class constructor.
 
+        This method assumes and requires that a dataset will be located using
+        the controller and dataset name, so "controller" and "name" string-type
+        parameters must be defined in the subclass schema.
+
         Args:
             config: server configuration
             logger: logger object
             schema: API schema: for example,
                     Schema(
-                        Parameter("user", ParamType.USER, required=True),
-                        Parameter("start", ParamType.DATE)
+                        Parameter("controller", ParamType.STRING, required=True),
+                        Parameter("name", ParamType.STRING, required=True)
                     )
-            role: specify the API role, defaulting to READ
+            role: specify the API role, defaulting to UPDATE
         """
         super().__init__(config, logger, schema, role=role)
         host = config.get("elasticsearch", "host")
         port = config.get("elasticsearch", "port")
         self.es_url = f"http://{host}:{port}"
+        if "controller" not in schema or "name" not in schema:
+            raise MissingBulkSchemaParameters(self.__class__.__name__)
 
-    def generate_documents(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
+    def generate_actions(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
         """
-        Generate a series of Elasticsearch bulk commands to be fed to the
+        Generate a series of Elasticsearch bulk API actions for the
         streaming_bulk helper.
 
         This is an abstract method that must be implemented by a subclass.
 
         Args:
-            json_data: JSON dictionary of type-normalized key-value pairs
-                controller: the controller that generated the dataset
-                name: name of the dataset to publish
-                access: The desired access level of the dataset
-
+            json_data: The original query JSON parameters based on the subclass
+                schema.
             dataset: The associated Dataset object
         """
         raise NotImplementedError()
 
     def complete(self, dataset: Dataset, json_data: JSON, error_count: int) -> None:
         """
-        Complete a bulk Elasticsearch operation, generally by modifying the
+        Complete a bulk Elasticsearch operation, perhaps by modifying the
         source Dataset resource.
 
-        This is an abstract method that must be implemented by a subclass.
+        This is an abstract method that may be implemented by a subclass to
+        perform some completion action; the default is to do nothing.
 
         Args:
-
-            dataset: The associated Dataset object
-
-            json_data: JSON dictionary of type-normalized key-value pairs
-                controller: the controller that generated the dataset
-                name: name of the dataset to publish
-                access: The desired access level of the dataset
-
+            dataset: The associated Dataset object.
+            json_data: The original query JSON parameters based on the subclass
+                schema.
             error_count: The number of errors encountered during the bulk
-                operation. We want to support idempotency: the Dataset should
-                not be altered unless the error_count is 0.
+                operation.
         """
-        raise NotImplementedError()
+        pass
 
     def _post(self, json_data: JSON, _) -> Response:
         """
@@ -476,10 +489,36 @@ class ElasticBulkBase(ApiBase):
             # Pass the bulk command generator to the helper
             results = elasticsearch.helpers.streaming_bulk(
                 elastic,
-                self.generate_documents(json_data, dataset),
+                self.generate_actions(json_data, dataset),
                 raise_on_exception=False,
                 raise_on_error=False,
             )
+
+            report = {}
+            count = 0
+            error_count = 0
+
+            # NOTE: because streaming_bulk is given a generator, and also
+            # returns a generator, we consume the entire sequence within the
+            # `try` block to catch failures.
+            for ok, response in results:
+                count += 1
+                u = response["update"]
+                status = "ok"
+                if "error" in u:
+                    e = u["error"]
+                    status = e["type"]
+                    self.logger.debug(
+                        "{} ({}: {}) for id {} in index {}",
+                        u["status"],
+                        status,
+                        e["reason"],
+                        u["_id"],
+                        u["_index"],
+                    )
+                    error_count += 1
+                cnt = report.get(status, 0)
+                report[status] = cnt + 1
         except Exception as e:
             self.logger.exception(
                 "{}: exception {} occurred during the Elasticsearch request",
@@ -488,30 +527,9 @@ class ElasticBulkBase(ApiBase):
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
-        report = {}
-        count = 0
-        error_count = 0
-        for ok, response in results:
-            count += 1
-            u = response["update"]
-            status = "ok"
-            if "error" in u:
-                e = u["error"]
-                status = e["type"]
-                self.logger.debug(
-                    "{} ({}: {}) for id {} in index {}",
-                    u["status"],
-                    status,
-                    e["reason"],
-                    u["_id"],
-                    u["_index"],
-                )
-                error_count += 1
-            cnt = report.get(status, 0)
-            report[status] = cnt + 1
-
         self.logger.info(
-            "Update access for dataset {}: {} successful document updates and {} failures",
+            "{}:dataset {}: {} successful document updates and {} failures",
+            klasname,
             dataset,
             count - error_count,
             error_count,

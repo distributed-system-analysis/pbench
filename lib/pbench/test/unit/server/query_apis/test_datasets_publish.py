@@ -1,7 +1,9 @@
+from http import HTTPStatus
 from typing import Iterator
+
 import elasticsearch
 import pytest
-from http import HTTPStatus
+
 from pbench.server.api.resources import JSON
 from pbench.server.database.models.datasets import Dataset
 from pbench.test.unit.server.headertypes import HeaderTypes
@@ -70,8 +72,8 @@ class TestDatasetsPublish:
                 assert cmd["_op_type"] == "update"
                 assert cmd["_id"] in expected_ids
 
-            # For the sake of "authenticity", return our expected results list
-            # as a generator
+            # Generate a sequence of result documents more or less as we'd
+            # expect to see from Elasticsearch
             for item in expected_results:
                 yield item
 
@@ -122,8 +124,8 @@ class TestDatasetsPublish:
         client,
         get_document_map,
         monkeypatch,
-        server_config,
         pbench_token,
+        server_config,
     ):
         """
         Check the publish API when some document updates fail. We expect an
@@ -146,7 +148,7 @@ class TestDatasetsPublish:
         assert dataset.access == Dataset.PRIVATE_ACCESS
 
     def test_no_dataset(
-        self, client, get_document_map, monkeypatch, server_config, pbench_token,
+        self, client, get_document_map, monkeypatch, pbench_token, server_config
     ):
         """
         Check the publish API if the dataset doesn't exist.
@@ -165,7 +167,7 @@ class TestDatasetsPublish:
         assert response.json["message"] == "No dataset node|badwolf"
 
     def test_exception(
-        self, attach_dataset, client, monkeypatch, server_config, pbench_token,
+        self, attach_dataset, client, monkeypatch, pbench_token, server_config
     ):
         """
         Check the publish API response if the bulk helper throws an exception.

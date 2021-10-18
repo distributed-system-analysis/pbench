@@ -18,10 +18,6 @@ class DatasetsPublish(ElasticBulkBase):
     Change the "access" authorization of a Pbench dataset by modifying the
     "authorization": {"access": value} subdocument of each Elasticsearch
     document associated with the specified dataset.
-
-    Note that this may amount to hundreds of thousands of documents across a
-    range of Elasticsearch indices, so we use the Elasticsearch streaming_bulk
-    helper to break down our request into chunks that Elasticsearch can handle.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
@@ -36,7 +32,7 @@ class DatasetsPublish(ElasticBulkBase):
             role=API_OPERATION.UPDATE,
         )
 
-    def generate_documents(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
+    def generate_actions(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
         """
         Generate a series of Elasticsearch bulk update operation documents
         driven by the dataset document map.
@@ -48,27 +44,21 @@ class DatasetsPublish(ElasticBulkBase):
             "doc": {"authorization": {"access": new_access}}
         }
 
-        json_data: JSON dictionary of type-normalized key-value pairs
-            controller: the controller that generated the dataset
-            name: name of the dataset to publish
-            access: The desired access level of the dataset
+        Args:
+            json_data: Type-normalized client JSON input
+                access: The desired access level of the dataset
+            dataset: the Dataset object
 
-        context: A dict containing a "dataset" key with the Dataset
-            object, which contains the root run-data index document ID.
+        Returns:
+            A sequence of Elasticsearch bulk actions
         """
-        name = json_data["name"]
         access = json_data["access"]
-        user = dataset.owner
-
-        self.logger.info(
-            "Update access for dataset {} for user {} to {}", name, user, access
-        )
-
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
         doc_count = sum(len(i) for i in map.values())
 
         self.logger.info(
-            "Publish operation will update {} Elasticsearch documents in {} indices: {}",
+            "Publish operation for dataset {} will update {} Elasticsearch documents in {} indices: {}",
+            dataset,
             doc_count,
             len(map),
             list(map.keys()),
