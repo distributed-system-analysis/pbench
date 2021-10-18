@@ -34,15 +34,8 @@ class DatasetsPublish(ElasticBulkBase):
 
     def generate_actions(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
         """
-        Generate a series of Elasticsearch bulk update operation documents
-        driven by the dataset document map.
-
-        {
-            "_op_type": "update",
-            "_index": index_name,
-            "_id": document_id,
-            "doc": {"authorization": {"access": new_access}}
-        }
+        Generate a series of Elasticsearch bulk update actions driven by the
+        dataset document map.
 
         Args:
             json_data: Type-normalized client JSON input
@@ -76,9 +69,9 @@ class DatasetsPublish(ElasticBulkBase):
                     "doc": {"authorization": {"access": access}},
                 }
 
-    def complete(self, dataset: Dataset, json_data: JSON, error_count: int) -> None:
+    def complete(self, dataset: Dataset, json_data: JSON, summary: JSON) -> None:
         # Only on total success we update the Dataset's registered access
         # column; a "partial success" will remain in the previous state.
-        if error_count == 0:
+        if summary["failure"] == 0:
             dataset.access = json_data["access"]
             dataset.update()

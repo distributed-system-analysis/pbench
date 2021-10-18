@@ -22,8 +22,8 @@ class TestDatasetsPublish:
 
     def fake_elastic(self, monkeypatch, map: JSON, partial_fail: bool):
         """
-        Helper function to mock the Elasticsearch helper streaming_bulk API,
-        which will validate the input actions and generate expected responses.
+        Pytest helper to install a mock for the Elasticsearch streaming_bulk
+        helper API for testing.
 
         Args:
             monkeypatch: The monkeypatch fixture from the test case
@@ -67,6 +67,20 @@ class TestDatasetsPublish:
             raise_on_error: bool = True,
             raise_on_exception: bool = True,
         ):
+            """
+            Helper function to mock the Elasticsearch helper streaming_bulk API,
+            which will validate the input actions and generate expected responses.
+
+            Args:
+                elastic: An Elasticsearch object
+                stream: The input stream of bulk action dicts
+                raise_on_error: indicates whether errors should be raised
+                raise_on_exception: indicates whether exceptions should propagate
+                    or be trapped
+
+            Yields:
+                Response documents from the mocked streaming_bulk helper
+            """
             # Consume and validate the command generator
             for cmd in stream:
                 assert cmd["_op_type"] == "update"
@@ -114,13 +128,14 @@ class TestDatasetsPublish:
         )
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
-            assert response.json == {"ok": 31}
+            assert response.json == {"ok": 31, "failure": 0}
             dataset = Dataset.attach(controller="node", name="drb")
             assert dataset.access == Dataset.PUBLIC_ACCESS
 
     def test_partial(
         self,
         attach_dataset,
+        caplog,
         client,
         get_document_map,
         monkeypatch,
@@ -141,7 +156,16 @@ class TestDatasetsPublish:
 
         # Verify the report and status
         assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert response.json["data"] == {"ok": 28, "KIDDING": 3}
+        assert response.json["data"] == {"ok": 28, "failure": 3}
+        for record in caplog.records:
+            if (
+                record.levelname == "ERROR"
+                and record.name == "pbench.server.api:__init__.py"
+            ):
+                assert (
+                    record.message
+                    == "DatasetsPublish:dataset drb(1)|node|drb: 28 successful document updates and 3 failures: defaultdict(<class 'collections.Counter'>, {'Just kidding': Counter({'unit-test.v6.run-data.2021-06': 1, 'unit-test.v6.run-toc.2021-06': 1, 'unit-test.v5.result-data-sample.2021-06': 1}), 'ok': Counter({'unit-test.v5.result-data-sample.2021-06': 19, 'unit-test.v6.run-toc.2021-06': 9})})"
+                )
 
         # Verify that the Dataset access didn't change
         dataset = Dataset.attach(controller="node", name="drb")

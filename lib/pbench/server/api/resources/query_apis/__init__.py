@@ -1,3 +1,4 @@
+from collections import Counter, defaultdict
 from datetime import datetime
 from http import HTTPStatus
 from logging import Logger
@@ -42,7 +43,7 @@ class MissingBulkSchemaParameters(SchemaError):
         self.subclass_name = subclass_name
 
     def __str__(self) -> str:
-        return f"ElasticBulkBase subclass {self.subclass_name} is missing required schema parameters"
+        return f"API {self.subclass_name} is missing schema parameters controller and/or name"
 
 
 class ElasticBase(ApiBase):
@@ -402,21 +403,31 @@ class ElasticBulkBase(ApiBase):
             schema: API schema: for example,
                     Schema(
                         Parameter("controller", ParamType.STRING, required=True),
-                        Parameter("name", ParamType.STRING, required=True)
+                        Parameter("name", ParamType.STRING, required=True),
+                        ...
                     )
             role: specify the API role, defaulting to UPDATE
         """
         super().__init__(config, logger, schema, role=role)
-        host = config.get("elasticsearch", "host")
-        port = config.get("elasticsearch", "port")
-        self.es_url = f"http://{host}:{port}"
+        self.node = {
+            "host": config.get("elasticsearch", "host"),
+            "port": config.get("elasticsearch", "port"),
+        }
+
         if "controller" not in schema or "name" not in schema:
             raise MissingBulkSchemaParameters(self.__class__.__name__)
 
     def generate_actions(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
         """
-        Generate a series of Elasticsearch bulk API actions for the
-        streaming_bulk helper.
+        Generate a series of Elasticsearch bulk operation actions driven by the
+        dataset document map. For example:
+
+        {
+            "_op_type": "update",
+            "_index": index_name,
+            "_id": document_id,
+            "doc": {"authorization": {"access": new_access}}
+        }
 
         This is an abstract method that must be implemented by a subclass.
 
@@ -424,10 +435,13 @@ class ElasticBulkBase(ApiBase):
             json_data: The original query JSON parameters based on the subclass
                 schema.
             dataset: The associated Dataset object
+
+        Returns:
+            Sequence of Elasticsearch bulk action dict objects
         """
         raise NotImplementedError()
 
-    def complete(self, dataset: Dataset, json_data: JSON, error_count: int) -> None:
+    def complete(self, dataset: Dataset, json_data: JSON, summary: JSON) -> None:
         """
         Complete a bulk Elasticsearch operation, perhaps by modifying the
         source Dataset resource.
@@ -439,8 +453,9 @@ class ElasticBulkBase(ApiBase):
             dataset: The associated Dataset object.
             json_data: The original query JSON parameters based on the subclass
                 schema.
-            error_count: The number of errors encountered during the bulk
-                operation.
+            summary: The summary document of the operation:
+                ok      Count of successful actions
+                failure Count of failing actions
         """
         pass
 
@@ -483,7 +498,31 @@ class ElasticBulkBase(ApiBase):
             abort(HTTPStatus.FORBIDDEN, message=str(e))
 
         # Build an Elasticsearch instance to manage the bulk update
-        elastic = elasticsearch.Elasticsearch([self.es_url])
+        elastic = elasticsearch.Elasticsearch(self.node)
+
+        # Internally report a summary of successes and Elasticsearch failure
+        # reasons: this will look something like
+        #
+        # {
+        #   "ok": {
+        #     "index1": 1,
+        #     "index2": 500,
+        #     ...
+        #   },
+        #   "elasticsearch failure reason 1": {
+        #     "index2": 5,
+        #     "index5": 10
+        #     ...
+        #   },
+        #   "elasticsearch failure reason 2": {
+        #     "index3": 2,
+        #     "index4": 15
+        #     ...
+        #   }
+        # }
+        report = defaultdict(Counter)
+        count = 0
+        error_count = 0
 
         try:
             # Pass the bulk command generator to the helper
@@ -494,10 +533,6 @@ class ElasticBulkBase(ApiBase):
                 raise_on_error=False,
             )
 
-            report = {}
-            count = 0
-            error_count = 0
-
             # NOTE: because streaming_bulk is given a generator, and also
             # returns a generator, we consume the entire sequence within the
             # `try` block to catch failures.
@@ -507,48 +542,47 @@ class ElasticBulkBase(ApiBase):
                 status = "ok"
                 if "error" in u:
                     e = u["error"]
-                    status = e["type"]
-                    self.logger.debug(
-                        "{} ({}: {}) for id {} in index {}",
-                        u["status"],
-                        status,
-                        e["reason"],
-                        u["_id"],
-                        u["_index"],
-                    )
+                    status = e["reason"]
                     error_count += 1
-                cnt = report.get(status, 0)
-                report[status] = cnt + 1
+                report[status][u["_index"]] += 1
         except Exception as e:
             self.logger.exception(
-                "{}: exception {} occurred during the Elasticsearch request",
+                "{}: exception {} occurred during the Elasticsearch request: report {}",
                 klasname,
                 type(e).__name__,
+                report,
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
-        self.logger.info(
-            "{}:dataset {}: {} successful document updates and {} failures",
-            klasname,
-            dataset,
-            count - error_count,
-            error_count,
-        )
+        summary = {"ok": count - error_count, "failure": error_count}
 
         # Let the subclass complete the operation
-        self.complete(dataset, json_data, error_count)
+        self.complete(dataset, json_data, summary)
 
-        # Return the report document as the success response, or abort with an
+        # Return the summary document as the success response, or abort with an
         # internal error if we weren't 100% successful. Some elasticsearch
         # documents may have been affected, but the client will be able to try
-        # again. TODO: switching to `pyesbulk` will automatically handle
-        # retrying on non-terminal errors, but this requires some cleanup
-        # work on the pyesbulk side.
+        # again.
+        #
+        # TODO: switching to `pyesbulk` will automatically handle retrying on
+        # non-terminal errors, but this requires some cleanup work on the
+        # pyesbulk side.
         if error_count > 0:
+            self.logger.error(
+                "{}:dataset {}: {} successful document updates and {} failures: {}",
+                klasname,
+                dataset,
+                count - error_count,
+                error_count,
+                report,
+            )
             abort(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
                 message=f"{error_count:d} of {count:d} Elasticsearch document UPDATE operations failed",
-                data=report,
+                data=summary,
             )
 
-        return report
+        self.logger.info(
+            "{}:dataset {}: {} successful document updates", klasname, dataset, count
+        )
+        return summary
