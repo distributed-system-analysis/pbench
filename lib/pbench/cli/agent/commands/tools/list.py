@@ -22,6 +22,20 @@ class ListTools(ToolCommand):
     def __init__(self, context):
         super(ListTools, self).__init__(context)
 
+    @staticmethod
+    def print_results(toolinfo: dict, tool: str, with_option: bool):
+        for group, gval in sorted(toolinfo.items()):
+            for host, tools in sorted(gval.items()):
+                if tools:
+                    if not with_option:
+                        s = ", ".join(sorted(tools.keys()))
+                    else:
+                        tools_with_options = [
+                            f"{t} {' '.join(v)}" for t, v in sorted(tools.items())
+                        ]
+                        s = ", ".join(tools_with_options)
+                    print(f"group: {group}; host: {host}; tools: {s}")
+
     def execute(self):
         if not self.pbench_run.exists():
             self.logger.warn("The %s directory does not exist", self.pbench_run)
@@ -33,47 +47,65 @@ class ListTools(ToolCommand):
         else:
             groups = self.groups
 
+        opts = self.context.with_option
+        tool_info = {}
+
         if not self.context.name:
-            host_tools = {}
             for group in groups:
-                host_tools[group] = {}
+                tool_info[group] = {}
                 try:
-                    for path in self.gen_tools_group_dir(group).glob("*/**"):
-                        if self.context.with_option:
-                            host_tools[group][path.name] = [
-                                (p, (path / p).read_text()) for p in self.tools(path)
-                            ]
-                        else:
-                            host_tools[group][path.name] = [p for p in self.tools(path)]
+                    tg_dir = self.gen_tools_group_dir(group).glob("*/**")
                 except BadToolGroup:
                     self.logger.error("Bad tool group: %s", group)
-                    # 0.69.9 behavior
-                    return 0
-            if host_tools:
-                for k, v in host_tools.items():
-                    for h, t in v.items():
-                        print("%s: %s %s" % (k, h, t))
+                    return 1
+
+                for path in tg_dir:
+                    host = path.name
+                    tool_info[group][host] = {}
+                    for tool in sorted(self.tools(path)):
+                        tool_info[group][host][tool] = (
+                            sorted((path / tool).read_text().rstrip("\n").split("\n"))
+                            if opts
+                            else ""
+                        )
+
+            if tool_info:
+                self.print_results(tool_info, None, self.context.with_option)
         else:
             # List the groups which include this tool
-            group_list = []
+            tool = self.context.name
+            found = False
             for group in groups:
-                tg_dir = self.gen_tools_group_dir(group)
-                if not tg_dir.exists():
-                    self.logger.error("bad or missing tool group %s", group)
-                    continue
+                try:
+                    tg_dir = self.gen_tools_group_dir(group)
+                except BadToolGroup:
+                    self.logger.error("Bad tool group: %s", group)
+                    return 1
 
+                tool_info[group] = {}
                 for path in tg_dir.iterdir():
                     # skip files like __label__ and __trigger__
                     if not path.is_dir():
                         continue
+
+                    host = path.name
+                    tool_info[group][host] = {}
                     # Check to see if the tool is in any of the hosts.
-                    if self.context.name in self.tools(path):
-                        group_list.append(group)
-            if group_list:
-                print(
-                    "tool name: %s groups: %s"
-                    % (self.context.name, ", ".join(group_list))
+                    if tool in self.tools(path):
+                        tool_info[group][host][tool] = (
+                            sorted((path / tool).read_text().rstrip("\n").split("\n"))
+                            if opts
+                            else ""
+                        )
+                        found = True
+            if found:
+                self.print_results(tool_info, tool, self.context.with_option)
+                return 0
+            else:
+                self.logger.error(
+                    "Tool does not exist in any group: %s", self.context.name
                 )
+                return 1
 
 
 def _group_option(f):
