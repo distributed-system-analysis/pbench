@@ -60,7 +60,7 @@ class ForgotPassword(Resource):
 
         if not user:
             self.logger.exception("No such user exists with the given email ID")
-            abort(HTTPStatus.BAD_REQUEST, message="No such user exists with the given email ID")
+            return "", HTTPStatus.OK
 
         # generate email and send to the user
         msg = Message(subject="Hello World!",
