@@ -24,15 +24,16 @@ class ListTools(ToolCommand):
 
     @staticmethod
     def print_results(toolinfo: dict, tool: str, with_option: bool):
-        for group in sorted(toolinfo.keys()):
-            for host in sorted(toolinfo[group].keys()):
-                tools = toolinfo[group][host]
+        for group, gval in sorted(toolinfo.items()):
+            for host, tools in sorted(gval.items()):
                 if tools:
                     if not with_option:
                         s = ", ".join(sorted(tools.keys()))
                     else:
-                        tools_with_options = [f"{t} {' '.join(tools[t])}" for t in sorted(tools.keys())]
-                        s = ", ".join( tools_with_options)
+                        tools_with_options = [
+                            f"{t} {' '.join(v)}" for t, v in sorted(tools.items())
+                        ]
+                        s = ", ".join(tools_with_options)
                     print(f"group: {group}; host: {host}; tools: {s}")
 
     def execute(self):
@@ -53,14 +54,21 @@ class ListTools(ToolCommand):
             for group in groups:
                 tool_info[group] = {}
                 try:
-                    for path in self.gen_tools_group_dir(group).glob("*/**"):
-                        host = path.name
-                        tool_info[group][host] = {}
-                        for tool in sorted(self.tools(path)):
-                            tool_info[group][host][tool] = sorted((path / tool).read_text().rstrip('\n').split('\n')) if opts else ""
+                    tg_dir = self.gen_tools_group_dir(group).glob("*/**")
                 except BadToolGroup:
                     self.logger.error("Bad tool group: %s", group)
                     return 1
+
+                for path in tg_dir:
+                    host = path.name
+                    tool_info[group][host] = {}
+                    for tool in sorted(self.tools(path)):
+                        tool_info[group][host][tool] = (
+                            sorted((path / tool).read_text().rstrip("\n").split("\n"))
+                            if opts
+                            else ""
+                        )
+
             if tool_info:
                 self.print_results(tool_info, None, self.context.with_option)
         else:
@@ -84,10 +92,15 @@ class ListTools(ToolCommand):
                     tool_info[group][host] = {}
                     # Check to see if the tool is in any of the hosts.
                     if tool in self.tools(path):
-                        tool_info[group][host][tool] = sorted((path / tool).read_text().rstrip("\n").split('\n')) if opts else ""
+                        tool_info[group][host][tool] = (
+                            sorted((path / tool).read_text().rstrip("\n").split("\n"))
+                            if opts
+                            else ""
+                        )
                         found = True
             if found:
                 self.print_results(tool_info, tool, self.context.with_option)
+                return 0
             else:
                 self.logger.error(
                     "Tool does not exist in any group: %s", self.context.name

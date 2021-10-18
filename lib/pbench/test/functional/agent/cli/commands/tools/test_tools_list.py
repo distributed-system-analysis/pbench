@@ -1,12 +1,12 @@
 import pytest
 
 
-EMPTY         = b""
-USAGE         = b"Usage: pbench-list-tools [OPTIONS]"
-TRACEBACK     = b"Traceback (most recent call last):\n"
+EMPTY = b""
+USAGE = b"Usage: pbench-list-tools [OPTIONS]"
+TRACEBACK = b"Traceback (most recent call last):\n"
 
 BAD_GROUP_ERR = b"Bad tool group: "
-TOOL_ERR      = b"Tool does not exist in any group: "
+TOOL_ERR = b"Tool does not exist in any group: "
 
 
 class Test_list_tools_no_tools_registered:
@@ -96,11 +96,11 @@ class Test_list_tools_tools_registered:
     def tools_on_multiple_hosts(self, pbench_run):
         p = pbench_run / "tools-v1-default" / "testhost.example.com"
         p.mkdir(parents=True)
-        for tool in ["perf", "mpstat"]:
+        for tool in ["perf", "mpstat", "sar"]:
             (p / tool).touch()
         p = pbench_run / "tools-v1-default" / "testhost2.example.com"
         p.mkdir(parents=True)
-        for tool in ["iostat", "sar"]:
+        for tool in ["iostat", "proc-vmstat", "sar"]:
             (p / tool).touch()
 
     def test_help(self, tool, agent_config):
@@ -116,7 +116,7 @@ class Test_list_tools_tools_registered:
         out, err, exitcode = pytest.helpers.capture(command)
         assert TRACEBACK not in err
         assert EMPTY == err
-        assert b"group: default; host: testhost.example.com; tools: perf\n" in out
+        assert b"group: default; host: testhost.example.com; tools: perf\n" == out
         assert exitcode == 0
 
     def test_name(self, tool, agent_config):
@@ -124,7 +124,7 @@ class Test_list_tools_tools_registered:
         out, err, exitcode = pytest.helpers.capture(command)
         assert TRACEBACK not in err
         assert EMPTY == err
-        assert b"group: default; host: testhost.example.com; tools: perf" in out
+        assert b"group: default; host: testhost.example.com; tools: perf\n" == out
         assert exitcode == 0
 
     # Issue #2345
@@ -133,7 +133,7 @@ class Test_list_tools_tools_registered:
         out, err, exitcode = pytest.helpers.capture(command)
         assert TRACEBACK not in err
         assert EMPTY == err and exitcode == 0
-        assert b"group: default; host: testhost.example.com; tools: perf" in out
+        assert b"group: default; host: testhost.example.com; tools: perf\n" == out
 
     # Issue #2302
     def test_unknown_group(self, tool, agent_config):
@@ -147,13 +147,13 @@ class Test_list_tools_tools_registered:
         command = ["pbench-list-tools", "--group", "default"]
         out, err, exitcode = pytest.helpers.capture(command)
         assert EMPTY == err and exitcode == 0
-        assert b"group: default; host: testhost.example.com; tools: perf" in out
+        assert b"group: default; host: testhost.example.com; tools: perf\n" == out
 
     def test_name_existing(self, tool, agent_config):
         command = ["pbench-list-tools", "-n", "perf"]
         out, err, exitcode = pytest.helpers.capture(command)
         assert EMPTY == err and exitcode == 0
-        assert b"group: default; host: testhost.example.com; tools: perf" in out
+        assert b"group: default; host: testhost.example.com; tools: perf\n" == out
 
     def test_non_existent_group(self, tool, agent_config):
         command = ["pbench-list-tools", "--group", "unknown"]
@@ -167,11 +167,11 @@ class Test_list_tools_tools_registered:
         assert TOOL_ERR in err and exitcode == 1
         assert EMPTY == out
 
-    def test_existing_group_name(self, tool, agent_config):o
+    def test_existing_group_name(self, tool, agent_config):
         command = ["pbench-list-tools", "--group", "default", "--name", "perf"]
         out, err, exitcode = pytest.helpers.capture(command)
         assert EMPTY == err and exitcode == 0
-        assert b"group: default; host: testhost.example.com; tools: perf" in out
+        assert b"group: default; host: testhost.example.com; tools: perf\n" == out
 
     def test_existing_group_non_existent_name(self, tool, agent_config):
         command = ["pbench-list-tools", "--group", "default", "--name", "unknown"]
@@ -190,8 +190,8 @@ class Test_list_tools_tools_registered:
         out, err, exitcode = pytest.helpers.capture(command)
         assert EMPTY == err and exitcode == 0
         assert (
-            b"group: default; host: testhost.example.com; tools: mpstat, perf\ngroup: default; host: testhost2.example.com; tools: iostat, sar"
-            in out
+            b"group: default; host: testhost.example.com; tools: mpstat, perf, sar\ngroup: default; host: testhost2.example.com; tools: iostat, proc-vmstat, sar\n"
+            == out
         )
 
 
