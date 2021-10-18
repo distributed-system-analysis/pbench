@@ -1,6 +1,6 @@
 from http import HTTPStatus
 import jwt
-from flask import request, jsonify, make_response, app
+from flask import request, jsonify, make_response, current_app as app
 from flask_restful import Resource, abort
 from flask_bcrypt import check_password_hash
 from flask_mail import Mail, Message
@@ -13,13 +13,16 @@ from pbench.server.api.auth import Auth
 
 
 class ForgotPassword(Resource):
-    def __init__(self, logger):
+    def __init__(self, config, logger, auth):
         self.logger = logger
         self.mail = Mail(app)
+        self.auth = auth
+        self.config = config
 
     """
         /forgot_password
     """
+
     def post(self):
         """
         Post request for initiating password recovery.
@@ -35,10 +38,7 @@ class ForgotPassword(Resource):
 
         :return:
             Success: 200 with password reset link sent to email
-            Failure: <status_Code>,
-                    response_object = {
-                        "message": "failure message"
-                    }
+            Failure: Success with a logger warning
         """
         # get the post data
         user_data = request.get_json()
@@ -59,15 +59,22 @@ class ForgotPassword(Resource):
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         if not user:
-            self.logger.exception("No such user exists with the given email ID")
+            self.logger.warning("No such user exists with the given email ID")
             return "", HTTPStatus.OK
 
+        # generate auth token for the valid user
+        token = self.auth.encode_auth_token("60", user.id)
+
         # generate email and send to the user
-        msg = Message(subject="Hello World!",
+        # Ideally the message should be a template
+        # rendered using render_template
+        msg = Message(subject="Reset your password!",
                       sender=self.config.get("pbench-server", "email_username"),
                       recipients=[email],
-                      body="Hello World"
-        )
+                      body=("Please reset your password at http://localhost:8000/reset_password/" + token)
+                      )
+
+        # This function needs to be asynchronous
         self.mail.send(msg)
 
         return "", HTTPStatus.OK
