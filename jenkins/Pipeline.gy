@@ -11,7 +11,7 @@ pipeline {
         stage('Linting & Unit Tests') {
             steps {
                 echo 'Linting, pytest-based unit tests, and legacy unit tests'
-                sh 'jenkins/run "source jenkins/python-setup.sh; jenkins/run-pytests; jenkins/run-unittests"'
+                sh 'jenkins/run "source jenkins/python-setup.sh && jenkins/run-pytests && jenkins/run-unittests"'
             }
         }
     }

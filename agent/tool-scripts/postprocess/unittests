@@ -2,7 +2,7 @@
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 export PERL_HASH_SEED=0
-let MAX_PERFTEST_SECONDS=300  # 5 minutes
+let MAX_PERFTEST_SECONDS=600  # 10 minutes
 
 export _tdir=$(dirname $(readlink -f $0))
 cd $_tdir
