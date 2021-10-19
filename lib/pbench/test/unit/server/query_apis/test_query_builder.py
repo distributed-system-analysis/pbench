@@ -7,6 +7,10 @@ from pbench.server.api.resources.query_apis import AssemblyError, ElasticBase, J
 from pbench.server.database.models.users import User
 
 
+USER_ID = "20"
+SELF_ID = "3"  # This needs to match the current_user_drb fixture
+
+
 class TestQueryBuilder:
     @pytest.fixture()
     def elasticbase(self, client):
@@ -31,72 +35,131 @@ class TestQueryBuilder:
             m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
             yield admin_user
 
-    def test_user_and_access(self, elasticbase, server_config, current_user_drb):
+    @pytest.mark.parametrize(
+        "ask",
+        [
+            ({}, {}),
+            ({"access": "public"}, {"access": "public"}),
+            ({"access": "private"}, {"access": "private"}),
+            ({"user": USER_ID}, {"user": USER_ID}),
+            (
+                {"user": USER_ID, "access": "private"},
+                {"user": USER_ID, "access": "private"},
+            ),
+            (
+                {"user": USER_ID, "access": "public"},
+                {"user": USER_ID, "access": "public"},
+            ),
+        ],
+    )
+    def test_admin(self, elasticbase, server_config, current_user_admin, ask):
+        term = {"term": {"icecream": "ginger"}}
+        query = elasticbase._get_user_query(ask[0], [term])
+        filter = [term]
+        if "access" in ask[1]:
+            filter.append({"term": {"authorization.access": ask[1]["access"]}})
+        if "user" in ask[1]:
+            filter.append({"term": {"authorization.owner": ask[1]["user"]}})
+        assert query == {"bool": {"filter": filter}}
+
+    @pytest.mark.parametrize(
+        "ask",
+        [
+            ({"access": "public"}, {"access": "public"}),
+            ({"access": "private"}, {"user": SELF_ID, "access": "private"}),
+            ({"user": SELF_ID}, {"user": SELF_ID}),
+            ({"user": USER_ID}, {"user": USER_ID, "access": "public"}),
+            (
+                {"user": SELF_ID, "access": "private"},
+                {"user": SELF_ID, "access": "private"},
+            ),
+            (
+                {"user": SELF_ID, "access": "public"},
+                {"user": SELF_ID, "access": "public"},
+            ),
+            (
+                {"user": USER_ID, "access": "public"},
+                {"user": USER_ID, "access": "public"},
+            ),
+        ],
+    )
+    def test_auth(self, elasticbase, server_config, current_user_drb, ask):
         """
-        Test the query builder when both user and access are specified. This is
-        a simple path; the builder assumes that there is an authenticated user
-        and that user has access to the specified dataset owner. We just build
-        both terms into the query.
+        Test the query builder when we have an authorized user.
+
+        NOTES:
+
+        1) We don't test {} here: that's left to a separate test case rather
+           than building the unique disjunction syntax here;
+        2) We don't test {"user": USER_ID, "access": "private"} here:
+           That raises the AssemblyError exception, and is tested in a
+           separate test case.
         """
-        id = str(current_user_drb.id)
-        query: JSON = elasticbase._get_user_query(
-            {"user": id, "access": "public"}, [{"term": {"icecream": "vanilla"}}]
+        term = {"term": {"icecream": "ginger"}}
+        query = elasticbase._get_user_query(ask[0], [term])
+        filter = [term]
+        if "access" in ask[1]:
+            filter.append({"term": {"authorization.access": ask[1]["access"]}})
+        if "user" in ask[1]:
+            filter.append({"term": {"authorization.owner": ask[1]["user"]}})
+        assert query == {"bool": {"filter": filter}}
+
+    @pytest.mark.parametrize(
+        "ask",
+        [
+            ({}, {"access": "public"}),
+            ({"access": "public"}, {"access": "public"}),
+            ({"user": USER_ID}, {"user": USER_ID, "access": "public"}),
+            (
+                {"user": USER_ID, "access": "public"},
+                {"user": USER_ID, "access": "public"},
+            ),
+        ],
+    )
+    def test_noauth(self, elasticbase, server_config, current_user_none, ask):
+        """
+        Test the query builder when we have an authorized user.
+
+        NOTES:
+
+        2) We don't test {"access": "private"} here: That raises the
+           AssemblyError exception, and is tested in a separate test case.
+        """
+        term = {"term": {"icecream": "ginger"}}
+        query = elasticbase._get_user_query(ask[0], [term])
+        filter = [term]
+        if "access" in ask[1]:
+            filter.append({"term": {"authorization.access": ask[1]["access"]}})
+        if "user" in ask[1]:
+            filter.append({"term": {"authorization.owner": ask[1]["user"]}})
+        assert query == {"bool": {"filter": filter}}
+
+    def test_auth_access_private(self, elasticbase, server_config, current_user_drb):
+        """
+        Test the query builder when "private" access is specified by an
+        authenticated client, for another user. This is an "impossible" case as
+        authorization checks will stop the request and return UNAUTHORIZED
+        before we get here. We cover the code path anyway, looking for the
+        AssemblyError exception.
+        """
+        with pytest.raises(AssemblyError) as excinfo:
+            elasticbase._get_user_query(
+                {"access": "private", "user": USER_ID},
+                [{"term": {"icecream": "vanilla"}}],
+            )
+        assert excinfo.type == AssemblyError
+        assert excinfo.value.status == HTTPStatus.INTERNAL_SERVER_ERROR
+        assert (
+            str(excinfo.value)
+            == "Assembly error returning 500: \"Internal error: Requestor 'drb' can't query private data\""
         )
-        assert query == {
-            "bool": {
-                "filter": [
-                    {"term": {"icecream": "vanilla"}},
-                    {"term": {"authorization.owner": id}},
-                    {"term": {"authorization.access": "public"}},
-                ]
-            }
-        }
 
-    def test_user(self, elasticbase, server_config, current_user_drb):
-        """
-        Test the query builder when only a user is specified. We expect the
-        query builder to add the user term. Note that in the real server we
-        can reach the builder only if there is an authenticated user which
-        can access datasets owned by the specified user, so it simply builds
-        the query.
-        """
-        id = str(current_user_drb.id)
-        query: JSON = elasticbase._get_user_query(
-            {"user": id}, [{"term": {"icecream": "chocolate"}}]
-        )
-        assert query == {
-            "bool": {
-                "filter": [
-                    {"term": {"icecream": "chocolate"}},
-                    {"term": {"authorization.owner": id}},
-                ]
-            }
-        }
-
-    def test_user_admin(self, elasticbase, server_config, current_user_admin):
-        """
-        Test the query builder when only a user is specified with administrator
-        authentication. We expect the query builder to add the user term.
-
-        This is the same code path as `test_user`, above, and doesn't add any
-        coverage, but "feels" distinct.
-        """
-        # Invent a user ID that's different from the generated admin user's ID;
-        # the value doesn't matter for this test.
-        id = str(current_user_admin.id + 1)
-        query: JSON = elasticbase._get_user_query(
-            {"user": id}, [{"term": {"icecream": "keylime"}}]
-        )
-        assert query == {
-            "bool": {
-                "filter": [
-                    {"term": {"icecream": "keylime"}},
-                    {"term": {"authorization.owner": id}},
-                ]
-            }
-        }
-
-    def test_access_noauth_private(self, elasticbase, server_config, current_user_none):
+    @pytest.mark.parametrize(
+        "ask", [{"access": "private"}, {"user": USER_ID, "access": "private"}]
+    )
+    def test_noauth_access_private(
+        self, elasticbase, server_config, current_user_none, ask
+    ):
         """
         Test the query builder when "private" access is specified by an
         unauthenticated client. This is an "impossible" case as authorization
@@ -105,71 +168,13 @@ class TestQueryBuilder:
         exception.
         """
         with pytest.raises(AssemblyError) as excinfo:
-            elasticbase._get_user_query(
-                {"access": "private"}, [{"term": {"icecream": "vanilla"}}]
-            )
+            elasticbase._get_user_query(ask, [{"term": {"icecream": "vanilla"}}])
         assert excinfo.type == AssemblyError
         assert excinfo.value.status == HTTPStatus.INTERNAL_SERVER_ERROR
         assert (
             str(excinfo.value)
-            == 'Assembly error returning 500: "Internal error: can\'t generate query for user None, access private"'
+            == 'Assembly error returning 500: "Internal error: Unauthorized requestor can\'t query private data"'
         )
-
-    def test_access_noauth_public(self, elasticbase, server_config, current_user_none):
-        """
-        Test the query builder when "public" access is specified by an
-        unauthenticated client. This should build a query that will return all
-        public datasets.
-        """
-        query: JSON = elasticbase._get_user_query(
-            {"access": "public"}, [{"term": {"icecream": "vanilla"}}]
-        )
-        assert query == {
-            "bool": {
-                "filter": [
-                    {"term": {"icecream": "vanilla"}},
-                    {"term": {"authorization.access": "public"}},
-                ]
-            }
-        }
-
-    def test_access_user_private(self, elasticbase, server_config, current_user_drb):
-        """
-        Test the query builder when "private" access is specified by an
-        authenticated non-admin client. This should build a query that will
-        return all private datasets owned by the authenticated user.
-        """
-        id = str(current_user_drb.id)
-        query: JSON = elasticbase._get_user_query(
-            {"access": "private"}, [{"term": {"icecream": "vanilla"}}]
-        )
-        assert query == {
-            "bool": {
-                "filter": [
-                    {"term": {"icecream": "vanilla"}},
-                    {"term": {"authorization.access": "private"}},
-                    {"term": {"authorization.owner": id}},
-                ]
-            }
-        }
-
-    def test_access_admin_private(self, elasticbase, server_config, current_user_admin):
-        """
-        Test the query builder when "private" access is specified by an
-        authenticated admin client. This should build a query that will
-        return all private datasets regardless of user.
-        """
-        query: JSON = elasticbase._get_user_query(
-            {"access": "private"}, [{"term": {"icecream": "vanilla"}}]
-        )
-        assert query == {
-            "bool": {
-                "filter": [
-                    {"term": {"icecream": "vanilla"}},
-                    {"term": {"authorization.access": "private"}},
-                ]
-            }
-        }
 
     def test_neither_auth(self, elasticbase, server_config, current_user_drb):
         """
@@ -197,32 +202,3 @@ class TestQueryBuilder:
                 ]
             }
         }
-
-    def test_neither_noauth(self, elasticbase, server_config, current_user_none):
-        """
-        Test the query builder for {} when the client is not authorized. This
-        should be treated the same as {"access": "public"} as only public
-        datasets are accessible in this case.
-        """
-        query: JSON = elasticbase._get_user_query(
-            {}, [{"term": {"icecream": "vanilla"}}]
-        )
-        assert query == {
-            "bool": {
-                "filter": [
-                    {"term": {"icecream": "vanilla"}},
-                    {"term": {"authorization.access": "public"}},
-                ]
-            }
-        }
-
-    def test_neither_admin(self, elasticbase, server_config, current_user_admin):
-        """
-        Test the query builder for {} when the client is authenticated as an
-        ADMIN user. This is actually the simplest query, because all datasets
-        are accessible and only the subclass primary query terms are relevant.
-        """
-        query: JSON = elasticbase._get_user_query(
-            {}, [{"term": {"icecream": "vanilla"}}]
-        )
-        assert query == {"bool": {"filter": [{"term": {"icecream": "vanilla"}}]}}

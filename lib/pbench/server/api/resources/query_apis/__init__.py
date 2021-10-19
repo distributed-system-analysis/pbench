@@ -145,22 +145,19 @@ class ElasticBase(ApiBase):
             {"user": "drb"}: defaulting access
                 All datasets owned by "drb"
 
-                ADMIN: all owner:drb
-                AUTHORIZED as drb: all owner:drb
+                ADMIN, AUTHORIZED as drb: all owner:drb
                 UNAUTHORIZED (or non-drb): all owner:drb AND access:public
 
             {"user": "drb, "access": "private"}: private drb
                 All datasets owned by "drb" with "private" access
 
-                ADMIN: all owner:drb AND access:private
-                AUTHORIZED as drb: all owner:drb AND access:private
+                ADMIN, AUTHORIZED as drb: all owner:drb AND access:private
                 UNAUTHORIZED (or non-drb): Not handled (permission error)
 
             {"user": "drb", "access": "public"}: public drb
                 All datasets owned by "drb" with "public" access
 
-                ADMIN: all owner:drb AND access:public
-                AUTHORIZED as drb: all owner:drb AND access:public
+                ADMIN, AUTHORIZED as drb: all owner:drb AND access:public
                 UNAUTHORIZED (or non-drb): all owner:drb AND access:public
 
             {"access": "private"}: all private data
@@ -173,9 +170,7 @@ class ElasticBase(ApiBase):
             {"access": "public"}: all public data
                 All datasets with "public" access
 
-                ADMIN: all access:public
-                AUTHORIZED: all access:public
-                UNAUTHORIZED: all access:public
+                all access:public
 
         Args:
             JSON query parameters containing keys:
@@ -211,9 +206,12 @@ class ElasticBase(ApiBase):
             is_admin,
         )
 
+        access_term = None
+        user_term = None
+
         # If a user is specified, assume we'll be selecting for that user
         if user:
-            filter.append({"term": {"authorization.owner": user}})
+            user_term = {"term": {"authorization.owner": user}}
 
         # IF we're looking at a user we're not authorized to see (either the
         # call is unauthenticated, or authenticated as a non-ADMIN user trying
@@ -234,17 +232,22 @@ class ElasticBase(ApiBase):
         # constraint or with no constraint at all.
         if not authorized_user or (user and user != authorized_id and not is_admin):
             if access == Dataset.PRIVATE_ACCESS:
-                raise AssemblyError(
-                    f"Internal error: can't generate query for user {user}, access {access}"
+                requestor = (
+                    f"Requestor {authorized_user.username!r}"
+                    if authorized_user
+                    else "Unauthorized requestor"
                 )
-            filter.append({"term": {"authorization.access": Dataset.PUBLIC_ACCESS}})
+                raise AssemblyError(
+                    f"Internal error: {requestor} can't query private data"
+                )
+            access_term = {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}}
             self.logger.debug("QUERY: not self public: {}", filter)
         elif access:
-            filter.append({"term": {"authorization.access": access}})
-            if not user and not is_admin:
-                filter.append({"term": {"authorization.owner": authorized_id}})
+            access_term = {"term": {"authorization.access": access}}
+            if not user and access == Dataset.PRIVATE_ACCESS and not is_admin:
+                user_term = {"term": {"authorization.owner": authorized_id}}
             self.logger.debug("QUERY: access: {}", filter)
-        elif not user and not is_admin:
+        elif authorized_user and not user and not is_admin:
             filter.append(
                 {
                     "dis_max": {
@@ -256,11 +259,18 @@ class ElasticBase(ApiBase):
                 }
             )
             self.logger.debug("QUERY: {{}} default: {}", filter)
+            return {"bool": {"filter": filter}}
         else:
             # Either "user" was specified and is already added to the filter,
             # or client is ADMIN and no access terms are required.
             pass
 
+        # Make sure these appear in order at the end of the filters list. This
+        # allows stable unit testing.
+        if access_term:
+            filter.append(access_term)
+        if user_term:
+            filter.append(user_term)
         return {"bool": {"filter": filter}}
 
     def _gen_month_range(self, index: str, start: datetime, end: datetime) -> str:
@@ -391,7 +401,7 @@ class ElasticBase(ApiBase):
                 return "", HTTPStatus.NO_CONTENT
         except UnauthorizedAccess as e:
             self.logger.warning("{}", e)
-            abort(e.status, message=str(e))
+            abort(e.http_status, message=str(e))
         except KeyError as e:
             self.logger.exception("{} problem in preprocess, missing {}", klasname, e)
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")

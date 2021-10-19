@@ -1,11 +1,10 @@
 import datetime
-
-import jwt
 import os
 
 from flask import abort, request
 from flask_httpauth import HTTPTokenAuth
 from http import HTTPStatus
+import jwt
 
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.database.models.users import User
@@ -102,10 +101,10 @@ class Auth:
                 auth_token,
             )
         except jwt.InvalidTokenError:
-            Auth.logger.warning("User attempted invalid Pbench token {!r}", auth_token)
+            Auth.logger.warning("User passed invalid token {!r}", auth_token)
         except Exception as e:
             Auth.logger.exception(
-                "Exception occurred while verifying the auth token {!r}: {}",
+                "Unexpected exception occurred while verifying the auth token {!r}: {}",
                 auth_token,
                 str(e),
             )

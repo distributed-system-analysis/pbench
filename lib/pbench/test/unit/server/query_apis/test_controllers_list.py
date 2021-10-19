@@ -62,7 +62,7 @@ class TestControllersList(Commons):
         # asking for data for all users. We add "access": "public" so that
         # we can expect success regardless of the authenticated user.
         if user == "no_user":
-            payload.pop("user", None)
+            del payload["user"]
             payload["access"] = "public"
 
         response_payload = {

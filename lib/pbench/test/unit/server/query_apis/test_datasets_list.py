@@ -50,7 +50,7 @@ class TestDatasetsList(Commons):
             "end": "2020-10",
         }
         if user == "no_user":
-            payload.pop("user", None)
+            del payload["user"]
             payload["access"] = "public"
         response_payload = {
             "took": 6,

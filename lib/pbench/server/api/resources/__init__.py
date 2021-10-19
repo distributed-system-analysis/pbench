@@ -39,17 +39,17 @@ class UnauthorizedAccess(Exception):
 
     def __init__(
         self,
-        user: str,
+        user: User,
         operation: "API_OPERATION",
         owner: str,
         access: str,
-        status: int = HTTPStatus.FORBIDDEN,
+        http_status: int = HTTPStatus.FORBIDDEN,
     ):
         self.user = user
         self.operation = operation
         self.owner = owner
         self.access = access
-        self.status = status
+        self.http_status = http_status
 
     def __str__(self) -> str:
         return f"{'User ' + self.user.username if self.user else 'Unauthenticated client'} is not authorized to {self.operation.name} a resource owned by {self.owner} with {self.access} access"
@@ -60,8 +60,8 @@ class SchemaError(TypeError):
     Generic base class for errors in processing a JSON schema.
     """
 
-    def __init__(self, status: int = HTTPStatus.BAD_REQUEST):
-        self.http_status = status
+    def __init__(self, http_status: int = HTTPStatus.BAD_REQUEST):
+        self.http_status = http_status
 
     def __str__(self) -> str:
         return "Generic schema validation error"
@@ -69,7 +69,7 @@ class SchemaError(TypeError):
 
 class UnverifiedUser(SchemaError):
     """
-    Attempt by an unauthenticated user to reference a username in a query. An
+    Attempt by an unauthenticated client to reference a username in a query. An
     unauthenticated client does not have the right to look up any username.
 
     HTTPStatus.UNAUTHORIZED tells the client that the operation might succeed
@@ -78,11 +78,11 @@ class UnverifiedUser(SchemaError):
     """
 
     def __init__(self, username: str):
-        super().__init__(status=HTTPStatus.UNAUTHORIZED)
+        super().__init__(http_status=HTTPStatus.UNAUTHORIZED)
         self.username = username
 
     def __str__(self):
-        return f"Caller is unable to verify username {self.username}"
+        return f"Requestor is unable to verify username {self.username!r}"
 
 
 class InvalidRequestPayload(SchemaError):
@@ -128,15 +128,16 @@ class ConversionError(SchemaError):
     Used to report an invalid parameter type
     """
 
-    def __init__(self, value: Any, expected_type: str):
+    def __init__(self, value: Any, expected_type: str, **kwargs):
         """
         Construct a ConversionError exception
 
         Args:
             value: The value we tried to convert
             expected_type: The expected type
+            kwargs: Optional SchemaError parameters
         """
-        super().__init__()
+        super().__init__(**kwargs)
         self.value = value
         self.expected_type = expected_type
 
@@ -228,7 +229,7 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     return the internal representation of that user.
 
     We do not want an unauthenticated client to be able to distinguish between
-    invalid user" (ConversionError here) and "valid user I can't access" (some
+    "invalid user" (ConversionError here) and "valid user I can't access" (some
     sort of permission error later). Checking for a valid authentication token
     here allows rejecting any "user" parameter reference by an unauthenticated
     user.
@@ -254,17 +255,22 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     Returns:
         internal username representation
     """
-    if isinstance(value, str):
-        if not Auth.token_auth.current_user():
-            raise UnverifiedUser(value)
-        try:
-            user = User.query(username=value)
-        except Exception:
-            pass
-        else:
-            if user:
-                return str(user.id)
-    raise ConversionError(value, "username")
+    if not isinstance(value, str):
+        raise ConversionError(value, "username")
+    if not Auth.token_auth.current_user():
+        raise UnverifiedUser(value)
+
+    try:
+        user = User.query(username=value)
+    except Exception:
+        raise ConversionError(
+            value, "username", http_status=HTTPStatus.INTERNAL_SERVER_ERROR
+        )
+
+    if not user:
+        raise ConversionError(value, "username", http_status=HTTPStatus.NOT_FOUND)
+
+    return str(user.id)
 
 
 def convert_json(value: JSON, parameter: "Parameter") -> JSON:
@@ -631,9 +637,13 @@ class ApiBase(Resource):
         If there is no current authenticated API user, only READ operations on
         public data will be allowed.
 
-        If the specified "user" context of the operation is None, we default to
-        the authenticated caller, if any; Pbench query operations will do the
-        same.
+        If the specified "user" context of the operation is None, the context
+        is defaulted based on the authenticated user: for an ADMIN user, this
+        means implicitly "all users" (to which the ADMIN has unlimited access);
+        for an unauthenticated user, no access to another "user" is allowed at
+        all, and will be caught at convert_username(); for an authenticated
+        user, a missing "user" context here implicitly defaults to the
+        authenticated user if "access" is private.
 
         for API_OPERATION.READ:
 
@@ -653,7 +663,7 @@ class ApiBase(Resource):
             Any authenticated ADMIN user can update any data.
 
         Args:
-            user: The user parameter to the API, or None
+            user: The username parameter to the API, or None
             access: The access parameter to the API, or None
 
         Raises:
@@ -669,30 +679,49 @@ class ApiBase(Resource):
             access,
         )
 
-        # Default user to the authenticated user, if not specified
-        if authorized_user and not user:
-            user = authorized_user.username
-        status = HTTPStatus.OK
-
         # READ access to public data is always allowed; if we're looking at
         # private data, or non-READ access (create, update, delete) then we
         # need more checks.
+        #
+        # 1) An unauthorized client can never perform any operation on PRIVATE
+        #    data, nor any operation other than READ on PUBLIC data;
+        # 2) The "user" parameter can be omitted only for READ operations,
+        #    which will be defaulted according to the visibility of the
+        #    authenticated client.
+        # 3) An authenticated client cannot mutate data owned by a different
+        #    user, nor READ private data owned by another user.
+        # 4) An ADMIN user can do anything.
         if self.role != API_OPERATION.READ or access == Dataset.PRIVATE_ACCESS:
             if authorized_user is None:
                 self.logger.warning(
                     "Attempt to {} user {} data without login", self.role, user
                 )
-                status = HTTPStatus.UNAUTHORIZED
-            elif user != authorized_user.username and not authorized_user.is_admin():
+                raise UnauthorizedAccess(
+                    authorized_user, self.role, user, access, HTTPStatus.UNAUTHORIZED
+                )
+            elif self.role != API_OPERATION.READ and user is None:
+                self.logger.warning(
+                    "Unauthorized attempt by {} to {} data with defaulted user",
+                    authorized_user,
+                    self.role,
+                )
+                raise UnauthorizedAccess(
+                    authorized_user, self.role, user, access, HTTPStatus.FORBIDDEN
+                )
+            elif (
+                user
+                and user != authorized_user.username
+                and not authorized_user.is_admin()
+            ):
                 self.logger.warning(
                     "Unauthorized attempt by {} to {} user {} data",
                     authorized_user,
                     self.role,
                     user,
                 )
-                status = HTTPStatus.FORBIDDEN
-        if status != HTTPStatus.OK:
-            raise UnauthorizedAccess(authorized_user, self.role, user, access, status)
+                raise UnauthorizedAccess(
+                    authorized_user, self.role, user, access, HTTPStatus.FORBIDDEN
+                )
 
     def _get_metadata(
         self, controller: str, name: str, requested_items: List[str]
@@ -798,7 +827,7 @@ class ApiBase(Resource):
                 self._check_authorization(user, access)
             except UnauthorizedAccess as e:
                 self.logger.warning("{}", e)
-                abort(e.status, message=str(e))
+                abort(e.http_status, message=str(e))
         return method(new_data, request)
 
     def _get(self, json_data: JSON, request: Request) -> Response:

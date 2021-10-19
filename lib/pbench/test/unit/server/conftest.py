@@ -593,11 +593,11 @@ def build_auth_header(request, server_config, pbench_token, pbench_admin_token, 
 @pytest.fixture()
 def current_user_drb(monkeypatch):
     drb = User(
-        email="email@example.com",
+        email="drb@example.com",
         id=3,
         username="drb",
-        first_name="Test",
-        last_name="Account",
+        first_name="Authorized",
+        last_name="User",
     )
 
     class FakeHTTPTokenAuth:
@@ -617,4 +617,4 @@ def current_user_none(monkeypatch):
 
     with monkeypatch.context() as m:
         m.setattr(Auth, "token_auth", FakeHTTPTokenAuth())
-        yield
+        yield None

@@ -43,7 +43,7 @@ class TestExceptions:
         s = SchemaError()
         assert str(s) == "Generic schema validation error"
         u = UnverifiedUser("you")
-        assert str(u) == "Caller is unable to verify username you"
+        assert str(u) == "Requestor is unable to verify username 'you'"
         i = InvalidRequestPayload()
         assert str(i) == "Invalid request payload"
         u = UnsupportedAccessMode("him", "private")
@@ -53,6 +53,11 @@ class TestExceptions:
         c = ConversionError({}, "str")
         assert str(c) == "Value {} (dict) cannot be parsed as a str"
         assert c.value == {}
+        assert c.http_status == HTTPStatus.BAD_REQUEST
+        c = ConversionError(1, "dict", http_status=HTTPStatus.NOT_FOUND)
+        assert str(c) == "Value 1 (int) cannot be parsed as a dict"
+        assert c.value == 1
+        assert c.http_status == HTTPStatus.NOT_FOUND
         p = AssemblyError("all's well")
         assert str(p) == 'Assembly error returning 500: "all\'s well"'
         p = AssemblyError("all's well-ish", status=HTTPStatus.BAD_REQUEST)
