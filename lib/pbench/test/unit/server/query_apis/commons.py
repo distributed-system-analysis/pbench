@@ -154,6 +154,21 @@ class Commons:
         assert response.status_code == HTTPStatus.BAD_REQUEST
         assert response.json.get("message") == "Invalid request payload"
 
+    def test_malformed_payload(self, client, server_config, pbench_token):
+        """
+        Test behavior when payload is not valid JSON
+        """
+        response = client.post(
+            server_config.rest_uri + self.pbench_endpoint,
+            headers={
+                "Authorization": "Bearer " + pbench_token,
+                "Content-Type": "application/json",
+            },
+            data='{"x":0]',
+        )
+        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.json.get("message") == "Invalid request payload"
+
     def test_missing_keys(self, client, server_config, user_ok, pbench_token):
         """
         Test behavior when JSON payload does not contain all required keys.

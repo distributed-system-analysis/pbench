@@ -729,12 +729,22 @@ class ApiBase(Resource):
             Flask Response object generally constructed implicitly from a JSON
             payload and HTTP status.
         """
-        json_data = request.get_json(silent=True)
 
         # We don't accept or process a request payload for GET, or if no
         # parameter schema is defined
         if not self.schema or method == self._get:
-            return method(json_data, request)
+            return method({}, request)
+
+        try:
+            json_data = request.get_json()
+        except Exception as e:
+            self.logger.warning(
+                "{}: Bad JSON in request, {!r}, {!r}",
+                self.__class__.__name__,
+                str(e),
+                request.data,
+            )
+            abort(HTTPStatus.BAD_REQUEST, message="Invalid request payload")
 
         try:
             new_data = self.schema.validate(json_data)
