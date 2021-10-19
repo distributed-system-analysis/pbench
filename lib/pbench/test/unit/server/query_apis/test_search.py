@@ -54,7 +54,7 @@ class TestIndexSearch(Commons):
             ],
         }
         if user == "no_user":
-            payload.pop("user", None)
+            del payload["user"]
         if user == "no_user" or user is None:
             payload["access"] = "public"
 
