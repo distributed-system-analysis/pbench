@@ -47,18 +47,15 @@ class DatasetsPublish(ElasticBulkBase):
         """
         access = json_data["access"]
         map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
-        doc_count = sum(len(i) for i in map.values())
 
-        self.logger.info(
-            "Publish operation for dataset {} will update {} Elasticsearch documents in {} indices: {}",
-            dataset,
-            doc_count,
-            len(map),
-            list(map.keys()),
-        )
+        self.logger.info("Starting publish operation for dataset {}", dataset)
 
         # Generate a series of bulk update documents, which will be passed to
-        # the Elasticsearch bulk helper
+        # the Elasticsearch bulk helper.
+        #
+        # Note that the "doc" specifies explicit instructions for updating only
+        # the "access" field of the "authorization" subdocument: no other data
+        # will be modified.
 
         for index, ids in map.items():
             for id in ids:
