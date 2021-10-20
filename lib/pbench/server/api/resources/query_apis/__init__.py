@@ -463,11 +463,17 @@ class ElasticBulkBase(ApiBase):
         """
         Perform the requested POST operation, and handle any exceptions.
 
-        NOTE: This is called by the ApiBase post() method through its dispatch
+        This is called by the ApiBase post() method through its dispatch
         method, which provides parameter validation.
+
+        NOTE: This method relies on the "controller" and "name" JSON parameters
+        being part of the API Schema defined by any subclass that extends this
+        base class. (This is checked by the constructor.)
 
         Args:
             json_data: Type-normalized client JSON input
+                controller: Dataset controller name
+                name: Dataset name
             _: Original incoming Request object (not used)
 
         Returns:
