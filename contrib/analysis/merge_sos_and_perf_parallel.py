@@ -8,23 +8,23 @@ import sys
 import time
 
 from collections import OrderedDict
+from datetime import datetime
+from dateutil import rrule
+from dateutil.relativedelta import relativedelta
 
 from elasticsearch1 import Elasticsearch
 from elasticsearch1.helpers import scan
 
 
-def _month_gen(start=None, end=None):
+def _month_gen(now: datetime):
     """Generate YYYY-MM stings from all the months, inclusively, between the
     given start and end dates.
-
-    FIXME - We have this hard-coded for now.
     """
-    for (
-        month
-    ) in "2020-09 2020-10 2020-11 2020-12 2021-01 2021-02 2021-03 2021-04 2021-05 2021-06 2021-07 2021-08 2021-09 2021-10".split(
-        " "
-    ):
-        yield month
+    start = now - relativedelta(years=1)
+    first_month = start.replace(day=1)
+    last_month = now + relativedelta(day=31)
+    for m in rrule.rrule(rrule.MONTHLY, dtstart=first_month, until=last_month):
+        yield f"{m.year:04}-{m.month:02}"
 
 
 def result_index_gen(month_gen):
@@ -70,7 +70,7 @@ def pbench_result_data_samples_gen(es, month_gen):
             yield doc
 
 
-def load_pbench_runs(es):
+def load_pbench_runs(es, now: datetime):
     """Load all the pbench run data, sub-setting to contain only the fields we
     require.
 
@@ -88,7 +88,7 @@ def load_pbench_runs(es):
     missing_sos = 0
     accepted = 0
 
-    for _source in pbench_runs_gen(es, _month_gen()):
+    for _source in pbench_runs_gen(es, _month_gen(now)):
         recs += 1
 
         run = _source["_source"]
@@ -339,7 +339,7 @@ def transform_result(source, pbench_runs, results_seen, stats):
     return result
 
 
-def process_results(es, session, incoming_url, pool, pbench_runs, stats):
+def process_results(es, now, session, incoming_url, pool, pbench_runs, stats):
     """Intermediate generator for handling the fetching of the client names, disk
     names, and host names.
 
@@ -354,7 +354,7 @@ def process_results(es, session, incoming_url, pool, pbench_runs, stats):
     clientnames_map = dict()
     diskhost_map = dict()
 
-    for _source in pbench_result_data_samples_gen(es, _month_gen()):
+    for _source in pbench_result_data_samples_gen(es, _month_gen(now)):
         stats["total_recs"] += 1
         result = transform_result(_source, pbench_runs, results_seen, stats)
         if result is None:
@@ -425,8 +425,9 @@ def main(args):
     session.headers.update({"User-Agent": f"{ua} -- merge_sos_and_perf_parallel"})
 
     scan_start = time.time()
+    now = datetime.utcfromtimestamp(scan_start)
 
-    pbench_runs = load_pbench_runs(es)
+    pbench_runs = load_pbench_runs(es, now)
 
     result_cnt = 0
     stats = dict()
@@ -434,7 +435,9 @@ def main(args):
     with open("sosreport_fio.txt", "w") as log, open(
         "output_latest_fio.json", "w"
     ) as outfile:
-        generator = process_results(es, session, incoming_url, pool, pbench_runs, stats)
+        generator = process_results(
+            es, now, session, incoming_url, pool, pbench_runs, stats
+        )
         for result in generator:
             result_cnt += 1
             for sos in result["sosreports"].keys():
