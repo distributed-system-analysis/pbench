@@ -29,6 +29,7 @@ class DatasetsPublish(ElasticBulkBase):
                 Parameter("name", ParamType.STRING, required=True),
                 Parameter("access", ParamType.ACCESS, required=True),
             ),
+            action="update",
             role=API_OPERATION.UPDATE,
         )
 
@@ -60,7 +61,7 @@ class DatasetsPublish(ElasticBulkBase):
         for index, ids in map.items():
             for id in ids:
                 yield {
-                    "_op_type": "update",
+                    "_op_type": self.action,
                     "_index": index,
                     "_id": id,
                     "doc": {"authorization": {"access": access}},
