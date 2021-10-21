@@ -644,9 +644,9 @@ class ElasticBulkBase(ApiBase):
         # ownership of a designated dataset rather than having an explicit
         # "user" JSON parameter. This will raise UnauthorizedAccess on failure.
         try:
-            self._check_authorization(owner.username, json_data["access"])
+            self._check_authorization(owner.username, dataset.access)
         except UnauthorizedAccess as e:
-            abort(HTTPStatus.FORBIDDEN, message=str(e))
+            abort(e.http_status, message=str(e))
 
         # Build an Elasticsearch instance to manage the bulk update
         elastic = elasticsearch.Elasticsearch(self.node)

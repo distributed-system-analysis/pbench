@@ -112,26 +112,26 @@ class TestDatasetsPublish:
         user (managed by the build_auth_header fixture).
         """
         self.fake_elastic(monkeypatch, get_document_map, False)
+        payload = self.PAYLOAD.copy()
+        payload["name"] = owner
 
-        if (
-            owner == "no_user"
-            or HeaderTypes.is_valid(build_auth_header["header_param"])
-        ) and owner != "badwolf":
-            expected_status = HTTPStatus.OK
-        elif not HeaderTypes.is_valid(build_auth_header["header_param"]):
+        is_admin = build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN
+        if not HeaderTypes.is_valid(build_auth_header["header_param"]):
             expected_status = HTTPStatus.UNAUTHORIZED
-        else:
+        elif owner != "drb" and not is_admin:
             expected_status = HTTPStatus.FORBIDDEN
+        else:
+            expected_status = HTTPStatus.OK
 
         response = client.post(
             f"{server_config.rest_uri}/datasets/publish",
             headers=build_auth_header["header"],
-            json=self.PAYLOAD,
+            json=payload,
         )
         assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
             assert response.json == {"ok": 31, "failure": 0}
-            dataset = Dataset.attach(controller="node", name="drb")
+            dataset = Dataset.attach(controller="node", name=owner)
             assert dataset.access == Dataset.PUBLIC_ACCESS
 
     def test_partial(
