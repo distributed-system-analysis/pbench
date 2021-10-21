@@ -1,14 +1,16 @@
+from collections import Counter, defaultdict
 from datetime import datetime
 from http import HTTPStatus
 from logging import Logger
-from typing import Any, Callable, Dict
+from typing import Any, Callable, Dict, Iterator
 from urllib.parse import urljoin
 
-import requests
 from dateutil import rrule
 from dateutil.relativedelta import relativedelta
+import elasticsearch
 from flask.wrappers import Response
 from flask_restful import abort
+import requests
 
 from pbench.server import PbenchServerConfig
 from pbench.server.api.resources import (
@@ -17,15 +19,31 @@ from pbench.server.api.resources import (
     JSON,
     PostprocessError,
     Schema,
+    SchemaError,
     UnauthorizedAccess,
     UnsupportedAccessMode,
 )
+from pbench.server.database.models.datasets import Dataset, DatasetNotFound
 from pbench.server.database.models.template import Template
-from pbench.server.database.models.datasets import Dataset
+from pbench.server.database.models.users import User
 
 # A type defined to allow the preprocess subclass method to provide shared
 # context with the assemble and postprocess methods.
 CONTEXT = Dict[str, Any]
+
+
+class MissingBulkSchemaParameters(SchemaError):
+    """
+    The subclass schema is missing the required "controller" or dataset "name"
+    parameters required to locate a Dataset.
+    """
+
+    def __init__(self, subclass_name: str):
+        super().__init__()
+        self.subclass_name = subclass_name
+
+    def __str__(self) -> str:
+        return f"API {self.subclass_name} is missing schema parameters controller and/or name"
 
 
 class ElasticBase(ApiBase):
@@ -350,3 +368,240 @@ class ElasticBase(ApiBase):
         the subclasses through their postprocess() methods.
         """
         return self._call(requests.get, None)
+
+
+class ElasticBulkBase(ApiBase):
+    """
+    A base class for bulk Elasticsearch queries that allows subclasses to
+    provide a generator to produce bulk command documents with common setup and
+    results processing.
+
+    This class extends the ApiBase class in order to connect the post
+    and get methods to Flask's URI routing algorithms. It implements a common
+    mechanism for calling the Elasticsearch package streaming_bulk helper, and
+    processing the response documents.
+    """
+
+    def __init__(
+        self,
+        config: PbenchServerConfig,
+        logger: Logger,
+        schema: Schema,
+        *,  # following parameters are keyword-only
+        action: str = None,
+        role: API_OPERATION = API_OPERATION.UPDATE,
+    ):
+        """
+        Base class constructor.
+
+        This method assumes and requires that a dataset will be located using
+        the controller and dataset name, so "controller" and "name" string-type
+        parameters must be defined in the subclass schema.
+
+        Args:
+            config: server configuration
+            logger: logger object
+            schema: API schema: for example,
+                    Schema(
+                        Parameter("controller", ParamType.STRING, required=True),
+                        Parameter("name", ParamType.STRING, required=True),
+                        ...
+                    )
+            action: the Elasticsearch bulk operation action ("update",
+                "delete", etc.)
+            role: specify the API role, defaulting to UPDATE
+        """
+        super().__init__(config, logger, schema, role=role)
+        self.node = {
+            "host": config.get("elasticsearch", "host"),
+            "port": config.get("elasticsearch", "port"),
+        }
+        self.action = action
+
+        if "controller" not in schema or "name" not in schema:
+            raise MissingBulkSchemaParameters(self.__class__.__name__)
+
+    def generate_actions(self, json_data: JSON, dataset: Dataset) -> Iterator[dict]:
+        """
+        Generate a series of Elasticsearch bulk operation actions driven by the
+        dataset document map. For example:
+
+        {
+            "_op_type": "update",
+            "_index": index_name,
+            "_id": document_id,
+            "doc": {"authorization": {"access": new_access}}
+        }
+
+        This is an abstract method that must be implemented by a subclass.
+
+        Args:
+            json_data: The original query JSON parameters based on the subclass
+                schema.
+            dataset: The associated Dataset object
+
+        Returns:
+            Sequence of Elasticsearch bulk action dict objects
+        """
+        raise NotImplementedError()
+
+    def complete(self, dataset: Dataset, json_data: JSON, summary: JSON) -> None:
+        """
+        Complete a bulk Elasticsearch operation, perhaps by modifying the
+        source Dataset resource.
+
+        This is an abstract method that may be implemented by a subclass to
+        perform some completion action; the default is to do nothing.
+
+        Args:
+            dataset: The associated Dataset object.
+            json_data: The original query JSON parameters based on the subclass
+                schema.
+            summary: The summary document of the operation:
+                ok      Count of successful actions
+                failure Count of failing actions
+        """
+        pass
+
+    def _post(self, json_data: JSON, _) -> Response:
+        """
+        Perform the requested POST operation, and handle any exceptions.
+
+        This is called by the ApiBase post() method through its dispatch
+        method, which provides parameter validation.
+
+        NOTE: This method relies on the "controller" and "name" JSON parameters
+        being part of the API Schema defined by any subclass that extends this
+        base class. (This is checked by the constructor.)
+
+        Args:
+            json_data: Type-normalized client JSON input
+                controller: Dataset controller name
+                name: Dataset name
+            _: Original incoming Request object (not used)
+
+        Returns:
+            Response to return to client
+        """
+        klasname = self.__class__.__name__
+
+        try:
+            dataset = Dataset.attach(
+                controller=json_data["controller"], name=json_data["name"]
+            )
+        except DatasetNotFound as e:
+            abort(HTTPStatus.NOT_FOUND, message=str(e))
+
+        owner = User.query(id=dataset.owner_id)
+        if not owner:
+            self.logger.error(
+                "Dataset owner ID {} cannot be found in Users", dataset.owner_id
+            )
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Dataset owner not found")
+
+        # For bulk Elasticsearch operations, we check authorization against the
+        # ownership of a designated dataset rather than having an explicit
+        # "user" JSON parameter. This will raise UnauthorizedAccess on failure.
+        try:
+            self._check_authorization(owner.username, json_data["access"])
+        except UnauthorizedAccess as e:
+            abort(HTTPStatus.FORBIDDEN, message=str(e))
+
+        # Build an Elasticsearch instance to manage the bulk update
+        elastic = elasticsearch.Elasticsearch(self.node)
+
+        # Internally report a summary of successes and Elasticsearch failure
+        # reasons: this will look something like
+        #
+        # {
+        #   "ok": {
+        #     "index1": 1,
+        #     "index2": 500,
+        #     ...
+        #   },
+        #   "elasticsearch failure reason 1": {
+        #     "index2": 5,
+        #     "index5": 10
+        #     ...
+        #   },
+        #   "elasticsearch failure reason 2": {
+        #     "index3": 2,
+        #     "index4": 15
+        #     ...
+        #   }
+        # }
+        report = defaultdict(Counter)
+        count = 0
+        error_count = 0
+
+        # NOTE: because streaming_bulk is given a generator, and also
+        # returns a generator, we consume the entire sequence within the
+        # `try` block to catch failures.
+        try:
+            # Pass the bulk command generator to the helper
+            results = elasticsearch.helpers.streaming_bulk(
+                elastic,
+                self.generate_actions(json_data, dataset),
+                raise_on_exception=False,
+                raise_on_error=False,
+            )
+
+            # Elasticsearch returns one response result per action. Each is a
+            # JSON document where the first-level key is the action name
+            # ("update", "delete", etc.) and the value of that key includes the
+            # action's "status", "_index", etc; and, on failure, an "error" key
+            # the value of which gives the type and reason for the failure.
+            #
+            # We assume there will be a single first-level key corresponding to
+            # the action generated by the subclass and we use that without any
+            # validation to access the status information.
+            for ok, response in results:
+                count += 1
+                u = response[self.action]
+                status = "ok"
+                if "error" in u:
+                    e = u["error"]
+                    status = e["reason"]
+                    error_count += 1
+                report[status][u["_index"]] += 1
+        except Exception as e:
+            self.logger.exception(
+                "{}: exception {} occurred during the Elasticsearch request: report {}",
+                klasname,
+                type(e).__name__,
+                report,
+            )
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
+
+        summary = {"ok": count - error_count, "failure": error_count}
+
+        # Let the subclass complete the operation
+        self.complete(dataset, json_data, summary)
+
+        # Return the summary document as the success response, or abort with an
+        # internal error if we weren't 100% successful. Some elasticsearch
+        # documents may have been affected, but the client will be able to try
+        # again.
+        #
+        # TODO: switching to `pyesbulk` will automatically handle retrying on
+        # non-terminal errors, but this requires some cleanup work on the
+        # pyesbulk side.
+        if error_count > 0:
+            self.logger.error(
+                "{}:dataset {}: {} successful document updates and {} failures: {}",
+                klasname,
+                dataset,
+                count - error_count,
+                error_count,
+                report,
+            )
+            abort(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                message=f"{error_count:d} of {count:d} Elasticsearch document UPDATE operations failed",
+                data=summary,
+            )
+
+        self.logger.info(
+            "{}:dataset {}: {} successful document updates", klasname, dataset, count
+        )
+        return summary

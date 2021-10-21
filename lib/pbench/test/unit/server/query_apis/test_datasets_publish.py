@@ -1,37 +1,15 @@
-import pytest
-import requests
 from http import HTTPStatus
-from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPublish
-from pbench.server.database.models.datasets import Dataset, Metadata
+from typing import Iterator
+
+import elasticsearch
+import pytest
+
+from pbench.server.api.resources import JSON
+from pbench.server.database.models.datasets import Dataset
 from pbench.test.unit.server.headertypes import HeaderTypes
-from pbench.test.unit.server.query_apis.commons import Commons
 
 
-@pytest.fixture()
-def get_document_map(monkeypatch, attach_dataset):
-    """
-    Mock a Metadata get call to return an Elasticsearch document index
-    without requiring a DB query.
-
-    Args:
-        monkeypatch: patching fixture
-        attach_dataset:  create a mock Dataset object
-    """
-    map = {
-        "run-data.2021-06": ["a suitably long MD5", "another long MD5"],
-        "run-toc.2021-06": ["another long MD5", "one more long MD5"],
-    }
-
-    def get_document_map(dataset: Dataset, key: str) -> Metadata:
-        assert key == Metadata.INDEX_MAP
-        return map
-
-    with monkeypatch.context() as m:
-        m.setattr(Metadata, "getvalue", get_document_map)
-        yield map
-
-
-class TestDatasetsPublish(Commons):
+class TestDatasetsPublish:
     """
     Unit testing for DatasetsPublish class.
 
@@ -40,210 +18,204 @@ class TestDatasetsPublish(Commons):
     constructor and `post` service.
     """
 
-    @pytest.fixture(autouse=True)
-    def _setup(self, client):
-        super()._setup(
-            cls_obj=DatasetsPublish(client.config, client.logger),
-            pbench_endpoint="/datasets/publish",
-            elastic_endpoint="/_bulk?refresh=true",
-            payload={"controller": "node", "name": "drb", "access": "public"},
-        )
+    PAYLOAD = {"controller": "node", "name": "drb", "access": "public"}
+
+    def fake_elastic(self, monkeypatch, map: JSON, partial_fail: bool):
+        """
+        Pytest helper to install a mock for the Elasticsearch streaming_bulk
+        helper API for testing.
+
+        Args:
+            monkeypatch: The monkeypatch fixture from the test case
+            map: The generated document index map from the test case
+            partial_fail: A boolean indicating whether some bulk operations
+                should be marked as failures.
+
+        Yields:
+            Response documents from the mocked streaming_bulk helper
+        """
+        expected_results = []
+        expected_ids = []
+
+        for index in map:
+            first = True
+            for docid in map[index]:
+                update = {
+                    "_index": index,
+                    "_type": "_doc",
+                    "_id": docid,
+                    "_version": 11,
+                    "result": "noop",
+                    "_shards": {"total": 2, "successful": 2, "failed": 0},
+                    "_seq_no": 10,
+                    "_primary_term": 3,
+                    "status": 200,
+                }
+                if first and partial_fail:
+                    status = False
+                    first = False
+                    update["error"] = {"reason": "Just kidding", "type": "KIDDING"}
+                else:
+                    status = True
+                item = {"update": update}
+                expected_results.append((status, item))
+                expected_ids.append(docid)
+
+        def fake_bulk(
+            elastic: elasticsearch.Elasticsearch,
+            stream: Iterator[dict],
+            raise_on_error: bool = True,
+            raise_on_exception: bool = True,
+        ):
+            """
+            Helper function to mock the Elasticsearch helper streaming_bulk API,
+            which will validate the input actions and generate expected responses.
+
+            Args:
+                elastic: An Elasticsearch object
+                stream: The input stream of bulk action dicts
+                raise_on_error: indicates whether errors should be raised
+                raise_on_exception: indicates whether exceptions should propagate
+                    or be trapped
+
+            Yields:
+                Response documents from the mocked streaming_bulk helper
+            """
+            # Consume and validate the command generator
+            for cmd in stream:
+                assert cmd["_op_type"] == "update"
+                assert cmd["_id"] in expected_ids
+
+            # Generate a sequence of result documents more or less as we'd
+            # expect to see from Elasticsearch
+            for item in expected_results:
+                yield item
+
+        monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
 
     @pytest.mark.parametrize(
         "owner", ("drb", "test"),
     )
     def test_query(
         self,
-        server_config,
-        query_api,
-        user_ok,
-        get_document_map,
+        attach_dataset,
         build_auth_header,
+        client,
+        get_document_map,
+        monkeypatch,
         owner,
+        server_config,
     ):
         """
-        Check the construction of Elasticsearch query URI and filtering of the
-        response body. Note that the mock set up by the attach_dataset fixture
-        matches the dataset name to the dataset's owner, so we use the username
-        as the "name" key below. The authenticated caller is always "drb", so
-        we expect access to the "test" dataset to fail with a permission error.
+        Check behavior of the publish API with various combinations of dataset
+        owner (managed by the "owner" parametrization here) and authenticated
+        user (managed by the build_auth_header fixture).
         """
-        self.payload["name"] = owner
-        map = get_document_map
-        items = []
-
-        for index in map:
-            for docid in map[index]:
-                item = {
-                    "update": {
-                        "_index": index,
-                        "_type": "_doc",
-                        "_id": docid,
-                        "_version": 11,
-                        "result": "noop",
-                        "_shards": {"total": 2, "successful": 2, "failed": 0},
-                        "_seq_no": 10,
-                        "_primary_term": 3,
-                        "status": 200,
-                    }
-                }
-                items.append(item)
-
-        response_payload = {
-            "took": 16,
-            "errors": False,
-            "items": items,
-        }
+        self.fake_elastic(monkeypatch, get_document_map, False)
 
         if (
-            build_auth_header["header_param"] == HeaderTypes.VALID and owner == "drb"
-        ) or build_auth_header["header_param"] == HeaderTypes.VALID_ADMIN:
+            owner == "no_user"
+            or HeaderTypes.is_valid(build_auth_header["header_param"])
+        ) and owner != "badwolf":
             expected_status = HTTPStatus.OK
         else:
             expected_status = HTTPStatus.FORBIDDEN
 
-        response = query_api(
-            self.pbench_endpoint,
-            self.elastic_endpoint,
-            self.payload,
-            "",
-            expected_status,
-            json=response_payload,
-            status=HTTPStatus.OK,
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/publish",
             headers=build_auth_header["header"],
+            json=self.PAYLOAD,
         )
-        summary = response.get_json(force=True)
+        assert response.status_code == expected_status
         if expected_status == HTTPStatus.OK:
-            assert summary == {"ok": 4}
-        else:
-            assert summary == {"message": "Not Authorized"}
+            assert response.json == {"ok": 31, "failure": 0}
+            dataset = Dataset.attach(controller="node", name="drb")
+            assert dataset.access == Dataset.PUBLIC_ACCESS
 
-    def test_partial_success(
-        self, client, server_config, query_api, user_ok, get_document_map, pbench_token,
-    ):
-        """
-        Check the handling of a query that doesn't completely succeed.
-        """
-        items = []
-        first = True
-        map = get_document_map
-        for index in map:
-            for docid in map[index]:
-                item = {
-                    "update": {
-                        "_index": index,
-                        "_type": "_doc",
-                        "_id": docid,
-                        "_version": 11,
-                        "result": "noop",
-                        "_shards": {"total": 2, "successful": 2, "failed": 0},
-                        "_seq_no": 10,
-                        "_primary_term": 3,
-                        "status": 200,
-                    }
-                }
-                if first:
-                    first = False
-                    u = item["update"]
-                    u["error"] = {
-                        "type": "document_missing_exception",
-                        "reason": "[_doc][6]: document missing",
-                        "index_uuid": "aAsFqTI0Tc2W0LCWgPNrOA",
-                        "shard": "0",
-                        "index": index,
-                    }
-                    u["status"] = 400
-
-                items.append(item)
-
-        response_payload = {
-            "took": 16,
-            "errors": True,
-            "items": items,
-        }
-
-        response = query_api(
-            self.pbench_endpoint,
-            self.elastic_endpoint,
-            self.payload,
-            "",
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-            json=response_payload,
-            headers={"Authorization": "Bearer " + pbench_token},
-        )
-        response_doc = response.get_json(force=True)
-        message = response_doc["message"]
-        assert message == (
-            "DatasetsPublish: the query postprocessor was unable to complete: "
-            "Postprocessing error returning 500: '1 of 4 Elasticsearch document UPDATE operations failed' "
-            "[{'document_missing_exception': 1, 'ok': 3}]"
-        )
-        summary = response_doc["data"]
-        assert summary == {"ok": 3, "document_missing_exception": 1}
-
-    @pytest.mark.parametrize(
-        "exceptions",
-        (
-            {
-                "exception": requests.exceptions.ConnectionError(),
-                "status": HTTPStatus.BAD_GATEWAY,
-            },
-            {
-                "exception": requests.exceptions.Timeout(),
-                "status": HTTPStatus.GATEWAY_TIMEOUT,
-            },
-            {
-                "exception": requests.exceptions.InvalidURL(),
-                "status": HTTPStatus.INTERNAL_SERVER_ERROR,
-            },
-            {"exception": Exception(), "status": HTTPStatus.INTERNAL_SERVER_ERROR},
-        ),
-    )
-    def test_http_exception(
+    def test_partial(
         self,
+        attach_dataset,
+        caplog,
         client,
-        server_config,
-        query_api,
-        exceptions,
-        user_ok,
-        find_template,
         get_document_map,
+        monkeypatch,
         pbench_token,
+        server_config,
     ):
         """
-        Check that an exception in calling Elasticsearch is reported correctly.
+        Check the publish API when some document updates fail. We expect an
+        internal error with a report of success and failure counts.
         """
-        query_api(
-            "/datasets/publish",
-            "/_bulk?refresh=true",
-            self.payload,
-            "",
-            exceptions["status"],
-            body=exceptions["exception"],
-            headers={"Authorization": "Bearer " + pbench_token},
+        self.fake_elastic(monkeypatch, get_document_map, True)
+
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/publish",
+            headers={"authorization": f"Bearer {pbench_token}"},
+            json=self.PAYLOAD,
         )
 
-    @pytest.mark.parametrize("errors", (400, 500, 409))
-    def test_http_error(
-        self,
-        server_config,
-        query_api,
-        errors,
-        user_ok,
-        find_template,
-        get_document_map,
-        pbench_token,
+        # Verify the report and status
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+        assert response.json["data"] == {"ok": 28, "failure": 3}
+        for record in caplog.records:
+            if (
+                record.levelname == "ERROR"
+                and record.name == "pbench.server.api:__init__.py"
+            ):
+                assert (
+                    record.message
+                    == "DatasetsPublish:dataset drb(1)|node|drb: 28 successful document updates and 3 failures: defaultdict(<class 'collections.Counter'>, {'Just kidding': Counter({'unit-test.v6.run-data.2021-06': 1, 'unit-test.v6.run-toc.2021-06': 1, 'unit-test.v5.result-data-sample.2021-06': 1}), 'ok': Counter({'unit-test.v5.result-data-sample.2021-06': 19, 'unit-test.v6.run-toc.2021-06': 9})})"
+                )
+
+        # Verify that the Dataset access didn't change
+        dataset = Dataset.attach(controller="node", name="drb")
+        assert dataset.access == Dataset.PRIVATE_ACCESS
+
+    def test_no_dataset(
+        self, client, get_document_map, monkeypatch, pbench_token, server_config
     ):
         """
-        Check that an Elasticsearch error is reported correctly through the
-        response.raise_for_status() and Pbench handlers.
+        Check the publish API if the dataset doesn't exist.
         """
-        query_api(
-            "/datasets/publish",
-            "/_bulk?refresh=true",
-            self.payload,
-            "",
-            HTTPStatus.BAD_GATEWAY,
-            status=errors,
-            headers={"Authorization": "Bearer " + pbench_token},
+        payload = self.PAYLOAD.copy()
+        payload["name"] = "badwolf"
+
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/publish",
+            headers={"authorization": f"Bearer {pbench_token}"},
+            json=payload,
         )
+
+        # Verify the report and status
+        assert response.status_code == HTTPStatus.NOT_FOUND
+        assert response.json["message"] == "No dataset node|badwolf"
+
+    def test_exception(
+        self, attach_dataset, client, monkeypatch, pbench_token, server_config
+    ):
+        """
+        Check the publish API response if the bulk helper throws an exception.
+
+        (It shouldn't do this as we've set raise_on_exception=False, but we
+        check the code path anyway.)
+        """
+
+        def fake_bulk(
+            elastic: elasticsearch.Elasticsearch,
+            stream: Iterator[dict],
+            raise_on_error: bool = True,
+            raise_on_exception: bool = True,
+        ):
+            raise elasticsearch.helpers.BulkIndexError
+
+        monkeypatch.setattr("elasticsearch.helpers.streaming_bulk", fake_bulk)
+
+        response = client.post(
+            f"{server_config.rest_uri}/datasets/publish",
+            headers={"authorization": f"Bearer {pbench_token}"},
+            json=self.PAYLOAD,
+        )
+
+        # Verify the failure
+        assert response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR
+        assert response.json["message"] == "INTERNAL ERROR"
