@@ -75,6 +75,7 @@ class RunIdBase(ElasticBase):
                 "sosreports",
             ],
         },
+        "contents": {"index": "run-toc", "whitelist": ["directory", "files"]},
     }
 
     def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
