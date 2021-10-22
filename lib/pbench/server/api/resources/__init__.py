@@ -232,14 +232,14 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     "invalid user" (ConversionError here) and "valid user I can't access" (some
     sort of permission error later). Checking for a valid authentication token
     here allows rejecting any "user" parameter reference by an unauthenticated
-    user.
+    user with UNAUTHORIZED/401
 
     An authenticated user *can* determine whether a username is valid, and will
     be able to ask for another user's public data with {"user": "name",
     "access": "public"} (or simply "{"user": "name"}, if the authenticated user
     doesn't have rights to "name"'s private data). An authenticated user will
-    be given a validation error (BAD_REQUEST/400) if the specified username
-    isn't valid and a permission error (FORBIDDEN) if asking for another user's
+    be given a validation error (NOT_FOUND/404) if the specified username isn't
+    valid and a permission error (FORBIDDEN/403) if asking for another user's
     private data (without ADMIN role).
 
     The internal representation is the user row ID as a string.
@@ -683,14 +683,14 @@ class ApiBase(Resource):
         # private data, or non-READ access (create, update, delete) then we
         # need more checks.
         #
-        # 1) An unauthorized client can never perform any operation on PRIVATE
+        # 1) An ADMIN user can do anything.
+        # 2) An unauthenticated client can't perform any operation on PRIVATE
         #    data, nor any operation other than READ on PUBLIC data;
-        # 2) The "user" parameter can be omitted only for READ operations,
+        # 3) The "user" parameter can be omitted only for READ operations,
         #    which will be defaulted according to the visibility of the
         #    authenticated client.
-        # 3) An authenticated client cannot mutate data owned by a different
+        # 4) An authenticated client cannot mutate data owned by a different
         #    user, nor READ private data owned by another user.
-        # 4) An ADMIN user can do anything.
         if self.role != API_OPERATION.READ or access == Dataset.PRIVATE_ACCESS:
             if authorized_user is None:
                 self.logger.warning(
@@ -804,7 +804,7 @@ class ApiBase(Resource):
             self.logger.warning(
                 "{}: {} on {!r}", self.__class__.__name__, str(e), json_data
             )
-            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+            abort(e.http_status, message=str(e))
         except Exception as e:
             self.logger.exception(
                 "Unexpected validation exception in {}: {}",

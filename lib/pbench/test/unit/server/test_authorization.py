@@ -130,6 +130,8 @@ class TestAuthorization:
         "ask",
         [
             {"user": "test", "access": "private", "role": API_OPERATION.UPDATE},
+            {"user": "test", "access": "public", "role": API_OPERATION.UPDATE},
+            {"user": "test", "access": "private", "role": API_OPERATION.DELETE},
             {"user": "test", "access": "public", "role": API_OPERATION.DELETE},
             {"user": "test", "access": "private", "role": API_OPERATION.READ},
         ],

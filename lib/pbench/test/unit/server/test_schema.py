@@ -170,6 +170,20 @@ class TestParamType:
             ParamType.USER.convert("drb", None)
         assert exc.value.username == "drb"
 
+    def test_authenticated_bad_username(self, monkeypatch, current_user_drb):
+        """
+        Show that an invalid username results in raising ConversionError with
+        NOT_FOUND (404) when the client is authenticated.
+        """
+
+        def bad(username: str) -> User:
+            return None
+
+        monkeypatch.setattr(User, "query", bad)
+        with pytest.raises(ConversionError) as exc:
+            ParamType.USER.convert("test", None)
+        assert exc.value.http_status == HTTPStatus.NOT_FOUND
+
 
 class TestParameter:
     """

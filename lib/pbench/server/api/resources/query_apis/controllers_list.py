@@ -123,9 +123,6 @@ class ControllersList(ElasticBase):
             }
         ]
         """
-        if context.get("NODATA"):
-            return jsonify([])
-
         controllers = []
 
         # If there are no matches for the user, controller name,

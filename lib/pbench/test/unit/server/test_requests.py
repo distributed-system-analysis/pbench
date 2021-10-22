@@ -122,22 +122,20 @@ class TestUpload:
             assert record.levelname not in ("ERROR", "CRITICAL")
         assert caplog.records[-1].levelname == "WARNING"
 
-    def test_missing_authorization_header(self, client, caplog, server_config):
+    def test_missing_authorization_header(self, client, server_config):
         response = client.put(self.gen_uri(server_config))
         assert response.status_code == HTTPStatus.UNAUTHORIZED
-        self.verify_logs(caplog)
 
     @pytest.mark.parametrize(
         "malformed_token", ("malformed", "bear token" "Bearer malformed"),
     )
     def test_malformed_authorization_header(
-        self, client, caplog, server_config, malformed_token
+        self, client, server_config, malformed_token
     ):
         response = client.put(
             self.gen_uri(server_config), headers={"Authorization": malformed_token},
         )
         assert response.status_code == HTTPStatus.UNAUTHORIZED
-        self.verify_logs(caplog)
 
     def test_missing_controller_header_upload(
         self, client, caplog, server_config, pbench_token

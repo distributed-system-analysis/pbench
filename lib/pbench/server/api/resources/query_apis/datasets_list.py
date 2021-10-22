@@ -138,9 +138,6 @@ class DatasetsList(ElasticBase):
         }
         """
         datasets = []
-        if context.get("NODATA"):
-            return jsonify({})
-
         hits = es_json["hits"]["hits"]
         self.logger.info("{} controllers found", len(hits))
         controller = None

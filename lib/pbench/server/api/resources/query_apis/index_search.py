@@ -140,9 +140,6 @@ class IndexSearch(ElasticBase):
             },
         ]
         """
-        if context.get("NODATA"):
-            return jsonify([])
-
         # If there are no matches for the user, query, and time range,
         # return the empty list rather than failing.
         try:

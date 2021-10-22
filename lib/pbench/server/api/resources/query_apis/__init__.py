@@ -139,33 +139,33 @@ class ElasticBase(ApiBase):
                 All private + public regardless of owner
 
                 ADMIN: all datasets
-                AUTHORIZED: all owner:mine OR access:public
-                UNAUTHORIZED: all access:public
+                AUTHENTICATED as drb: all owner:drb OR access:public
+                UNAUTHENTICATED (or non-drb): all access:public
 
             {"user": "drb"}: defaulting access
                 All datasets owned by "drb"
 
-                ADMIN, AUTHORIZED as drb: all owner:drb
-                UNAUTHORIZED (or non-drb): all owner:drb AND access:public
+                ADMIN, AUTHENTICATED as drb: all owner:drb
+                UNAUTHENTICATED (or non-drb): all owner:drb AND access:public
 
             {"user": "drb, "access": "private"}: private drb
                 All datasets owned by "drb" with "private" access
 
-                ADMIN, AUTHORIZED as drb: all owner:drb AND access:private
-                UNAUTHORIZED (or non-drb): Not handled (permission error)
+                ADMIN, AUTHENTICATED as drb: all owner:drb AND access:private
+                UNAUTHENTICATED (or non-drb): Not handled (permission error)
 
             {"user": "drb", "access": "public"}: public drb
                 All datasets owned by "drb" with "public" access
 
-                ADMIN, AUTHORIZED as drb: all owner:drb AND access:public
-                UNAUTHORIZED (or non-drb): all owner:drb AND access:public
+                ADMIN, AUTHENTICATED: all owner:drb AND access:public
+                UNAUTHENTICATED: Not supported (permission error)
 
             {"access": "private"}: all private data
                 All datasets with "private" access regardless of user
 
                 ADMIN: all access:private
-                AUTHORIZED: all owner:"me" AND access:private
-                UNAUTHORIZED: Not handled (permission error)
+                AUTHENTICATED: all owner:"me" AND access:private
+                UNAUTHENTICATED: Not handled (permission error)
 
             {"access": "public"}: all public data
                 All datasets with "public" access
@@ -206,6 +206,7 @@ class ElasticBase(ApiBase):
             is_admin,
         )
 
+        combo_term = None
         access_term = None
         user_term = None
 
@@ -241,36 +242,36 @@ class ElasticBase(ApiBase):
                     f"Internal error: {requestor} can't query private data"
                 )
             access_term = {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}}
-            self.logger.debug("QUERY: not self public: {}", filter)
+            self.logger.debug("QUERY: not self public: {}", access_term)
         elif access:
             access_term = {"term": {"authorization.access": access}}
             if not user and access == Dataset.PRIVATE_ACCESS and not is_admin:
                 user_term = {"term": {"authorization.owner": authorized_id}}
-            self.logger.debug("QUERY: access: {}", filter)
+            self.logger.debug("QUERY: user: {}, access: {}", user_term, access_term)
         elif authorized_user and not user and not is_admin:
-            filter.append(
-                {
-                    "dis_max": {
-                        "queries": [
-                            {"term": {"authorization.owner": authorized_id}},
-                            {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}},
-                        ]
-                    }
+            combo_term = {
+                "dis_max": {
+                    "queries": [
+                        {"term": {"authorization.owner": authorized_id}},
+                        {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}},
+                    ]
                 }
-            )
-            self.logger.debug("QUERY: {{}} default: {}", filter)
-            return {"bool": {"filter": filter}}
+            }
+            self.logger.debug("QUERY: {{}} self + public: {}", combo_term)
         else:
-            # Either "user" was specified and is already added to the filter,
-            # or client is ADMIN and no access terms are required.
+            # Either "user" was specified and will be added to the filter,
+            # or client is ADMIN and no access restrictions are required.
+            self.logger.debug("QUERY: {{}} default, user: {}", user_term)
             pass
 
-        # Make sure these appear in order at the end of the filters list. This
-        # allows stable unit testing.
-        if access_term:
-            filter.append(access_term)
-        if user_term:
-            filter.append(user_term)
+        # We control the order of terms here to allow stable unit testing.
+        if combo_term:
+            filter.append(combo_term)
+        else:
+            if access_term:
+                filter.append(access_term)
+            if user_term:
+                filter.append(user_term)
         return {"bool": {"filter": filter}}
 
     def _gen_month_range(self, index: str, start: datetime, end: datetime) -> str:

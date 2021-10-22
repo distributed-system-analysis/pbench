@@ -38,33 +38,27 @@ class Auth:
         try:
             return os.getenv("SECRET_KEY", "my_precious")
         except Exception as e:
-            Auth.logger.exception(f"{__name__}: ERROR: {e.__traceback__}")
+            Auth.logger.exception("Error {} getting JWT secret", e)
 
     def get_auth_token(self, logger):
         # get auth token
         auth_header = request.headers.get("Authorization")
 
         if not auth_header:
-            logger.warning("Missing expected Authorization header")
             abort(
                 HTTPStatus.FORBIDDEN,
-                message="Please add 'Authorization' token as Authorization: Bearer <session_token>",
+                message="Please add authorization token as 'Authorization: Bearer <session_token>'",
             )
 
         try:
             auth_schema, auth_token = auth_header.split()
         except ValueError:
-            logger.warning("Malformed Auth header")
             abort(
                 HTTPStatus.UNAUTHORIZED,
                 message="Malformed Authorization header, please add request header as Authorization: Bearer <session_token>",
             )
         else:
             if auth_schema.lower() != "bearer":
-                logger.warning(
-                    "Expected authorization schema to be 'bearer', not '{}'",
-                    auth_schema,
-                )
                 abort(
                     HTTPStatus.UNAUTHORIZED,
                     message="Malformed Authorization header, request needs bearer token: Bearer <session_token>",
@@ -94,18 +88,14 @@ class Auth:
                 Auth.logger.error(
                     "User passed expired token but we could not delete the token from the database. token: {!r}: {}",
                     auth_token,
-                    str(e),
+                    e,
                 )
-            Auth.logger.warning(
-                "User passed expired token {!r}; token deleted from the database and no longer tracked",
-                auth_token,
-            )
         except jwt.InvalidTokenError:
-            Auth.logger.warning("User passed invalid token {!r}", auth_token)
+            pass  # Ignore this silently; client is unauthenticated
         except Exception as e:
             Auth.logger.exception(
                 "Unexpected exception occurred while verifying the auth token {!r}: {}",
                 auth_token,
-                str(e),
+                e,
             )
         return None

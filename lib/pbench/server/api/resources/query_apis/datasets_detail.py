@@ -131,9 +131,6 @@ class DatasetsDetail(ElasticBase):
             }
         ]
         """
-        if context.get("NODATA"):
-            return jsonify({})
-
         hits = es_json["hits"]["hits"]
 
         # NOTE: we're expecting just one. We're matching by just the

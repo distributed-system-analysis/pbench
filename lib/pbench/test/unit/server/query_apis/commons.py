@@ -108,11 +108,11 @@ class Commons:
         a = payload.get("access")
         unauthorized = not HeaderTypes.is_valid(header)
         is_admin = header == HeaderTypes.VALID_ADMIN
-        if has_user and unauthorized:
+        if (has_user or a == Dataset.PRIVATE_ACCESS) and unauthorized:
             expected_status = HTTPStatus.UNAUTHORIZED
-        elif u == "badwolf":
-            expected_status = HTTPStatus.BAD_REQUEST
-        elif u != "drb" and a == "private" and not is_admin:
+        elif u == "badwolf" and not unauthorized:
+            expected_status = HTTPStatus.NOT_FOUND
+        elif u != "drb" and a == Dataset.PRIVATE_ACCESS and not is_admin:
             expected_status = HTTPStatus.FORBIDDEN
         else:
             expected_status = HTTPStatus.OK
@@ -160,7 +160,7 @@ class Commons:
             headers={"Authorization": "Bearer " + pbench_token},
             json=self.payload,
         )
-        assert response.status_code == HTTPStatus.BAD_REQUEST
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
     @pytest.mark.parametrize(
         "user", ("drb", "pp"),

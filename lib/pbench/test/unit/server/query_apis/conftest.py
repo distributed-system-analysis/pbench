@@ -38,12 +38,15 @@ def query_api(client, server_config, provide_metadata):
         es_url = f"http://{host}:{port}{expected_index}{es_uri}"
         with responses.RequestsMock() as rsp:
             # We need to set up mocks for the Server's call to Elasticsearch,
-            # which will only be made if the request is not forbidden nor unauthorized.
+            # which will only be made if we don't expect Pbench to fail before
+            # making the call. We never expect an Elasticsearch call when the
+            # expected status is FORBIDDEN or UNAUTHORIZED; or when we give the
+            # canonical "bad username" (badwolf) and are expecting NOT_FOUND.
             if expected_status not in [
                 HTTPStatus.FORBIDDEN,
                 HTTPStatus.UNAUTHORIZED,
             ] and (
-                expected_status != HTTPStatus.BAD_REQUEST
+                expected_status != HTTPStatus.NOT_FOUND
                 or payload.get("user") != "badwolf"
             ):
                 rsp.add(responses.POST, es_url, **kwargs)
