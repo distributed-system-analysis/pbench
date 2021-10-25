@@ -16,7 +16,11 @@ pbench-register-tool-set --toolset=<tool-set> [--group=<group-name>] [--interval
 Available tool sets from /var/tmp/pbench-test-utils/opt/pbench-agent/config/pbench-agent.cfg:
 	default
 	heavy
+	legacy
 	light
+	medium
+	myheavy
+	mylight
 --- Finished test-11.13 pbench-register-tool-set (status=0)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
