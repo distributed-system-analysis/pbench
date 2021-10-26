@@ -45,20 +45,6 @@ class MissingBulkSchemaParameters(SchemaError):
         return f"API {self.subclass_name} is missing schema parameters controller and/or name"
 
 
-class AssemblyError(Exception):
-    """
-    Used by subclasses to report an error during assembly of the
-    Elasticsearch request document.
-    """
-
-    def __init__(self, message: str, status: int = HTTPStatus.INTERNAL_SERVER_ERROR):
-        self.status = status
-        self.message = message
-
-    def __str__(self) -> str:
-        return f"Assembly error returning {self.status}: {self.message!r}"
-
-
 class PostprocessError(Exception):
     """
     Used by subclasses to report an error during postprocessing of the
@@ -131,7 +117,11 @@ class ElasticBase(ApiBase):
         NOTE: This method is not responsible for authorization checks; that's
         done by the `ApiBase._check_authorization()` method. This method is
         only concerned with generating a query to restrict the results to the
-        set matching authorized user and access values.
+        set matching authorized user and access values. This method will build
+        unusable queries when asked for "access": "private" on behalf of an
+        unauthenticated client or on behalf of an authenticated but non-admin
+        client for a different user. The query result will substitute "access":
+        "public"; these cases are designated below with "NOTE(UNAUTHORIZED)".
 
         Specific cases for user and access values:
 
@@ -151,21 +141,21 @@ class ElasticBase(ApiBase):
             {"user": "drb, "access": "private"}: private drb
                 All datasets owned by "drb" with "private" access
 
-                ADMIN, AUTHENTICATED as drb: all owner:drb AND access:private
-                UNAUTHENTICATED (or non-drb): Not handled (permission error)
+                all owner:drb AND access:private
+                NOTE(UNAUTHORIZED): unauthenticated client or non-drb
 
             {"user": "drb", "access": "public"}: public drb
                 All datasets owned by "drb" with "public" access
 
                 ADMIN, AUTHENTICATED: all owner:drb AND access:public
-                UNAUTHENTICATED: Not supported (permission error)
+                NOTE(UNAUTHORIZED): unauthenticated client
 
             {"access": "private"}: all private data
                 All datasets with "private" access regardless of user
 
                 ADMIN: all access:private
-                AUTHENTICATED: all owner:"me" AND access:private
-                UNAUTHENTICATED: Not handled (permission error)
+                AUTHENTICATED as "drb": all owner:"drb" AND access:private
+                NOTE(UNAUTHORIZED): unauthenticated client or non-drb
 
             {"access": "public"}: all public data
                 All datasets with "public" access
@@ -181,11 +171,6 @@ class ElasticBase(ApiBase):
             terms: A list of JSON objects describing the Elasticsearch "terms"
                 that must be matched for the query. (These are assumed to be
                 AND clauses.)
-
-        Raises:
-            AssemblyError: Reports an unsupported access combination we expect
-                to be prohibited by upstream authorization checks. If such a
-                case reaches here, query assembly will be aborted.
 
         Returns:
             An assembled Elasticsearch "query" mode that includes the necessary
@@ -232,15 +217,6 @@ class ElasticBase(ApiBase):
         # and we'll pass through the query either with the specified user
         # constraint or with no constraint at all.
         if not authorized_user or (user and user != authorized_id and not is_admin):
-            if access == Dataset.PRIVATE_ACCESS:
-                requestor = (
-                    f"Requestor {authorized_user.username!r}"
-                    if authorized_user
-                    else "Unauthorized requestor"
-                )
-                raise AssemblyError(
-                    f"Internal error: {requestor} can't query private data"
-                )
             access_term = {"term": {"authorization.access": Dataset.PUBLIC_ACCESS}}
             self.logger.debug("QUERY: not self public: {}", access_term)
         elif access:
@@ -248,7 +224,7 @@ class ElasticBase(ApiBase):
             if not user and access == Dataset.PRIVATE_ACCESS and not is_admin:
                 user_term = {"term": {"authorization.owner": authorized_id}}
             self.logger.debug("QUERY: user: {}, access: {}", user_term, access_term)
-        elif authorized_user and not user and not is_admin:
+        elif not user and not is_admin:
             combo_term = {
                 "dis_max": {
                     "queries": [
@@ -262,7 +238,6 @@ class ElasticBase(ApiBase):
             # Either "user" was specified and will be added to the filter,
             # or client is ADMIN and no access restrictions are required.
             self.logger.debug("QUERY: {{}} default, user: {}", user_term)
-            pass
 
         # We control the order of terms here to allow stable unit testing.
         if combo_term:

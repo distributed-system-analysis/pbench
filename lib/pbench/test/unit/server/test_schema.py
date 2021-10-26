@@ -19,7 +19,7 @@ from pbench.server.api.resources import (
     UnsupportedAccessMode,
     UnverifiedUser,
 )
-from pbench.server.api.resources.query_apis import AssemblyError, PostprocessError
+from pbench.server.api.resources.query_apis import PostprocessError
 from pbench.server.database.models.users import User
 
 
@@ -58,10 +58,6 @@ class TestExceptions:
         assert str(c) == "Value 1 (int) cannot be parsed as a dict"
         assert c.value == 1
         assert c.http_status == HTTPStatus.NOT_FOUND
-        p = AssemblyError("all's well")
-        assert str(p) == 'Assembly error returning 500: "all\'s well"'
-        p = AssemblyError("all's well-ish", status=HTTPStatus.BAD_REQUEST)
-        assert str(p) == 'Assembly error returning 400: "all\'s well-ish"'
         p = PostprocessError(HTTPStatus.OK, "all's well", {"param": "none"})
         assert (
             str(p)

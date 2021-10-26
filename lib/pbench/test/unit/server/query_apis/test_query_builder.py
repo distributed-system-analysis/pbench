@@ -1,9 +1,8 @@
-from http import HTTPStatus
 import pytest
 
 from pbench.server.api.resources import Schema
 from pbench.server.api.auth import Auth
-from pbench.server.api.resources.query_apis import AssemblyError, ElasticBase, JSON
+from pbench.server.api.resources.query_apis import ElasticBase, JSON
 from pbench.server.database.models.users import User
 
 
@@ -75,7 +74,7 @@ class TestQueryBuilder:
     def test_admin(self, elasticbase, server_config, current_user_admin, ask):
         """
         Test the query builder when we have an authenticated admin user; all of
-        these build query terms just like to the input since we impose no
+        these build query terms matching the input terms since we impose no
         additional constraints on queries.
         """
         term = {"term": {"icecream": "ginger"}}
@@ -90,6 +89,10 @@ class TestQueryBuilder:
             ({"access": "private"}, {"user": SELF_ID, "access": "private"}),
             ({"user": SELF_ID}, {"user": SELF_ID}),
             ({"user": USER_ID}, {"user": USER_ID, "access": "public"}),
+            (
+                {"user": USER_ID, "access": "private"},
+                {"user": USER_ID, "access": "public"},
+            ),
             (
                 {"user": SELF_ID, "access": "private"},
                 {"user": SELF_ID, "access": "private"},
@@ -126,9 +129,14 @@ class TestQueryBuilder:
         [
             ({}, {"access": "public"}),
             ({"access": "public"}, {"access": "public"}),
+            ({"access": "private"}, {"access": "public"}),
             ({"user": USER_ID}, {"user": USER_ID, "access": "public"}),
             (
                 {"user": USER_ID, "access": "public"},
+                {"user": USER_ID, "access": "public"},
+            ),
+            (
+                {"user": USER_ID, "access": "private"},
                 {"user": USER_ID, "access": "public"},
             ),
         ],
@@ -146,48 +154,6 @@ class TestQueryBuilder:
         query = elasticbase._get_user_query(ask, [term])
         filter = self.assemble(term, expect)
         assert query == {"bool": {"filter": filter}}
-
-    def test_auth_access_private(self, elasticbase, server_config, current_user_drb):
-        """
-        Test the query builder when "private" access is specified by an
-        authenticated client, for another user. This is an "impossible" case as
-        authorization checks will stop the request and return UNAUTHORIZED
-        before we get here. We cover the code path anyway, looking for the
-        AssemblyError exception.
-        """
-        with pytest.raises(AssemblyError) as excinfo:
-            elasticbase._get_user_query(
-                {"access": "private", "user": USER_ID},
-                [{"term": {"icecream": "vanilla"}}],
-            )
-        assert excinfo.type == AssemblyError
-        assert excinfo.value.status == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert (
-            str(excinfo.value)
-            == "Assembly error returning 500: \"Internal error: Requestor 'drb' can't query private data\""
-        )
-
-    @pytest.mark.parametrize(
-        "ask", [{"access": "private"}, {"user": USER_ID, "access": "private"}]
-    )
-    def test_noauth_access_private(
-        self, elasticbase, server_config, current_user_none, ask
-    ):
-        """
-        Test the query builder when "private" access is specified by an
-        unauthenticated client. This is an "impossible" case as authorization
-        checks will stop the request and return UNAUTHORIZED before we get
-        here. We cover the code path anyway, looking for the AssemblyError
-        exception.
-        """
-        with pytest.raises(AssemblyError) as excinfo:
-            elasticbase._get_user_query(ask, [{"term": {"icecream": "vanilla"}}])
-        assert excinfo.type == AssemblyError
-        assert excinfo.value.status == HTTPStatus.INTERNAL_SERVER_ERROR
-        assert (
-            str(excinfo.value)
-            == 'Assembly error returning 500: "Internal error: Unauthorized requestor can\'t query private data"'
-        )
 
     def test_neither_auth(self, elasticbase, server_config, current_user_drb):
         """
