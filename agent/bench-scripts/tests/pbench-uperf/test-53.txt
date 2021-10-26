@@ -1,0 +1,20 @@
++++ Running test-53 pbench-uperf
+[error][1900-01-01T00:00:00.000000] Number of servers and vsock-servers specified on command line must match
+[error][1900-01-01T00:00:00.000000]     servers(3): s1,s2,s3
+[error][1900-01-01T00:00:00.000000]     vsock-servers(2): v1,v2
+--- Finished test-53 pbench-uperf (status=1)
++++ pbench tree state
+/var/tmp/pbench-test-bench/pbench-agent
+/var/tmp/pbench-test-bench/pbench-agent/pbench.log
+/var/tmp/pbench-test-bench/pbench-agent/tmp
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/__trigger__
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/mpstat
+/var/tmp/pbench-test-bench/pbench-agent/tools-v1-default/testhost.example.com/sar
+--- pbench tree state
++++ pbench.log file contents
+[error][1900-01-01T00:00:00.000000] Number of servers and vsock-servers specified on command line must match
+[error][1900-01-01T00:00:00.000000]     servers(3): s1,s2,s3
+[error][1900-01-01T00:00:00.000000]     vsock-servers(2): v1,v2
+--- pbench.log file contents

@@ -96,6 +96,9 @@ function usage {
 	printf    "\t\t\t\t   server (listening for connections).\n"
 	printf    "\t\t\t\t   If this is omitted, the server will listen on the local system\n"
 	printf    "\t\t\t\t   loopback interface.\n"
+	printf -- "\t--vsock-server[s]=str[,str]             a list of one or more AF_VSOCK hostnames, used instead of the server\n"
+	printf -- "\t\t\t\t   hostnames, and directs uperf to use the AF_VSOCK protocol\n"
+	printf -- "\t\t\t\t   The number of --vsock-servers provided must match the number of --servers\n"
 	printf -- "\t--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding\n"
 	printf -- "\t--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding\n"
 	printf -- "\t\t\t\t   For both options above, the order must correspond with the --clients/--servers list\n"
@@ -182,17 +185,17 @@ function stop_server {
 	local server=$1
 	local server_port=$2
 	local message=$3
-	local uperf_pid=`ssh $ssh_opts $server netstat -tlnp | grep ":$server_port " | awk '{print $7}' | awk -F/ '{print $1}'`
-	if [ ! -z "$uperf_pid" ]; then
+	local uperf_pids=`ssh $ssh_opts $server ss -tlnp --vsock | sed -En -e "/:$server_port / s/.*pid=([^,]+),.*/\1/p" | sort -u`
+	if [ ! -z "$uperf_pids" ]; then
 		if [ $message -eq 1 ]; then
-			echo found uperf pid $uperf_pid on $server:$server_port, killing
+			echo "found uperf pid(s) $uperf_pids on $server:$server_port, killing"
 		fi
-		ssh $ssh_opts $server kill $uperf_pid
+		ssh $ssh_opts $server "for pid in $uperf_pids; do kill \$pid; done"
 	fi
 }
 
 # Process options and arguments
-opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,servers:,server:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:" -n "getopt.sh" -- "$@")
+opts=$(getopt -q -o C:c:hi:m:p:r:S:t: --longoptions "help,server-node:,server-nodes:,client-node:,client-nodes:,client-label:,server-label:,tool-label-pattern:,install,start-iteration-num:,config:,instances:,test-types:,runtime:,message-sizes:,protocols:,samples:,client:,clients:,server:,servers:,max-stddev:,max-failures:,log-response-times:,postprocess-only:,run-dir:,tool-group:,sysinfo:,vsock-server:,vsock-servers:" -n "getopt.sh" -- "$@")
 if [ $? -ne 0 ]; then
 	printf -- "${script_name} $*\n"
 	printf -- "\n"
@@ -331,6 +334,13 @@ while true; do
 			shift
 		fi
 		;;
+		--vsock-server|--vsock-servers)
+		shift
+		if [ -n "$1" ]; then
+			vsock_servers="$1"
+			shift
+		fi
+		;;
 		-c|--config)
 		shift
 		if [ -n "$1" ]; then
@@ -393,6 +403,26 @@ if [ ! -z "$clients" -a "$postprocess_only" != "y" ]; then
 		error_log "Number of clients and servers specified on command line must match"
 		error_log "    clients($c_cnt): $clients"
 		error_log "    servers($s_cnt): $servers"
+		exit 1
+	fi
+	let has_vsock=0
+	for protocol in `echo ${protocols} | sed -e s/,/" "/g`; do
+		if [[ ${protocol} == "vsock" ]]; then
+			has_vsock=1
+		fi
+	done
+	let v_cnt=0
+	for vserver in `echo ${vsock_servers} | sed -e s/,/" "/g`; do
+		let v_cnt=v_cnt+1
+	done
+	if [[ ${has_vsock} -eq 1 && ${v_cnt} -eq 0 ]]; then
+		error_log "You must provide vsock-servers when the vsock protocol is specified"
+		exit 1
+	fi
+	if [[ ${v_cnt} -gt 0 && ${v_cnt} -ne ${s_cnt} ]]; then
+		error_log "Number of servers and vsock-servers specified on command line must match"
+		error_log "    servers(${s_cnt}): ${servers}"
+		error_log "    vsock-servers(${v_cnt}): ${vsock_servers}"
 		exit 1
 	fi
 fi
@@ -549,6 +579,8 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									if [ -z "$client" ]; then
 										client="127.0.0.1"
 									fi
+									vsock_server=`echo $vsock_servers | cut -d, -f$server_nr`
+									uperf_server="${vsock_server:-${server}}"
 									server_port=`echo "$port_number_gap * $server_nr + $server_base_port" | bc`
 									uperf_identifier="client::$client-server::$server:$server_port"
 
@@ -558,10 +590,14 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									server_log="$benchmark_results_dir/$uperf_identifier--server.log"
 
 									xml_file="$iteration_dir/$uperf_identifier--test_config.xml"
-									gen_xml $server $protocol ${runtime_padded}s $message_size $instance $test_type >$xml_file
+									gen_xml $uperf_server $protocol ${runtime_padded}s $message_size $instance $test_type >$xml_file
 
 									# construct the server command
-									benchmark_server_cmd="${benchmark_bin} -v -s -P $server_port > ${server_log} 2>&1"
+									if [ "$protocol" == "vsock" ]; then
+										# vsock protocol requires socket-type to be specified
+										vsock_extra_opts=" -S vsock"
+									fi
+									benchmark_server_cmd="${benchmark_bin} -v -s -P ${server_port}${vsock_extra_opts} > ${server_log} 2>&1"
 									# adjust server command for NUMA binding
 									server_node=`echo "$server_nodes," | cut -d, -f$server_nr`
 									if [ ! -z "$server_node" ]; then
@@ -578,7 +614,7 @@ for protocol in `echo $protocols | sed -e s/,/" "/g`; do
 									if [ "$log_response_times" == "y" ]; then
 										resp_opt=" -X $benchmark_results_dir/$uperf_identifier--response-times.txt"
 									fi
-									benchmark_client_cmd="${benchmark_bin} -v -m $xml_file -R -a -i 1 $resp_opt -P $server_port >$result_file 2>&1"
+									benchmark_client_cmd="${benchmark_bin} -v -m $xml_file -R -a -i 1 ${resp_opt}${vsock_extra_opts} -P $server_port >$result_file 2>&1"
 									# adjust client command for NUMA binding
 									client_node=`echo "$client_nodes," | cut -d, -f$server_nr`
 									if [ ! -z "$client_node" ]; then
