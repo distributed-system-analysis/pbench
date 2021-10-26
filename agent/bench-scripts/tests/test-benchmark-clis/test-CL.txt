@@ -1533,6 +1533,9 @@ Bench Script: pbench-uperf --help
 				   server (listening for connections).
 				   If this is omitted, the server will listen on the local system
 				   loopback interface.
+	--vsock-server[s]=str[,str]             a list of one or more AF_VSOCK hostnames, used instead of the server
+				   hostnames, and directs uperf to use the AF_VSOCK protocol
+				   The number of --vsock-servers provided must match the number of --servers
 	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
 	--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding
 				   For both options above, the order must correspond with the --clients/--servers list
@@ -1584,6 +1587,9 @@ Bench Script: pbench-uperf --tool-group=bad --sysinfo=bad
 				   server (listening for connections).
 				   If this is omitted, the server will listen on the local system
 				   loopback interface.
+	--vsock-server[s]=str[,str]             a list of one or more AF_VSOCK hostnames, used instead of the server
+				   hostnames, and directs uperf to use the AF_VSOCK protocol
+				   The number of --vsock-servers provided must match the number of --servers
 	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
 	--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding
 				   For both options above, the order must correspond with the --clients/--servers list
@@ -1635,6 +1641,9 @@ pbench-uperf --bad-to-the-bone
 				   server (listening for connections).
 				   If this is omitted, the server will listen on the local system
 				   loopback interface.
+	--vsock-server[s]=str[,str]             a list of one or more AF_VSOCK hostnames, used instead of the server
+				   hostnames, and directs uperf to use the AF_VSOCK protocol
+				   The number of --vsock-servers provided must match the number of --servers
 	--server-node[s]=str[,str]              An ordered list of server NUMA nodes which should be used for CPU binding
 	--client-node[s]=str[,str]              An ordered list of client NUMA nodes which should be used for CPU binding
 				   For both options above, the order must correspond with the --clients/--servers list
