@@ -487,6 +487,6 @@ class IterationSamplesRows(IterationSamples):
 
         except KeyError as e:
             raise PostprocessError(
-                HTTPStatus.BAD_REQUEST,
+                HTTPStatus.INTERNAL_SERVER_ERROR,
                 f"Can't find Elasticsearch match data {e} in {es_json!r}",
             )
