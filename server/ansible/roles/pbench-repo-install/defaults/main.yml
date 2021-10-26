@@ -1,12 +1,12 @@
 ---
 fedoraproject_username: ndokos
 pbench_repo_url_prefix: https://copr-be.cloud.fedoraproject.org/results/{{ fedoraproject_username }}
+pbench_repo_name: pbench
 
 repos:
-  - tag: pbench
+  - tag: "{{ pbench_repo_name }}"
     user: "{{ fedoraproject_username }}"
-    baseurl: "{{ pbench_repo_url_prefix }}/pbench/{{ distrodir }}"
-    gpgkey: "{{ pbench_repo_url_prefix }}/pbench/pubkey.gpg"
+    baseurl: "{{ pbench_repo_url_prefix }}/{{ pbench_repo_name }}/{{ distrodir }}"
+    gpgkey: "{{ pbench_repo_url_prefix }}/{{ pbench_repo_name }}/pubkey.gpg"
     gpgcheck: 1
     enabled: 1
-
