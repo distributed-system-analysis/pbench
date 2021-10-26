@@ -1,27 +1,29 @@
 from http import HTTPStatus
 import jwt
-from flask import request, jsonify, make_response, current_app as app
+from flask import request, jsonify, make_response, current_app as flask_app
 from flask_restful import Resource, abort
 from flask_bcrypt import check_password_hash
 from flask_mail import Mail, Message
 from email_validator import EmailNotValidError
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from typing import NamedTuple
+
+from pbench.server.api.resources import (
+    Schema,
+    Parameter,
+    ParamType,
+)
 from pbench.server.database.models.users import User
 from pbench.server.database.models.active_tokens import ActiveTokens
 from pbench.server.api.auth import Auth
 
 
-class ForgotPassword(Resource):
+class ForgotPassword(Schema(Parameter("email", ParamType.STRING, required=True))):
     def __init__(self, config, logger, auth):
-        self.logger = logger
-        self.mail = Mail(app)
         self.auth = auth
         self.config = config
-
-    """
-        /forgot_password
-    """
+        self.logger = logger
+        self.mail = Mail(flask_app)
 
     def post(self):
         """
@@ -37,8 +39,8 @@ class ForgotPassword(Resource):
             Accept:         application/json
 
         :return:
-            Success: 200 with password reset link sent to email
-            Failure: Success with a logger warning
+            Success: OK status with password reset link sent to email
+            Failure: OK status, with a logger warning -- no email sent
         """
         # get the post data
         user_data = request.get_json()
@@ -59,7 +61,7 @@ class ForgotPassword(Resource):
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         if not user:
-            self.logger.warning("No such user exists with the given email ID")
+            self.logger.warning("Invalid email for password recovery: {}", email)
             return "", HTTPStatus.OK
 
         # generate auth token for the valid user
