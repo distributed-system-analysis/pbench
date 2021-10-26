@@ -25,7 +25,7 @@ from pbench.server.api.resources.query_apis.datasets_publish import DatasetsPubl
 from pbench.server.api.resources.query_apis.elasticsearch_api import Elasticsearch
 from pbench.server.api.resources.query_apis.index_mappings import IndexMappings
 from pbench.server.api.resources.query_apis.index_search import IndexSearch
-from pbench.server.api.resources.query_apis.iteration_samples import (
+from pbench.server.api.resources.query_apis.metadata_index.iteration_samples import (
     IterationSampleNamespace,
     IterationSamplesRows,
 )

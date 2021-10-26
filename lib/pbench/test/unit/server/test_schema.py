@@ -79,7 +79,7 @@ class TestParamType:
         Check basic consistency of the ParamType ENUM
         """
         assert (
-            len(ParamType.__members__) == 8
+            len(ParamType.__members__) == 7
         ), "Number of ParamType ENUM values has changed; confirm test coverage!"
         for n, t in ParamType.__members__.items():
             assert str(t) == t.friendly.upper()

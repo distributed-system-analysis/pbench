@@ -10,86 +10,15 @@ from pbench.server.api.resources import (
     JSON,
     Parameter,
     ParamType,
+    PostprocessError,
     Schema,
 )
-from pbench.server.api.resources.query_apis import (
-    CONTEXT,
-    ElasticBase,
-    PostprocessError,
-)
-from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
+from pbench.server.api.resources.query_apis import CONTEXT
+from pbench.server.api.resources.query_apis.metadata_index import MetadataBase
 from pbench.server.database.models.template import Template, TemplateNotFound
-from pbench.server.database.models.users import User
 
 
-class IterationSamples(ElasticBase):
-    """
-    Create iteration samples aggregation based on a given run id.
-    """
-
-    WHITELIST_AGGS_FIELDS = ["run", "sample", "iteration", "benchmark"]
-
-    def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
-        super().__init__(config, logger, schema)
-
-    def preprocess(self, client_json: JSON) -> CONTEXT:
-        """
-        Query the Dataset associated with this run id, and determine whether the
-        request is authorized for this dataset.
-
-        If the user has authorization to read the dataset, return the Dataset
-        object as CONTEXT so that the postprocess operations can use it to
-        identify the index to be searched from document index metadata.
-        """
-        run_id = client_json.get("run_id")
-
-        # Query the dataset using the given run id
-        dataset = Dataset.query(md5=run_id)
-        if not dataset:
-            self.logger.error(f"Dataset with Run ID {run_id!r} not found")
-            abort(HTTPStatus.NOT_FOUND, message="Dataset not found")
-
-        owner = User.query(id=dataset.owner_id)
-        if not owner:
-            self.logger.error(
-                f"Dataset owner ID { dataset.owner_id!r} cannot be found in Users"
-            )
-            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Dataset owner not found")
-
-        # For Iteration samples, we check authorization against the ownership of the
-        # dataset that was selected rather than having an explicit "user"
-        # JSON parameter. This will raise UnauthorizedAccess on failure.
-        self._check_authorization(owner.username, dataset.access)
-
-        # The dataset exists, and authenticated user has enough access so continue
-        # the operation with the appropriate CONTEXT.
-        return {"dataset": dataset, "run_id": run_id}
-
-    def get_index(self, dataset):
-        """
-        Retrieve the ES index from the metadata table
-        """
-        try:
-            index_map = Metadata.getvalue(dataset=dataset, key="server.index-map")
-            index_keys = [key for key in index_map if "result-data-sample" in key]
-        except MetadataError as e:
-            abort(HTTPStatus.BAD_REQUEST, message=str(e))
-
-        if len(index_keys) != 1:
-            self.logger.error(
-                f"Found irregular result-data-sample indices {index_keys!r} "
-                f"for a dataset {dataset.controller!r}|{dataset.name!r}"
-            )
-            abort(
-                HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Encountered irregular index pattern",
-            )
-        index = index_keys[0]
-        self.logger.debug(f"Iteration samples index, {index!r}")
-        return index
-
-
-class IterationSampleNamespace(IterationSamples):
+class IterationSampleNamespace(MetadataBase):
     """
     Iteration samples API that returns namespace for each whitelisted
     result-data-sample subdocuments as well as lists of available values for
@@ -98,6 +27,8 @@ class IterationSampleNamespace(IterationSamples):
     This class inherits the common IterationSamples class and builds an
     aggregated term query filtered by user supplied run id.
     """
+
+    WHITELIST_AGGS_FIELDS = ["run", "sample", "iteration", "benchmark"]
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
@@ -134,23 +65,21 @@ class IterationSampleNamespace(IterationSamples):
         }
 
         json_data: JSON dictionary of type-normalized parameters
-            "run_id": String representation of run id
+            "run_id": run id string
         """
         run_id = context.get("run_id")
         dataset = context.get("dataset")
 
         self.logger.info(
-            "Return iteration sample namespace for dataset {}|{}, prefix {}, "
-            "run id {}",
-            dataset.controller,
-            dataset.name,
+            "Return iteration sample namespace for dataset {}, prefix {}, " "run id {}",
+            dataset,
             self.prefix,
             run_id,
         )
 
         # Retrieve the ES index that belongs to this run_id from the metadata
         # table
-        index = self.get_index(dataset)
+        index = self.get_index(dataset, "result-data-sample")
 
         try:
             template = Template.find("result-data-sample")
@@ -165,7 +94,7 @@ class IterationSampleNamespace(IterationSamples):
             "properties": {
                 key: value
                 for key, value in template.mappings["properties"].items()
-                if key in IterationSamples.WHITELIST_AGGS_FIELDS
+                if key in IterationSampleNamespace.WHITELIST_AGGS_FIELDS
             }
         }
 
@@ -260,7 +189,7 @@ class IterationSampleNamespace(IterationSamples):
             )
 
 
-class IterationSamplesRows(IterationSamples):
+class IterationSamplesRows(MetadataBase):
     """
        Iteration samples API that returns iteration sample rows after
        applying client specified filters.
@@ -275,7 +204,7 @@ class IterationSamplesRows(IterationSamples):
             config,
             logger,
             Schema(
-                Parameter("filters", ParamType.DICT, required=False),
+                Parameter("filters", ParamType.JSON, required=False),
                 Parameter("run_id", ParamType.STRING, required=True),
                 Parameter("scroll_id", ParamType.STRING, required=False),
             ),
@@ -292,10 +221,9 @@ class IterationSamplesRows(IterationSamples):
         run_id = context.get("run_id")
 
         self.logger.info(
-            "Return iteration sample rows for dataset {}|{}, prefix {}, "
+            "Return iteration sample rows for dataset {}, prefix {}, "
             "run id {}, scroll id {}",
-            dataset.controller,
-            dataset.name,
+            dataset,
             self.prefix,
             run_id,
             scroll_id,
@@ -329,7 +257,7 @@ class IterationSamplesRows(IterationSamples):
         }
 
         json_data:
-            "run_id": String representation of run id,
+            "run_id": run id string,
             "filters": "key-value representation of query filter parameters",
         """
         if json_data.get("scroll_id"):
@@ -339,21 +267,20 @@ class IterationSamplesRows(IterationSamples):
         dataset = context.get("dataset")
 
         self.logger.info(
-            "Return iteration sample rows for dataset {}|{}, prefix {}, " "run id {}",
-            dataset.controller,
-            dataset.name,
+            "Return iteration sample rows for dataset {}, prefix {}, " "run id {}",
+            dataset,
             self.prefix,
             run_id,
         )
 
         # Retrieve the ES index that belongs to this run_id from the metadata
         # table
-        index = self.get_index(dataset)
+        index = self.get_index(dataset, "result-data-sample")
 
         es_filter = [{"match": {"run.id": run_id}}]
         if filters:
-            for filter in filters:
-                es_filter.append({"match": {filter: filters[filter]}})
+            for filter, value in filters.items():
+                es_filter.append({"match": {filter: value}})
 
         return {
             "path": f"/{index}/_search?scroll=1m",

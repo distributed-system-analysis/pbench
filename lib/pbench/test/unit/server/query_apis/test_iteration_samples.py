@@ -1,7 +1,8 @@
 import pytest
 from http import HTTPStatus
-from pbench.server.api.resources.query_apis.iteration_samples import (
+from pbench.server.api.resources.query_apis.metadata_index.iteration_samples import (
     IterationSampleNamespace,
+    IterationSamplesRows,
 )
 from pbench.test.unit.server.query_apis.commons import Commons
 
@@ -330,13 +331,18 @@ class TestIterationSamplesRows(Commons):
     constructor and `post` service.
     """
 
+    SCROLL_ID = "random_scroll_id_string_1=="
+
     @pytest.fixture(autouse=True)
     def _setup(self, client):
         super()._setup(
-            cls_obj=IterationSampleNamespace(client.config, client.logger),
+            cls_obj=IterationSamplesRows(client.config, client.logger),
             pbench_endpoint="/dataset/samples/rows",
             elastic_endpoint="/_search",
-            payload={"run_id": "random_md5_string1"},
+            payload={
+                "run_id": "random_md5_string1",
+                "filters": {"sample.name": "sample1"},
+            },
             use_index_from_metadata=True,
         )
 
@@ -351,7 +357,7 @@ class TestIterationSamplesRows(Commons):
         provide_metadata,
     ):
         response_payload = {
-            "_scroll_id": "random_scroll_id_string_1==",
+            "_scroll_id": TestIterationSamplesRows.SCROLL_ID,
             "took": 14,
             "timed_out": "false",
             "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
@@ -639,7 +645,7 @@ class TestIterationSamplesRows(Commons):
         provide_metadata,
     ):
         response_payload = {
-            "_scroll_id": "random_scroll_id_string_1==",
+            "_scroll_id": TestIterationSamplesRows.SCROLL_ID,
             "took": 14,
             "timed_out": "false",
             "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
@@ -683,9 +689,7 @@ class TestIterationSamplesRows(Commons):
         )
         if expected_status == HTTPStatus.OK:
             res_json = response.json
-            expected_returned_scroll_id = "random_scroll_id_string_1=="
-
-            assert expected_returned_scroll_id == res_json["scroll_id"]
+            assert TestIterationSamplesRows.SCROLL_ID == res_json["scroll_id"]
 
     def test_iteration_samples_with_scroll_id(
         self,
@@ -697,10 +701,9 @@ class TestIterationSamplesRows(Commons):
         find_template,
         provide_metadata,
     ):
-        self.payload = {
-            "run_id": "random_md5_string1",
-            "scroll_id": "random_scroll_id_string_1==",
-        }
+        del self.payload["filters"]
+        self.payload["scroll_id"] = TestIterationSamplesRows.SCROLL_ID
+
         response_payload = {
             "_scroll_id": "random_scroll_id_string_2==",
             "took": 3,

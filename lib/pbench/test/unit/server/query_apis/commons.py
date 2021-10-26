@@ -70,7 +70,7 @@ class Commons:
         drb = Dataset.attach(controller="node", name="drb")
         index_map = Metadata.getvalue(dataset=drb, key="server.index-map")
         index_keys = [key for key in index_map if "result-data-sample" in key]
-        return "/" + index_keys[0]
+        return "/" + "".join([f"{index}," for index in index_keys])
 
     def date_range(self, start: AnyStr, end: AnyStr) -> list:
         """
