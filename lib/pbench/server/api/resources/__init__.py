@@ -231,16 +231,8 @@ def convert_username(value: Union[str, None], _) -> Union[str, None]:
     We do not want an unauthenticated client to be able to distinguish between
     "invalid user" (ConversionError here) and "valid user I can't access" (some
     sort of permission error later). Checking for a valid authentication token
-    here allows rejecting any "user" parameter reference by an unauthenticated
+    here allows rejecting any USERNAME parameter passed by an unauthenticated
     user with UNAUTHORIZED/401
-
-    An authenticated user *can* determine whether a username is valid, and will
-    be able to ask for another user's public data with {"user": "name",
-    "access": "public"} (or simply "{"user": "name"}, if the authenticated user
-    doesn't have rights to "name"'s private data). An authenticated user will
-    be given a validation error (NOT_FOUND/404) if the specified username isn't
-    valid and a permission error (FORBIDDEN/403) if asking for another user's
-    private data (without ADMIN role).
 
     The internal representation is the user row ID as a string.
 
@@ -634,16 +626,8 @@ class ApiBase(Resource):
         authorization header, the requested user, the requested access
         policy, and the API's role.
 
-        If there is no current authenticated API user, only READ operations on
+        If there is no current authenticated client, only READ operations on
         public data will be allowed.
-
-        If the specified "user" context of the operation is None, the context
-        is defaulted based on the authenticated user: for an ADMIN user, this
-        means implicitly "all users" (to which the ADMIN has unlimited access);
-        for an unauthenticated user, no access to another "user" is allowed at
-        all, and will be caught at convert_username(); for an authenticated
-        user, a missing "user" context here implicitly defaults to the
-        authenticated user if "access" is private.
 
         for API_OPERATION.READ:
 
@@ -667,8 +651,13 @@ class ApiBase(Resource):
             access: The access parameter to the API, or None
 
         Raises:
-            UnauthorizedAccess The user isn't authorized for the requested
-                access.
+            UnauthorizedAccess: The user isn't authorized for the requested
+            access. One of two HTTP status values are encoded:
+                HTTP 401/UNAUTHORIZED: No user was authenticated, meaning
+                    that login is required to perform the operation.
+                HTTP 402/FORBIDDEN: The authenticated user does not have
+                    rights to the specified combination of API ROLE, USER,
+                    and ACCESS.
         """
         authorized_user: User = Auth.token_auth.current_user()
         self.logger.debug(
@@ -679,9 +668,8 @@ class ApiBase(Resource):
             access,
         )
 
-        # READ access to public data is always allowed; if we're looking at
-        # private data, or non-READ access (create, update, delete) then we
-        # need more checks.
+        # Accept or reject the described operation according to the following
+        # rules:
         #
         # 1) An ADMIN user can do anything.
         # 2) An unauthenticated client can't perform any operation on PRIVATE
@@ -692,7 +680,11 @@ class ApiBase(Resource):
         # 4) An authenticated client cannot mutate data owned by a different
         #    user, nor READ private data owned by another user.
         if self.role != API_OPERATION.READ or access == Dataset.PRIVATE_ACCESS:
+            # ROLE is UPDATE, CREATE, DELETE or ACCESS is private; we need to
+            # evaluate access rights to determine whether to allow the request
             if authorized_user is None:
+                # An unauthenticated user is never allowed to access private
+                # data nor to perform an potential mutation of data: REJECT
                 self.logger.warning(
                     "Attempt to {} user {} data without login", self.role, user
                 )
@@ -700,6 +692,8 @@ class ApiBase(Resource):
                     authorized_user, self.role, user, access, HTTPStatus.UNAUTHORIZED
                 )
             elif self.role != API_OPERATION.READ and user is None:
+                # If no target user is specified, we won't allow any potential
+                # mutation of data: REJECT
                 self.logger.warning(
                     "Unauthorized attempt by {} to {} data with defaulted user",
                     authorized_user,
@@ -713,6 +707,10 @@ class ApiBase(Resource):
                 and user != authorized_user.username
                 and not authorized_user.is_admin()
             ):
+                # If we are potentially mutating data, or reading private data,
+                # then the authenticated user must either be the owner of the
+                # data or must have ADMIN role. We won't allow the operation if
+                # these are not true: REJECT
                 self.logger.warning(
                     "Unauthorized attempt by {} to {} user {} data",
                     authorized_user,
@@ -722,6 +720,15 @@ class ApiBase(Resource):
                 raise UnauthorizedAccess(
                     authorized_user, self.role, user, access, HTTPStatus.FORBIDDEN
                 )
+            else:
+                # We have determined that there is an authenticated user with
+                # legitimate access to the specified user and access: the
+                # data is public and the operation is READ, the user owns the
+                # data, or the user has ADMIN role.
+                pass
+        else:
+            # We are reading public data: this is always allowed.
+            pass
 
     def _get_metadata(
         self, controller: str, name: str, requested_items: List[str]

@@ -118,10 +118,13 @@ class ElasticBase(ApiBase):
         done by the `ApiBase._check_authorization()` method. This method is
         only concerned with generating a query to restrict the results to the
         set matching authorized user and access values. This method will build
-        unusable queries when asked for "access": "private" on behalf of an
+        inconsistent queries that do not reflect the input when given some
+        queries that should be prevented by authorization checks.
+
+        Specifically, when asked for "access": "private" on behalf of an
         unauthenticated client or on behalf of an authenticated but non-admin
-        client for a different user. The query result will substitute "access":
-        "public"; these cases are designated below with "NOTE(UNAUTHORIZED)".
+        client for a different user, the generated query will use "access":
+        "public". These cases are designated below with "NOTE(UNAUTHORIZED)".
 
         Specific cases for user and access values:
 
@@ -142,20 +145,20 @@ class ElasticBase(ApiBase):
                 All datasets owned by "drb" with "private" access
 
                 all owner:drb AND access:private
-                NOTE(UNAUTHORIZED): unauthenticated client or non-drb
+                NOTE(UNAUTHORIZED): owner:drb and access:public
 
             {"user": "drb", "access": "public"}: public drb
                 All datasets owned by "drb" with "public" access
 
                 ADMIN, AUTHENTICATED: all owner:drb AND access:public
-                NOTE(UNAUTHORIZED): unauthenticated client
+                NOTE(UNAUTHORIZED): owner:drb and access:public
 
             {"access": "private"}: all private data
                 All datasets with "private" access regardless of user
 
                 ADMIN: all access:private
                 AUTHENTICATED as "drb": all owner:"drb" AND access:private
-                NOTE(UNAUTHORIZED): unauthenticated client or non-drb
+                NOTE(UNAUTHORIZED): access:public
 
             {"access": "public"}: all public data
                 All datasets with "public" access

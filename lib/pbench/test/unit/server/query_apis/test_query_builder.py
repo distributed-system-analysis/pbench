@@ -111,13 +111,8 @@ class TestQueryBuilder:
         """
         Test the query builder when we have an authenticated user.
 
-        NOTES:
-
-        1) We don't test {} here: that's left to a separate test case rather
-           than building the unique disjunction syntax here;
-        2) We don't test {"user": USER_ID, "access": "private"} here:
-           That raises the AssemblyError exception, and is tested in a
-           separate test case.
+        NOTE: We don't test {} here: that's left to a separate test case rather
+        than building the unique disjunction syntax here
         """
         term = {"term": {"icecream": "ginger"}}
         query = elasticbase._get_user_query(ask, [term])
@@ -144,11 +139,6 @@ class TestQueryBuilder:
     def test_noauth(self, elasticbase, server_config, current_user_none, ask, expect):
         """
         Test the query builder when we have an unauthenticated client.
-
-        NOTES:
-
-        2) We don't test {"access": "private"} here: That raises the
-           AssemblyError exception, and is tested in a separate test case.
         """
         term = {"term": {"icecream": "ginger"}}
         query = elasticbase._get_user_query(ask, [term])

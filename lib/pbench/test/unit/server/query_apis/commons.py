@@ -99,7 +99,7 @@ class Commons:
         2) If the "user" parameter is given and authenticated as a different
            non-admin user with "access": "private", we expect FORBIDDEN (403)
         3) If authenticated and a bad "user" parameter is given, we expect
-           BAD_REQUEST (400)
+           NOT_FOUND (404)
 
         Otherwise, we expect success
         """
