@@ -317,74 +317,17 @@ class IterationSamplesRows(RunIdBase):
                 "results": [
                     {
                         "@timestamp": "2020-09-03T01:58:58.712889",
-                        "run": {
-                            "id": "58bed61de1fd6ce57d682c320c506c4a",
-                            "controller": "controller.name.com",
-                            "name": "benchmark name",
-                            "script": "fio",
-                            ...
-                        },
-                        "iteration": {
-                            "name": "1-rw-4KiB",
-                            "number": 1
-                        },
-                        "benchmark": {
-                            "bs": "4k",
-                            "clocksource": "gettimeofday",
-                            "direct": "0",
-                            "filename": "/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo",
-                            "iodepth": "32",
-                            "ioengine": "libaio",
-                            "log_avg_msec": "1000",
-                            "log_hist_msec": "10000",
-                            ...
-                        },
-                        "sample": {
-                            "client_hostname": "localhost-4",
-                            "closest_sample": 1,
-                            "description": "Average submission latency per I/O operation",
-                            "mean": 2722310.79166667,
-                            "role": "client",
-                            "stddev": 0,
-                            "stddevpct": 0,
-                            "uid": "client_hostname:localhost-4",
-                            "measurement_type": "latency",
-                           ...
-                        }
+                        "run": {},
+                        "iteration": {},
+                        "benchmark": {},
+                        "sample": {}
                     },
                     {
                         "@timestamp": "2021-03-03T01:58:58.712889",
-                        "run": {
-                            "id": "58bed61de1fd6ce57d682c320c506c4a",
-                            "controller": "controller.name.com",
-                            "name": "benchmark name",
-                            "script": "fio",
-                            ...
-                        },
-                        "iteration": {
-                            "name": "1-rw-4KiB",
-                            "number": 1
-                        },
-                        "benchmark": {
-                            "bs": "4k",
-                            "clocksource": "gettimeofday",
-                            "direct": "0",
-                            "filename": "/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo",
-                            "iodepth": "32",
-                            "ioengine": "libaio",
-                            "log_avg_msec": "1000",
-                            "log_hist_msec": "10000",
-                            ...
-                        },
-                        "sample": {
-                            "client_hostname": "localhost-4",
-                            "closest_sample": 1,
-                            "description": "Average completion latency per I/O operation",
-                            "mean": 761676162.46875,
-                            "role": "client",
-                            "stddev": 0,
-                            "stddevpct": 0,
-                            ...
+                        "run": {},
+                        "iteration": {},
+                        "benchmark": {},
+                        "sample": {},
                     },
                     ...
                 ]
