@@ -25,7 +25,7 @@ https://distributed-system-analysis.github.io/pbench/start.html).
 For Fedora, CentOS, and RHEL users, we have made available [COPR
 builds](https://copr.fedorainfracloud.org/coprs/ndokos/pbench/) for the
 `pbench-agent`, `pbench-server`, `pbench-web-server`, and some benchmark and
-tool packages.
+tool packages. foo
 
 Install the `pbench-web-server` package on the machine from where you want to
 run the `pbench-agent` workloads, allowing you to view the graphs before
