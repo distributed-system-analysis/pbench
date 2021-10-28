@@ -369,6 +369,8 @@ declare -A tools=(
     [test-11.12]="pbench-register-tool-set"
     [test-11.13]="pbench-register-tool-set"
     [test-11.14]="pbench-register-tool-set"
+    [test-11.15]="pbench-register-tool-set"
+    [test-11.16]="pbench-register-tool-set"
     [test-17]="test-tm-start-bad-group"
     [test-18]="test-tm-stop-bad-group"
     [test-19]="test-tool-trigger"
@@ -450,6 +452,9 @@ declare -A options=(
     # verify --group option works along side --no-install
     [test-11.12]="--group=other --no-install"
     [test-11.13]="--help"
+    [test-11.15]="--remotes=@non-existent-file"
+    [test-11.16]="--remotes=@${_testdir}/tmp/good-remote-file"
+
     # pbench-move-results
     [test-20]="--help"
     # pbench-move-results - no args, nothing to do
@@ -506,6 +511,7 @@ declare -A expected_status=(
     [test-11.07]=1
     [test-11.08]=1
     [test-11.11]=1
+    [test-11.15]=1
     [test-17]=1
     [test-18]=1
     [test-22]=1
@@ -524,6 +530,7 @@ declare -A pre_hooks=(
     [test-05]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-06]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client; mkdir -p ${_testdir}/42-iter/sample42/tools-default/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-default/testhost.example.com/iostat/iostat-stdout.txt'
     [test-07]='mkdir -p ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat; touch ${_testdir}/42-iter/sample42/tools-foobar/testhost.example.com/iostat/iostat-stdout.txt'
+    [test-11.16]='mkdir -p ${_testdir}/tmp; (echo foo; echo bar) > ${_testdir}/tmp/good-remote-file'
     [test-19]='ln -s mock-pbench-tool-meister-client ${_testopt}/unittest-scripts/pbench-tool-meister-client'
     [test-33]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> ${_testout}'
     [test-34]='(echo "+++ setup pbench results dir time stamps"; touch --date="2019-01-01 12:00:42" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.42; touch --date="2019-01-01 12:00:43" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.43; touch --date="2019-01-01 12:00:44" ${_testdir}/pbench-user-benchmark_ndk-test-1_2019.01.01T12.00.44; echo "--- setup pbench results dir time stamps") >> ${_testout}'

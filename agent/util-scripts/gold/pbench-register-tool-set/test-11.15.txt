@@ -1,5 +1,5 @@
-+++ Running test-11.07 pbench-register-tool-set --labels=labelG,labelB
-[error][1900-01-01T00:00:00.000000] The number of labels given, "labelG,labelB", does not match the number of remotes given, "testhost.example.com" (default)
++++ Running test-11.15 pbench-register-tool-set --remotes=@non-existent-file
+[error][1900-01-01T00:00:00.000000] --remotes=@non-existent-file specifies a file that does not exist or is not readable
 usage:
 pbench-register-tool-set --toolset=<tool-set> [--group=<group-name>] [--interval=<interval>] [--no-install] [--remotes=<remote-host>[,<remote-host>]] [--labels=<label>[,<label>]]
 pbench-register-tool-set --toolset=<tool-set> [--group=<group-name>] [--interval=<interval>] [--no-install] [--remotes=@<remotes-file>]
@@ -20,12 +20,12 @@ Available tool sets from /var/tmp/pbench-test-utils/opt/pbench-agent/config/pben
 	legacy
 	light
 	medium
---- Finished test-11.07 pbench-register-tool-set (status=1)
+--- Finished test-11.15 pbench-register-tool-set (status=1)
 +++ pbench tree state
 /var/tmp/pbench-test-utils/pbench
 /var/tmp/pbench-test-utils/pbench/pbench.log
 /var/tmp/pbench-test-utils/pbench/tmp
 --- pbench tree state
 +++ pbench.log file contents
-[error][1900-01-01T00:00:00.000000] The number of labels given, "labelG,labelB", does not match the number of remotes given, "testhost.example.com" (default)
+[error][1900-01-01T00:00:00.000000] --remotes=@non-existent-file specifies a file that does not exist or is not readable
 --- pbench.log file contents
