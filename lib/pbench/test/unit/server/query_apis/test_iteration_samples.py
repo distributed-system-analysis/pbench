@@ -650,7 +650,7 @@ class TestIterationSamplesRows(Commons):
             "timed_out": "false",
             "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
             "hits": {
-                "total": {"value": 10000, "relation": "eq"},
+                "total": {"value": 10001, "relation": "eq"},
                 "max_score": "null",
                 "hits": [
                     {
@@ -660,14 +660,19 @@ class TestIterationSamplesRows(Commons):
                         "_score": 0.0,
                         "_source": {},
                     },
-                    {
-                        "_index": "staging-pbench.v5.result-data-sample.2021-03-03",
-                        "_type": "_doc",
-                        "_id": "20c70f03ff717b82e9f419e8d972b748",
-                        "_score": 0.0,
-                        "_source": {},
-                    },
-                ],
+                ]
+                + (
+                    [
+                        {
+                            "_index": "staging-pbench.v5.result-data-sample.2021-03-03",
+                            "_type": "_doc",
+                            "_id": "20c70f03ff717b82e9f419e8d972b748",
+                            "_score": 0.0,
+                            "_source": {},
+                        }
+                    ]
+                    * 9999
+                ),
             },
         }
         index = self.build_index_from_metadata()
@@ -710,7 +715,7 @@ class TestIterationSamplesRows(Commons):
             "timed_out": "false",
             "_shards": {"total": 5, "successful": 5, "skipped": 0, "failed": 0},
             "hits": {
-                "total": {"value": 1, "relation": "eq"},
+                "total": {"value": 10001, "relation": "eq"},
                 "max_score": "null",
                 "hits": [
                     {

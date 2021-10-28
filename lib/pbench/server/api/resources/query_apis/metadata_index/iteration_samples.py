@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from logging import Logger
-from typing import AnyStr, Dict, List
+from typing import AnyStr, List
 
 from flask import Response, jsonify
 from flask_restful import abort
@@ -14,18 +14,15 @@ from pbench.server.api.resources import (
     Schema,
 )
 from pbench.server.api.resources.query_apis import CONTEXT
-from pbench.server.api.resources.query_apis.metadata_index import MetadataBase
+from pbench.server.api.resources.query_apis.metadata_index import RunIdBase
 from pbench.server.database.models.template import Template, TemplateNotFound
 
 
-class IterationSampleNamespace(MetadataBase):
+class IterationSampleNamespace(RunIdBase):
     """
     Iteration samples API that returns namespace for each whitelisted
     result-data-sample subdocuments as well as lists of available values for
     each name.
-
-    This class inherits the common IterationSamples class and builds an
-    aggregated term query filtered by user supplied run id.
     """
 
     WHITELIST_AGGS_FIELDS = ["run", "sample", "iteration", "benchmark"]
@@ -37,27 +34,24 @@ class IterationSampleNamespace(MetadataBase):
             Schema(Parameter("run_id", ParamType.STRING, required=True)),
         )
 
-    def get_keyword_fields(self, mappings: Dict) -> List:
-        fields = []
-
-        def recurse(prefix: AnyStr, mappings: JSON, result: List):
-            if "properties" in mappings:
-                for p, m in mappings["properties"].items():
-                    recurse(f"{prefix}{p}.", m, result)
-            elif mappings.get("type") == "keyword":
-                result.append(prefix[:-1])  # Remove the trailing dot, if any
-            else:
-                for f, v in mappings.get("fields", {}).items():
-                    recurse(f"{prefix}{f}.", v, result)
-
-        recurse("", mappings, fields)
-        return fields
+    def get_keyword_fields(
+        self, mappings: JSON, prefix: AnyStr = "", result: List = []
+    ) -> List:
+        if "properties" in mappings:
+            for p, m in mappings["properties"].items():
+                self.get_keyword_fields(m, f"{prefix}{p}.", result)
+        elif mappings.get("type") == "keyword":
+            result.append(prefix[:-1])  # Remove the trailing dot, if any
+        else:
+            for f, v in mappings.get("fields", {}).items():
+                self.get_keyword_fields(v, f"{prefix}{f}.", result)
+        return result
 
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
-        Construct a pbench search query for aggregating a list of values for
-        keyword fields mentioned in the WHITELIST_AGGS_FIELDS sub-documents
-        of result-data-sample index document that belong to the
+        Construct a pbench Elasticsearch query for aggregating a list of
+        values for keyword fields mentioned in the WHITELIST_AGGS_FIELDS
+        sub-documents of result-data-sample index document that belong to the
         given run id.
 
         {
@@ -67,8 +61,8 @@ class IterationSampleNamespace(MetadataBase):
         json_data: JSON dictionary of type-normalized parameters
             "run_id": run id string
         """
-        run_id = context.get("run_id")
-        dataset = context.get("dataset")
+        run_id = context["run_id"]
+        dataset = context["dataset"]
 
         self.logger.info(
             "Return iteration sample namespace for dataset {}, prefix {}, " "run id {}",
@@ -98,13 +92,13 @@ class IterationSampleNamespace(MetadataBase):
             }
         }
 
-        # Get all the fields from result-data-sample index that are of type keyword
+        # Get all the fields from result-data-sample document mapping that
+        # are of type keyword
         result = self.get_keyword_fields(mappings)
 
-        # Build ES aggregation query for number of rows aggregations
-        aggs = {}
-        for key in result:
-            aggs[key] = {"terms": {"field": key}}
+        # Build ES aggregation query for getting the iteration samples
+        # namespaces
+        aggs = {key: {"terms": {"field": key}} for key in result}
 
         return {
             "path": f"/{index}/_search",
@@ -120,10 +114,11 @@ class IterationSampleNamespace(MetadataBase):
 
     def postprocess(self, es_json: JSON, context: CONTEXT) -> Response:
         """
-        Returns a stringified JSON object containing keyword/value pairs where
-        each key is the fully qualified dot-separated name of a keyword
-        (sub-)field (from result-data-sample documents) and corresponding value
-        is a non-empty list of values which appear in that field.
+        Returns a Flask Response containing a JSON object (keyword/value
+        pairs) where each key is the fully qualified dot-separated name of a
+        keyword (sub-)field (from result-data-sample documents) and
+        corresponding value is a non-empty list of values which appear in
+        that field.
 
         Example:
             {
@@ -189,15 +184,11 @@ class IterationSampleNamespace(MetadataBase):
             )
 
 
-class IterationSamplesRows(MetadataBase):
+class IterationSamplesRows(RunIdBase):
     """
-       Iteration samples API that returns iteration sample rows after
-       applying client specified filters.
-
-       This class inherits the common IterationSamples class and builds ES
-       query filtered by user supplied run id and other client supplied
-       filtering parameters.
-       """
+    Iteration samples API that returns iteration sample rows after
+    applying client specified filters.
+    """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
@@ -212,13 +203,17 @@ class IterationSamplesRows(MetadataBase):
 
     def scroll_assemble(self, scroll_id: str, context: CONTEXT) -> JSON:
         """
-        Construct a pbench search query for scrolling based on a client
-        provided unexpired scroll id.
+        Construct a pbench Elasticsearch query for scrolling based on a client
+        provided scroll id.
 
-        "scroll_id": String representation of ES scroll id
+        Note: To get a valid result the scroll id need to be unexpired,
+        Current expiry for the scroll id is 1 minute after client first
+        recieves it from the server.
+
+        "scroll_id": Elasticsearch scroll id
         """
-        dataset = context.get("dataset")
-        run_id = context.get("run_id")
+        dataset = context["dataset"]
+        run_id = context["run_id"]
 
         self.logger.info(
             "Return iteration sample rows for dataset {}, prefix {}, "
@@ -236,87 +231,90 @@ class IterationSamplesRows(MetadataBase):
 
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
-        Construct a pbench search query for filtering iteration samples of
-        given run id and other filtering parameters mention in JSON payload.
+        Construct a Elasticsearch query for filtering iteration samples of
+        given run id and other filtering parameters mention in
+        JSON payload.
 
-        Note: If the ES scroll id is present we will skip the filters parameter
-        and call scroll_assemble instead to scroll the next ES results page
-        using the given scroll id.
+        Note: If the ES scroll id is present we will ignore the filters
+        parameter and instead construct a Elasticsearch query for scrolling
+        based on a client provided scroll id.
 
-        If the scroll_id and filters both are absent from the client JSON
-        payload, we will return the first page of ES results (up to 10000
-        documents) matching the given run id. If there are more than 10000
-        documents available we will return the ES scroll id along with
-        the other result back to client which the client can send back as
-        scroll_id parameter if they want more data.
+        If a scroll_id is specified, we return the next page of the original
+        query; otherwise we form a new query, either with the specified filters
+        or without any filters (up to 10000 documents at a time).
 
         {
+            "run_id": "run id string"
             "scroll_id": "Server provided scroll id"
             "filters": "key-value representation of query filter parameters",
-            "run_id": "run id string"
         }
 
         json_data:
-            "run_id": run id string,
-            "filters": "key-value representation of query filter parameters",
+            "run_id": run id of a dataset that client wants to search for
+                    fetching the iteration samples.
+
+            "scroll_id": Server provided Elasticsearch scroll id that client
+                        recieved in the result of the original query with
+                        filters. This can be used to fetch the next page of
+                        the result.
+
+            "filters": key-value representation of query filter parameters to
+                       narrow the search results e.g. {"sample.name": "sample1"}
         """
-        if json_data.get("scroll_id"):
-            return self.scroll_assemble(json_data.get("scroll_id"), context)
-        filters = json_data.get("filters")
-        run_id = json_data.get("run_id")
-        dataset = context.get("dataset")
+        run_id = context["run_id"]
+        dataset = context["dataset"]
 
         self.logger.info(
-            "Return iteration sample rows for dataset {}, prefix {}, " "run id {}",
+            "Return iteration sample rows for dataset {}, prefix {}, run id {}",
             dataset,
             self.prefix,
             run_id,
         )
 
-        # Retrieve the ES index that belongs to this run_id from the metadata
-        # table
+        scroll_id = json_data.get("scroll_id")
+        if scroll_id:
+            return {
+                "path": "/_search/scroll",
+                "kwargs": {"json": {"scroll": "1m", "scroll_id": scroll_id}},
+            }
+
+        # Retrieve the ES indices that belongs to this run_id
         index = self.get_index(dataset, "result-data-sample")
 
         es_filter = [{"match": {"run.id": run_id}}]
-        if filters:
-            for filter, value in filters.items():
-                es_filter.append({"match": {filter: value}})
+        for filter, value in json_data.get("filters", {}).items():
+            es_filter.append({"match": {filter: value}})
 
         return {
             "path": f"/{index}/_search?scroll=1m",
             "kwargs": {
                 "json": {
-                    "size": 10000,  # The maximum default size
+                    "size": 10000,  # The maximum number of documents returned
                     "query": {"bool": {"filter": es_filter}},
                     "sort": [
-                        {
-                            "iteration.number": {
-                                "order": "asc",
-                                "unmapped_type": "boolean",
-                            }
-                        }
+                        {"iteration.number": {"order": "asc", "unmapped_type": "long",}}
                     ],
                 },
                 "params": {"ignore_unavailable": "true"},
             },
         }
 
-    def postprocess(self, es_json: JSON, context: CONTEXT):
+    def postprocess(self, es_json: JSON, context: CONTEXT) -> Response:
         """
-        Returns a stringified JSON object containing keys as results and
-        possibly scroll_id if the next page of results available.
+        Returns a Flask Response containing a JSON object with keys as
+        results and possibly scroll_id if the next page of results available.
 
-        Like Elasticsearch if there are more than 10000 documents available
-        for the given filters then we return the 10000 documents along with
-        scroll id (This scroll id can be used to send back to get next batch
-        of documents).
+        If there are more than 10,000 documents available for the given filters, then
+        we return the first 10,000 documents along with a scroll id which the client
+        can use to request the next 10,000 documents.
 
-        If there are less than 10000 documents then we only return results
+        If there are no more than 10000 documents then we only return results
         without any scroll id.
 
         Example:
             {
-                results: [
+                "scroll_id": "Scroll_id_string", # conditional
+                "results": [
                     {
                         "@timestamp": "2020-09-03T01:58:58.712889",
                         "run": {
@@ -389,8 +387,7 @@ class IterationSamplesRows(MetadataBase):
                             ...
                     },
                     ...
-                ],
-                "scroll_id": "Scroll_id_string" # conditional
+                ]
             }
 
         """
@@ -399,18 +396,15 @@ class IterationSamplesRows(MetadataBase):
             count = es_json["hits"]["total"]["value"]
             if int(count) == 0:
                 self.logger.info("No data returned by Elasticsearch")
-                return jsonify([])
-            if int(count) == 10000:
+                return jsonify({})
+            if int(count) > 10000 and len(es_json["hits"]["hits"]) == 10000:
                 scroll_id = es_json["_scroll_id"]
 
-            results = []
-            for hit in es_json["hits"]["hits"]:
-                s = hit["_source"]
-                results.append(s)
+            results = [hit["_source"] for hit in es_json["hits"]["hits"]]
+            ret_val = {"results": results}
             if scroll_id:
-                return jsonify({"scroll_id": scroll_id, "results": results})
-            else:
-                return jsonify({"results": results})
+                ret_val["scroll_id"] = scroll_id
+            return jsonify(ret_val)
 
         except KeyError as e:
             raise PostprocessError(

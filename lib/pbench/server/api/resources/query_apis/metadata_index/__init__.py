@@ -1,19 +1,31 @@
 from http import HTTPStatus
 from logging import Logger
+from typing import AnyStr
 
 from flask_restful import abort
 
 from pbench.server import PbenchServerConfig
-from pbench.server.api.resources import (
-    JSON,
-    Schema,
-)
+from pbench.server.api.resources import JSON, Schema, SchemaError
 from pbench.server.api.resources.query_apis import CONTEXT, ElasticBase
 from pbench.server.database.models.datasets import Dataset, Metadata, MetadataError
 from pbench.server.database.models.users import User
 
 
-class MetadataBase(ElasticBase):
+class MissingRunIdSchemaParameters(SchemaError):
+    """
+    The subclass schema is missing the required "run_id" parameters required
+    to locate a Dataset.
+    """
+
+    def __init__(self, subclass_name: str):
+        super().__init__()
+        self.subclass_name = subclass_name
+
+    def __str__(self) -> str:
+        return f"API {self.subclass_name} is missing schema parameters run_id"
+
+
+class RunIdBase(ElasticBase):
     """
     A base class for query apis that depends on Metadata for getting the
     indices.
@@ -29,6 +41,8 @@ class MetadataBase(ElasticBase):
 
     def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
         super().__init__(config, logger, schema)
+        if "run_id" not in schema:
+            raise MissingRunIdSchemaParameters(self.__class__.__name__)
 
     def preprocess(self, client_json: JSON) -> CONTEXT:
         """
@@ -39,7 +53,7 @@ class MetadataBase(ElasticBase):
         object as CONTEXT so that the postprocess operations can use it to
         identify the index to be searched from document index metadata.
         """
-        run_id = client_json.get("run_id")
+        run_id = client_json["run_id"]
 
         # Query the dataset using the given run id
         dataset = Dataset.query(md5=run_id)
@@ -54,8 +68,8 @@ class MetadataBase(ElasticBase):
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Dataset owner not found")
 
-        # For Iteration samples, we check authorization against the ownership of the
-        # dataset that was selected rather than having an explicit "user"
+        # We check authorization against the ownership of the dataset that
+        # was selected rather than having an explicit "user"
         # JSON parameter. This will raise UnauthorizedAccess on failure.
         self._check_authorization(owner.username, dataset.access)
 
@@ -63,7 +77,7 @@ class MetadataBase(ElasticBase):
         # the operation with the appropriate CONTEXT.
         return {"dataset": dataset, "run_id": run_id}
 
-    def get_index(self, dataset, index_prefix):
+    def get_index(self, dataset: Dataset, index_prefix: AnyStr) -> AnyStr:
         """
         Retrieve the list of ES indices from the metadata table based on a given
         index_prefix.
@@ -72,7 +86,8 @@ class MetadataBase(ElasticBase):
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
             index_keys = [key for key in index_map if index_prefix in key]
         except MetadataError as e:
-            abort(HTTPStatus.BAD_REQUEST, message=str(e))
+            self.logger.error(f"Indices from metadata table not found {e!r}")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         if len(index_keys) == 0:
             self.logger.error(
