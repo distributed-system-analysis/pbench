@@ -118,8 +118,8 @@ class ElasticBase(ApiBase):
         done by the `ApiBase._check_authorization()` method. This method is
         only concerned with generating a query to restrict the results to the
         set matching authorized user and access values. This method will build
-        inconsistent queries that do not reflect the input when given some
-        queries that should be prevented by authorization checks.
+        queries that do not reflect the input when given some inputs that must
+        be prevented by authorization checks.
 
         Specifically, when asked for "access": "private" on behalf of an
         unauthenticated client or on behalf of an authenticated but non-admin
@@ -132,38 +132,41 @@ class ElasticBase(ApiBase):
                 All private + public regardless of owner
 
                 ADMIN: all datasets
-                AUTHENTICATED as drb: all owner:drb OR access:public
-                UNAUTHENTICATED (or non-drb): all access:public
+                AUTHENTICATED as drb: owner:drb OR access:public
+                UNAUTHENTICATED (or non-drb): access:public
 
             {"user": "drb"}: defaulting access
                 All datasets owned by "drb"
 
-                ADMIN, AUTHENTICATED as drb: all owner:drb
-                UNAUTHENTICATED (or non-drb): all owner:drb AND access:public
+                ADMIN, AUTHENTICATED as drb: owner:drb
+                UNAUTHENTICATED (or non-drb): owner:drb AND access:public
 
             {"user": "drb, "access": "private"}: private drb
                 All datasets owned by "drb" with "private" access
 
-                all owner:drb AND access:private
+                owner:drb AND access:private
                 NOTE(UNAUTHORIZED): owner:drb and access:public
 
             {"user": "drb", "access": "public"}: public drb
                 All datasets owned by "drb" with "public" access
 
-                ADMIN, AUTHENTICATED: all owner:drb AND access:public
-                NOTE(UNAUTHORIZED): owner:drb and access:public
+                NOTE: unauthenticated users are not allowed to query by
+                username, and shouldn't get here, but the query is
+                technically correct if we allowed it.
 
-            {"access": "private"}: all private data
+                owner:drb AND access:public
+
+            {"access": "private"}: private data
                 All datasets with "private" access regardless of user
 
                 ADMIN: all access:private
-                AUTHENTICATED as "drb": all owner:"drb" AND access:private
+                AUTHENTICATED as "drb": owner:"drb" AND access:private
                 NOTE(UNAUTHORIZED): access:public
 
-            {"access": "public"}: all public data
+            {"access": "public"}: public data
                 All datasets with "public" access
 
-                all access:public
+                access:public
 
         Args:
             JSON query parameters containing keys:

@@ -679,7 +679,10 @@ class ApiBase(Resource):
         #    authenticated client.
         # 4) An authenticated client cannot mutate data owned by a different
         #    user, nor READ private data owned by another user.
-        if self.role != API_OPERATION.READ or access == Dataset.PRIVATE_ACCESS:
+        if self.role == API_OPERATION.READ and access == Dataset.PUBLIC_ACCESS:
+            # We are reading public data: this is always allowed.
+            pass
+        else:
             # ROLE is UPDATE, CREATE, DELETE or ACCESS is private; we need to
             # evaluate access rights to determine whether to allow the request
             if authorized_user is None:
@@ -692,8 +695,8 @@ class ApiBase(Resource):
                     authorized_user, self.role, user, access, HTTPStatus.UNAUTHORIZED
                 )
             elif self.role != API_OPERATION.READ and user is None:
-                # If no target user is specified, we won't allow any potential
-                # mutation of data: REJECT
+                # No target user is specified, so we won't allow mutation of
+                # data: REJECT
                 self.logger.warning(
                     "Unauthorized attempt by {} to {} data with defaulted user",
                     authorized_user,
@@ -707,10 +710,9 @@ class ApiBase(Resource):
                 and user != authorized_user.username
                 and not authorized_user.is_admin()
             ):
-                # If we are potentially mutating data, or reading private data,
-                # then the authenticated user must either be the owner of the
-                # data or must have ADMIN role. We won't allow the operation if
-                # these are not true: REJECT
+                # We are mutating data, or reading private data, so the
+                # authenticated user must either be the owner of the data or
+                # must have ADMIN role: REJECT
                 self.logger.warning(
                     "Unauthorized attempt by {} to {} user {} data",
                     authorized_user,
@@ -722,13 +724,9 @@ class ApiBase(Resource):
                 )
             else:
                 # We have determined that there is an authenticated user with
-                # legitimate access to the specified user and access: the
-                # data is public and the operation is READ, the user owns the
-                # data, or the user has ADMIN role.
+                # legitimate access: the data is public and the operation is
+                # READ, the user owns the data, or the user has ADMIN role.
                 pass
-        else:
-            # We are reading public data: this is always allowed.
-            pass
 
     def _get_metadata(
         self, controller: str, name: str, requested_items: List[str]
