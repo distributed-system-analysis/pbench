@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from logging import Logger
-from typing import AnyStr, List
+from typing import AnyStr, List, Union
 
 from flask import Response, jsonify
 from flask_restful import abort
@@ -10,10 +10,9 @@ from pbench.server.api.resources import (
     JSON,
     Parameter,
     ParamType,
-    PostprocessError,
     Schema,
 )
-from pbench.server.api.resources.query_apis import CONTEXT
+from pbench.server.api.resources.query_apis import CONTEXT, PostprocessError
 from pbench.server.api.resources.query_apis.metadata_index import RunIdBase
 from pbench.server.database.models.template import Template, TemplateNotFound
 
@@ -35,8 +34,10 @@ class IterationSampleNamespace(RunIdBase):
         )
 
     def get_keyword_fields(
-        self, mappings: JSON, prefix: AnyStr = "", result: List = []
+        self, mappings: JSON, prefix: AnyStr = "", result: Union[List, None] = None
     ) -> List:
+        if result is None:
+            result = []
         if "properties" in mappings:
             for p, m in mappings["properties"].items():
                 self.get_keyword_fields(m, f"{prefix}{p}.", result)
@@ -54,12 +55,14 @@ class IterationSampleNamespace(RunIdBase):
         sub-documents of result-data-sample index document that belong to the
         given run id.
 
-        {
-            "run_id": "run id string"
-        }
-
+        Args:
         json_data: JSON dictionary of type-normalized parameters
-            "run_id": run id string
+            "run_id": Dataset document ID
+
+        EXAMPLE:
+        {
+            "run_id": "1234567890"
+        }
         """
         run_id = context["run_id"]
         dataset = context["dataset"]
@@ -71,7 +74,7 @@ class IterationSampleNamespace(RunIdBase):
             run_id,
         )
 
-        # Retrieve the ES index that belongs to this run_id from the metadata
+        # Retrieve the ES indices that belong to this run_id from the metadata
         # table
         index = self.get_index(dataset, "result-data-sample")
 
@@ -190,6 +193,8 @@ class IterationSamplesRows(RunIdBase):
     applying client specified filters.
     """
 
+    DOCUMENT_SIZE = 10000  # Number of documents to return in one page
+
     def __init__(self, config: PbenchServerConfig, logger: Logger):
         super().__init__(
             config,
@@ -201,55 +206,23 @@ class IterationSamplesRows(RunIdBase):
             ),
         )
 
-    def scroll_assemble(self, scroll_id: str, context: CONTEXT) -> JSON:
-        """
-        Construct a pbench Elasticsearch query for scrolling based on a client
-        provided scroll id.
-
-        Note: To get a valid result the scroll id need to be unexpired,
-        Current expiry for the scroll id is 1 minute after client first
-        recieves it from the server.
-
-        "scroll_id": Elasticsearch scroll id
-        """
-        dataset = context["dataset"]
-        run_id = context["run_id"]
-
-        self.logger.info(
-            "Return iteration sample rows for dataset {}, prefix {}, "
-            "run id {}, scroll id {}",
-            dataset,
-            self.prefix,
-            run_id,
-            scroll_id,
-        )
-
-        return {
-            "path": "/_search/scroll",
-            "kwargs": {"json": {"scroll": "1m", "scroll_id": scroll_id}},
-        }
-
     def assemble(self, json_data: JSON, context: CONTEXT) -> JSON:
         """
-        Construct a Elasticsearch query for filtering iteration samples of
-        given run id and other filtering parameters mention in
-        JSON payload.
+        Construct a pbench Elasticsearch query for filtering iteration
+        samples based on a given run id and other filtering parameters
+        mention in JSON payload.
 
         Note: If the ES scroll id is present we will ignore the filters
-        parameter and instead construct a Elasticsearch query for scrolling
+        parameter and instead construct an Elasticsearch query for scrolling
         based on a client provided scroll id.
 
-        If a scroll_id is specified, we return the next page of the original
-        query; otherwise we form a new query, either with the specified filters
-        or without any filters (up to 10000 documents at a time).
+        If a scroll_id is specified, the query will return the next page of
+        results of the original query; otherwise we form a new query, either
+        with the specified filters or without any filters (returning up to 10000
+        documents at a time).
 
-        {
-            "run_id": "run id string"
-            "scroll_id": "Server provided scroll id"
-            "filters": "key-value representation of query filter parameters",
-        }
-
-        json_data:
+        Args:
+            json_data:
             "run_id": run id of a dataset that client wants to search for
                     fetching the iteration samples.
 
@@ -260,12 +233,21 @@ class IterationSamplesRows(RunIdBase):
 
             "filters": key-value representation of query filter parameters to
                        narrow the search results e.g. {"sample.name": "sample1"}
+
+        EXAMPLE:
+            {
+                "run_id": "1234567"
+                "scroll_id": "cmFuZG9tX3Njcm9sbF9pZF9zdHJpbmdfMg=="
+                "filters": {"sample.name": "sample1"},
+            }
         """
         run_id = context["run_id"]
         dataset = context["dataset"]
+        scroll_id = json_data.get("scroll_id")
 
         self.logger.info(
-            "Return iteration sample rows for dataset {}, prefix {}, run id {}",
+            "Return iteration sample rows {} for dataset {}, prefix {}, run id {}",
+            "next page " if scroll_id else "",
             dataset,
             self.prefix,
             run_id,
@@ -273,12 +255,13 @@ class IterationSamplesRows(RunIdBase):
 
         scroll_id = json_data.get("scroll_id")
         if scroll_id:
+            # Note: Scroll id expires in 1 minute
             return {
                 "path": "/_search/scroll",
                 "kwargs": {"json": {"scroll": "1m", "scroll_id": scroll_id}},
             }
 
-        # Retrieve the ES indices that belongs to this run_id
+        # Retrieve the ES indices that belong to this run_id
         index = self.get_index(dataset, "result-data-sample")
 
         es_filter = [{"match": {"run.id": run_id}}]
@@ -289,10 +272,10 @@ class IterationSamplesRows(RunIdBase):
             "path": f"/{index}/_search?scroll=1m",
             "kwargs": {
                 "json": {
-                    "size": 10000,  # The maximum number of documents returned
+                    "size": IterationSamplesRows.DOCUMENT_SIZE,
                     "query": {"bool": {"filter": es_filter}},
                     "sort": [
-                        {"iteration.number": {"order": "asc", "unmapped_type": "long",}}
+                        {"iteration.number": {"order": "asc", "unmapped_type": "long"}}
                     ],
                 },
                 "params": {"ignore_unavailable": "true"},
@@ -302,7 +285,8 @@ class IterationSamplesRows(RunIdBase):
     def postprocess(self, es_json: JSON, context: CONTEXT) -> Response:
         """
         Returns a Flask Response containing a JSON object with keys as
-        results and possibly scroll_id if the next page of results available.
+        results and possibly a scroll_id if the next page of results
+        is available.
 
         If there are more than 10,000 documents available for the given filters, then
         we return the first 10,000 documents along with a scroll id which the client
@@ -317,17 +301,17 @@ class IterationSamplesRows(RunIdBase):
                 "results": [
                     {
                         "@timestamp": "2020-09-03T01:58:58.712889",
-                        "run": {},
-                        "iteration": {},
-                        "benchmark": {},
-                        "sample": {}
+                        "run": {...},
+                        "iteration": {...},
+                        "benchmark": {...},
+                        "sample": {...}
                     },
                     {
                         "@timestamp": "2021-03-03T01:58:58.712889",
-                        "run": {},
-                        "iteration": {},
-                        "benchmark": {},
-                        "sample": {},
+                        "run": {...},
+                        "iteration": {...},
+                        "benchmark": {...},
+                        "sample": {...},
                     },
                     ...
                 ]
@@ -335,22 +319,29 @@ class IterationSamplesRows(RunIdBase):
 
         """
         try:
-            scroll_id = None
-            count = es_json["hits"]["total"]["value"]
-            if int(count) == 0:
+            count = int(es_json["hits"]["total"]["value"])
+            if count == 0:
                 self.logger.info("No data returned by Elasticsearch")
                 return jsonify({})
-            if int(count) > 10000 and len(es_json["hits"]["hits"]) == 10000:
-                scroll_id = es_json["_scroll_id"]
 
             results = [hit["_source"] for hit in es_json["hits"]["hits"]]
             ret_val = {"results": results}
-            if scroll_id:
-                ret_val["scroll_id"] = scroll_id
+
+            if (
+                count > IterationSamplesRows.DOCUMENT_SIZE
+                and len(es_json["hits"]["hits"]) == IterationSamplesRows.DOCUMENT_SIZE
+            ):
+                ret_val["scroll_id"] = es_json["_scroll_id"]
+
             return jsonify(ret_val)
 
         except KeyError as e:
             raise PostprocessError(
                 HTTPStatus.INTERNAL_SERVER_ERROR,
                 f"Can't find Elasticsearch match data {e} in {es_json!r}",
+            )
+        except ValueError as e:
+            raise PostprocessError(
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                f"Conversion error {e} in {es_json!r}",
             )

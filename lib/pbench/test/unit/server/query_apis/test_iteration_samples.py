@@ -108,7 +108,7 @@ class TestIterationSamplesNamespace(Commons):
                     "buckets": [
                         {
                             "doc_count": 50,
-                            "key": "benchmark_name:uperf-controller_host:dhcp31-171.perf.lab.eng.bos.redhat.com",
+                            "key": "benchmark_name:uperf-controller_host:host.name.com",
                         }
                     ],
                     "doc_count_error_upper_bound": 0,
@@ -136,17 +136,12 @@ class TestIterationSamplesNamespace(Commons):
                     "sum_other_doc_count": 0,
                 },
                 "run.config": {
-                    "buckets": [{"doc_count": 50, "key": "npalaska-dhcp31-171"}],
+                    "buckets": [{"doc_count": 50, "key": "npalaska"}],
                     "doc_count_error_upper_bound": 0,
                     "sum_other_doc_count": 0,
                 },
                 "run.controller": {
-                    "buckets": [
-                        {
-                            "doc_count": 50,
-                            "key": "dhcp31-171.perf.lab.eng.bos.redhat.com",
-                        }
-                    ],
+                    "buckets": [{"doc_count": 50, "key": "host.name.com"}],
                     "doc_count_error_upper_bound": 0,
                     "sum_other_doc_count": 0,
                 },
@@ -159,10 +154,7 @@ class TestIterationSamplesNamespace(Commons):
                 },
                 "run.name": {
                     "buckets": [
-                        {
-                            "doc_count": 50,
-                            "key": "uperf_npalaska-dhcp31-171_2021.07.14T15.30.22",
-                        }
+                        {"doc_count": 50, "key": "uperf_npalaska_2021.07.14T15.30.22"}
                     ],
                     "doc_count_error_upper_bound": 0,
                     "sum_other_doc_count": 0,
@@ -288,9 +280,7 @@ class TestIterationSamplesNamespace(Commons):
                 "benchmark.primary_metric": ["Gb_sec"],
                 "benchmark.protocol": ["tcp"],
                 "benchmark.test_type": ["stream"],
-                "benchmark.uid": [
-                    "benchmark_name:uperf-controller_host:dhcp31-171.perf.lab.eng.bos.redhat.com"
-                ],
+                "benchmark.uid": ["benchmark_name:uperf-controller_host:host.name.com"],
                 "benchmark.uid_tmpl": [
                     "benchmark_name:%benchmark_name%-controller_host:%controller_host%"
                 ],
@@ -301,10 +291,10 @@ class TestIterationSamplesNamespace(Commons):
                     "1-tcp_stream-131072B-2i-fail3",
                     "1-tcp_stream-131072B-2i-fail4",
                 ],
-                "run.config": ["npalaska-dhcp31-171"],
-                "run.controller": ["dhcp31-171.perf.lab.eng.bos.redhat.com"],
+                "run.config": ["npalaska"],
+                "run.controller": ["host.name.com"],
                 "run.id": ["f3a37c9891a78886639e3bc00e3c5c4e"],
-                "run.name": ["uperf_npalaska-dhcp31-171_2021.07.14T15.30.22"],
+                "run.name": ["uperf_npalaska_2021.07.14T15.30.22"],
                 "run.script": ["uperf"],
                 "sample.client_hostname": ["127.0.0.1", "all"],
                 "sample.measurement_title.raw": ["Gb_sec"],
@@ -350,7 +340,6 @@ class TestIterationSamplesRows(Commons):
         self,
         server_config,
         query_api,
-        user_ok,
         pbench_token,
         build_auth_header,
         find_template,
@@ -374,7 +363,7 @@ class TestIterationSamplesRows(Commons):
                             "@timestamp": "2021-03-03T01:58:58.712889",
                             "run": {
                                 "id": "58bed61de1fd6ce57d682c320c506c4a",
-                                "controller": "alphaville.usersys.redhat.com",
+                                "controller": "controller.name.com",
                                 "name": "fio_rw_2021.03.03T01.58.34",
                                 "script": "fio",
                                 "date": "2021-03-03T01:58:34",
@@ -402,7 +391,7 @@ class TestIterationSamplesRows(Commons):
                                 "size": "4096M,4096M,4096M,4096M",
                                 "sync": "0",
                                 "time_based": "1",
-                                "uid": "benchmark_name:fio-controller_host:alphaville.usersys.redhat.com",
+                                "uid": "benchmark_name:fio-controller_host:controller.name.com",
                                 "name": "fio",
                                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
                             },
@@ -437,7 +426,7 @@ class TestIterationSamplesRows(Commons):
                             "@timestamp": "2021-03-03T01:58:58.712889",
                             "run": {
                                 "id": "58bed61de1fd6ce57d682c320c506c4a",
-                                "controller": "alphaville.usersys.redhat.com",
+                                "controller": "controller.name.com",
                                 "name": "fio_rw_2021.03.03T01.58.34",
                                 "script": "fio",
                                 "date": "2021-03-03T01:58:34",
@@ -465,7 +454,7 @@ class TestIterationSamplesRows(Commons):
                                 "size": "4096M,4096M,4096M,4096M",
                                 "sync": "0",
                                 "time_based": "1",
-                                "uid": "benchmark_name:fio-controller_host:alphaville.usersys.redhat.com",
+                                "uid": "benchmark_name:fio-controller_host:controller.name.com",
                                 "name": "fio",
                                 "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
                             },
@@ -496,10 +485,10 @@ class TestIterationSamplesRows(Commons):
         }
         index = self.build_index_from_metadata()
 
-        if HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
+        auth_json = {"user": "drb", "access": "private"}
+        expected_status = self.get_expected_status(
+            auth_json, build_auth_header["header_param"]
+        )
 
         response = query_api(
             self.pbench_endpoint,
@@ -512,133 +501,14 @@ class TestIterationSamplesRows(Commons):
             headers=build_auth_header["header"],
         )
         if expected_status == HTTPStatus.OK:
-            res_json = response.json
-            expected_result = {
-                "results": [
-                    {
-                        "@timestamp": "2021-03-03T01:58:58.712889",
-                        "run": {
-                            "id": "58bed61de1fd6ce57d682c320c506c4a",
-                            "controller": "alphaville.usersys.redhat.com",
-                            "name": "fio_rw_2021.03.03T01.58.34",
-                            "script": "fio",
-                            "date": "2021-03-03T01:58:34",
-                            "start": "2021-03-03T01:58:57.712889",
-                            "end": "2021-03-03T02:01:46.382422",
-                            "config": "rw",
-                            "user": "ndk",
-                        },
-                        "iteration": {"name": "1-rw-4KiB", "number": 1},
-                        "benchmark": {
-                            "bs": "4k",
-                            "clocksource": "gettimeofday",
-                            "direct": "0",
-                            "filename": "/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo",
-                            "iodepth": "32",
-                            "ioengine": "libaio",
-                            "log_avg_msec": "1000",
-                            "log_hist_msec": "10000",
-                            "max_stddevpct": 5,
-                            "numjobs": "4,4,4,4",
-                            "primary_metric": "iops_sec",
-                            "ramp_time": "5",
-                            "runtime": "10",
-                            "rw": "rw,rw,rw,rw",
-                            "size": "4096M,4096M,4096M,4096M",
-                            "sync": "0",
-                            "time_based": "1",
-                            "uid": "benchmark_name:fio-controller_host:alphaville.usersys.redhat.com",
-                            "name": "fio",
-                            "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
-                        },
-                        "sample": {
-                            "client_hostname": "localhost-1",
-                            "closest_sample": 1,
-                            "description": "Average completion latency per I/O operation",
-                            "mean": 759737976.333333,
-                            "role": "client",
-                            "stddev": 0,
-                            "stddevpct": 0,
-                            "uid": "client_hostname:localhost-1",
-                            "measurement_type": "latency",
-                            "measurement_idx": 3,
-                            "measurement_title": "clat",
-                            "uid_tmpl": "client_hostname:%client_hostname%",
-                            "@idx": 0,
-                            "name": "sample1",
-                            "start": "2021-03-03T01:58:58.712889",
-                            "end": "2021-03-03T01:59:07.725889",
-                        },
-                        "@timestamp_original": "1000",
-                        "@generated-by": "cce1f6d53404b43e5a006c8e6d88e1e0",
-                    },
-                    {
-                        "@timestamp": "2021-03-03T01:58:58.712889",
-                        "run": {
-                            "id": "58bed61de1fd6ce57d682c320c506c4a",
-                            "controller": "alphaville.usersys.redhat.com",
-                            "name": "fio_rw_2021.03.03T01.58.34",
-                            "script": "fio",
-                            "date": "2021-03-03T01:58:34",
-                            "start": "2021-03-03T01:58:57.712889",
-                            "end": "2021-03-03T02:01:46.382422",
-                            "config": "rw",
-                            "user": "ndk",
-                        },
-                        "iteration": {"name": "1-rw-4KiB", "number": 1},
-                        "benchmark": {
-                            "bs": "4k",
-                            "clocksource": "gettimeofday",
-                            "direct": "0",
-                            "filename": "/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo",
-                            "iodepth": "32",
-                            "ioengine": "libaio",
-                            "log_avg_msec": "1000",
-                            "log_hist_msec": "10000",
-                            "max_stddevpct": 5,
-                            "numjobs": "4,4,4,4",
-                            "primary_metric": "iops_sec",
-                            "ramp_time": "5",
-                            "runtime": "10",
-                            "rw": "rw,rw,rw,rw",
-                            "size": "4096M,4096M,4096M,4096M",
-                            "sync": "0",
-                            "time_based": "1",
-                            "uid": "benchmark_name:fio-controller_host:alphaville.usersys.redhat.com",
-                            "name": "fio",
-                            "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
-                        },
-                        "sample": {
-                            "client_hostname": "localhost-4",
-                            "closest_sample": 1,
-                            "description": "Average completion latency per I/O operation",
-                            "mean": 761676162.46875,
-                            "role": "client",
-                            "stddev": 0,
-                            "stddevpct": 0,
-                            "uid": "client_hostname:localhost-4",
-                            "measurement_type": "latency",
-                            "measurement_idx": 0,
-                            "measurement_title": "clat",
-                            "uid_tmpl": "client_hostname:%client_hostname%",
-                            "@idx": 0,
-                            "name": "sample1",
-                            "start": "2021-03-03T01:58:58.712889",
-                            "end": "2021-03-03T01:59:07.725889",
-                        },
-                        "@timestamp_original": "1000",
-                        "@generated-by": "cce1f6d53404b43e5a006c8e6d88e1e0",
-                    },
-                ]
+            assert response.json == {
+                "results": [hit["_source"] for hit in response_payload["hits"]["hits"]]
             }
-
-            assert expected_result == res_json
 
     def test_scroll_id_return(
         self,
         server_config,
         query_api,
-        user_ok,
         pbench_token,
         build_auth_header,
         find_template,
@@ -677,10 +547,10 @@ class TestIterationSamplesRows(Commons):
         }
         index = self.build_index_from_metadata()
 
-        if HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
+        auth_json = {"user": "drb", "access": "private"}
+        expected_status = self.get_expected_status(
+            auth_json, build_auth_header["header_param"]
+        )
 
         response = query_api(
             self.pbench_endpoint,
@@ -700,7 +570,6 @@ class TestIterationSamplesRows(Commons):
         self,
         server_config,
         query_api,
-        user_ok,
         pbench_token,
         build_auth_header,
         find_template,
@@ -786,10 +655,10 @@ class TestIterationSamplesRows(Commons):
             },
         }
 
-        if HeaderTypes.is_valid(build_auth_header["header_param"]):
-            expected_status = HTTPStatus.OK
-        else:
-            expected_status = HTTPStatus.FORBIDDEN
+        auth_json = {"user": "drb", "access": "private"}
+        expected_status = self.get_expected_status(
+            auth_json, build_auth_header["header_param"]
+        )
 
         response = query_api(
             self.pbench_endpoint,
@@ -803,67 +672,6 @@ class TestIterationSamplesRows(Commons):
         )
 
         if expected_status == HTTPStatus.OK:
-            res_json = response.json
-            expected_result = expected_result = {
-                "results": [
-                    {
-                        "@timestamp": "2020-09-03T01:58:58.712889",
-                        "run": {
-                            "id": "58bed61de1fd6ce57d682c320c506c4a",
-                            "controller": "controller.name.com",
-                            "name": "fio_rw_2020.09.03T01.58.34",
-                            "script": "fio",
-                            "date": "2020-09-03T01:58:34",
-                            "start": "2020-09-03T01:58:57.712889",
-                            "end": "2020-09-03T02:01:46.382422",
-                            "config": "rw",
-                            "user": "ndk",
-                        },
-                        "iteration": {"name": "1-rw-4KiB", "number": 1},
-                        "benchmark": {
-                            "bs": "4k",
-                            "clocksource": "gettimeofday",
-                            "direct": "0",
-                            "filename": "/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo,/home/pbench/tmp/foo",
-                            "iodepth": "32",
-                            "ioengine": "libaio",
-                            "log_avg_msec": "1000",
-                            "log_hist_msec": "10000",
-                            "max_stddevpct": 5,
-                            "numjobs": "4,4,4,4",
-                            "primary_metric": "iops_sec",
-                            "ramp_time": "5",
-                            "runtime": "10",
-                            "rw": "rw,rw,rw,rw",
-                            "size": "4096M,4096M,4096M,4096M",
-                            "sync": "0",
-                            "time_based": "1",
-                            "uid": "benchmark_name:fio-controller_host:controller.name.com",
-                            "name": "fio",
-                            "uid_tmpl": "benchmark_name:%benchmark_name%-controller_host:%controller_host%",
-                        },
-                        "sample": {
-                            "client_hostname": "localhost-2",
-                            "closest_sample": 1,
-                            "description": "Average submission latency per I/O operation",
-                            "mean": 1857025.80208333,
-                            "role": "client",
-                            "stddev": 0,
-                            "stddevpct": 0,
-                            "uid": "client_hostname:localhost-2",
-                            "measurement_type": "latency",
-                            "measurement_idx": 2,
-                            "measurement_title": "slat",
-                            "uid_tmpl": "client_hostname:%client_hostname%",
-                            "@idx": 0,
-                            "name": "sample1",
-                            "start": "2020-09-03T01:58:58.712889",
-                            "end": "2020-09-03T01:59:07.725889",
-                        },
-                        "@timestamp_original": "1000",
-                        "@generated-by": "cce1f6d53404b43e5a006c8e6d88e1e0",
-                    }
-                ]
+            assert response.json == {
+                "results": [hit["_source"] for hit in response_payload["hits"]["hits"]]
             }
-
-            assert expected_result == res_json

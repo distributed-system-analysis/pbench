@@ -11,9 +11,9 @@ from pbench.server.database.models.datasets import Dataset, Metadata, MetadataEr
 from pbench.server.database.models.users import User
 
 
-class MissingRunIdSchemaParameters(SchemaError):
+class MissingRunIdSchemaParameter(SchemaError):
     """
-    The subclass schema is missing the required "run_id" parameters required
+    The subclass schema is missing the required "run_id" parameter required
     to locate a Dataset.
     """
 
@@ -22,7 +22,7 @@ class MissingRunIdSchemaParameters(SchemaError):
         self.subclass_name = subclass_name
 
     def __str__(self) -> str:
-        return f"API {self.subclass_name} is missing schema parameters run_id"
+        return f"API {self.subclass_name} is missing schema parameter run_id"
 
 
 class RunIdBase(ElasticBase):
@@ -35,14 +35,16 @@ class RunIdBase(ElasticBase):
     such as 'assemble' and 'postprocess' need to be implemented by a respective
     subclasses.
 
-    Note that "preprocess" provides json context containing dataset and a
-    run_id that's passed to the assemble and postprocess methods.
+    Note that run_id is a required schema parameter for all the
+    classes inheriting this class. Also "preprocess" provides json context
+    containing dataset and a run_id that's passed to the assemble and
+    postprocess methods.
     """
 
     def __init__(self, config: PbenchServerConfig, logger: Logger, schema: Schema):
-        super().__init__(config, logger, schema)
         if "run_id" not in schema:
-            raise MissingRunIdSchemaParameters(self.__class__.__name__)
+            raise MissingRunIdSchemaParameter(self.__class__.__name__)
+        super().__init__(config, logger, schema)
 
     def preprocess(self, client_json: JSON) -> CONTEXT:
         """
@@ -77,21 +79,21 @@ class RunIdBase(ElasticBase):
         # the operation with the appropriate CONTEXT.
         return {"dataset": dataset, "run_id": run_id}
 
-    def get_index(self, dataset: Dataset, index_prefix: AnyStr) -> AnyStr:
+    def get_index(self, dataset: Dataset, root_index_name: AnyStr) -> AnyStr:
         """
         Retrieve the list of ES indices from the metadata table based on a given
         index_prefix.
         """
         try:
             index_map = Metadata.getvalue(dataset=dataset, key=Metadata.INDEX_MAP)
-            index_keys = [key for key in index_map if index_prefix in key]
+            index_keys = [key for key in index_map if root_index_name in key]
         except MetadataError as e:
             self.logger.error(f"Indices from metadata table not found {e!r}")
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="INTERNAL ERROR")
 
         if len(index_keys) == 0:
             self.logger.error(
-                f"Found no indices matching the prefix {index_prefix}"
+                f"Found no indices matching the prefix {root_index_name}"
                 f"for a dataset {dataset!r}"
             )
             abort(HTTPStatus.INTERNAL_SERVER_ERROR, message="Found no matching indices")
